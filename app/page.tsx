@@ -1,101 +1,282 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Lottie from "lottie-react";
+import owlAnimation from "@/public/animations/owl.json";
+import { Shield, BookOpen, ShoppingBag, Heart } from "lucide-react";
+import "./globals.css";
+import Link from "next/link";
+
+// Configuración de las animaciones
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+type ProductCardProps = {
+  title: string;
+  description: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  gradient: string;
+  index: number;
+};
+
+const TypeWriter: React.FC = () => {
+  const phrases = [
+    "Revolucionando el futuro con Blockchain e IA",
+    "Transformando la salud digital en Latinoamérica",
+    "Protegiendo tus activos digitales con IA",
+    "Conectando el comercio del futuro",
+    "Educación blockchain para todos",
+  ];
+
+  const [currentPhrase, setCurrentPhrase] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  useEffect(() => {
+    const typeSpeed = isDeleting ? 50 : 100;
+    const currentFullPhrase = phrases[phraseIndex];
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setCurrentPhrase(currentFullPhrase.substring(0, currentIndex + 1));
+        setCurrentIndex((prev) => prev + 1);
+
+        if (currentIndex >= currentFullPhrase.length - 1) {
+          setTimeout(() => setIsDeleting(true), 1500);
+        }
+      } else {
+        setCurrentPhrase(currentFullPhrase.substring(0, currentIndex - 1));
+        setCurrentIndex((prev) => prev - 1);
+
+        if (currentIndex <= 1) {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+          setCurrentIndex(0);
+        }
+      }
+    }, typeSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [currentIndex, isDeleting, phraseIndex]);
+
+  return (
+    <div className="h-20 flex items-center justify-center">
+      <motion.p
+        className="text-2xl text-gray-100 leading-relaxed"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {currentPhrase}
+        <span className="animate-pulse">|</span>
+      </motion.p>
+    </div>
+  );
+};
+
+const ProductCard: React.FC<ProductCardProps> = ({
+  title,
+  description,
+  icon: Icon,
+  gradient,
+  index,
+}) => {
+  const getRoute = (productName: string) => {
+    switch (productName) {
+      case "QuHealthy":
+        return "/quhealthy";
+      case "QuBlocks":
+        return "/qublocks";
+      case "SuiShield":
+        return "/suishield";
+      case "QuMarket":
+        return "/qumarket";
+      default:
+        return "/";
+    }
+  };
+
+  return (
+    <Link href={getRoute(title)}>
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+        whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+        className="relative overflow-hidden rounded-xl bg-gray-900 backdrop-blur-md border border-gray-700 p-8 text-white shadow-lg cursor-pointer"
+        role="article"
+        aria-labelledby={`product-title-${title}`}
+      >
+        <div className={`absolute inset-0 opacity-20 ${gradient}`} />
+        <Icon className="w-12 h-12 mb-4 text-white" aria-hidden="true" />
+        <h3 id={`product-title-${title}`} className="text-2xl font-bold mb-3 text-white">
+          {title}
+        </h3>
+        <p className="text-gray-100 leading-relaxed mb-6">{description}</p>
+        <motion.div whileHover={{ scale: 1.05 }} className="mt-4">
+          <span
+            className="bg-white text-gray-900 hover:bg-gray-100 font-semibold px-6 py-2 rounded-md inline-block"
+            aria-label={`Explorar ${title}`}
+          >
+            Explorar
+          </span>
+        </motion.div>
+      </motion.div>
+    </Link>
+  );
+};
+
+const generateDeterministicParticles = (count: number) => {
+  return Array.from({ length: count }).map((_, index) => ({
+    left: `${(index * 31) % 100}%`,
+    top: `${(index * 57) % 100}%`,
+  }));
+};
+
+const HeroParticle = ({ left, top }: { left: string; top: string }) => (
+  <motion.div
+    animate={{
+      scale: [1, 1.5, 1],
+      opacity: [0.3, 0, 0.3],
+    }}
+    transition={{
+      duration: 4,
+      repeat: Infinity,
+      repeatType: "reverse",
+    }}
+    className="absolute w-1.5 h-1.5 bg-blue-400 rounded-full"
+    style={{ left, top }}
+    aria-hidden="true"
+  />
+);
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [particles] = useState(() => generateDeterministicParticles(15));
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
+      {/* Hero Section */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <AnimatePresence>
+          {particles.map((particle, i) => (
+            <HeroParticle key={i} left={particle.left} top={particle.top} />
+          ))}
+        </AnimatePresence>
+
+        <motion.div
+          className="absolute top-10 right-10 w-40 h-40"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          aria-hidden="true"
+        >
+          <Lottie animationData={owlAnimation} loop={true} />
+        </motion.div>
+
+        <motion.div
+          className="relative z-10 text-center p-8 max-w-4xl"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ duration: 0.8 }}
+        >
+          <motion.h1
+            className="text-7xl font-bold mb-8 text-white"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{
+              duration: 0.8,
+              type: "spring",
+              stiffness: 200,
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            QUBITS
+          </motion.h1>
+          <TypeWriter />
+        </motion.div>
+      </div>
+
+      {/* Products Section */}
+      <div className="max-w-7xl mx-auto px-6 py-32">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <motion.h2
+            className="text-5xl font-bold mb-6 text-white"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+            Nuestros Productos
+          </motion.h2>
+          <motion.p
+            className="text-xl text-gray-100"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Soluciones innovadoras para un mundo descentralizado
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-10"
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <ProductCard
+            title="QuHealthy"
+            description="Conectando servicios de salud en México con usuarios en USA mediante blockchain e IA"
+            icon={Heart}
+            gradient="bg-gradient-to-br from-pink-500 to-red-600"
+            index={0}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <ProductCard
+            title="QuBlocks"
+            description="Plataforma de cursos en línea sobre blockchain con IA para Latinoamérica"
+            icon={BookOpen}
+            gradient="bg-gradient-to-br from-blue-500 to-purple-600"
+            index={1}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <ProductCard
+            title="SuiShield"
+            description="Antivirus en tiempo real para transacciones en la red Sui"
+            icon={Shield}
+            gradient="bg-gradient-to-br from-green-500 to-emerald-600"
+            index={2}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <ProductCard
+            title="QuMarket"
+            description="Marketplace blockchain con IA para Latinoamérica"
+            icon={ShoppingBag}
+            gradient="bg-gradient-to-br from-amber-500 to-orange-600"
+            index={3}
+          />
+        </motion.div>
+      </div>
     </div>
   );
 }
