@@ -17,7 +17,7 @@ import {
 import { useRouter } from "next/navigation";
 
 interface Plan {
-    id: string;
+    id: number;
     name: string;
     description: string;
     price: number;
@@ -65,7 +65,7 @@ interface Plan {
   
     const handleSelectPlan = () => {
       const queryParams = new URLSearchParams({
-        planId: plan.id,
+        planId: plan.id.toString(),
         planName: plan.name,
         planPrice: plan.price.toString(),
         planDuration: plan.duration,
@@ -159,7 +159,7 @@ export default function Subscriptions({ role }: SubscriptionsProps) {
     setTimeout(() => {
       setPlans([
         {
-          id: "plan-basico",
+          id: 1,
           name: "Plan Básico",
           description: "Ideal para profesionales individuales que están comenzando.",
           price: billingCycle === "monthly" ? 450 : 450 * 12 * 0.8, // 20% descuento anual
@@ -191,7 +191,7 @@ export default function Subscriptions({ role }: SubscriptionsProps) {
         ],
         },
         {
-          id: "plan-estandar",
+          id: 2,
           name: "Plan Estándar",
           description: "Para profesionales con un volumen moderado de citas y ventas.",
           price: billingCycle === "monthly" ? 900 : 900 * 12 * 0.8, // 20% descuento anual
@@ -227,7 +227,7 @@ export default function Subscriptions({ role }: SubscriptionsProps) {
         ],
         },
         {
-          id: "plan-premium",
+          id: 3,
           name: "Plan Premium",
           description: "Para profesionales con un volumen alto de citas y ventas.",
           price: billingCycle === "monthly" ? 1800 : 1800 * 12 * 0.8, // 20% descuento anual
@@ -264,7 +264,7 @@ export default function Subscriptions({ role }: SubscriptionsProps) {
         ],
         },
         {
-          id: "plan-empresarial",
+          id: 4,
           name: "Plan Empresarial",
           description: "Para clínicas y empresas médicas que requieren funcionalidades empresariales.",
           price: billingCycle === "monthly" ? 3000 : 3000 * 12 * 0.8, // 20% descuento anual
@@ -353,7 +353,7 @@ export default function Subscriptions({ role }: SubscriptionsProps) {
       onSelect={(selectedPlan) => {
         setSelectedPlan(selectedPlan);
         const queryParams = new URLSearchParams({
-          planId: selectedPlan.id,
+          planId: selectedPlan.id.toString(),
           planName: selectedPlan.name,
           planPrice: selectedPlan.price.toString(),
           planDuration: selectedPlan.duration,

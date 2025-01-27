@@ -368,7 +368,7 @@ export default function ProviderSignupPage() {
         <div className="mt-6">
           <p className="text-center text-sm text-gray-400">
             ¿Ya tienes una cuenta?{" "}
-            <Link href="/login" className="text-teal-400 hover:underline">
+            <Link href="/quhealthy/authentication/providers/login" className="text-teal-400 hover:underline">
               Inicia sesión
             </Link>
           </p>

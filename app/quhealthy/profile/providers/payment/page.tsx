@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -11,40 +10,66 @@ import {
   CreditCard, 
   CheckCircle, 
   ArrowRight,
-  ShoppingCart
+  ShoppingCart,
+  Shield
 } from "lucide-react";
+import StripeLogo from "@/public/stripelogo.png";
+import MercadoPagoLogo from "@/public/mercadopagologo.jpg";
+import Image from "next/image";
+import axios from "axios";
+
 
 const PaymentMethodSelector = () => {
   const searchParams = useSearchParams();
+  const [selectedMethod, setSelectedMethod] = useState<"stripe" | "mercadopago" | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Extrae los parámetros de la URL
   const planId = searchParams.get("planId") || "";
   const planName = searchParams.get("planName") || "";
   const planPrice = parseFloat(searchParams.get("planPrice") || "0");
   const planDuration = searchParams.get("planDuration") || "";
-  const transactionFee = parseFloat(searchParams.get("transactionFee") || "0");
-
-  const [selectedMethod, setSelectedMethod] = useState<"stripe" | "mercadopago" | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const paymentMethods = [
     {
       id: "stripe",
       name: "Stripe",
       description: "Pago seguro con tarjeta de crédito/débito",
-      icon: <CreditCard className="w-6 h-6" />,
+      logo: (
+        <div className="relative w-64 h-24">
+          <Image
+            src={StripeLogo}
+            alt="Stripe Logo"
+            fill
+            className="object-contain"
+          />
+        </div>
+      ),
+      icon: <Shield className="w-6 h-6" />,
       features: [
         "Pagos internacionales",
         "Proceso seguro y encriptado",
         "Soporte 24/7",
         "Sin cargos adicionales",
       ],
+      badge: "Recomendado",
+      bgColor: "bg-gradient-to-br from-gray-50 to-gray-100",
+      textColor: "text-gray-800",
     },
     {
       id: "mercadopago",
       name: "Mercado Pago",
       description: "La plataforma líder en América Latina",
+      logo: (
+        <div className="relative w-64 h-24">
+          <Image
+            src={MercadoPagoLogo}
+            alt="Mercado Pago Logo"
+            fill
+            className="object-contain"
+          />
+        </div>
+      ),
       icon: <ShoppingCart className="w-6 h-6" />,
       features: [
         "Múltiples métodos de pago",
@@ -52,23 +77,45 @@ const PaymentMethodSelector = () => {
         "Proceso seguro",
         "Soporte local",
       ],
+      bgColor: "bg-gradient-to-br from-gray-50 to-gray-100",
+      textColor: "text-gray-800",
     },
   ];
 
+  // Frontend: En PaymentMethodSelector.tsx
   const handlePaymentSelection = async () => {
-    if (!selectedMethod) return;
-
+    if (!selectedMethod || !planId) return;
     setLoading(true);
+  
     try {
-      // Simulación del proceso de pago
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setShowConfirmation(true);
+      // Solo manejar Mercado Pago
+      if (selectedMethod === "mercadopago") {
+        const response = await axios.post(
+          "http://localhost:3001/api/payments/create-preference",
+          { planId },
+          {
+            withCredentials: true, // Para enviar cookies en la solicitud
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        if (response.status !== 200) {
+          throw new Error("Error al crear preferencia");
+        }
+  
+        const { url } = response.data;
+        window.location.href = url; // Redirigir a Mercado Pago
+      }
     } catch (error) {
-      console.error("Error processing payment:", error);
+      console.error("Error:", error);
+      alert("Ocurrió un error al procesar el pago");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white p-4 md:p-8">
@@ -77,14 +124,18 @@ const PaymentMethodSelector = () => {
           <h1 className="text-4xl font-bold text-white mb-4">
             Selecciona tu método de pago
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-6">
             Elige el método que prefieras para completar tu suscripción
           </p>
 
-          <div className="mt-4">
-            <Badge className="bg-teal-500/20 text-teal-400">
-              {planName} - ${planPrice}/{planDuration}
-            </Badge>
+          <div className="inline-block bg-gray-800 rounded-lg p-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl font-bold text-white">${planPrice}</div>
+              <div className="text-gray-400">/{planDuration}</div>
+              <Badge className="bg-teal-500/20 text-teal-400 ml-2">
+                {planName}
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -98,10 +149,10 @@ const PaymentMethodSelector = () => {
                 exit={{ opacity: 0, y: -20 }}
               >
                 <Card
-                  className={`h-full bg-gray-800 border-gray-700 cursor-pointer transition-all ${
+                  className={`h-full ${method.bgColor} border-gray-200/30 backdrop-blur-sm cursor-pointer transition-all hover:border-teal-500/50 ${
                     selectedMethod === method.id
                       ? "ring-2 ring-teal-500 shadow-teal-500/20 shadow-lg"
-                      : ""
+                      : "hover:shadow-lg"
                   }`}
                   onClick={() =>
                     setSelectedMethod(method.id as "stripe" | "mercadopago")
@@ -110,19 +161,31 @@ const PaymentMethodSelector = () => {
                   <CardHeader className="p-6">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
-                        <div className="text-teal-400">{method.icon}</div>
-                        <div>
-                          <h3 className="text-xl font-bold text-white">
-                            {method.name}
-                          </h3>
-                          <p className="text-sm text-gray-400">
-                            {method.description}
-                          </p>
+                        <div className="rounded-lg">
+                          <div>{method.logo}</div>
                         </div>
                       </div>
                       {selectedMethod === method.id && (
-                        <CheckCircle className="text-teal-400 w-5 h-5" />
+                        <div className="flex items-center gap-2 bg-teal-500/20 text-teal-600 px-3 py-1 rounded-full">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Seleccionado</span>
+                        </div>
                       )}
+                    </div>
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className={`text-xl font-bold ${method.textColor}`}>
+                          {method.name}
+                        </h3>
+                        {method.badge && (
+                          <Badge className="bg-blue-500/20 text-blue-600">
+                            {method.badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {method.description}
+                      </p>
                     </div>
                   </CardHeader>
 
@@ -131,9 +194,9 @@ const PaymentMethodSelector = () => {
                       {method.features.map((feature, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 text-sm text-gray-300"
+                          className="flex items-center gap-2 text-sm text-gray-600"
                         >
-                          <CheckCircle className="text-teal-400 w-4 h-4" />
+                          <CheckCircle className="text-teal-600 w-4 h-4 shrink-0" />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -145,21 +208,25 @@ const PaymentMethodSelector = () => {
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-4">
           <Button
             onClick={handlePaymentSelection}
             disabled={!selectedMethod || loading}
-            className="bg-teal-500 hover:bg-teal-600 min-w-[200px]"
+            className="bg-teal-500 hover:bg-teal-600 min-w-[200px] h-12 text-lg"
           >
             {loading ? (
               "Procesando..."
             ) : (
               <>
-                Continuar
-                <ArrowRight className="w-4 h-4 ml-2" />
+                Continuar con el pago
+                <ArrowRight className="w-5 h-5 ml-2" />
               </>
             )}
           </Button>
+          <p className="text-sm text-gray-400 flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Pago 100% seguro y encriptado
+          </p>
         </div>
       </div>
     </div>

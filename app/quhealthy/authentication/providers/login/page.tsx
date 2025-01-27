@@ -27,7 +27,7 @@ export default function ProviderLoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     try {
       // Llamada al endpoint de inicio de sesión
       const response = await axios.post(
@@ -35,19 +35,28 @@ export default function ProviderLoginPage() {
         formData,
         { withCredentials: true } // Necesario para enviar cookies
       );
-
+  
       if (response.status === 200) {
         toast.success("Inicio de sesión exitoso. Verificando planes...", {
           position: "top-right",
           autoClose: 3000,
         });
-
+  
         // Verificar si el proveedor tiene un plan activo
+        console.log("Enviando petición a /api/providers/active-plan con cookies...");
         const planResponse = await axios.get(
           "http://localhost:3001/api/providers/active-plan",
-          { withCredentials: true } // Enviar cookies con el token
+          {
+            withCredentials: true, // Enviar cookies con el token
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
-
+  
+        // Log para revisar la respuesta del endpoint
+        console.log("Respuesta de /api/providers/active-plan:", planResponse.data);
+  
         if (planResponse.data.hasPlan) {
           // Redirigir al dashboard si tiene un plan activo
           window.location.href = "/quhealthy/profile/providers/dashboard";
@@ -59,6 +68,9 @@ export default function ProviderLoginPage() {
         setError(response.data.message || "Credenciales incorrectas. Por favor, intenta de nuevo.");
       }
     } catch (err: any) {
+      // Log para revisar el error
+      console.error("Error al consultar /api/providers/active-plan:", err);
+  
       const errorMessage = err.response?.data?.message || "Error inesperado. Intenta de nuevo.";
       setError(errorMessage);
       toast.error(errorMessage, {
@@ -69,6 +81,7 @@ export default function ProviderLoginPage() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex items-center justify-center p-4">
@@ -137,7 +150,7 @@ export default function ProviderLoginPage() {
           </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             ¿No tienes cuenta?{" "}
-            <Link href="/quhealthy/authentication/provider/signup" className="text-teal-400 hover:underline">
+            <Link href="/quhealthy/authentication/providers/signup" className="text-teal-400 hover:underline">
               Regístrate
             </Link>
           </p>
