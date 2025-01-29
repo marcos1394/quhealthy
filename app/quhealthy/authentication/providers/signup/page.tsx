@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
@@ -42,6 +42,8 @@ export default function ProviderSignupPage() {
   const [success, setSuccess] = useState("");
   const [step, setStep] = useState(1);
   const [serviceType, setServiceType] = useState<"health" | "beauty">("health");
+  const [categories, setCategories] = useState([]);
+
   
   const [formData, setFormData] = useState({
     name: "",
@@ -59,24 +61,33 @@ export default function ProviderSignupPage() {
     passwordRules.map((rule) => ({ ...rule, valid: false }))
   );
 
-  const specialties: Record<"health" | "beauty", { [category: string]: string[] }> = {
-    health: {
-      "Medicina General": ["Médico General", "Médico Familiar"],
-      "Especialidades Médicas": ["Cardiología", "Pediatría", "Ginecología", "Neurología", "Psiquiatría"],
-      "Terapias": ["Fisioterapia", "Terapia Ocupacional", "Nutrición"]
-    },
-    beauty: {
-      "Estilismo": ["Estilista", "Barbero", "Colorista"],
-      "Cuidado Personal": ["Maquillador Profesional", "Uñas y Manicure"],
-      "Spa y Bienestar": ["Masoterapeuta", "Tratamientos Faciales", "Tratamientos Corporales"]
-    }
-  };
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/categories");
+        // Filtrar categorías según el tipo de servicio seleccionado
+        const filteredCategories = response.data.find(
+          (parentCategory: any) => 
+            (serviceType === "health" && parentCategory.name === "Salud") ||
+            (serviceType === "beauty" && parentCategory.name === "Belleza")
+        );
+        setCategories(filteredCategories ? filteredCategories.categories : []);
+      } catch (error) {
+        console.error("Error al obtener categorías:", error);
+        toast.error("Error al cargar categorías. Intenta más tarde.", {
+          position: "top-right",
+        });
+      }
+    };
   
-
+    fetchCategories();
+  }, [serviceType]);
+  
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     const inputValue = type === "checkbox" ? checked : value;
-  
+
     if (name === "password") {
       setPasswordValidation(
         passwordRules.map((rule) => ({
@@ -85,10 +96,9 @@ export default function ProviderSignupPage() {
         }))
       );
     }
-  
+
     setFormData({ ...formData, [name]: inputValue });
   };
-  
 
 
 
@@ -314,16 +324,17 @@ export default function ProviderSignupPage() {
   required
 >
   <option value="">Selecciona tu especialidad</option>
-  {Object.entries(specialties[serviceType]).map(([category, subcategories]) => (
-    <optgroup key={category} label={category}>
-      {subcategories.map((specialty) => (
-        <option key={specialty} value={specialty}>
-          {specialty}
+  {categories.map((category: any) => (
+    <optgroup key={category.id} label={category.name}>
+      {category.tags.map((tag: any) => (
+        <option key={tag.id} value={tag.name}>
+          {tag.name}
         </option>
       ))}
     </optgroup>
   ))}
 </select>
+
 
 
               <div className="flex items-center gap-2">

@@ -82,34 +82,38 @@ const PaymentMethodSelector = () => {
     },
   ];
 
-  // Frontend: En PaymentMethodSelector.tsx
   const handlePaymentSelection = async () => {
     if (!selectedMethod || !planId) return;
     setLoading(true);
   
     try {
-      // Solo manejar Mercado Pago
-      if (selectedMethod === "mercadopago") {
+      if (selectedMethod === "stripe") {
         const response = await axios.post(
-          "http://localhost:3001/api/payments/create-preference",
-          { planId },
-          {
-            withCredentials: true, // Para enviar cookies en la solicitud
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+          "http://localhost:3001/api/payments/stripe/create-checkout-session",
+          { planId, planName, planPrice },
+          { withCredentials: true }
         );
   
         if (response.status !== 200) {
-          throw new Error("Error al crear preferencia");
+          throw new Error("Error al crear sesión de Stripe");
         }
   
-        const { url } = response.data;
-        window.location.href = url; // Redirigir a Mercado Pago
+        window.location.href = response.data.url; // Redirigir al checkout de Stripe
+      } else if (selectedMethod === "mercadopago") {
+        const response = await axios.post(
+          "http://localhost:3001/api/payments/mercadopago/create-preference",
+          { planId },
+          { withCredentials: true }
+        );
+  
+        if (response.status !== 200) {
+          throw new Error("Error al crear preferencia de MercadoPago");
+        }
+  
+        window.location.href = response.data.url; // Redirigir a MercadoPago
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error al procesar el pago:", error);
       alert("Ocurrió un error al procesar el pago");
     } finally {
       setLoading(false);
