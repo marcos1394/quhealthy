@@ -42,45 +42,44 @@ export default function ProviderLoginPage() {
           autoClose: 3000,
         });
   
-        // Verificar si el proveedor tiene un plan activo
-        console.log("Enviando petición a /api/providers/active-plan con cookies...");
+        console.log("Enviando petición a /api/providers/active-plan...");
         const planResponse = await axios.get(
           "http://localhost:3001/api/providers/active-plan",
           {
-            withCredentials: true, // Enviar cookies con el token
-            headers: {
-              "Content-Type": "application/json",
-            },
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
           }
         );
   
-        // Log para revisar la respuesta del endpoint
         console.log("Respuesta de /api/providers/active-plan:", planResponse.data);
   
-        if (planResponse.data.hasPlan) {
-          // Redirigir al dashboard si tiene un plan activo
-          window.location.href = "/quhealthy/profile/providers/dashboard";
-        } else {
-          // Redirigir a la selección de planes si no tiene uno activo
+        const { hasPlan, hasKYC, hasLicense, hasMarketplaceConfigured } = planResponse.data;
+  
+        // **Validar redirección**
+        if (!hasPlan) {
           window.location.href = "/quhealthy/profile/providers/plans";
+        } else if (!hasKYC) {
+          window.location.href = "/quhealthy/authentication/providers/onboarding/kyc";
+        } else if (!hasLicense) {
+          window.location.href = "/quhealthy/authentication/providers/onboarding/validatelicense";
+        } else if (!hasMarketplaceConfigured) {
+          window.location.href = "/quhealthy/authentication/providers/onboarding/marketplaceconfiguration";
+        } else {
+          window.location.href = "/quhealthy/profile/providers/dashboard";
         }
       } else {
-        setError(response.data.message || "Credenciales incorrectas. Por favor, intenta de nuevo.");
+        setError(response.data.message || "Credenciales incorrectas. Intenta de nuevo.");
       }
     } catch (err: any) {
-      // Log para revisar el error
-      console.error("Error al consultar /api/providers/active-plan:", err);
-  
+      console.error("Error en /api/providers/active-plan:", err);
       const errorMessage = err.response?.data?.message || "Error inesperado. Intenta de nuevo.";
       setError(errorMessage);
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-      });
+      toast.error(errorMessage, { position: "top-right", autoClose: 5000 });
     } finally {
       setLoading(false);
     }
   };
+  
   
 
   return (

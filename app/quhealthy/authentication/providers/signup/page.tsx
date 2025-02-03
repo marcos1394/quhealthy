@@ -1,5 +1,6 @@
+
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
@@ -10,7 +11,6 @@ import {
   Lock,
   Stethoscope,
   Scissors,
-  MapPin,
   CheckCircle2,
   XCircle,
   AlertCircle
@@ -19,8 +19,40 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { toast } from "react-toastify";
+import LocationMapModal from "@/app/quhealthy/components/locationmapmodal";
+import EnhancedCategorySelection from "@/app/quhealthy/components/categoryselection";
 
+// Interfaces
+interface CategoryProvider {
+  id: number;
+  name: string;
+  tags: {
+    id: number;
+    name: string;
+  }[];
+}
 
+interface FormData {
+  name: string;
+  businessName: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  address: string;
+  lat: number;
+  lng: number;
+  acceptTerms: boolean;
+  parentCategoryId: number;
+  categoryProviderId: number;
+  tagId: number;
+}
+
+interface PasswordRule {
+  regex: RegExp;
+  message: string;
+  valid: boolean;
+}
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -36,57 +68,60 @@ const passwordRules = [
   { regex: /[\W_]/, message: "Un carácter especial" }
 ];
 
-export default function ProviderSignupPage() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [step, setStep] = useState(1);
+const ProviderSignupPage: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const [step, setStep] = useState<number>(1);
   const [serviceType, setServiceType] = useState<"health" | "beauty">("health");
-  const [categories, setCategories] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(true);
 
-  
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     businessName: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-    specialty: "",
-    location: "",
-    acceptTerms: false
+    address: "",
+    lat: 0,
+    lng: 0,
+    parentCategoryId: 1,
+    categoryProviderId: 0,
+    tagId: 0,
+    acceptTerms: false,
   });
 
-  const [passwordValidation, setPasswordValidation] = useState(
+  const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
     passwordRules.map((rule) => ({ ...rule, valid: false }))
   );
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:3001/api/categories");
-        // Filtrar categorías según el tipo de servicio seleccionado
-        const filteredCategories = response.data.find(
-          (parentCategory: any) => 
-            (serviceType === "health" && parentCategory.name === "Salud") ||
-            (serviceType === "beauty" && parentCategory.name === "Belleza")
-        );
-        setCategories(filteredCategories ? filteredCategories.categories : []);
-      } catch (error) {
-        console.error("Error al obtener categorías:", error);
-        toast.error("Error al cargar categorías. Intenta más tarde.", {
-          position: "top-right",
-        });
-      }
-    };
-  
-    fetchCategories();
-  }, [serviceType]);
-  
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
-    const inputValue = type === "checkbox" ? checked : value;
+
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      lat: location.lat,
+      lng: location.lng,
+      address: location.address,
+    }));
+  };
+
+  const handleCategorySelect = (categoryId: number, tagId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      categoryProviderId: categoryId,
+      tagId: tagId
+    }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    let inputValue: string | boolean = value;
+
+    if (type === "checkbox") {
+      inputValue = (e.target as HTMLInputElement).checked;
+    }
 
     if (name === "password") {
       setPasswordValidation(
@@ -97,31 +132,46 @@ export default function ProviderSignupPage() {
       );
     }
 
-    setFormData({ ...formData, [name]: inputValue });
+    setFormData(prev => ({ ...prev, [name]: inputValue }));
   };
 
+// Ocultar tooltip después de 5 segundos
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowTooltip(false);
+  }, 5000);
+  return () => clearTimeout(timer);
+}, []);
 
+  useEffect(() => {
+    setPasswordValidation(
+      passwordRules.map((rule) => ({
+        ...rule,
+        valid: rule.regex.test(formData.password),
+      }))
+    );
+  }, [formData.password]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
-  
+
     const providerData = {
       ...formData,
-      role: "provider", // Agregamos el rol de proveedor
+      role: "provider",
     };
-  
+
     try {
-      const response = await axios.post("http://localhost:3001/api/providers/signup", providerData);
-  
+      await axios.post("http://localhost:3001/api/providers/signup", providerData);
+
       setSuccess("¡Registro exitoso! Te redirigiremos al Inicio de Sesión :).");
       toast.success("¡Registro exitoso! Te redirigiremos al Inicio de Sesión.", {
         position: "top-right",
         autoClose: 3000,
       });
-  
+
       setTimeout(() => {
         window.location.href = "/quhealthy/authentication/providers/login";
       }, 2000);
@@ -136,15 +186,29 @@ export default function ProviderSignupPage() {
       setLoading(false);
     }
   };
-  
-  const isStepValid = () => {
+
+  const isStepValid = (): boolean => {
     if (step === 1) {
-      return formData.email && formData.password && formData.confirmPassword && 
-             passwordValidation.every(rule => rule.valid) && 
-             formData.password === formData.confirmPassword;
+      return Boolean(
+        formData.email && 
+        formData.password && 
+        formData.confirmPassword && 
+        passwordValidation.every(rule => rule.valid) && 
+        formData.password === formData.confirmPassword
+      );
     }
-    return formData.name && formData.businessName && formData.phone && 
-           formData.specialty && formData.location && formData.acceptTerms;
+
+    return Boolean(
+      formData.name && 
+      formData.businessName && 
+      formData.phone &&
+      formData.address && 
+      formData.lat &&
+      formData.lng &&
+      formData.categoryProviderId && 
+      formData.tagId &&  
+      formData.acceptTerms
+    );
   };
 
   return (
@@ -155,7 +219,7 @@ export default function ProviderSignupPage() {
       </div>
 
       <motion.div
-        className="relative z-10 w-full max-w-xl p-8 rounded-xl shadow-2xl bg-gray-800/90 backdrop-blur-lg border border-gray-700"
+        className="relative z-10 w-full max-w-2xl p-8 rounded-xl shadow-2xl bg-gray-800/90 backdrop-blur-lg border border-gray-700"
         {...fadeIn}
       >
         <div className="flex items-center justify-center gap-3 mb-8">
@@ -171,14 +235,19 @@ export default function ProviderSignupPage() {
         <Tabs 
   defaultValue="health" 
   className="mb-8"
-  onValueChange={(value) => setServiceType(value as "health" | "beauty")}
+  onValueChange={(value) => {
+    setServiceType(value as "health" | "beauty");
+    setFormData((prev) => ({
+      ...prev,
+      parentCategoryId: value === "health" ? 1 : 2, // 🔥 Si es "health" = 1, si es "beauty" = 2
+    }));
+  }}
 >
   <TabsList className="grid w-full grid-cols-2">
     <TabsTrigger value="health">Servicios de Salud</TabsTrigger>
     <TabsTrigger value="beauty">Servicios de Belleza</TabsTrigger>
   </TabsList>
 </Tabs>
-
 
         {(error || success) && (
           <Alert className={`mb-6 ${error ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
@@ -303,39 +372,12 @@ export default function ProviderSignupPage() {
                 />
               </div>
 
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Ciudad, Estado"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
-                  required
-                />
-              </div>
+              <LocationMapModal onLocationSelect={handleLocationSelect} />
 
-              <select
-  name="specialty"
-  value={formData.specialty}
-  onChange={handleInputChange}
-  className="w-full p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
-  required
->
-  <option value="">Selecciona tu especialidad</option>
-  {categories.map((category: any) => (
-    <optgroup key={category.id} label={category.name}>
-      {category.tags.map((tag: any) => (
-        <option key={tag.id} value={tag.name}>
-          {tag.name}
-        </option>
-      ))}
-    </optgroup>
-  ))}
-</select>
-
-
+              <EnhancedCategorySelection 
+                serviceType={serviceType}
+                onCategorySelect={handleCategorySelect}
+              />
 
               <div className="flex items-center gap-2">
                 <input
@@ -345,6 +387,7 @@ export default function ProviderSignupPage() {
                   checked={formData.acceptTerms}
                   onChange={handleInputChange}
                   className="w-4 h-4 rounded border-gray-600 text-teal-500 focus:ring-teal-400"
+                  required
                 />
                 <label htmlFor="acceptTerms" className="text-sm">
                   Acepto los términos y condiciones y la política de privacidad
@@ -364,35 +407,91 @@ export default function ProviderSignupPage() {
                 Anterior
               </button>
             )}
-            
+
             <button
               type={step === 2 ? "submit" : "button"}
               onClick={() => step === 1 && isStepValid() && setStep(2)}
               disabled={!isStepValid() || loading}
-              className="flex-1 bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Procesando..." : step === 1 ? "Siguiente" : "Completar Registro"}
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6">
-          <p className="text-center text-sm text-gray-400">
-            ¿Ya tienes una cuenta?{" "}
-            <Link href="/quhealthy/authentication/providers/login" className="text-teal-400 hover:underline">
-              Inicia sesión
-            </Link>
-          </p>
-          
-          <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
-            <AlertCircle className="w-4 h-4" />
-            <p>
-              Después del registro, necesitarás completar el proceso de verificación 
-              y proporcionar documentación adicional.
+              className="flex-1 bg-teal-500 text-white py-3 px-6 rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Procesando...</span>
+                  </div>
+                ) : (
+                  step === 1 ? "Siguiente" : "Completar Registro"
+                )}
+              </button>
+            </div>
+          </form>
+  
+          <div className="mt-6 space-y-4">
+            <p className="text-center text-sm text-gray-400">
+              ¿Ya tienes una cuenta?{" "}
+              <Link 
+                href="/quhealthy/authentication/providers/login" 
+                className="text-teal-400 hover:underline transition-colors duration-200"
+              >
+                Inicia sesión
+              </Link>
             </p>
+  
+            <div className="p-4 bg-gray-700/30 rounded-lg">
+              <div className="flex items-start gap-2 text-sm text-gray-300">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-teal-400" />
+                <div className="space-y-2">
+                  <p className="font-medium">Proceso de verificación requerido</p>
+                  <p className="text-gray-400">
+                    Después del registro, necesitarás completar un proceso de verificación 
+                    que incluye:
+                  </p>
+                  <ul className="list-disc list-inside text-gray-400 space-y-1">
+                    <li>Validación de identidad profesional</li>
+                    <li>Documentación que acredite tu especialidad</li>
+                    <li>Comprobante de dirección del consultorio</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </motion.div>
+  
+          {showTooltip && (
+  <div className="fixed bottom-4 right-4 p-4 bg-teal-500/90 rounded-lg shadow-lg max-w-xs animate-bounce-slow hidden md:block">
+    <div className="flex items-start gap-2 text-white">
+      <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+      <div className="flex-1">
+        <p className="font-medium">¿Necesitas ayuda?</p>
+        <p className="text-sm mt-1">
+          Nuestro equipo está disponible 24/7 para asistirte en el proceso de registro
+        </p>
+      </div>
+      {/* Botón para cerrar el tooltip */}
+      <button onClick={() => setShowTooltip(false)} className="text-white hover:text-gray-300">
+        ✖
+      </button>
     </div>
-  );
-}
+  </div>
+)}
+        </motion.div>
+      </div>
+    );
+  };
+  
+  export default ProviderSignupPage;
+  
+  // Agregamos los estilos globales necesarios
+  const styles = `
+    @keyframes bounce-slow {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+  
+    .animate-bounce-slow {
+      animation: bounce-slow 3s infinite;
+    }
+  `;

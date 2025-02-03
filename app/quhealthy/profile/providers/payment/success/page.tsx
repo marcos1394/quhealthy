@@ -1,6 +1,8 @@
 "use client";
+
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -8,24 +10,50 @@ import {
   ArrowRight, 
   Home, 
   Download, 
-  Share2,
-  Mail
+  Share2, 
+  Mail, 
+  Copy 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "react-toastify";
+import Link from "next/link";
 
-interface PaymentSuccessProps {
-  orderNumber?: string;
-  planName?: string;
-  planPrice?: number;
-  planDuration?: string;
-}
 
-export default function PaymentSuccess({ 
-  orderNumber = "123456",
-  planName = "Plan Estándar",
-  planPrice = 900,
-  planDuration = "mes"
-}: PaymentSuccessProps) {
+export default function PaymentSuccess() {
+  const searchParams = useSearchParams();
+
+  // ✅ Capturar parámetros de la URL
+  const orderNumber = searchParams.get("session_id") || "N/A";
+  const planName = searchParams.get("planName") || "Plan Estándar";
+  const planPrice = searchParams.get("planPrice") || "900";
+  const planDuration = searchParams.get("planDuration") || "mes";
+
+  // ✅ URL del comprobante de pago
+  const invoiceUrl = `http://localhost:3001/api/payments/invoice/${orderNumber}`;
+
+  // ✅ Función para copiar el enlace al portapapeles
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(invoiceUrl);
+      toast.success("¡Enlace copiado al portapapeles!");
+    } catch (error) {
+      toast.error("Error al copiar el enlace");
+    }
+  };
+
+  // ✅ Función para compartir con Web Share API (Móviles)
+  const shareInvoice = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Comprobante de Pago - QuHealthy",
+        text: `Aquí está tu comprobante de pago de QuHealthy: ${invoiceUrl}`,
+        url: invoiceUrl,
+      }).catch(err => console.error("Error al compartir:", err));
+    } else {
+      copyToClipboard(); // Si no es compatible, solo copia el enlace
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black text-white p-4 md:p-8 flex items-center justify-center">
       <motion.div 
@@ -60,7 +88,12 @@ export default function PaymentSuccess({
               <div className="flex justify-between items-center mb-4">
                 <div>
                   <h3 className="font-medium text-white">{planName}</h3>
-                  <p className="text-sm text-gray-400">Orden #{orderNumber}</p>
+                  <p 
+                    className="text-sm text-gray-400 max-w-[12ch] truncate" 
+                    title={orderNumber}
+                  >
+                    Orden #{orderNumber}
+                  </p>
                 </div>
                 <Badge className="bg-teal-500/20 text-teal-400">
                   ${planPrice}/{planDuration}
@@ -80,30 +113,41 @@ export default function PaymentSuccess({
             </div>
 
             <div className="space-y-3">
-              <Button 
-                className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                onClick={() => window.location.href = "/dashboard"}
-              >
-                Ir al dashboard
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+            <Button asChild className="w-full bg-teal-500 hover:bg-teal-600 text-white">
+  <Link href="/quhealthy/authentication/providers/onboarding/kyc">
+    Continuar
+    <ArrowRight className="w-4 h-4 ml-2" />
+  </Link>
+</Button>
               
               <div className="grid grid-cols-2 gap-3">
                 <Button 
                   variant="outline" 
                   className="text-gray-400 border-gray-700 hover:bg-gray-700"
+                  onClick={() => window.open(invoiceUrl, "_blank")}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Descargar factura
                 </Button>
+
                 <Button 
                   variant="outline"
                   className="text-gray-400 border-gray-700 hover:bg-gray-700"
+                  onClick={shareInvoice}
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartir
                 </Button>
               </div>
+
+              <Button 
+                variant="ghost" 
+                className="w-full text-gray-400 hover:bg-gray-700"
+                onClick={copyToClipboard}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copiar enlace
+              </Button>
 
               <Button 
                 variant="ghost" 
