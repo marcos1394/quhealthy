@@ -157,26 +157,9 @@
                         <t t-set="original_o_grid_layout" t-value="o_grid_layout"/>
                         <t t-set="o_grid_layout" t-value="'col-auto col-3 mw-100 mb-2'"/>
 
-                        <t t-if="cfdi_values.get('usage')">
-                            <div name="cfdi_values['usage']" t-att-class="o_grid_layout" style="font-size: 12px;">
-                                <strong>Uso:</strong>
-                                <p>
-                                    <span t-out="cfdi_values['usage']"/>
-                                    <span> - </span>
-                                    <span t-out="cfdi_values['usage_desc']"/>
-                                </p>
-                            </div>
-                        </t>
-                        <t t-if="cfdi_values.get('payment_way')">
-                            <div name="l10n_mx_edi_cfdi_payment_way" t-att-class="o_grid_layout" style="font-size: 12px;">
-                                <strong>Forma de Pago:</strong>
-                                <p t-out="cfdi_values['payment_way']"/>
-                            </div>
-                        </t>
-                        <div name="l10n_mx_edi_cfdi_payment_method" t-att-class="o_grid_layout" style="font-size: 12px;">
-                            <strong>Método de Pago:</strong>
-                            <p t-out="cfdi_values.get('payment_method')"/>
-                        </div>
+                       
+                      
+                       
                         <div name="l10n_mx_edi_cfdi_bank_account" t-if="cfdi_values.get('bank_account')" t-att-class="o_grid_layout">
                             <strong>Cuenta Bancaria:</strong>
                             <p t-out="cfdi_values['bank_account']"/>
@@ -225,11 +208,7 @@
                                     <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
                                     <t t-set="current_total" t-value="current_total + line.price_total"/>
 
- <tr t-att-class="
-(line.display_type == 'line_section' and 'bg-200 fw-bold o_line_section')
- or (line.display_type == 'line_note' and 'fst-italic o_line_note')
- or ''
-">
+ <tr t-att-class=" (line.display_type == 'line_section' and 'bg-200 fw-bold o_line_section')  or (line.display_type == 'line_note' and 'fst-italic o_line_note')  or '' ">
                                         <!-- LÍNEA DE PRODUCTO normal -->
                                         <t t-if="line.display_type == 'product'">
                                             <td name="td_description">
