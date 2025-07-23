@@ -24,7 +24,6 @@ export default function KYCForm() {
 
     try {
       const response = await axios.post("http://localhost:3001/kyc/create-session");
-      const { sessionToken } = response.data;
 
       // Aquí se integraría Veriff o el proveedor de verificación
       setTimeout(() => {
