@@ -41,7 +41,7 @@ export default function AccountRecoveryPage() {
         }.`
       );
       setStep(2);
-    } catch (err) {
+    } catch  {
       setError("No se pudo enviar el código de recuperación. Por favor, verifica tu información.");
     } finally {
       setLoading(false);
@@ -57,7 +57,7 @@ export default function AccountRecoveryPage() {
       await axios.post("http://localhost:3001/account-recovery/verify-code", { contact, code });
       setSuccess("Código verificado correctamente.");
       setStep(3);
-    } catch (err) {
+    } catch  {
       setError("Código inválido. Por favor, intenta de nuevo.");
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ export default function AccountRecoveryPage() {
       setTimeout(() => {
         window.location.href = "/login";
       }, 2000);
-    } catch (err) {
+    } catch {
       setError("No se pudo actualizar la contraseña. Por favor, intenta de nuevo.");
     } finally {
       setLoading(false);
