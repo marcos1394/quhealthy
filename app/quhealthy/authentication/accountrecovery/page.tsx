@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { FaEnvelope, FaPhone, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaPhone } from "react-icons/fa";
 import axios from "axios";
 
 const fadeIn = {
