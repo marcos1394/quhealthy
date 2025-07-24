@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TermsModalProps {
   onAccept: () => void;
@@ -32,17 +31,15 @@ export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, children }) =>
         {children}
       </span>
       <DialogContent className="bg-gray-800 text-white border-gray-700 max-w-3xl w-[95vw] h-[90vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-4">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-700">
           <DialogTitle className="text-2xl text-purple-400">Términos, Condiciones y Aviso de Privacidad</DialogTitle>
         </DialogHeader>
-
-        {/* --- INICIO DE LA CORRECCIÓN --- */}
-        {/* Se le da una altura calculada explícitamente al área de scroll */}
-        <ScrollArea 
-          className="flex-1 px-6 h-[calc(90vh-140px)]" // 140px es un aprox. para el header y footer
+        
+        <div 
+          className="flex-grow overflow-y-auto p-6" // Contenedor principal con scroll
           onScroll={handleScroll}
         >
-          <div className="space-y-4 text-gray-300 pb-6">
+          <div className="space-y-4 text-gray-300">
             <p className="text-xs text-gray-400">Última actualización: 24 de Julio de 2025</p>
             
             <h3 className="font-bold text-xl text-purple-300 pt-2">Términos y Condiciones de Uso</h3>
@@ -56,29 +53,41 @@ export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, children }) =>
 
             <h4 className="font-semibold text-lg text-white pt-2">3. Pagos y Suscripciones</h4>
             <p className="leading-relaxed">Los pagos por servicios y suscripciones se realizarán a través de las pasarelas de pago integradas. Las tarifas, comisiones y términos de suscripción se especifican en la sección de Planes. QuHealthy utiliza tecnología segura para procesar todos los pagos.</p>
-            
+
+            <h4 className="font-semibold text-lg text-white pt-2">4. Cancelaciones y Reembolsos</h4>
+            <p className="leading-relaxed">Las políticas de cancelación y reembolso para los servicios agendados son establecidas por cada Proveedor y deben ser comunicadas claramente en su perfil. QuHealthy podrá mediar en disputas, pero no es responsable de los reembolsos, salvo en casos de fallas técnicas de la plataforma.</p>
+
+            <h4 className="font-semibold text-lg text-white pt-2">5. Propiedad Intelectual</h4>
+            <p className="leading-relaxed">Todo el contenido de la Plataforma, incluyendo software, logos, textos y gráficos, es propiedad de QuHealthy. El contenido subido por los usuarios (fotos, descripciones) sigue siendo de su propiedad, pero otorgan a QuHealthy una licencia mundial y libre de regalías para usarlo dentro de la Plataforma.</p>
+
+            <h4 className="font-semibold text-lg text-white pt-2">6. Limitación de Responsabilidad</h4>
+            <p className="leading-relaxed">QuHealthy no se hace responsable de la calidad, seguridad o resultado de los servicios prestados por los Proveedores. Cualquier disputa o reclamo relacionado con un servicio debe dirigirse directamente al Proveedor. Nuestra responsabilidad se limita al correcto funcionamiento de la plataforma tecnológica.</p>
+
             <h3 className="font-bold text-xl mb-2 pt-6 text-purple-300">Aviso de Privacidad Integral</h3>
             <p className="leading-relaxed">De conformidad con la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), QuHealthy S.A. de C.V. ("QuHealthy"), con domicilio fiscal en [Tu Domicilio Fiscal Completo, Ciudad, Estado, C.P.], es el responsable del tratamiento de sus datos personales.</p>
 
             <h4 className="font-semibold text-lg text-white pt-2">1. Datos Personales que Recabamos</h4>
             <ul className="list-disc list-inside space-y-2 pl-4">
-                <li><strong>Datos de Identificación y Contacto:</strong> Nombre completo, correo electrónico, número de teléfono, domicilio.</li>
-                <li><strong>Datos de Ubicación:</strong> Ubicación geográfica para la búsqueda y prestación de servicios.</li>
-                <li><strong>Datos Financieros:</strong> Información de pago procesada a través de nuestras pasarelas de pago seguras. No almacenamos datos de tarjetas de crédito.</li>
-                <li><strong>Datos Profesionales (Proveedores):</strong> Cédula profesional, certificaciones, y datos de identidad para el proceso de verificación (KYC).</li>
+              <li><strong>Datos de Identificación y Contacto:</strong> Nombre completo, correo electrónico, número de teléfono, domicilio.</li>
+              <li><strong>Datos de Ubicación:</strong> Ubicación geográfica para la búsqueda y prestación de servicios.</li>
+              <li><strong>Datos Financieros:</strong> Información de pago procesada a través de nuestras pasarelas de pago seguras (Stripe, MercadoPago). No almacenamos datos de tarjetas de crédito.</li>
+              <li><strong>Datos Profesionales (Proveedores):</strong> Cédula profesional, certificaciones, especialidad, y datos de identidad para el proceso de verificación (KYC).</li>
+              <li><strong>Datos de Uso:</strong> Información sobre cómo interactúa con nuestra plataforma, incluyendo historial de citas y comunicaciones.</li>
             </ul>
 
             <h4 className="font-semibold text-lg text-white pt-2">2. Finalidades del Tratamiento</h4>
-            <p className="leading-relaxed">Sus datos serán utilizados para: (a) crear y gestionar su cuenta; (b) facilitar la conexión y agendamiento de citas; (c) procesar pagos; (d) enviar comunicaciones transaccionales; y (e) mejorar la seguridad y la calidad de la plataforma.</p>
-
+            <p className="leading-relaxed">Sus datos personales son utilizados para las siguientes finalidades necesarias: (a) crear y gestionar su cuenta; (b) facilitar la conexión y agendamiento de citas; (c) procesar pagos; (d) enviar comunicaciones transaccionales; y (e) mejorar la seguridad y la calidad de la plataforma. Adicionalmente, si usted lo autoriza, podremos utilizar sus datos para finalidades secundarias como enviarle promociones y noticias relevantes.</p>
+            
             <h4 className="font-semibold text-lg text-white pt-2">3. Ejercicio de Derechos ARCO</h4>
-            <p className="leading-relaxed">Usted tiene derecho a Acceder, Rectificar, Cancelar sus datos personales, así como a Oponerse a su tratamiento. Para ejercerlos, puede enviar una solicitud a: <a href="mailto:privacidad@quhealthy.com" className="text-purple-400 hover:underline">privacidad@quhealthy.com</a>.</p>
+            <p className="leading-relaxed">Usted tiene derecho a Acceder, Rectificar, Cancelar sus datos personales, así como a Oponerse a su tratamiento (Derechos ARCO). Para ejercerlos, puede enviar una solicitud detallada a nuestro departamento de privacidad al correo electrónico: <a href="mailto:privacidad@quhealthy.com" className="text-purple-400 hover:underline">privacidad@quhealthy.com</a>.</p>
+
+            <h4 className="font-semibold text-lg text-white pt-2">4. Uso de Cookies</h4>
+            <p className="leading-relaxed">Utilizamos cookies esenciales para el funcionamiento del sitio (autenticación, seguridad) y cookies analíticas (con su consentimiento) para entender cómo se utiliza la plataforma y mejorarla. Puede gestionar sus preferencias de cookies a través de la configuración de su navegador.</p>
             
             <p className="font-bold mt-6">Al hacer clic en "He leído y acepto los términos", usted confirma que ha leído, comprende y está de acuerdo con los Términos y Condiciones y el Aviso de Privacidad aquí establecidos.</p>
           </div>
-        </ScrollArea>
-        {/* --- FIN DE LA CORRECCIÓN --- */}
-
+        </div>
+        
         <DialogFooter className="p-6 pt-4 border-t border-gray-700">
           <Button variant="outline" onClick={() => setOpen(false)} className="border-gray-600 hover:bg-gray-700">Cerrar</Button>
           <Button 
