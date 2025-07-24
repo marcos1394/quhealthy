@@ -1,27 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Mail, Sparkles, AlertCircle } from "lucide-react";
+import { CheckCircle, Mail, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
-
-// Importa los tipos y los nuevos componentes
 import { OnboardingStatusResponse } from '@/app/quhealthy/types/provider';
 import { SuccessHeader } from '@/app/quhealthy/components/payment/success/SuccessHeader';
 import { PaymentDetails } from '@/app/quhealthy/components/payment/success/PaymentDetails';
 import { ActionButtons } from '@/app/quhealthy/components/payment/success/ActionButtons';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Captura y procesa parámetros de la URL
   const orderNumber = searchParams.get("session_id") || searchParams.get("payment_id") || "NoDisponible";
   const planName = searchParams.get("planName") || "Plan Contratado";
   const planPrice = parseFloat(searchParams.get("planPrice") || "0") || 0;
@@ -30,7 +27,6 @@ export default function PaymentSuccessPage() {
     ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/payments/invoice/${orderNumber}`
     : "#";
 
-  // Lógica principal de navegación post-pago
   const handleContinue = async () => {
     setIsNavigating(true);
     setError(null);
@@ -41,7 +37,7 @@ export default function PaymentSuccessPage() {
       );
       
       const { onboardingStatus } = response.data;
-      let nextRoute = "/quhealthy/profile/providers/dashboard"; // Ruta por defecto
+      let nextRoute = "/quhealthy/profile/providers/dashboard";
 
       if (!onboardingStatus.kyc.isComplete) {
         nextRoute = "/quhealthy/authentication/providers/onboarding/kyc";
@@ -53,12 +49,11 @@ export default function PaymentSuccessPage() {
       
       toast.info(`Redirigiendo...`, { autoClose: 1500 });
       router.push(nextRoute);
-
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "No se pudo verificar tu estado. Intenta ir al panel manualmente.";
+      const errorMessage = err.response?.data?.message || "No se pudo verificar tu estado.";
       setError(errorMessage);
       toast.error("Error al verificar estado.");
-      setIsNavigating(false); // Detener la carga si hay error
+      setIsNavigating(false);
     }
   };
 
@@ -79,20 +74,16 @@ export default function PaymentSuccessPage() {
               planDuration={planDuration}
               orderNumber={orderNumber}
             />
-            
             <div className="space-y-3 text-gray-300">
               <div className="flex items-center gap-2.5 text-sm"><Mail className="w-4 h-4 text-purple-400" /><span>Se envió una confirmación a tu correo.</span></div>
               <div className="flex items-center gap-2.5 text-sm"><CheckCircle className="w-4 h-4 text-purple-400" /><span>Acceso a las funciones de tu plan activado.</span></div>
               <div className="flex items-center gap-2.5 text-sm"><Sparkles className="w-4 h-4 text-purple-400" /><span>¡Listo para configurar tu perfil!</span></div>
             </div>
-
             {error && (
               <Alert variant="destructive" className="bg-red-500/10 border-red-500/50 text-red-400">
-                <AlertCircle className="h-5 w-5" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertCircle className="h-5 w-5" /><AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
             <ActionButtons 
               orderNumber={orderNumber}
               planName={planName}
@@ -104,5 +95,18 @@ export default function PaymentSuccessPage() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
