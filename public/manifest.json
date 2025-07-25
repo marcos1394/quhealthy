@@ -1,0 +1,9 @@
+{
+    "name": "QuHealthy",
+    "short_name": "QuHealthy",
+    "description": "Plataforma de Salud y Bienestar Digital",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#111827",
+    "theme_color": "#111827"
+  }

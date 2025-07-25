@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { LocationData, ValidationDetails } from '@/app/quhealthy/types/location'; // Asegúrate que la ruta sea correcta
+import { LocationData, ValidationDetails } from '@/app/quhealthy/types/location';
 
 // Importa los sub-componentes
 import { LocationSearchBar } from './location/LocationSearchBar';
@@ -24,37 +24,30 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   initialPosition = { lat: 19.4326, lng: -99.1332 }, // CDMX
 }) => {
   const [selectedPosition, setSelectedPosition] = useState(initialPosition);
-  const [searchValue, setSearchValue] = useState('');
   const [validationStatus, setValidationStatus] = useState<ValidationDetails | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [placeDetails, setPlaceDetails] = useState<google.maps.places.PlaceResult | null>(null);
   
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    // Corregido para usar el nombre correcto de la variable de entorno
-    googleMapsApiKey: process.env.NEXT_PUBLIC_Maps_API_KEY!, 
+    googleMapsApiKey: process.env.NEXT_PUBLIC_Maps_API_KEY!,
     libraries,
+    mapIds: [process.env.NEXT_PUBLIC_GOOGLE_MAP_ID!],
   });
 
-  // Efecto para manejar el marcador
   useEffect(() => {
     if (!isLoaded || !mapRef.current) return;
     
     if (!markerRef.current) {
-      markerRef.current = new google.maps.marker.AdvancedMarkerElement({
-        map: mapRef.current,
-        gmpDraggable: true,
-      });
+      markerRef.current = new google.maps.marker.AdvancedMarkerElement({ map: mapRef.current, gmpDraggable: true });
       markerRef.current.addListener('dragend', handleMarkerDragEnd);
     }
     
     markerRef.current.position = selectedPosition;
   }, [isLoaded, selectedPosition]);
-
 
   const validateAndSelectLocation = useCallback(async (lat: number, lng: number, address: string, place?: google.maps.places.PlaceResult) => {
     setIsValidating(true);
@@ -64,7 +57,7 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address }),
       });
-      if (!response.ok) throw new Error('Error en la validación');
+      if (!response.ok) throw new Error('Error en la validación del backend');
       const validationResult: ValidationDetails = await response.json();
       
       setValidationStatus(validationResult);
@@ -83,11 +76,9 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     }
   }, [onLocationSelect]);
   
-
-  const handlePlaceSelect = useCallback(async () => {
-    const place = autocompleteRef.current?.getPlace();
+  const handlePlaceSelect = useCallback(async (place: google.maps.places.PlaceResult | null) => {
     if (!place?.geometry?.location) {
-        toast.warn("Por favor, selecciona un lugar de la lista.");
+        setPlaceDetails(null);
         return;
     };
 
@@ -95,7 +86,6 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     const address = place.formatted_address || '';
     
     setPlaceDetails(place);
-    setSearchValue(place.name || address);
     setSelectedPosition(newPos);
     mapRef.current?.panTo(newPos);
     mapRef.current?.setZoom(17);
@@ -116,10 +106,9 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     if (!event.latLng) return;
     const newPos = { lat: event.latLng.lat(), lng: event.latLng.lng() };
     setSelectedPosition(newPos);
-    setPlaceDetails(null); // Borramos detalles del lugar anterior
+    setPlaceDetails(null);
     try {
       const address = await geocodePosition(newPos.lat, newPos.lng);
-      setSearchValue(address); // Actualizamos la barra de búsqueda con la nueva dirección
       await validateAndSelectLocation(newPos.lat, newPos.lng, address);
     } catch (error: any) {
         toast.error(error.message);
@@ -130,24 +119,12 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     if (e.latLng) handleMarkerDragEnd(e);
   }, [handleMarkerDragEnd]);
   
-  const handleClearSearch = () => {
-    setSearchValue('');
-    setValidationStatus(null);
-    setPlaceDetails(null);
-  };
-
   if (loadError) return <div className="text-red-500">Error al cargar el mapa. Verifica tu API Key.</div>;
   if (!isLoaded) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div>;
 
   return (
     <div className="space-y-4">
-      <LocationSearchBar 
-        searchValue={searchValue}
-        onSearchValueChange={setSearchValue}
-        onPlaceSelect={handlePlaceSelect}
-        onClear={handleClearSearch}
-        autocompleteRef={autocompleteRef} // Pasamos la referencia
-      />
+      <LocationSearchBar onPlaceSelect={handlePlaceSelect} />
       {placeDetails && (
         <PlaceDetailsCard 
           placeDetails={placeDetails} 
