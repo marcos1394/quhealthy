@@ -30,7 +30,7 @@ interface EnhancedCategorySelectionProps {
   onCategorySelect: (categoryId: number, tagId: number) => void;
 }
 
-// Objeto de iconos corregido: Almacena la referencia al componente, no el JSX.
+// Objeto de iconos corregido: Almacena la referencia al componente.
 const categoryIcons: { [key: string]: LucideIcon } = {
     'Medicina General': Stethoscope,
     'Odontología': Sticker,
@@ -127,14 +127,13 @@ export default function EnhancedCategorySelection({
           <SelectTrigger className="w-full bg-gray-700 border-gray-600">
             <SelectValue placeholder="Selecciona una categoría..." />
           </SelectTrigger>
-          {/* Se añaden clases para el estilo del desplegable */}
           <SelectContent className="bg-gray-800 text-white border-gray-700">
             {categories.map((category) => {
-              const Icon = categoryIcons[category.name] || Sparkles;
+              const Icon = categoryIcons[category.name] || Sparkles; // Obtiene la referencia al componente del icono
               return (
                 <SelectItem key={category.id} value={category.id.toString()}>
                   <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4" /> {/* Renderiza el icono como un componente */}
                     <span>{category.name}</span>
                   </div>
                 </SelectItem>
@@ -150,7 +149,6 @@ export default function EnhancedCategorySelection({
           <SelectTrigger className="w-full bg-gray-700 border-gray-600">
             <SelectValue placeholder={!selectedCategoryId ? "Primero elige una categoría" : "Selecciona una especialidad..."} />
           </SelectTrigger>
-           {/* Se añaden clases para el estilo del desplegable */}
           <SelectContent className="bg-gray-800 text-white border-gray-700">
             {tags.map((tag) => (
               <SelectItem key={tag.id} value={tag.id.toString()}>
