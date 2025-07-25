@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // 1. Importar el router de Next.js
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Stethoscope, Scissors, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,6 +15,7 @@ import { FormData, PasswordRule, ServiceType } from '@/app/quhealthy/types/signu
 import { SignupStep1 } from '@/app/quhealthy/components/signup/SignupStep1';
 import { SignupStep2 } from '@/app/quhealthy/components/signup/SignupStep2';
 import { StepIndicator } from '@/app/quhealthy/components/signup/StepIndicator';
+import { LocationData } from "@/app/quhealthy/types/location"; // Importa el tipo de ubicación
 
 const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
   { regex: /.{8,}/, message: "Mínimo 8 caracteres" },
@@ -25,7 +26,7 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 ];
 
 export default function ProviderSignupPage() {
-  const router = useRouter(); // 2. Inicializar el router
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -35,7 +36,8 @@ export default function ProviderSignupPage() {
   const [formData, setFormData] = useState<FormData>({
     name: "", businessName: "", email: "", phone: "", password: "", confirmPassword: "",
     address: "", lat: 0, lng: 0, acceptTerms: false, parentCategoryId: 1,
-    categoryProviderId: 0, tagId: 0,
+    categoryProviderId: 0, 
+    tagId: 0, // Mantenemos tagId para el MVP, pero ahora podría ser un array en el futuro
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
@@ -47,13 +49,27 @@ export default function ProviderSignupPage() {
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
-    setFormData(prev => ({ ...prev, ...location }));
+  const handleLocationSelect = (location: LocationData) => {
+    setFormData(prev => ({
+      ...prev,
+      address: location.address,
+      lat: location.lat,
+      lng: location.lng,
+    }));
   };
 
-  const handleCategorySelect = (categoryId: number, tagId: number) => {
-    setFormData(prev => ({ ...prev, categoryProviderId: categoryId, tagId: tagId }));
+  // --- INICIO DE LA CORRECCIÓN ---
+  // Nueva función que maneja la selección de categoría y el array de tags
+  const handleSelectionChange = (categoryId: number, tagIds: number[]) => {
+    setFormData(prev => ({
+      ...prev,
+      categoryProviderId: categoryId,
+      // Para el MVP, guardamos solo el primer tag seleccionado en el campo `tagId`.
+      // En el futuro, el backend deberá ser actualizado para aceptar un array de tags.
+      tagId: tagIds[0] || 0,
+    }));
   };
+  // --- FIN DE LA CORRECCIÓN ---
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,22 +78,17 @@ export default function ProviderSignupPage() {
     setSuccess("");
 
     const providerData = { ...formData, role: "provider" };
-
+    
     try {
-      // 3. Usar la variable de entorno para llamar a la API en Render
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/providers/signup`;
-      console.log("Enviando datos de registro a:", apiUrl);
-      
       await axios.post(apiUrl, providerData);
       
       setSuccess("¡Registro exitoso! Te redirigiremos al Inicio de Sesión.");
       toast.success("¡Registro exitoso! Te redirigiremos.", { position: "top-right" });
       
       setTimeout(() => {
-        // 4. Usar router.push para una redirección fluida
         router.push("/quhealthy/authentication/providers/login");
       }, 2000);
-
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Ocurrió un error. Intenta nuevamente.";
       setError(errorMessage);
@@ -89,9 +100,10 @@ export default function ProviderSignupPage() {
 
   const isStepValid = (): boolean => {
     if (step === 1) {
-      return ( !!formData.email && !!formData.password && formData.password === formData.confirmPassword && passwordValidation.every(rule => rule.valid) );
+      return (!!formData.email && !!formData.password && formData.password === formData.confirmPassword && passwordValidation.every(rule => rule.valid));
     }
-    return ( !!formData.name && !!formData.businessName && !!formData.phone && !!formData.address && formData.acceptTerms && formData.categoryProviderId > 0 && formData.tagId > 0 );
+    // La validación ahora comprueba que al menos un tag haya sido seleccionado (tagId > 0)
+    return (!!formData.name && !!formData.businessName && !!formData.phone && !!formData.address && formData.acceptTerms && formData.categoryProviderId > 0 && formData.tagId > 0);
   };
 
   useEffect(() => {
@@ -126,7 +138,14 @@ export default function ProviderSignupPage() {
           {step === 1 ? (
             <SignupStep1 formData={formData} passwordValidation={passwordValidation} handleInputChange={handleInputChange} />
           ) : (
-            <SignupStep2 formData={formData} serviceType={serviceType} handleInputChange={handleInputChange} onLocationSelect={handleLocationSelect} onCategorySelect={handleCategorySelect} />
+            // Se actualiza la prop que se pasa a SignupStep2
+            <SignupStep2 
+              formData={formData} 
+              serviceType={serviceType} 
+              handleInputChange={handleInputChange} 
+              onLocationSelect={handleLocationSelect} 
+              onSelectionChange={handleSelectionChange} 
+            />
           )}
 
           <div className="flex gap-4 pt-4">
@@ -137,7 +156,9 @@ export default function ProviderSignupPage() {
           </div>
         </form>
         
-        <p className="text-center text-sm text-gray-400 mt-6">¿Ya tienes una cuenta? <Link href="/quhealthy/authentication/providers/login" className="text-purple-400 hover:underline">Inicia sesión</Link></p>
+        <p className="text-center text-sm text-gray-400 mt-6">
+          ¿Ya tienes una cuenta? <Link href="/quhealthy/authentication/providers/login" className="text-purple-400 hover:underline">Inicia sesión</Link>
+        </p>
 
       </motion.div>
     </div>

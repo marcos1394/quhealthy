@@ -2,15 +2,14 @@
 
 import React from 'react';
 import { User, Building2, Phone } from "lucide-react";
-import { FormData, ServiceType } from '@/app/quhealthy/types/signup';
-import EnhancedCategorySelection from "@/app/quhealthy/components/categoryselection";
+import { FormData, ServiceType } from '@/app/quhealthy/types/signup'; // Asegúrate que la ruta sea correcta
+import EnhancedCategorySelection from "@/app/quhealthy/components/categoryselection"; // Asegúrate que la ruta sea correcta
 import { TermsModal } from '@/app/quhealthy/components/signup/TermsModal';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import { LocationData } from '@/app/quhealthy/types/location';
+import { LocationData } from '@/app/quhealthy/types/location'; // Asegúrate que la ruta sea correcta
 
-// --- SOLUCIÓN AL ERROR 'window is not defined' ---
-// Importa el componente de mapa/ubicación de forma dinámica, desactivando el SSR.
+// Importa el componente de mapa/ubicación de forma dinámica
 const EnhancedLocationPickerWithNoSSR = dynamic(
   () => import('@/app/quhealthy/components/locationmapmodal').then(mod => mod.EnhancedLocationPicker),
   { 
@@ -18,15 +17,15 @@ const EnhancedLocationPickerWithNoSSR = dynamic(
     loading: () => <div className="h-48 flex justify-center items-center bg-gray-700/50 rounded-lg"><Loader2 className="w-8 h-8 animate-spin text-teal-400" /></div> 
   }
 );
-// ----------------------------------------------------
 
+// --- INICIO DE LA CORRECCIÓN DE PROPS ---
 interface SignupStep2Props {
   formData: FormData;
   serviceType: ServiceType;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  // La prop ahora espera el objeto completo 'LocationData'
   onLocationSelect: (location: LocationData) => void; 
-  onCategorySelect: (categoryId: number, tagId: number) => void;
+  // Se actualiza el nombre y el tipo de la prop para que coincida con el componente hijo
+  onSelectionChange: (categoryId: number, tagIds: number[]) => void;
 }
 
 export const SignupStep2: React.FC<SignupStep2Props> = ({ 
@@ -34,8 +33,9 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
   serviceType, 
   handleInputChange, 
   onLocationSelect, 
-  onCategorySelect 
+  onSelectionChange // Se recibe la nueva prop
 }) => {
+// --- FIN DE LA CORRECCIÓN DE PROPS ---
   
   const handleAcceptTerms = () => {
     const event = {
@@ -46,7 +46,7 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
 
   return (
     <div className="space-y-6">
-      {/* --- Inputs de Nombre, Negocio y Teléfono (sin cambios) --- */}
+      {/* --- Inputs (sin cambios) --- */}
       <div className="relative">
         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400" />
         <input type="text" name="name" placeholder="Nombre completo" value={formData.name} onChange={handleInputChange} className="w-full pl-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-purple-400" required />
@@ -60,9 +60,12 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
         <input type="tel" name="phone" placeholder="Teléfono de contacto" value={formData.phone} onChange={handleInputChange} className="w-full pl-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-purple-400" required />
       </div>
 
-      {/* --- Componentes de Mapa y Categoría (AHORA USANDO EL NUEVO) --- */}
+      {/* --- Componentes de Mapa y Categoría (AHORA USANDO LA NUEVA PROP) --- */}
       <EnhancedLocationPickerWithNoSSR onLocationSelect={onLocationSelect} />
-      <EnhancedCategorySelection serviceType={serviceType} onCategorySelect={onCategorySelect} />
+      <EnhancedCategorySelection 
+        serviceType={serviceType} 
+        onSelectionChange={onSelectionChange} // Se pasa la nueva prop
+      />
 
       {/* --- Términos y Condiciones (sin cambios) --- */}
       <div className="flex items-center gap-2 pt-2">
