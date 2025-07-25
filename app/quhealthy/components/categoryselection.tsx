@@ -2,191 +2,133 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ChevronRight, Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-// Interfaces TypeScript (se mantienen igual)
+// Interfaces (puedes moverlas a un archivo de tipos si prefieres)
 interface ParentCategory {
   id: number;
   name: string;
   categories: CategoryProvider[];
 }
-
 interface CategoryProvider {
   id: number;
   name: string;
   tags: Tag[];
 }
-
 interface Tag {
   id: number;
   name: string;
 }
-
 interface EnhancedCategorySelectionProps {
   serviceType: 'health' | 'beauty';
   onCategorySelect: (categoryId: number, tagId: number) => void;
 }
-
-// Los iconos se mantienen igual
-const categoryIcons: { [key: string]: string } = {
-  // Salud
-  'Medicina General': '👨‍⚕️',
-  'Odontología': '🦷',
-  'Dermatología': '🧴',
-  'Psicología y Psiquiatría': '🧠',
-  'Nutrición': '🍎',
-  'Fisioterapia y Rehabilitación': '💪',
-  'Ginecología y Obstetricia': '🤰',
-  'Pediatría': '👶',
-  'Cardiología': '❤️',
-  'Oftalmología': '👁️',
-  'Traumatología y Ortopedia': '🦴',
-  'Laboratorios Clínicos': '🔬',
-  
-  // Belleza
-  'Estilismo y Peluquería': '💇‍♀️',
-  'Cuidado Facial y Estética': '💄',
-  'Manicura y Pedicura': '💅',
-  'Maquillaje y Pestañas': '✨',
-  'Tratamientos Corporales': '💆‍♂️',
-  'Depilación': '🌸',
-  'Tatuajes y Perforaciones': '✒️'
-};
 
 export default function EnhancedCategorySelection({
   serviceType,
   onCategorySelect
 }: EnhancedCategorySelectionProps) {
   const [categories, setCategories] = useState<CategoryProvider[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryProvider | null>(null);
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [selectedTagId, setSelectedTagId] = useState<string>('');
 
+  // Carga todas las categorías una vez
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
         setError(null);
-        setSelectedCategory(null); // Resetea la selección al cambiar de tipo
-        setSelectedTag(null);
-        
-        // --- INICIO DE LA CORRECCIÓN ---
-        // 1. Construye la URL de la API usando la variable de entorno
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
-        
         const response = await axios.get<ParentCategory[]>(apiUrl);
-        // --- FIN DE LA CORRECCIÓN ---
-        
         const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
-        const filteredCategories = response.data.find(
-          parent => parent.name === parentCategoryName
-        )?.categories || [];
-
+        const filteredCategories = response.data.find(p => p.name === parentCategoryName)?.categories || [];
         setCategories(filteredCategories);
       } catch (err) {
-        setError('No se pudieron cargar las categorías. Intenta de nuevo.');
+        setError('No se pudieron cargar las categorías.');
         toast.error('No se pudieron cargar las categorías.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCategories();
-  }, [serviceType]); // El efecto se ejecuta cada vez que cambia el tipo de servicio
+  }, [serviceType]);
 
-  const handleCategorySelect = (category: CategoryProvider) => {
-    setSelectedCategory(category);
-    setSelectedTag(null);
-  };
+  // Actualiza los tags disponibles cuando cambia la categoría seleccionada
+  useEffect(() => {
+    if (selectedCategoryId) {
+      const category = categories.find(c => c.id === parseInt(selectedCategoryId));
+      setTags(category?.tags || []);
+      setSelectedTagId(''); // Resetea la selección de tag
+    } else {
+      setTags([]);
+    }
+  }, [selectedCategoryId, categories]);
 
-  const handleTagSelect = (tag: Tag) => {
-    if (!selectedCategory) return;
-    setSelectedTag(tag);
-    onCategorySelect(selectedCategory.id, tag.id);
-  };
+  // Informa a la página principal cuando la selección está completa
+  useEffect(() => {
+    if (selectedCategoryId && selectedTagId) {
+      onCategorySelect(parseInt(selectedCategoryId), parseInt(selectedTagId));
+    }
+  }, [selectedCategoryId, selectedTagId, onCategorySelect]);
+
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-48 bg-gray-800/50 rounded-xl">
-        <Loader2 className="animate-spin text-teal-400" size={32} />
-      </div>
-    );
+    return <div className="flex justify-center p-8 bg-gray-800/50 rounded-xl"><Loader2 className="animate-spin text-teal-400" /></div>;
   }
-
   if (error) {
     return <div className="text-red-500 text-center py-8">{error}</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Columna de Categorías */}
-      <motion.div 
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-      >
-        <h3 className="text-lg font-semibold mb-4 text-teal-400">Elige una categoría</h3>
-        <div className="space-y-2">
-          {categories.map((category) => (
-            <motion.div
-              key={category.id}
-              onClick={() => handleCategorySelect(category)}
-              whileHover={{ scale: 1.02 }}
-              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
-                selectedCategory?.id === category.id 
-                  ? 'bg-teal-500/20 border border-teal-500' 
-                  : 'bg-gray-700/50 hover:bg-gray-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">{categoryIcons[category.name] || '⭐'}</span>
-                <span>{category.name}</span>
-              </div>
-              {selectedCategory?.id === category.id && <Check className="text-teal-400" />}
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Columna de Especialidades (Tags) */}
-      <motion.div 
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-      >
-        <h3 className="text-lg font-semibold mb-4 text-teal-400">Selecciona tu especialidad</h3>
-        {selectedCategory ? (
-          <div className="space-y-2">
-            {selectedCategory.tags.map((tag) => (
-              <motion.div
-                key={tag.id}
-                onClick={() => handleTagSelect(tag)}
-                whileHover={{ scale: 1.02 }}
-                className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
-                  selectedTag?.id === tag.id 
-                    ? 'bg-teal-500/20 border border-teal-500' 
-                    : 'bg-gray-700/50 hover:bg-gray-700'
-                }`}
-              >
-                <span>{tag.name}</span>
-                {selectedTag?.id === tag.id ? (
-                  <Check className="text-teal-400" />
-                ) : (
-                  <ChevronRight className="text-gray-400" />
-                )}
-              </motion.div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 space-y-4"
+    >
+      <div>
+        <label className="block text-sm font-medium text-teal-400 mb-2">Categoría</label>
+        <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+          <SelectTrigger className="w-full bg-gray-700 border-gray-600">
+            <SelectValue placeholder="Selecciona una categoría..." />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.id.toString()}>
+                {category.name}
+              </SelectItem>
             ))}
-          </div>
-        ) : (
-          <div className="text-gray-500 text-center flex items-center justify-center h-full">
-            <p>Selecciona primero una categoría</p>
-          </div>
-        )}
-      </motion.div>
-    </div>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-teal-400 mb-2">Especialidad</label>
+        <Select value={selectedTagId} onValueChange={setSelectedTagId} disabled={!selectedCategoryId || tags.length === 0}>
+          <SelectTrigger className="w-full bg-gray-700 border-gray-600">
+            <SelectValue placeholder={!selectedCategoryId ? "Primero elige una categoría" : "Selecciona una especialidad..."} />
+          </SelectTrigger>
+          <SelectContent>
+            {tags.map((tag) => (
+              <SelectItem key={tag.id} value={tag.id.toString()}>
+                {tag.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selectedCategoryId && selectedTagId && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-green-400 pt-2">
+          <Check size={16} />
+          <p className="text-sm">Selección completa</p>
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
