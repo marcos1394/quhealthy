@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // 1. Importar el router de Next.js
 import { motion } from "framer-motion";
 import { Stethoscope, Scissors, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,9 +9,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
-// Importa los tipos y los nuevos componentes
+// Importa los tipos y los componentes hijos
 import { FormData, PasswordRule, ServiceType } from '@/app/quhealthy/types/signup';
 import { SignupStep1 } from '@/app/quhealthy/components/signup/SignupStep1';
 import { SignupStep2 } from '@/app/quhealthy/components/signup/SignupStep2';
@@ -25,7 +25,7 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 ];
 
 export default function ProviderSignupPage() {
-  const router = useRouter();
+  const router = useRouter(); // 2. Inicializar el router
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -44,10 +44,7 @@ export default function ProviderSignupPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
@@ -67,12 +64,20 @@ export default function ProviderSignupPage() {
     const providerData = { ...formData, role: "provider" };
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/providers/signup`, providerData);
+      // 3. Usar la variable de entorno para llamar a la API en Render
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/providers/signup`;
+      console.log("Enviando datos de registro a:", apiUrl);
+      
+      await axios.post(apiUrl, providerData);
+      
       setSuccess("¡Registro exitoso! Te redirigiremos al Inicio de Sesión.");
       toast.success("¡Registro exitoso! Te redirigiremos.", { position: "top-right" });
+      
       setTimeout(() => {
+        // 4. Usar router.push para una redirección fluida
         router.push("/quhealthy/authentication/providers/login");
       }, 2000);
+
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Ocurrió un error. Intenta nuevamente.";
       setError(errorMessage);
@@ -84,18 +89,9 @@ export default function ProviderSignupPage() {
 
   const isStepValid = (): boolean => {
     if (step === 1) {
-      return (
-        !!formData.email &&
-        !!formData.password &&
-        formData.password === formData.confirmPassword &&
-        passwordValidation.every((rule) => rule.valid)
-      );
+      return ( !!formData.email && !!formData.password && formData.password === formData.confirmPassword && passwordValidation.every(rule => rule.valid) );
     }
-    return (
-      !!formData.name && !!formData.businessName && !!formData.phone &&
-      !!formData.address && formData.acceptTerms &&
-      formData.categoryProviderId > 0 && formData.tagId > 0
-    );
+    return ( !!formData.name && !!formData.businessName && !!formData.phone && !!formData.address && formData.acceptTerms && formData.categoryProviderId > 0 && formData.tagId > 0 );
   };
 
   useEffect(() => {
@@ -106,10 +102,6 @@ export default function ProviderSignupPage() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-900 text-white flex items-center justify-center p-4">
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/20 blur-3xl animate-pulse delay-1000" />
-      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         className="relative z-10 w-full max-w-2xl p-8 rounded-xl shadow-2xl bg-gray-800/90 backdrop-blur-lg border border-gray-700"
@@ -144,10 +136,9 @@ export default function ProviderSignupPage() {
             </Button>
           </div>
         </form>
+        
+        <p className="text-center text-sm text-gray-400 mt-6">¿Ya tienes una cuenta? <Link href="/quhealthy/authentication/providers/login" className="text-purple-400 hover:underline">Inicia sesión</Link></p>
 
-        <p className="text-center text-sm text-gray-400 mt-6">
-          ¿Ya tienes una cuenta? <Link href="/quhealthy/authentication/providers/login" className="text-purple-400 hover:underline">Inicia sesión</Link>
-        </p>
       </motion.div>
     </div>
   );
