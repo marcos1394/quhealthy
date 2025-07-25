@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Check } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { 
+  Check, Loader2, Stethoscope, HeartPulse, Brain, Apple, 
+  Sticker, Hand, Wand, Scissors, Paintbrush, Sparkles, LucideIcon
+} from 'lucide-react';
 
-// Interfaces (puedes moverlas a un archivo de tipos si prefieres)
+// Interfaces
 interface ParentCategory {
   id: number;
   name: string;
@@ -27,6 +30,29 @@ interface EnhancedCategorySelectionProps {
   onCategorySelect: (categoryId: number, tagId: number) => void;
 }
 
+// Objeto de iconos corregido: Almacena la referencia al componente, no el JSX.
+const categoryIcons: { [key: string]: LucideIcon } = {
+    'Medicina General': Stethoscope,
+    'Odontología': Sticker,
+    'Dermatología': Hand,
+    'Psicología y Psiquiatría': Brain,
+    'Nutrición': Apple,
+    'Fisioterapia y Rehabilitación': HeartPulse,
+    'Ginecología y Obstetricia': Sparkles,
+    'Pediatría': Sparkles,
+    'Cardiología': HeartPulse,
+    'Oftalmología': Sparkles,
+    'Traumatología y Ortopedia': Sparkles,
+    'Laboratorios Clínicos': Sparkles,
+    'Estilismo y Peluquería': Scissors,
+    'Cuidado Facial y Estética': Wand,
+    'Manicura y Pedicura': Paintbrush,
+    'Maquillaje y Pestañas': Sparkles,
+    'Tratamientos Corporales': Sparkles,
+    'Depilación': Sparkles,
+    'Tatuajes y Perforaciones': Sparkles,
+};
+
 export default function EnhancedCategorySelection({
   serviceType,
   onCategorySelect
@@ -38,39 +64,43 @@ export default function EnhancedCategorySelection({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectedTagId, setSelectedTagId] = useState<string>('');
 
-  // Carga todas las categorías una vez
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
-        const response = await axios.get<ParentCategory[]>(apiUrl);
-        const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
-        const filteredCategories = response.data.find(p => p.name === parentCategoryName)?.categories || [];
-        setCategories(filteredCategories);
-      } catch (err) {
-        setError('No se pudieron cargar las categorías.');
-        toast.error('No se pudieron cargar las categorías.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSelectedCategoryId('');
+      setSelectedTagId('');
+      
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
+      const response = await axios.get<ParentCategory[]>(apiUrl);
+      
+      const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
+      const filteredCategories = response.data.find(p => p.name === parentCategoryName)?.categories || [];
+
+      setCategories(filteredCategories);
+    } catch (err) {
+      setError('No se pudieron cargar las categorías. Intenta de nuevo.');
+      toast.error('No se pudieron cargar las categorías.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [serviceType]);
 
-  // Actualiza los tags disponibles cuando cambia la categoría seleccionada
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   useEffect(() => {
     if (selectedCategoryId) {
       const category = categories.find(c => c.id === parseInt(selectedCategoryId));
       setTags(category?.tags || []);
-      setSelectedTagId(''); // Resetea la selección de tag
+      setSelectedTagId('');
     } else {
       setTags([]);
     }
   }, [selectedCategoryId, categories]);
 
-  // Informa a la página principal cuando la selección está completa
   useEffect(() => {
     if (selectedCategoryId && selectedTagId) {
       onCategorySelect(parseInt(selectedCategoryId), parseInt(selectedTagId));
@@ -97,12 +127,19 @@ export default function EnhancedCategorySelection({
           <SelectTrigger className="w-full bg-gray-700 border-gray-600">
             <SelectValue placeholder="Selecciona una categoría..." />
           </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id.toString()}>
-                {category.name}
-              </SelectItem>
-            ))}
+          {/* Se añaden clases para el estilo del desplegable */}
+          <SelectContent className="bg-gray-800 text-white border-gray-700">
+            {categories.map((category) => {
+              const Icon = categoryIcons[category.name] || Sparkles;
+              return (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    <span>{category.name}</span>
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
@@ -113,7 +150,8 @@ export default function EnhancedCategorySelection({
           <SelectTrigger className="w-full bg-gray-700 border-gray-600">
             <SelectValue placeholder={!selectedCategoryId ? "Primero elige una categoría" : "Selecciona una especialidad..."} />
           </SelectTrigger>
-          <SelectContent>
+           {/* Se añaden clases para el estilo del desplegable */}
+          <SelectContent className="bg-gray-800 text-white border-gray-700">
             {tags.map((tag) => (
               <SelectItem key={tag.id} value={tag.id.toString()}>
                 {tag.name}
