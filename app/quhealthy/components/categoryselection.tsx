@@ -8,92 +8,104 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Loader2, Check } from 'lucide-react';
 
-// Interfaces (puedes moverlas a un archivo de tipos si prefieres)
+// --- NUEVAS INTERFACES ALINEADAS CON EL BACKEND ---
 interface ParentCategory {
   id: number;
   name: string;
-  categories: CategoryProvider[]; // Estas son las Subcategorías
+  categories: Category[];
 }
-interface CategoryProvider {
+interface Category {
   id: number;
   name: string;
-  tags: Tag[];
+  subcategories: SubCategory[];
+}
+interface SubCategory {
+  id: number;
+  name: string;
 }
 interface Tag {
   id: number;
   name: string;
+  color: string;
 }
 interface EnhancedCategorySelectionProps {
   serviceType: 'health' | 'beauty';
-  // La función ahora pasará UN categoryId y UN ARRAY de tagIds
-  onSelectionChange: (categoryId: number, tagIds: number[]) => void;
+  onSelectionChange: (categoryId: number, subCategoryId: number, tagIds: number[]) => void;
 }
 
 export default function EnhancedCategorySelection({
   serviceType,
   onSelectionChange
 }: EnhancedCategorySelectionProps) {
-  const [subCategories, setSubCategories] = useState<CategoryProvider[]>([]);
-  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [allTags, setAllTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | undefined>(undefined);
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]); // Estado para múltiples tags
+  
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | undefined>();
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
-  // Carga las subcategorías basadas en el tipo de servicio
+  // Carga TODA la data inicial (categorías y tags) en paralelo
   useEffect(() => {
-    const fetchSubCategories = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError(null);
-        setSelectedSubCategoryId(undefined);
-        setSelectedTagIds([]);
-        
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
-        const response = await axios.get<ParentCategory[]>(apiUrl);
+
+        // Hacemos las dos llamadas a la API en paralelo para más eficiencia
+        const [categoriesResponse, tagsResponse] = await Promise.all([
+          axios.get<ParentCategory[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`),
+          axios.get<Tag[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`)
+        ]);
         
         const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
-        const filtered = response.data.find(p => p.name === parentCategoryName)?.categories || [];
-        setSubCategories(filtered);
+        const filteredCategories = categoriesResponse.data.find(p => p.name === parentCategoryName)?.categories || [];
+        
+        setCategories(filteredCategories);
+        setAllTags(tagsResponse.data);
+
       } catch (err) {
-        setError('No se pudieron cargar las categorías.');
-        toast.error('No se pudieron cargar las categorías.');
+        setError('No se pudieron cargar los datos de categoría. Intenta de nuevo.');
+        toast.error('Error al cargar datos.');
       } finally {
         setLoading(false);
       }
     };
-    fetchSubCategories();
+    fetchInitialData();
   }, [serviceType]);
 
-  // Maneja el cambio en el menú de Subcategoría
-  const handleSubCategoryChange = (subCategoryId: string) => {
-    setSelectedSubCategoryId(subCategoryId);
-    const selected = subCategories.find(c => c.id === parseInt(subCategoryId));
-    setAvailableTags(selected?.tags || []);
-    // Resetea los tags seleccionados al cambiar de subcategoría
+  // Maneja el cambio en el selector de Categoría
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    const selected = categories.find(c => c.id === parseInt(categoryId));
+    setSubCategories(selected?.subcategories || []);
+    // Resetea las selecciones posteriores
+    setSelectedSubCategoryId(undefined);
     setSelectedTagIds([]);
   };
 
-  // Maneja el clic en un Tag (añadir o quitar)
-  const handleTagToggle = (tagId: number) => {
-    setSelectedTagIds(prevSelectedIds => {
-      if (prevSelectedIds.includes(tagId)) {
-        // Si ya está seleccionado, lo quitamos
-        return prevSelectedIds.filter(id => id !== tagId);
-      } else {
-        // Si no está seleccionado, lo añadimos
-        return [...prevSelectedIds, tagId];
-      }
-    });
+  // Maneja el cambio en el selector de Subcategoría
+  const handleSubCategoryChange = (subCategoryId: string) => {
+    setSelectedSubCategoryId(subCategoryId);
   };
   
-  // Notifica al componente padre cada vez que la selección cambia
+  // Maneja el clic en un Tag (añadir o quitar)
+  const handleTagToggle = (tagId: number) => {
+    setSelectedTagIds(prevSelectedIds =>
+      prevSelectedIds.includes(tagId)
+        ? prevSelectedIds.filter(id => id !== tagId)
+        : [...prevSelectedIds, tagId]
+    );
+  };
+  
+  // Notifica al componente padre cada vez que la selección cambia y está completa
   useEffect(() => {
-    if (selectedSubCategoryId) {
-      onSelectionChange(parseInt(selectedSubCategoryId), selectedTagIds);
+    if (selectedCategoryId && selectedSubCategoryId) {
+      onSelectionChange(parseInt(selectedCategoryId), parseInt(selectedSubCategoryId), selectedTagIds);
     }
-  }, [selectedSubCategoryId, selectedTagIds, onSelectionChange]);
-
+  }, [selectedCategoryId, selectedSubCategoryId, selectedTagIds, onSelectionChange]);
 
   if (loading) {
     return <div className="flex justify-center p-8 bg-gray-800/50 rounded-xl"><Loader2 className="animate-spin text-teal-400" /></div>;
@@ -108,41 +120,50 @@ export default function EnhancedCategorySelection({
       animate={{ opacity: 1 }}
       className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 space-y-6"
     >
-      {/* Selector de Subcategoría (un solo select) */}
+      {/* 1. Selector de Categoría */}
       <div>
-        <label className="block text-sm font-medium text-teal-400 mb-2">1. Elige tu Área Principal</label>
-        <Select value={selectedSubCategoryId} onValueChange={handleSubCategoryChange}>
-          <SelectTrigger className="w-full bg-gray-700 border-gray-600">
-            <SelectValue placeholder="Selecciona tu área..." />
-          </SelectTrigger>
+        <label className="block text-sm font-medium text-teal-400 mb-2">1. Elige la Categoría</label>
+        <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
+          <SelectTrigger className="w-full bg-gray-700 border-gray-600"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-700">
-            {subCategories.map((category) => (
-              <SelectItem key={category.id} value={category.id.toString()}>
-                {category.name}
-              </SelectItem>
-            ))}
+            {categories.map((category) => <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Selector de Tags (selección múltiple con badges) */}
+      {/* 2. Selector de Subcategoría */}
       <AnimatePresence>
-        {selectedSubCategoryId && availableTags.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <label className="block text-sm font-medium text-teal-400 mb-2">2. Selecciona tus Especialidades (una o varias)</label>
-            <div className="flex flex-wrap gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700">
-              {availableTags.map((tag) => {
+        {selectedCategoryId && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+            <label className="block text-sm font-medium text-teal-400 mb-2">2. Elige tu Especialidad Principal</label>
+            <Select value={selectedSubCategoryId} onValueChange={handleSubCategoryChange} disabled={subCategories.length === 0}>
+              <SelectTrigger className="w-full bg-gray-700 border-gray-600"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+              <SelectContent className="bg-gray-800 text-white border-gray-700">
+                {subCategories.map((sub) => <SelectItem key={sub.id} value={sub.id.toString()}>{sub.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. Selector de Tags (Etiquetas) */}
+      <AnimatePresence>
+        {selectedSubCategoryId && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+            <label className="block text-sm font-medium text-teal-400 mb-2">3. Añade etiquetas descriptivas (opcional)</label>
+            <div className="flex flex-wrap gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700 min-h-[50px]">
+              {allTags.map((tag) => {
                 const isSelected = selectedTagIds.includes(tag.id);
                 return (
                   <Badge
                     key={tag.id}
-                    variant={isSelected ? "default" : "secondary"}
                     onClick={() => handleTagToggle(tag.id)}
-                    className={`cursor-pointer transition-all ${isSelected ? 'bg-teal-500 text-white' : 'bg-gray-600 hover:bg-gray-500 text-gray-200'}`}
+                    className="cursor-pointer transition-all"
+                    style={{ 
+                      backgroundColor: isSelected ? tag.color : '#4b5563', // Gris si no está seleccionado
+                      color: '#ffffff',
+                      border: isSelected ? `1px solid ${tag.color}` : '1px solid #4b5563'
+                    }}
                   >
                     {isSelected && <Check className="w-3 h-3 mr-1.5" />}
                     {tag.name}
