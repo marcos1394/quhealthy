@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 
 interface LocationMapProps {
@@ -17,10 +17,12 @@ export const LocationMap: React.FC<LocationMapProps> = ({ center, onMapLoad, onM
       onLoad={onMapLoad}
       onClick={onMapClick}
       options={{
-        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID, // Usa una variable de entorno para el Map ID
-        streetViewControl: false,
+        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID,
+        streetViewControl: true,
         mapTypeControl: false,
         fullscreenControl: false,
+        zoomControl: true, // <-- 1. Asegura que los controles de zoom estén visibles
+        clickableIcons: false, // <-- 2. Evita que aparezcan pop-ups de otros negocios
       }}
     />
   </div>
