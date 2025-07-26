@@ -10,12 +10,11 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Importa los tipos y los componentes hijos
 import { FormData, PasswordRule, ServiceType } from '@/app/quhealthy/types/signup';
 import { SignupStep1 } from '@/app/quhealthy/components/signup/SignupStep1';
 import { SignupStep2 } from '@/app/quhealthy/components/signup/SignupStep2';
 import { StepIndicator } from '@/app/quhealthy/components/signup/StepIndicator';
-import { LocationData } from "@/app/quhealthy/types/location"; // Importa el tipo de ubicación
+import { LocationData } from "@/app/quhealthy/types/location";
 
 const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
   { regex: /.{8,}/, message: "Mínimo 8 caracteres" },
@@ -37,7 +36,8 @@ export default function ProviderSignupPage() {
     name: "", businessName: "", email: "", phone: "", password: "", confirmPassword: "",
     address: "", lat: 0, lng: 0, acceptTerms: false, parentCategoryId: 1,
     categoryProviderId: 0, 
-    tagId: 0, // Mantenemos tagId para el MVP, pero ahora podría ser un array en el futuro
+    subCategoryId: 0, // <-- Campo de estado añadido
+    tagIds: [],         // <-- Campo de estado añadido
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
@@ -59,14 +59,13 @@ export default function ProviderSignupPage() {
   };
 
   // --- INICIO DE LA CORRECCIÓN ---
-  // Nueva función que maneja la selección de categoría y el array de tags
-  const handleSelectionChange = (categoryId: number, tagIds: number[]) => {
+  // La función ahora acepta los 3 parámetros correctamente
+  const handleSelectionChange = (categoryId: number, subCategoryId: number, tagIds: number[]) => {
     setFormData(prev => ({
       ...prev,
       categoryProviderId: categoryId,
-      // Para el MVP, guardamos solo el primer tag seleccionado en el campo `tagId`.
-      // En el futuro, el backend deberá ser actualizado para aceptar un array de tags.
-      tagId: tagIds[0] || 0,
+      subCategoryId: subCategoryId,
+      tagIds: tagIds, // Guardamos el array completo de tags
     }));
   };
   // --- FIN DE LA CORRECCIÓN ---
@@ -77,20 +76,21 @@ export default function ProviderSignupPage() {
     setError("");
     setSuccess("");
 
-    const providerData = { ...formData, role: "provider" };
-    
+    // El backend espera 'tagId' (singular), así que enviamos el primero del array para el MVP.
+    const providerData = { ...formData, role: "provider", tagId: formData.tagIds[0] || null };
+
     try {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/providers/signup`;
       await axios.post(apiUrl, providerData);
       
-      setSuccess("¡Registro exitoso! Te redirigiremos al Inicio de Sesión.");
-      toast.success("¡Registro exitoso! Te redirigiremos.", { position: "top-right" });
+      setSuccess("¡Registro exitoso! Te redirigiremos.");
+      toast.success("¡Registro exitoso!", { position: "top-right" });
       
       setTimeout(() => {
         router.push("/quhealthy/authentication/providers/login");
       }, 2000);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Ocurrió un error. Intenta nuevamente.";
+      const errorMessage = err.response?.data?.message || "Ocurrió un error.";
       setError(errorMessage);
       toast.error(errorMessage, { position: "top-right" });
     } finally {
@@ -102,8 +102,8 @@ export default function ProviderSignupPage() {
     if (step === 1) {
       return (!!formData.email && !!formData.password && formData.password === formData.confirmPassword && passwordValidation.every(rule => rule.valid));
     }
-    // La validación ahora comprueba que al menos un tag haya sido seleccionado (tagId > 0)
-    return (!!formData.name && !!formData.businessName && !!formData.phone && !!formData.address && formData.acceptTerms && formData.categoryProviderId > 0 && formData.tagId > 0);
+    // Se actualiza la validación para incluir la subcategoría
+    return (!!formData.name && !!formData.businessName && !!formData.phone && !!formData.address && formData.acceptTerms && formData.categoryProviderId > 0 && formData.subCategoryId > 0);
   };
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function ProviderSignupPage() {
           {step === 1 ? (
             <SignupStep1 formData={formData} passwordValidation={passwordValidation} handleInputChange={handleInputChange} />
           ) : (
-            // Se actualiza la prop que se pasa a SignupStep2
+            // Se pasa la función con el nombre correcto
             <SignupStep2 
               formData={formData} 
               serviceType={serviceType} 
