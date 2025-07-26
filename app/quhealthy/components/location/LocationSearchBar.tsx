@@ -22,25 +22,17 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
   const handleLoad = (autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete;
     autocomplete.setComponentRestrictions({ country: "mx" });
-    // Aquí pedimos a Google todos los datos que necesitamos para la tarjeta de detalles
     autocomplete.setFields([
-      'place_id', 
-      'geometry', 
-      'name', 
-      'formatted_address',
-      'opening_hours',
-      'rating',
-      'user_ratings_total',
-      'website',
-      'photos',
-      'formatted_phone_number'
+      'place_id', 'geometry', 'name', 'formatted_address',
+      'opening_hours', 'rating', 'user_ratings_total', 'website',
+      'photos', 'formatted_phone_number'
     ]);
   };
 
   const handlePlaceChanged = () => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
-      if (place?.geometry) { // Nos aseguramos que el lugar seleccionado sea válido
+      if (place?.geometry) {
         onPlaceSelect(place);
       }
     }
@@ -48,10 +40,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({
 
   return (
     <div className="relative">
-      <Autocomplete
-        onLoad={handleLoad}
-        onPlaceChanged={handlePlaceChanged}
-      >
+      <Autocomplete onLoad={handleLoad} onPlaceChanged={handlePlaceChanged}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
           <input
