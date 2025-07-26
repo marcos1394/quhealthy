@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Sparkles, LucideIcon } from 'lucide-react';
+import { Stethoscope, HeartPulse, Brain, Apple, Sticker, Hand, Wand, Scissors, Paintbrush } from 'lucide-react';
 
-// --- NUEVAS INTERFACES ALINEADAS CON EL BACKEND ---
+// Interfaces
 interface ParentCategory {
   id: number;
   name: string;
@@ -33,6 +34,17 @@ interface EnhancedCategorySelectionProps {
   onSelectionChange: (categoryId: number, subCategoryId: number, tagIds: number[]) => void;
 }
 
+// Objeto de iconos
+const categoryIcons: { [key: string]: LucideIcon } = {
+    'Medicina General': Stethoscope, 'Odontología': Sticker, 'Dermatología': Hand,
+    'Psicología y Psiquiatría': Brain, 'Nutrición': Apple, 'Fisioterapia y Rehabilitación': HeartPulse,
+    'Ginecología y Obstetricia': Sparkles, 'Pediatría': Sparkles, 'Cardiología': HeartPulse,
+    'Oftalmología': Sparkles, 'Traumatología y Ortopedia': Sparkles, 'Laboratorios Clínicos': Sparkles,
+    'Estilismo y Peluquería': Scissors, 'Cuidado Facial y Estética': Wand, 'Manicura y Pedicura': Paintbrush,
+    'Maquillaje y Pestañas': Sparkles, 'Tratamientos Corporales': Sparkles, 'Depilación': Sparkles,
+    'Tatuajes y Perforaciones': Sparkles,
+};
+
 export default function EnhancedCategorySelection({
   serviceType,
   onSelectionChange
@@ -47,65 +59,53 @@ export default function EnhancedCategorySelection({
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | undefined>();
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
-  // Carga TODA la data inicial (categorías y tags) en paralelo
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Hacemos las dos llamadas a la API en paralelo para más eficiencia
-        const [categoriesResponse, tagsResponse] = await Promise.all([
-          axios.get<ParentCategory[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`),
-          axios.get<Tag[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`)
-        ]);
-        
-        const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
-        const filteredCategories = categoriesResponse.data.find(p => p.name === parentCategoryName)?.categories || [];
-        
-        setCategories(filteredCategories);
-        setAllTags(tagsResponse.data);
-
-      } catch (err) {
-        setError('No se pudieron cargar los datos de categoría. Intenta de nuevo.');
-        toast.error('Error al cargar datos.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInitialData();
+  const fetchInitialData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [categoriesResponse, tagsResponse] = await Promise.all([
+        axios.get<ParentCategory[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`),
+        axios.get<Tag[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`)
+      ]);
+      const parentCategoryName = serviceType === 'health' ? 'Salud' : 'Belleza';
+      const filteredCategories = categoriesResponse.data.find(p => p.name === parentCategoryName)?.categories || [];
+      setCategories(filteredCategories);
+      setAllTags(tagsResponse.data);
+    } catch (err) {
+      setError('No se pudieron cargar los datos.');
+      toast.error('Error al cargar datos.');
+    } finally {
+      setLoading(false);
+    }
   }, [serviceType]);
 
-  // Maneja el cambio en el selector de Categoría
-  const handleCategoryChange = (categoryId: string) => {
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
+  const handleCategoryChange = useCallback((categoryId: string) => {
     setSelectedCategoryId(categoryId);
     const selected = categories.find(c => c.id === parseInt(categoryId));
     setSubCategories(selected?.subcategories || []);
-    // Resetea las selecciones posteriores
     setSelectedSubCategoryId(undefined);
     setSelectedTagIds([]);
-  };
+  }, [categories]);
 
-  // Maneja el cambio en el selector de Subcategoría
-  const handleSubCategoryChange = (subCategoryId: string) => {
+  const handleSubCategoryChange = useCallback((subCategoryId: string) => {
     setSelectedSubCategoryId(subCategoryId);
-  };
+  }, []);
   
-  // Maneja el clic en un Tag (añadir o quitar)
-  const handleTagToggle = (tagId: number) => {
-    setSelectedTagIds(prevSelectedIds =>
-      prevSelectedIds.includes(tagId)
-        ? prevSelectedIds.filter(id => id !== tagId)
-        : [...prevSelectedIds, tagId]
-    );
-  };
+  const handleTagToggle = useCallback((tagId: number) => {
+    setSelectedTagIds(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
+  }, []);
   
-  // Notifica al componente padre cada vez que la selección cambia y está completa
+  const stableOnSelectionChange = useCallback(onSelectionChange, []);
+
   useEffect(() => {
     if (selectedCategoryId && selectedSubCategoryId) {
-      onSelectionChange(parseInt(selectedCategoryId), parseInt(selectedSubCategoryId), selectedTagIds);
+      stableOnSelectionChange(parseInt(selectedCategoryId), parseInt(selectedSubCategoryId), selectedTagIds);
     }
-  }, [selectedCategoryId, selectedSubCategoryId, selectedTagIds, onSelectionChange]);
+  }, [selectedCategoryId, selectedSubCategoryId, selectedTagIds, stableOnSelectionChange]);
 
   if (loading) {
     return <div className="flex justify-center p-8 bg-gray-800/50 rounded-xl"><Loader2 className="animate-spin text-teal-400" /></div>;
@@ -120,22 +120,32 @@ export default function EnhancedCategorySelection({
       animate={{ opacity: 1 }}
       className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 space-y-6"
     >
-      {/* 1. Selector de Categoría */}
       <div>
         <label className="block text-sm font-medium text-teal-400 mb-2">1. Elige la Categoría</label>
         <Select value={selectedCategoryId} onValueChange={handleCategoryChange}>
-          <SelectTrigger className="w-full bg-gray-700 border-gray-600"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+          <SelectTrigger className="w-full bg-gray-700 border-gray-600">
+            <SelectValue placeholder="Selecciona..." />
+          </SelectTrigger>
           <SelectContent className="bg-gray-800 text-white border-gray-700">
-            {categories.map((category) => <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>)}
+            {categories.map((category) => {
+              const Icon = categoryIcons[category.name] || Sparkles;
+              return (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    <span>{category.name}</span>
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
 
-      {/* 2. Selector de Subcategoría */}
       <AnimatePresence>
         {selectedCategoryId && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-            <label className="block text-sm font-medium text-teal-400 mb-2">2. Elige tu Especialidad Principal</label>
+            <label className="block text-sm font-medium text-teal-400 mb-2">2. Elige tu Subcategoría (Especialidad Principal)</label>
             <Select value={selectedSubCategoryId} onValueChange={handleSubCategoryChange} disabled={subCategories.length === 0}>
               <SelectTrigger className="w-full bg-gray-700 border-gray-600"><SelectValue placeholder="Selecciona..." /></SelectTrigger>
               <SelectContent className="bg-gray-800 text-white border-gray-700">
@@ -145,8 +155,7 @@ export default function EnhancedCategorySelection({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 3. Selector de Tags (Etiquetas) */}
+      
       <AnimatePresence>
         {selectedSubCategoryId && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
@@ -160,7 +169,7 @@ export default function EnhancedCategorySelection({
                     onClick={() => handleTagToggle(tag.id)}
                     className="cursor-pointer transition-all"
                     style={{ 
-                      backgroundColor: isSelected ? tag.color : '#4b5563', // Gris si no está seleccionado
+                      backgroundColor: isSelected ? tag.color : '#4b5563',
                       color: '#ffffff',
                       border: isSelected ? `1px solid ${tag.color}` : '1px solid #4b5563'
                     }}

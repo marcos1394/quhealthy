@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -60,14 +60,16 @@ export default function ProviderSignupPage() {
 
   // --- INICIO DE LA CORRECCIÓN ---
   // La función ahora acepta los 3 parámetros correctamente
-  const handleSelectionChange = (categoryId: number, subCategoryId: number, tagIds: number[]) => {
+ // --- INICIO DE LA CORRECCIÓN ---
+  // Se envuelve la función en useCallback para estabilizarla
+  const handleSelectionChange = useCallback((categoryId: number, subCategoryId: number, tagIds: number[]) => {
     setFormData(prev => ({
       ...prev,
       categoryProviderId: categoryId,
       subCategoryId: subCategoryId,
-      tagIds: tagIds, // Guardamos el array completo de tags
+      tagIds: tagIds,
     }));
-  };
+  }, []); // El array de dependencias vacío significa que esta función nunca cambiará
   // --- FIN DE LA CORRECCIÓN ---
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
