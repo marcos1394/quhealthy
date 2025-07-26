@@ -2,14 +2,13 @@
 
 import React from 'react';
 import { User, Building2, Phone } from "lucide-react";
-import { FormData, ServiceType } from '@/app/quhealthy/types/signup'; // Asegúrate que la ruta sea correcta
-import EnhancedCategorySelection from "@/app/quhealthy/components/categoryselection"; // Asegúrate que la ruta sea correcta
+import { FormData, ServiceType } from '@/app/quhealthy/types/signup';
+import EnhancedCategorySelection from "@/app/quhealthy/components/categoryselection";
 import { TermsModal } from '@/app/quhealthy/components/signup/TermsModal';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import { LocationData } from '@/app/quhealthy/types/location'; // Asegúrate que la ruta sea correcta
+import { LocationData } from '@/app/quhealthy/types/location';
 
-// Importa el componente de mapa/ubicación de forma dinámica
 const EnhancedLocationPickerWithNoSSR = dynamic(
   () => import('@/app/quhealthy/components/locationmapmodal').then(mod => mod.EnhancedLocationPicker),
   { 
@@ -24,8 +23,8 @@ interface SignupStep2Props {
   serviceType: ServiceType;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onLocationSelect: (location: LocationData) => void; 
-  // Se actualiza el nombre y el tipo de la prop para que coincida con el componente hijo
-  onSelectionChange: (categoryId: number, tagIds: number[]) => void;
+  // La prop ahora debe coincidir con la firma del componente hijo (3 argumentos)
+  onSelectionChange: (categoryId: number, subCategoryId: number, tagIds: number[]) => void;
 }
 
 export const SignupStep2: React.FC<SignupStep2Props> = ({ 
@@ -33,7 +32,7 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
   serviceType, 
   handleInputChange, 
   onLocationSelect, 
-  onSelectionChange // Se recibe la nueva prop
+  onSelectionChange // Se recibe la prop con el nombre y tipo correcto
 }) => {
 // --- FIN DE LA CORRECCIÓN DE PROPS ---
   
@@ -59,12 +58,12 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400" />
         <input type="tel" name="phone" placeholder="Teléfono de contacto" value={formData.phone} onChange={handleInputChange} className="w-full pl-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-purple-400" required />
       </div>
-
-      {/* --- Componentes de Mapa y Categoría (AHORA USANDO LA NUEVA PROP) --- */}
+      
+      {/* --- Componentes de Mapa y Categoría (AHORA USANDO LA PROP CORRECTA) --- */}
       <EnhancedLocationPickerWithNoSSR onLocationSelect={onLocationSelect} />
       <EnhancedCategorySelection 
         serviceType={serviceType} 
-        onSelectionChange={onSelectionChange} // Se pasa la nueva prop
+        onSelectionChange={onSelectionChange} // Se pasa la prop con el nombre correcto
       />
 
       {/* --- Términos y Condiciones (sin cambios) --- */}
