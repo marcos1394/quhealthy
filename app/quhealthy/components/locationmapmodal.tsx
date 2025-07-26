@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
+import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import { LocationData, ValidationDetails } from '@/app/quhealthy/types/location';
 
 // Importa los sub-componentes
@@ -16,15 +17,12 @@ const libraries: ('places' | 'marker')[] = ['places', 'marker'];
 
 interface LocationPickerProps {
   onLocationSelect: (location: LocationData) => void;
-  initialPosition?: { lat: number; lng: number };
 }
 
 export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   onLocationSelect,
-  initialPosition = { lat: 19.4326, lng: -99.1332 }, // CDMX por defecto
 }) => {
-  const [selectedPosition, setSelectedPosition] = useState(initialPosition);
-  const [searchValue, setSearchValue] = useState('');
+  const [mapCenter, setMapCenter] = useState({ lat: 19.4326, lng: -99.1332 }); // CDMX por defecto
   const [validationStatus, setValidationStatus] = useState<ValidationDetails | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [placeDetails, setPlaceDetails] = useState<google.maps.places.PlaceResult | null>(null);
@@ -38,8 +36,8 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     libraries,
     mapIds: [process.env.NEXT_PUBLIC_GOOGLE_MAP_ID!],
   });
-  
-  // Función central para validar y notificar la selección
+
+  // Función central para validar la dirección y notificar al formulario principal
   const validateAndReportSelection = useCallback(async (location: Omit<LocationData, 'validationDetails'>) => {
     setIsValidating(true);
     setValidationStatus(null);
@@ -53,56 +51,74 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
       const validationResult: ValidationDetails = await response.json();
       
       setValidationStatus(validationResult);
-      // Notifica al componente padre (el formulario de registro) con todos los datos
       onLocationSelect({ ...location, validationDetails: validationResult });
-
     } catch (error) {
       toast.error("No se pudo validar la dirección seleccionada.");
     } finally {
       setIsValidating(false);
     }
   }, [onLocationSelect]);
-
-  // Manejador para la selección desde el autocompletado
-  const handlePlaceSelect = useCallback(async (place: google.maps.places.PlaceResult) => {
-    if (!place?.geometry?.location) return;
-
-    const newPos = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-    const address = place.formatted_address || '';
+  
+  // Caso de uso 1: El usuario selecciona un negocio del autocompletado
+  const handlePlaceSelect = useCallback(async (placeId: string | null) => {
+    if (!placeId) {
+      setPlaceDetails(null);
+      return;
+    }
     
-    setPlaceDetails(place);
-    setSearchValue(place.name || address);
-    setSelectedPosition(newPos);
-    mapRef.current?.panTo(newPos);
-    mapRef.current?.setZoom(17);
+    try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/places/details/${placeId}`;
+      const response = await axios.get(apiUrl);
+      const fullPlaceDetails = response.data;
 
-    await validateAndReportSelection({ lat: newPos.lat, lng: newPos.lng, address, name: place.name, placeDetails: place });
+      if (!fullPlaceDetails?.location) return;
+
+      const newPos = { lat: fullPlaceDetails.location.lat, lng: fullPlaceDetails.location.lng };
+      
+      setPlaceDetails(fullPlaceDetails);
+      setMapCenter(newPos);
+      if (mapRef.current) {
+        mapRef.current.panTo(newPos);
+        mapRef.current.setZoom(17);
+      }
+
+      await validateAndReportSelection({ 
+        lat: newPos.lat, 
+        lng: newPos.lng, 
+        address: fullPlaceDetails.address, 
+        name: fullPlaceDetails.name, 
+        placeDetails: fullPlaceDetails 
+      });
+
+    } catch (error) {
+      toast.error("No se pudieron obtener los detalles del negocio.");
+      setPlaceDetails(null);
+    }
   }, [validateAndReportSelection]);
 
-  // Manejador para el arrastre del pin o clic en el mapa
+  // Caso de uso 2: El usuario mueve el pin o hace clic en el mapa
   const handlePinMove = useCallback(async (event: google.maps.MapMouseEvent) => {
     if (!event.latLng) return;
 
     const newPos = { lat: event.latLng.lat(), lng: event.latLng.lng() };
-    setSelectedPosition(newPos);
-    setPlaceDetails(null); // Borramos detalles de negocio previo, ya que es una ubicación manual
+    setMapCenter(newPos);
+    setPlaceDetails(null); // Borramos detalles de negocio previo
 
     try {
       const geocoder = new google.maps.Geocoder();
       const response = await geocoder.geocode({ location: newPos });
       if (response.results[0]) {
         const address = response.results[0].formatted_address;
-        setSearchValue(address); // Actualizamos la barra de búsqueda con la dirección encontrada
         await validateAndReportSelection({ lat: newPos.lat, lng: newPos.lng, address });
       } else {
         toast.error("No se pudo encontrar una dirección para esta ubicación.");
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error("Error al obtener la dirección.");
     }
   }, [validateAndReportSelection]);
 
-  // Efecto para crear y actualizar el marcador
+  // Efecto para crear y actualizar la posición del marcador
   useEffect(() => {
     if (isLoaded && mapRef.current) {
       if (!markerRef.current) {
@@ -112,53 +128,31 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
         });
         markerRef.current.addListener('dragend', handlePinMove);
       }
-      markerRef.current.position = selectedPosition;
+      markerRef.current.position = mapCenter;
     }
-  }, [isLoaded, selectedPosition, handlePinMove]);
+  }, [isLoaded, mapCenter, handlePinMove]);
   
-  const handleClearSearch = () => {
-    setSearchValue('');
-    setValidationStatus(null);
-    setPlaceDetails(null);
-  };
-  
-  const handleConfirmBusiness = () => {
-    if (!placeDetails) return;
-    const locationData = {
-        lat: selectedPosition.lat,
-        lng: selectedPosition.lng,
-        address: placeDetails.formatted_address || searchValue,
-        name: placeDetails.name,
-        placeDetails: placeDetails,
-        validationDetails: validationStatus || undefined
-    };
-    onLocationSelect(locationData);
-    toast.success("Negocio confirmado y datos pre-cargados.");
-  }
-
-  if (loadError) return <div className="text-red-500 p-4 bg-red-900/50 rounded-lg">Error al cargar el mapa. Verifica tu API Key y la configuración en Google Cloud.</div>;
+  if (loadError) return <div className="text-red-500 p-4 bg-red-900/50 rounded-lg">Error al cargar el mapa. Verifica tu API Key.</div>;
   if (!isLoaded) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>;
 
   return (
     <div className="space-y-4">
-      <LocationSearchBar 
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        onPlaceSelect={handlePlaceSelect}
-        onClear={handleClearSearch}
-      />
+      <LocationSearchBar onPlaceSelect={handlePlaceSelect} />
+      
       {placeDetails && (
         <PlaceDetailsCard 
           place={placeDetails} 
-          onConfirm={handleConfirmBusiness} 
-          onClear={handleClearSearch} 
+          onConfirm={() => toast.success("Negocio confirmado.")} 
+          onClear={() => setPlaceDetails(null)}
         />
       )}
+      
       <LocationMap 
-        center={selectedPosition}
+        center={mapCenter}
         onMapLoad={(map) => { mapRef.current = map; }}
         onMapClick={handlePinMove}
       />
+
       <ValidationStatus 
         isValidating={isValidating} 
         validationStatus={validationStatus} 

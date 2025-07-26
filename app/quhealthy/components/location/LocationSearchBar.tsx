@@ -1,68 +1,72 @@
 "use client";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search } from 'lucide-react';
+import axios from 'axios';
+import debounce from 'lodash.debounce';
 
-import React, { useRef } from 'react';
-import { Autocomplete } from '@react-google-maps/api';
-import { Search, X } from 'lucide-react';
-
-interface LocationSearchBarProps {
-  value: string; 
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onPlaceSelect: (place: google.maps.places.PlaceResult) => void;
-  onClear: () => void;
+interface Suggestion {
+  description: string;
+  placeId: string;
 }
 
-export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ 
-  value, 
-  onChange, 
-  onPlaceSelect,
-  onClear
-}) => {
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+interface LocationSearchBarProps {
+  onPlaceSelect: (placeId: string) => void; // Ahora solo pasa el placeId
+  initialValue?: string;
+}
 
-  const handleLoad = (autocomplete: google.maps.places.Autocomplete) => {
-    autocompleteRef.current = autocomplete;
-    autocomplete.setComponentRestrictions({ country: "mx" });
-    autocomplete.setFields([
-      'place_id', 'geometry', 'name', 'formatted_address',
-      'opening_hours', 'rating', 'user_ratings_total', 'website',
-      'photos', 'formatted_phone_number'
-    ]);
+export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ onPlaceSelect, initialValue = '' }) => {
+  const [inputValue, setInputValue] = useState(initialValue);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+
+  const fetchSuggestions = async (value: string) => {
+    if (value.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/places/autocomplete`, { input: value });
+      setSuggestions(response.data || []);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+    }
   };
 
-  const handlePlaceChanged = () => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      if (place?.geometry) {
-        onPlaceSelect(place);
-      }
-    }
+  const debouncedFetch = useCallback(debounce(fetchSuggestions, 300), []);
+
+  useEffect(() => {
+    debouncedFetch(inputValue);
+  }, [inputValue, debouncedFetch]);
+  
+  const handleSelect = (suggestion: Suggestion) => {
+    setInputValue(suggestion.description);
+    setSuggestions([]);
+    onPlaceSelect(suggestion.placeId);
   };
 
   return (
     <div className="relative">
-      <Autocomplete onLoad={handleLoad} onPlaceChanged={handlePlaceChanged}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-          <input
-            type="text"
-            value={value}
-            onChange={onChange}
-            placeholder="Buscar tu negocio por nombre..."
-            className="w-full pl-10 pr-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-purple-400"
-            aria-label="Buscar negocio"
-          />
-          {value && (
-            <button 
-              type="button"
-              onClick={onClear} 
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-              aria-label="Limpiar búsqueda"
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder="Buscar tu negocio por nombre..."
+        className="w-full pl-10 pr-10 p-3 rounded-lg bg-gray-700/50 border border-gray-600 focus:border-purple-400"
+      />
+      {suggestions.length > 0 && (
+        <ul className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+          {suggestions.map((suggestion) => (
+            <li
+              key={suggestion.placeId}
+              onClick={() => handleSelect(suggestion)}
+              className="px-4 py-2 cursor-pointer hover:bg-gray-700"
             >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </Autocomplete>
+              {suggestion.description}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
