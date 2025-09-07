@@ -101,117 +101,57 @@ export default function ProviderLoginPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Final validation
-    validateField('email', formData.email);
-    validateField('password', formData.password);
-    
-    if (!isFormValid()) {
-      toast.error("Por favor corrige los errores en el formulario", {
-        position: "top-center",
-        autoClose: 3000,
-      });
-      return;
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+
+  try {
+    // 1. Hacemos UNA SOLA llamada para el login.
+    console.log("🚀 Iniciando sesión...");
+    const response = await axios.post(
+      `${API_BASE_URL}/login`,
+      formData,
+      { withCredentials: true }
+    );
+
+    toast.success("Inicio de sesión exitoso. Redirigiendo...", {
+      position: "top-right",
+      autoClose: 1500,
+    });
+
+    // 2. Extraemos el objeto 'onboarding' directamente de la respuesta del login.
+    const { hasActivePlan, isComplete } = response.data.onboarding;
+    console.log("🔍 Estado recibido del login:", { hasActivePlan, isComplete });
+
+    // 3. Usamos la información de 'onboarding' para decidir la redirección.
+    if (!hasActivePlan) {
+      console.log("🚫 Sin plan activo. Redirigiendo a /profile/providers/plans...");
+      toast.info("Por favor, selecciona un plan para continuar.", { position: "top-center", autoClose: 3000 });
+      window.location.href = "/quhealthy/profile/providers/plans";
+    } else if (!isComplete) {
+      console.log("⏳ Onboarding incompleto. Redirigiendo a /authentication/providers/onboarding...");
+      toast.info("Completa los pasos de configuración para acceder al dashboard.", { position: "top-center", autoClose: 3000 });
+      window.location.href = "/quhealthy/authentication/providers/onboarding";
+    } else {
+      console.log("✅ Onboarding completo. Redirigiendo a /profile/providers/dashboard...");
+      window.location.href = "/quhealthy/profile/providers/dashboard";
     }
-    
-    setLoading(true);
-    setError("");
 
-    try {
-      // 1. Intento de inicio de sesión
-      console.log("🚀 Iniciando sesión...");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const loginResponse = await axios.post(
-        `${API_BASE_URL}/login`,
-        formData,
-        { withCredentials: true } // Para manejo de cookies
-      );
-
-      // Respuesta exitosa (Axios considera 2xx como éxito por defecto)
-      toast.success("Credenciales verificadas correctamente", {
-        position: "top-center",
-        autoClose: 2000,
-      });
-
-      // 2. Verificar si tiene un plan activo
-      console.log("🔍 Verificando plan activo...");
-      const planResponse = await axios.get(
-        `${API_BASE_URL}/active-plan`,
-        { withCredentials: true } // Envía la cookie establecida en el login
-      );
-      console.log("Respuesta de /active-plan:", planResponse.data);
-      const { hasPlan } = planResponse.data;
-
-      // 3. Redirección si no hay plan
-      if (!hasPlan) {
-        console.log("🚫 Sin plan activo. Redirigiendo a /profile/providers/plans...");
-        toast.info("Por favor, selecciona un plan para continuar.", { 
-          position: "top-center", 
-          autoClose: 3000 
-        });
-        setTimeout(() => {
-          window.location.href = "/quhealthy/profile/providers/plans";
-        }, 1500);
-        return;
-      }
-
-      // 4. Verificar estado de onboarding (solo si tiene plan)
-      console.log("🔍 Plan activo encontrado. Verificando estado de onboarding...");
-      const onboardingResponse = await axios.get(
-        `${API_BASE_URL}/onboarding-status`,
-        { withCredentials: true } // Envía la cookie
-      );
-      console.log("Respuesta de /onboarding-status:", onboardingResponse.data);
-      const { isOnboardingComplete } = onboardingResponse.data;
-
-      // 5. Redirección final basada en onboarding
-      if (!isOnboardingComplete) {
-        console.log("⏳ Onboarding incompleto. Redirigiendo a /authentication/providers/onboarding...");
-        toast.info("Completando configuración de tu cuenta...", { 
-          position: "top-center", 
-          autoClose: 2000 
-        });
-        setTimeout(() => {
-          window.location.href = "/quhealthy/authentication/providers/onboarding";
-        }, 1500);
-      } else {
-        console.log("✅ Onboarding completo. Redirigiendo a /profile/providers/dashboard...");
-        toast.success("¡Bienvenido! Redirigiendo a tu dashboard...", {
-          position: "top-center",
-          autoClose: 2000,
-        });
-        setTimeout(() => {
-          window.location.href = "/quhealthy/profile/providers/dashboard";
-        }, 1500);
-      }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error("❌ Error durante el proceso de inicio de sesión/verificación:", err);
-      let errorMessage = "Error inesperado. Intenta de nuevo más tarde.";
-      
-      if (axios.isAxiosError(err)) {
-        if (err.response?.status === 401) {
-          errorMessage = "Credenciales incorrectas. Verifica tu email y contraseña.";
-        } else if (err.response?.status === 404) {
-          errorMessage = "Cuenta no encontrada. ¿Necesitas registrarte?";
-        } else if (err.response?.status === 403) {
-          errorMessage = "Tu cuenta está suspendida. Contacta soporte.";
-        } else {
-          errorMessage = err.response?.data?.message || err.message || errorMessage;
-        }
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-      toast.error(errorMessage, { position: "top-center", autoClose: 5000 });
-
-    } finally {
-      setLoading(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    // Captura el error de la llamada al login
+    console.error("❌ Error durante el inicio de sesión:", err);
+    let errorMessage = "Error inesperado. Intenta de nuevo más tarde.";
+    if (axios.isAxiosError(err)) {
+      errorMessage = err.response?.data?.message || err.message || errorMessage;
+    } else if (err instanceof Error) {
+      errorMessage = err.message;
     }
-  };
+    setError(errorMessage);
+    toast.error(errorMessage, { position: "top-right", autoClose: 5000 });
+    setLoading(false); // Detenemos la carga aquí en caso de error
+  }
+};
 
   const getFieldStatus = (fieldName: string) => {
     if (!formData[fieldName as keyof typeof formData]) return 'default';
