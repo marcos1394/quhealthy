@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 
-export type BillingCycle = "monthly" | "yearly";
+// CORRECCIÓN: Cambiamos "yearly" a "annual" para que coincida con la lógica del componente.
+export type BillingCycle = "monthly" | "annual";
 
 export interface PlanFeature {
   title: string;
