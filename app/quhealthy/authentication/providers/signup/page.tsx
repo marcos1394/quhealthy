@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Stethoscope, Scissors, AlertCircle, Loader2 } from "lucide-react";
+import { Stethoscope, Scissors,  Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,7 @@ export default function ProviderSignupPage() {
       setTimeout(() => {
         router.push("/quhealthy/authentication/providers/login");
       }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Ocurrió un error.";
       setError(errorMessage);
