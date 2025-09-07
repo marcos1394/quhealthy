@@ -383,19 +383,20 @@ export default function PlansPage() {
               className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 mb-12"
               variants={containerVariants}
             >
-              {plans.map((plan, index) => (
-                <motion.div
-                  key={plan.id + billingCycle}
-                  variants={itemVariants}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <PricingCard
-                    plan={plan}
-                    isPopular={plan.popular}
-                  />
-                </motion.div>
-              ))}
-            </motion.div>
+           {plans.map((plan, index) => (
+    <motion.div
+      key={plan.id + billingCycle}
+      variants={itemVariants}
+      transition={{ delay: index * 0.1 }}
+    >
+      <PricingCard
+        plan={plan}
+        isPopular={plan.popular}
+        index={index} // <-- AÑADE ESTA LÍNEA
+      />
+    </motion.div>
+  ))}
+</motion.div>
 
             {/* Trust Indicators */}
             <motion.div 
