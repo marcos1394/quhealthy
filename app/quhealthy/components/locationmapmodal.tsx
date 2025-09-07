@@ -70,7 +70,6 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-
   // Get user's current location
   const getCurrentLocation = () => {
     setLocationError(null);
@@ -112,6 +111,7 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   const searchPlaces = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setShowSuggestions(false);
       return;
     }
 
@@ -129,16 +129,20 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
       }
       
       const data: NominatimResult[] = await response.json();
+      console.log('Search results:', data); // Debug log
       setSearchResults(data);
-      setShowSuggestions(true);
       
       if (data.length === 0) {
         setLocationError('No se encontraron resultados para tu búsqueda');
+        setShowSuggestions(false);
+      } else {
+        setShowSuggestions(true);
       }
     } catch (error) {
       console.error('Error searching places:', error);
       setSearchResults([]);
       setLocationError('Error al buscar lugares. Verifica tu conexión a internet.');
+      setShowSuggestions(false);
     } finally {
       setIsSearching(false);
     }
@@ -249,33 +253,39 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     setMapCenter([lat, lng]);
     setSelectedPlace(null);
     setSearchQuery('');
+    setShowSuggestions(false);
     reverseGeocode(lat, lng);
   };
 
- // Borra tu useEffect actual y reemplázalo con este:
-
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    // Si el ref existe y el clic NO fue dentro del contenedor...
-    if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
-      // ...entonces sí cerramos las sugerencias.
-      setShowSuggestions(false);
+  // Handle focus on search input
+  const handleSearchFocus = () => {
+    if (searchResults.length > 0 && searchQuery.trim()) {
+      setShowSuggestions(true);
     }
   };
 
-  // Añadimos el listener al montar el componente
-  document.addEventListener('mousedown', handleClickOutside);
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
 
-  // Lo limpiamos al desmontar
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-  };
-}, []); // El array vacío asegura que esto se configure solo una vez
+    // Solo añadir el listener si showSuggestions es true
+    if (showSuggestions) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSuggestions]); // Dependencia en showSuggestions
 
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="relative"  ref={searchContainerRef}>
+      <div className="relative" ref={searchContainerRef}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-400" />
           <input
@@ -283,8 +293,7 @@ useEffect(() => {
             placeholder="Buscar dirección o negocio..."
             value={searchQuery}
             onChange={handleSearchChange}
-            onFocus={() => searchResults.length > 0 && setShowSuggestions(true)}
-            onClick={(e) => e.stopPropagation()}
+            onFocus={handleSearchFocus}
             className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 focus:border-teal-400 text-white placeholder-gray-500 transition-all duration-300"
           />
           <button
@@ -304,10 +313,7 @@ useEffect(() => {
 
         {/* Search Results Dropdown */}
         {showSuggestions && searchResults.length > 0 && (
-          <div 
-            className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
             {searchResults.map((place, index) => (
               <div
                 key={place.place_id || index}
@@ -318,11 +324,16 @@ useEffect(() => {
                   <MapPin className="w-5 h-5 text-teal-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">
-                      {place.display_name.split(',')[0]}
+                      {place.name || place.display_name.split(',')[0]}
                     </p>
                     <p className="text-gray-400 text-xs truncate">
                       {place.display_name}
                     </p>
+                    {place.type && (
+                      <span className="inline-block mt-1 text-xs bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full">
+                        {place.type}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -353,7 +364,7 @@ useEffect(() => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-white font-medium truncate">
-                {selectedPlace.display_name.split(',')[0]}
+                {selectedPlace.name || selectedPlace.display_name.split(',')[0]}
               </h3>
               <p className="text-gray-400 text-sm truncate">
                 {selectedPlace.display_name}
