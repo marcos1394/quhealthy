@@ -68,6 +68,8 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
 
   // Get user's current location
   const getCurrentLocation = () => {
@@ -250,25 +252,30 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
     reverseGeocode(lat, lng);
   };
 
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
+ // Borra tu useEffect actual y reemplázalo con este:
+
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    // Si el ref existe y el clic NO fue dentro del contenedor...
+    if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+      // ...entonces sí cerramos las sugerencias.
       setShowSuggestions(false);
-    };
-
-    if (showSuggestions) {
-      document.addEventListener('click', handleClickOutside);
     }
+  };
 
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showSuggestions]);
+  // Añadimos el listener al montar el componente
+  document.addEventListener('mousedown', handleClickOutside);
+
+  // Lo limpiamos al desmontar
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []); // El array vacío asegura que esto se configure solo una vez
 
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="relative">
+      <div className="relative"  ref={searchContainerRef}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-400" />
           <input
