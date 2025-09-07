@@ -285,7 +285,7 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="relative" ref={searchContainerRef}>
+      <div className="relative z-50"  ref={searchContainerRef}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-400" />
           <input
