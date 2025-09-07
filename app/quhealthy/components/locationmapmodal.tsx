@@ -313,7 +313,7 @@ export const EnhancedLocationPicker: React.FC<LocationPickerProps> = ({
 
         {/* Search Results Dropdown */}
         {showSuggestions && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-9999 max-h-64 overflow-y-auto">
             {searchResults.map((place, index) => (
               <div
                 key={place.place_id || index}
