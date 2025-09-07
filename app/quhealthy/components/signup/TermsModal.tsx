@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -70,8 +71,8 @@ export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, children }) =>
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 flex flex-col overflow-hidden">
+<div className="fixed inset-0 z-50 grid place-items-center p-4 bg-black/80 backdrop-blur-sm">
+<div className="w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gray-800/50">
           <div className="flex items-center space-x-3">
