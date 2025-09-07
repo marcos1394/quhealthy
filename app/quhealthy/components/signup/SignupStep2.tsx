@@ -185,7 +185,7 @@ export const SignupStep2: React.FC<SignupStep2Props> = ({
             )}
           </div>
 
-          <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/50 overflow-hidden">
+          <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/50">
             {/* AQUÍ ESTÁ EL CAMBIO PRINCIPAL: Usamos el wrapper en lugar del componente directo */}
             <LocationPickerWrapper onLocationSelect={handleLocationSelect} />
           </div>
