@@ -85,16 +85,18 @@ export default function PlansPage() {
       let errorMessage = "Hubo un error al cargar los planes.";
       
       if (axios.isAxiosError(err)) {
-        if (err.code === 'ECONNABORTED') {
-          errorMessage = "La conexión tardó demasiado. Verifica tu conexión a internet.";
-        } else if (err.response?.status === 401) {
-          errorMessage = "Sesión expirada. Por favor, inicia sesión nuevamente.";
-        } else if (err.response?.status === 403) {
-          errorMessage = "No tienes permisos para ver los planes disponibles.";
-        } else if (err.response?.status >= 500) {
-          errorMessage = "Nuestros servidores están experimentando problemas. Intenta de nuevo en unos minutos.";
-        }
-      }
+  if (err.code === 'ECONNABORTED') {
+    errorMessage = "La conexión tardó demasiado. Verifica tu conexión a internet.";
+  } else if (err.response?.status === 401) {
+    errorMessage = "Sesión expirada. Por favor, inicia sesión nuevamente.";
+  } else if (err.response?.status === 403) {
+    errorMessage = "No tienes permisos para ver los planes disponibles.";
+  } 
+  // --- CORRECCIÓN AQUÍ ---
+  else if (err.response && err.response.status >= 500) { 
+    errorMessage = "Nuestros servidores están experimentando problemas. Intenta de nuevo en unos minutos.";
+  }
+}
       
       setError(errorMessage);
     } finally {
