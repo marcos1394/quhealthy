@@ -7,14 +7,22 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   AlertCircle, 
   Loader2, 
-  Shield, 
   Crown, 
   Zap, 
   TrendingUp,
   Check,
   RefreshCw,
   CreditCard,
-  Lock
+  Lock,
+  Calendar,
+  ShoppingCart,
+  Coins,
+  Sparkles,
+  Shield,
+  Briefcase,
+  Video,
+  Users,
+  PieChart
 } from "lucide-react";
 
 // Importa los tipos y los componentes necesarios
@@ -53,6 +61,32 @@ const pulseVariants = {
   }
 };
 
+// --- FUNCIÓN TRADUCTORA: Convierte datos de la API a formato de UI ---
+const mapApiPlanToUiPlan = (apiPlan: Plan): Plan => {
+  const features: Plan['features'] = [
+    { title: "Citas", description: `${apiPlan.maxAppointments ?? 'Ilimitadas'} / mes`, icon: <Calendar className="w-4 h-4" /> },
+    { title: "Servicios", description: `${apiPlan.maxServices ?? 'Ilimitados'} en tu perfil`, icon: <ShoppingCart className="w-4 h-4" /> },
+    { title: "Productos", description: `${apiPlan.maxProducts ?? 'Ilimitados'} en QuMarket`, icon: <Briefcase className="w-4 h-4" /> },
+    { title: "Cursos", description: `${apiPlan.maxCourses ?? 'Ilimitados'} en QuBlocks`, icon: <Video className="w-4 h-4" /> },
+    { title: "Marketing", description: `Nivel ${apiPlan.marketingLevel}`, icon: <Sparkles className="w-4 h-4" /> },
+    { title: "Soporte", description: `Nivel ${apiPlan.supportLevel}`, icon: <Shield className="w-4 h-4" /> },
+    { title: "Comisión", description: `${apiPlan.transactionFee}% por transacción`, icon: <Coins className="w-4 h-4" /> },
+  ];
+
+  if (apiPlan.advancedReports) {
+    features.push({ title: "Reportes Avanzados", description: "Análisis detallado", icon: <PieChart className="w-4 h-4" /> });
+  }
+
+  if (apiPlan.userManagement > 0) {
+    features.push({ title: "Gestión de Usuarios", description: `Hasta ${apiPlan.userManagement} miembros`, icon: <Users className="w-4 h-4" /> });
+  }
+
+  return {
+    ...apiPlan,
+    features, // Añadimos el array de características generado
+  };
+};
+
 export default function PlansPage() {
   // --- ESTADOS DEL COMPONENTE ---
   const [apiPlans, setApiPlans] = useState<Plan[]>([]); 
@@ -60,6 +94,8 @@ export default function PlansPage() {
   const [error, setError] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [retryCount, setRetryCount] = useState(0);
+
+  
 
   // --- FUNCIÓN DE CARGA CON RETRY ---
   const loadPlans = async (isRetry = false) => {
@@ -76,7 +112,14 @@ export default function PlansPage() {
         timeout: 10000, // 10 segundos de timeout
       });
 
-      setApiPlans(response.data);
+      // Verificamos si la respuesta es un array; si no, usamos un array vacío como fallback.
+const rawPlans = Array.isArray(response.data) ? response.data : [];
+      
+// Usamos la función 'map' para transformar cada plan que llega de la API
+const transformedPlans = rawPlans.map(mapApiPlanToUiPlan); 
+      
+// Guardamos los planes ya transformados y listos para la UI
+setApiPlans(transformedPlans);
       setRetryCount(0); // Reset retry count on success
 
     } catch (err) {
