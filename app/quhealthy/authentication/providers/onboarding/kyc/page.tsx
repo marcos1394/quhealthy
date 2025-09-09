@@ -4,32 +4,42 @@ import React, { useState, useEffect, useCallback, JSX, ReactNode } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldCheck, Loader2, AlertCircle, CheckCircle2, XCircle, ArrowRight, UserCheck, Clock, LayoutDashboard } from "lucide-react";
+import { 
+  ShieldCheck, 
+  Loader2, 
+  AlertCircle, 
+  CheckCircle2, 
+  XCircle, 
+  ArrowRight, 
+  UserCheck, 
+  Clock, 
+  LayoutDashboard,
+  FileText,
+  Camera,
+  Shield,
+  Zap,
+  RefreshCw
+} from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
 // --- Tipos y Enums ---
 
-// CORREGIDO: Definir KYCStatus como un enum real
 enum KYCStatus {
   NOT_STARTED = "not_started",
   PENDING = "pending",
   IN_PROGRESS = "in_progress",
-  VERIFIED = "verified", // Usaremos este como el estado "aprobado/completo"
+  VERIFIED = "verified",
   REJECTED = "rejected",
   EXPIRED = "expired",
   ABANDONED = "abandoned",
   ERROR = "error",
-  // 'approved' se puede mapear a 'verified' si es necesario, o añadir aquí si Didit lo devuelve
-  // 'in_review' se mapea a 'pending' o 'in_progress' según prefieras
 }
 
-// Tipo para los valores del enum (útil para tipar el estado)
 type KycStatusValue = `${KYCStatus}`;
 
-// Interfaces de la respuesta del API (sin cambios, usan KycStatusValue)
 type LicenseStatusValue = 'pending' | 'verified' | 'rejected';
 type PlanLimit = number | "Ilimitados";
 interface KycStatusInfo { status: KycStatusValue; isComplete: boolean; }
@@ -42,7 +52,6 @@ interface PlanDetailsInfo { planId: number | null; planName: string; hasActivePl
 interface ProviderDetailsInfo { parentCategoryId: number | null; email: string; name: string; }
 interface OnboardingStatusResponse { onboardingStatus: OnboardingStatusDetail; planDetails: PlanDetailsInfo; providerDetails: ProviderDetailsInfo; }
 
-// Enum para estados internos del componente
 enum ActionStatus {
   IDLE = "idle",
   LOADING_STATUS = "loading_status",
@@ -53,21 +62,188 @@ enum ActionStatus {
 
 interface APIErrorResponse { message: string; }
 
-// --- Animación ---
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: "easeOut" },
+// --- Animaciones Mejoradas ---
+const pageVariants = {
+  initial: { opacity: 0, scale: 0.95 },
+  animate: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { 
+      duration: 0.5, 
+      ease: [0.25, 0.46, 0.45, 0.94] 
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    scale: 0.95,
+    transition: { duration: 0.3 }
+  }
 };
 
-// --- Componente Principal (Corregido) ---
+const cardVariants = {
+  initial: { y: 50, opacity: 0 },
+  animate: { 
+    y: 0, 
+    opacity: 1,
+    transition: { 
+      delay: 0.2,
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94]
+    }
+  }
+};
+
+const statusVariants = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { 
+    scale: 1, 
+    opacity: 1,
+    transition: { 
+      delay: 0.4,
+      duration: 0.4,
+      ease: "backOut"
+    }
+  }
+};
+
+const pulseVariants = {
+  animate: {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
+// --- Componente de Progress Steps ---
+const ProgressSteps = ({ currentStatus }: { currentStatus: KycStatusValue }) => {
+  const steps = [
+    { key: KYCStatus.NOT_STARTED, label: "Iniciar", icon: <UserCheck className="w-4 h-4" /> },
+    { key: KYCStatus.IN_PROGRESS, label: "Verificando", icon: <Camera className="w-4 h-4" /> },
+    { key: KYCStatus.PENDING, label: "Revisión", icon: <FileText className="w-4 h-4" /> },
+    { key: KYCStatus.VERIFIED, label: "Completo", icon: <CheckCircle2 className="w-4 h-4" /> }
+  ];
+
+  const getCurrentStepIndex = () => {
+    switch (currentStatus) {
+      case KYCStatus.NOT_STARTED: return 0;
+      case KYCStatus.IN_PROGRESS: return 1;
+      case KYCStatus.PENDING: return 2;
+      case KYCStatus.VERIFIED: return 3;
+      case KYCStatus.REJECTED:
+      case KYCStatus.ERROR:
+      case KYCStatus.EXPIRED:
+      case KYCStatus.ABANDONED: return -1; // Error states
+      default: return 0;
+    }
+  };
+
+  const currentStep = getCurrentStepIndex();
+
+  if (currentStep === -1) return null; // Don't show progress for error states
+
+  return (
+    <div className="flex items-center justify-between mb-6 px-2">
+      {steps.map((step, index) => (
+        <React.Fragment key={step.key}>
+          <div className="flex flex-col items-center space-y-2">
+            <motion.div
+              className={`
+                w-10 h-10 rounded-full border-2 flex items-center justify-center relative
+                ${index <= currentStep 
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 border-transparent text-white shadow-lg' 
+                  : 'bg-gray-700/50 border-gray-600 text-gray-400'
+                }
+              `}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: index * 0.1 + 0.5 }}
+            >
+              {index < currentStep ? (
+                <CheckCircle2 className="w-5 h-5" />
+              ) : (
+                step.icon
+              )}
+              {index === currentStep && currentStatus === KYCStatus.IN_PROGRESS && (
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-purple-400"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+              )}
+            </motion.div>
+            <motion.span 
+              className={`text-xs font-medium ${
+                index <= currentStep ? 'text-purple-300' : 'text-gray-500'
+              }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: index * 0.1 + 0.7 }}
+            >
+              {step.label}
+            </motion.span>
+          </div>
+          {index < steps.length - 1 && (
+            <motion.div
+              className={`flex-1 h-0.5 mx-2 ${
+                index < currentStep 
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500' 
+                  : 'bg-gray-600'
+              }`}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: index * 0.1 + 0.8, duration: 0.3 }}
+            />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+// --- Componente de Features ---
+const FeatureList = () => {
+  const features = [
+    { icon: <Shield className="w-4 h-4" />, text: "Verificación segura y encriptada", color: "text-green-400" },
+    { icon: <Zap className="w-4 h-4" />, text: "Proceso rápido (5 minutos)", color: "text-yellow-400" },
+    { icon: <FileText className="w-4 h-4" />, text: "Documentos aceptados: INE/Pasaporte", color: "text-blue-400" }
+  ];
+
+  return (
+    <motion.div 
+      className="space-y-3"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6, duration: 0.4 }}
+    >
+      {features.map((feature, index) => (
+        <motion.div
+          key={index}
+          className="flex items-center space-x-3 text-sm text-gray-300 bg-gray-800/30 rounded-lg p-3 border border-gray-700/50"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.7 + index * 0.1 }}
+        >
+          <div className={`${feature.color}`}>
+            {feature.icon}
+          </div>
+          <span>{feature.text}</span>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
+
+// --- Componente Principal Mejorado ---
 export default function KYCVerification(): JSX.Element {
   const [actionStatus, setActionStatus] = useState<ActionStatus>(ActionStatus.LOADING_STATUS);
-  // Tipar el estado con el tipo de unión de strings derivado del enum
   const [kycSystemStatus, setKycSystemStatus] = useState<KycStatusValue>(KYCStatus.NOT_STARTED);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pollingIntervalId, setPollingIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -76,7 +252,13 @@ export default function KYCVerification(): JSX.Element {
   const formatDate = (dateString: string | null): string | null => {
     if (!dateString) return null;
     try {
-        return new Date(dateString).toLocaleString('es-MX', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return new Date(dateString).toLocaleString('es-MX', { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
     } catch { return dateString; }
   };
 
@@ -95,7 +277,8 @@ export default function KYCVerification(): JSX.Element {
     const message = axiosError.response?.data?.message || axiosError.message || `${context} fallida. Intenta de nuevo.`;
     console.error(`Error en ${context}:`, error);
     setError(message);
-  }, [stopPolling]); // Incluir stopPolling como dependencia
+    toast.error(message, { autoClose: 5000 });
+  }, [stopPolling]);
 
   // --- Lógica Principal ---
   const checkKYCStatus = useCallback(async (isInitialCheck = false) => {
@@ -105,8 +288,6 @@ export default function KYCVerification(): JSX.Element {
     if (!isInitialCheck || actionStatus !== ActionStatus.IDLE) {
         setActionStatus(ActionStatus.LOADING_STATUS);
     }
-    // No limpiamos error aquí, para que persista si hubo uno en la llamada anterior
-    // setError(null);
 
     try {
       const { data } = await axios.get<OnboardingStatusResponse>(
@@ -114,32 +295,30 @@ export default function KYCVerification(): JSX.Element {
         { withCredentials: true }
       );
 
-      // Asegurarnos que el status recibido sea uno de los valores válidos del enum/tipo
       const receivedStatus = data.onboardingStatus.kyc.status;
       const currentKycStatus: KycStatusValue = Object.values(KYCStatus).includes(receivedStatus as KYCStatus)
             ? receivedStatus
-            : KYCStatus.ERROR; // Si el backend devuelve algo inesperado, marcar como error
+            : KYCStatus.ERROR;
 
       setKycSystemStatus(currentKycStatus);
       setLastUpdate(formatDate(new Date().toISOString()));
+      setError(null); // Clear previous errors on successful status check
 
       const finalStatuses: KycStatusValue[] = [KYCStatus.VERIFIED, KYCStatus.REJECTED, KYCStatus.ERROR, KYCStatus.EXPIRED, KYCStatus.ABANDONED];
 
       if (finalStatuses.includes(currentKycStatus)) {
         stopPolling();
-        setActionStatus(ActionStatus.IDLE); // Estado final, permitir acción del botón
+        setActionStatus(ActionStatus.IDLE);
          if (currentKycStatus === KYCStatus.VERIFIED && !isInitialCheck) {
-             toast.success("¡Verificación KYC completada!", { autoClose: 3000 });
+             toast.success("¡Verificación KYC completada exitosamente! 🎉", { autoClose: 4000 });
          }
       } else {
-         // Si no es final, volvemos a IDLE para la siguiente iteración del polling o acción del usuario
          setActionStatus(ActionStatus.IDLE);
       }
 
     } catch (error) {
       handleApiError(error, "Verificación de estado KYC");
     }
-  // Incluir actionStatus en dependencias si queremos evitar llamadas concurrentes estrictamente
   }, [API_BASE_URL, stopPolling, handleApiError, actionStatus]);
 
   // Efecto para chequeo inicial y manejo de polling
@@ -164,10 +343,10 @@ export default function KYCVerification(): JSX.Element {
 
             if (!finalStatuses.includes(validInitialStatus)) {
                 console.log("Iniciando polling para estado KYC...");
-                intervalId = setInterval(() => checkKYCStatus(false), 10000); // Pasar false explícitamente
+                intervalId = setInterval(() => checkKYCStatus(false), 10000);
                 setPollingIntervalId(intervalId);
             } else if (validInitialStatus === KYCStatus.VERIFIED){
-                 toast.info("Tu identidad ya está verificada.", { autoClose: 2000 });
+                 toast.success("Tu identidad ya está verificada ✓", { autoClose: 3000 });
             }
         } catch (error) {
              handleApiError(error, "Verificación de estado inicial para polling");
@@ -181,16 +360,15 @@ export default function KYCVerification(): JSX.Element {
     return () => {
       if (initialCheckTimerId) clearTimeout(initialCheckTimerId);
       if (intervalId) clearInterval(intervalId);
-      // No llamar a stopPolling() aquí directamente para evitar limpiar el ID del estado prematuramente
-      // si el componente se desmonta/remonta rápido. La limpieza del estado se hace en stopPolling.
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Ejecutar solo una vez al montar (las funciones internas usan useCallback)
+  }, []);
 
   // Iniciar sesión de verificación con Didit
   const handleStartVerification = async () => {
     setActionStatus(ActionStatus.CREATING_SESSION);
     setError(null);
+    setIsRetrying(false);
 
     try {
       console.log("🚀 Creando sesión KYC...");
@@ -203,8 +381,8 @@ export default function KYCVerification(): JSX.Element {
 
       if (data.verification_url) {
         setActionStatus(ActionStatus.REDIRECTING);
-        toast.info("Redirigiendo a la verificación...");
-        console.log(" R Redirigiendo a:", data.verification_url);
+        toast.info("Redirigiendo a la verificación...", { autoClose: 2000 });
+        console.log("🔄 Redirigiendo a:", data.verification_url);
         sessionStorage.setItem('kycRedirectInitiated', 'true');
         window.location.href = data.verification_url;
       } else {
@@ -212,59 +390,182 @@ export default function KYCVerification(): JSX.Element {
       }
     } catch (error) {
       handleApiError(error, "Inicio de verificación KYC");
-      // Volver a IDLE aquí para permitir reintento si falla la creación de sesión
       setActionStatus(ActionStatus.IDLE);
+      setIsRetrying(true);
     }
   };
 
+  // Retry functionality
+  const handleRetry = () => {
+    setIsRetrying(false);
+    setError(null);
+    checkKYCStatus(true);
+  };
+
   // --- Lógica de Renderizado ---
-  const getStatusRenderProps = (status: KycStatusValue): { icon: ReactNode; text: string; color: string; bgColor: string, borderColor: string } => {
+  const getStatusRenderProps = (status: KycStatusValue): { 
+    icon: ReactNode; 
+    text: string; 
+    color: string; 
+    bgColor: string; 
+    borderColor: string;
+    gradient: string;
+    description: string;
+  } => {
     const statusConfig = {
-      // CORREGIDO: Usar el enum KYCStatus como clave
-      [KYCStatus.NOT_STARTED]: { icon: <AlertCircle className="w-5 h-5" />, text: "Verificación Requerida", color: "text-gray-300", bgColor: "bg-gray-700/50", borderColor: "border-gray-600/50" },
-      [KYCStatus.PENDING]: { icon: <Clock className="w-5 h-5" />, text: "Pendiente de Revisión", color: "text-yellow-300", bgColor: "bg-yellow-600/10", borderColor: "border-yellow-500/30" },
-      [KYCStatus.IN_PROGRESS]: { icon: <Loader2 className="w-5 h-5 animate-spin" />, text: "Verificación en Progreso...", color: "text-blue-300", bgColor: "bg-blue-600/10", borderColor: "border-blue-500/30" },
-      [KYCStatus.VERIFIED]: { icon: <CheckCircle2 className="w-5 h-5" />, text: "Identidad Verificada", color: "text-green-400", bgColor: "bg-green-600/10", borderColor: "border-green-500/30" },
-      [KYCStatus.REJECTED]: { icon: <XCircle className="w-5 h-5" />, text: "Verificación Rechazada", color: "text-red-400", bgColor: "bg-red-600/10", borderColor: "border-red-500/30" },
-      [KYCStatus.ERROR]: { icon: <AlertCircle className="w-5 h-5" />, text: "Error en Verificación", color: "text-red-400", bgColor: "bg-red-600/10", borderColor: "border-red-500/30" },
-      [KYCStatus.EXPIRED]: { icon: <Clock className="w-5 h-5" />, text: "Sesión Expirada", color: "text-orange-400", bgColor: "bg-orange-600/10", borderColor: "border-orange-500/30" },
-      [KYCStatus.ABANDONED]: { icon: <XCircle className="w-5 h-5" />, text: "Proceso Abandonado", color: "text-orange-400", bgColor: "bg-orange-600/10", borderColor: "border-orange-500/30" },
+      [KYCStatus.NOT_STARTED]: { 
+        icon: <UserCheck className="w-6 h-6" />, 
+        text: "Verificación Requerida", 
+        color: "text-gray-300", 
+        bgColor: "bg-gray-700/30", 
+        borderColor: "border-gray-600/40",
+        gradient: "from-gray-600/20 to-gray-700/20",
+        description: "Necesitamos verificar tu identidad para continuar"
+      },
+      [KYCStatus.PENDING]: { 
+        icon: <Clock className="w-6 h-6" />, 
+        text: "Revisión en Proceso", 
+        color: "text-amber-300", 
+        bgColor: "bg-amber-500/10", 
+        borderColor: "border-amber-400/30",
+        gradient: "from-amber-500/10 to-yellow-500/10",
+        description: "Nuestro equipo está revisando tu documentación"
+      },
+      [KYCStatus.IN_PROGRESS]: { 
+        icon: <Loader2 className="w-6 h-6 animate-spin" />, 
+        text: "Verificación Activa", 
+        color: "text-blue-300", 
+        bgColor: "bg-blue-500/10", 
+        borderColor: "border-blue-400/30",
+        gradient: "from-blue-500/10 to-cyan-500/10",
+        description: "Tu sesión de verificación está en curso"
+      },
+      [KYCStatus.VERIFIED]: { 
+        icon: <CheckCircle2 className="w-6 h-6" />, 
+        text: "Identidad Verificada", 
+        color: "text-emerald-300", 
+        bgColor: "bg-emerald-500/10", 
+        borderColor: "border-emerald-400/30",
+        gradient: "from-emerald-500/10 to-green-500/10",
+        description: "Tu identidad ha sido verificada exitosamente"
+      },
+      [KYCStatus.REJECTED]: { 
+        icon: <XCircle className="w-6 h-6" />, 
+        text: "Verificación Rechazada", 
+        color: "text-red-300", 
+        bgColor: "bg-red-500/10", 
+        borderColor: "border-red-400/30",
+        gradient: "from-red-500/10 to-pink-500/10",
+        description: "La documentación requiere correcciones"
+      },
+      [KYCStatus.ERROR]: { 
+        icon: <AlertCircle className="w-6 h-6" />, 
+        text: "Error en Verificación", 
+        color: "text-red-300", 
+        bgColor: "bg-red-500/10", 
+        borderColor: "border-red-400/30",
+        gradient: "from-red-500/10 to-orange-500/10",
+        description: "Ocurrió un error técnico durante el proceso"
+      },
+      [KYCStatus.EXPIRED]: { 
+        icon: <Clock className="w-6 h-6" />, 
+        text: "Sesión Expirada", 
+        color: "text-orange-300", 
+        bgColor: "bg-orange-500/10", 
+        borderColor: "border-orange-400/30",
+        gradient: "from-orange-500/10 to-red-500/10",
+        description: "La sesión anterior ha expirado"
+      },
+      [KYCStatus.ABANDONED]: { 
+        icon: <XCircle className="w-6 h-6" />, 
+        text: "Proceso Incompleto", 
+        color: "text-orange-300", 
+        bgColor: "bg-orange-500/10", 
+        borderColor: "border-orange-400/30",
+        gradient: "from-orange-500/10 to-yellow-500/10",
+        description: "El proceso anterior no se completó"
+      },
     };
-    // Usar fallback seguro
     return statusConfig[status] ?? statusConfig[KYCStatus.ERROR];
   };
 
   const renderStatus = () => {
     const statusProps = getStatusRenderProps(kycSystemStatus);
     return (
-      <div className={`border ${statusProps.borderColor} ${statusProps.bgColor} p-4 rounded-lg text-center space-y-2 shadow-inner`}>
-         <div className={`flex items-center justify-center space-x-2 ${statusProps.color} font-medium text-lg`}>
+      <motion.div 
+        className={`
+          relative border ${statusProps.borderColor} bg-gradient-to-br ${statusProps.gradient} 
+          backdrop-blur-sm rounded-xl p-6 text-center space-y-4 shadow-inner overflow-hidden
+        `}
+        variants={statusVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+        
+        <motion.div 
+          className={`flex items-center justify-center space-x-3 ${statusProps.color} relative z-10`}
+          variants={kycSystemStatus === KYCStatus.VERIFIED ? pulseVariants : {}}
+          animate={kycSystemStatus === KYCStatus.VERIFIED ? "animate" : ""}
+        >
+          <div className="relative">
             {statusProps.icon}
-            <span>{statusProps.text}</span>
-         </div>
+            {kycSystemStatus === KYCStatus.VERIFIED && (
+              <motion.div
+                className="absolute -inset-2 rounded-full bg-emerald-400/20 blur-sm"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">{statusProps.text}</h3>
+            <p className="text-sm opacity-80 mt-1">{statusProps.description}</p>
+          </div>
+        </motion.div>
+
         {lastUpdate && (
-          <p className="text-xs text-gray-400">
-            (Última comprobación: {lastUpdate})
-          </p>
+          <motion.p 
+            className="text-xs text-gray-400 relative z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            Actualizado: {lastUpdate}
+          </motion.p>
         )}
-      </div>
+
+        {/* Polling indicator */}
+        {(kycSystemStatus === KYCStatus.PENDING || kycSystemStatus === KYCStatus.IN_PROGRESS) && (
+          <motion.div
+            className="flex items-center justify-center space-x-2 text-xs text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
+            <span>Actualizando automáticamente</span>
+          </motion.div>
+        )}
+      </motion.div>
     );
   };
 
   // Determinar texto y acción del botón principal
   let buttonAction: () => void;
   let buttonText: string;
-  let buttonIcon: ReactNode = <ArrowRight className="w-5 h-5 ml-2" />;
+  let buttonIcon: ReactNode = <ArrowRight className="w-5 h-5" />;
   let isActionDisabled: boolean = false;
+  let buttonVariant: "default" | "destructive" | "success" = "default";
   const isLoading = actionStatus === ActionStatus.LOADING_STATUS || actionStatus === ActionStatus.CREATING_SESSION || actionStatus === ActionStatus.REDIRECTING;
 
-  // CORREGIDO: Usar el enum KYCStatus en el switch
   switch (kycSystemStatus) {
     case KYCStatus.VERIFIED:
       buttonAction = () => router.push('/quhealthy/profile/providers/dashboard');
-      buttonText = "Ir al Panel";
-      buttonIcon = <LayoutDashboard className="w-5 h-5 ml-2" />;
+      buttonText = "Acceder al Panel";
+      buttonIcon = <LayoutDashboard className="w-5 h-5" />;
       isActionDisabled = isLoading;
+      buttonVariant = "success";
       break;
     case KYCStatus.REJECTED:
     case KYCStatus.ERROR:
@@ -272,113 +573,388 @@ export default function KYCVerification(): JSX.Element {
     case KYCStatus.ABANDONED:
       buttonAction = handleStartVerification;
       buttonText = "Reintentar Verificación";
-      buttonIcon = <UserCheck className="w-5 h-5 mr-2" />;
+      buttonIcon = <RefreshCw className="w-5 h-5" />;
       isActionDisabled = isLoading;
+      buttonVariant = "destructive";
       break;
     case KYCStatus.PENDING:
     case KYCStatus.IN_PROGRESS:
        buttonAction = () => {};
-       buttonText = "Verificación en Proceso...";
+       buttonText = "Verificación en Proceso";
+       buttonIcon = <Loader2 className="w-5 h-5 animate-spin" />;
        isActionDisabled = true;
        break;
     case KYCStatus.NOT_STARTED:
     default:
       buttonAction = handleStartVerification;
-      buttonText = "Iniciar Verificación de Identidad";
-      buttonIcon = <UserCheck className="w-5 h-5 mr-2" />;
+      buttonText = "Iniciar Verificación";
+      buttonIcon = <UserCheck className="w-5 h-5" />;
       isActionDisabled = isLoading;
   }
 
+  const getButtonClasses = () => {
+    const base = "w-full font-semibold text-base shadow-lg disabled:opacity-50 transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden group";
+    
+    switch (buttonVariant) {
+      case "success":
+        return `${base} bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white`;
+      case "destructive":
+        return `${base} bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white`;
+      default:
+        return `${base} bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white`;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white p-4 md:p-8 flex items-center justify-center relative overflow-hidden">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4 md:p-8 flex items-center justify-center relative overflow-hidden"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      {/* Enhanced Background Effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/4 left-0 w-96 h-96 bg-purple-500 opacity-[0.12] blur-3xl animate-pulse rounded-full" />
-            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-blue-500 opacity-[0.12] blur-3xl animate-pulse delay-1000 rounded-full" />
+        <motion.div 
+          className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500 opacity-20 blur-3xl rounded-full"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            x: [0, 50, 0],
+            y: [0, -30, 0]
+          }}
+          transition={{ 
+            duration: 20, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-500 opacity-20 blur-3xl rounded-full"
+          animate={{ 
+            scale: [1, 1.3, 1],
+            x: [0, -50, 0],
+            y: [0, 30, 0]
+          }}
+          transition={{ 
+            duration: 25, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+            delay: 10
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-600/10 to-blue-600/10 blur-3xl rounded-full"
+          animate={{ 
+            rotate: [0, 360],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ 
+            duration: 50, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        />
       </div>
 
       <motion.div
-        {...fadeIn}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-lg relative z-10"
+        variants={cardVariants}
+        initial="initial"
+        animate="animate"
       >
-        <Card className="bg-gray-800/90 backdrop-blur-lg border border-gray-700 shadow-2xl rounded-xl">
-          <CardHeader className="text-center space-y-4 pt-8 pb-6">
-            <div className="mx-auto bg-purple-500/10 border border-purple-500/20 p-4 rounded-full w-fit shadow-inner">
-              <UserCheck className="w-10 h-10 text-purple-400" />
-            </div>
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold text-white">Verificación de Identidad (KYC)</h1>
-              <p className="text-gray-300 text-sm px-4">
-                Para la seguridad de todos y cumplir regulaciones, necesitamos verificar tu identidad. Este proceso es rápido y seguro.
+        <Card className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 shadow-2xl rounded-2xl overflow-hidden">
+          {/* Header */}
+          <CardHeader className="text-center space-y-6 pt-8 pb-6 relative">
+            <motion.div 
+              className="mx-auto bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-400/30 p-4 rounded-2xl w-fit shadow-inner backdrop-blur-sm"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <ShieldCheck className="w-12 h-12 text-purple-300" />
+            </motion.div>
+            
+            <motion.div 
+              className="space-y-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Verificación de Identidad
+              </h1>
+              <p className="text-gray-300 text-sm px-4 leading-relaxed">
+                Protegemos tu seguridad y cumplimos las regulaciones financieras. 
+                El proceso es rápido, seguro y completamente encriptado.
               </p>
-            </div>
+            </motion.div>
           </CardHeader>
 
-          <CardContent className="space-y-5 px-6 pb-6">
-             {actionStatus === ActionStatus.ERROR && error && (
-               <Alert variant="destructive" className="bg-red-500/10 border-red-500/50 text-red-400">
-                  <AlertCircle className="h-5 w-5" />
-                  <AlertDescription>{error}</AlertDescription>
-               </Alert>
-             )}
+          <CardContent className="space-y-6 px-6 pb-6">
+            {/* Progress Steps */}
+            <ProgressSteps currentStatus={kycSystemStatus} />
 
+            {/* Error Alert */}
+            <AnimatePresence>
+              {actionStatus === ActionStatus.ERROR && error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert variant="destructive" className="bg-red-500/10 border-red-400/50 text-red-300 backdrop-blur-sm">
+                    <AlertCircle className="h-5 w-5" />
+                    <AlertDescription className="font-medium">{error}</AlertDescription>
+                  </Alert>
+                  {isRetrying && (
+                    <motion.div
+                      className="mt-3 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      <Button
+                        onClick={handleRetry}
+                        variant="outline"
+                        size="sm"
+                        className="bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 text-gray-300"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Reintentar
+                      </Button>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Status Display */}
             {renderStatus()}
 
-            {/* CORREGIDO: Usar enum KYCStatus */}
-            {(kycSystemStatus === KYCStatus.REJECTED || kycSystemStatus === KYCStatus.ERROR) && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/50 text-red-400 text-sm">
-                  <AlertCircle className="h-4 w-4"/>
-                  <AlertDescription>
-                     {kycSystemStatus === KYCStatus.REJECTED
-                        ? "Tu verificación fue rechazada. Por favor, revisa tus documentos e inténtalo de nuevo. Si el problema persiste, contacta a soporte."
-                        : "Ocurrió un error durante la verificación. Por favor, inténtalo de nuevo."
-                     }
-                  </AlertDescription>
-              </Alert>
-            )}
-            {/* CORREGIDO: Usar enum KYCStatus */}
-             {kycSystemStatus === KYCStatus.EXPIRED && (
-              <Alert variant="destructive" className="bg-orange-500/10 border-orange-500/50 text-orange-300 text-sm">
-                  <AlertCircle className="h-4 w-4"/>
-                  <AlertDescription>
-                     La sesión anterior expiró. Por favor, inicia el proceso de nuevo.
-                  </AlertDescription>
-              </Alert>
-            )}
-            {/* CORREGIDO: Usar enum KYCStatus */}
-             {kycSystemStatus === KYCStatus.ABANDONED && (
-              <Alert variant="destructive" className="bg-orange-500/10 border-orange-500/50 text-orange-300 text-sm">
-                   <AlertCircle className="h-4 w-4"/>
-                  <AlertDescription>
-                     Parece que el proceso anterior no se completó. Puedes iniciarlo de nuevo cuando estés listo.
-                  </AlertDescription>
-              </Alert>
+            {/* Contextual Messages */}
+            <AnimatePresence>
+              {kycSystemStatus === KYCStatus.REJECTED && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert className="bg-red-500/10 border-red-400/30 text-red-300 backdrop-blur-sm">
+                    <AlertCircle className="h-4 w-4"/>
+                    <AlertDescription className="text-sm">
+                      <strong>Documentación rechazada:</strong> Revisa que tus documentos estén vigentes, 
+                      legibles y coincidan con tu información personal. Si persiste el problema, 
+                      contacta a nuestro equipo de soporte.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+              
+              {kycSystemStatus === KYCStatus.EXPIRED && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert className="bg-orange-500/10 border-orange-400/30 text-orange-300 backdrop-blur-sm">
+                    <Clock className="h-4 w-4"/>
+                    <AlertDescription className="text-sm">
+                      <strong>Sesión expirada:</strong> Por seguridad, las sesiones de verificación 
+                      tienen un tiempo límite. Puedes iniciar una nueva sesión cuando estés listo.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+
+              {kycSystemStatus === KYCStatus.ABANDONED && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert className="bg-orange-500/10 border-orange-400/30 text-orange-300 backdrop-blur-sm">
+                    <AlertCircle className="h-4 w-4"/>
+                    <AlertDescription className="text-sm">
+                      <strong>Proceso incompleto:</strong> No completaste el proceso anterior. 
+                      Puedes continuarlo o iniciar uno nuevo cuando tengas tiempo disponible.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+
+              {kycSystemStatus === KYCStatus.PENDING && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert className="bg-amber-500/10 border-amber-400/30 text-amber-300 backdrop-blur-sm">
+                    <Clock className="h-4 w-4"/>
+                    <AlertDescription className="text-sm">
+                      <strong>En revisión manual:</strong> Nuestro equipo especializado está 
+                      revisando tu documentación. Normalmente este proceso toma entre 24-48 horas hábiles.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+
+              {kycSystemStatus === KYCStatus.VERIFIED && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert className="bg-emerald-500/10 border-emerald-400/30 text-emerald-300 backdrop-blur-sm">
+                    <CheckCircle2 className="h-4 w-4"/>
+                    <AlertDescription className="text-sm">
+                      <strong>¡Verificación exitosa!</strong> Tu identidad ha sido confirmada. 
+                      Ya puedes acceder a todas las funcionalidades de la plataforma.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Feature List - Only show for initial states */}
+            {(kycSystemStatus === KYCStatus.NOT_STARTED || 
+              kycSystemStatus === KYCStatus.REJECTED || 
+              kycSystemStatus === KYCStatus.ERROR ||
+              kycSystemStatus === KYCStatus.EXPIRED ||
+              kycSystemStatus === KYCStatus.ABANDONED) && (
+              <FeatureList />
             )}
 
-             <ul className="text-xs text-gray-400 space-y-1 list-disc list-inside pl-2">
-                <li>Necesitarás una identificación oficial vigente (INE/Pasaporte).</li>
-                <li>Asegúrate de estar en un lugar bien iluminado.</li>
-                <li>El proceso toma aproximadamente 5 minutos.</li>
-            </ul>
-
+            {/* Tips for Success */}
+            {(kycSystemStatus === KYCStatus.NOT_STARTED || 
+              kycSystemStatus === KYCStatus.REJECTED || 
+              kycSystemStatus === KYCStatus.ERROR ||
+              kycSystemStatus === KYCStatus.EXPIRED ||
+              kycSystemStatus === KYCStatus.ABANDONED) && (
+              <motion.div
+                className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20 rounded-xl p-4 backdrop-blur-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <h4 className="font-semibold text-purple-300 mb-3 flex items-center">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Consejos para una verificación exitosa:
+                </h4>
+                <ul className="text-sm text-gray-300 space-y-2">
+                  <li className="flex items-start">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Asegúrate de tener buena iluminación y un fondo neutro
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Mantén tu documento completamente visible y sin reflejos
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 mr-3 flex-shrink-0" />
+                    Completa el proceso en una sola sesión para mejores resultados
+                  </li>
+                </ul>
+              </motion.div>
+            )}
           </CardContent>
 
           <CardFooter className="p-6 pt-0">
-            <Button
-              onClick={buttonAction}
-              disabled={isActionDisabled}
-              size="lg"
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-base shadow-md disabled:opacity-60 transition-opacity duration-200 flex items-center justify-center gap-2"
+            <motion.div 
+              className="w-full"
+              whileHover={{ scale: isActionDisabled ? 1 : 1.02 }}
+              whileTap={{ scale: isActionDisabled ? 1 : 0.98 }}
             >
-              {isLoading && ( <Loader2 className="w-5 h-5 animate-spin" /> )}
-              {isLoading && actionStatus === ActionStatus.CREATING_SESSION ? "Iniciando..." :
-               isLoading && actionStatus === ActionStatus.REDIRECTING ? "Redirigiendo..." :
-               isLoading && actionStatus === ActionStatus.LOADING_STATUS ? "Consultando..." :
-               buttonText}
-              {!isLoading && buttonIcon}
-            </Button>
+              <Button
+                onClick={buttonAction}
+                disabled={isActionDisabled}
+                size="lg"
+                className={getButtonClasses()}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
+                
+                <div className="relative z-10 flex items-center justify-center gap-2">
+                  {isLoading && actionStatus === ActionStatus.LOADING_STATUS && (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  )}
+                  {isLoading && actionStatus === ActionStatus.CREATING_SESSION && (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  )}
+                  {isLoading && actionStatus === ActionStatus.REDIRECTING && (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  )}
+                  
+                  {!isLoading && buttonIcon}
+                  
+                  <span className="font-semibold">
+                    {isLoading && actionStatus === ActionStatus.CREATING_SESSION ? "Preparando Sesión..." :
+                     isLoading && actionStatus === ActionStatus.REDIRECTING ? "Redirigiendo..." :
+                     isLoading && actionStatus === ActionStatus.LOADING_STATUS ? "Verificando Estado..." :
+                     buttonText}
+                  </span>
+                  
+                  {!isLoading && kycSystemStatus !== KYCStatus.PENDING && kycSystemStatus !== KYCStatus.IN_PROGRESS && (
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+                  )}
+                </div>
+              </Button>
+            </motion.div>
+
+            {/* Loading Progress Indicator */}
+            <AnimatePresence>
+              {isLoading && (
+                <motion.div
+                  className="w-full mt-3"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="w-full bg-gray-700/50 rounded-full h-1 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ 
+                        duration: 2, 
+                        ease: "easeInOut",
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-center text-gray-400 mt-2">
+                    {actionStatus === ActionStatus.CREATING_SESSION ? "Configurando tu sesión de verificación..." :
+                     actionStatus === ActionStatus.REDIRECTING ? "Preparando redirección segura..." :
+                     "Consultando estado actual..."}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardFooter>
         </Card>
+
+        {/* Footer Info */}
+        <motion.div
+          className="mt-6 text-center space-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <p className="text-xs text-gray-400">
+            🔒 Todos los datos son procesados con encriptación de grado bancario
+          </p>
+          <p className="text-xs text-gray-500">
+            ¿Necesitas ayuda? Contacta a nuestro{" "}
+            <button className="text-purple-400 hover:text-purple-300 underline transition-colors">
+              equipo de soporte
+            </button>
+          </p>
+        </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
