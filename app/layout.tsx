@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google'; // Usaremos una fuente de Google optimizada por Next.js
+import { Inter } from 'next/font/google';
 import CustomProvider from "@/components/ui/provider";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { GlobalStateInitializer } from '@/components/utils/GlobalStateInitializer';
 
 // Configuración de la fuente
 const inter = Inter({ subsets: ["latin"] });
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-900 text-white`}>
+        <GlobalStateInitializer />
         <CustomProvider>
           <Navbar />
           <main className="min-h-screen">

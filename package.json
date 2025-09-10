@@ -84,7 +84,8 @@
     "stripe": "^17.5.0",
     "tailwind-merge": "^2.6.0",
     "three": "^0.171.0",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
