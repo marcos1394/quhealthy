@@ -107,6 +107,7 @@ export default function ProviderSignupPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         serviceType: formData.serviceType,
+        acceptTerms: formData.acceptTerms, // <-- AÑADE ESTA LÍNEA
         role: "provider"
       };
 
