@@ -112,7 +112,9 @@ export default function ProviderSignupPage() {
       };
 
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/providers/signup`;
-      await axios.post(apiUrl, signupData);
+      await axios.post(apiUrl, signupData, {
+  withCredentials: true,
+});
       
       toast.success("¡Cuenta creada exitosamente! Redirigiendo...", { 
         position: "top-right" 
