@@ -246,7 +246,6 @@ export default function KYCVerification(): JSX.Element {
   const [isRetrying, setIsRetrying] = useState(false);
   const router = useRouter();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   // --- Funciones Auxiliares ---
   const formatDate = (dateString: string | null): string | null => {
@@ -291,7 +290,7 @@ export default function KYCVerification(): JSX.Element {
 
     try {
       const { data } = await axios.get<OnboardingStatusResponse>(
-        `${API_BASE_URL}/api/providers/status`,
+        `$/api/providers/status`,
         { withCredentials: true }
       );
 
@@ -319,7 +318,7 @@ export default function KYCVerification(): JSX.Element {
     } catch (error) {
       handleApiError(error, "Verificación de estado KYC");
     }
-  }, [API_BASE_URL, stopPolling, handleApiError, actionStatus]);
+  }, [ stopPolling, handleApiError, actionStatus]);
 
   // Efecto para chequeo inicial y manejo de polling
   useEffect(() => {
@@ -328,7 +327,7 @@ export default function KYCVerification(): JSX.Element {
 
     const startPollingIfNeeded = async () => {
         try {
-            const { data } = await axios.get<OnboardingStatusResponse>(`${API_BASE_URL}/api/providers/status`, { withCredentials: true });
+            const { data } = await axios.get<OnboardingStatusResponse>(`/api/providers/status`, { withCredentials: true });
             const initialStatus = data.onboardingStatus.kyc.status;
 
             const validInitialStatus: KycStatusValue = Object.values(KYCStatus).includes(initialStatus as KYCStatus)
@@ -373,7 +372,7 @@ export default function KYCVerification(): JSX.Element {
     try {
       console.log("🚀 Creando sesión KYC...");
       const { data } = await axios.post<{ verification_url: string }>(
-        `${API_BASE_URL}/api/kyc/create-session`,
+        `/api/kyc/create-session`,
         {},
         { withCredentials: true }
       );
