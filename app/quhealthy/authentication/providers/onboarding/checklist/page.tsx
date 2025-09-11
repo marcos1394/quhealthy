@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, JSX, ReactNode } from "react";
-import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"; // Añadido CardFooter si se usa
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"; // Añadido CardFooter si se usa
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import {
-  ShieldCheck, Loader2, AlertCircle, CheckCircle2, XCircle, ArrowRight,
-  UserCheck, Clock, LayoutDashboard, GraduationCap, Store, Puzzle,
+   Loader2, AlertCircle, CheckCircle2, XCircle, ArrowRight,
+  UserCheck, Clock,  GraduationCap, Store, 
   ClipboardCheck
 } from "lucide-react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import Link from "next/link";
 
 // --- Tipos y Enums ---
 
@@ -45,6 +44,7 @@ interface OnboardingStatusResponse { onboardingStatus: OnboardingStatusDetail; p
 interface APIErrorResponse { message: string; }
 
 // --- Tipos para el Componente ---
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 enum ActionStatus {
   IDLE = "idle", LOADING_STATUS = "loading_status", ERROR = "error"
 }
@@ -159,6 +159,7 @@ export default function OnboardingDashboard(): JSX.Element {
   const getOnboardingSteps = (): OnboardingStep[] => {
     if (!statusData) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { kyc, license, marketplace, blocks } = statusData.onboardingStatus;
     const steps: OnboardingStep[] = []; // Usa la interfaz definida
 

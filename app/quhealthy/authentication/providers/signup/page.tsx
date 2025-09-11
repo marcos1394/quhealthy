@@ -146,12 +146,12 @@ export default function ProviderSignupPage() {
   const passwordsDontMatch = formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-black flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-200/20 dark:bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-200/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-200/20 dark:bg-teal-500/10 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-400/10 rounded-full blur-2xl animate-pulse delay-500" />
       </div>
 
       <motion.div
@@ -161,17 +161,17 @@ export default function ProviderSignupPage() {
         className="relative z-10 w-full max-w-lg"
       >
         {/* Main card */}
-        <div className="bg-white/70 dark:bg-gray-900/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+        <div className="bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-700/50 overflow-hidden">
           {/* Header */}
-          <div className="p-8 pb-6 text-center bg-gradient-to-br from-white/80 to-purple-50/80 dark:from-gray-800/80 dark:to-purple-900/20 relative">
+          <div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-800/80 to-gray-700/50 relative">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               className="relative inline-flex items-center justify-center w-20 h-20 mb-6"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl shadow-lg" />
-              <div className="relative flex items-center justify-center w-full h-full rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg" />
+              <div className="relative flex items-center justify-center w-full h-full rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600">
                 {formData.serviceType === "health" ? (
                   <Stethoscope className="w-10 h-10 text-white drop-shadow-sm" />
                 ) : (
@@ -185,7 +185,7 @@ export default function ProviderSignupPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-3xl font-bold text-gray-900 dark:text-white mb-2"
+              className="text-3xl font-bold text-white mb-2"
             >
               Únete a QuHealthy
             </motion.h1>
@@ -194,7 +194,7 @@ export default function ProviderSignupPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-gray-600 dark:text-gray-300"
+              className="text-gray-300"
             >
               Crea tu cuenta gratuita y potencia tu práctica profesional
             </motion.p>
@@ -214,17 +214,17 @@ export default function ProviderSignupPage() {
                 onValueChange={handleServiceTypeChange}
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800/50 p-1 rounded-xl">
+                <TabsList className="grid w-full grid-cols-2 bg-gray-700/50 p-1 rounded-xl">
                   <TabsTrigger 
                     value="health" 
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                    className="data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-lg transition-all duration-300 text-gray-300"
                   >
                     <Stethoscope className="w-4 h-4 mr-2" />
                     Salud
                   </TabsTrigger>
                   <TabsTrigger 
                     value="beauty"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                    className="data-[state=active]:bg-gray-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-lg transition-all duration-300 text-gray-300"
                   >
                     <Scissors className="w-4 h-4 mr-2" />
                     Belleza
@@ -244,18 +244,18 @@ export default function ProviderSignupPage() {
                 type="button"
                 onClick={handleGoogleSignup}
                 variant="outline"
-                className="w-full h-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300 font-medium transition-all duration-300 group"
+                className="w-full h-12 bg-gray-700/50 border-2 border-gray-600 hover:bg-gray-600/50 text-gray-300 font-medium transition-all duration-300 group"
               >
-                <Chrome className="w-5 h-5 mr-3 text-blue-500 group-hover:scale-110 transition-transform" />
+                <Chrome className="w-5 h-5 mr-3 text-blue-400 group-hover:scale-110 transition-transform" />
                 Continuar con Google
               </Button>
               
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                  <div className="w-full border-t border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                  <span className="px-4 bg-gray-800 text-gray-400">
                     o crea tu cuenta con email
                   </span>
                 </div>
@@ -271,9 +271,9 @@ export default function ProviderSignupPage() {
                   exit={{ opacity: 0, y: -20 }}
                   className="mb-6"
                 >
-                  <Alert variant="destructive" className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                  <Alert variant="destructive" className="border-red-500/50 bg-red-900/20">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription className="text-red-400">{error}</AlertDescription>
                   </Alert>
                 </motion.div>
               )}
@@ -289,7 +289,7 @@ export default function ProviderSignupPage() {
             >
               {/* Name Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-gray-300">
                   Nombre completo
                 </label>
                 <div className="relative">
@@ -301,26 +301,26 @@ export default function ProviderSignupPage() {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 ${
-                      focusedField === 'name' ? 'border-purple-400 shadow-lg shadow-purple-400/20' :
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 bg-gray-700/50 text-white placeholder-gray-400 ${
+                      focusedField === 'name' ? 'border-purple-500 shadow-lg shadow-purple-500/20' :
                       isNameValid ? 'border-green-400' :
-                      'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      'border-gray-600 hover:border-gray-500'
                     }`}
                     required
                   />
                   {isNameValid && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400" />
                   )}
                 </div>
               </div>
 
               {/* Email Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-gray-300">
                   Correo electrónico
                 </label>
                 <div className="relative">
-                  <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
+                  <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
                     focusedField === 'email' ? 'text-purple-400' : 
                     showEmailError ? 'text-red-400' : 
                     isEmailValid ? 'text-green-400' : 'text-gray-400'
@@ -333,23 +333,23 @@ export default function ProviderSignupPage() {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 ${
-                      focusedField === 'email' ? 'border-purple-400 shadow-lg shadow-purple-400/20' :
+                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-gray-700/50 text-white placeholder-gray-400 ${
+                      focusedField === 'email' ? 'border-purple-500 shadow-lg shadow-purple-500/20' :
                       showEmailError ? 'border-red-400' :
                       isEmailValid ? 'border-green-400' :
-                      'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      'border-gray-600 hover:border-gray-500'
                     }`}
                     required
                   />
                   {isEmailValid && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400" />
                   )}
                   {showEmailError && (
                     <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-red-400" />
                   )}
                 </div>
                 {showEmailError && (
-                  <p className="text-sm text-red-500 flex items-center">
+                  <p className="text-sm text-red-400 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     Ingresa un email válido
                   </p>
@@ -358,11 +358,11 @@ export default function ProviderSignupPage() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-gray-300">
                   Contraseña
                 </label>
                 <div className="relative">
-                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
+                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
                     focusedField === 'password' ? 'text-purple-400' : 'text-gray-400'
                   }`} />
                   <input
@@ -373,16 +373,16 @@ export default function ProviderSignupPage() {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 ${
-                      focusedField === 'password' ? 'border-purple-400 shadow-lg shadow-purple-400/20' :
-                      'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-gray-700/50 text-white placeholder-gray-400 ${
+                      focusedField === 'password' ? 'border-purple-500 shadow-lg shadow-purple-500/20' :
+                      'border-gray-600 hover:border-gray-500'
                     }`}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-600/50 transition-colors"
                   >
                     {showPassword ? 
                       <EyeOff className="w-4 h-4 text-gray-400" /> : 
@@ -394,11 +394,11 @@ export default function ProviderSignupPage() {
 
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-gray-300">
                   Confirmar contraseña
                 </label>
                 <div className="relative">
-                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
+                  <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
                     focusedField === 'confirmPassword' ? 'text-purple-400' : 
                     passwordsDontMatch ? 'text-red-400' :
                     passwordsMatch ? 'text-green-400' : 'text-gray-400'
@@ -411,17 +411,17 @@ export default function ProviderSignupPage() {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('confirmPassword')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 ${
-                      focusedField === 'confirmPassword' ? 'border-purple-400 shadow-lg shadow-purple-400/20' :
+                    className={`w-full pl-11 pr-12 py-3 rounded-xl border-2 transition-all duration-300 bg-gray-700/50 text-white placeholder-gray-400 ${
+                      focusedField === 'confirmPassword' ? 'border-purple-500 shadow-lg shadow-purple-500/20' :
                       passwordsDontMatch ? 'border-red-400' :
                       passwordsMatch ? 'border-green-400' :
-                      'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      'border-gray-600 hover:border-gray-500'
                     }`}
                     required
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                     {passwordsMatch && (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 className="w-5 h-5 text-green-400" />
                     )}
                     {passwordsDontMatch && (
                       <AlertCircle className="w-5 h-5 text-red-400" />
@@ -429,7 +429,7 @@ export default function ProviderSignupPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="p-1 rounded-md hover:bg-gray-600/50 transition-colors"
                     >
                       {showConfirmPassword ? 
                         <EyeOff className="w-4 h-4 text-gray-400" /> : 
@@ -439,7 +439,7 @@ export default function ProviderSignupPage() {
                   </div>
                 </div>
                 {passwordsDontMatch && (
-                  <p className="text-sm text-red-500 flex items-center">
+                  <p className="text-sm text-red-400 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     Las contraseñas no coinciden
                   </p>
@@ -453,25 +453,25 @@ export default function ProviderSignupPage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700"
+                    className="bg-gray-700/30 rounded-xl p-4 border border-gray-600"
                   >
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                      <Shield className="w-4 h-4 mr-2 text-purple-500" />
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center">
+                      <Shield className="w-4 h-4 mr-2 text-purple-400" />
                       Requisitos de contraseña
                     </h4>
                     <div className="grid grid-cols-1 gap-2">
                       {passwordValidation.map((rule, index) => (
                         <div key={index} className="flex items-center text-sm">
                           <div className={`flex-shrink-0 w-4 h-4 mr-3 transition-all duration-300 ${
-                            rule.valid ? 'text-green-500 scale-110' : 'text-gray-400'
+                            rule.valid ? 'text-green-400 scale-110' : 'text-gray-500'
                           }`}>
                             {rule.valid ? 
                               <CheckCircle2 className="w-full h-full" /> : 
-                              <div className="w-2 h-2 bg-gray-400 rounded-full mx-auto mt-1" />
+                              <div className="w-2 h-2 bg-gray-500 rounded-full mx-auto mt-1" />
                             }
                           </div>
                           <span className={`transition-colors duration-300 ${
-                            rule.valid ? "text-green-600 dark:text-green-400 font-medium" : "text-gray-600 dark:text-gray-400"
+                            rule.valid ? "text-green-400 font-medium" : "text-gray-400"
                           }`}>
                             {rule.message}
                           </span>
@@ -483,23 +483,23 @@ export default function ProviderSignupPage() {
               </AnimatePresence>
 
               {/* Terms and Conditions */}
-              <div className="flex items-start gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-3 p-4 bg-purple-900/20 rounded-xl border border-purple-700/50">
                 <input 
                   type="checkbox" 
                   name="acceptTerms" 
                   id="acceptTerms" 
                   checked={formData.acceptTerms} 
                   onChange={handleInputChange}
-                  className="w-5 h-5 mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
+                  className="w-5 h-5 mt-0.5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-gray-700" 
                   required 
                 />
-                <label htmlFor="acceptTerms" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <label htmlFor="acceptTerms" className="text-sm text-gray-300 cursor-pointer">
                   Acepto los{' '}
-                  <Link href="/terms" className="text-purple-600 dark:text-purple-400 hover:underline font-medium">
+                  <Link href="/terms" className="text-purple-400 hover:text-purple-300 hover:underline font-medium transition-colors duration-300">
                     términos y condiciones
                   </Link>
                   {' '}y la{' '}
-                  <Link href="/privacy" className="text-purple-600 dark:text-purple-400 hover:underline font-medium">
+                  <Link href="/privacy" className="text-purple-400 hover:text-purple-300 hover:underline font-medium transition-colors duration-300">
                     política de privacidad
                   </Link>
                 </label>
@@ -509,7 +509,7 @@ export default function ProviderSignupPage() {
               <Button
                 type="submit"
                 disabled={!isFormValid() || loading}
-                className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <div className="flex items-center">
@@ -530,12 +530,12 @@ export default function ProviderSignupPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6"
+              className="text-center text-sm text-gray-400 mt-6"
             >
               ¿Ya tienes una cuenta?{' '}
               <Link 
                 href="/quhealthy/authentication/providers/login" 
-                className="text-purple-600 dark:text-purple-400 hover:underline font-medium transition-colors"
+                className="text-purple-400 hover:text-purple-300 hover:underline font-medium transition-colors duration-300"
               >
                 Inicia sesión
               </Link>
@@ -546,9 +546,9 @@ export default function ProviderSignupPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.9 }}
-              className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700"
+              className="mt-6 pt-4 border-t border-gray-600"
             >
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              <p className="text-xs text-gray-500 text-center">
                 🔒 Datos protegidos con encriptación • ⚡ Configuración en menos de 2 minutos
               </p>
             </motion.div>
