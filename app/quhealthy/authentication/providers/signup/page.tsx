@@ -122,7 +122,7 @@ export default function ProviderSignupPage() {
       
       // Redirigir al onboarding después de un breve delay
       setTimeout(() => {
-        router.push("/quhealthy/authentication/providers/onboarding/kyc");
+        router.push("/quhealthy/authentication/providers/onboarding/profile");
       }, 1500);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
