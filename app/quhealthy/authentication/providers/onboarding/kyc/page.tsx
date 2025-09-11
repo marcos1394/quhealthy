@@ -290,7 +290,7 @@ export default function KYCVerification(): JSX.Element {
 
     try {
       const { data } = await axios.get<OnboardingStatusResponse>(
-        `$/api/providers/status`,
+        `/api/providers/status`,
         { withCredentials: true }
       );
 
