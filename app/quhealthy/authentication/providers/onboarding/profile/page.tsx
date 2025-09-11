@@ -12,7 +12,7 @@ import LocationPickerWrapper from '@/app/quhealthy/components/LocationPickerWrap
 import EnhancedCategorySelection from '@/app/quhealthy/components/categoryselection';
 import { LocationData } from '@/app/quhealthy/types/location';
 import { useOnboardingStatus } from '@/hooks/useOnboardingStatus';
-
+import { Tabs, TabsTrigger, TabsList } from '@/components/ui/tabs';
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
@@ -32,6 +32,8 @@ export default function OnboardingProfilePage() {
     categoryProviderId: 0,
     subCategoryId: 0,
     tagIds: [] as number[],
+    accountType: 'individual', // <-- AÑADE ESTE CAMPO (valor por defecto)
+
   });
 
   const [loading, setLoading] = useState(false); // Para el botón de submit
@@ -341,6 +343,27 @@ export default function OnboardingProfilePage() {
                     <p className="text-gray-400">Los datos esenciales de tu práctica profesional</p>
                   </div>
                 </div>
+                <div>
+    <label className="block text-sm font-semibold text-gray-300 tracking-wide mb-3">
+      Tipo de Cuenta *
+    </label>
+    <Tabs
+      value={formData.accountType}
+      onValueChange={(value) => setFormData(prev => ({ ...prev, accountType: value }))}
+      className="w-full"
+    >
+      <TabsList className="grid w-full grid-cols-2 bg-gray-700/50 p-1 rounded-xl">
+        <TabsTrigger value="individual" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg">
+          <User className="w-4 h-4 mr-2" />
+          Profesional Independiente
+        </TabsTrigger>
+        <TabsTrigger value="business" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg">
+          <Building2 className="w-4 h-4 mr-2" />
+          Negocio / Clínica
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+  </div>
 
                 <div className="grid lg:grid-cols-2 gap-8">
                   {/* Business Name */}
