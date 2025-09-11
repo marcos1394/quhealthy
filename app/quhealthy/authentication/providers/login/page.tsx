@@ -19,6 +19,8 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
 
 
 
@@ -40,7 +42,6 @@ const staggerItem = {
 };
 
 // Define las URLs de los endpoints para fácil modificación
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/providers`;
 
 export default function ProviderLoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -51,6 +52,7 @@ export default function ProviderLoginPage() {
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const router = useRouter()
 
   // Real-time validation
   const validateField = (name: string, value: string) => {
@@ -102,50 +104,48 @@ export default function ProviderLoginPage() {
   setError("");
 
   try {
-    // 1. Hacemos UNA SOLA llamada para el login.
-    console.log("🚀 Iniciando sesión...");
-    const response = await axios.post(
-      `${API_BASE_URL}/login`,
+    // 1. Hacemos la llamada a la RUTA RELATIVA para que el proxy de Vercel la intercepte.
+    //    Mantenemos 'withCredentials' para que el navegador envíe la cookie httpOnly.
+    const { data } = await axios.post(
+      '/api/providers/login', 
       formData,
       { withCredentials: true }
     );
 
-    toast.success("Inicio de sesión exitoso. Redirigiendo...", {
+    toast.success("Inicio de sesión exitoso. Verificando tu estado...", {
       position: "top-right",
       autoClose: 1500,
     });
 
-    // 2. Extraemos el objeto 'onboarding' directamente de la respuesta del login.
-    const { hasActivePlan, isComplete } = response.data.onboarding;
-    console.log("🔍 Estado recibido del login:", { hasActivePlan, isComplete });
+    // 2. Extraemos el objeto 'onboarding' de la respuesta del backend.
+    const { onboarding } = data;
+    let nextRoute = '/quhealthy/profile/providers/dashboard'; // Ruta por defecto para usuarios activos.
 
-    // 3. Usamos la información de 'onboarding' para decidir la redirección.
-    if (!hasActivePlan) {
-      console.log("🚫 Sin plan activo. Redirigiendo a /profile/providers/plans...");
-      toast.info("Por favor, selecciona un plan para continuar.", { position: "top-center", autoClose: 3000 });
-      window.location.href = "/quhealthy/profile/providers/plans";
-    } else if (!isComplete) {
-      console.log("⏳ Onboarding incompleto. Redirigiendo a /authentication/providers/onboarding...");
-      toast.info("Completa los pasos de configuración para acceder al dashboard.", { position: "top-center", autoClose: 3000 });
-      window.location.href = "/quhealthy/authentication/providers/onboarding";
-    } else {
-      console.log("✅ Onboarding completo. Redirigiendo a /profile/providers/dashboard...");
-      window.location.href = "/quhealthy/profile/providers/dashboard";
+    // 3. LÓGICA DE REDIRECCIÓN INTELIGENTE:
+    // Si el onboarding NO está completo...
+    if (!onboarding.isComplete) {
+      console.log("Onboarding incompleto. Redirigiendo al checklist.");
+      // ...lo enviamos al panel de tareas de onboarding.
+      nextRoute = '/quhealthy/authentication/providers/onboarding/checklist';
+    } 
+    // Si el onboarding SÍ está completo, pero no tiene un plan activo...
+    else if (!onboarding.hasActivePlan) {
+      console.log("Onboarding completo, pero sin plan activo. Redirigiendo a planes.");
+      // ...lo enviamos a la página de planes.
+      nextRoute = '/quhealthy/profile/providers/plans';
     }
+    
+    console.log(`✅ Estado verificado. Redirigiendo a: ${nextRoute}`);
+    
+    // 4. Usamos router.push para una navegación más fluida en Next.js
+    router.push(nextRoute);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    // Captura el error de la llamada al login
-    console.error("❌ Error durante el inicio de sesión:", err);
-    let errorMessage = "Error inesperado. Intenta de nuevo más tarde.";
-    if (axios.isAxiosError(err)) {
-      errorMessage = err.response?.data?.message || err.message || errorMessage;
-    } else if (err instanceof Error) {
-      errorMessage = err.message;
-    }
+    const errorMessage = err.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales.";
     setError(errorMessage);
-    toast.error(errorMessage, { position: "top-right", autoClose: 5000 });
-    setLoading(false); // Detenemos la carga aquí en caso de error
+    toast.error(errorMessage, { position: "top-right" });
+    setLoading(false); // Detenemos la carga solo en caso de error
   }
 };
 
