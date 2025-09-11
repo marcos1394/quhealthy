@@ -153,7 +153,7 @@ const ProgressSteps = ({ currentStatus }: { currentStatus: KycStatusValue }) => 
               className={`
                 w-10 h-10 rounded-full border-2 flex items-center justify-center relative
                 ${index <= currentStep 
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 border-transparent text-white shadow-lg' 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-transparent text-white shadow-lg' 
                   : 'bg-gray-700/50 border-gray-600 text-gray-400'
                 }
               `}
@@ -189,7 +189,7 @@ const ProgressSteps = ({ currentStatus }: { currentStatus: KycStatusValue }) => 
             <motion.div
               className={`flex-1 h-0.5 mx-2 ${
                 index < currentStep 
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500' 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500' 
                   : 'bg-gray-600'
               }`}
               initial={{ scaleX: 0 }}
@@ -207,8 +207,8 @@ const ProgressSteps = ({ currentStatus }: { currentStatus: KycStatusValue }) => 
 const FeatureList = () => {
   const features = [
     { icon: <Shield className="w-4 h-4" />, text: "Verificación segura y encriptada", color: "text-green-400" },
-    { icon: <Zap className="w-4 h-4" />, text: "Proceso rápido (5 minutos)", color: "text-yellow-400" },
-    { icon: <FileText className="w-4 h-4" />, text: "Documentos aceptados: INE/Pasaporte", color: "text-blue-400" }
+    { icon: <Zap className="w-4 h-4" />, text: "Proceso rápido (5 minutos)", color: "text-purple-400" },
+    { icon: <FileText className="w-4 h-4" />, text: "Documentos aceptados: INE/Pasaporte", color: "text-pink-400" }
   ];
 
   return (
@@ -221,7 +221,7 @@ const FeatureList = () => {
       {features.map((feature, index) => (
         <motion.div
           key={index}
-          className="flex items-center space-x-3 text-sm text-gray-300 bg-gray-800/30 rounded-lg p-3 border border-gray-700/50"
+          className="flex items-center space-x-3 text-sm text-gray-300 bg-gray-700/50 rounded-lg p-3 border border-gray-600/50"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.7 + index * 0.1 }}
@@ -309,7 +309,7 @@ export default function KYCVerification(): JSX.Element {
         stopPolling();
         setActionStatus(ActionStatus.IDLE);
          if (currentKycStatus === KYCStatus.VERIFIED && !isInitialCheck) {
-             toast.success("¡Verificación KYC completada exitosamente! 🎉", { autoClose: 4000 });
+             toast.success("¡Verificación KYC completada exitosamente!", { autoClose: 4000 });
          }
       } else {
          setActionStatus(ActionStatus.IDLE);
@@ -345,7 +345,7 @@ export default function KYCVerification(): JSX.Element {
                 intervalId = setInterval(() => checkKYCStatus(false), 10000);
                 setPollingIntervalId(intervalId);
             } else if (validInitialStatus === KYCStatus.VERIFIED){
-                 toast.success("Tu identidad ya está verificada ✓", { autoClose: 3000 });
+                 toast.success("Tu identidad ya está verificada", { autoClose: 3000 });
             }
         } catch (error) {
              handleApiError(error, "Verificación de estado inicial para polling");
@@ -424,64 +424,64 @@ export default function KYCVerification(): JSX.Element {
       [KYCStatus.PENDING]: { 
         icon: <Clock className="w-6 h-6" />, 
         text: "Revisión en Proceso", 
-        color: "text-amber-300", 
-        bgColor: "bg-amber-500/10", 
-        borderColor: "border-amber-400/30",
-        gradient: "from-amber-500/10 to-yellow-500/10",
+        color: "text-purple-300", 
+        bgColor: "bg-purple-500/10", 
+        borderColor: "border-purple-400/30",
+        gradient: "from-purple-500/10 to-pink-500/10",
         description: "Nuestro equipo está revisando tu documentación"
       },
       [KYCStatus.IN_PROGRESS]: { 
         icon: <Loader2 className="w-6 h-6 animate-spin" />, 
         text: "Verificación Activa", 
-        color: "text-blue-300", 
-        bgColor: "bg-blue-500/10", 
-        borderColor: "border-blue-400/30",
-        gradient: "from-blue-500/10 to-cyan-500/10",
+        color: "text-purple-300", 
+        bgColor: "bg-purple-500/10", 
+        borderColor: "border-purple-400/30",
+        gradient: "from-purple-500/10 to-pink-500/10",
         description: "Tu sesión de verificación está en curso"
       },
       [KYCStatus.VERIFIED]: { 
         icon: <CheckCircle2 className="w-6 h-6" />, 
         text: "Identidad Verificada", 
-        color: "text-emerald-300", 
-        bgColor: "bg-emerald-500/10", 
-        borderColor: "border-emerald-400/30",
-        gradient: "from-emerald-500/10 to-green-500/10",
+        color: "text-green-400", 
+        bgColor: "bg-green-500/10", 
+        borderColor: "border-green-400/30",
+        gradient: "from-green-500/10 to-emerald-500/10",
         description: "Tu identidad ha sido verificada exitosamente"
       },
       [KYCStatus.REJECTED]: { 
         icon: <XCircle className="w-6 h-6" />, 
         text: "Verificación Rechazada", 
-        color: "text-red-300", 
+        color: "text-red-400", 
         bgColor: "bg-red-500/10", 
         borderColor: "border-red-400/30",
-        gradient: "from-red-500/10 to-pink-500/10",
+        gradient: "from-red-500/10 to-red-400/10",
         description: "La documentación requiere correcciones"
       },
       [KYCStatus.ERROR]: { 
         icon: <AlertCircle className="w-6 h-6" />, 
         text: "Error en Verificación", 
-        color: "text-red-300", 
+        color: "text-red-400", 
         bgColor: "bg-red-500/10", 
         borderColor: "border-red-400/30",
-        gradient: "from-red-500/10 to-orange-500/10",
+        gradient: "from-red-500/10 to-red-400/10",
         description: "Ocurrió un error técnico durante el proceso"
       },
       [KYCStatus.EXPIRED]: { 
         icon: <Clock className="w-6 h-6" />, 
         text: "Sesión Expirada", 
-        color: "text-orange-300", 
-        bgColor: "bg-orange-500/10", 
-        borderColor: "border-orange-400/30",
-        gradient: "from-orange-500/10 to-red-500/10",
+        color: "text-purple-300", 
+        bgColor: "bg-purple-500/10", 
+        borderColor: "border-purple-400/30",
+        gradient: "from-purple-500/10 to-pink-500/10",
         description: "La sesión anterior ha expirado"
       },
       [KYCStatus.ABANDONED]: { 
         icon: <XCircle className="w-6 h-6" />, 
         text: "Proceso Incompleto", 
-        color: "text-orange-300", 
-        bgColor: "bg-orange-500/10", 
-        borderColor: "border-orange-400/30",
-        gradient: "from-orange-500/10 to-yellow-500/10",
+        color: "text-purple-300", 
+        bgColor: "bg-purple-500/10", 
+        borderColor: "border-purple-400/30",
+        gradient: "from-purple-500/10 to-pink-500/10",
         description: "El proceso anterior no se completó"
       },
     };
@@ -511,7 +511,7 @@ export default function KYCVerification(): JSX.Element {
             {statusProps.icon}
             {kycSystemStatus === KYCStatus.VERIFIED && (
               <motion.div
-                className="absolute -inset-2 rounded-full bg-emerald-400/20 blur-sm"
+                className="absolute -inset-2 rounded-full bg-green-400/20 blur-sm"
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
@@ -542,7 +542,7 @@ export default function KYCVerification(): JSX.Element {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
+            <div className="w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
             <span>Actualizando automáticamente</span>
           </motion.div>
         )}
@@ -596,17 +596,17 @@ export default function KYCVerification(): JSX.Element {
     
     switch (buttonVariant) {
       case "success":
-        return `${base} bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white`;
+        return `${base} bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white`;
       case "destructive":
-        return `${base} bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white`;
+        return `${base} bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white`;
       default:
-        return `${base} bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white`;
+        return `${base} bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white`;
     }
   };
 
   return (
     <motion.div 
-      className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4 md:p-8 flex items-center justify-center relative overflow-hidden"
+      className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white p-4 md:p-8 flex items-center justify-center relative overflow-hidden"
       variants={pageVariants}
       initial="initial"
       animate="animate"
@@ -628,7 +628,7 @@ export default function KYCVerification(): JSX.Element {
           }}
         />
         <motion.div 
-          className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-500 opacity-20 blur-3xl rounded-full"
+          className="absolute bottom-1/4 -right-20 w-96 h-96 bg-pink-500 opacity-20 blur-3xl rounded-full"
           animate={{ 
             scale: [1, 1.3, 1],
             x: [0, -50, 0],
@@ -641,18 +641,6 @@ export default function KYCVerification(): JSX.Element {
             delay: 10
           }}
         />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-600/10 to-blue-600/10 blur-3xl rounded-full"
-          animate={{ 
-            rotate: [0, 360],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ 
-            duration: 50, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-        />
       </div>
 
       <motion.div
@@ -661,15 +649,15 @@ export default function KYCVerification(): JSX.Element {
         initial="initial"
         animate="animate"
       >
-        <Card className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 shadow-2xl rounded-2xl overflow-hidden">
+        <Card className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 shadow-2xl rounded-2xl overflow-hidden">
           {/* Header */}
           <CardHeader className="text-center space-y-6 pt-8 pb-6 relative">
             <motion.div 
-              className="mx-auto bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-400/30 p-4 rounded-2xl w-fit shadow-inner backdrop-blur-sm"
+              className="mx-auto bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/30 p-4 rounded-2xl w-fit shadow-inner backdrop-blur-sm"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <ShieldCheck className="w-12 h-12 text-purple-300" />
+              <ShieldCheck className="w-12 h-12 text-purple-400" />
             </motion.div>
             
             <motion.div 
@@ -701,7 +689,7 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert variant="destructive" className="bg-red-500/10 border-red-400/50 text-red-300 backdrop-blur-sm">
+                  <Alert variant="destructive" className="bg-red-400/10 border-red-400/50 text-red-400 backdrop-blur-sm">
                     <AlertCircle className="h-5 w-5" />
                     <AlertDescription className="font-medium">{error}</AlertDescription>
                   </Alert>
@@ -715,7 +703,7 @@ export default function KYCVerification(): JSX.Element {
                         onClick={handleRetry}
                         variant="outline"
                         size="sm"
-                        className="bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 text-gray-300"
+                        className="bg-gray-700/50 border-gray-600 hover:bg-gray-600/50 text-gray-300"
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Reintentar
@@ -738,7 +726,7 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert className="bg-red-500/10 border-red-400/30 text-red-300 backdrop-blur-sm">
+                  <Alert className="bg-red-400/10 border-red-400/30 text-red-400 backdrop-blur-sm">
                     <AlertCircle className="h-4 w-4"/>
                     <AlertDescription className="text-sm">
                       <strong>Documentación rechazada:</strong> Revisa que tus documentos estén vigentes, 
@@ -756,7 +744,7 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert className="bg-orange-500/10 border-orange-400/30 text-orange-300 backdrop-blur-sm">
+                  <Alert className="bg-purple-400/10 border-purple-400/30 text-purple-300 backdrop-blur-sm">
                     <Clock className="h-4 w-4"/>
                     <AlertDescription className="text-sm">
                       <strong>Sesión expirada:</strong> Por seguridad, las sesiones de verificación 
@@ -773,7 +761,7 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert className="bg-orange-500/10 border-orange-400/30 text-orange-300 backdrop-blur-sm">
+                  <Alert className="bg-purple-400/10 border-purple-400/30 text-purple-300 backdrop-blur-sm">
                     <AlertCircle className="h-4 w-4"/>
                     <AlertDescription className="text-sm">
                       <strong>Proceso incompleto:</strong> No completaste el proceso anterior. 
@@ -790,7 +778,7 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert className="bg-amber-500/10 border-amber-400/30 text-amber-300 backdrop-blur-sm">
+                  <Alert className="bg-purple-400/10 border-purple-400/30 text-purple-300 backdrop-blur-sm">
                     <Clock className="h-4 w-4"/>
                     <AlertDescription className="text-sm">
                       <strong>En revisión manual:</strong> Nuestro equipo especializado está 
@@ -807,10 +795,10 @@ export default function KYCVerification(): JSX.Element {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Alert className="bg-emerald-500/10 border-emerald-400/30 text-emerald-300 backdrop-blur-sm">
+                  <Alert className="bg-green-400/10 border-green-400/30 text-green-400 backdrop-blur-sm">
                     <CheckCircle2 className="h-4 w-4"/>
                     <AlertDescription className="text-sm">
-                      <strong>¡Verificación exitosa!</strong> Tu identidad ha sido confirmada. 
+                      <strong>Verificación exitosa:</strong> Tu identidad ha sido confirmada. 
                       Ya puedes acceder a todas las funcionalidades de la plataforma.
                     </AlertDescription>
                   </Alert>
@@ -834,7 +822,7 @@ export default function KYCVerification(): JSX.Element {
               kycSystemStatus === KYCStatus.EXPIRED ||
               kycSystemStatus === KYCStatus.ABANDONED) && (
               <motion.div
-                className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20 rounded-xl p-4 backdrop-blur-sm"
+                className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-400/20 rounded-xl p-4 backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
@@ -914,7 +902,7 @@ export default function KYCVerification(): JSX.Element {
                 >
                   <div className="w-full bg-gray-700/50 rounded-full h-1 overflow-hidden">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                       initial={{ width: "0%" }}
                       animate={{ width: "100%" }}
                       transition={{ 
@@ -944,11 +932,11 @@ export default function KYCVerification(): JSX.Element {
           transition={{ delay: 1 }}
         >
           <p className="text-xs text-gray-400">
-            🔒 Todos los datos son procesados con encriptación de grado bancario
+            Todos los datos son procesados con encriptación de grado bancario
           </p>
           <p className="text-xs text-gray-500">
             ¿Necesitas ayuda? Contacta a nuestro{" "}
-            <button className="text-purple-400 hover:text-purple-300 underline transition-colors">
+            <button className="text-purple-400 hover:text-purple-300 underline transition-colors duration-300">
               equipo de soporte
             </button>
           </p>
