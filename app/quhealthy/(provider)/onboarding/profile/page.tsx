@@ -73,12 +73,12 @@ export default function OnboardingProfilePage() {
     try {
       // Usamos axios normal, ya que la autenticación debe estar centralizada en tu apiClient
       // o configurada globalmente. La ruta es relativa para usar el proxy.
-      await axios.put('/api/providers/onboarding/profile', formData, { withCredentials: true });
+      await axios.put('/api/auth/onboarding/profile', formData, { withCredentials: true });
 
       toast.success("¡Perfil completado exitosamente!", { autoClose: 2000 });
       
       setTimeout(() => {
-        router.push('/quhealthy/authentication/providers/onboarding/checklist');
+        router.push('/quhealthy/onboarding/checklist');
       }, 1500);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -17,7 +17,7 @@ const fadeIn = {
 };
 
 // URL del endpoint de solicitud de reseteo
-const API_BASE_URL = "http://localhost:3001/api/providers"; // Ajusta si es necesario
+const API_BASE_URL = "http://localhost:3001/api/auth"; // Ajusta si es necesario
 const REQUEST_RESET_ENDPOINT = `${API_BASE_URL}/request-password-reset`; // Asume este endpoint
 
 export default function ProviderPasswordRecoveryPage() {

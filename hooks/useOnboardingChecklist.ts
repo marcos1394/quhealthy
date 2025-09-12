@@ -27,7 +27,7 @@ export const useOnboardingChecklist = () => {
     setError(null);
     try {
       // Llamamos al nuevo endpoint que devuelve la lista de tareas dinámica
-      const response = await axios.get<OnboardingStep[]>('/api/providers/onboarding/checklist', {
+      const response = await axios.get<OnboardingStep[]>('/api/auth/onboarding/checklist', {
         withCredentials: true,
       });
       // Guardamos el array de pasos en el estado

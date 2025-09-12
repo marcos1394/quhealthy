@@ -14,7 +14,7 @@ export const useOnboardingStatus = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get<OnboardingStatusResponse>('/api/providers/status', {
+      const response = await axios.get<OnboardingStatusResponse>('/api/auth/status', {
         withCredentials: true,
       });
       setData(response.data);

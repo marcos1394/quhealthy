@@ -290,7 +290,7 @@ export default function KYCVerification(): JSX.Element {
 
     try {
       const { data } = await axios.get<OnboardingStatusResponse>(
-        `/api/providers/status`,
+        `/api/auth/status`,
         { withCredentials: true }
       );
 
@@ -327,7 +327,7 @@ export default function KYCVerification(): JSX.Element {
 
     const startPollingIfNeeded = async () => {
         try {
-            const { data } = await axios.get<OnboardingStatusResponse>(`/api/providers/status`, { withCredentials: true });
+            const { data } = await axios.get<OnboardingStatusResponse>(`/api/auth/status`, { withCredentials: true });
             const initialStatus = data.onboardingStatus.kyc.status;
 
             const validInitialStatus: KycStatusValue = Object.values(KYCStatus).includes(initialStatus as KYCStatus)

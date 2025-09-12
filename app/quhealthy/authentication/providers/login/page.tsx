@@ -107,7 +107,7 @@ export default function ProviderLoginPage() {
     // 1. Hacemos la llamada a la RUTA RELATIVA para que el proxy de Vercel la intercepte.
     //    Mantenemos 'withCredentials' para que el navegador envíe la cookie httpOnly.
     const { data } = await axios.post(
-      '/api/providers/login', 
+      '/api/auth/login', 
       formData,
       { withCredentials: true }
     );

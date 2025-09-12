@@ -295,7 +295,7 @@ function PaymentSuccessContent() {
     
     try {
       const response = await axios.get<OnboardingStatusResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/providers/status`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/status`,
         { withCredentials: true }
       );
       

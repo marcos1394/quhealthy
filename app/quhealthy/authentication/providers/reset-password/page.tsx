@@ -17,7 +17,7 @@ const fadeIn = {
 };
 
 // Endpoints del Backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/providers"; // Usar variable de entorno si es posible
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/auth"; // Usar variable de entorno si es posible
 const VALIDATE_RESET_ENDPOINT = `${API_BASE_URL}/validate-reset-token`;
 const RESET_PASSWORD_ENDPOINT = `${API_BASE_URL}/reset-password`;
 
