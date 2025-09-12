@@ -83,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <CustomProvider>
           <Navbar />
-          <main className="min-h-screen">
+          <main className="min-h-screen pt-20">
             {children}
           </main>
           <Footer />
