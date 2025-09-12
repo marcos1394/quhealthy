@@ -6,33 +6,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { GlobalStateInitializer } from '@/components/utils/GlobalStateInitializer';
 
 // Configuración de la fuente
 const inter = Inter({ subsets: ["latin"] });
 
-// --- METADATOS PROFESIONALES PARA SEO ---
+// --- METADATOS PROFESIONALES PARA SEO (sin cambios) ---
 export const metadata: Metadata = {
-  // Base para construir URLs absolutas
-  metadataBase: new URL('https://www.quhealthy.com'), // Reemplaza con tu dominio de producción
-
-  // Título dinámico
+  metadataBase: new URL('https://www.quhealthy.com'),
   title: {
-    template: '%s | QuHealthy', // Cada página podrá definir su propio título
-    default: 'QuHealthy - Plataforma de Salud y Bienestar Digital', // Título por defecto
+    template: '%s | QuHealthy',
+    default: 'QuHealthy - Plataforma de Salud y Bienestar Digital',
   },
-  
   description: "Encuentra, agenda y gestiona tus citas de salud y belleza con los mejores profesionales. QuHealthy es la plataforma digital que conecta pacientes y proveedores de manera eficiente.",
-  
-  // Palabras clave
   keywords: ['salud', 'belleza', 'bienestar', 'citas médicas', 'agenda online', 'profesionales de la salud', 'terapia', 'spa', 'médicos en México'],
-  
-  // Autores y publicadores
   authors: [{ name: 'QuHealthy Team', url: 'https://www.quhealthy.com' }],
   creator: 'QuHealthy',
   publisher: 'QuHealthy',
-
-  // Open Graph (para compartir en redes sociales como Facebook, WhatsApp)
   openGraph: {
     title: 'QuHealthy - Tu Ecosistema de Bienestar Digital',
     description: 'La plataforma líder para agendar y gestionar servicios de salud y belleza.',
@@ -40,7 +29,7 @@ export const metadata: Metadata = {
     siteName: 'QuHealthy',
     images: [
       {
-        url: '/og-image.png', // Imagen principal para compartir (debe estar en /public)
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Dashboard de QuHealthy mostrando una agenda de citas',
@@ -49,27 +38,19 @@ export const metadata: Metadata = {
     locale: 'es_MX',
     type: 'website',
   },
-
-  // Twitter Card (para compartir en Twitter/X)
   twitter: {
     card: 'summary_large_image',
     title: 'QuHealthy - Tu Ecosistema de Bienestar Digital',
     description: 'La plataforma líder para agendar y gestionar servicios de salud y belleza.',
-    creator: '@QuHealthyApp', // Reemplaza con tu usuario de Twitter
-    images: ['/og-image.png'], // Usa la misma imagen que Open Graph
+    creator: '@QuHealthyApp',
+    images: ['/og-image.png'],
   },
-
-  // Íconos (Favicon, Apple Touch Icon, etc.)
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  
-  // Manifest para PWA (Progressive Web App)
   manifest: '/manifest.json',
-
-  // Robots (instrucciones para los buscadores)
   robots: {
     index: true,
     follow: true,
@@ -83,27 +64,29 @@ export const metadata: Metadata = {
   },
 };
 
-// --- VIEWPORT (Control sobre la visualización en móviles) ---
+// --- VIEWPORT (sin cambios) ---
 export const viewport: Viewport = {
-  themeColor: '#111827', // Coincide con el color de fondo de tu app
+  themeColor: '#111827',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
 };
 
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-900 text-white`}>
-        <GlobalStateInitializer />
+        {/*
+          ELIMINAMOS GlobalStateInitializer de aquí.
+          Este layout ahora es "agnóstico": no sabe si un usuario ha iniciado sesión o no.
+          Su única responsabilidad es proveer la estructura base para TODA la aplicación.
+        */}
         <CustomProvider>
           <Navbar />
           <main className="min-h-screen">
             {children}
           </main>
           <Footer />
-          {/* Contenedor para las notificaciones toast en toda la app */}
           <ToastContainer theme="dark" position="bottom-right" />
         </CustomProvider>
       </body>
