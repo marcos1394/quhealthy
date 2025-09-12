@@ -1,11 +1,21 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-// Define la estructura de los datos que guardaremos
+
+// --- INICIO DE LA CORRECCIÓN ---
+// 1. Creamos una interfaz para los detalles del proveedor
+interface ProviderDetails {
+  name: string;
+  email: string;
+}
+
+
+// 2. Actualizamos la interfaz principal para que incluya los detalles
 interface ProviderStatus {
   planStatus: 'trial' | 'free' | 'active' | 'expired' | 'canceled';
   trialExpiresAt: string | null;
   hasActivePlan: boolean;
+  providerDetails: ProviderDetails | null; // <-- Propiedad añadida
 }
 
 // Define la estructura completa del store
