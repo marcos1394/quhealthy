@@ -21,31 +21,48 @@ interface ProviderStatusState {
   clearStatus: () => void;
 }
 
-export const useProviderStatusStore = create<ProviderStatusState>((set) => ({
+export const useProviderStatusStore = create<ProviderStatusState>((set, get) => ({
   status: null,
   isLoading: true,
   
   fetchStatus: async () => {
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Esta línea es crucial: asegura que este código solo se ejecute en el navegador.
-    // En el servidor (SSR), 'window' no existe, por lo que no hacemos nada.
+    // --- INICIO DE LOGS Y VERIFICACIONES ---
+    console.log("🔵 [Zustand Store] Se ha invocado fetchStatus.");
+
     if (typeof window === 'undefined') {
-      return set({ isLoading: false }); 
+      console.log("🟡 [Zustand Store] Entorno de servidor detectado. Omitiendo fetch.");
+      return set({ isLoading: false });
     }
-    // --- FIN DE LA CORRECCIÓN ---
+    
+    // Para evitar llamadas redundantes si ya estamos cargando o ya tenemos datos.
+    if (get().isLoading && get().status !== null) {
+      console.log("🟡 [Zustand Store] Fetch ya en progreso o datos ya existen. Omitiendo.");
+      return;
+    }
+    // --- FIN DE LOGS Y VERIFICACIONES ---
 
     set({ isLoading: true });
+    console.log("⏳ [Zustand Store] Poniendo isLoading = true y comenzando llamada a API...");
+
     try {
-      // Usamos la ruta relativa que apunta a nuestro endpoint "ligero"
       const response = await axios.get<ProviderStatus>('/api/auth/simplified-status', {
         withCredentials: true,
       });
+
+      console.log("✅ [Zustand Store] Petición exitosa. Datos recibidos:", response.data);
       set({ status: response.data, isLoading: false });
-    } catch (error) {
-      console.error("No se pudo obtener el estado del proveedor:", error);
+      console.log("✅ [Zustand Store] Estado global actualizado.");
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("❌ [Zustand Store] Error en la petición a /simplified-status:", error.response?.data || error.message);
       set({ status: null, isLoading: false });
+      console.error("❌ [Zustand Store] Estado global reseteado a null.");
     }
   },
 
-  clearStatus: () => set({ status: null, isLoading: false }),
+  clearStatus: () => {
+    console.log("🧹 [Zustand Store] Limpiando estado del proveedor (logout).");
+    set({ status: null, isLoading: false });
+  },
 }));

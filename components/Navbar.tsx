@@ -24,25 +24,24 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   
+  // --- LÓGICA DE ESTADO GLOBAL CON LOGS ---
   const { status: providerStatus, isLoading } = useProviderStatusStore();
   const isAuthenticated = !!providerStatus;
 
+  // Log para ver cómo cambia el estado de la sesión en cada renderizado del Navbar
+  console.log('🔵 [Navbar] Renderizando. isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'Status:', providerStatus);
+
   const handleLogout = async () => {
+    console.log("🔹 [Navbar] Iniciando logout...");
     try {
-      // 1. Llama al endpoint del backend para que elimine la cookie httpOnly
       await axios.post('/api/auth/logout');
-      
-      // 2. Limpia el estado global en el frontend (Zustand)
       useProviderStatusStore.getState().clearStatus();
-      
       toast.success('Sesión cerrada exitosamente.');
-      
-      // 3. Redirige al usuario a la página de inicio
       router.push('/');
+      console.log("✅ [Navbar] Logout completado.");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error("❌ [Navbar] Error al cerrar sesión:", error);
       toast.error("No se pudo cerrar la sesión. Inténtalo de nuevo.");
-      // Como fallback, limpiamos el estado y redirigimos de todas formas
       useProviderStatusStore.getState().clearStatus();
       router.push('/');
     }
