@@ -1,41 +1,43 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-
-// --- INICIO DE LA CORRECCIÓN ---
-// 1. Creamos una interfaz para los detalles del proveedor
+// Interfaces para definir la estructura de los datos
 interface ProviderDetails {
   name: string;
   email: string;
 }
 
-
-// 2. Actualizamos la interfaz principal para que incluya los detalles
 interface ProviderStatus {
   planStatus: 'trial' | 'free' | 'active' | 'expired' | 'canceled';
   trialExpiresAt: string | null;
   hasActivePlan: boolean;
-  providerDetails: ProviderDetails | null; // <-- Propiedad añadida
+  providerDetails: ProviderDetails | null;
 }
 
-// Define la estructura completa del store
 interface ProviderStatusState {
   status: ProviderStatus | null;
   isLoading: boolean;
-  fetchStatus: () => Promise<void>; // Función para obtener los datos
-  clearStatus: () => void; // Función para limpiar en logout
+  fetchStatus: () => Promise<void>;
+  clearStatus: () => void;
 }
 
 export const useProviderStatusStore = create<ProviderStatusState>((set) => ({
   status: null,
   isLoading: true,
   
-  // Acción para buscar el estado en el backend
   fetchStatus: async () => {
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Esta línea es crucial: asegura que este código solo se ejecute en el navegador.
+    // En el servidor (SSR), 'window' no existe, por lo que no hacemos nada.
+    if (typeof window === 'undefined') {
+      return set({ isLoading: false }); 
+    }
+    // --- FIN DE LA CORRECCIÓN ---
+
     set({ isLoading: true });
     try {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/simplified-status`;
-      const response = await axios.get<ProviderStatus>(apiUrl, {
+      // Usamos la ruta relativa que apunta a nuestro endpoint "ligero"
+      const response = await axios.get<ProviderStatus>('/api/auth/simplified-status', {
         withCredentials: true,
       });
       set({ status: response.data, isLoading: false });
@@ -45,6 +47,5 @@ export const useProviderStatusStore = create<ProviderStatusState>((set) => ({
     }
   },
 
-  // Acción para resetear el estado (ej. al cerrar sesión)
   clearStatus: () => set({ status: null, isLoading: false }),
 }));
