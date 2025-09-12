@@ -119,20 +119,20 @@ export default function ProviderLoginPage() {
 
     // 2. Extraemos el objeto 'onboarding' de la respuesta del backend.
     const { onboarding } = data;
-    let nextRoute = '/quhealthy/profile/providers/dashboard'; // Ruta por defecto para usuarios activos.
+    let nextRoute = '/quhealthy/dashboard'; // Ruta por defecto para usuarios activos.
 
     // 3. LÓGICA DE REDIRECCIÓN INTELIGENTE:
     // Si el onboarding NO está completo...
     if (!onboarding.isComplete) {
       console.log("Onboarding incompleto. Redirigiendo al checklist.");
       // ...lo enviamos al panel de tareas de onboarding.
-      nextRoute = '/quhealthy/authentication/providers/onboarding/checklist';
+      nextRoute = '/quhealthy/onboarding/checklist';
     } 
     // Si el onboarding SÍ está completo, pero no tiene un plan activo...
     else if (!onboarding.hasActivePlan) {
       console.log("Onboarding completo, pero sin plan activo. Redirigiendo a planes.");
       // ...lo enviamos a la página de planes.
-      nextRoute = '/quhealthy/profile/providers/plans';
+      nextRoute = '/quhealthy/plans';
     }
     
     console.log(`✅ Estado verificado. Redirigiendo a: ${nextRoute}`);
