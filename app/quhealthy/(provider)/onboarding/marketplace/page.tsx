@@ -103,7 +103,7 @@ export default function QuHealthyBrandEditor() {
       setTimeout(() => setShowSaveSuccess(false), 3000);
       
       // Opcional: si este es el último paso del onboarding, redirigir
-      router.push('/quhealthy/authentication/providers/onboarding/checklist');
+      router.push('/quhealthy/onboarding/checklist');
 
     } catch (error) {
       console.error('Error saving settings:', error);
