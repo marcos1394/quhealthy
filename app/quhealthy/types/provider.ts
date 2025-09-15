@@ -60,6 +60,7 @@ export interface PlanDetailsInfo {
   planStatus?: string; // Añadido para consistencia
   trialExpiresAt?: string | null; // Añadido para consistencia
   permissions: PlanPermissionsInfo; 
+  
 }
 
 export interface ProviderDetailsInfo { 
@@ -67,6 +68,8 @@ export interface ProviderDetailsInfo {
   email: string; 
   name: string;
   archetype?: string | null; // Añadido para consistencia
+  stripeAccountId?: string | null; // <-- AÑADE ESTA LÍNEA
+
 }
 
 export interface OnboardingStatusResponse {
