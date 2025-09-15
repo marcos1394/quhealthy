@@ -23,7 +23,7 @@ async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
     // Usamos 'fetch' porque este es un Server Component. 
     // Next.js automáticamente maneja el cacheo y la optimización.
-    const res = await fetch(`${process.env.API_URL}/api/marketplace/stores`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/marketplace/stores`, {
       next: { revalidate: 60 } // Revalidar los datos cada 60 segundos
     });
 
