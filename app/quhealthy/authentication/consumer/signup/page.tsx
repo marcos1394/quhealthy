@@ -84,7 +84,7 @@ export default function ConsumerSignupPage() {
       toast.success("¡Cuenta creada exitosamente! Redirigiendo...", { position: "top-right" });
       
       // Redirigir al dashboard del consumidor
-      router.push('/consumer/dashboard');
+      router.push('/discover');
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
