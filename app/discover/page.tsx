@@ -18,23 +18,25 @@ interface ProviderData {
   tags: Tag[];
 }
 
-// Función para obtener los datos desde nuestro backend
 async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
-    // Usamos 'fetch' porque este es un Server Component. 
-    // Next.js automáticamente maneja el cacheo y la optimización.
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/marketplace/stores`, {
-      next: { revalidate: 60 } // Revalidar los datos cada 60 segundos
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Ahora llamamos a nuestra ruta interna. Es una llamada 'same-origin'.
+    // Vercel nos da una variable de entorno para la URL base de nuestro propio proyecto.
+    const internalApiUrl = `${process.env.NEXT_PUBLIC_VERCEL_URL}/api/stores`;
+    const res = await fetch(internalApiUrl, {
+      next: { revalidate: 60 }
     });
+    // --- FIN DE LA CORRECCIÓN ---
 
     if (!res.ok) {
-      throw new Error('Failed to fetch data');
+      throw new Error('La respuesta de la API interna no fue exitosa');
     }
 
     return res.json();
   } catch (error) {
-    console.error("Error fetching marketplaces:", error);
-    return []; // Devolver un array vacío en caso de error
+    console.error("Error al obtener marketplaces desde la Route Handler:", error);
+    return [];
   }
 }
 
