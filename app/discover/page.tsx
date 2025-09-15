@@ -21,16 +21,24 @@ interface ProviderData {
 async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
     // --- INICIO DE LA CORRECCIÓN ---
-    // Ahora llamamos a nuestra ruta interna. Es una llamada 'same-origin'.
-    // Vercel nos da una variable de entorno para la URL base de nuestro propio proyecto.
-    const internalApiUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/stores`;
+    // Usamos la variable de sistema 'VERCEL_URL' que provee Vercel.
+    // Añadimos una comprobación para que funcione en desarrollo local (localhost).
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+    
+    const internalApiUrl = `${baseUrl}/api/stores`;
+    // --- FIN DE LA CORRECCIÓN ---
+    
+    console.log(`Fetching data from internal URL: ${internalApiUrl}`);
+
     const res = await fetch(internalApiUrl, {
       next: { revalidate: 60 }
     });
-    // --- FIN DE LA CORRECCIÓN ---
 
     if (!res.ok) {
-      throw new Error('La respuesta de la API interna no fue exitosa');
+      // Lanzamos un error más detallado para facilitar la depuración
+      throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
     }
 
     return res.json();
