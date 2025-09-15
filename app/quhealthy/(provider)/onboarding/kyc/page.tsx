@@ -560,7 +560,7 @@ export default function KYCVerification(): JSX.Element {
 
   switch (kycSystemStatus) {
     case KYCStatus.VERIFIED:
-      buttonAction = () => router.push('/quhealthy/profile/providers/dashboard');
+      buttonAction = () => router.push('/quhealthy/dashboard');
       buttonText = "Acceder al Panel";
       buttonIcon = <LayoutDashboard className="w-5 h-5" />;
       isActionDisabled = isLoading;

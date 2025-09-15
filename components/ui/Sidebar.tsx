@@ -24,7 +24,7 @@ import {
 const navItems = [
   { 
     name: 'Dashboard', 
-    href: '/quhealthy/profile/providers/dashboard', 
+    href: '/quhealthy/dashboard', 
     icon: LayoutDashboard,
     description: 'Vista general de tu práctica',
     badge: null,

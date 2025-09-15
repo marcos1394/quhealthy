@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
         <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-700" />
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/quhealthy/profile/providers/dashboard">
+          <Link href="/quhealthy/dashboard">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             <span>Dashboard</span>
           </Link>
@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
               <div className="pt-4 mt-2 border-t border-gray-800">
                 {isAuthenticated ? (
                   <div className="space-y-3">
-                    <Link href="/quhealthy/profile/providers/dashboard" className="block text-center text-white py-3 px-4 bg-gray-700/50 hover:bg-gray-700 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Ir al Dashboard</Link>
+                    <Link href="/quhealthy/dashboard" className="block text-center text-white py-3 px-4 bg-gray-700/50 hover:bg-gray-700 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Ir al Dashboard</Link>
                     <Button onClick={handleLogout} variant="destructive" className="w-full h-12">Cerrar Sesión</Button>
                   </div>
                 ) : (

@@ -300,7 +300,7 @@ function PaymentSuccessContent() {
       );
       
       const { onboardingStatus } = response.data;
-      let nextRoute = "/quhealthy/profile/providers/dashboard";
+      let nextRoute = "/quhealthy/dashboard";
 
       if (!onboardingStatus.kyc.isComplete) {
         nextRoute = "/quhealthy/authentication/providers/onboarding/kyc";
