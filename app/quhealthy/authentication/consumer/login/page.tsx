@@ -55,7 +55,7 @@ export default function ConsumerLoginPage() {
       
       // Redirigimos al dashboard del consumidor
       // (Asumiendo que esta será la ruta)
-      router.push('/consumer/dashboard');
+      router.push('/discover');
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
