@@ -1,32 +1,36 @@
-import React from 'react';
+// --- Tipos para el Resumen del Dashboard ---
 
-export type UserRole = "paciente" | "proveedor";
-
-export interface StatCard {
-  title: string;
-  value: number | string;
-  icon: React.ReactNode;
-  color: string;
-  trend?: number;
-}
-
+// El tipo para cada cita en la lista de "Próximas Citas"
 export interface Appointment {
-  id: string;
-  serviceName: string;
-  providerName?: string;
-  clientName?: string;
-  dateTime: string;
-  status: "scheduled" | "completed" | "cancelled" | "pending";
-  location: string;
-  price: number;
-  notes?: string;
+  id: number;
+  clientName: string;
+  time: string;
+  service: string;
 }
 
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: "info" | "warning" | "success";
-  date: string;
-  isRead: boolean;
+// El tipo para las tarjetas de resumen (KPIs)
+export interface SummaryCards {
+  todayAppointments: number;
+  unreadMessages: number;
+  monthlyRevenue: number;
+}
+
+// El tipo para el estado detallado de las verificaciones
+export interface VerificationStatus {
+  kyc: { 
+    isComplete: boolean; 
+    status: string; 
+  };
+  // 'license' es opcional porque no todos los arquetipos lo tienen
+  license?: { 
+    isComplete: boolean; 
+    status: string; 
+  };
+}
+
+// La estructura completa de la respuesta del endpoint del dashboard
+export interface DashboardData {
+  summaryCards: SummaryCards;
+  upcomingAppointments: Appointment[];
+  verificationStatus: VerificationStatus;
 }
