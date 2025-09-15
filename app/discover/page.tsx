@@ -23,7 +23,7 @@ async function getActiveMarketplaces(): Promise<ProviderData[]> {
     // --- INICIO DE LA CORRECCIÓN ---
     // Ahora llamamos a nuestra ruta interna. Es una llamada 'same-origin'.
     // Vercel nos da una variable de entorno para la URL base de nuestro propio proyecto.
-    const internalApiUrl = `${process.env.NEXT_PUBLIC_VERCEL_URL}/api/stores`;
+    const internalApiUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/stores`;
     const res = await fetch(internalApiUrl, {
       next: { revalidate: 60 }
     });
