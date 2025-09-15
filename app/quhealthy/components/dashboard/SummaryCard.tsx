@@ -73,7 +73,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
       </div>
 
       {/* Hover Effect Line */}
-      <div className={`absolute bottom-0 left-0 h-1 ${bgColor?.replace('/10', '')} w-0 group-hover:w-full transition-all duration-500`} />
+<div className={`absolute bottom-0 left-0 h-1 ${bgColor?.replace('/10', '') || ''} w-0 group-hover:w-full ...`} />
     </motion.div>
   );
 };
