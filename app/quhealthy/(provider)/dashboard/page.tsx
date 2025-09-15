@@ -77,6 +77,7 @@ export default function DashboardPage() {
           color="text-blue-400"
           bgColor="bg-blue-500/10"
           borderColor="border-blue-500/20"
+        hoverColor="bg-blue-500" // <-- Nueva prop
         />
         <SummaryCard 
           title="Mensajes No Leídos" 
@@ -85,6 +86,8 @@ export default function DashboardPage() {
           color="text-pink-400"
           bgColor="bg-pink-500/10"
           borderColor="border-pink-500/20"
+            hoverColor="bg-pink-500" // <-- Nueva prop
+
         />
         <SummaryCard 
           title="Ingresos del Mes" 
@@ -93,6 +96,8 @@ export default function DashboardPage() {
           color="text-green-400"
           bgColor="bg-green-500/10"
           borderColor="border-green-500/20"
+            hoverColor="bg-green-500" // <-- Nueva prop
+
         />
       </div>
 
