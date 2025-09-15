@@ -58,6 +58,7 @@ export default function ProviderPasswordRecoveryPage() {
       toast.success("Solicitud enviada. Revisa tu correo.", { position: "top-right", autoClose: 4000 });
       // setEmail(""); // Opcional: Limpiar campo tras éxito
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("❌ Error durante la solicitud de reseteo:", err);
       let errorMessage = "Hubo un problema al procesar tu solicitud. Intenta de nuevo más tarde.";

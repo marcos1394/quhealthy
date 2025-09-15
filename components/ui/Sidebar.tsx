@@ -32,7 +32,7 @@ const navItems = [
   },
   { 
     name: 'Mi Tienda', 
-    href: '/quhealthy/profile/providers/marketplace', 
+    href: '/quhealthy/providers/marketplace', 
     icon: Store,
     description: 'Productos y servicios',
     badge: 'Nuevo',

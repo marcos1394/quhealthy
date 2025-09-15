@@ -104,8 +104,7 @@ export default function ProviderLoginPage() {
   setError("");
 
   try {
-    // 1. Hacemos la llamada a la RUTA RELATIVA para que el proxy de Vercel la intercepte.
-    //    Mantenemos 'withCredentials' para que el navegador envíe la cookie httpOnly.
+    // 1. Hacemos la llamada a la API con la ruta relativa para que funcione el proxy.
     const { data } = await axios.post(
       '/api/auth/login', 
       formData,
@@ -117,27 +116,26 @@ export default function ProviderLoginPage() {
       autoClose: 1500,
     });
 
-    // 2. Extraemos el objeto 'onboarding' de la respuesta del backend.
     const { onboarding } = data;
-    let nextRoute = '/quhealthy/dashboard'; // Ruta por defecto para usuarios activos.
+    // La ruta por defecto si todo está completo es el dashboard.
+    let nextRoute = '/quhealthy/dashboard'; 
 
-    // 3. LÓGICA DE REDIRECCIÓN INTELIGENTE:
-    // Si el onboarding NO está completo...
+    // 2. LÓGICA DE REDIRECCIÓN INTELIGENTE
+    // Si el onboarding NO está completo, se le envía al checklist para que lo termine.
     if (!onboarding.isComplete) {
       console.log("Onboarding incompleto. Redirigiendo al checklist.");
-      // ...lo enviamos al panel de tareas de onboarding.
       nextRoute = '/quhealthy/onboarding/checklist';
     } 
-    // Si el onboarding SÍ está completo, pero no tiene un plan activo...
+    // Si el onboarding SÍ está completo, pero no tiene un plan activo (ej. expiró la prueba)...
     else if (!onboarding.hasActivePlan) {
-      console.log("Onboarding completo, pero sin plan activo. Redirigiendo a planes.");
-      // ...lo enviamos a la página de planes.
-      nextRoute = '/quhealthy/plans';
+      console.log("Onboarding completo, pero sin plan activo. Redirigiendo a facturación.");
+      // ...se le envía a la página de facturación/planes dentro de su dashboard.
+      nextRoute = '/quhealthy/dashboard/billing';
     }
     
     console.log(`✅ Estado verificado. Redirigiendo a: ${nextRoute}`);
     
-    // 4. Usamos router.push para una navegación más fluida en Next.js
+    // 3. Redireccionamos al usuario a la ruta correcta.
     router.push(nextRoute);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -145,7 +143,7 @@ export default function ProviderLoginPage() {
     const errorMessage = err.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales.";
     setError(errorMessage);
     toast.error(errorMessage, { position: "top-right" });
-    setLoading(false); // Detenemos la carga solo en caso de error
+    setLoading(false);
   }
 };
 

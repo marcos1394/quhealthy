@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from 'next/navigation'; // Hooks para URL y redirección
 import { motion } from "framer-motion";
-import { Lock, AlertCircle, ArrowLeft, CheckCircle } from "lucide-react"; // Iconos necesarios
+import { Lock, AlertCircle, CheckCircle } from "lucide-react"; // Iconos necesarios
 import { Alert, AlertDescription } from "@/components/ui/alert"; // Asumiendo ruta correcta
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -67,6 +67,7 @@ function ResetPasswordForm() {
         console.log("✅ Tokens S/V válidos.");
         setTokenState('valid'); // Marcar token como válido
         setValidationError(""); // Limpiar errores previos
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error("❌ Error al validar el token:", err);
         const message = err.response?.data?.message || "El enlace de reseteo es inválido o ha expirado.";
@@ -145,6 +146,7 @@ function ResetPasswordForm() {
       }, 3000);
       // --- FIN MANEJO DE ÉXITO ---
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("❌ Error al actualizar la contraseña:", err);
       // Mostrar error específico del backend o uno genérico
