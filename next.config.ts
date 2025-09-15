@@ -4,6 +4,8 @@ import withBundleAnalyzerInit from "@next/bundle-analyzer";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    productionBrowserSourceMaps: true, // <-- AÑADE ESTA LÍNEA
+
   // === REVERSE PROXY PARA LA API ===
   async rewrites() {
     return [
