@@ -1,44 +1,64 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
+"use client";
 
-// 1. Importamos los componentes modulares
+import React, { useState, useEffect } from 'react';
+import { useParams, notFound } from 'next/navigation';
+import axios from 'axios';
+
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
-
-// 2. Importamos el TIPO de dato desde nuestro archivo central
 import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
+import { Loader2 } from 'lucide-react';
 
-// 3. La función de obtención de datos ahora usa el tipo importado
-async function getProviderProfile(slug: string): Promise<ProviderProfileData | null> {
-  try {
-    const apiUrl = `${process.env.API_URL}/api/marketplace/store/${slug}`;
-    const res = await fetch(apiUrl, { next: { revalidate: 300 } }); 
-    
-    if (!res.ok) {
-      console.error(`Error fetching profile for slug "${slug}": ${res.status}`);
-      return null;
-    }
-    return res.json();
-  } catch (error) {
-    console.error("Error fetching provider profile:", error);
-    return null;
-  }
-}
+export default function ProviderPublicPage() {
+  const params = useParams();
+  const slug = params.slug as string;
 
-// El componente de página dinámico
-export default async function ProviderPublicPage({ params }: { params: { slug: string } }) {
-  const profileData = await getProviderProfile(params.slug);
-  
-  if (!profileData) {
-    notFound();
+  // Estados para manejar la carga de datos en el cliente
+  const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Si no hay slug, no hacemos nada.
+    if (!slug) return;
+
+    const getProviderProfile = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Usamos la ruta relativa que funcionará con nuestro proxy de Vercel
+        const apiUrl = `/api/marketplace/store/${slug}`;
+        const { data } = await axios.get<ProviderProfileData>(apiUrl);
+        setProfileData(data);
+      } catch (err) {
+        console.error("Error fetching provider profile:", err);
+        setError("No se pudo cargar el perfil del proveedor.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getProviderProfile();
+  }, [slug]); // Se ejecuta cada vez que el slug cambie
+
+  // Estado de Carga
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
+      </div>
+    );
   }
-  
+
+  // Estado de Error o si no se encontraron datos
+  if (error || !profileData) {
+     notFound(); // Redirige a la página 404 de Next.js
+  }
+
   return (
     <div className="min-h-screen bg-black">
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-      
       <div className="relative z-10">
         <ProviderHero profile={profileData} />
         
