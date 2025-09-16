@@ -7,6 +7,7 @@ import { Calendar as CalendarIcon, Clock, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CalendarComponent } from '@/app/quhealthy/components/calendar/CalendarComponent';
 import { OperatingHoursModal } from '@/app/quhealthy/components/calendar/OperatingHoursModal';
+import { TimeBlockModal } from '@/app/quhealthy/components/calendar/TimeBlockModal';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CalendarEvent, OperatingHour } from '@/app/quhealthy/types/calendar'; // <-- AÑADE ESTA LÍNEA
@@ -18,6 +19,8 @@ export default function CalendarPage() {
   const [operatingHours, setOperatingHours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBlockModalOpen, setIsBlockModalOpen] = useState(false); // <-- Nuevo estado
+
 
   // Función para obtener todos los datos del calendario
   const fetchCalendarData = useCallback(async () => {
@@ -57,7 +60,8 @@ export default function CalendarPage() {
             <Clock className="w-4 h-4 mr-2" />
             Editar Horarios
           </Button>
-          <Button className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setIsBlockModalOpen(true)} className="bg-purple-600 hover:bg-purple-700">
+
             <Plus className="w-4 h-4 mr-2" />
             Crear Evento
           </Button>
