@@ -28,15 +28,17 @@ async function getActiveMarketplaces(): Promise<ProviderData[]> {
     
     const internalApiUrl = `${baseUrl}/api/stores`;
     
-    // 2. Obtenemos las cookies de la petición original del navegador
     const cookieStore = cookies();
+    const cookieHeader = cookieStore.toString();
 
-    console.log(`Fetching data from: ${internalApiUrl}`);
+    // --- LOG DE DEPURACIÓN ---
+    console.log(`[DiscoverPage] Intentando fetch a: ${internalApiUrl}`);
+    console.log(`[DiscoverPage] Enviando cookies al Route Handler: ${cookieHeader || 'Ninguna'}`);
+    // --- FIN DEL LOG ---
 
-    // 3. Añadimos las cookies al encabezado de nuestra petición 'fetch'
     const res = await fetch(internalApiUrl, {
       headers: {
-        Cookie: cookieStore.toString(), // <-- La corrección clave
+        'Cookie': cookieHeader,
       },
       next: { revalidate: 60 }
     });
