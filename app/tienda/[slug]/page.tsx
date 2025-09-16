@@ -1,24 +1,18 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+
+// 1. Importamos todos los componentes y tipos necesarios
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { ProviderProfileData } from '@/app/quhealthy/types/marketplace'; // Usamos el tipo centralizado
 
-// --- INICIO DE LA CORRECCIÓN ---
-// 1. Definimos el tipo para las props que Next.js pasa a una página dinámica
-type PageProps = {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-// --- FIN DE LA CORRECCIÓN ---
-
-// La función que obtiene los datos se mantiene igual
+// Función que obtiene los datos del proveedor (se ejecuta en el servidor)
 async function getProviderProfile(slug: string): Promise<ProviderProfileData | null> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/store/${slug}`;
-    const res = await fetch(apiUrl, { next: { revalidate: 300 } });
+    const res = await fetch(apiUrl, { next: { revalidate: 300 } }); 
     
     if (!res.ok) {
       return null;
@@ -30,8 +24,8 @@ async function getProviderProfile(slug: string): Promise<ProviderProfileData | n
   }
 }
 
-// 2. Aplicamos el nuevo tipo 'PageProps' a la función de la página
-export default async function ProviderPublicPage({ params }: PageProps) {
+// 2. Usamos la definición de props directamente en la firma de la función
+export default async function ProviderPublicPage({ params }: { params: { slug: string } }) {
   const profileData = await getProviderProfile(params.slug);
   
   if (!profileData) {
