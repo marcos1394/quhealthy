@@ -22,8 +22,9 @@ const nextConfig = {
         default-src 'self';
         script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://*.stripecdn.com;
         style-src 'self' 'unsafe-inline' https://*.stripe.com;
-        img-src 'self' 'unsafe-inline' data: https://*.stripe.com https://*.stripecdn.com;
+        img-src 'self' 'unsafe-inline' data: https://*.stripe.com https://*.stripecdn.com https://xqejlzevtuknggchvyfa.supabase.co;
         font-src 'self' data:;
+
         frame-src 'self' https://*.stripe.com;
         connect-src 'self' https://*.stripe.com;
     `.replace(/\s{2,}/g, ' ').trim(); // Limpia espacios extra
