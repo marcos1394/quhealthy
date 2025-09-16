@@ -4,14 +4,9 @@ import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
-// Importamos el tipo de dato DETALLADO
-import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
+import { ProviderProfileData } from '@/app/quhealthy/types/marketplace'; // Usamos el tipo centralizado
 
-interface ProviderPublicPageProps {
-  params: { slug: string };
-}
-
-// La función ahora devuelve el tipo de dato DETALLADO
+// La función de obtención de datos ahora usa el tipo correcto
 async function getProviderProfile(slug: string): Promise<ProviderProfileData | null> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/store/${slug}`;
@@ -25,7 +20,9 @@ async function getProviderProfile(slug: string): Promise<ProviderProfileData | n
   }
 }
 
-export default async function ProviderPublicPage({ params }: ProviderPublicPageProps) {
+// --- CORRECCIÓN FINAL ---
+// Usamos la definición de props más directa y explícita para evitar conflictos
+export default async function ProviderPublicPage({ params }: { params: { slug: string } }) {
   const profileData = await getProviderProfile(params.slug);
   
   if (!profileData) {

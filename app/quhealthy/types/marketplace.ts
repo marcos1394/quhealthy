@@ -80,5 +80,5 @@ export interface ProviderProfileData {
     count: number;
     items: ReviewItem[];
   };
-  tags: Tag[]; // Incluimos los tags también
+  tags: Tag[];
 }
