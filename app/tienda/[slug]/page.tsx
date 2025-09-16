@@ -1,23 +1,26 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-
-// 1. Importamos los componentes modulares
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
+import { ProviderProfileData } from '@/app/quhealthy/types/marketplace'; // Usamos el tipo centralizado
 
-// 2. Importamos el TIPO de dato desde nuestro archivo central
-import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
+// --- INICIO DE LA CORRECCIÓN ---
+// 1. Definimos el tipo para las props que Next.js pasa a una página dinámica
+type PageProps = {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+// --- FIN DE LA CORRECCIÓN ---
 
-// 3. La función de obtención de datos ahora usa el tipo importado
+// La función que obtiene los datos se mantiene igual
 async function getProviderProfile(slug: string): Promise<ProviderProfileData | null> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/store/${slug}`;
-    const res = await fetch(apiUrl, { next: { revalidate: 300 } }); 
+    const res = await fetch(apiUrl, { next: { revalidate: 300 } });
     
     if (!res.ok) {
-      console.error(`Error fetching profile for slug "${slug}": ${res.status}`);
       return null;
     }
     return res.json();
@@ -27,8 +30,8 @@ async function getProviderProfile(slug: string): Promise<ProviderProfileData | n
   }
 }
 
-// El componente de página dinámico
-export default async function ProviderPublicPage({ params }: { params: { slug: string } }) {
+// 2. Aplicamos el nuevo tipo 'PageProps' a la función de la página
+export default async function ProviderPublicPage({ params }: PageProps) {
   const profileData = await getProviderProfile(params.slug);
   
   if (!profileData) {
