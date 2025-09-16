@@ -27,10 +27,6 @@ export interface Marketplace {
     storeLogo: string | null;
     customDescription: string | null;
 
-  // Añade aquí cualquier otro campo del marketplace que necesites en el futuro
-
-
-
 }
 
 export interface ProviderData {
@@ -84,5 +80,5 @@ export interface ProviderProfileData {
     count: number;
     items: ReviewItem[];
   };
-  tags: Tag[]; // Incluimos los tags también
+  tags: Tag[];
 }
