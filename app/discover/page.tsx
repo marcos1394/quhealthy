@@ -1,5 +1,7 @@
 import React from 'react';
 import { ProviderCard } from '@/components/ui/ProviderCard'; // Componente que crearemos a continuación
+import { cookies } from 'next/headers'; // 1. Importamos la función 'cookies' de Next.js
+
 
 // Interfaz para definir la forma de los datos del proveedor
 interface Tag {
@@ -20,24 +22,26 @@ interface ProviderData {
 
 async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Usamos la variable de sistema 'VERCEL_URL' que provee Vercel.
-    // Añadimos una comprobación para que funcione en desarrollo local (localhost).
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
       : 'http://localhost:3000';
     
     const internalApiUrl = `${baseUrl}/api/stores`;
-    // --- FIN DE LA CORRECCIÓN ---
     
-    console.log(`Fetching data from internal URL: ${internalApiUrl}`);
+    // 2. Obtenemos las cookies de la petición original del navegador
+    const cookieStore = cookies();
 
+    console.log(`Fetching data from: ${internalApiUrl}`);
+
+    // 3. Añadimos las cookies al encabezado de nuestra petición 'fetch'
     const res = await fetch(internalApiUrl, {
+      headers: {
+        Cookie: cookieStore.toString(), // <-- La corrección clave
+      },
       next: { revalidate: 60 }
     });
 
     if (!res.ok) {
-      // Lanzamos un error más detallado para facilitar la depuración
       throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
     }
 
