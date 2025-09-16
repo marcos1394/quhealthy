@@ -21,28 +21,27 @@ interface ProviderData {
   tags: Tag[];
 }
 
-// --- Lógica de Obtención de Datos (se ejecuta en el servidor) ---
 async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/stores`;
-    
     console.log(`🔹 [DiscoverPage Server] Intentando fetch a: ${apiUrl}`);
-    
+
     const res = await fetch(apiUrl, {
-      headers: {
-        'User-Agent': 'QuHealthy-WebApp/1.0',
-      },
+      headers: { 'User-Agent': 'QuHealthy-WebApp/1.0' },
       next: { revalidate: 60 }
     });
-    
+
     if (!res.ok) {
-      const errorText = await res.text();
-      console.error(`❌ [DiscoverPage Server] La respuesta del backend no fue exitosa: ${res.status} - ${errorText}`);
-      throw new Error(`Failed to fetch: ${res.status}`);
+      throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
     }
-    
+
     const data = await res.json();
-    console.log(`✅ [DiscoverPage Server] Se obtuvieron ${data.length} proveedores.`);
+    
+    // --- INICIO DEL LOG DETALLADO ---
+    // Usamos JSON.stringify para asegurar que veamos la estructura completa y exacta del objeto.
+    console.log('✅ [DiscoverPage Server] Datos recibidos (JSON):', JSON.stringify(data, null, 2));
+    // --- FIN DEL LOG ---
+
     return data;
     
   } catch (error) {
@@ -131,11 +130,12 @@ export default async function DiscoverPage() {
                 {providers.map((provider, index) => (
                   <div
                     key={provider.id}
-                    className="transform transition-all duration-500"
+                    className="opacity-0 animate-pulse"
                     style={{
                       animationDelay: `${index * 100}ms`,
-                      animation: 'fadeInUp 0.8s ease-out forwards',
-                      opacity: 0
+                      animationDuration: '0.8s',
+                      animationFillMode: 'forwards',
+                      animationTimingFunction: 'ease-out'
                     }}
                   >
                     <ProviderCard provider={provider} />
@@ -151,7 +151,7 @@ export default async function DiscoverPage() {
                 
                 <div className="relative bg-gray-900/40 backdrop-blur-xl border border-gray-800/50 rounded-3xl p-12">
                   <div className="relative">
-                    <Compass className="w-20 h-20 text-purple-400 mx-auto mb-6 animate-spin-slow" />
+                    <Compass className="w-20 h-20 text-purple-400 mx-auto mb-6 animate-spin" />
                     <h3 className="text-2xl font-bold text-white mb-4">
                       Estamos creciendo
                     </h3>
@@ -172,32 +172,6 @@ export default async function DiscoverPage() {
           )}
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
