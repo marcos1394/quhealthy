@@ -1,22 +1,23 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-
-// 1. Importamos todos los componentes y tipos necesarios
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
-import { ProviderProfileData } from '@/app/quhealthy/types/marketplace'; // Usamos el tipo centralizado
+// Importamos el tipo de dato DETALLADO
+import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
 
-// Función que obtiene los datos del proveedor (se ejecuta en el servidor)
+interface ProviderPublicPageProps {
+  params: { slug: string };
+}
+
+// La función ahora devuelve el tipo de dato DETALLADO
 async function getProviderProfile(slug: string): Promise<ProviderProfileData | null> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/store/${slug}`;
-    const res = await fetch(apiUrl, { next: { revalidate: 300 } }); 
+    const res = await fetch(apiUrl, { next: { revalidate: 300 } });
     
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return null;
     return res.json();
   } catch (error) {
     console.error("Error fetching provider profile:", error);
@@ -24,8 +25,7 @@ async function getProviderProfile(slug: string): Promise<ProviderProfileData | n
   }
 }
 
-// 2. Usamos la definición de props directamente en la firma de la función
-export default async function ProviderPublicPage({ params }: { params: { slug: string } }) {
+export default async function ProviderPublicPage({ params }: ProviderPublicPageProps) {
   const profileData = await getProviderProfile(params.slug);
   
   if (!profileData) {
@@ -34,8 +34,6 @@ export default async function ProviderPublicPage({ params }: { params: { slug: s
   
   return (
     <div className="min-h-screen bg-black">
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-      
       <div className="relative z-10">
         <ProviderHero profile={profileData} />
         

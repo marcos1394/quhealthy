@@ -27,10 +27,6 @@ export interface Marketplace {
     storeLogo: string | null;
     customDescription: string | null;
 
-  // Añade aquí cualquier otro campo del marketplace que necesites en el futuro
-
-
-
 }
 
 export interface ProviderData {
