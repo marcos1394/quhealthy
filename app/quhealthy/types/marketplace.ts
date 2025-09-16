@@ -20,6 +20,26 @@ export interface ReviewItem {
   author: ReviewAuthor;
 }
 
+export interface Marketplace {
+    storeName: string;
+    storeSlug: string;
+    storeBanner: string | null;
+    storeLogo: string | null;
+    customDescription: string | null;
+
+  // Añade aquí cualquier otro campo del marketplace que necesites en el futuro
+
+
+
+}
+
+export interface ProviderData {
+    id: number;
+    name: string;
+    marketplace: Marketplace;
+    tags: Tag[];
+}
+
 // Representa un servicio individual del catálogo
 export interface Service {
   id: number;
