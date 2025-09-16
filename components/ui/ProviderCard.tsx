@@ -14,7 +14,8 @@ interface Tag {
 interface Marketplace { 
   storeName: string; 
   storeSlug: string; 
-  storeBannerUrl: string | null; 
+  storeBanner: string | null; // <-- Corregido
+  storeLogo: string | null;   // <-- Añadido y corregido
   customDescription: string | null; 
 }
 
@@ -47,11 +48,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
           
           {/* Banner principal - Más grande */}
           <div className="relative h-56 overflow-hidden">
-            {marketplace.storeBannerUrl ? (
+            {marketplace.storeBanner ? (
               <div className="relative w-full h-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
-                  src={marketplace.storeBannerUrl} 
+                  src={marketplace.storeBanner} 
                   alt={marketplace.storeName} 
                   className="w-full h-full object-cover transition-transform duration-300 ease-out" 
                 />

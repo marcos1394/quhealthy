@@ -1,47 +1,33 @@
 import React from 'react';
 import { ProviderCard } from '@/components/ui/ProviderCard';
 import { Compass, Search, Filter } from 'lucide-react';
+import { ProviderData } from '@/app/quhealthy/types/marketplace';
 
-// --- Tipos de Datos ---
-interface Tag {
-  name: string;
-}
 
-interface Marketplace {
-  storeName: string;
-  storeSlug: string;
-  storeBannerUrl: string | null;
-  customDescription: string | null;
-}
 
-interface ProviderData {
-  id: number;
-  name: string;
-  marketplace: Marketplace;
-  tags: Tag[];
-}
 
+// --- Lógica de Obtención de Datos (se ejecuta en el servidor) ---
 async function getActiveMarketplaces(): Promise<ProviderData[]> {
   try {
     const apiUrl = `${process.env.API_URL}/api/marketplace/stores`;
+    
     console.log(`🔹 [DiscoverPage Server] Intentando fetch a: ${apiUrl}`);
-
+    
     const res = await fetch(apiUrl, {
-      headers: { 'User-Agent': 'QuHealthy-WebApp/1.0' },
+      headers: {
+        'User-Agent': 'QuHealthy-WebApp/1.0',
+      },
       next: { revalidate: 60 }
     });
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
-    }
-
-    const data = await res.json();
     
-    // --- INICIO DEL LOG DETALLADO ---
-    // Usamos JSON.stringify para asegurar que veamos la estructura completa y exacta del objeto.
-    console.log('✅ [DiscoverPage Server] Datos recibidos (JSON):', JSON.stringify(data, null, 2));
-    // --- FIN DEL LOG ---
-
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`❌ [DiscoverPage Server] La respuesta del backend no fue exitosa: ${res.status} - ${errorText}`);
+      throw new Error(`Failed to fetch: ${res.status}`);
+    }
+    
+    const data = await res.json();
+    console.log(`✅ [DiscoverPage Server] Se obtuvieron ${data.length} proveedores.`);
     return data;
     
   } catch (error) {
