@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-     "build": "next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -76,6 +76,7 @@
     "qrcode.react": "^4.2.0",
     "radix-ui": "^1.0.1",
     "react": "^19.1.1",
+    "react-big-calendar": "^1.19.4",
     "react-day-picker": "^9.4.4",
     "react-dom": "^19.1.1",
     "react-icons": "^5.4.0",
@@ -96,6 +97,7 @@
     "@types/next-pwa": "^5.6.9",
     "@types/node": "^24.5.1",
     "@types/react": "^19.1.13",
+    "@types/react-big-calendar": "^1.16.3",
     "@types/react-dom": "^19",
     "@types/react-simple-maps": "^3.0.6",
     "@types/smoothscroll-polyfill": "^0.3.4",

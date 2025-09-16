@@ -17,7 +17,7 @@ import { Button } from './button'; // Asegúrate de tener un componente Button
 const navItems = [
   { name: 'Dashboard', href: '/quhealthy/dashboard', icon: LayoutDashboard },
   { name: 'Mi Tienda', href: '/quhealthy/onboarding/marketplace', icon: Store },
-  { name: 'Agenda', href: '/quhealthy/calendar', icon: Calendar },
+  { name: 'Agenda', href: '/dashboard/calendar', icon: Calendar },
   { name: 'Pacientes', href: '/quhealthy/patients', icon: Users },
   { name: 'Reportes', href: '/quhealthy/reports', icon: BarChart3 },
   { name: 'Configuración', href: '/quhealthy/settings', icon: Settings },
