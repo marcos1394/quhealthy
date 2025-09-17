@@ -26,6 +26,7 @@ export default function ProviderPublicPage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  
 
  useEffect(() => {
     if (!slug) return;
@@ -50,12 +51,17 @@ export default function ProviderPublicPage() {
 
   // --- LÓGICA DE RESERVA ---
   // Esta función se llama desde ServiceList cuando se hace clic en "Agendar"
-  const handleBookingInitiation = (service: Service) => {
-    console.log("Servicio seleccionado para agendar:", service.name);
+   const handleBookingInitiation = (service: Service) => {
     setSelectedService(service);
-    // (Podríamos hacer scroll suave hasta el calendario aquí)
+    console.log(`Servicio seleccionado: ${service.name}. Ahora el usuario debe elegir un horario.`);
+    
+    // Lógica para hacer scroll suave hasta el calendario
+    const calendarElement = document.getElementById('availability-calendar');
+    if (calendarElement) {
+      calendarElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // (Opcional) Podrías añadir un efecto visual al calendario para destacarlo
+    }
   };
-
   // Esta función se llama desde AvailabilityCalendar cuando se selecciona un horario
   const handleSlotSelection = (slot: Date) => {
     console.log("Horario seleccionado:", slot);
@@ -139,7 +145,7 @@ export default function ProviderPublicPage() {
                   transition={{ duration: 0.8, delay: 0.2 }}
                   className="space-y-20"
                 >
-                  <ServiceList services={profileData.services} />
+        <ServiceList services={profileData.services} onBookClick={handleBookingInitiation} />
                   <StaffSection staff={profileData.staff} />
                   <ReviewsSection reviews={profileData.reviews} />
                 </motion.div>
