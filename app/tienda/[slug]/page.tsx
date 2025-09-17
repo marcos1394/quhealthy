@@ -10,18 +10,24 @@ import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
-import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
+import { ProviderProfileData,Service  } from '@/app/quhealthy/types/marketplace';
 import { Loader2, Sparkles } from 'lucide-react';
+import { CheckoutModal } from '@/components/tienda/CheckoutModal';
+
 
 export default function ProviderPublicPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
+ const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Estados para el flujo de reserva
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  useEffect(() => {
+ useEffect(() => {
     if (!slug) return;
     
     const getProviderProfile = async () => {
@@ -42,13 +48,25 @@ export default function ProviderPublicPage() {
     getProviderProfile();
   }, [slug]);
 
-  // Esta función se ejecutará cuando un cliente seleccione un horario
+  // --- LÓGICA DE RESERVA ---
+  // Esta función se llama desde ServiceList cuando se hace clic en "Agendar"
+  const handleBookingInitiation = (service: Service) => {
+    console.log("Servicio seleccionado para agendar:", service.name);
+    setSelectedService(service);
+    // (Podríamos hacer scroll suave hasta el calendario aquí)
+  };
+
+  // Esta función se llama desde AvailabilityCalendar cuando se selecciona un horario
   const handleSlotSelection = (slot: Date) => {
     console.log("Horario seleccionado:", slot);
+    if (!selectedService) {
+      alert("Por favor, primero selecciona un servicio de la lista.");
+      return;
+    }
     setSelectedSlot(slot);
-    // En el futuro, aquí abriremos el modal de checkout
-    alert(`Has seleccionado el horario: ${slot.toLocaleString()}`);
+    setIsCheckoutOpen(true); // Abre el modal de checkout
   };
+
 
   if (isLoading) {
     return (
@@ -170,6 +188,13 @@ export default function ProviderPublicPage() {
             </div>
           </div>
         </div>
+         <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        service={selectedService}
+        providerId={profileData.id}
+        selectedSlot={selectedSlot}
+          />
         
         {/* Enhanced footer section */}
         <div className="border-t border-slate-800/50">
