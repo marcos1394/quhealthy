@@ -84,6 +84,11 @@ export default function CalendarPage() {
         initialHours={operatingHours}
         onSaveSuccess={fetchCalendarData} // Recarga los datos al guardar
       />
+      <TimeBlockModal
+        isOpen={isBlockModalOpen}
+        onClose={() => setIsBlockModalOpen(false)}
+        onSaveSuccess={fetchCalendarData}
+      />
     </motion.div>
   );
 }
