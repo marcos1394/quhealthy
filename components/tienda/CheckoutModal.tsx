@@ -22,20 +22,34 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isOpen && service) {
-      setLoading(true);
-      // Pedimos al backend que cree una "intención de pago"
-      axios.post('/api/payments/create-intent', {
-        serviceId: service.id,
-        providerId: providerId,
-      }, { withCredentials: true })
-      .then(res => {
-        setClientSecret(res.data.clientSecret);
-      })
-      .catch(err => console.error("Error creating payment intent", err))
-      .finally(() => setLoading(false));
-    }
-  }, [isOpen, service, providerId]);
+  // Solo se ejecuta si el modal está abierto y tenemos un servicio y providerId
+  if (isOpen && service && providerId) {
+    setLoading(true);
+    setClientSecret(null); // Resetea el estado anterior
+
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Creamos el 'payload' (cuerpo de la petición) con los datos necesarios
+    const payload = {
+      serviceId: service.id,
+      providerId: providerId,
+    };
+    // --- FIN DE LA CORRECCIÓN ---
+    
+    console.log("Enviando a /create-intent:", payload);
+
+    axios.post('/api/payments/create-intent', payload, { withCredentials: true })
+    .then(res => {
+      setClientSecret(res.data.clientSecret);
+    })
+    .catch(err => {
+      console.error("Error al crear la intención de pago:", err);
+      // Aquí podrías cerrar el modal y mostrar un toast de error
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  }
+}, [isOpen, service, providerId]);
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     // 1. El pago fue exitoso en Stripe, ahora creamos la cita en nuestra BD
