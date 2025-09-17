@@ -4,19 +4,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import axios from 'axios';
-
+import { motion } from 'framer-motion';
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
 import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 export default function ProviderPublicPage() {
   const params = useParams();
   const slug = params.slug as string;
-
   const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +23,7 @@ export default function ProviderPublicPage() {
 
   useEffect(() => {
     if (!slug) return;
-
+    
     const getProviderProfile = async () => {
       setIsLoading(true);
       setError(null);
@@ -39,7 +38,7 @@ export default function ProviderPublicPage() {
         setIsLoading(false);
       }
     };
-
+    
     getProviderProfile();
   }, [slug]);
 
@@ -53,8 +52,35 @@ export default function ProviderPublicPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 flex items-center justify-center">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
+        {/* Loading content */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative z-10 text-center"
+        >
+          <div className="relative mb-8">
+            <div className="w-24 h-24 border-4 border-purple-200/20 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
+            <div className="absolute inset-0 w-24 h-24 border-4 border-transparent border-t-blue-500 rounded-full animate-spin mx-auto" style={{ animationDuration: '0.8s', animationDirection: 'reverse' }}></div>
+          </div>
+          
+          <div className="space-y-3">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+              Cargando perfil profesional
+            </h2>
+            <p className="text-slate-400 flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              Preparando una experiencia increíble para ti
+              <Sparkles className="w-4 h-4 animate-pulse" />
+            </p>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -64,34 +90,110 @@ export default function ProviderPublicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20 -z-10" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/10 to-slate-900">
+      {/* Enhanced background with more sophisticated patterns */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-2xl"></div>
+        
+        {/* Subtle grid pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]" 
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+            backgroundSize: '50px 50px'
+          }}
+        ></div>
+      </div>
       
       <div className="relative z-10">
         <ProviderHero profile={profileData} />
         
-        <div className="container mx-auto px-6 py-16">
+        <div className="container mx-auto px-6 py-20">
           <div className="max-w-7xl mx-auto">
-            <div className="lg:grid lg:grid-cols-12 lg:gap-12">
+            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
               {/* Columna Principal */}
-              <div className="lg:col-span-8 space-y-16">
-                <ServiceList services={profileData.services} />
-                <StaffSection staff={profileData.staff} />
-                <ReviewsSection reviews={profileData.reviews} />
+              <div className="lg:col-span-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="space-y-20"
+                >
+                  <ServiceList services={profileData.services} />
+                  <StaffSection staff={profileData.staff} />
+                  <ReviewsSection reviews={profileData.reviews} />
+                </motion.div>
               </div>
               
-              {/* Sidebar */}
-              <aside className="lg:col-span-4 mt-16 lg:mt-0">
-                <div className="sticky top-24 space-y-8">
-                  {/* --- INICIO DE LA INTEGRACIÓN --- */}
-                  <AvailabilityCalendar 
-                    providerId={profileData.id} 
-                    onSlotSelect={handleSlotSelection}
-                  />
-                  {/* --- FIN DE LA INTEGRACIÓN --- */}
-                </div>
+              {/* Enhanced Sidebar */}
+              <aside className="lg:col-span-4 mt-20 lg:mt-0">
+                <motion.div
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="sticky top-24"
+                >
+                  {/* Appointment booking section with enhanced styling */}
+                  <div className="relative">
+                    {/* Decorative gradient background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 rounded-3xl blur-xl"></div>
+                    
+                    {/* Calendar container with enhanced design */}
+                    <div className="relative">
+                      <AvailabilityCalendar 
+                        providerId={profileData.id} 
+                        onSlotSelect={handleSlotSelection}
+                      />
+                    </div>
+                    
+                    {/* Selected appointment info (if any) */}
+                    {selectedSlot && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                          <div>
+                            <p className="text-green-300 font-medium text-sm">Cita seleccionada</p>
+                            <p className="text-white text-sm">{selectedSlot.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
               </aside>
             </div>
+          </div>
+        </div>
+        
+        {/* Enhanced footer section */}
+        <div className="border-t border-slate-800/50">
+          <div className="container mx-auto px-6 py-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-center"
+            >
+              <div className="max-w-2xl mx-auto">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                    Experiencia Premium
+                  </h3>
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                </div>
+                <p className="text-slate-400 leading-relaxed">
+                  Disfruta de servicios profesionales de la más alta calidad con {profileData.storeName}. 
+                  Tu bienestar es nuestra prioridad y cada detalle está pensado para brindarte una experiencia excepcional.
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>

@@ -53,6 +53,8 @@
     "@react-three/drei": "^9.120.4",
     "@react-three/fiber": "^8.17.10",
     "@shadcn/ui": "^0.0.4",
+    "@stripe/react-stripe-js": "^4.0.2",
+    "@stripe/stripe-js": "^7.9.0",
     "@turf/turf": "^7.2.0",
     "@types/google.maps": "^3.58.1",
     "@veriff/js-sdk": "^1.5.1",
