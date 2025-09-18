@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useProviderStatusStore } from '@/stores/ProviderStatusStore';
+import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el store de sesión unificado
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -176,31 +177,28 @@ const shimmerVariants = {
 };
 
 export const TrialBanner = () => {
-  const { status, isLoading } = useProviderStatusStore();
+  const { user, isLoading } = useSessionStore();
   const [isDismissed, setIsDismissed] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<{hours: number, minutes: number} | null>(null);
+  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number } | null>(null);
+
+  // Derivamos las propiedades necesarias directamente del objeto 'user'
+  const planStatus = user?.planStatus;
+  const trialExpiresAt = user && user.role === 'provider' ? (user as any).trialExpiresAt : null;
 
   useEffect(() => {
-    // 1. La validación principal se mantiene y es crucial.
-    if (!status || status.planStatus !== 'trial' || !status.trialExpiresAt) {
-      // Si no hay status, trial, o fecha, nos aseguramos de limpiar el contador y salir.
-      setTimeLeft(null); 
+    // La validación ahora comprueba el rol y el estado del plan desde 'user'
+    if (user?.role !== 'provider' || planStatus !== 'trial' || !trialExpiresAt) {
+      setTimeLeft(null);
       return;
     }
 
-    // --- INICIO DE LA CORRECCIÓN ---
-    // 2. Creamos una constante local. Después de la validación de arriba,
-    // TypeScript sabe que 'expiryDateString' solo puede ser de tipo 'string'.
-    const expiryDateString = status.trialExpiresAt;
-    // --- FIN DE LA CORRECCIÓN ---
+    const expiryDateString = trialExpiresAt;
 
     const updateTimeLeft = () => {
       const today = new Date();
-      // 3. Usamos la nueva constante segura. El error de TypeScript desaparece aquí.
       const expiryDate = new Date(expiryDateString);
       const diffTime = expiryDate.getTime() - today.getTime();
       
-      // Si el tiempo ya se acabó, ponemos todo en 0.
       if (diffTime <= 0) {
         setTimeLeft({ hours: 0, minutes: 0 });
         return;
@@ -208,7 +206,7 @@ export const TrialBanner = () => {
 
       const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      if (daysLeft < 1) { // Lógica mejorada para mostrar horas solo en el último día
+      if (daysLeft <= 1) { // Mostrar horas en el último día
         const hours = Math.floor((diffTime / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diffTime / 1000 / 60) % 60);
         setTimeLeft({ hours, minutes });
@@ -221,29 +219,24 @@ export const TrialBanner = () => {
     const interval = setInterval(updateTimeLeft, 60000); 
 
     return () => clearInterval(interval);
-  }, [status]); // Se recalcula si el 'status' cambia
-  // No mostrar nada si está cargando, no hay estado, o el plan no es 'trial'
-  if (isLoading || !status || status.planStatus !== 'trial' || !status.trialExpiresAt || isDismissed) {
+  }, [user, planStatus, trialExpiresAt]); // Dependemos del objeto 'user' completo
 
+  // Condición de renderizado actualizada
+  if (isLoading || !user || user.role !== 'provider' || planStatus !== 'trial' || !trialExpiresAt || isDismissed) {
     return null;
   }
 
-  // Calculamos los días restantes
+  // El resto de la lógica para calcular días y obtener la configuración se mantiene igual
   const today = new Date();
-  const expiryDate = new Date(status.trialExpiresAt);
+  const expiryDate = new Date(trialExpiresAt);
   const diffTime = expiryDate.getTime() - today.getTime();
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  // No mostrar si la prueba ya expiró o si faltan más de 14 días
-  if (daysLeft < 0 || daysLeft > 14) {
-    return null;
-  }
+  
+  if (daysLeft < 0) return null;
 
   const config = getTrialConfig(daysLeft);
 
-  const handleDismiss = () => {
-    setIsDismissed(true);
-  };
+  const handleDismiss = () => setIsDismissed(true);
 
   const renderTimeRemaining = () => {
     if (timeLeft && daysLeft === 0) {
