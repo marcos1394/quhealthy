@@ -10,25 +10,18 @@ import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
-import { ProviderProfileData,Service  } from '@/app/quhealthy/types/marketplace';
+import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
 import { Loader2, Sparkles } from 'lucide-react';
-import { CheckoutModal } from '@/components/tienda/CheckoutModal';
-
 
 export default function ProviderPublicPage() {
   const params = useParams();
   const slug = params.slug as string;
- const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
+  const [profileData, setProfileData] = useState<ProviderProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Estados para el flujo de reserva
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  
 
- useEffect(() => {
+  useEffect(() => {
     if (!slug) return;
     
     const getProviderProfile = async () => {
@@ -49,30 +42,13 @@ export default function ProviderPublicPage() {
     getProviderProfile();
   }, [slug]);
 
-  // --- LÓGICA DE RESERVA ---
-  // Esta función se llama desde ServiceList cuando se hace clic en "Agendar"
-   const handleBookingInitiation = (service: Service) => {
-    setSelectedService(service);
-    console.log(`Servicio seleccionado: ${service.name}. Ahora el usuario debe elegir un horario.`);
-    
-    // Lógica para hacer scroll suave hasta el calendario
-    const calendarElement = document.getElementById('availability-calendar');
-    if (calendarElement) {
-      calendarElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // (Opcional) Podrías añadir un efecto visual al calendario para destacarlo
-    }
-  };
-  // Esta función se llama desde AvailabilityCalendar cuando se selecciona un horario
+  // Esta función se ejecutará cuando un cliente seleccione un horario
   const handleSlotSelection = (slot: Date) => {
     console.log("Horario seleccionado:", slot);
-    if (!selectedService) {
-      alert("Por favor, primero selecciona un servicio de la lista.");
-      return;
-    }
     setSelectedSlot(slot);
-    setIsCheckoutOpen(true); // Abre el modal de checkout
+    // En el futuro, aquí abriremos el modal de checkout
+    alert(`Has seleccionado el horario: ${slot.toLocaleString()}`);
   };
-
 
   if (isLoading) {
     return (
@@ -145,7 +121,7 @@ export default function ProviderPublicPage() {
                   transition={{ duration: 0.8, delay: 0.2 }}
                   className="space-y-20"
                 >
-        <ServiceList services={profileData.services} onBookClick={handleBookingInitiation} />
+                  <ServiceList services={profileData.services} />
                   <StaffSection staff={profileData.staff} />
                   <ReviewsSection reviews={profileData.reviews} />
                 </motion.div>
@@ -194,13 +170,6 @@ export default function ProviderPublicPage() {
             </div>
           </div>
         </div>
-         <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        service={selectedService}
-        providerId={profileData.id}
-        selectedSlot={selectedSlot}
-          />
         
         {/* Enhanced footer section */}
         <div className="border-t border-slate-800/50">

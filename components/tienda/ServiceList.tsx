@@ -9,11 +9,9 @@ import { Service } from '@/app/quhealthy/types/marketplace';
 
 interface ServiceListProps {
   services: Service[];
-     onBookClick: (service: Service) => void;
-
 }
 
-export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick }) => {
+export const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [filterCategory, setFilterCategory] = useState('all');
   
@@ -179,15 +177,17 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick 
                     </div>
                     
                     {service.description && (
-                      <p className="text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">
-                        {service.description}
+                      <p className="text-slate-400 text-sm mb-6 leading-relaxed min-h-[3rem]">
+                        {service.description.length > 120 
+                          ? `${service.description.substring(0, 120)}...` 
+                          : service.description
+                        }
                       </p>
                     )}
                     
-                     <Button 
-                  className="w-full group bg-purple-600 hover:bg-purple-700"
-                  onClick={() => onBookClick(service)}
-                >
+                    <Button 
+                      className="w-full group bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 hover:from-purple-500 hover:via-purple-400 hover:to-blue-500 text-white font-semibold py-4 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-500/40 transition-all duration-300 border-0"
+                    >
                       <Calendar className="w-5 h-5 mr-3" />
                       Agendar Servicio
                       <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
@@ -208,22 +208,27 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick 
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-4 mb-3">
-                        <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors duration-300">
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors duration-300 flex-shrink-0">
                           {service.name}
                         </h3>
-                        <span className="bg-slate-700/50 text-slate-300 px-3 py-1 rounded-full text-xs font-medium border border-slate-600/50">
+                        <span className="bg-slate-700/50 text-slate-300 px-3 py-1 rounded-full text-xs font-medium border border-slate-600/50 flex-shrink-0">
                           {service.category || 'General'}
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-6 text-sm text-slate-400 mb-2">
+                      <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-purple-400" />
-                          <span className="font-medium">{service.duration} min</span>
+                          <span className="font-medium text-slate-300">{service.duration} min</span>
                         </div>
                         {service.description && (
-                          <span className="line-clamp-1 text-slate-500">{service.description}</span>
+                          <p className="text-slate-400 text-sm leading-relaxed">
+                            {service.description.length > 80 
+                              ? `${service.description.substring(0, 80)}...` 
+                              : service.description
+                            }
+                          </p>
                         )}
                       </div>
                     </div>

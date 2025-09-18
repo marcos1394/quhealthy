@@ -6,8 +6,8 @@ import { Elements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { CheckoutForm } from './CheckoutForm';
 import axios from 'axios';
-import { Loader2, X } from 'lucide-react';
-import { Service } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
+import {  X, Calendar, Clock, DollarSign, Shield, Sparkles, CreditCard } from 'lucide-react';
+import { Service } from '@/app/quhealthy/types/marketplace';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -17,50 +17,49 @@ interface CheckoutModalProps {
   selectedSlot: Date | null;
 }
 
-export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, service, providerId, selectedSlot }) => {
+export const CheckoutModal: React.FC<CheckoutModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  service, 
+  providerId, 
+  selectedSlot 
+}) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  // Solo se ejecuta si el modal está abierto y tenemos un servicio y providerId
-  if (isOpen && service && providerId) {
-    setLoading(true);
-    setClientSecret(null); // Resetea el estado anterior
+    if (isOpen && service && providerId) {
+      setLoading(true);
+      setClientSecret(null);
 
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Creamos el 'payload' (cuerpo de la petición) con los datos necesarios
-    const payload = {
-      serviceId: service.id,
-      providerId: providerId,
-    };
-    // --- FIN DE LA CORRECCIÓN ---
-    
-    console.log("Enviando a /create-intent:", payload);
+      const payload = {
+        serviceId: service.id,
+        providerId: providerId,
+      };
+      
+      console.log("Enviando a /create-intent:", payload);
 
-    axios.post('/api/payments/create-intent', payload, { withCredentials: true })
-    .then(res => {
-      setClientSecret(res.data.clientSecret);
-    })
-    .catch(err => {
-      console.error("Error al crear la intención de pago:", err);
-      // Aquí podrías cerrar el modal y mostrar un toast de error
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-  }
-}, [isOpen, service, providerId]);
+      axios.post('/api/payments/create-intent', payload, { withCredentials: true })
+        .then(res => {
+          setClientSecret(res.data.clientSecret);
+        })
+        .catch(err => {
+          console.error("Error al crear la intención de pago:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [isOpen, service, providerId]);
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
-    // 1. El pago fue exitoso en Stripe, ahora creamos la cita en nuestra BD
     await axios.post('/api/appointments/book', {
       providerId,
       serviceId: service?.id,
       startTime: selectedSlot?.toISOString(),
-      paymentIntentId, // Para referencia
+      paymentIntentId,
     }, { withCredentials: true });
 
-    // 2. Redirigimos a una página de éxito
     window.location.href = '/booking/success';
   };
 
@@ -68,28 +67,135 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, s
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      >
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 30 }}
-          className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md"
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 30, scale: 0.95 }}
+          transition={{ type: "spring", duration: 0.5 }}
+          className="bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 rounded-3xl border border-purple-500/20 w-full max-w-lg shadow-2xl overflow-hidden"
         >
-          <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Confirmar Cita</h2>
-            <button onClick={onClose}><X className="text-gray-400"/></button>
+          {/* Decorative gradient line */}
+          <div className="h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500"></div>
+          
+          {/* Header */}
+          <div className="p-8 border-b border-slate-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl">
+                  <CreditCard className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                    Confirmar Reserva
+                  </h2>
+                  <p className="text-slate-400 mt-1">Finaliza tu cita con pago seguro</p>
+                </div>
+              </div>
+              <button 
+                onClick={onClose}
+                className="p-2 hover:bg-red-500/10 hover:text-red-400 transition-colors rounded-xl"
+              >
+                <X className="w-6 h-6 text-slate-400" />
+              </button>
+            </div>
           </div>
-          <div className="p-6">
+
+          {/* Content */}
+          <div className="p-8">
             {loading || !clientSecret ? (
-              <div className="text-center py-8"><Loader2 className="animate-spin mx-auto"/></div>
+              <div className="text-center py-12 space-y-6">
+                <div className="relative mx-auto w-16 h-16">
+                  <div className="w-16 h-16 border-4 border-purple-200/20 border-t-purple-500 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-blue-500 rounded-full animate-spin" style={{ animationDuration: '0.8s', animationDirection: 'reverse' }}></div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Preparando tu pago</h3>
+                  <p className="text-slate-400">Configurando la pasarela de pago segura...</p>
+                </div>
+              </div>
             ) : (
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <CheckoutForm clientSecret={clientSecret} onPaymentSuccess={handlePaymentSuccess} />
-              </Elements>
+              <div className="space-y-8">
+                {/* Booking Summary */}
+                {service && selectedSlot && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700/50"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-purple-400" />
+                      Resumen de tu Cita
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium text-white">{service.name}</p>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              <span>{service.duration} min</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>{selectedSlot.toLocaleDateString('es-MX')}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center gap-1 text-2xl font-bold text-white">
+                            <DollarSign className="w-5 h-5 text-green-400" />
+                            {service.price}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Payment Form */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                    <CheckoutForm 
+                      clientSecret={clientSecret} 
+                      onPaymentSuccess={handlePaymentSuccess} 
+                    />
+                  </Elements>
+                </motion.div>
+
+                {/* Security Notice */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500/20 rounded-xl">
+                      <Shield className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-green-300 font-medium text-sm">Pago 100% Seguro</p>
+                      <p className="text-slate-400 text-xs">Procesado con encriptación SSL por Stripe</p>
+                    </div>
+                    <Sparkles className="w-5 h-5 text-green-400 animate-pulse ml-auto" />
+                  </div>
+                </motion.div>
+              </div>
             )}
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </AnimatePresence>
   );
 };
