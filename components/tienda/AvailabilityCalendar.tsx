@@ -108,31 +108,31 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                   }}
                   disabled={{ before: new Date() }}
                   showOutsideDays
-                  classNames={{
-                    root: "text-white",
-                    month: "space-y-4",
-                    caption: "flex justify-center items-center gap-6 mb-4",
-                    caption_label:
-                      "text-lg font-semibold text-white capitalize",
-                    nav: "flex items-center gap-2",
-                    nav_button:
-                      "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white hover:border-purple-500/50 transition-all",
-                    nav_button_previous: "absolute left-4 top-1/2 -translate-y-1/2",
-                    nav_button_next: "absolute right-4 top-1/2 -translate-y-1/2",
-                    table: "w-full border-collapse",
-                    head_row: "grid grid-cols-7 mb-2",
-                    head_cell:
-                      "text-gray-400 w-10 h-8 font-medium text-sm flex items-center justify-center",
-                    row: "grid grid-cols-7 gap-1 mb-1",
-                    cell: "flex items-center justify-center p-0",
-                    day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
-                    day_selected:
-                      "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
-                    day_today: "ring-2 ring-purple-400 font-semibold",
-                    day_outside: "text-gray-600 opacity-50",
-                    day_disabled:
-                      "text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
-                  }}
+                 classNames={{
+  root: "text-white",
+  month: "space-y-4",
+  caption: "flex justify-center items-center gap-6 mb-4 relative",
+  caption_label: "text-lg font-semibold text-white capitalize",
+  nav: "flex items-center gap-2",
+  nav_button:
+    "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white hover:border-purple-500/50 transition-all",
+  nav_button_previous: "absolute left-4 top-1/2 -translate-y-1/2",
+  nav_button_next: "absolute right-4 top-1/2 -translate-y-1/2",
+  table: "w-full border-collapse border-spacing-1",
+  head_row: "flex",
+  head_cell:
+    "text-gray-400 w-10 h-8 font-medium text-sm flex items-center justify-center",
+  row: "flex", // ✅ filas en horizontal
+  cell: "w-10 h-10 flex items-center justify-center", // ✅ cada celda centrada
+  day: "w-10 h-10 flex items-center justify-center rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
+  day_selected:
+    "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
+  day_today: "ring-2 ring-purple-400 font-semibold",
+  day_outside: "text-gray-600 opacity-50",
+  day_disabled:
+    "text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
+}}
+
                  components={{
   Chevron: ({ orientation }) =>
     orientation === "left" ? (
