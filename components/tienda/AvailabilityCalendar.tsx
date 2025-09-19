@@ -119,7 +119,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {selectedDaySlots.map((slot, i) => (
                 <Button key={i} variant="outline" className="border-gray-600 hover:bg-purple-500/20 hover:text-purple-300" onClick={() => onSlotSelect(slot)}>
-                  {format(slot, 'HH:mm')}
+                   {format(parseISO(slot.toISOString()), 'HH:mm')}
                 </Button>
               ))}
             </div>
