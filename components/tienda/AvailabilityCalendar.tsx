@@ -4,10 +4,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { es } from "date-fns/locale";
-import { format, startOfMonth, endOfMonth, parseISO, getHours, getMinutes } from "date-fns";
+import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import axios from "axios";
 import { Calendar,  Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatInTimeZone } from 'date-fns-tz'; // 1. Importamos la función clave
 
 interface AvailabilityCalendarProps {
   providerId: number;
@@ -55,9 +56,8 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     }, {} as Record<string, Date[]>);
   }, [availableSlots]);
 
-  const availableDays = Object.keys(slotsByDay).map((d) => new Date(d));
-  // Usamos el mismo método UTC para encontrar los slots del día seleccionado
-  const selectedDaySlots = selectedDay ? slotsByDay[format(selectedDay, "yyyy-MM-dd")] || [] : [];
+   const availableDays = Object.keys(slotsByDay).map((d) => parseISO(d)); // Usamos parseISO para interpretar la fecha UTC
+  const selectedDaySlots = selectedDay ? slotsByDay[formatInTimeZone(selectedDay, 'UTC', "yyyy-MM-dd")] || [] : [];
 
   return (
     <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 space-y-6">
@@ -109,7 +109,8 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
               {selectedDaySlots.map((slot, i) => (
                 <Button key={i} variant="outline" className="border-gray-600 hover:bg-purple-500/20 hover:text-purple-300" onClick={() => onSlotSelect(slot)}>
                   {/* Mostramos la hora en UTC para que coincida con el backend */}
-                  {`${getHours(slot).toString().padStart(2, '0')}:${getMinutes(slot).toString().padStart(2, '0')}`}
+                  {formatInTimeZone(slot, 'UTC', 'HH:mm')}
+
                 </Button>
               ))}
             </div>
