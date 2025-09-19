@@ -45,11 +45,10 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     fetchAvailability();
   }, [providerId, currentMonth]);
 
-  const slotsByDay = useMemo(() => {
+ const slotsByDay = useMemo(() => {
     return availableSlots.reduce((acc, slot) => {
-      // --- CORRECCIÓN DE ZONA HORARIA ---
-      // Agrupamos por día usando el string ISO (que está en UTC) para evitar desfases
-      const day = slot.toISOString().split('T')[0];
+      // 2. Agrupamos los slots usando la fecha en UTC
+      const day = formatInTimeZone(slot, 'UTC', 'yyyy-MM-dd');
       if (!acc[day]) acc[day] = [];
       acc[day].push(slot);
       return acc;
