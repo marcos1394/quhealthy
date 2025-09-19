@@ -88,7 +88,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
             
             {/* Contenedor del Calendario */}
             <div className="flex flex-col items-center">
-              <div className="w-full max-w-sm bg-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+              <div className="w-full max-w-xs bg-gray-800/50 rounded-2xl p-4 border border-gray-700/30">
                 <DayPicker
                   mode="single"
                   selected={selectedDay}
@@ -104,26 +104,23 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
 
                   classNames={{
                     root: "text-white",
-                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                     month: "space-y-4",
-                    caption: "flex justify-center pt-1 relative items-center mb-4",
-                    caption_label: "text-lg font-semibold text-white capitalize",
-                    nav: "space-x-1 flex items-center",
-                    nav_button: "inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/20 hover:text-white hover:border-purple-500/50 transition-all absolute",
-                    nav_button_previous: "left-0",
-                    nav_button_next: "right-0",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell: "text-gray-400 rounded-md w-11 font-medium text-sm text-center",
-                    row: "flex w-full mt-2",
-                    cell: "text-center text-sm p-0 relative first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    day: "inline-flex items-center justify-center w-11 h-11 rounded-lg font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800",
+                    caption: "flex justify-between items-center px-2 py-3 mb-4",
+                    caption_label: "text-lg font-semibold text-white capitalize mx-auto",
+                    nav: "flex items-center gap-2",
+                    nav_button: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/20 hover:text-white hover:border-purple-500/50 transition-all",
+                    nav_button_previous: "order-first",
+                    nav_button_next: "order-last",
+                    table: "w-full border-collapse",
+                    head_row: "grid grid-cols-7 mb-2",
+                    head_cell: "text-gray-400 w-10 h-8 font-medium text-sm flex items-center justify-center",
+                    row: "grid grid-cols-7 gap-1 mb-1",
+                    cell: "flex items-center justify-center p-0",
+                    day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
                     day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
                     day_today: "ring-2 ring-purple-400 font-semibold",
-                    day_outside: "text-gray-600",
-                    day_disabled: "text-gray-600 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
-                    day_range_middle: "aria-selected:bg-purple-100 aria-selected:text-purple-900",
-                    day_hidden: "invisible",
+                    day_outside: "text-gray-600 opacity-50",
+                    day_disabled: "text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
                   }}
                   modifiersClassNames={{
                     available: "bg-emerald-500/10 text-emerald-400 border-2 border-emerald-500/30 font-semibold relative after:content-[''] after:absolute after:bottom-1 after:right-1 after:w-2 after:h-2 after:bg-emerald-400 after:rounded-full"
