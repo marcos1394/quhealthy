@@ -97,7 +97,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             
             {/* Contenedor del Calendario */}
             <div className="flex flex-col items-center">
-              <div className="w-full max-w-sm bg-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+              <div className="w-full max-w-sm bg-gray-800/50 rounded-2xl p-4 border border-gray-700/30 overflow-hidden">
                 <DayPicker
                   mode="single"
                   selected={selectedDay}
@@ -114,47 +114,47 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                     root: "rdp text-white",
                     months: "rdp-months",
                     month: "rdp-month",
-                    caption: "rdp-caption flex justify-center items-center py-3 relative mb-4",
-                    caption_label: "rdp-caption_label text-lg font-semibold text-white capitalize mx-auto",
-                    nav: "rdp-nav",
-                    nav_button: "rdp-nav_button absolute w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white hover:border-purple-500/50 transition-all flex items-center justify-center",
-                    nav_button_previous: "rdp-nav_button_previous left-2 top-1/2 -translate-y-1/2",
-                    nav_button_next: "rdp-nav_button_next right-2 top-1/2 -translate-y-1/2",
-                    table: "rdp-table w-full border-collapse",
+                    caption: "rdp-caption flex justify-between items-center py-4 px-2 mb-4",
+                    caption_label: "rdp-caption_label text-lg font-semibold text-white capitalize order-2",
+                    nav: "rdp-nav flex items-center gap-2",
+                    nav_button: "rdp-nav_button w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white hover:border-purple-500/50 transition-all flex items-center justify-center z-10",
+                    nav_button_previous: "rdp-nav_button_previous order-1",
+                    nav_button_next: "rdp-nav_button_next order-3",
+                    table: "rdp-table w-full border-collapse mt-2",
                     head_row: "rdp-head_row",
-                    head_cell: "rdp-head_cell text-gray-400 font-medium text-sm p-2 text-center",
+                    head_cell: "rdp-head_cell text-gray-400 font-medium text-xs p-2 text-center border-b border-gray-700/50 pb-3",
                     row: "rdp-row",
-                    cell: "rdp-cell text-center p-1",
-                    day: "rdp-day inline-flex items-center justify-center w-10 h-10 rounded-lg font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors cursor-pointer",
+                    cell: "rdp-cell text-center p-1 relative",
+                    day: "rdp-day inline-flex items-center justify-center w-10 h-10 rounded-lg font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors cursor-pointer relative z-0",
                     day_range_end: "rdp-day_range_end",
-                    day_selected: "rdp-day_selected bg-purple-600 text-white hover:bg-purple-700 font-semibold",
-                    day_today: "rdp-day_today ring-2 ring-purple-400 font-semibold",
+                    day_selected: "rdp-day_selected bg-purple-600 text-white hover:bg-purple-700 font-semibold z-10",
+                    day_today: "rdp-day_today ring-2 ring-purple-400 font-semibold z-10",
                     day_outside: "rdp-day_outside text-gray-600 opacity-50",
                     day_disabled: "rdp-day_disabled text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
                     day_range_middle: "rdp-day_range_middle",
                     day_hidden: "rdp-day_hidden invisible",
                   }}
                   modifiersClassNames={{
-                    available: "bg-emerald-500/10 text-emerald-400 border-2 border-emerald-500/30 font-semibold relative after:content-[''] after:absolute after:bottom-1 after:right-1 after:w-2 after:h-2 after:bg-emerald-400 after:rounded-full"
+                    available: "!bg-emerald-500/20 !text-emerald-300 !border-2 !border-emerald-500/40 font-semibold relative z-20 after:content-[''] after:absolute after:bottom-0.5 after:right-0.5 after:w-1.5 after:h-1.5 after:bg-emerald-400 after:rounded-full after:z-30"
                   }}
                 />
               </div>
               
               {/* Leyenda */}
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-sm bg-gray-900/30 rounded-xl p-3 border border-gray-700/20">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded border-2 border-purple-400"></div>
-                  <span className="text-gray-300">Hoy</span>
+                  <div className="w-3 h-3 rounded border-2 border-purple-400 flex-shrink-0"></div>
+                  <span className="text-gray-300 text-xs">Hoy</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-emerald-500/10 border-2 border-emerald-500/30 relative">
-                    <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <div className="w-3 h-3 rounded bg-emerald-500/20 border-2 border-emerald-500/40 relative flex-shrink-0">
+                    <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
                   </div>
-                  <span className="text-gray-300">Disponible</span>
+                  <span className="text-gray-300 text-xs">Disponible</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-purple-600"></div>
-                  <span className="text-gray-300">Seleccionado</span>
+                  <div className="w-3 h-3 rounded bg-purple-600 flex-shrink-0"></div>
+                  <span className="text-gray-300 text-xs">Seleccionado</span>
                 </div>
               </div>
             </div>
