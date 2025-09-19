@@ -33,18 +33,17 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Inyectar CSS de contingencia para forzar que el DayPicker use table/table-row/table-cell
-  // (esto sólo actúa si alguna regla externa sobreescribe los estilos)
+  // Inyectar CSS global para forzar estructura de tabla
   useEffect(() => {
     const css = `
-      /* Forzar estructura de tabla si algo externo la rompe */
-      .rdp-month_grid { display: table !important; width: 100% !important; border-collapse: collapse !important; }
-      .rdp-weekdays, .rdp-weeks { display: table-row-group !important; }
-      .rdp-weekday { display: table-cell !important; text-align: center !important; vertical-align: middle !important; }
-      .rdp-week { display: table-row !important; }
-      .rdp-day, .rdp-day_cell, .rdp-day_button, .rdp-cell { /* asegurar elementos como celdas/botones centrados */
-        vertical-align: middle !important;
-      }
+      .rdp-month { display: table !important; width: 100% !important; border-collapse: collapse !important; }
+      .rdp-table { display: table !important; width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; }
+      .rdp-head { display: table-header-group !important; }
+      .rdp-head_row { display: table-row !important; }
+      .rdp-weekday { display: table-cell !important; width: 14.28% !important; text-align: center !important; }
+      .rdp-tbody { display: table-row-group !important; }
+      .rdp-row { display: table-row !important; }
+      .rdp-cell { display: table-cell !important; width: 14.28% !important; text-align: center !important; vertical-align: middle !important; padding: 0 !important; }
       .rdp-day_button { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 2.5rem !important; height: 2.5rem !important; border-radius: .375rem !important; }
     `;
     const style = document.createElement("style");
@@ -56,6 +55,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     };
   }, []);
 
+  // Traer disponibilidad desde API
   useEffect(() => {
     const fetchAvailability = async () => {
       setIsLoading(true);
@@ -79,6 +79,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     fetchAvailability();
   }, [providerId, currentMonth]);
 
+  // Agrupar slots por día
   const slotsByDay = useMemo(() => {
     return availableSlots.reduce((acc, slot) => {
       const day = format(slot, "yyyy-MM-dd");
@@ -93,7 +94,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
   return (
     <div className="relative max-w-md mx-auto" aria-live="polite">
-      {/* Fondo ligero */}
+      {/* Fondo */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/6 via-transparent to-blue-500/6 rounded-2xl -z-10"></div>
 
       <div className="relative bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-sm border border-gray-700/40 rounded-2xl overflow-hidden shadow-lg">
@@ -126,40 +127,28 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                   modifiers={{ available: availableDays }}
                   disabled={{ before: new Date() }}
                   showOutsideDays
-          classNames={{
-  root: "text-white",
-  month: "space-y-2",
-  caption: "flex items-center justify-center gap-2 mb-3 relative",
-  caption_label: "text-base font-semibold text-white capitalize",
-  nav: "relative",
-  nav_button:
-    "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white transition-all",
-  nav_button_previous: "absolute left-3 top-1/2 -translate-y-1/2",
-  nav_button_next: "absolute right-3 top-1/2 -translate-y-1/2",
-
-  table: "w-full table-fixed border-collapse",
-
-  head_row: "table-row w-full table-fixed", // ⬅️ fuerza layout fijo también en <tr>
-  weekday:
-    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs border-b border-gray-700", // ⬅️ mismo ancho que cell
-
-  row: "table-row",
-  cell: "table-cell w-[14.28%] align-middle p-0",
-
-  day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
-
-  day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
-  day_today: "ring-2 ring-purple-400 font-semibold",
-  day_outside: "text-gray-600 opacity-50",
-  day_disabled: "text-gray-600 opacity-30 cursor-not-allowed",
-}}
-
-
-
-
-
-
-
+                  classNames={{
+                    root: "text-white",
+                    month: "space-y-2",
+                    caption: "flex items-center justify-center gap-2 mb-3 relative",
+                    caption_label: "text-base font-semibold text-white capitalize",
+                    nav: "relative",
+                    nav_button:
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white transition-all",
+                    nav_button_previous: "absolute left-3 top-1/2 -translate-y-1/2",
+                    nav_button_next: "absolute right-3 top-1/2 -translate-y-1/2",
+                    table: "rdp-table",
+                    head_row: "rdp-head_row",
+                    weekday:
+                      "rdp-weekday text-gray-400 font-medium text-xs border-b border-gray-700",
+                    row: "rdp-row",
+                    cell: "rdp-cell",
+                    day: "rdp-day_button font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
+                    day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
+                    day_today: "ring-2 ring-purple-400 font-semibold",
+                    day_outside: "text-gray-600 opacity-50",
+                    day_disabled: "text-gray-600 opacity-30 cursor-not-allowed",
+                  }}
                   components={{
                     Chevron: ({ orientation }) =>
                       orientation === "left" ? (
@@ -208,14 +197,23 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                         Cargando horarios...
                       </span>
                     ) : (
-                      `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? "horario disponible" : "horarios disponibles"}`
+                      `${selectedDaySlots.length} ${
+                        selectedDaySlots.length === 1
+                          ? "horario disponible"
+                          : "horarios disponibles"
+                      }`
                     )}
                   </p>
 
                   {!isLoading && selectedDaySlots.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-gray-700/20 scrollbar-thumb-purple-500/40">
                       {selectedDaySlots.map((slot, idx) => (
-                        <motion.div key={idx} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.04 }}>
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.04 }}
+                        >
                           <Button
                             variant="outline"
                             className="group w-full h-11 border-gray-600/50 bg-gray-700/30 text-gray-300 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white transition-transform transform-gpu hover:scale-105"
@@ -260,7 +258,9 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             </div>
             <div>
               <p className="text-green-300 text-sm font-medium">Reserva instantánea</p>
-              <p className="text-xs text-gray-400">Tu cita se confirma inmediatamente al elegir un horario.</p>
+              <p className="text-xs text-gray-400">
+                Tu cita se confirma inmediatamente al elegir un horario.
+              </p>
             </div>
           </div>
         </div>
