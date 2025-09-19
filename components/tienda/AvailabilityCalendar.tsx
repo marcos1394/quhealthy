@@ -80,100 +80,98 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
         </div>
 
         <div className="p-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Calendar */}
-            <div className="flex-1 flex justify-center">
-              <DayPicker
-                mode="single"
-                selected={selectedDay}
-                onSelect={setSelectedDay}
-                month={currentMonth}
-                onMonthChange={setCurrentMonth}
-                locale={es}
-                modifiers={{ available: availableDays }}
-                disabled={{ before: new Date() }}
-                showOutsideDays={false}
-                // --- INICIO DE LA CORRECCIÓN CON TAILWIND ---
-                classNames={{
-                  months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
-                  month: 'space-y-4',
-                  caption: 'flex justify-center pt-1 relative items-center',
-                  caption_label: 'text-lg font-bold text-white',
-                  nav: 'space-x-1 flex items-center',
-                  nav_button: 'h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg border border-gray-600/50',
-                  table: 'w-full border-collapse space-y-1',
-                  head_row: 'flex',
-                  head_cell: 'text-gray-400 rounded-md w-10 font-normal text-[0.8rem]',
-                  row: 'flex w-full mt-2',
-                  cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-purple-600 rounded-md focus-within:relative focus-within:z-20',
-                  day: 'h-10 w-10 p-0 font-normal rounded-md transition-colors hover:bg-purple-500/20',
-                  day_selected: 'bg-purple-600 text-white hover:bg-purple-700 focus:bg-purple-600',
-                  day_today: 'bg-purple-500/20 text-purple-300',
-                  day_outside: 'text-gray-500 opacity-50',
-                  day_disabled: 'text-gray-600 opacity-50',
-                  day_range_middle: 'aria-selected:bg-gray-100/10',
-                  day_hidden: 'invisible',
-                  // Estilo para los días disponibles
-                }}
-                // --- FIN DE LA CORRECCIÓN ---
-              />
-            </div>
-            
-            {/* Time Slots */}
-            <div className="flex-1 min-h-[300px]">
-              <div className="border-t-2 lg:border-t-0 lg:border-l-2 border-gray-700/50 pt-6 lg:pt-0 lg:pl-6">
-                <div className="mb-4">
-                  {selectedDay ? (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <h4 className="font-bold text-lg text-white">
-                        {format(selectedDay, "eeee, d 'de' MMMM", { locale: es })}
-                      </h4>
-                      <p className="text-gray-400 text-sm">
-                        {isLoading ? '...' : `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Clock className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-                      <h4 className="font-semibold text-white">Selecciona un día</h4>
-                      <p className="text-gray-400 text-sm">Elige una fecha para ver los horarios.</p>
-                    </div>
-                  )}
-                </div>
-
-                {isLoading ? (
-                  <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-purple-400"/></div>
-                ) : selectedDay && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto"
-                  >
-                    {selectedDaySlots.length > 0 ? selectedDaySlots.map((slot, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                      >
-                        <Button 
-                          variant="outline" 
-                          className="group w-full h-12 border-gray-600/50 bg-gray-700/30 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:border-transparent text-gray-300 hover:text-white"
-                          onClick={() => onSlotSelect(slot)}
-                        >
-                          {format(slot, 'HH:mm')}
-                          <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                        </Button>
-                      </motion.div>
-                    )) : (
-                       <p className="text-gray-500 col-span-3 text-center py-4">No hay horarios este día.</p>
-                    )}
-                  </motion.div>
-                )}
-              </div>
-            </div>
+  <div className="flex flex-col md:flex-row gap-8">
+    
+    {/* Contenedor del Calendario */}
+    <div className="w-full md:w-auto flex justify-center">
+      <DayPicker
+        mode="single"
+        selected={selectedDay}
+        onSelect={setSelectedDay}
+        month={currentMonth}
+        onMonthChange={setCurrentMonth}
+        locale={es}
+        modifiers={{ available: availableDays }}
+        disabled={{ before: new Date() }}
+        showOutsideDays
+        
+        // --- INICIO DE LA CORRECCIÓN DE ESTILOS ---
+        classNames={{
+          root: 'bg-gray-800/50 p-4 rounded-xl border border-gray-700 w-full',
+          months: 'flex flex-col sm:flex-row',
+          month: 'space-y-4',
+          caption: 'flex justify-between items-center mb-4 px-1', // Corregido para alinear botones
+          caption_label: 'text-lg font-bold text-white',
+          nav: 'space-x-1 flex items-center',
+          nav_button: 'h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg transition-colors',
+          table: 'w-full border-collapse',
+          head_row: 'flex justify-around mb-2',
+          head_cell: 'text-gray-400 rounded-md w-10 font-normal text-sm',
+          row: 'flex w-full mt-2 justify-around',
+          cell: 'p-0',
+          day: 'h-10 w-10 p-0 font-normal rounded-md transition-colors hover:bg-purple-500/20',
+          day_selected: 'bg-purple-600 text-white hover:bg-purple-700',
+          day_today: 'bg-purple-500/20 text-purple-300 font-bold',
+          day_disabled: 'text-gray-600 opacity-50',
+          day_outside: 'text-gray-600 opacity-50',
+        }}
+        // --- FIN DE LA CORRECCIÓN DE ESTILOS ---
+      />
+    </div>
+    
+    {/* Contenedor de los Horarios (Time Slots) */}
+    <div className="flex-1 min-h-[300px] border-t-2 md:border-t-0 md:border-l-2 border-gray-700/50 pt-6 md:pt-0 md:pl-8">
+      <div className="mb-4">
+        {selectedDay ? (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <h4 className="font-bold text-lg text-white">
+              {format(selectedDay, "eeee, d 'de' MMMM", { locale: es })}
+            </h4>
+            <p className="text-gray-400 text-sm">
+              {isLoading ? 'Cargando...' : `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`}
+            </p>
+          </motion.div>
+        ) : (
+          <div className="text-center py-8">
+            <Clock className="w-8 h-8 text-purple-400 mx-auto mb-4" />
+            <h4 className="font-semibold text-white">Selecciona un día</h4>
+            <p className="text-gray-400 text-sm">Elige una fecha disponible para ver los horarios.</p>
           </div>
-        </div>
+        )}
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-purple-400"/></div>
+      ) : selectedDay && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto"
+        >
+          {selectedDaySlots.length > 0 ? selectedDaySlots.map((slot, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Button 
+                variant="outline" 
+                className="group w-full h-12 border-gray-600/50 bg-gray-700/30 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:border-transparent text-gray-300 hover:text-white"
+                onClick={() => onSlotSelect(slot)}
+              >
+                {format(slot, 'HH:mm')}
+                <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              </Button>
+            </motion.div>
+          )) : (
+            <p className="text-gray-500 col-span-3 text-center py-4">No hay horarios disponibles este día.</p>
+          )}
+        </motion.div>
+      )}
+    </div>
+  </div>
+</div>
         
         <div className="p-6 border-t border-gray-700/50">
           <div className="flex items-center gap-3">
