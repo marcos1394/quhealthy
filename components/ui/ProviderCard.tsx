@@ -44,8 +44,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
         {/* Efecto de glow en hover */}
         <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
         
-        <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-700/50 group-hover:border-purple-500/50 transition-all duration-300 h-96">
-          
+<div className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-700/50 group-hover:border-purple-500/50 transition-all duration-300 h-96">          
           {/* Banner principal - Más grande */}
           <div className="relative h-56 overflow-hidden">
             {marketplace.storeBanner ? (
@@ -95,7 +94,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
           </div>
           
           {/* Contenido principal */}
-          <div className="p-5 space-y-4">
+        <div className="p-5 space-y-4 flex-grow">
             {/* Título y descripción */}
             <div className="space-y-2">
               <h3 className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-1">
