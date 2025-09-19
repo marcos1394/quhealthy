@@ -126,7 +126,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                   modifiers={{ available: availableDays }}
                   disabled={{ before: new Date() }}
                   showOutsideDays
-           classNames={{
+          classNames={{
   root: "text-white",
   month: "space-y-2",
   caption: "flex items-center justify-center gap-2 mb-3 relative",
@@ -139,13 +139,12 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
   table: "w-full table-fixed border-collapse",
 
-  // ❌ eliminas weekdays
-  head_row: "table-row", // ⬅️ fila de encabezados
+  head_row: "table-row w-full table-fixed", // ⬅️ fuerza layout fijo también en <tr>
   weekday:
-    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs", // ⬅️ cada <th>
+    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs border-b border-gray-700", // ⬅️ mismo ancho que cell
 
-  row: "table-row", // ⬅️ cada fila de días
-  cell: "table-cell w-[14.28%] align-middle p-0", // ⬅️ cada <td>
+  row: "table-row",
+  cell: "table-cell w-[14.28%] align-middle p-0",
 
   day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
 
@@ -154,6 +153,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   day_outside: "text-gray-600 opacity-50",
   day_disabled: "text-gray-600 opacity-30 cursor-not-allowed",
 }}
+
 
 
 
