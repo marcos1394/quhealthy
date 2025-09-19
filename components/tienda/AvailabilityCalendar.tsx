@@ -11,7 +11,7 @@ import { Calendar, Clock, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
-// Tipos de datos (pueden venir de un archivo central)
+// Tipos de datos
 interface AvailabilityCalendarProps {
   providerId: number;
   onSlotSelect: (slot: Date) => void;
@@ -60,125 +60,181 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
   const selectedDaySlots = selectedDay ? slotsByDay[format(selectedDay, 'yyyy-MM-dd')] || [] : [];
 
   return (
-    <div className="relative">
+    <div className="relative max-w-6xl mx-auto">
+      {/* Gradiente de fondo */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 rounded-3xl blur-xl"></div>
       
-      <div className="relative bg-gradient-to-br from-gray-900/90 via-gray-800/80 to-gray-900/90 backdrop-blur-2xl border border-gray-700/50 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-2xl border border-gray-700/50 rounded-3xl overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="p-8 border-b border-gray-700/50">
           <div className="flex items-center gap-4 mb-2">
-            <div className="p-2 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl border border-purple-500/20">
+            <div className="p-3 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl border border-purple-500/20">
               <Calendar className="w-6 h-6 text-purple-400" />
             </div>
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-              Reserva tu Cita
-            </h3>
+            <div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                Reserva tu Cita
+              </h3>
+              <p className="text-gray-400 mt-1">
+                Selecciona el día y horario que mejor se adapte a ti
+              </p>
+            </div>
           </div>
-          <p className="text-gray-400">
-            Selecciona el día y horario que mejor se adapte a ti.
-          </p>
         </div>
 
-        <div className="p-6">
-  <div className="flex flex-col md:flex-row gap-8">
-    
-    {/* Contenedor del Calendario */}
-    <div className="w-full md:w-auto flex justify-center">
-      <DayPicker
-        mode="single"
-        selected={selectedDay}
-        onSelect={setSelectedDay}
-        month={currentMonth}
-        onMonthChange={setCurrentMonth}
-        locale={es}
-        modifiers={{ available: availableDays }}
-        disabled={{ before: new Date() }}
-        showOutsideDays
-        
-        // --- INICIO DE LA CORRECCIÓN DE ESTILOS ---
-        classNames={{
-          root: 'bg-gray-800/50 p-4 rounded-xl border border-gray-700 w-full',
-          months: 'flex flex-col sm:flex-row',
-          month: 'space-y-4',
-          caption: 'flex justify-between items-center mb-4 px-1', // Corregido para alinear botones
-          caption_label: 'text-lg font-bold text-white',
-          nav: 'space-x-1 flex items-center',
-          nav_button: 'h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg transition-colors',
-          table: 'w-full border-collapse',
-          head_row: 'flex justify-around mb-2',
-          head_cell: 'text-gray-400 rounded-md w-10 font-normal text-sm',
-          row: 'flex w-full mt-2 justify-around',
-          cell: 'p-0',
-          day: 'h-10 w-10 p-0 font-normal rounded-md transition-colors hover:bg-purple-500/20',
-          day_selected: 'bg-purple-600 text-white hover:bg-purple-700',
-          day_today: 'bg-purple-500/20 text-purple-300 font-bold',
-          day_disabled: 'text-gray-600 opacity-50',
-          day_outside: 'text-gray-600 opacity-50',
-        }}
-        // --- FIN DE LA CORRECCIÓN DE ESTILOS ---
-      />
-    </div>
-    
-    {/* Contenedor de los Horarios (Time Slots) */}
-    <div className="flex-1 min-h-[300px] border-t-2 md:border-t-0 md:border-l-2 border-gray-700/50 pt-6 md:pt-0 md:pl-8">
-      <div className="mb-4">
-        {selectedDay ? (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-            <h4 className="font-bold text-lg text-white">
-              {format(selectedDay, "eeee, d 'de' MMMM", { locale: es })}
-            </h4>
-            <p className="text-gray-400 text-sm">
-              {isLoading ? 'Cargando...' : `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`}
-            </p>
-          </motion.div>
-        ) : (
-          <div className="text-center py-8">
-            <Clock className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-            <h4 className="font-semibold text-white">Selecciona un día</h4>
-            <p className="text-gray-400 text-sm">Elige una fecha disponible para ver los horarios.</p>
-          </div>
-        )}
-      </div>
+        {/* Contenido principal */}
+        <div className="p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            {/* Contenedor del Calendario */}
+            <div className="flex flex-col items-center">
+              <div className="w-full max-w-sm bg-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+                <DayPicker
+                  mode="single"
+                  selected={selectedDay}
+                  onSelect={setSelectedDay}
+                  month={currentMonth}
+                  onMonthChange={setCurrentMonth}
+                  locale={es}
+                  modifiers={{ 
+                    available: availableDays 
+                  }}
+                  disabled={{ before: new Date() }}
+                  showOutsideDays
 
-      {isLoading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-purple-400"/></div>
-      ) : selectedDay && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto"
-        >
-          {selectedDaySlots.length > 0 ? selectedDaySlots.map((slot, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Button 
-                variant="outline" 
-                className="group w-full h-12 border-gray-600/50 bg-gray-700/30 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:border-transparent text-gray-300 hover:text-white"
-                onClick={() => onSlotSelect(slot)}
-              >
-                {format(slot, 'HH:mm')}
-                <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-              </Button>
-            </motion.div>
-          )) : (
-            <p className="text-gray-500 col-span-3 text-center py-4">No hay horarios disponibles este día.</p>
-          )}
-        </motion.div>
-      )}
-    </div>
-  </div>
-</div>
+                  classNames={{
+                    root: "text-white",
+                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                    month: "space-y-4",
+                    caption: "flex justify-center pt-1 relative items-center mb-4",
+                    caption_label: "text-lg font-semibold text-white capitalize",
+                    nav: "space-x-1 flex items-center",
+                    nav_button: "inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/20 hover:text-white hover:border-purple-500/50 transition-all absolute",
+                    nav_button_previous: "left-0",
+                    nav_button_next: "right-0",
+                    table: "w-full border-collapse space-y-1",
+                    head_row: "flex",
+                    head_cell: "text-gray-400 rounded-md w-11 font-medium text-sm text-center",
+                    row: "flex w-full mt-2",
+                    cell: "text-center text-sm p-0 relative first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                    day: "inline-flex items-center justify-center w-11 h-11 rounded-lg font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800",
+                    day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
+                    day_today: "ring-2 ring-purple-400 font-semibold",
+                    day_outside: "text-gray-600",
+                    day_disabled: "text-gray-600 opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
+                    day_range_middle: "aria-selected:bg-purple-100 aria-selected:text-purple-900",
+                    day_hidden: "invisible",
+                  }}
+                  modifiersClassNames={{
+                    available: "bg-emerald-500/10 text-emerald-400 border-2 border-emerald-500/30 font-semibold relative after:content-[''] after:absolute after:bottom-1 after:right-1 after:w-2 after:h-2 after:bg-emerald-400 after:rounded-full"
+                  }}
+                />
+              </div>
+              
+              {/* Leyenda */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded border-2 border-purple-400"></div>
+                  <span className="text-gray-300">Hoy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-emerald-500/10 border-2 border-emerald-500/30 relative">
+                    <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  </div>
+                  <span className="text-gray-300">Disponible</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-purple-600"></div>
+                  <span className="text-gray-300">Seleccionado</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Contenedor de los Horarios */}
+            <div className="flex flex-col min-h-[400px]">
+              <div className="mb-6">
+                {selectedDay ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center lg:text-left"
+                  >
+                    <h4 className="font-bold text-xl text-white mb-2">
+                      {format(selectedDay, "eeee, d 'de' MMMM", { locale: es })}
+                    </h4>
+                    <p className="text-gray-400">
+                      {isLoading ? (
+                        <span className="flex items-center gap-2 justify-center lg:justify-start">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Cargando horarios...
+                        </span>
+                      ) : (
+                        `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`
+                      )}
+                    </p>
+                  </motion.div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="p-4 bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-full w-fit mx-auto mb-4">
+                      <Clock className="w-8 h-8 text-purple-400" />
+                    </div>
+                    <h4 className="font-semibold text-white text-lg mb-2">Selecciona un día</h4>
+                    <p className="text-gray-400">Elige una fecha disponible para ver los horarios</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Grid de horarios */}
+              {!isLoading && selectedDay && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex-1"
+                >
+                  {selectedDaySlots.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-gray-700/30 scrollbar-thumb-purple-500/50 scrollbar-thumb-rounded-full hover:scrollbar-thumb-purple-500/70 pr-2">
+                      {selectedDaySlots.map((slot, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.05 }}
+                        >
+                          <Button 
+                            variant="outline" 
+                            className="group w-full h-12 border-gray-600/50 bg-gray-700/30 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:border-transparent text-gray-300 hover:text-white transition-all duration-200 hover:shadow-lg hover:scale-105"
+                            onClick={() => onSlotSelect(slot)}
+                          >
+                            <span className="font-medium">{format(slot, 'HH:mm')}</span>
+                            <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200" />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-gray-800/30 rounded-xl border border-gray-700/30">
+                      <div className="p-3 bg-gray-700/50 rounded-full w-fit mx-auto mb-4">
+                        <Clock className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <p className="text-gray-400">No hay horarios disponibles este día</p>
+                      <p className="text-gray-500 text-sm mt-1">Selecciona otra fecha</p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </div>
         
-        <div className="p-6 border-t border-gray-700/50">
+        {/* Footer */}
+        <div className="p-6 border-t border-gray-700/50 bg-gray-800/30">
           <div className="flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-400" />
+            <div className="p-2 bg-green-500/20 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+            </div>
             <div>
               <p className="text-green-300 font-medium text-sm">Reserva Instantánea</p>
-              <p className="text-gray-400 text-xs">Tu cita se confirmará inmediatamente al seleccionar un horario.</p>
+              <p className="text-gray-400 text-xs">Tu cita se confirmará inmediatamente al seleccionar un horario</p>
             </div>
           </div>
         </div>
