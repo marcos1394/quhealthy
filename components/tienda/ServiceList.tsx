@@ -14,7 +14,7 @@ interface ServiceListProps {
   onBookClick: (service: Service) => void;
 }
 
-export const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
+export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick }) => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [filterCategory, setFilterCategory] = useState('all');
   
@@ -188,9 +188,10 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services }) => {
                       </p>
                     )}
                     
-                    <Button 
-                      className="w-full group bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 hover:from-purple-500 hover:via-purple-400 hover:to-blue-500 text-white font-semibold py-4 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-500/40 transition-all duration-300 border-0"
-                    >
+                   <Button 
+                  className="w-full group bg-purple-600 hover:bg-purple-700"
+                  onClick={() => onBookClick(service)}
+                >
                       <Calendar className="w-5 h-5 mr-3" />
                       Agendar Servicio
                       <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
