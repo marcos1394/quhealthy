@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Clock, DollarSign, Calendar, Filter, Grid, List, Sparkles, Star, ArrowRight } from 'lucide-react';
 import { Service } from '@/app/quhealthy/types/marketplace';
 
+
+// 1. Definimos la 'forma' de las props, incluyendo la nueva función
 interface ServiceListProps {
   services: Service[];
+  onBookClick: (service: Service) => void;
 }
 
 export const ServiceList: React.FC<ServiceListProps> = ({ services }) => {

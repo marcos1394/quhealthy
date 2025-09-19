@@ -4,14 +4,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ProviderHero } from '@/components/tienda/ProviderHero';
 import { ServiceList } from '@/components/tienda/ServiceList';
 import { StaffSection } from '@/components/tienda/StaffSection';
 import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
-import { ProviderProfileData } from '@/app/quhealthy/types/marketplace';
+import { ProviderProfileData, Service } from '@/app/quhealthy/types/marketplace';
 import { Loader2, Sparkles } from 'lucide-react';
+
+
 
 export default function ProviderPublicPage() {
   const params = useParams();
@@ -20,6 +22,9 @@ export default function ProviderPublicPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
 
   useEffect(() => {
     if (!slug) return;
@@ -41,14 +46,28 @@ export default function ProviderPublicPage() {
     
     getProviderProfile();
   }, [slug]);
-
-  // Esta función se ejecutará cuando un cliente seleccione un horario
+  
+// Se llama desde ServiceList cuando se hace clic en "Agendar"
+  const handleBookingInitiation = (service: Service) => {
+    setSelectedService(service);
+    console.log(`Servicio seleccionado: ${service.name}. Ahora el usuario debe elegir un horario.`);
+    
+    // Hacemos scroll suave hasta el calendario
+    document.getElementById('availability-calendar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  
+  // Se llama desde AvailabilityCalendar cuando se selecciona un horario
   const handleSlotSelection = (slot: Date) => {
     console.log("Horario seleccionado:", slot);
+    if (!selectedService) {
+      alert("Por favor, primero selecciona un servicio de la lista.");
+      return;
+    }
     setSelectedSlot(slot);
-    // En el futuro, aquí abriremos el modal de checkout
-    alert(`Has seleccionado el horario: ${slot.toLocaleString()}`);
+    // Aquí es donde abriremos el modal de checkout
+    setIsCheckoutOpen(true);
   };
+
 
   if (isLoading) {
     return (
@@ -121,7 +140,8 @@ export default function ProviderPublicPage() {
                   transition={{ duration: 0.8, delay: 0.2 }}
                   className="space-y-20"
                 >
-                  <ServiceList services={profileData.services} />
+                   <ServiceList services={profileData.services} onBookClick={handleBookingInitiation} />
+
                   <StaffSection staff={profileData.staff} />
                   <ReviewsSection reviews={profileData.reviews} />
                 </motion.div>
@@ -129,44 +149,39 @@ export default function ProviderPublicPage() {
               
               {/* Enhanced Sidebar */}
               <aside className="lg:col-span-4 mt-20 lg:mt-0">
-                <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="sticky top-24"
-                >
-                  {/* Appointment booking section with enhanced styling */}
-                  <div className="relative">
-                    {/* Decorative gradient background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 rounded-3xl blur-xl"></div>
-                    
-                    {/* Calendar container with enhanced design */}
-                    <div className="relative">
-                      <AvailabilityCalendar 
-                        providerId={profileData.id} 
-                        onSlotSelect={handleSlotSelection}
-                      />
-                    </div>
-                    
-                    {/* Selected appointment info (if any) */}
-                    {selectedSlot && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                          <div>
-                            <p className="text-green-300 font-medium text-sm">Cita seleccionada</p>
-                            <p className="text-white text-sm">{selectedSlot.toLocaleString()}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-              </aside>
+  <motion.div
+    initial={{ opacity: 0, x: 30 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.8, delay: 0.4 }}
+    className="sticky top-24"
+    // Le damos un ID al contenedor para el scroll
+    id="availability-calendar"
+  >
+    {/* Mensaje inicial si no se ha seleccionado servicio */}
+    {!selectedService && (
+      <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 text-center">
+        <h3 className="text-xl font-bold text-white mb-4">Selecciona un servicio</h3>
+        <p className="text-gray-400">Elige un servicio de la lista para ver los horarios disponibles.</p>
+      </div>
+    )}
+
+    {/* El calendario solo se muestra si se ha seleccionado un servicio */}
+    <AnimatePresence>
+      {selectedService && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+        >
+          <AvailabilityCalendar 
+            providerId={profileData.id} 
+            onSlotSelect={handleSlotSelection}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </motion.div>
+</aside>
             </div>
           </div>
         </div>
