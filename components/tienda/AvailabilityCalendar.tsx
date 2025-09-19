@@ -4,9 +4,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { es } from "date-fns/locale";
-import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, parseISO, getHours, getMinutes } from "date-fns";
 import axios from "axios";
-import { Calendar,   Loader2 } from "lucide-react";
+import { Calendar,  Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AvailabilityCalendarProps {
@@ -29,9 +29,11 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
       try {
         const startDate = format(startOfMonth(currentMonth), "yyyy-MM-dd");
         const endDate = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+
         const { data } = await axios.get(`/api/calendar/availability/${providerId}`, {
           params: { startDate, endDate },
         });
+        
         setAvailableSlots(data.map((slot: string) => parseISO(slot)));
       } catch (error) {
         console.error("Error fetching availability:", error);
@@ -44,7 +46,9 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
   const slotsByDay = useMemo(() => {
     return availableSlots.reduce((acc, slot) => {
-      const day = format(slot, "yyyy-MM-dd");
+      // --- CORRECCIÓN DE ZONA HORARIA ---
+      // Agrupamos por día usando el string ISO (que está en UTC) para evitar desfases
+      const day = slot.toISOString().split('T')[0];
       if (!acc[day]) acc[day] = [];
       acc[day].push(slot);
       return acc;
@@ -52,6 +56,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   }, [availableSlots]);
 
   const availableDays = Object.keys(slotsByDay).map((d) => new Date(d));
+  // Usamos el mismo método UTC para encontrar los slots del día seleccionado
   const selectedDaySlots = selectedDay ? slotsByDay[format(selectedDay, "yyyy-MM-dd")] || [] : [];
 
   return (
@@ -61,7 +66,6 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
         <h3 className="text-xl font-bold text-white">Agenda una Cita</h3>
       </div>
       
-      {/* El calendario ahora ocupa todo el ancho disponible */}
       <DayPicker
         mode="single"
         selected={selectedDay}
@@ -72,46 +76,31 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
         modifiers={{ available: availableDays }}
         disabled={{ before: new Date() }}
         showOutsideDays
-        // Las clases de DayPicker V8
         classNames={{
-            root: "w-full",
-            caption: "flex justify-between items-center mb-4",
+            root: "bg-gray-800/50 p-4 rounded-xl border border-gray-700 w-full",
+            caption: "flex justify-center text-center relative items-center mb-4",
             caption_label: "text-lg font-bold text-white",
-            nav_button: "h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg",
-            head_cell: "text-gray-400 font-normal text-sm w-[14.28%]",
-            cell: "w-[14.28%]",
+            nav_button_previous: "absolute left-0 h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg",
+            nav_button_next: "absolute right-0 h-8 w-8 bg-gray-700/50 hover:bg-purple-500/20 p-1 rounded-lg",
+            table: "w-full border-collapse",
+            head_row: "flex justify-around",
+            head_cell: "text-gray-400 w-10 font-normal text-sm",
+            row: "flex w-full mt-2 justify-around",
+            cell: "p-0",
             day: "h-10 w-10 p-0 font-normal rounded-md transition-colors hover:bg-purple-500/20",
             day_selected: "bg-purple-600 text-white hover:bg-purple-700",
             day_today: "ring-2 ring-purple-400",
             day_disabled: "text-gray-600 opacity-50",
             day_outside: "text-gray-600 opacity-50",
         }}
-        modifiersClassNames={{
-            available: "font-bold border-2 border-green-500/50"
-        }}
+        modifiersClassNames={{ available: "font-bold border-2 border-green-500/30" }}
       />
       
-      {/* --- INICIO DE LA CORRECCIÓN DE LAYOUT --- */}
-      {/* La sección de horarios ahora está DEBAJO del calendario, no al lado */}
-      <div className="border-t-2 border-gray-700/50 pt-6">
-        <div className="mb-4">
-          {selectedDay ? (
-            <div>
-              <h4 className="font-bold text-lg text-white">
-                {format(selectedDay, "eeee, d 'de' MMMM", { locale: es })}
-              </h4>
-              <p className="text-gray-400 text-sm">
-                {isLoading ? 'Cargando...' : `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`}
-              </p>
-            </div>
-          ) : (
-            <div>
-              <h4 className="font-semibold text-white">Selecciona un día</h4>
-              <p className="text-gray-400 text-sm">Elige una fecha para ver los horarios.</p>
-            </div>
-          )}
-        </div>
-
+      <div className="border-t-2 border-gray-700/50 pt-6 min-h-[150px]">
+        <h4 className="font-bold text-lg text-white mb-2">
+          {selectedDay ? format(selectedDay, "eeee, d 'de' MMMM", { locale: es }) : 'Selecciona un día'}
+        </h4>
+        
         {isLoading && selectedDay ? (
             <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-purple-400"/></div>
         ) : selectedDay && (
@@ -119,16 +108,14 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {selectedDaySlots.map((slot, i) => (
                 <Button key={i} variant="outline" className="border-gray-600 hover:bg-purple-500/20 hover:text-purple-300" onClick={() => onSlotSelect(slot)}>
-                   {format(parseISO(slot.toISOString()), 'HH:mm')}
+                  {/* Mostramos la hora en UTC para que coincida con el backend */}
+                  {`${getHours(slot).toString().padStart(2, '0')}:${getMinutes(slot).toString().padStart(2, '0')}`}
                 </Button>
               ))}
             </div>
-          ) : (
-            <p className="text-gray-500 text-sm">No hay horarios disponibles este día.</p>
-          )
+          ) : ( <p className="text-gray-500 text-sm">No hay horarios disponibles.</p> )
         )}
       </div>
-      {/* --- FIN DE LA CORRECCIÓN DE LAYOUT --- */}
     </div>
   );
 };

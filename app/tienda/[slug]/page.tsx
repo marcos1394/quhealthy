@@ -12,6 +12,7 @@ import { ReviewsSection } from '@/components/tienda/ReviewsSection';
 import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
 import { ProviderProfileData, Service } from '@/app/quhealthy/types/marketplace';
 import { Loader2, Sparkles } from 'lucide-react';
+import { CheckoutModal } from '@/components/tienda/CheckoutModal'; // <-- Importa el modal
 
 
 
@@ -185,7 +186,13 @@ export default function ProviderPublicPage() {
             </div>
           </div>
         </div>
-        
+          <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        service={selectedService}
+        providerId={profileData.id}
+        selectedSlot={selectedSlot}
+      />
         {/* Enhanced footer section */}
         <div className="border-t border-slate-800/50">
           <div className="container mx-auto px-6 py-12">
