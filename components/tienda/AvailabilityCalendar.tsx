@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import { es } from 'date-fns/locale';
-import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import { Calendar, Clock, CheckCircle, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import { es } from "date-fns/locale";
+import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { motion } from "framer-motion";
+import axios from "axios";
+import { Calendar, Clock, CheckCircle, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 // Tipos de datos
 interface AvailabilityCalendarProps {
@@ -17,7 +17,10 @@ interface AvailabilityCalendarProps {
   onSlotSelect: (slot: Date) => void;
 }
 
-export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ providerId, onSlotSelect }) => {
+export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
+  providerId,
+  onSlotSelect,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availableSlots, setAvailableSlots] = useState<Date[]>([]);
   const [selectedDay, setSelectedDay] = useState<Date | undefined>();
@@ -27,12 +30,15 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
     const fetchAvailability = async () => {
       setIsLoading(true);
       try {
-        const startDate = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
-        const endDate = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
-        
-        const { data } = await axios.get(`/api/calendar/availability/${providerId}`, {
-          params: { startDate, endDate }
-        });
+        const startDate = format(startOfMonth(currentMonth), "yyyy-MM-dd");
+        const endDate = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+
+        const { data } = await axios.get(
+          `/api/calendar/availability/${providerId}`,
+          {
+            params: { startDate, endDate },
+          }
+        );
 
         const slotsAsDates = data.map((slot: string) => parseISO(slot));
         setAvailableSlots(slotsAsDates);
@@ -47,7 +53,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
 
   const slotsByDay = useMemo(() => {
     return availableSlots.reduce((acc, slot) => {
-      const day = format(slot, 'yyyy-MM-dd');
+      const day = format(slot, "yyyy-MM-dd");
       if (!acc[day]) {
         acc[day] = [];
       }
@@ -56,14 +62,16 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
     }, {} as Record<string, Date[]>);
   }, [availableSlots]);
 
-  const availableDays = Object.keys(slotsByDay).map(dayStr => new Date(dayStr));
-  const selectedDaySlots = selectedDay ? slotsByDay[format(selectedDay, 'yyyy-MM-dd')] || [] : [];
+  const availableDays = Object.keys(slotsByDay).map((dayStr) => new Date(dayStr));
+  const selectedDaySlots = selectedDay
+    ? slotsByDay[format(selectedDay, "yyyy-MM-dd")] || []
+    : [];
 
   return (
     <div className="relative max-w-6xl mx-auto">
       {/* Gradiente de fondo */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 rounded-3xl blur-xl"></div>
-      
+
       <div className="relative bg-gradient-to-br from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-2xl border border-gray-700/50 rounded-3xl overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="p-8 border-b border-gray-700/50">
@@ -85,10 +93,9 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
         {/* Contenido principal */}
         <div className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            
             {/* Contenedor del Calendario */}
             <div className="flex flex-col items-center">
-              <div className="w-full max-w-xs bg-gray-800/50 rounded-2xl p-4 border border-gray-700/30">
+              <div className="w-full max-w-md bg-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
                 <DayPicker
                   mode="single"
                   selected={selectedDay}
@@ -96,38 +103,47 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                   month={currentMonth}
                   onMonthChange={setCurrentMonth}
                   locale={es}
-                  modifiers={{ 
-                    available: availableDays 
+                  modifiers={{
+                    available: availableDays,
                   }}
                   disabled={{ before: new Date() }}
                   showOutsideDays
-
                   classNames={{
                     root: "text-white",
                     month: "space-y-4",
-                    caption: "flex justify-between items-center px-2 py-3 mb-4",
-                    caption_label: "text-lg font-semibold text-white capitalize mx-auto",
+                    caption: "flex justify-center items-center gap-6 mb-4",
+                    caption_label:
+                      "text-lg font-semibold text-white capitalize",
                     nav: "flex items-center gap-2",
-                    nav_button: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/20 hover:text-white hover:border-purple-500/50 transition-all",
-                    nav_button_previous: "order-first",
-                    nav_button_next: "order-last",
+                    nav_button:
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white hover:border-purple-500/50 transition-all",
+                    nav_button_previous: "absolute left-4 top-1/2 -translate-y-1/2",
+                    nav_button_next: "absolute right-4 top-1/2 -translate-y-1/2",
                     table: "w-full border-collapse",
                     head_row: "grid grid-cols-7 mb-2",
-                    head_cell: "text-gray-400 w-10 h-8 font-medium text-sm flex items-center justify-center",
+                    head_cell:
+                      "text-gray-400 w-10 h-8 font-medium text-sm flex items-center justify-center",
                     row: "grid grid-cols-7 gap-1 mb-1",
                     cell: "flex items-center justify-center p-0",
                     day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
-                    day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
+                    day_selected:
+                      "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
                     day_today: "ring-2 ring-purple-400 font-semibold",
                     day_outside: "text-gray-600 opacity-50",
-                    day_disabled: "text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
+                    day_disabled:
+                      "text-gray-600 opacity-30 cursor-not-allowed hover:bg-transparent hover:text-gray-600",
                   }}
-                  modifiersClassNames={{
-                    available: "bg-emerald-500/10 text-emerald-400 border-2 border-emerald-500/30 font-semibold relative after:content-[''] after:absolute after:bottom-1 after:right-1 after:w-2 after:h-2 after:bg-emerald-400 after:rounded-full"
-                  }}
+                 components={{
+  Chevron: ({ orientation }) =>
+    orientation === "left" ? (
+      <ChevronLeft className="w-4 h-4" />
+    ) : (
+      <ChevronRight className="w-4 h-4" />
+    ),
+}}
                 />
               </div>
-              
+
               {/* Leyenda */}
               <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
@@ -146,13 +162,13 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                 </div>
               </div>
             </div>
-            
+
             {/* Contenedor de los Horarios */}
             <div className="flex flex-col min-h-[400px]">
               <div className="mb-6">
                 {selectedDay ? (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }} 
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center lg:text-left"
                   >
@@ -166,7 +182,11 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                           Cargando horarios...
                         </span>
                       ) : (
-                        `${selectedDaySlots.length} ${selectedDaySlots.length === 1 ? 'horario disponible' : 'horarios disponibles'}`
+                        `${selectedDaySlots.length} ${
+                          selectedDaySlots.length === 1
+                            ? "horario disponible"
+                            : "horarios disponibles"
+                        }`
                       )}
                     </p>
                   </motion.div>
@@ -175,15 +195,19 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                     <div className="p-4 bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-full w-fit mx-auto mb-4">
                       <Clock className="w-8 h-8 text-purple-400" />
                     </div>
-                    <h4 className="font-semibold text-white text-lg mb-2">Selecciona un día</h4>
-                    <p className="text-gray-400">Elige una fecha disponible para ver los horarios</p>
+                    <h4 className="font-semibold text-white text-lg mb-2">
+                      Selecciona un día
+                    </h4>
+                    <p className="text-gray-400">
+                      Elige una fecha disponible para ver los horarios
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Grid de horarios */}
               {!isLoading && selectedDay && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="flex-1"
@@ -197,12 +221,14 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: i * 0.05 }}
                         >
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             className="group w-full h-12 border-gray-600/50 bg-gray-700/30 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:border-transparent text-gray-300 hover:text-white transition-all duration-200 hover:shadow-lg hover:scale-105"
                             onClick={() => onSlotSelect(slot)}
                           >
-                            <span className="font-medium">{format(slot, 'HH:mm')}</span>
+                            <span className="font-medium">
+                              {format(slot, "HH:mm")}
+                            </span>
                             <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200" />
                           </Button>
                         </motion.div>
@@ -213,8 +239,12 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
                       <div className="p-3 bg-gray-700/50 rounded-full w-fit mx-auto mb-4">
                         <Clock className="w-6 h-6 text-gray-400" />
                       </div>
-                      <p className="text-gray-400">No hay horarios disponibles este día</p>
-                      <p className="text-gray-500 text-sm mt-1">Selecciona otra fecha</p>
+                      <p className="text-gray-400">
+                        No hay horarios disponibles este día
+                      </p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        Selecciona otra fecha
+                      </p>
                     </div>
                   )}
                 </motion.div>
@@ -222,7 +252,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
             </div>
           </div>
         </div>
-        
+
         {/* Footer */}
         <div className="p-6 border-t border-gray-700/50 bg-gray-800/30">
           <div className="flex items-center gap-3">
@@ -230,8 +260,12 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ prov
               <CheckCircle className="w-5 h-5 text-green-400" />
             </div>
             <div>
-              <p className="text-green-300 font-medium text-sm">Reserva Instantánea</p>
-              <p className="text-gray-400 text-xs">Tu cita se confirmará inmediatamente al seleccionar un horario</p>
+              <p className="text-green-300 font-medium text-sm">
+                Reserva Instantánea
+              </p>
+              <p className="text-gray-400 text-xs">
+                Tu cita se confirmará inmediatamente al seleccionar un horario
+              </p>
             </div>
           </div>
         </div>
