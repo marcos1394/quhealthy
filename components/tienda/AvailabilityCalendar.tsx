@@ -126,7 +126,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                   modifiers={{ available: availableDays }}
                   disabled={{ before: new Date() }}
                   showOutsideDays
-            classNames={{
+           classNames={{
   root: "text-white",
   month: "space-y-2",
   caption: "flex items-center justify-center gap-2 mb-3 relative",
@@ -139,20 +139,22 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
   table: "w-full table-fixed border-collapse",
 
-  weekdays: "table-row w-full",
+  // ❌ eliminas weekdays
+  head_row: "table-row", // ⬅️ fila de encabezados
   weekday:
-    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs",
+    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs", // ⬅️ cada <th>
 
-  row: "table-row",
-  cell: "table-cell w-[14.28%] align-middle p-0",   // ⬅️ ancho fijo para <td>
+  row: "table-row", // ⬅️ cada fila de días
+  cell: "table-cell w-[14.28%] align-middle p-0", // ⬅️ cada <td>
 
-  day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors", // ⬅️ solo al <button>
+  day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
 
   day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
   day_today: "ring-2 ring-purple-400 font-semibold",
   day_outside: "text-gray-600 opacity-50",
   day_disabled: "text-gray-600 opacity-30 cursor-not-allowed",
 }}
+
 
 
 
