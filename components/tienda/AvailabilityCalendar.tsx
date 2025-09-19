@@ -136,18 +136,21 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     "inline-flex items-center justify-center w-8 h-8 rounded-full border border-gray-600 bg-gray-700/50 text-gray-300 hover:bg-purple-600/40 hover:text-white transition-all",
   nav_button_previous: "absolute left-3 top-1/2 -translate-y-1/2",
   nav_button_next: "absolute right-3 top-1/2 -translate-y-1/2",
-  table: "w-full table-auto border-collapse", // ✅ distribución automática
+  table: "w-full table-auto border-collapse",
   head_row: "table-row",
-  head_cell:
-    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs", // ✅ 1/7 del ancho
+  // ❌ antes: head_cell
+  // ✅ ahora: weekday
+  weekday:
+    "table-cell w-[14.28%] h-8 text-center align-middle text-gray-400 font-medium text-xs",
   row: "table-row",
-  cell: "table-cell w-[14.28%] align-middle p-0", // ✅ también proporcional
+  cell: "table-cell w-[14.28%] align-middle p-0",
   day: "inline-flex items-center justify-center w-10 h-10 rounded-md font-normal text-gray-300 hover:bg-purple-500/20 hover:text-white transition-colors",
   day_selected: "bg-purple-600 text-white hover:bg-purple-700 font-semibold",
   day_today: "ring-2 ring-purple-400 font-semibold",
   day_outside: "text-gray-600 opacity-50",
   day_disabled: "text-gray-600 opacity-30 cursor-not-allowed",
 }}
+
 
 
                   components={{
