@@ -106,7 +106,7 @@ export default function ProviderLoginPage() {
   try {
     // 1. Hacemos la llamada a la API con la ruta relativa para que funcione el proxy.
     const { data } = await axios.post(
-      '/api/auth/login', 
+      '/api/auth/provider/login', 
       formData,
       { withCredentials: true }
     );

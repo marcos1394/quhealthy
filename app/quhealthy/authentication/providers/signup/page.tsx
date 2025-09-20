@@ -111,7 +111,7 @@ export default function ProviderSignupPage() {
         role: "provider"
       };
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/provider/signup`;
       await axios.post(apiUrl, signupData, {
   withCredentials: true,
 });
