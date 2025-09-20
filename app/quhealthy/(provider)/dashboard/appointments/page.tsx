@@ -355,6 +355,14 @@ export default function ProviderAppointmentsPage() {
         appointment={selectedAppointment}
         onComplete={fetchAppointments} // Pasamos la función para recargar las citas
       />
+       <ConfirmationModal
+      isOpen={cancelModalState.isOpen}
+      onClose={() => setCancelModalState({ isOpen: false, appointment: null })}
+      onConfirm={handleCancelAppointment}
+      title="¿Estás seguro de cancelar esta cita?"
+      message={`Esta acción no se puede deshacer. Se notificará al cliente y se procesará un reembolso completo.`}
+      isLoading={isCanceling}
+    />
 
                     {/* Información adicional para citas importantes */}
                     {(isToday || appt.status === 'pending') && (
