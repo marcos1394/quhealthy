@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -8,6 +9,7 @@ import { CheckoutForm } from './CheckoutForm';
 import axios from 'axios';
 import {  X, Calendar, Clock, DollarSign, Shield, Sparkles, CreditCard } from 'lucide-react';
 import { Service } from '@/app/quhealthy/types/marketplace';
+import { toast } from 'react-toastify';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -53,15 +55,35 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   }, [isOpen, service, providerId]);
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
-    await axios.post('/api/appointments/book', {
+  try {
+    // --- INICIO DE LA CORRECCIÓN ---
+    // 1. Capturamos la respuesta de la API, que contiene la nueva cita
+    const response = await axios.post('/api/appointments/book', {
       providerId,
       serviceId: service?.id,
       startTime: selectedSlot?.toISOString(),
       paymentIntentId,
     }, { withCredentials: true });
 
-    window.location.href = '/booking/success';
-  };
+    // 2. Extraemos la cita y su ID de la respuesta
+    const newAppointment = response.data;
+
+    if (newAppointment && newAppointment.id) {
+      // 3. Construimos la URL dinámica y redirigimos
+      const successUrl = `/booking/success/${newAppointment.id}`;
+      // Usamos window.location.href para una redirección completa
+      window.location.href = successUrl;
+    } else {
+      // Si por alguna razón la API no devuelve la cita, redirigimos a una página genérica
+      console.error("La API no devolvió una cita válida tras el pago.");
+      window.location.href = '/consumer/appointments'; // A la lista de citas como fallback
+    }
+    // --- FIN DE LA CORRECCIÓN ---
+
+  } catch (error) {
+    toast.error("El pago se realizó, pero no se pudo agendar tu cita. Contacta a soporte.");
+  }
+};
 
   if (!isOpen) return null;
 
