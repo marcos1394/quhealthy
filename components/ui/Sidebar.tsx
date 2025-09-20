@@ -7,7 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Store, Calendar, Users, BarChart3, Settings,
-  HeartPulse, ChevronLeft, LogOut, Sparkles
+  HeartPulse, ChevronLeft, LogOut, Sparkles,
+  ClipboardList
 } from 'lucide-react';
 import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el nuevo store unificado
 import { toast } from 'react-toastify';
@@ -19,6 +20,7 @@ const navItems = [
   { name: 'Dashboard', href: '/quhealthy/dashboard', icon: LayoutDashboard },
   { name: 'Mi Tienda', href: '/quhealthy/onboarding/marketplace', icon: Store },
   { name: 'Agenda', href: '/quhealthy/dashboard/calendar', icon: Calendar },
+    { name: 'Mis Citas', href: '/quhealthy/dashboard/appointments', icon: ClipboardList },
   { name: 'Pacientes', href: '/quhealthy/patients', icon: Users },
   { name: 'Reportes', href: '/quhealthy/reports', icon: BarChart3 },
   { name: 'Configuración', href: '/quhealthy/settings', icon: Settings },
