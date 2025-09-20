@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { CheckCircle2, Calendar, User, DollarSign, Loader2 } from 'lucide-react';
+import { CheckCircle2, Calendar, User, DollarSign, Loader2, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatInTimeZone } from 'date-fns-tz'; // 1. Importamos la función clave
+import { es } from 'date-fns/locale';
+
 
 // Interfaz para el objeto de la cita que esperamos de la API
 interface AppointmentDetails {
@@ -12,9 +15,8 @@ interface AppointmentDetails {
   startTime: string;
   priceAtBooking: number;
   provider: { name: string };
-  // Añade aquí más campos si tu endpoint los devuelve
+  service: { name: string };
 }
-
 export default function BookingSuccessPage() {
   const params = useParams();
   const router = useRouter();
@@ -45,6 +47,18 @@ export default function BookingSuccessPage() {
     getAppointmentDetails();
   }, [appointmentId]);
 
+  // 2. Nueva función para compartir en WhatsApp
+  const handleShare = () => {
+    if (!appointment) return;
+
+    const dateStr = formatInTimeZone(new Date(appointment.startTime), 'UTC', "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", { locale: es });
+    const text = `¡Hola! Te comparto los detalles de mi cita agendada a través de QuHealthy:\n\n*Servicio:* ${appointment.service.name}\n*Profesional:* ${appointment.provider.name}\n*Cuándo:* ${dateStr}\n\n¡Encuentra a tus profesionales en QuHealthy!`;
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+    
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -57,7 +71,9 @@ export default function BookingSuccessPage() {
     return notFound();
   }
 
-  return (
+    const formattedDateTime = formatInTimeZone(new Date(appointment.startTime), 'UTC', "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", { locale: es });
+
+ return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-gray-800/50 backdrop-blur-lg border border-green-500/30 rounded-2xl p-8 text-center">
         <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
@@ -76,11 +92,7 @@ export default function BookingSuccessPage() {
             <Calendar className="w-5 h-5 text-purple-400 mr-3"/>
             <div>
               <p className="text-sm text-gray-400">Fecha y Hora</p>
-              <p className="font-semibold text-white">
-                {new Date(appointment.startTime).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
-                {' a las '}
-                {new Date(appointment.startTime).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-              </p>
+              <p className="font-semibold text-white capitalize">{formattedDateTime}</p>
             </div>
           </div>
           <div className="flex items-center">
@@ -92,9 +104,14 @@ export default function BookingSuccessPage() {
           </div>
         </div>
         
-        <div className="mt-8 flex gap-4">
-            <Button variant="outline" className="flex-1 border-gray-600">Añadir al Calendario</Button>
-            <Button onClick={() => router.push('/consumer/appointments')} className="flex-1 bg-purple-600 hover:bg-purple-700">Ir a Mis Citas</Button>
+        <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            <Button onClick={handleShare} variant="outline" className="flex-1 border-gray-600">
+              <Share className="w-4 h-4 mr-2" />
+              Compartir
+            </Button>
+            <Button onClick={() => router.push('/consumer/appointments')} className="flex-1 bg-purple-600 hover:bg-purple-700">
+              Ir a Mis Citas
+            </Button>
         </div>
       </div>
     </div>
