@@ -34,7 +34,7 @@ export const useDashboardSummary = () => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get<DashboardData>('/api/auth/dashboard-summary', {
+      const response = await axios.get<DashboardData>('/api/auth/provider/dashboard-summary', {
         withCredentials: true,
       });
       setData(response.data);
