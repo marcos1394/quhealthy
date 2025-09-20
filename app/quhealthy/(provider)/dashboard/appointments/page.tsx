@@ -16,12 +16,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
+import { CompletionModal } from '@/app/quhealthy/components/dashboard/CompletionModal';
 
-// Definimos el tipo para una cita, incluyendo las relaciones
+// Interfaz para una cita
 interface Appointment {
   id: number;
   status: 'pending' | 'confirmed' | 'completed' | 'canceled_by_provider' | 'canceled_by_consumer';
   startTime: string;
+  endTime: string; // Necesitamos la hora de fin para la lógica
   consumer: { name: string };
   service: { name: string };
 }
@@ -29,9 +31,17 @@ interface Appointment {
 export default function ProviderAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // --- INICIO DE LA CORRECCIÓN ---
+  // Estados para controlar el modal de completar cita
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  
 
   // Función para obtener las citas del proveedor
   const fetchAppointments = useCallback(async () => {
+    // Para la carga inicial, muestra el loader grande
+    if (appointments.length === 0) setIsLoading(true); 
     try {
       const { data } = await axios.get('/api/appointments/provider', { withCredentials: true });
       setAppointments(data);
@@ -40,32 +50,27 @@ export default function ProviderAppointmentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [appointments.length]);
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments]);
+  }, []); // Se ejecuta solo una vez al cargar el componente
 
-  // Función para marcar una cita como completada
-  const handleMarkComplete = async (appointmentId: number) => {
-    try {
-      await axios.put(`/api/appointments/${appointmentId}/complete`, {}, { withCredentials: true });
-      toast.success("Cita marcada como completada.");
-      // Actualizamos el estado localmente o volvemos a cargar todo
-      fetchAppointments();
-    } catch (error) {
-      toast.error("No se pudo actualizar la cita.");
-    }
+  // Nueva función que abre el modal con la cita seleccionada
+  const handleOpenCompletionModal = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setIsModalOpen(true);
   };
+  // --- FIN DE LA CORRECCIÓN ---
 
   // Helper para el estilo de los badges de estado
   const getStatusBadgeStyle = (status: Appointment['status']) => {
     switch (status) {
-      case 'completed': return 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 border border-green-500/40 shadow-lg shadow-green-500/20';
-      case 'confirmed': return 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20';
+      case 'completed': return 'bg-green-500/20 text-green-300 border-green-500/40';
+      case 'confirmed': return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
       case 'canceled_by_consumer':
-      case 'canceled_by_provider': return 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 border border-red-500/40 shadow-lg shadow-red-500/20';
-      default: return 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border border-yellow-500/40 shadow-lg shadow-yellow-500/20';
+      case 'canceled_by_provider': return 'bg-red-500/20 text-red-300 border-red-500/40';
+      default: return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40';
     }
   };
 
@@ -220,6 +225,8 @@ export default function ProviderAppointmentsPage() {
                 const appointmentDate = new Date(appt.startTime);
                 const isToday = appointmentDate.toDateString() === new Date().toDateString();
                 const isPast = appointmentDate < new Date();
+                const isCompletable = new Date(appt.endTime) < new Date();
+
                 
                 return (
                   <div
@@ -291,17 +298,30 @@ export default function ProviderAppointmentsPage() {
 
                         {/* Botón de completar con estilo premium */}
                         {appt.status === 'confirmed' && (
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleMarkComplete(appt.id)}
-                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300 px-6 py-2 font-semibold"
-                          >
-                            <Check className="w-5 h-5 mr-2" />
-                            Marcar como Completada
-                          </Button>
-                        )}
-                      </div>
+    <Button 
+      size="sm" 
+      // --- INICIO DE LA CORRECCIÓN ---
+      // Llama a la función que abre el modal, pasando la cita completa
+      onClick={() => handleOpenCompletionModal(appt)}
+      // Se deshabilita si la cita aún no ha terminado
+      disabled={!isCompletable}
+      title={!isCompletable ? "Solo puedes completar la cita después de su hora de fin" : "Marcar esta cita como completada"}
+      // --- FIN DE LA CORRECCIÓN ---
+    >
+      <Check className="w-4 h-4 mr-2" />
+      Marcar como Completada
+    </Button>
+  )}
+</div>
                     </div>
+                    {/* --- INICIO DE LA CORRECCIÓN --- */}
+      {/* Añadimos el modal al final. Se mostrará cuando su estado 'isOpen' sea true. */}
+      <CompletionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        appointment={selectedAppointment}
+        onComplete={fetchAppointments} // Pasamos la función para recargar las citas
+      />
 
                     {/* Información adicional para citas importantes */}
                     {(isToday || appt.status === 'pending') && (
