@@ -10,13 +10,15 @@ import {
   TrendingUp, Users, CheckCircle2, AlertCircle, 
   XCircle, Timer, Phone, Mail, MapPin, Star,
   Filter, Search, MoreVertical, Eye, MessageSquare,
-  Award, Crown, Zap, Heart, Sparkles
+  Award, Crown, Zap, Heart, Sparkles,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 import { CompletionModal } from '@/app/quhealthy/components/dashboard/CompletionModal';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal'; // <-- Importa el nuevo modal
 
 // Interfaz para una cita
 interface Appointment {
@@ -36,6 +38,8 @@ export default function ProviderAppointmentsPage() {
   // Estados para controlar el modal de completar cita
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [cancelModalState, setCancelModalState] = useState<{isOpen: boolean, appointment: Appointment | null}>({isOpen: false, appointment: null});
+  const [isCanceling, setIsCanceling] = useState(false);
   
 
   // Función para obtener las citas del proveedor
@@ -55,6 +59,22 @@ export default function ProviderAppointmentsPage() {
   useEffect(() => {
     fetchAppointments();
   }, []); // Se ejecuta solo una vez al cargar el componente
+
+  const handleCancelAppointment = async () => {
+    if (!cancelModalState.appointment) return;
+    
+    setIsCanceling(true);
+    try {
+      await axios.put(`/api/appointments/${cancelModalState.appointment.id}/cancel`, {}, { withCredentials: true });
+      toast.success("Cita cancelada exitosamente.");
+      setCancelModalState({ isOpen: false, appointment: null });
+      fetchAppointments(); // Recarga la lista de citas
+    } catch (error) {
+      toast.error("No se pudo cancelar la cita.");
+    } finally {
+      setIsCanceling(false);
+    }
+  };
 
   // Nueva función que abre el modal con la cita seleccionada
   const handleOpenCompletionModal = (appointment: Appointment) => {
@@ -290,11 +310,24 @@ export default function ProviderAppointmentsPage() {
                       <div className="flex flex-col sm:flex-row items-center gap-4">
                         {/* Badge de estado mejorado */}
                         <Badge className={`${getStatusBadgeStyle(appt.status)} px-4 py-2 font-semibold text-base`}>
+
                           <div className="flex items-center gap-2">
                             {getStatusIcon(appt.status)}
                             {getStatusText(appt.status)}
                           </div>
                         </Badge>
+                        {/* --- AÑADE ESTE BOTÓN --- */}
+  {appt.status === 'confirmed' && !isPast && (
+    <Button 
+      size="sm"
+      variant="destructive"
+      onClick={() => setCancelModalState({ isOpen: true, appointment: appt })}
+    >
+      <X className="w-4 h-4 mr-2" />
+      Cancelar
+    </Button>
+  )}
+  {/* --- FIN DEL BOTÓN --- */}
 
                         {/* Botón de completar con estilo premium */}
                         {appt.status === 'confirmed' && (
