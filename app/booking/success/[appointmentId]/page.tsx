@@ -1,27 +1,61 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react';
-import { notFound } from 'next/navigation';
-import { CheckCircle2, Calendar,  User, DollarSign } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cookies } from 'next/headers';
+"use client";
 
-// Lógica para obtener los datos en un Componente de Servidor
-async function getAppointment(id: string) {
-    try {
-        const token = (await cookies()).get('token')?.value;
-        const res = await fetch(`${process.env.API_URL}/api/appointments/${id}`, {
-            headers: { 'Cookie': `token=${token}` }
-        });
-        if (!res.ok) return null;
-        return res.json();
-    } catch (error) {
-        return null;
-    }
+import React, { useState, useEffect } from 'react';
+import { useParams, notFound, useRouter } from 'next/navigation';
+import axios from 'axios';
+import { CheckCircle2, Calendar, User, DollarSign, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+// Interfaz para el objeto de la cita que esperamos de la API
+interface AppointmentDetails {
+  id: number;
+  startTime: string;
+  priceAtBooking: number;
+  provider: { name: string };
+  // Añade aquí más campos si tu endpoint los devuelve
 }
 
-export default async function BookingSuccessPage({ params }: { params: { appointmentId: string } }) {
-  const appointment = await getAppointment(params.appointmentId);
-  if (!appointment) notFound();
+export default function BookingSuccessPage() {
+  const params = useParams();
+  const router = useRouter();
+  const appointmentId = params.appointmentId as string;
+
+  // Estados para manejar la carga de datos en el cliente
+  const [appointment, setAppointment] = useState<AppointmentDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!appointmentId) return;
+
+    const getAppointmentDetails = async () => {
+      try {
+        const { data } = await axios.get<AppointmentDetails>(`/api/appointments/${appointmentId}`, {
+          withCredentials: true,
+        });
+        setAppointment(data);
+      } catch (error) {
+        console.error("Error fetching appointment details:", error);
+        // Si hay un error (ej. no autorizado, no encontrado), redirigimos
+        notFound();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getAppointmentDetails();
+  }, [appointmentId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!appointment) {
+    return notFound();
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -60,7 +94,7 @@ export default async function BookingSuccessPage({ params }: { params: { appoint
         
         <div className="mt-8 flex gap-4">
             <Button variant="outline" className="flex-1 border-gray-600">Añadir al Calendario</Button>
-            <Button className="flex-1 bg-purple-600 hover:bg-purple-700">Ir a Mis Citas</Button>
+            <Button onClick={() => router.push('/consumer/appointments')} className="flex-1 bg-purple-600 hover:bg-purple-700">Ir a Mis Citas</Button>
         </div>
       </div>
     </div>
