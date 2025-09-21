@@ -6,24 +6,18 @@ import {
   Palette, Save, Loader2, 
   Plus, Trash2, GripVertical, Users,
    Zap, Crown, CheckCircle2,
-  Video, FileText, Settings, Brush} from 'lucide-react';
+  Video, FileText, Settings, Brush,
+  Link} from 'lucide-react';
 import { useOnboardingStatus } from '@/hooks/useOnboardingStatus';
 import axios from 'axios';
+import { useSessionStore } from '@/stores/SessionStore'; // Importa el store de sesión
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { FileUpload } from '@/app/quhealthy/components/Fleupload';
+import { Service } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
+
 import { EnhancedMarketplacePreview } from '@/app/quhealthy/components/EnhancedMarketplacePreview';
 
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  duration: number;
-  price: number;
-  imageUrl?: string;
-  serviceType?: 'online' | 'in_person' | 'hybrid';
-}
 
 // Añade esto cerca de tus otros imports
 interface StaffMember {
@@ -39,6 +33,10 @@ interface StaffMember {
 export default function QuHealthyBrandEditor() {
   const router = useRouter();
   const { data: statusData, isLoading: pageLoading } = useOnboardingStatus();
+    const { user } = useSessionStore();
+      const hasPaidPlan = user?.planStatus === 'active';
+
+
   
   // Estado para manejar la configuración general de la tienda
   const [settings, setSettings] = useState({
@@ -510,37 +508,92 @@ export default function QuHealthyBrandEditor() {
                           </button>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">Nombre del Servicio</label>
-                            <input
-                              type="text"
-                              value={service.name}
-                              onChange={(e) => updateService(service.id, { name: e.target.value })}
-                              className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-400 mb-1">Duración (min)</label>
-                              <input
-                                type="number"
-                                value={service.duration}
-                                onChange={(e) => updateService(service.id, { duration: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-gray-400 mb-1">Precio ($)</label>
-                              <input
-                                type="number"
-                                value={service.price}
-                                onChange={(e) => updateService(service.id, { price: parseInt(e.target.value) })}
-                                className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {/* Nombre del Servicio */}
+  <div>
+    <label className="block text-xs font-medium text-gray-400 mb-1">Nombre del Servicio</label>
+    <input
+      type="text"
+      value={service.name}
+      onChange={(e) => updateService(service.id, { name: e.target.value })}
+      className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg"
+    />
+  </div>
+
+  {/* Duración y Precio */}
+  <div className="grid grid-cols-2 gap-2">
+    <div>
+      <label className="block text-xs font-medium text-gray-400 mb-1">Duración (min)</label>
+      <input
+        type="number"
+        value={service.duration}
+        onChange={(e) => updateService(service.id, { duration: parseInt(e.target.value) })}
+        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg"
+      />
+    </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-400 mb-1">Precio ($)</label>
+      <input
+        type="number"
+        value={service.price}
+        onChange={(e) => updateService(service.id, { price: parseInt(e.target.value) })}
+        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg"
+      />
+    </div>
+  </div>
+</div>
+
+{/* Descripción */}
+<div className="mt-4">
+  <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>
+  <textarea
+    value={service.description}
+    onChange={(e) => updateService(service.id, { description: e.target.value })}
+    rows={2}
+    className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg resize-none"
+  />
+</div>
+
+{/* --- INICIO DE LA NUEVA SECCIÓN --- */}
+<div className="mt-4 pt-4 border-t border-gray-600/50">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* Política de Cancelación */}
+    <div>
+      <label className="block text-xs font-medium text-gray-400 mb-1">Política de Cancelación</label>
+      <select
+        value={service.cancellationPolicy || 'moderate'}
+        onChange={(e) => updateService(service.id, { cancellationPolicy: e.target.value })}
+        disabled={!hasPaidPlan} // Deshabilitado si no tiene plan de pago
+        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <option value="flexible">Flexible - Reembolso total hasta 24h antes</option>
+        <option value="moderate">Moderada - Reembolso total hasta 72h antes</option>
+        <option value="strict">Estricta - Reembolso total hasta 7 días antes</option>
+      </select>
+    </div>
+    
+    {/* Condiciones Personalizadas */}
+    <div>
+        <label className="block text-xs font-medium text-gray-400 mb-1">Condiciones Personalizadas</label>
+        <input
+            type="text"
+            value={service.customConditions || ''}
+            onChange={(e) => updateService(service.id, { customConditions: e.target.value })}
+            disabled={!hasPaidPlan} // Deshabilitado si no tiene plan de pago
+            placeholder={hasPaidPlan ? "Ej: Llegar 10 min antes" : "Actualiza tu plan para añadir"}
+            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+    </div>
+  </div>
+
+  {!hasPaidPlan && (
+      <div className="mt-2 text-xs text-yellow-400 p-2 bg-yellow-500/10 rounded-lg">
+          ✨ Las políticas de cancelación personalizadas son una función de los planes de pago.
+          <Link href="/planes" className="font-bold underline ml-1">Ver planes</Link>.
+      </div>
+  )}
+</div>
+{/* --- FIN DE LA NUEVA SECCIÓN --- */}
                         
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>
