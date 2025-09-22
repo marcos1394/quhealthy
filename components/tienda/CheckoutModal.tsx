@@ -28,6 +28,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 }) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+    const [acceptedPolicy, setAcceptedPolicy] = useState(false); // <-- AÑADE ESTA LÍNEA
+
 
   useEffect(() => {
     if (isOpen && service && providerId) {
@@ -188,9 +190,26 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   transition={{ delay: 0.2 }}
                 >
                   <Elements stripe={stripePromise} options={{ clientSecret }}>
+                     {/* --- INICIO DE LA MODIFICACIÓN --- */}
+      <div className="mb-6 flex items-start space-x-3">
+        <input
+          id="accept-policy"
+          type="checkbox"
+          checked={acceptedPolicy}
+          onChange={(e) => setAcceptedPolicy(e.target.checked)}
+          className="h-5 w-5 rounded border-gray-500 bg-gray-600 text-purple-500 focus:ring-purple-600"
+        />
+        <div className="text-sm">
+          <label htmlFor="accept-policy" className="font-medium text-gray-300">
+            Acepto la política de cancelación del servicio.
+          </label>
+        </div>
+      </div>
                     <CheckoutForm 
                       clientSecret={clientSecret} 
                       onPaymentSuccess={handlePaymentSuccess} 
+                      isPolicyAccepted={acceptedPolicy} 
+
                     />
                   </Elements>
                 </motion.div>

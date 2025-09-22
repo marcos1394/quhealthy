@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // --- Tipos Primitivos para el Marketplace ---
+export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
 
 // Representa una etiqueta o especialidad del proveedor
 export interface Tag {
@@ -38,6 +40,7 @@ export interface ProviderData {
 
 // Representa un servicio individual del catálogo
 export interface Service {
+  customConditions: string;
   id: number;
   name: string;
   description: string;
@@ -45,6 +48,9 @@ export interface Service {
   duration: number; // en minutos
   imageUrl?: string | null;
   category: string;
+  cancellationPolicy: CancellationPolicy;
+  rules?: any[];
+
 }
 
 // Representa un miembro del equipo (función premium)

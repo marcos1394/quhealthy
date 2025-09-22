@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, DollarSign, Calendar, Filter, Grid, List, Sparkles, Star, ArrowRight } from 'lucide-react';
+import { Clock, DollarSign, Calendar, Filter, Grid, List, Sparkles, Star, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Service } from '@/app/quhealthy/types/marketplace';
 
 
@@ -17,6 +17,14 @@ interface ServiceListProps {
 export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick }) => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [filterCategory, setFilterCategory] = useState('all');
+  const getPolicyText = (policy: 'flexible' | 'moderate' | 'strict') => {
+  switch (policy) {
+    case 'flexible': return 'Cancelación Flexible';
+    case 'moderate': return 'Cancelación Moderada';
+    case 'strict': return 'Cancelación Estricta';
+    default: return 'Política Estándar';
+  }
+};
   
   // Extraer categorías únicas
   const categories = ['all', 'facial', 'corporal', 'masaje', 'especialidad'];
@@ -187,6 +195,12 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick 
                         }
                       </p>
                     )}
+                    <div className="mt-4 pt-4 border-t border-gray-700/50">
+    <div className="flex items-center gap-2 text-sm text-gray-400">
+      <ShieldCheck className="w-4 h-4 text-green-400" />
+      <span>{getPolicyText(service.cancellationPolicy)}</span>
+    </div>
+  </div>
                     
                    <Button 
                   className="w-full group bg-purple-600 hover:bg-purple-700"
@@ -247,6 +261,10 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick 
                       </div>
                       <span className="text-xs text-slate-400">por sesión</span>
                     </div>
+                     <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+      <ShieldCheck className="w-4 h-4 text-green-400" />
+      <span>{getPolicyText(service.cancellationPolicy)}</span>
+    </div>
                     
                     <Button 
                       size="lg"

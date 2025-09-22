@@ -14,7 +14,9 @@ import { useSessionStore } from '@/stores/SessionStore'; // Importa el store de 
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { FileUpload } from '@/app/quhealthy/components/Fleupload';
-import { Service } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
+import { Service, CancellationPolicy } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
+import { RuleBuilder } from '@/app/quhealthy/components/dashboard/RuleBuilder'; // <-- AÑADE ESTA LÍNEA
+
 
 import { EnhancedMarketplacePreview } from '@/app/quhealthy/components/EnhancedMarketplacePreview';
 
@@ -135,30 +137,30 @@ export default function QuHealthyBrandEditor() {
     }
   };
 
-  const updateService = async (id: number, updates: object) => {
-    // Guardamos el estado original en caso de que la API falle
-    const originalServices = [...services];
-    
-    // 1. Actualización optimista: Actualizamos la UI al instante
-    setServices(prevServices => 
-      prevServices.map(service => 
-        service.id === id ? { ...service, ...updates } : service
-      )
-    );
-    
-    try {
-      // 2. Llamada a la API en segundo plano
-      await axios.put(`/api/marketplace/services/${id}`, updates, { withCredentials: true });
-      // Podemos usar un toast sutil para confirmar el guardado en segundo plano
-      // toast.info("Cambio guardado.", { autoClose: 1000 });
+const updateService = async (id: number, updates: Partial<Service>) => {
+  // Guardamos el estado original en caso de que la API falle
+  const originalServices = [...services];
+  
+  // 1. Actualización optimista: Actualizamos la UI al instante
+  setServices(prevServices => 
+    prevServices.map(service => 
+      service.id === id ? { ...service, ...updates } : service
+    )
+  );
+  
+  try {
+    // 2. Llamada a la API en segundo plano
+    await axios.put(`/api/marketplace/services/${id}`, updates, { withCredentials: true });
+    // Opcional: un toast sutil para confirmar el guardado
+    // toast.info("Cambio guardado.", { autoClose: 1000 });
 
-    } catch (error) {
-      console.error('Error al actualizar el servicio:', error);
-      toast.error("No se pudo guardar el cambio. Revirtiendo.");
-      // 3. Reversión: Si la API falla, restauramos el estado original de la UI
-      setServices(originalServices);
-    }
-  };    
+  } catch (error) {
+    console.error('Error al actualizar el servicio:', error);
+    toast.error("No se pudo guardar el cambio. Revirtiendo.");
+    // 3. Reversión: Si la API falla, restauramos el estado original de la UI
+    setServices(originalServices);
+  }
+};
 
   const removeService = async (id: number) => {
     const originalServices = [...services];
@@ -554,46 +556,39 @@ export default function QuHealthyBrandEditor() {
   />
 </div>
 
-{/* --- INICIO DE LA NUEVA SECCIÓN --- */}
+{/* --- INICIO DE LA SECCIÓN DE REGLAS --- */}
 <div className="mt-4 pt-4 border-t border-gray-600/50">
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {/* Política de Cancelación */}
+  <label className="block text-sm font-medium text-gray-300 mb-2">
+    Políticas de Cancelación
+  </label>
+  
+  {/* Feature Gating: Verificamos si el proveedor tiene un plan de pago */}
+  {hasPaidPlan ? (
+    // Si tiene plan de pago, mostramos el constructor de reglas visual
     <div>
-      <label className="block text-xs font-medium text-gray-400 mb-1">Política de Cancelación</label>
+      <p className="text-xs text-gray-400 mb-3">Crea reglas personalizadas para tus cancelaciones y depósitos.</p>
+      <RuleBuilder 
+        initialRules={service.rules || []} 
+        onChange={(newRules) => updateService(service.id, { rules: newRules })}
+      />
+    </div>
+  ) : (
+    // Si NO tiene plan de pago, mostramos el selector simple y deshabilitado
+    <div>
       <select
         value={service.cancellationPolicy || 'moderate'}
-        onChange={(e) => updateService(service.id, { cancellationPolicy: e.target.value })}
-        disabled={!hasPaidPlan} // Deshabilitado si no tiene plan de pago
-        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        onChange={(e) => updateService(service.id, {  cancellationPolicy: e.target.value as CancellationPolicy  })}
+        disabled={true}
+        className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg opacity-50 cursor-not-allowed"
       >
-        <option value="flexible">Flexible - Reembolso total hasta 24h antes</option>
         <option value="moderate">Moderada - Reembolso total hasta 72h antes</option>
-        <option value="strict">Estricta - Reembolso total hasta 7 días antes</option>
       </select>
-    </div>
-    
-    {/* Condiciones Personalizadas */}
-    <div>
-        <label className="block text-xs font-medium text-gray-400 mb-1">Condiciones Personalizadas</label>
-        <input
-            type="text"
-            value={service.customConditions || ''}
-            onChange={(e) => updateService(service.id, { customConditions: e.target.value })}
-            disabled={!hasPaidPlan} // Deshabilitado si no tiene plan de pago
-            placeholder={hasPaidPlan ? "Ej: Llegar 10 min antes" : "Actualiza tu plan para añadir"}
-            className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-    </div>
-  </div>
-
-  {!hasPaidPlan && (
-      <div className="mt-2 text-xs text-yellow-400 p-2 bg-yellow-500/10 rounded-lg">
-          ✨ Las políticas de cancelación personalizadas son una función de los planes de pago.
-          <Link href="/planes" className="font-bold underline ml-1">Ver planes</Link>.
+       <div className="mt-2 text-xs text-yellow-400 p-2 bg-yellow-500/10 rounded-lg">
+          ✨ Para crear políticas personalizadas (Flexible, Estricta) y reglas avanzadas, <Link href="/planes" className="font-bold underline hover:text-yellow-300">actualiza tu plan</Link>.
       </div>
+    </div>
   )}
 </div>
-{/* --- FIN DE LA NUEVA SECCIÓN --- */}
                         
                         <div className="mt-4">
                           <label className="block text-xs font-medium text-gray-400 mb-1">Descripción</label>

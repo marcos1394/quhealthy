@@ -10,9 +10,11 @@ import { toast } from 'react-toastify';
 interface CheckoutFormProps {
   clientSecret: string;
   onPaymentSuccess: (paymentIntentId: string) => void;
+    isPolicyAccepted: boolean; // <-- Nueva prop
+
 }
 
-export const CheckoutForm: React.FC<CheckoutFormProps> = ({ clientSecret, onPaymentSuccess }) => {
+export const CheckoutForm: React.FC<CheckoutFormProps> = ({ clientSecret, onPaymentSuccess, isPolicyAccepted  }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -156,7 +158,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ clientSecret, onPaym
       <div className="space-y-4">
         <Button 
           type="submit" 
-          disabled={!stripe || isLoading || !cardComplete} 
+      disabled={!stripe || isLoading || !isPolicyAccepted}
           className="group w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 hover:from-purple-500 hover:via-purple-400 hover:to-blue-500 text-white shadow-lg hover:shadow-2xl hover:shadow-purple-500/40 transition-all duration-300 border-0 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
