@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Store, Calendar, Users, BarChart3, Settings,
   HeartPulse, ChevronLeft, LogOut, Sparkles,
-  ClipboardList
+  ClipboardList,
+  MessageSquare
 } from 'lucide-react';
 import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el nuevo store unificado
 import { toast } from 'react-toastify';
@@ -17,13 +18,14 @@ import { Button } from './button';
 
 // Configuración de los elementos de navegación
 const navItems = [
-  { name: 'Dashboard', href: '/quhealthy/dashboard', icon: LayoutDashboard },
-  { name: 'Mi Tienda', href: '/quhealthy/onboarding/marketplace', icon: Store },
-  { name: 'Agenda', href: '/quhealthy/dashboard/calendar', icon: Calendar },
-    { name: 'Mis Citas', href: '/quhealthy/dashboard/appointments', icon: ClipboardList },
-  { name: 'Pacientes', href: '/quhealthy/patients', icon: Users },
-  { name: 'Reportes', href: '/quhealthy/reports', icon: BarChart3 },
-  { name: 'Configuración', href: '/quhealthy/settings', icon: Settings },
+   { name: 'Dashboard', href: '/provider/dashboard', icon: LayoutDashboard },
+  { name: 'Mi Tienda', href: '/provider/onboarding/marketplace', icon: Store },
+  { name: 'Agenda', href: '/provider/dashboard/calendar', icon: Calendar },
+  { name: 'Mis Citas', href: '/provider/dashboard/appointments', icon: ClipboardList },
+  { name: 'Reseñas', href: '/provider/dashboard/reviews', icon: MessageSquare }, // <-- AÑADE ESTA LÍNEA
+  { name: 'Pacientes', href: '/provider/patients', icon: Users },
+  { name: 'Reportes', href: '/provider/reports', icon: BarChart3 },
+  { name: 'Configuración', href: '/provider/settings', icon: Settings },
 ];
 
 // Animaciones (sin cambios)
