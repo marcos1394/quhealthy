@@ -7,7 +7,12 @@ import { Star, MessageCircle, ChevronDown, Quote, Sparkles, ThumbsUp, Calendar }
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ReviewItem } from '@/app/quhealthy/types/marketplace';
+import { formatInTimeZone } from 'date-fns-tz';
+import { es } from 'date-fns/locale';
 
+
+
+// 2. Definimos las props usando la interfaz importada
 interface ReviewsSectionProps {
   reviews: {
     average: number;
@@ -171,6 +176,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews }) => {
                         <h4 className="font-bold text-lg text-white group-hover:text-purple-300 transition-colors">
                           {review.author.name}
                         </h4>
+                          <p className="text-sm text-slate-400">{formatInTimeZone(new Date(review.createdAt), 'UTC', "d 'de' MMMM, yyyy", { locale: es })}</p>
                         <div className="flex items-center gap-3 text-sm text-slate-400">
                           <Calendar className="w-4 h-4" />
                           <span>
