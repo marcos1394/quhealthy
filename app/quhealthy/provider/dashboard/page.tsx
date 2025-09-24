@@ -1,19 +1,32 @@
-"use client";
+"use-client";
 
 import React from 'react';
 import { useDashboardSummary } from '@/hooks/useDashboardSummary';
-import { Loader2, MessageSquare, CalendarDays, BarChart2, AlertCircle } from 'lucide-react';
+import { useDashboardAnalytics } from '@/hooks/useDasboardAnalytics';
 import { motion } from 'framer-motion';
+import { Loader2, AlertCircle, BarChart2, CheckCircle, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Importamos los componentes "widget" desde sus archivos
+// Importamos los componentes "widget"
 import { SummaryCard } from '@/app/quhealthy/components/dashboard/SummaryCard';
 import { UpcomingAppointments } from '@/app/quhealthy/components/dashboard/UpcomingAppointments';
 import { VerificationStatus } from '@/app/quhealthy/components/dashboard/VerificationStatus';
 
 export default function DashboardPage() {
-  const { data, isLoading, error, refetch } = useDashboardSummary();
+  // Usamos ambos hooks para obtener toda la información
+  const { data: summaryData, isLoading: summaryLoading, error: summaryError, refetch: refetchSummary } = useDashboardSummary();
+  const { data: analyticsData, isLoading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useDashboardAnalytics();
+  
+  // El estado de carga y error ahora considera ambas llamadas
+  const isLoading = summaryLoading || analyticsLoading;
+  const error = summaryError || analyticsError;
 
+  const handleRefetch = () => {
+    refetchSummary();
+    refetchAnalytics();
+  };
+
+  // --- Renderizado de Carga ---
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex justify-center items-center">
@@ -32,7 +45,8 @@ export default function DashboardPage() {
     );
   }
 
-  if (error || !data) {
+  // --- Renderizado de Error ---
+  if (error || !summaryData || !analyticsData) {
     return (
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -45,15 +59,17 @@ export default function DashboardPage() {
         <div>
           <h3 className="text-xl font-semibold text-white mb-2">Error al cargar el dashboard</h3>
           <p className="text-slate-400">{error}</p>
-          <Button onClick={() => refetch()} className="mt-4">Reintentar</Button>
+          <Button onClick={handleRefetch} className="mt-4">Reintentar</Button>
         </div>
       </motion.div>
     );
   }
 
-  // Obtenemos los datos directamente del hook
-  const { summaryCards, upcomingAppointments, verificationStatus } = data;
+  // Obtenemos los datos de ambos hooks
+  const { upcomingAppointments, verificationStatus } = summaryData;
+  const { monthlyRevenue, completedAppointments, newClients } = analyticsData;
 
+  // --- Renderizado Principal ---
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -66,38 +82,36 @@ export default function DashboardPage() {
           <p className="text-slate-400">Bienvenido de vuelta, aquí tienes un resumen de tu actividad.</p>
       </div>
 
-      {/* Pasamos los datos directamente al componente. Ya no hay conflicto de tipos. */}
       <VerificationStatus status={verificationStatus} />
 
+      {/* Las tarjetas de resumen ahora muestran las nuevas analíticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <SummaryCard 
-          title="Citas para Hoy" 
-          value={summaryCards.todayAppointments.toString()} 
-          icon={CalendarDays} 
-          color="text-blue-400"
-          bgColor="bg-blue-500/10"
-          borderColor="border-blue-500/20"
-        hoverColor="bg-blue-500" // <-- Nueva prop
-        />
-        <SummaryCard 
-          title="Mensajes No Leídos" 
-          value={summaryCards.unreadMessages.toString()} 
-          icon={MessageSquare} 
-          color="text-pink-400"
-          bgColor="bg-pink-500/10"
-          borderColor="border-pink-500/20"
-            hoverColor="bg-pink-500" // <-- Nueva prop
-
-        />
-        <SummaryCard 
           title="Ingresos del Mes" 
-          value={summaryCards.monthlyRevenue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} 
+          value={monthlyRevenue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} 
           icon={BarChart2}
           color="text-green-400"
           bgColor="bg-green-500/10"
           borderColor="border-green-500/20"
-            hoverColor="bg-green-500" // <-- Nueva prop
-
+          hoverColor="bg-green-500"
+        />
+        <SummaryCard 
+          title="Citas Completadas (Mes)" 
+          value={completedAppointments.toString()} 
+          icon={CheckCircle} 
+          color="text-blue-400"
+          bgColor="bg-blue-500/10"
+          borderColor="border-blue-500/20"
+          hoverColor="bg-blue-500"
+        />
+        <SummaryCard 
+          title="Nuevos Pacientes (Mes)" 
+          value={newClients.toString()} 
+          icon={Users} 
+          color="text-pink-400"
+          bgColor="bg-pink-500/10"
+          borderColor="border-pink-500/20"
+          hoverColor="bg-pink-500"
         />
       </div>
 
