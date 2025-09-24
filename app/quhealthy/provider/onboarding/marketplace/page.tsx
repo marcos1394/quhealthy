@@ -14,11 +14,12 @@ import { useSessionStore } from '@/stores/SessionStore'; // Importa el store de 
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { FileUpload } from '@/app/quhealthy/components/Fleupload';
-import { Service, CancellationPolicy } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
+import { Service, CancellationPolicy, ServicePackage  } from '@/app/quhealthy/types/marketplace'; // Importa tus tipos
 import { RuleBuilder } from '@/app/quhealthy/components/dashboard/RuleBuilder'; // <-- AÑADE ESTA LÍNEA
-
+import { PackageEditorModal } from '@/app/quhealthy/components/dashboard/PackageEditorModal'; // <-- AÑADE ESTA LÍNEA
 
 import { EnhancedMarketplacePreview } from '@/app/quhealthy/components/EnhancedMarketplacePreview';
+import Button from '@/components/Button';
 
 
 // Añade esto cerca de tus otros imports
@@ -37,9 +38,9 @@ export default function QuHealthyBrandEditor() {
   const { data: statusData, isLoading: pageLoading } = useOnboardingStatus();
     const { user } = useSessionStore();
       const hasPaidPlan = user?.planStatus === 'active';
-
-
-  
+const [packages, setPackages] = useState<ServicePackage[]>([]);
+const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+const [editingPackage, setEditingPackage] = useState<ServicePackage | null>(null);
   // Estado para manejar la configuración general de la tienda
   const [settings, setSettings] = useState({
     storeName: '',
@@ -65,6 +66,35 @@ export default function QuHealthyBrandEditor() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [viewMode, setViewMode] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    // Carga los paquetes existentes cuando el componente se monta
+    const fetchPackages = async () => {
+        const { data } = await axios.get('/api/packages', { withCredentials: true });
+        setPackages(data);
+    };
+    fetchPackages();
+}, []);
+
+const handleSavePackage = async (packageData: Partial<ServicePackage>) => {
+    try {
+        if (editingPackage) {
+            // Actualizar
+            await axios.put(`/api/packages/${editingPackage.id}`, packageData, { withCredentials: true });
+            toast.success("Paquete actualizado.");
+        } else {
+            // Crear
+            await axios.post('/api/packages', packageData, { withCredentials: true });
+            toast.success("Paquete creado.");
+        }
+        setIsPackageModalOpen(false);
+        // Recarga la lista de paquetes
+        const { data } = await axios.get('/api/packages', { withCredentials: true });
+        setPackages(data);
+    } catch (error) {
+        toast.error("No se pudo guardar el paquete.");
+    }
+};
 
   useEffect(() => {
     // --- INICIO DE LA CORRECCIÓN ---
@@ -606,6 +636,30 @@ const updateService = async (id: number, updates: Partial<Service>) => {
               </div>
             </motion.div>
 
+            {/* Sección de Paquetes */}
+<motion.div className="bg-gray-800/80 rounded-2xl border border-gray-700">
+    <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+        <h2 className="text-xl font-bold">Paquetes de Servicios</h2>
+        <Button onClick={() => { setEditingPackage(null); setIsPackageModalOpen(true); }}>
+            <Plus className="w-4 h-4 mr-2"/>Crear Paquete
+        </Button>
+    </div>
+    <div className="p-6">
+        {packages.length > 0 ? (
+            <ul className="space-y-2">
+                {packages.map(pkg => (
+                    <li key={pkg.id} className="p-2 bg-gray-700/50 rounded flex justify-between">
+                        <span>{pkg.name}</span>
+                        <Button variant="primary" size="sm" onClick={() => { setEditingPackage(pkg); setIsPackageModalOpen(true); }}>Editar</Button>
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-gray-500 text-center">Aún no has creado ningún paquete.</p>
+        )}
+    </div>
+</motion.div>
+
             {/* Equipo - Business Plan */}
             <motion.div 
               className="bg-gradient-to-br from-gray-800 to-gray-800/80 rounded-2xl border border-gray-700 overflow-hidden shadow-xl"
@@ -748,6 +802,15 @@ const updateService = async (id: number, updates: Partial<Service>) => {
               </div>
             </motion.div>
           </div>
+
+          <PackageEditorModal
+    isOpen={isPackageModalOpen}
+    onClose={() => setIsPackageModalOpen(false)}
+    onSave={handleSavePackage}
+    isLoading={loading} // Asume que tienes un estado 'loading'
+    availableServices={services} // Pasa los servicios que ya cargas
+    existingPackage={editingPackage}
+/>
 
           {/* Vista Previa */}
           <div className="lg:col-span-2">

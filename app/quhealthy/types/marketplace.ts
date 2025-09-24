@@ -22,6 +22,22 @@ export interface ReviewItem {
   author: ReviewAuthor;
 }
 
+// Describe un servicio dentro de un paquete
+export interface ServiceInPackage {
+  serviceId: number;
+  quantity: number;
+}
+
+// Describe el objeto de paquete completo
+export interface ServicePackage {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  servicesIncluded: ServiceInPackage[];
+  isActive: boolean;
+}
+
 export interface Marketplace {
     storeName: string;
     storeSlug: string;
