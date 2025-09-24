@@ -10,6 +10,7 @@ import axios from 'axios';
 import {  X, Calendar, Clock, DollarSign, Shield, Sparkles, CreditCard } from 'lucide-react';
 import { Service } from '@/app/quhealthy/types/marketplace';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -27,65 +28,74 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   selectedSlot 
 }) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const router = useRouter();
     const [acceptedPolicy, setAcceptedPolicy] = useState(false); // <-- AÑADE ESTA LÍNEA
 
 
   useEffect(() => {
-    if (isOpen && service && providerId) {
-      setLoading(true);
+    if (isOpen && service && providerId && selectedSlot) {
+      setIsLoading(true);
       setClientSecret(null);
+      setBookingConfirmed(false);
 
-      const payload = {
+      // 1. Llamamos a nuestro endpoint "inteligente" SIN un paymentIntentId
+      // para que el backend decida si se necesita un pago o se usa un crédito.
+      axios.post('/api/appointments/book', {
+        providerId,
         serviceId: service.id,
-        providerId: providerId,
-      };
-      
-      console.log("Enviando a /create-intent:", payload);
-
-      axios.post('/api/payments/create-intent', payload, { withCredentials: true })
-        .then(res => {
-          setClientSecret(res.data.clientSecret);
-        })
-        .catch(err => {
-          console.error("Error al crear la intención de pago:", err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+        startTime: selectedSlot.toISOString(),
+      }, { withCredentials: true })
+      .then(res => {
+        const { requiresPayment, clientSecret: secret, appointment } = res.data;
+        
+        if (requiresPayment) {
+          // 2. El backend nos pide un pago, así que guardamos el clientSecret para Stripe
+          setClientSecret(secret);
+        } else {
+          // 3. El backend confirma que la cita se creó con un crédito.
+          toast.success("¡Cita confirmada con tu crédito!");
+          setBookingConfirmed(true);
+          // Cerramos y redirigimos después de un momento
+          setTimeout(() => {
+            onClose();
+            router.push(`/booking/success/${appointment.appointment.id}`);
+          }, 2000);
+        }
+      })
+      .catch(err => {
+        toast.error(err.response?.data?.message || "No se pudo iniciar la reserva.");
+        onClose();
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
     }
-  }, [isOpen, service, providerId]);
+  }, [isOpen, service, providerId, selectedSlot, onClose, router]);
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
-  try {
-    // --- INICIO DE LA CORRECCIÓN ---
-    // 1. Capturamos la respuesta de la API, que contiene la nueva cita
-    const response = await axios.post('/api/appointments/book', {
-      providerId,
-      serviceId: service?.id,
-      startTime: selectedSlot?.toISOString(),
-      paymentIntentId,
-    }, { withCredentials: true });
+    try {
+      // 4. Si el pago fue exitoso, llamamos DE NUEVO al endpoint, 
+      // pero ahora CON el ID de pago.
+      const response = await axios.post('/api/appointments/book', {
+        providerId,
+        serviceId: service?.id,
+        startTime: selectedSlot?.toISOString(),
+        paymentIntentId, // <-- Ahora enviamos el ID del pago
+      }, { withCredentials: true });
 
-    // 2. Extraemos la cita y su ID de la respuesta
-    const newAppointment = response.data;
-
-    if (newAppointment && newAppointment.id) {
-      // 3. Construimos la URL dinámica y redirigimos
-      const successUrl = `/booking/success/${newAppointment.id}`;
-      // Usamos window.location.href para una redirección completa
-      window.location.href = successUrl;
-    } else {
-      // Si por alguna razón la API no devuelve la cita, redirigimos a una página genérica
-      console.error("La API no devolvió una cita válida tras el pago.");
-      window.location.href = '/consumer/appointments'; // A la lista de citas como fallback
+      const newAppointment = response.data.appointment;
+      if (newAppointment && newAppointment.id) {
+        // Redirigimos a la página de éxito
+        window.location.href = `/booking/success/${newAppointment.id}`;
+      } else {
+        throw new Error("La API no devolvió una cita válida tras el pago.");
+      }
+    } catch (error) {
+      toast.error("El pago se realizó, pero no se pudo agendar tu cita. Contacta a soporte.");
     }
-    // --- FIN DE LA CORRECCIÓN ---
-
-  } catch (error) {
-    toast.error("El pago se realizó, pero no se pudo agendar tu cita. Contacta a soporte.");
-  }
-};
+  };
 
   if (!isOpen) return null;
 
@@ -132,7 +142,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
           {/* Content */}
           <div className="p-8">
-            {loading || !clientSecret ? (
+            {isLoading || !clientSecret ? (
               <div className="text-center py-12 space-y-6">
                 <div className="relative mx-auto w-16 h-16">
                   <div className="w-16 h-16 border-4 border-purple-200/20 border-t-purple-500 rounded-full animate-spin"></div>
@@ -209,7 +219,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       clientSecret={clientSecret} 
                       onPaymentSuccess={handlePaymentSuccess} 
                       isPolicyAccepted={acceptedPolicy} 
-
                     />
                   </Elements>
                 </motion.div>
