@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package, Check, ArrowRight } from 'lucide-react';
 import { ServicePackage, Service } from '@/app/quhealthy/types/marketplace';
@@ -80,6 +80,6 @@ export const PackageList: React.FC<PackageListProps> = ({ packages, allServices,
           </Card>
         </motion.div>
       ))}
-    </section>
+    </motion.section>
   );
 };

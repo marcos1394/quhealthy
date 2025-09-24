@@ -13,6 +13,10 @@ import { AvailabilityCalendar } from '@/components/tienda/AvailabilityCalendar';
 import { ProviderProfileData, Service } from '@/app/quhealthy/types/marketplace';
 import { Loader2, Sparkles } from 'lucide-react';
 import { CheckoutModal } from '@/components/tienda/CheckoutModal'; // <-- Importa el modal
+import { PackageList } from '@/components/tienda/PackageList'; // <-- Importa el modal
+import { ServicePackage } from '@/app/quhealthy/types/marketplace'; // <-- Importa el tipo de paquete
+import { PackageCheckoutModal } from '@/components/tienda/PackageCheckoutModal';
+
 
 
 
@@ -25,6 +29,10 @@ export default function ProviderPublicPage() {
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'services' | 'packages'>('services');
+      const [selectedPackage, setSelectedPackage] = useState<ServicePackage | null>(null);
+  const [isPackageCheckoutOpen, setIsPackageCheckoutOpen] = useState(false);
+
 
 
   useEffect(() => {
@@ -67,6 +75,11 @@ export default function ProviderPublicPage() {
     setSelectedSlot(slot);
     // Aquí es donde abriremos el modal de checkout
     setIsCheckoutOpen(true);
+  };
+
+   const handlePackagePurchase = (pkg: ServicePackage) => {
+    setSelectedPackage(pkg);
+    setIsPackageCheckoutOpen(true);
   };
 
 
@@ -131,67 +144,107 @@ export default function ProviderPublicPage() {
         <ProviderHero profile={profileData} />
         
         <div className="container mx-auto px-6 py-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-              {/* Columna Principal */}
-              <div className="lg:col-span-8">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="space-y-20"
-                >
-                   <ServiceList services={profileData.services} onBookClick={handleBookingInitiation} />
-
-                  <StaffSection staff={profileData.staff} />
-                  <ReviewsSection reviews={profileData.reviews} />
-                </motion.div>
-              </div>
-              
-              {/* Enhanced Sidebar */}
-              <aside className="lg:col-span-4 mt-20 lg:mt-0">
-  <motion.div
-    initial={{ opacity: 0, x: 30 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.8, delay: 0.4 }}
-    className="sticky top-24"
-    // Le damos un ID al contenedor para el scroll
-    id="availability-calendar"
-  >
-    {/* Mensaje inicial si no se ha seleccionado servicio */}
-    {!selectedService && (
-      <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 text-center">
-        <h3 className="text-xl font-bold text-white mb-4">Selecciona un servicio</h3>
-        <p className="text-gray-400">Elige un servicio de la lista para ver los horarios disponibles.</p>
-      </div>
-    )}
-
-    {/* El calendario solo se muestra si se ha seleccionado un servicio */}
-    <AnimatePresence>
-      {selectedService && (
+  <div className="max-w-7xl mx-auto">
+    <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+      
+      {/* Columna Principal */}
+      <div className="lg:col-span-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <AvailabilityCalendar 
-            providerId={profileData.id} 
-            onSlotSelect={handleSlotSelection}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </motion.div>
-</aside>
-            </div>
+          {/* --- INICIO DE LA INTEGRACIÓN --- */}
+          
+          {/* Pestañas de Navegación */}
+          <div className="flex border-b border-gray-700 mb-8">
+            <button 
+              onClick={() => setActiveTab('services')} 
+              className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'services' ? 'border-b-2 border-purple-400 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Servicios
+            </button>
+            <button 
+              onClick={() => setActiveTab('packages')} 
+              className={`px-6 py-3 font-semibold transition-colors ${activeTab === 'packages' ? 'border-b-2 border-purple-400 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Paquetes
+            </button>
           </div>
-        </div>
+
+          {/* Renderizado Condicional del Contenido */}
+          <div className="space-y-20">
+            {activeTab === 'services' ? (
+              <ServiceList 
+                services={profileData.services} 
+                onBookClick={handleBookingInitiation} 
+              />
+            ) : (
+              <PackageList 
+                packages={profileData.packages} 
+                allServices={profileData.services} 
+                onPurchaseClick={handlePackagePurchase} 
+              />
+            )}
+            
+            <StaffSection staff={profileData.staff} />
+            <ReviewsSection reviews={profileData.reviews} />
+          </div>
+
+          {/* --- FIN DE LA INTEGRACIÓN --- */}
+        </motion.div>
+      </div>
+      
+      {/* Sidebar */}
+      <aside className="lg:col-span-4 mt-20 lg:mt-0">
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="sticky top-24"
+          id="availability-calendar"
+        >
+          {/* Mensaje inicial si no se ha seleccionado servicio */}
+          {!selectedService && (
+            <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 text-center">
+              <h3 className="text-xl font-bold text-white mb-4">Selecciona un servicio</h3>
+              <p className="text-gray-400">Elige un servicio de la lista para ver los horarios disponibles.</p>
+            </div>
+          )}
+
+          {/* El calendario solo se muestra si se ha seleccionado un servicio */}
+          <AnimatePresence>
+            {selectedService && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <AvailabilityCalendar 
+                  providerId={profileData.id} 
+                  onSlotSelect={handleSlotSelection}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </aside>
+
+    </div>
+  </div>
+</div>
           <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         service={selectedService}
         providerId={profileData.id}
         selectedSlot={selectedSlot}
+      />
+      <PackageCheckoutModal
+        isOpen={isPackageCheckoutOpen}
+        onClose={() => setIsPackageCheckoutOpen(false)}
+        pkg={selectedPackage}
+        providerId={profileData.id}
       />
         {/* Enhanced footer section */}
         <div className="border-t border-slate-800/50">

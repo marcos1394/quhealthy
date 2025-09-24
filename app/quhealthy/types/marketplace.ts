@@ -103,4 +103,6 @@ export interface ProviderProfileData {
     items: ReviewItem[];
   };
   tags: Tag[];
+    packages: ServicePackage[]; // <-- AÑADE ESTA LÍNEA
+
 }
