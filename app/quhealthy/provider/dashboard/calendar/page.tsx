@@ -1,16 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar as CalendarIcon, Clock, Plus, Loader2, Settings, Sparkles } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, Loader2, Settings, Sparkles, Link as LinkIcon, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CalendarComponent } from '@/app/quhealthy/components/calendar/CalendarComponent';
 import { OperatingHoursModal } from '@/app/quhealthy/components/calendar/OperatingHoursModal';
 import { TimeBlockModal } from '@/app/quhealthy/components/calendar/TimeBlockModal';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CalendarEvent, OperatingHour } from '@/app/quhealthy/types/calendar';
+import { useSessionStore } from '@/stores/SessionStore'; // <-- 1. Importa el store de sesión
+import Image from 'next/image';
+
 
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -18,6 +23,9 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const { user, fetchSession } = useSessionStore(); // <-- 3. Obtén el usuario y la función de recarga
+const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Función para obtener todos los datos del calendario
   const fetchCalendarData = useCallback(async () => {
@@ -35,6 +43,31 @@ export default function CalendarPage() {
   useEffect(() => {
     fetchCalendarData();
   }, [fetchCalendarData]);
+
+  useEffect(() => {
+    const syncStatus = searchParams.get('sync');
+    if (syncStatus === 'success') {
+      toast.success("¡Google Calendar conectado exitosamente!");
+      fetchSession(); // Recargamos la sesión para actualizar el estado del botón
+      router.replace('/provider/dashboard/calendar'); // Limpiamos la URL
+    } else if (syncStatus === 'error') {
+      toast.error("No se pudo conectar con Google Calendar.");
+      router.replace('/provider/dashboard/calendar');
+    }
+  }, [searchParams, router, fetchSession]);
+
+   // Función para iniciar la conexión con Google
+  const handleGoogleConnect = async () => {
+    try {
+      const { data } = await axios.get('/api/google/calendar/auth', { withCredentials: true });
+      window.location.href = data.authUrl;
+    } catch (error) {
+      toast.error("No se pudo iniciar la conexión con Google.");
+    }
+  };
+
+  // Variable para saber si ya está conectado
+  const isGoogleConnected = !!(user as any)?.google_calendar_id;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/10 to-slate-900">
@@ -101,6 +134,38 @@ export default function CalendarPage() {
             </Button>
           </motion.div>
         </div>
+        {/* --- INICIO DE LA NUEVA SECCIÓN --- */}
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+        >
+          <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+            <h2 className="text-lg font-semibold text-white mb-3">Integraciones</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Image src="/google-calendar-icon.svg" alt="Google Calendar" className="w-8 h-8" />
+                <div>
+                  <p className="font-medium text-white">Google Calendar</p>
+                  <p className="text-sm text-gray-400">Sincroniza eventos para evitar dobles reservas.</p>
+                </div>
+              </div>
+              {isGoogleConnected ? (
+                <div className="flex items-center gap-2 text-green-400 font-semibold">
+                  <CheckCircle className="w-5 h-5"/>
+                  <span>Conectado</span>
+                </div>
+              ) : (
+                <Button onClick={handleGoogleConnect}>
+                  <LinkIcon className="w-4 h-4 mr-2"/>
+                  Conectar
+                </Button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+        {/* --- FIN DE LA NUEVA SECCIÓN --- */}
+
 
         {/* Enhanced calendar container */}
         <motion.div
