@@ -94,6 +94,7 @@
     "swr": "^2.3.6",
     "tailwind-merge": "^2.6.0",
     "three": "^0.171.0",
+    "twilio-video": "^2.32.1",
     "yup": "^1.6.1",
     "zustand": "^5.0.8"
   },

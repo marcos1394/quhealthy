@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, DollarSign, Calendar, Filter, Grid, List, Sparkles, Star, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Clock, DollarSign, Calendar, Filter, Grid, List, Sparkles, Star, ArrowRight, ShieldCheck, Video } from 'lucide-react';
 import { Service } from '@/app/quhealthy/types/marketplace';
 
 
@@ -186,6 +186,12 @@ export const ServiceList: React.FC<ServiceListProps> = ({ services, onBookClick 
                         <span className="font-medium">{service.duration} minutos</span>
                       </div>
                     </div>
+                      {service.serviceDeliveryType === 'video_call' && (
+    <div className="flex items-center gap-1 text-purple-300">
+      <Video className="w-4 h-4" />
+      <span>Videollamada</span>
+    </div>
+  )}
                     
                     {service.description && (
                       <p className="text-slate-400 text-sm mb-6 leading-relaxed min-h-[3rem]">

@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { useRouter } from 'next/navigation';
+
 
 // Definimos el tipo para una cita desde la perspectiva del consumidor
 interface Appointment {
@@ -28,6 +30,8 @@ export default function ConsumerAppointmentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [cancelModalState, setCancelModalState] = useState<{isOpen: boolean, appointment: Appointment | null}>({isOpen: false, appointment: null});
   const [isCanceling, setIsCanceling] = useState(false);
+    const router = useRouter();
+  
 
   // Función para obtener las citas del consumidor
   const fetchAppointments = useCallback(async () => {

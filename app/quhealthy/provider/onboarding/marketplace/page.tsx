@@ -585,6 +585,23 @@ const updateService = async (id: number, updates: Partial<Service>) => {
     className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg resize-none"
   />
 </div>
+<div className="mt-4">
+  <label className="block text-xs font-medium text-gray-400 mb-2">Modo de Entrega</label>
+  <div className="flex gap-2">
+    <Button
+    variant={service.serviceDeliveryType === 'in_person' ? 'secondary' : 'outline'}
+      onClick={() => updateService(service.id, { serviceDeliveryType: 'in_person' })}
+    >
+      Presencial
+    </Button>
+    <Button
+      variant={service.serviceDeliveryType === 'video_call' ? 'secondary' : 'outline'}
+      onClick={() => updateService(service.id, { serviceDeliveryType: 'video_call' })}
+    >
+      Videollamada
+    </Button>
+  </div>
+</div>
 
 {/* --- INICIO DE LA SECCIÓN DE REGLAS --- */}
 <div className="mt-4 pt-4 border-t border-gray-600/50">

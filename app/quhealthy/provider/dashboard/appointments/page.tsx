@@ -19,6 +19,9 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 import { CompletionModal } from '@/app/quhealthy/components/dashboard/CompletionModal';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal'; // <-- Importa el nuevo modal
+import { useRouter } from 'next/navigation';
+
+
 
 // Interfaz para una cita
 interface Appointment {
@@ -33,6 +36,8 @@ interface Appointment {
 export default function ProviderAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
   
   // --- INICIO DE LA CORRECCIÓN ---
   // Estados para controlar el modal de completar cita

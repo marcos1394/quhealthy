@@ -79,6 +79,8 @@ export interface Service {
   category: string;
   cancellationPolicy: CancellationPolicy;
   rules?: any[];
+  serviceDeliveryType: 'in_person' | 'video_call'; // <-- AÑADE ESTA LÍNEA
+
 
 }
 
