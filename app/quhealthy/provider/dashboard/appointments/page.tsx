@@ -11,7 +11,8 @@ import {
   XCircle, Timer, Phone, Mail, MapPin, Star,
   Filter, Search, MoreVertical, Eye, MessageSquare,
   Award, Crown, Zap, Heart, Sparkles,
-  X
+  X,
+  Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,17 +22,20 @@ import { CompletionModal } from '@/app/quhealthy/components/dashboard/Completion
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal'; // <-- Importa el nuevo modal
 import { useRouter } from 'next/navigation';
 
-
-
-// Interfaz para una cita
+// Definimos el tipo para una cita desde la perspectiva del consumidor
 interface Appointment {
   id: number;
   status: 'pending' | 'confirmed' | 'completed' | 'canceled_by_provider' | 'canceled_by_consumer';
   startTime: string;
-  endTime: string; // Necesitamos la hora de fin para la lógica
-  consumer: { name: string };
-  service: { name: string };
+  endTime: string;
+  provider: { name: string };
+  consumer: {name: string}
+  service: { name: string ,
+    serviceDeliveryType: 'in_person' | 'video_call'; 
+  };
+    
 }
+
 
 export default function ProviderAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -241,6 +245,7 @@ export default function ProviderAppointmentsPage() {
             <p className="text-white/60 text-sm">Canceladas</p>
           </div>
         </div>
+        
 
         {/* Contenedor de citas con diseño premium */}
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
@@ -333,6 +338,16 @@ export default function ProviderAppointmentsPage() {
     </Button>
   )}
   {/* --- FIN DEL BOTÓN --- */}
+  {appt.service.serviceDeliveryType === 'video_call' && (appt.status === 'confirmed' || appt.status === 'pending') && !isPast && (
+  <Button 
+    size="sm"
+    onClick={() => router.push(`/video-call/${appt.id}`)}
+    className="bg-purple-600 hover:bg-purple-700"
+  >
+    <Video className="w-4 h-4 mr-2" />
+    Unirse a la Llamamda
+  </Button>
+)}
 
                         {/* Botón de completar con estilo premium */}
                         {appt.status === 'confirmed' && (

@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Loader2, User, Clock, X } from 'lucide-react';
+import { Loader2, User, Clock, X, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -22,7 +22,12 @@ interface Appointment {
   startTime: string;
   endTime: string;
   provider: { name: string };
-  service: { name: string };
+  consumer: {name: string}
+  service: { name: string ,
+    serviceDeliveryType: 'in_person' | 'video_call'; 
+  };
+    
+
 }
 
 export default function ConsumerAppointmentsPage() {
@@ -127,6 +132,16 @@ export default function ConsumerAppointmentsPage() {
                         </Button>
                       )}
                     </div>
+                    {appt.service.serviceDeliveryType === 'video_call' && appt.status === 'confirmed' && !isPast && (
+  <Button 
+    size="sm"
+    onClick={() => router.push(`/video-call/${appt.id}`)}
+    className="bg-purple-600 hover:bg-purple-700"
+  >
+    <Video className="w-4 h-4 mr-2" />
+    Unirse a la Llamada
+  </Button>
+)}
                   </li>
                 );
               })
