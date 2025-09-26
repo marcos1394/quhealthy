@@ -47,11 +47,24 @@ export interface Marketplace {
 
 }
 
-export interface ProviderData {
-    id: number;
-    name: string;
-    marketplace: Marketplace;
-    tags: Tag[];
+
+
+// --- INICIO DE LA CORRECCIÓN DE TIPOS ---
+interface ProviderDetails {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+export interface ProviderData { 
+  id: number; 
+  storeName: string;
+  storeSlug: string;
+  storeBanner: string | null;
+  customDescription: string | null;
+  provider: ProviderDetails; // La información del proveedor ahora está anidada aquí
+  tags: Tag[]; 
 }
 
 // Representa un servicio individual del catálogo
