@@ -27,7 +27,6 @@ interface Appointment {
     serviceDeliveryType: 'in_person' | 'video_call'; 
   };
     
-
 }
 
 export default function ConsumerAppointmentsPage() {

@@ -2,14 +2,21 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-// Tipos para nuestro nuevo store unificado
+
+// Interfaz para una conexión social individual
+interface SocialConnection {
+  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube';
+}
+
+// Tipos para nuestro store unificado
 export interface UserSession {
   id: number;
   name: string;
   email: string;
   role: 'provider' | 'consumer';
-  // En el futuro, aquí podrías añadir detalles del plan del proveedor si lo necesitas globalmente
   planStatus?: 'trial' | 'free' | 'active' | 'expired' | 'canceled';
+  google_calendar_id?: string | null; // <-- Ya lo teníamos
+  socialConnections?: SocialConnection[]; // <-- AÑADE ESTA LÍNEA
 }
 
 interface SessionState {
