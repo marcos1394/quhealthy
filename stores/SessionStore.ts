@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { create } from 'zustand';
 import axios from 'axios';
@@ -5,7 +6,8 @@ import axios from 'axios';
 
 // Interfaz para una conexión social individual
 interface SocialConnection {
-  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube';
+  id: any;
+  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'linkedin';
 }
 
 // Tipos para nuestro store unificado
