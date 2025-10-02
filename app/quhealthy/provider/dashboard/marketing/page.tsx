@@ -32,6 +32,8 @@ export default function MarketingPage() {
   // --- NUEVOS ESTADOS PARA LA PROGRAMACIÓN ---
   const [publishAt, setPublishAt] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
+    const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
+
 
 
   
@@ -104,32 +106,27 @@ export default function MarketingPage() {
     }
   };
 
-  // --- NUEVA FUNCIÓN PARA PROGRAMAR EL POST ---
-  const handleSchedulePost = async () => {
-    if (!generatedContent || !publishAt) {
-      toast.warn("Por favor, genera contenido y selecciona una fecha para programar.");
+ const handleSchedulePost = async () => {
+    // --- INICIO DE LA CORRECCIÓN ---
+    if (!generatedContent || !publishAt || !selectedConnectionId) {
+      toast.warn("Por favor, genera contenido, selecciona una red social y una fecha para programar.");
       return;
     }
+    // --- FIN DE LA CORRECCIÓN ---
     
-    // Asumimos que la primera conexión de FB/IG es la que usaremos
-    const connection = user?.socialConnections?.find(c => c.platform === 'facebook');
-    if (!connection) {
-      toast.error("No se encontró una cuenta de red social conectada.");
-      return;
-    }
-
     setIsScheduling(true);
     try {
       await axios.post('/api/social/schedule-post', {
-        socialConnectionId: connection.id, // Necesitarás que la sesión devuelva el ID de la conexión
+        socialConnectionId: parseInt(selectedConnectionId),
         content: generatedContent.postText,
         imageUrl: generatedContent.imageUrl,
         publishAt: new Date(publishAt).toISOString(),
       }, { withCredentials: true });
 
       toast.success("¡Publicación programada exitosamente!");
-      setGeneratedContent(null); // Limpiamos el formulario
+      setGeneratedContent(null);
       setPublishAt('');
+      setSelectedConnectionId('');
     } catch (error) {
       toast.error("No se pudo programar la publicación.");
     } finally {
@@ -209,20 +206,38 @@ export default function MarketingPage() {
                 </div>
               </div>
               {/* --- NUEVA SECCIÓN DE PROGRAMACIÓN --- */}
-              <div className="mt-4 pt-4 border-t border-dashed border-gray-600 space-y-2">
-                <Label htmlFor="publishAt">3. Programa tu publicación</Label>
-                <Input
-                  id="publishAt"
-                  type="datetime-local"
-                  value={publishAt}
-                  onChange={(e) => setPublishAt(e.target.value)}
-                  className="bg-gray-700 border-gray-600"
-                />
-              </div>
-              <Button onClick={handleSchedulePost} disabled={isScheduling || !publishAt}>
-                {isScheduling ? <Loader2 className="animate-spin mr-2"/> : <CalendarClock className="w-4 h-4 mr-2"/>}
-                Programar Publicación
-              </Button>
+              <div className="mt-4 pt-4 border-t border-dashed border-gray-600 space-y-4">
+      <h3 className="font-semibold text-white">2. Programa tu publicación</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="platform">Plataforma</Label>
+          <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
+            <SelectTrigger id="platform"><SelectValue placeholder="Selecciona una red..." /></SelectTrigger>
+            <SelectContent>
+              {user?.socialConnections?.map(c => (
+                <SelectItem key={c.id} value={c.id.toString()}>
+                  {c.platform.charAt(0).toUpperCase() + c.platform.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="publishAt">Fecha y Hora</Label>
+          <Input
+            id="publishAt"
+            type="datetime-local"
+            value={publishAt}
+            onChange={(e) => setPublishAt(e.target.value)}
+            className="bg-gray-700 border-gray-600"
+          />
+        </div>
+      </div>
+      <Button onClick={handleSchedulePost} disabled={isScheduling || !publishAt || !selectedConnectionId}>
+        {isScheduling ? <Loader2 className="animate-spin mr-2"/> : <CalendarClock className="w-4 h-4 mr-2"/>}
+        Programar Publicación
+      </Button>
+    </div>
             </motion.div>
           )}
 
