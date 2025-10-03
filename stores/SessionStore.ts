@@ -7,7 +7,7 @@ import axios from 'axios';
 // Interfaz para una conexión social individual
 interface SocialConnection {
   id: any;
-  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'linkedin';
+  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'google_business';
 }
 
 // Tipos para nuestro store unificado

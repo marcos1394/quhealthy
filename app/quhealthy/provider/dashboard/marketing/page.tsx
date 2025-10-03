@@ -41,20 +41,22 @@ export default function MarketingPage() {
   useEffect(() => {
     const success = searchParams.get('success');
     const error = searchParams.get('error');
+    
     if (success) {
-      toast.success("¡Cuenta de Facebook/Instagram conectada exitosamente!");
-      fetchSession(); // Recargamos la sesión para ver el nuevo estado
-      router.replace('/provider/dashboard/marketing'); // Limpiamos la URL
+        let platformName = '';
+        if (success === 'facebook') platformName = 'Facebook/Instagram';
+        if (success === 'linkedin') platformName = 'LinkedIn';
+        if (success === 'google_business') platformName = 'Google Business'; // <-- AÑADE ESTO
+        
+        toast.success(`¡Cuenta de ${platformName} conectada exitosamente!`);
+        fetchSession();
+        router.replace('/provider/dashboard/marketing');
     }
-        else if (success === 'linkedin') { // Para LinkedIn
-      toast.success("¡Cuenta de LinkedIn conectada exitosamente!");
-      fetchSession();
-      router.replace('/provider/dashboard/marketing');
     if (error) {
-      toast.error("No se pudo conectar la cuenta.");
-      router.replace('/provider/dashboard/marketing');
+        toast.error("No se pudo conectar la cuenta.");
+        router.replace('/provider/dashboard/marketing');
     }
-}}, [searchParams, router, fetchSession]);
+  }, [searchParams, router, fetchSession]);
 
    // Cargar los servicios del proveedor para el selector
   useEffect(() => {
@@ -82,8 +84,19 @@ export default function MarketingPage() {
     }
   };
 
+  const handleConnectGoogleBusiness = async () => {
+    try {
+      const { data } = await axios.get('/api/google/business/auth', { withCredentials: true });
+      window.location.href = data.authUrl;
+    } catch (error) {
+      toast.error("No se pudo iniciar la conexión con Google Business.");
+    }
+  };
+
   const isFacebookConnected = user?.socialConnections?.some(c => c.platform === 'facebook');
     const isLinkedInConnected = user?.socialConnections?.some(c => c.platform === 'linkedin');
+     const isGoogleBusinessConnected = user?.socialConnections?.some(c => c.platform === 'google_business');
+
 
 
   // Función para llamar al backend de Gemini
@@ -260,6 +273,29 @@ export default function MarketingPage() {
       </div>
     ) : (
       <Button onClick={handleConnectLinkedIn}>
+        <LinkIcon className="w-4 h-4 mr-2"/>
+        Conectar
+      </Button>
+    )}
+  </div>
+  {/* --- AÑADE ESTE NUEVO DIV --- */}
+  <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5.03,16.25 5.03,12.5C5.03,8.75 8.36,5.73 12.19,5.73C15.22,5.73 17.1,6.74 17.1,6.74L19,4.42C19,4.42 16.58,2.77 12.19,2.77C6.8,2.77 2.63,7.15 2.63,12.5C2.63,17.85 6.8,22.23 12.19,22.23C17.6,22.23 21.5,18.33 21.5,12.79C21.5,12.33 21.45,11.71 21.35,11.1Z"/></svg>
+      </div>
+      <div>
+        <p className="font-medium text-white">Google Business Profile</p>
+        <p className="text-sm text-gray-400">Publica en tu perfil de Google.</p>
+      </div>
+    </div>
+    {isGoogleBusinessConnected ? (
+      <div className="flex items-center gap-2 text-green-400 font-semibold">
+        <CheckCircle className="w-5 h-5"/>
+        <span>Conectado</span>
+      </div>
+    ) : (
+      <Button onClick={handleConnectGoogleBusiness}>
         <LinkIcon className="w-4 h-4 mr-2"/>
         Conectar
       </Button>
