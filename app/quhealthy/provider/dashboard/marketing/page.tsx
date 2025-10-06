@@ -44,6 +44,9 @@ export default function MarketingPage() {
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [isGeneratingPost, setIsGeneratingPost] = useState(false);
     const [generatedContent, setGeneratedContent] = useState<{ imageUrl: string; postText: string } | null>(null);
+      const [publishAt, setPublishAt] = useState('');
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
 
   // Estados para el generador de video
   const [videoPrompt, setVideoPrompt] = useState('');
