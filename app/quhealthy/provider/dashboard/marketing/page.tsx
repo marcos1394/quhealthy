@@ -63,6 +63,8 @@ export default function MarketingPage() {
         if (success === 'facebook') platformName = 'Facebook/Instagram';
         if (success === 'linkedin') platformName = 'LinkedIn';
         if (success === 'google_business') platformName = 'Google Business'; // <-- AÑADE ESTO
+        if (success === 'youtube') platformName = 'YouTube'; // <-- AÑADE ESTO
+
         
         toast.success(`¡Cuenta de ${platformName} conectada exitosamente!`);
         fetchSession();
@@ -109,9 +111,19 @@ export default function MarketingPage() {
     }
   };
 
+  const handleConnectYouTube = async () => {
+    try {
+      const { data } = await axios.get('/api/google/youtube/auth', { withCredentials: true });
+      window.location.href = data.authUrl;
+    } catch (error) {
+      toast.error("No se pudo iniciar la conexión con YouTube.");
+    }
+  };
+
   const isFacebookConnected = user?.socialConnections?.some(c => c.platform === 'facebook');
     const isLinkedInConnected = user?.socialConnections?.some(c => c.platform === 'linkedin');
      const isGoogleBusinessConnected = user?.socialConnections?.some(c => c.platform === 'google_business');
+     const isYouTubeConnected = user?.socialConnections?.some(c => c.platform === 'youtube');
 
 
 
@@ -231,6 +243,29 @@ export default function MarketingPage() {
                 </div>
                 {isGoogleBusinessConnected ? (<div className="flex items-center gap-2 text-green-400"><CheckCircle size={20}/>Conectado</div>) : (<Button onClick={handleConnectGoogleBusiness}><LinkIcon className="w-4 h-4 mr-2"/>Conectar</Button>)}
             </div>
+            {/* --- AÑADE ESTA NUEVA TARJETA --- */}
+  <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 bg-[#FF0000] rounded-full flex items-center justify-center text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+      </div>
+      <div>
+        <p className="font-medium text-white">YouTube</p>
+        <p className="text-sm text-gray-400">Publica videos y Shorts.</p>
+      </div>
+    </div>
+    {isYouTubeConnected ? (
+      <div className="flex items-center gap-2 text-green-400 font-semibold">
+        <CheckCircle className="w-5 h-5"/>
+        <span>Conectado</span>
+      </div>
+    ) : (
+      <Button onClick={handleConnectYouTube}>
+        <LinkIcon className="w-4 h-4 mr-2"/>
+        Conectar
+      </Button>
+    )}
+  </div>
         </CardContent>
       </Card>
 
