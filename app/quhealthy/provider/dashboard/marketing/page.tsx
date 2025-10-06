@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -11,32 +11,44 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Link as LinkIcon, CheckCircle, Facebook, Instagram, Sparkles, Copy, Loader2, CalendarClock } from 'lucide-react';
+import { Link as LinkIcon, CheckCircle, Facebook, Instagram, Sparkles, Copy, Loader2, CalendarClock, Video } from 'lucide-react';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 
 interface Service { id: number; name: string; }
+// --- AÑADE ESTA INTERFAZ ---
+interface GeneratedContent {
+  id: number;
+  contentType: 'social_post_image' | 'social_post_video';
+  status: 'completed' | 'processing' | 'failed';
+  prompt: string | null;
+  generatedText: string | null;
+  generatedImageUrl: string | null;
+  generatedVideoUrl: string | null;
+  createdAt: string;
+}
 
 
 export default function MarketingPage() {
   const { user, fetchSession } = useSessionStore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Estados para el generador de IA
+   // --- ESTADOS ACTUALIZADOS ---
   const [services, setServices] = useState<Service[]>([]);
-  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<{ imageUrl: string; postText: string } | null>(null);
-  // --- NUEVOS ESTADOS PARA LA PROGRAMACIÓN ---
-  const [publishAt, setPublishAt] = useState('');
-  const [isScheduling, setIsScheduling] = useState(false);
-    const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
-
-
-
+  const [gallery, setGallery] = useState<GeneratedContent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
+  // Estados para el generador de posts de imagen
+  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+  const [isGeneratingPost, setIsGeneratingPost] = useState(false);
+  
+  // Estados para el generador de video
+  const [videoPrompt, setVideoPrompt] = useState('');
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+
+
   // Verificamos si la conexión fue exitosa al volver de Facebook
   useEffect(() => {
     const success = searchParams.get('success');
@@ -99,23 +111,52 @@ export default function MarketingPage() {
 
 
 
-  // Función para llamar al backend de Gemini
-  const handleGeneratePost = async () => {
-    if (!selectedServiceId) {
-      toast.warn("Por favor, selecciona un servicio primero.");
-      return;
-    }
-    setIsGenerating(true);
-    setGeneratedContent(null);
+  // --- LÓGICA DE GALERÍA (NUEVA) ---
+  const fetchGallery = useCallback(async () => {
     try {
-      const { data } = await axios.post('/api/ai/generate-post', {
-        serviceId: parseInt(selectedServiceId)
-      }, { withCredentials: true });
-      setGeneratedContent(data);
+      const { data } = await axios.get('/api/ai/gallery', { withCredentials: true });
+      setGallery(data);
     } catch (error) {
-      toast.error("No se pudo generar el contenido con IA.");
+      console.error("Error fetching content gallery:", error);
     } finally {
-      setIsGenerating(false);
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    axios.get('/api/provider/services', { withCredentials: true }).then(res => setServices(res.data));
+    fetchGallery();
+    const interval = setInterval(fetchGallery, 15000); // Polling para actualizar estado de videos
+    return () => clearInterval(interval);
+  }, [fetchGallery]);
+  
+  // --- FUNCIONES DE GENERACIÓN ACTUALIZADAS ---
+  const handleGenerateImagePost = async () => {
+    if (!selectedServiceId) return toast.warn("Selecciona un servicio.");
+    setIsGeneratingPost(true);
+    try {
+      await axios.post('/api/ai/generate-image-post', { serviceId: parseInt(selectedServiceId) }, { withCredentials: true });
+      toast.success("Tu post se está generando y aparecerá en la galería.");
+      fetchGallery(); // Recarga la galería
+    } catch (error) {
+      toast.error("No se pudo generar el post.");
+    } finally {
+      setIsGeneratingPost(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!videoPrompt.trim()) return toast.warn("Escribe una idea para tu video.");
+    setIsGeneratingVideo(true);
+    try {
+      await axios.post('/api/ai/generate-video', { prompt: videoPrompt }, { withCredentials: true });
+      toast.success("Tu video se está generando. Aparecerá en la galería en unos momentos.");
+      setVideoPrompt('');
+      fetchGallery(); // Recarga la galería
+    } catch (error) {
+      toast.error("No se pudo iniciar la generación del video.");
+    } finally {
+      setIsGeneratingVideo(false);
     }
   };
 
@@ -147,160 +188,143 @@ export default function MarketingPage() {
     }
   };
 
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       <h1 className="text-3xl font-bold text-white">Centro de Marketing</h1>
-      <p className="text-gray-400">Conecta tus redes sociales para empezar a crear contenido con IA y programar publicaciones.</p>
+      <p className="text-gray-400">Conecta redes, genera contenido con IA y programa tus publicaciones desde un solo lugar.</p>
 
+      {/* Tarjeta de Conexiones Sociales */}
       <Card className="bg-gray-800/50 border-gray-700">
         <CardHeader>
           <CardTitle>Conexiones Sociales</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                <div className="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center text-white"><Facebook size={20}/></div>
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white"><Instagram size={20}/></div>
-              </div>
-              <div>
+        <CardContent className="space-y-4">
+            {/* Facebook / Instagram */}
+            <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                    <div className="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center text-white"><Facebook size={20}/></div>
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white"><Instagram size={20}/></div>
+                </div>
                 <p className="font-medium text-white">Facebook & Instagram</p>
-                <p className="text-sm text-gray-400">Publica en tus páginas de negocio.</p>
-              </div>
+                </div>
+                {isFacebookConnected ? (<div className="flex items-center gap-2 text-green-400"><CheckCircle size={20}/>Conectado</div>) : (<Button onClick={handleConnectFacebook}><LinkIcon className="w-4 h-4 mr-2"/>Conectar</Button>)}
             </div>
-            {isFacebookConnected ? (
-              <div className="flex items-center gap-2 text-green-400 font-semibold">
-                <CheckCircle className="w-5 h-5"/>
-                <span>Conectado</span>
-              </div>
-            ) : (
-              <Button onClick={handleConnectFacebook}>
-                <LinkIcon className="w-4 h-4 mr-2"/>
-                Conectar
-              </Button>
-            )}
+            {/* LinkedIn */}
+            <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#0A66C2] rounded-full flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></div>
+                <p className="font-medium text-white">LinkedIn</p>
+                </div>
+                {isLinkedInConnected ? (<div className="flex items-center gap-2 text-green-400"><CheckCircle size={20}/>Conectado</div>) : (<Button onClick={handleConnectLinkedIn}><LinkIcon className="w-4 h-4 mr-2"/>Conectar</Button>)}
+            </div>
+            {/* Google Business Profile */}
+            <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35 11.1H12.18V13.83H18.69c1.8-.8 3-3.9 1-6.6-1.5-2-4.1-2.8-6.5-2.2-2.3.6-4 2.5-4.8 4.8-1.5 4.1 1.2 8.3 5.3 8.3 1.1 0 2.2-.3 3.1-.8l-1.6-1.6c-.6.3-1.3.5-2. .5-2.3 0-4.2-1.9-4.2-4.2s1.9-4.2 4.2-4.2c2.2 0 3.9 1.5 4.2 3.5h-4.2v2.73h6.17c.1-.6.1-1.2.1-1.8z"/></svg></div>
+                <p className="font-medium text-white">Google Business</p>
+                </div>
+                {isGoogleBusinessConnected ? (<div className="flex items-center gap-2 text-green-400"><CheckCircle size={20}/>Conectado</div>) : (<Button onClick={handleConnectGoogleBusiness}><LinkIcon className="w-4 h-4 mr-2"/>Conectar</Button>)}
+            </div>
+        </CardContent>
+      </Card>
+
+      {/* Tarjeta de Generadores de IA */}
+      <Card className="bg-gray-800/50 border-gray-700">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Sparkles className="text-purple-400"/> Estudio de Contenido (Gemini)</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+          {/* Generador de Post con Imagen */}
+          <div className="space-y-3 p-4 bg-gray-900/30 rounded-lg">
+            <h3 className="font-semibold text-white">1. Generar Post con Imagen</h3>
+            <Label>Elige un servicio para promocionar</Label>
+            <Select onValueChange={setSelectedServiceId} value={selectedServiceId}>
+              <SelectTrigger><SelectValue placeholder="Selecciona un servicio..." /></SelectTrigger>
+              <SelectContent>{services.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Button onClick={handleGenerateImagePost} disabled={isGeneratingPost || !selectedServiceId} className="w-full">
+              {isGeneratingPost ? <Loader2 className="animate-spin mr-2"/> : <Sparkles className="w-4 h-4 mr-2"/>}
+              Generar Post
+            </Button>
+          </div>
+          {/* Generador de Video */}
+          <div className="space-y-3 p-4 bg-gray-900/30 rounded-lg">
+            <h3 className="font-semibold text-white">2. Generar Video Corto</h3>
+            <Label>Describe la idea para tu video</Label>
+            <Textarea
+              value={videoPrompt}
+              onChange={(e) => setVideoPrompt(e.target.value)}
+              placeholder="Ej: Un video cinematográfico de un masaje relajante..."
+            />
+            <Button onClick={handleGenerateVideo} disabled={isGeneratingVideo} className="w-full">
+              {isGeneratingVideo ? <Loader2 className="animate-spin mr-2"/> : <Video className="w-4 h-4 mr-2"/>}
+              Generar Video
+            </Button>
           </div>
         </CardContent>
       </Card>
-      {/* NUEVA TARJETA: Generador de Contenido con IA */}
+
+      {/* Tarjeta de Galería de Contenido */}
       <Card className="bg-gray-800/50 border-gray-700">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="text-purple-400"/> Generador de Contenido (Gemini)
-          </CardTitle>
+          <CardTitle>Galería de Contenido</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-300">1. Elige un servicio para promocionar</label>
-            <Select onValueChange={setSelectedServiceId} value={selectedServiceId}>
-              <SelectTrigger><SelectValue placeholder="Selecciona un servicio..." /></SelectTrigger>
-              <SelectContent>
-                {services.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={handleGeneratePost} disabled={isGenerating || !selectedServiceId}>
-            {isGenerating ? <Loader2 className="animate-spin mr-2"/> : <Sparkles className="w-4 h-4 mr-2"/>}
-            Generar Post
-          </Button>
-
-          {isGenerating && <p className="text-sm text-gray-400">Gemini está creando tu post, esto puede tardar un momento...</p>}
-          
-          {generatedContent && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 pt-4 border-t border-gray-700 space-y-4">
-              <h3 className="font-semibold text-white">Contenido Generado:</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Image src={generatedContent.imageUrl} alt="Imagen generada por IA" className="rounded-lg"/>
-                <div>
-                  <Textarea value={generatedContent.postText} readOnly rows={8} className="bg-gray-700"/>
-                  <Button variant="outline" onClick={() => { navigator.clipboard.writeText(generatedContent.postText); toast.success("Texto copiado"); }} className="mt-2">
-                    <Copy className="w-4 h-4 mr-2"/> Copiar Texto
-                  </Button>
-                </div>
-              </div>
-              {/* --- NUEVA SECCIÓN DE PROGRAMACIÓN --- */}
-              <div className="mt-4 pt-4 border-t border-dashed border-gray-600 space-y-4">
-      <h3 className="font-semibold text-white">2. Programa tu publicación</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="platform">Plataforma</Label>
-          <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
-            <SelectTrigger id="platform"><SelectValue placeholder="Selecciona una red..." /></SelectTrigger>
-            <SelectContent>
-              {user?.socialConnections?.map(c => (
-                <SelectItem key={c.id} value={c.id.toString()}>
-                  {c.platform.charAt(0).toUpperCase() + c.platform.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="publishAt">Fecha y Hora</Label>
-          <Input
-            id="publishAt"
-            type="datetime-local"
-            value={publishAt}
-            onChange={(e) => setPublishAt(e.target.value)}
-            className="bg-gray-700 border-gray-600"
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>
+          ) : gallery.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {gallery.map(item => (
+                <div key={item.id} className="relative aspect-square bg-gray-700 rounded-lg overflow-hidden group">
+  {(() => {
+    // Caso 1: El trabajo se completó exitosamente
+    if (item.status === 'completed') {
+      // Si es una imagen y tiene URL, muestra el componente Image
+      if (item.contentType === 'social_post_image' && item.generatedImageUrl) {
+        return (
+          <Image 
+            src={item.generatedImageUrl} 
+            alt={item.prompt || 'Contenido de imagen'}
+            fill
+            className="object-cover"
           />
-        </div>
-      </div>
-      <Button onClick={handleSchedulePost} disabled={isScheduling || !publishAt || !selectedConnectionId}>
-        {isScheduling ? <Loader2 className="animate-spin mr-2"/> : <CalendarClock className="w-4 h-4 mr-2"/>}
-        Programar Publicación
-      </Button>
-    </div>
-            </motion.div>
+        );
+      // Si es un video y tiene URL, muestra un placeholder de video
+      } else if (item.contentType === 'social_post_video' && item.generatedVideoUrl) {
+        return (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-black">
+            <Video className="w-10 h-10 text-purple-400" />
+            <span className="text-xs mt-2 text-gray-300">Video Listo</span>
+          </div>
+        );
+      }
+    }
+    // Caso 2: El trabajo está en proceso
+    if (item.status === 'processing') {
+      return <div className="flex flex-col items-center justify-center h-full text-xs text-gray-300"><Loader2 className="animate-spin mb-2"/><span>Procesando...</span></div>;
+    }
+    // Caso 3: El trabajo falló
+    if (item.status === 'failed') {
+      return <div className="flex items-center justify-center h-full bg-red-500/20 text-red-400">Falló</div>;
+    }
+    // Fallback por si no coincide ningún estado
+    return null; 
+  })()}
+  
+  {/* Overlay con acciones (se mantiene igual) */}
+  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+    {item.status === 'completed' && (
+      <Button size="sm">Programar</Button>
+    )}
+  </div>
+</div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">Tu contenido generado por IA aparecerá aquí.</p>
           )}
-
-          {/* --- AÑADE ESTE NUEVO DIV --- */}
-  <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 bg-[#0A66C2] rounded-full flex items-center justify-center text-white">
-        {/* Aquí iría un ícono de LinkedIn si lo tienes, o usa texto */}
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-      </div>
-      <div>
-        <p className="font-medium text-white">LinkedIn</p>
-        <p className="text-sm text-gray-400">Publica en tu perfil profesional.</p>
-      </div>
-    </div>
-    {isLinkedInConnected ? (
-      <div className="flex items-center gap-2 text-green-400 font-semibold">
-        <CheckCircle className="w-5 h-5"/>
-        <span>Conectado</span>
-      </div>
-    ) : (
-      <Button onClick={handleConnectLinkedIn}>
-        <LinkIcon className="w-4 h-4 mr-2"/>
-        Conectar
-      </Button>
-    )}
-  </div>
-  {/* --- AÑADE ESTE NUEVO DIV --- */}
-  <div className="p-4 bg-gray-900/50 rounded-lg flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5.03,16.25 5.03,12.5C5.03,8.75 8.36,5.73 12.19,5.73C15.22,5.73 17.1,6.74 17.1,6.74L19,4.42C19,4.42 16.58,2.77 12.19,2.77C6.8,2.77 2.63,7.15 2.63,12.5C2.63,17.85 6.8,22.23 12.19,22.23C17.6,22.23 21.5,18.33 21.5,12.79C21.5,12.33 21.45,11.71 21.35,11.1Z"/></svg>
-      </div>
-      <div>
-        <p className="font-medium text-white">Google Business Profile</p>
-        <p className="text-sm text-gray-400">Publica en tu perfil de Google.</p>
-      </div>
-    </div>
-    {isGoogleBusinessConnected ? (
-      <div className="flex items-center gap-2 text-green-400 font-semibold">
-        <CheckCircle className="w-5 h-5"/>
-        <span>Conectado</span>
-      </div>
-    ) : (
-      <Button onClick={handleConnectGoogleBusiness}>
-        <LinkIcon className="w-4 h-4 mr-2"/>
-        Conectar
-      </Button>
-    )}
-  </div>
         </CardContent>
       </Card>
     </motion.div>
