@@ -57,6 +57,22 @@ interface ProviderDetails {
   lng: number;
 }
 
+export interface GeneratedContent {
+  id: number;
+  contentType: 'social_post_image' | 'social_post_video';
+  status: 'completed' | 'processing' | 'failed';
+  prompt: string | null;
+  generatedText: string | null;
+  generatedImageUrl: string | null;
+  generatedVideoUrl: string | null;
+  createdAt: string;
+}
+
+export interface SocialConnection {
+  id: number;
+  platform: 'facebook' | 'instagram' | 'linkedin' | 'google_business' | 'youtube' | 'tiktok';
+}
+
 export interface ProviderData { 
   id: number; 
   storeName: string;
