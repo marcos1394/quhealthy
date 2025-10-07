@@ -6,56 +6,54 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Loader2, CalendarClock } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { GeneratedContent } from '@/app/quhealthy/types/marketplace'; // Asumiendo que has movido la interfaz aquí
-
-
-// Definimos los tipos para las props del modal
-interface SocialConnection {
-  id: number;
-  platform: string;
-}
+import { GeneratedContent, SocialConnection } from '@/app/quhealthy/types/marketplace';
 
 interface VideoScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onScheduled: () => void;
   content: GeneratedContent | null;
-  connection: SocialConnection | undefined;
+  connections: SocialConnection[];
 }
 
-export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ isOpen, onClose, content, connection }) => {
+export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ isOpen, onClose, onScheduled, content, connections }) => {
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
   const [privacyStatus, setPrivacyStatus] = useState('public');
   const [publishAt, setPublishAt] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
 
-  // Llenamos el formulario cuando el contenido cambia
+  // Filtramos para mostrar solo las plataformas de video
+  const videoConnections = connections.filter(c => c.platform === 'youtube' || c.platform === 'tiktok');
+
   useEffect(() => {
     if (content) {
-      // Podemos usar Gemini para sugerir un título a partir del prompt
       setTitle(`Video sobre: ${content.prompt}` || '');
     }
   }, [content]);
 
   const handleSubmit = async () => {
-    if (!content || !connection) return toast.error("Faltan datos para programar.");
+    if (!content || !selectedConnectionId || !publishAt) {
+      return toast.warn("Por favor, completa todos los campos para programar.");
+    }
     setIsScheduling(true);
     try {
       await axios.post('/api/social/schedule-post', {
-        socialConnectionId: connection.id,
-        content: content.generatedText, // Descripción del video
+        socialConnectionId: parseInt(selectedConnectionId),
+        content: content.generatedText,
         videoUrl: content.generatedVideoUrl,
         title,
         tags: tags.split(',').map(t => t.trim()),
         privacyStatus,
         publishAt: new Date(publishAt).toISOString(),
       }, { withCredentials: true });
-      toast.success("¡Video programado para YouTube exitosamente!");
+      toast.success("¡Video programado exitosamente!");
+      onScheduled();
       onClose();
     } catch (error) {
       toast.error("No se pudo programar el video.");
@@ -72,7 +70,7 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ isOpen, 
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg">
           <div className="p-6 border-b border-gray-700 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Programar Video en YouTube</h2>
+            <h2 className="text-xl font-bold text-white">Programar Video</h2>
             <Button variant="ghost" size="default" onClick={onClose}><X/></Button>
           </div>
           <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -81,14 +79,19 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ isOpen, 
               <Input id="title" value={title} onChange={e => setTitle(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="description">Descripción</Label>
-              <Textarea id="description" value={content.generatedText || ''} readOnly rows={4} />
-            </div>
-            <div>
               <Label htmlFor="tags">Tags (separados por coma)</Label>
-              <Input id="tags" value={tags} onChange={e => setTags(e.target.value)} placeholder="salud, bienestar, nutrición"/>
+              <Input id="tags" value={tags} onChange={e => setTags(e.target.value)} placeholder="salud, bienestar, etc."/>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="platform-video">Publicar en</Label>
+                <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
+                  <SelectTrigger id="platform-video"><SelectValue placeholder="Selecciona..."/></SelectTrigger>
+                  <SelectContent>
+                    {videoConnections.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.platform.charAt(0).toUpperCase() + c.platform.slice(1)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <Label htmlFor="privacy">Visibilidad</Label>
                 <Select onValueChange={setPrivacyStatus} value={privacyStatus}>
@@ -100,10 +103,10 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ isOpen, 
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="publishAt">Fecha y Hora</Label>
-                <Input id="publishAt" type="datetime-local" value={publishAt} onChange={e => setPublishAt(e.target.value)} />
-              </div>
+            </div>
+            <div>
+              <Label htmlFor="publishAt">Fecha y Hora de Publicación</Label>
+              <Input id="publishAt" type="datetime-local" value={publishAt} onChange={e => setPublishAt(e.target.value)} />
             </div>
           </div>
           <div className="p-6 flex justify-end border-t border-gray-700">

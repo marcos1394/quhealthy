@@ -408,7 +408,10 @@ export default function MarketingPage() {
         isOpen={isVideoModalOpen}
         onClose={() => setIsVideoModalOpen(false)}
         content={selectedContent}
-        connection={user?.socialConnections?.find(c => c.platform === 'youtube')} />
+        connections={user?.socialConnections || []} // <-- Asegúrate de pasar todas las conexiones
+        onScheduled={function (): void {
+          throw new Error('Function not implemented.');
+        } }         />
         <ImageScheduleModal
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
