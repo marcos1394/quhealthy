@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
 import io from 'socket.io-client';
 import axios from 'axios';
-import { Loader2, Send, MessageSquare } from 'lucide-react';
+import { Loader2, Send, MessageSquare, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Tipos para la mensajería
 interface Conversation {
@@ -35,26 +36,40 @@ export default function ProviderMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+    // --- ESTADOS PARA EL ASISTENTE DE IA ---
+  const [suggestedReply, setSuggestedReply] = useState<string | null>(null);
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
 
-    // Conectarse y unirse a su sala privada de Socket.IO
     socket.connect();
     socket.emit('join_room', user.id);
 
-    // Escuchar por nuevos mensajes en tiempo real
     socket.on('receive_message', (message: Message) => {
+      // Si el mensaje es para la conversación activa, lo añadimos
       if (message.conversationId === activeConversation?.id) {
         setMessages(prev => [...prev, message]);
+
+        // --- LÓGICA DEL ASISTENTE DE IA ---
+        // Si el mensaje es del consumidor, pedimos una sugerencia a Gemini
+        if (message.senderRole === 'consumer') {
+          setIsSuggesting(true);
+          setSuggestedReply(null);
+          axios.post('/api/ai/suggest-reply', 
+            { latestMessage: message.content }, 
+            { withCredentials: true }
+          )
+          .then(res => setSuggestedReply(res.data.suggestedReply))
+          .catch(err => console.error("Error fetching AI suggestion:", err))
+          .finally(() => setIsSuggesting(false));
+        }
       }
     });
 
-    // Cargar la lista de conversaciones inicial
     axios.get('/api/messages/conversations', { withCredentials: true })
       .then(res => setConversations(res.data))
-      .catch(err => console.error("Error fetching conversations", err))
       .finally(() => setIsLoading(false));
     
     return () => {
@@ -62,6 +77,9 @@ export default function ProviderMessagesPage() {
       socket.disconnect();
     };
   }, [user, activeConversation]);
+
+
+ 
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -72,6 +90,7 @@ export default function ProviderMessagesPage() {
     const { data } = await axios.get(`/api/messages/conversations/${convo.id}`, { withCredentials: true });
     setMessages(data);
   };
+
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +121,15 @@ export default function ProviderMessagesPage() {
 
     setNewMessage('');
   };
+
+  // --- NUEVA FUNCIÓN PARA USAR LA SUGERENCIA ---
+  const handleApplySuggestion = () => {
+    if (suggestedReply) {
+      setNewMessage(suggestedReply);
+      setSuggestedReply(null);
+    }
+  };
+
 
   if (isLoading) {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>;
@@ -159,6 +187,21 @@ export default function ProviderMessagesPage() {
               ))}
               <div ref={messagesEndRef} />
             </div>
+            {/* --- NUEVA ÁREA DE SUGERENCIAS DE IA --- */}
+            <AnimatePresence>
+            {(isSuggesting || suggestedReply) && (
+              <motion.div initial={{opacity: 0, height: 0}} animate={{opacity: 1, height: 'auto'}} exit={{opacity: 0, height: 0}} className="p-4 border-t border-gray-700">
+                {isSuggesting && <div className="text-sm text-gray-400 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> Gemini está pensando...</div>}
+                {suggestedReply && (
+                  <button onClick={handleApplySuggestion} className="w-full text-left text-sm p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                    <p className="text-xs text-purple-300 font-semibold flex items-center gap-1 mb-1"><Sparkles size={14}/> Sugerencia de IA:</p>
+                    <p className="text-gray-200">{suggestedReply}</p>
+                  </button>
+                )}
+              </motion.div>
+            )}
+            </AnimatePresence>
+            
             <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700 flex gap-2 bg-gray-900">
               <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Escribe un mensaje..." className="bg-gray-700"/>
               <Button type="submit" className="bg-purple-600 hover:bg-purple-700"><Send className="w-4 h-4"/></Button>
