@@ -96,6 +96,8 @@ export interface Service {
   cancellationPolicy: CancellationPolicy;
   rules?: any[];
   serviceDeliveryType: 'in_person' | 'video_call'; // <-- AÑADE ESTA LÍNEA
+  followUpPeriodDays?: number; // <-- AÑADE ESTA LÍNEA
+
 
 
 }

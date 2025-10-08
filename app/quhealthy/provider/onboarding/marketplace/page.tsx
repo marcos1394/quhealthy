@@ -20,6 +20,8 @@ import { PackageEditorModal } from '@/app/quhealthy/components/dashboard/Package
 
 import { EnhancedMarketplacePreview } from '@/app/quhealthy/components/EnhancedMarketplacePreview';
 import Button from '@/components/Button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 
 // Añade esto cerca de tus otros imports
@@ -572,6 +574,19 @@ const updateService = async (id: number, updates: Partial<Service>) => {
         className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg"
       />
     </div>
+    {/* --- AÑADE ESTE NUEVO CAMPO --- */}
+  <div>
+    <Label>Días para Recordatorio</Label>
+   <Input
+  type="number"
+  placeholder="Ej: 180"
+  value={service.followUpPeriodDays || ''}
+  onChange={(e) => updateService(service.id, { 
+    followUpPeriodDays: parseInt(e.target.value) || undefined 
+  })}
+  className="w-full"
+/>
+  </div>
   </div>
 </div>
 
