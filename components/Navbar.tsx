@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from './ui/NotificationBell'; // <-- Importa el nuevo componente
+
 
 // Items de navegación para usuarios NO autenticados
 const publicNavItems = [
@@ -144,8 +146,20 @@ export const Navbar: React.FC = () => {
         {userRole === 'provider' && <div className="flex-1"></div>}
 
         <div className="hidden md:flex items-center gap-4">
-          {isLoading ? <div className="w-8 h-8 bg-gray-700 rounded-full animate-pulse" /> : isAuthenticated ? <UserMenu /> : <AuthButtons />}
-        </div>
+  {isLoading 
+    ? <div className="w-8 h-8 bg-gray-700 rounded-full animate-pulse" /> 
+    : isAuthenticated 
+      ? (
+          <>
+            {/* --- AÑADE ESTA LÍNEA --- */}
+            <NotificationBell />
+            {/* ----------------------- */}
+            <UserMenu />
+          </>
+        ) 
+      : <AuthButtons />
+  }
+</div>
         
         <div className="md:hidden">
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2">

@@ -1,7 +1,7 @@
 import { Feature, PricingPlan, Testimonial, NavItem } from "../types";
 import { 
-  Heart, UserCheck, Activity, Calendar, Map, Search, 
-  MessageSquare, CreditCard, ShieldCheck, Star 
+  UserCheck, Calendar, Map, Search, 
+  MessageSquare, Star 
 } from "lucide-react";
 
 // Navigation Items
