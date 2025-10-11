@@ -25,10 +25,7 @@ const nextConfig = {
             font-src 'self' data:;
             frame-src 'self' https://*.stripe.com https://js.stripe.com;
             
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Permite la conexión a tu API para llamadas REST y WebSockets (chat en tiempo real)
             connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com;
-            // --- FIN DE LA CORRECCIÓN ---
 
         `.replace(/\s{2,}/g, ' ').trim();
 

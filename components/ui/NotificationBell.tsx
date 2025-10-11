@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Bell, Loader2 } from 'lucide-react';
@@ -13,7 +13,6 @@ import Link from 'next/link';
 
 // --- INICIO DE LA CORRECCIÓN #1: Conexión Directa ---
 // Nos conectamos a la URL absoluta de tu API, no a través del proxy.
-const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
 // --- FIN DE LA CORRECCIÓN ---
 
 interface Notification {
@@ -31,22 +30,26 @@ export const NotificationBell = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // --- CORRECCIÓN #2: Lógica Condicional ---
-    // Si no hay usuario, no hacemos nada.
+    // --- INICIO DE LA CORRECCIÓN ARQUITECTÓNICA ---
     if (!user) {
       setIsLoading(false);
-      return;
+      return; // Si no hay usuario, no hacemos absolutamente nada.
     }
-    // -------------------------------------
 
-    socket.connect();
+    // 1. Creamos la instancia del socket SOLO cuando hay un usuario.
+    const socket: Socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+
+    // 2. Unimos al usuario a su sala.
     socket.emit('join_room', user.id);
 
+    // 3. Configuramos el listener para nuevas notificaciones.
     socket.on('new_notification', (newNotification: Notification) => {
       setNotifications(prev => [newNotification, ...prev]);
       setUnreadCount(prev => prev + 1);
     });
+    // --- FIN DE LA CORRECCIÓN ARQUITECTÓNICA ---
 
+    // Cargar notificaciones iniciales (esto no ha cambiado)
     axios.get('/api/notifications', { withCredentials: true })
       .then(res => {
         setNotifications(res.data);
@@ -54,11 +57,13 @@ export const NotificationBell = () => {
       })
       .finally(() => setIsLoading(false));
 
+    // Función de limpieza para desconectar el socket al salir.
     return () => {
       socket.off('new_notification');
       socket.disconnect();
     };
-  }, [user]);
+  }, [user]); // El efecto se ejecuta solo cuando 'user' cambia.
+
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && unreadCount > 0) {
