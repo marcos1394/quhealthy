@@ -11,8 +11,9 @@ import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
-
+const socket = io({
+  path: '/api/socket.io', // Le decimos a Socket.IO que use la ruta del proxy
+});
 interface Notification {
   id: number;
   message: string;
