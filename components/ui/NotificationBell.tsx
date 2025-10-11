@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -10,10 +9,13 @@ import { Bell, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import Link from 'next/link';
 
-const socket = io({
-  path: '/api/socket.io', // Le decimos a Socket.IO que use la ruta del proxy
-});
+// --- INICIO DE LA CORRECCIÓN #1: Conexión Directa ---
+// Nos conectamos a la URL absoluta de tu API, no a través del proxy.
+const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+// --- FIN DE LA CORRECCIÓN ---
+
 interface Notification {
   id: number;
   message: string;
@@ -24,28 +26,31 @@ interface Notification {
 
 export const NotificationBell = () => {
   const { user } = useSessionStore();
-  const [notifications, setNotifications] = useState<Notification[]>([]); // <-- CORRECCIÓN
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    // --- CORRECCIÓN #2: Lógica Condicional ---
+    // Si no hay usuario, no hacemos nada.
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    // -------------------------------------
 
-    // Conectar al socket y unirse a la sala
     socket.connect();
     socket.emit('join_room', user.id);
 
-    // Escuchar por nuevas notificaciones
-    socket.on('new_notification', (newNotification) => {
+    socket.on('new_notification', (newNotification: Notification) => {
       setNotifications(prev => [newNotification, ...prev]);
       setUnreadCount(prev => prev + 1);
     });
 
-    // Cargar notificaciones iniciales
     axios.get('/api/notifications', { withCredentials: true })
       .then(res => {
         setNotifications(res.data);
-        setUnreadCount(res.data.filter((n: { isRead: any; }) => !n.isRead).length);
+        setUnreadCount(res.data.filter((n: Notification) => !n.isRead).length);
       })
       .finally(() => setIsLoading(false));
 
@@ -68,21 +73,26 @@ export const NotificationBell = () => {
         <Button variant="ghost" size="default" className="relative">
           <Bell />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            <span className="absolute top-1 right-1 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 bg-gray-800 border-gray-700 text-white">
         <h4 className="font-medium text-lg mb-2">Notificaciones</h4>
-        <div className="space-y-2 max-h-96 overflow-y-auto">
-          {isLoading ? <Loader2 className="animate-spin mx-auto" /> :
-           notifications.length > 0 ? notifications.map((n: any) => (
-            <div key={n.id} className="p-2 rounded-lg hover:bg-gray-700/50">
-              <p className="text-sm">{n.message}</p>
-              <p className="text-xs text-gray-400">
-                {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: es })}
-              </p>
-            </div>
+        <div className="space-y-1 max-h-96 overflow-y-auto">
+          {isLoading ? <div className="flex justify-center p-4"><Loader2 className="animate-spin" /></div> :
+           notifications.length > 0 ? notifications.map((n) => (
+            <Link key={n.id} href={n.link || '#'} passHref>
+              <div className={`p-3 rounded-lg cursor-pointer ${!n.isRead ? 'bg-purple-500/10' : 'hover:bg-gray-700/50'}`}>
+                <p className="text-sm text-gray-200">{n.message}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: es })}
+                </p>
+              </div>
+            </Link>
           )) : <p className="text-sm text-gray-500 text-center py-4">No tienes notificaciones.</p>}
         </div>
       </PopoverContent>

@@ -1,78 +1,81 @@
-// next.config.mjs
 import withPWAInit from "next-pwa";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    productionBrowserSourceMaps: true, // <-- AÑADE ESTA LÍNEA
+    productionBrowserSourceMaps: true,
 
-  // === REVERSE PROXY PARA LA API ===
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://api.qubits-lm.com/api/:path*',
-      },
-    ];
-  },
+    // === REVERSE PROXY PARA LA API ===
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: 'https://api.qubits-lm.com/api/:path*',
+            },
+        ];
+    },
 
-  // === CABECERAS DE SEGURIDAD ===
-  async headers() {
-    const cspHeader = `
-        default-src 'self';
-        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://*.stripecdn.com;
-        style-src 'self' 'unsafe-inline' https://*.stripe.com;
-        img-src 'self' 'unsafe-inline' data: https://*.stripe.com https://*.stripecdn.com https://xqejlzevtuknggchvyfa.supabase.co;
-        font-src 'self' data:;
+    // === CABECERAS DE SEGURIDAD ===
+    async headers() {
+        const cspHeader = `
+            default-src 'self';
+            script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com;
+            style-src 'self' 'unsafe-inline';
+            img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co;
+            font-src 'self' data:;
+            frame-src 'self' https://*.stripe.com https://js.stripe.com;
+            
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Permite la conexión a tu API para llamadas REST y WebSockets (chat en tiempo real)
+            connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com;
+            // --- FIN DE LA CORRECCIÓN ---
 
-        frame-src 'self' https://*.stripe.com;
-        connect-src 'self' https://*.stripe.com;
-    `.replace(/\s{2,}/g, ' ').trim(); // Limpia espacios extra
+        `.replace(/\s{2,}/g, ' ').trim();
 
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          { key: 'Content-Security-Policy', value: cspHeader },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    { key: 'Content-Security-Policy', value: cspHeader },
+                    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                    { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+                ],
+            },
+        ];
+    },
+
+    // === OPTIMIZACIÓN DE IMÁGENES ===
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https' as const,
+                hostname: 'files.stripe.com',
+            },
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Permite que Next.js optimice las imágenes de tu bucket de Supabase
+            {
+                protocol: 'https' as const,
+                hostname: 'xqejlzevtuknggchvyfa.supabase.co',
+            }
+            // --- FIN DE LA CORRECCIÓN ---
         ],
-      },
-    ];
-  },
-
-  // === OPTIMIZACIÓN DE IMÁGENES ===
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https' as const,
-        hostname: 'files.stripe.com',
-        port: '',
-      },
-    ],
-  },
-  
-  // === ESLINT ===
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+    },
+    
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 };
 
-// Configuración para el Bundle Analyzer
 const withBundleAnalyzer = withBundleAnalyzerInit({
-  enabled: process.env.ANALYZE === 'true',
+    enabled: process.env.ANALYZE === 'true',
 });
 
-// Configuración para la PWA
 const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
+    dest: "public",
+    disable: process.env.NODE_ENV === 'development',
 });
 
-// Envolvemos nuestra configuración y hacemos una aserción de tipo para resolver el conflicto.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default withBundleAnalyzer(withPWA(nextConfig) as any);
