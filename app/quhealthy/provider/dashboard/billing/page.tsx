@@ -84,13 +84,14 @@ export default function BillingPage() {
             </CardHeader>
             <CardContent className="flex-grow space-y-3">
               <ul className="space-y-2 text-gray-300">
-                {plan.features.map((feature: string, index: number) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-green-400 mt-1 shrink-0"/>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+  {/* Verificamos que plan.features exista y sea un array antes de mapearlo */}
+  {Array.isArray(plan.features) && plan.features.map((feature: string, index: number) => (
+    <li key={index} className="flex items-start gap-2">
+      <Check className="w-5 h-5 text-green-400 mt-1 shrink-0"/>
+      <span>{feature}</span>
+    </li>
+  ))}
+</ul>
             </CardContent>
             <CardFooter>
               <Button 
