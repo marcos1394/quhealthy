@@ -215,14 +215,48 @@ function ActivatedFeatures() {
   );
 }
 
-// Botones de acción mejorados
-function ImprovedActionButtons({ orderNumber, planName, invoiceUrl, isNavigating, onContinue }: {
+// Dentro de tu archivo app/provider/payment/success/page.tsx
+
+function ImprovedActionButtons({ orderNumber, planName, isNavigating, onContinue }: {
   orderNumber: string;
   planName: string;
-  invoiceUrl: string;
   isNavigating: boolean;
   onContinue: () => void;
 }) {
+  // --- INICIO DE LA CORRECCIÓN ---
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Nueva función para manejar la descarga de forma segura a través del frontend
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      // 1. Llamamos a la API a través de la ruta relativa (usando el proxy)
+      const response = await axios.get(`/api/payments/invoice/${orderNumber}`, {
+        withCredentials: true,
+        responseType: 'blob', // Importante: le decimos a axios que esperamos un archivo
+      });
+      
+      // 2. Creamos un enlace temporal en memoria para descargar el archivo
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `comprobante-${orderNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiamos el enlace temporal
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      toast.error("No se pudo descargar el comprobante.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+  // --- FIN DE LA CORRECCIÓN ---
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -230,12 +264,12 @@ function ImprovedActionButtons({ orderNumber, planName, invoiceUrl, isNavigating
       transition={{ delay: 1.2 }}
       className="space-y-4"
     >
-      {/* Main CTA */}
+      {/* Main CTA (sin cambios) */}
       <Button
         onClick={onContinue}
         disabled={isNavigating}
         size="lg"
-        className="w-full h-14 text-lg font-semibold rounded-xl bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 hover:from-green-500 hover:via-green-400 hover:to-emerald-400 shadow-xl shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+        className="w-full h-14 text-lg ..."
       >
         {isNavigating ? (
           <div className="flex items-center gap-3">
@@ -250,21 +284,23 @@ function ImprovedActionButtons({ orderNumber, planName, invoiceUrl, isNavigating
         )}
       </Button>
 
-      {/* Secondary action */}
+      {/* Botón de Descarga Corregido */}
       {orderNumber !== "NoDisponible" && (
         <Button
           variant="outline"
-          asChild
+          onClick={handleDownload}
+          disabled={isDownloading}
           className="w-full h-12 border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
         >
-          <a href={invoiceUrl} target="_blank" rel="noopener noreferrer">
-            <Download className="w-4 h-4 mr-2" />
-            Descargar Comprobante
-          </a>
+          {isDownloading 
+            ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> 
+            : <Download className="w-4 h-4 mr-2" />
+          }
+          Descargar Comprobante
         </Button>
       )}
 
-      {/* Info text */}
+      {/* Info text (sin cambios) */}
       <div className="text-center pt-2">
         <p className="text-sm text-gray-400">
           🎉 Tu suscripción a <strong className="text-green-400">{planName}</strong> está activa
