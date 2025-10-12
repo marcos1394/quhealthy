@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, Suspense, useEffect } from "react";
@@ -419,13 +420,12 @@ function PaymentSuccessContent() {
                 )}
               </AnimatePresence>
 
-              <ImprovedActionButtons 
-                orderNumber={orderNumber}
-                planName={planName}
-                invoiceUrl={invoiceUrl}
-                isNavigating={isNavigating}
-                onContinue={handleContinue}
-              />
+             <ImprovedActionButtons 
+  orderNumber={orderNumber}
+  planName={planName}
+  isNavigating={isNavigating}
+  onContinue={handleContinue}
+/>
             </CardContent>
           </Card>
         </motion.div>
