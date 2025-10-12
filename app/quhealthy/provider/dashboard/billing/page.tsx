@@ -55,9 +55,12 @@ export default function BillingPage() {
     return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-purple-400" /></div>;
   }
 
-  if (error) {
-    return <div className="text-center text-red-400">Error al cargar los planes.</div>;
+  // --- INICIO DE LA CORRECCIÓN ---
+  // Si hay un error O si todavía no hay datos de planes, mostramos un estado de error/vacío.
+  if (error || !plans) {
+    return <div className="text-center text-red-400">Error al cargar los planes. Por favor, intenta de nuevo.</div>;
   }
+  // --- FIN DE LA CORRECCIÓN ---
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
@@ -65,14 +68,15 @@ export default function BillingPage() {
         <h1 className="text-3xl font-bold text-white">Gestiona tu Suscripción</h1>
         <p className="text-gray-400 mt-1">
           {user?.planStatus === 'trial' 
-            ? 'Tu período de prueba está por terminar. Elige un plan para continuar sin interrupciones.'
+            ? 'Tu período de prueba está por terminar. Elige un plan para continuar.'
             : 'Elige el plan que mejor se adapte a tu negocio.'
           }
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {plans?.map((plan: any) => (
+        {/* No necesitamos optional chaining aquí porque ya lo validamos arriba */}
+        {plans.map((plan: any) => (
           <Card key={plan.id} className="bg-gray-800/50 border-gray-700 flex flex-col">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-purple-300">{plan.name}</CardTitle>
