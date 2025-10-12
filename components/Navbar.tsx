@@ -82,10 +82,10 @@ export const Navbar: React.FC = () => {
     if (!user) return null;
 
     const providerMenuItems = [
-      { name: 'Dashboard', href: '/quhealthy/dashboard', icon: LayoutDashboard },
-      { name: 'Mi Tienda', href: '/quhealthy/onboarding/marketplace', icon: Store },
-      { name: 'Agenda', href: '/quhealthy/dashboard/calendar', icon: Calendar },
-      { name: 'Configuración', href: '/quhealthy/settings', icon: Settings },
+      { name: 'Dashboard', href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
+      { name: 'Mi Tienda', href: '/quhealthy/provider/onboarding/marketplace', icon: Store },
+      { name: 'Agenda', href: '/quhealthy/provider/dashboard/calendar', icon: Calendar },
+      { name: 'Configuración', href: '/quhealthy/provider/dashboard/settings', icon: Settings },
     ];
     
     const consumerMenuItems = [
