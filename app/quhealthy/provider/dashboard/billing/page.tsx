@@ -76,7 +76,7 @@ export default function BillingPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* No necesitamos optional chaining aquí porque ya lo validamos arriba */}
-        {plans.map((plan: any) => (
+{Array.isArray(plans) && plans.map((plan: any) => (
           <Card key={plan.id} className="bg-gray-800/50 border-gray-700 flex flex-col">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-purple-300">{plan.name}</CardTitle>
