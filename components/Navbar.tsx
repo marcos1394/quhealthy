@@ -48,16 +48,25 @@ export const Navbar: React.FC = () => {
   const userRole = user?.role;
   // --- FIN DE LA CORRECCIÓN ---
 
-  const handleLogout = async () => {
+ const handleLogout = async () => {
     try {
+      // Guardamos el rol ANTES de limpiar la sesión
+      const roleBeforeLogout = user?.role;
+
       await axios.post('/api/auth/logout', {}, { withCredentials: true });
-      clearSession(); // Usamos la acción del nuevo store
+      clearSession();
       toast.success('Sesión cerrada exitosamente.');
-      router.push('/');
+
+      // Redirigimos según el rol que tenía el usuario
+      if (roleBeforeLogout === 'provider') {
+        router.push('/quhealthy/authentication/providers/login');
+      } else {
+        router.push('/'); // Los consumidores van a la página de inicio
+      }
     } catch (error) {
       toast.error("No se pudo cerrar la sesión.");
       clearSession();
-      router.push('/');
+      router.push('/'); // Fallback a la página de inicio
     }
   };
 

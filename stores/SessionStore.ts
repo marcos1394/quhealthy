@@ -6,7 +6,7 @@ import axios from 'axios';
 
 // Interfaz para una conexión social individual
 interface SocialConnection {
-  id: any;
+  id: number;
   platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'google_business';
 }
 
