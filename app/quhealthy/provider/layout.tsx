@@ -51,7 +51,7 @@ export default function ProviderDashboardLayout({
   // 3. Lógica de Protección de Ruta
   // Si después de cargar no hay usuario, o el rol no es 'provider', redirige al login
   if (!user || user.role !== 'provider') {
-    router.replace('/authentication/providers/login');
+    router.replace('/quhealthy/authentication/providers/login');
     return ( // Muestra un loader mientras redirige para evitar parpadeos
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
