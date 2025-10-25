@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -343,14 +344,14 @@ const handleContinue = async () => {
       
       // --- INICIO CORRECCIÓN DE RUTAS DE REDIRECCIÓN ---
       // Las rutas de destino también deben ser actualizadas a la nueva estructura.
-      let nextRoute = "/provider/dashboard";
+      let nextRoute = "/quhealthy/provider/dashboard";
 
       if (!onboardingStatus.kyc.isComplete) {
-        nextRoute = "/provider/onboarding/kyc";
+        nextRoute = "/quhealthy/provider/onboarding/kyc";
       } else if (onboardingStatus.license.isRequired && !onboardingStatus.license.isComplete) {
-        nextRoute = "/provider/onboarding/validatelicense";
+        nextRoute = "/quhealthy/provider/onboarding/validatelicense";
       } else if (!onboardingStatus.marketplace.isConfigured) {
-        nextRoute = "/provider/onboarding/marketplace";
+        nextRoute = "/quhealthy/provider/onboarding/marketplace";
       }
       // --- FIN CORRECCIÓN DE RUTAS DE REDIRECCIÓN ---
       
