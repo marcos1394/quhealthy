@@ -76,7 +76,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({ status }
                 <p className="text-sm text-gray-300/80">{config.description}</p>
               </div>
             </div>
-            <Link href="/quhealthy/authentication/providers/onboarding/checklist" className="flex-shrink-0 w-full sm:w-auto">
+            <Link href="/quhealthy/providers/onboarding/checklist" className="flex-shrink-0 w-full sm:w-auto">
               <Button className="w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold">
                 {config.actionText} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

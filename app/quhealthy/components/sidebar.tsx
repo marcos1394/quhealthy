@@ -22,14 +22,14 @@ import { Button } from '@/components/ui/button'; // Asegúrate que la ruta a tu 
 
 // Array de configuración para los elementos de navegación.
 const navItems = [
-   { name: 'Dashboard', href: '/provider/dashboard', icon: LayoutDashboard },
-  { name: 'Mi Tienda', href: '/provider/onboarding/marketplace', icon: Store },
-  { name: 'Agenda', href: '/provider/dashboard/calendar', icon: Calendar },
-  { name: 'Mis Citas', href: '/provider/dashboard/appointments', icon: ClipboardList },
-  { name: 'Reseñas', href: '/provider/dashboard/reviews', icon: MessageSquare }, // <-- AÑADE ESTA LÍNEA
-  { name: 'Pacientes', href: '/provider/patients', icon: Users },
-  { name: 'Reportes', href: '/provider/reports', icon: BarChart3 },
-  { name: 'Configuración', href: '/provider/settings', icon: Settings },
+   { name: 'Dashboard', href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
+  { name: 'Mi Tienda', href: '/quhealthy/provider/onboarding/marketplace', icon: Store },
+  { name: 'Agenda', href: '/quhealthy/provider/dashboard/calendar', icon: Calendar },
+  { name: 'Mis Citas', href: '/quhealthy/provider/dashboard/appointments', icon: ClipboardList },
+  { name: 'Reseñas', href: '/quhealthy/provider/dashboard/reviews', icon: MessageSquare }, // <-- AÑADE ESTA LÍNEA
+  { name: 'Pacientes', href: '/quhealthy/provider/patients', icon: Users },
+  { name: 'Reportes', href: '/quhealthy/provider/reports', icon: BarChart3 },
+  { name: 'Configuración', href: '/quhealthy/provider/settings', icon: Settings },
 ];
 
 export const Sidebar = () => {
