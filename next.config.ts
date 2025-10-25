@@ -25,8 +25,8 @@ const nextConfig = {
             font-src 'self' data:;
             frame-src 'self' https://*.stripe.com https://js.stripe.com;
             
-            connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com;
-
+            connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://api.mapbox.com;
+            worker-src 'self' blob:;
         `.replace(/\s{2,}/g, ' ').trim();
 
         return [
