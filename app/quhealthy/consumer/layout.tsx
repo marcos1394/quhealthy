@@ -33,7 +33,7 @@ export default function ConsumerDashboardLayout({
   // Lógica de Protección de Ruta:
   // Si después de cargar no hay usuario, o el rol no es 'consumer', redirige.
   if (!user || user.role !== 'consumer') {
-    router.replace('/authentication/consumer/login');
+    router.replace('/quhealthy/authentication/consumer/login');
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <p className="text-gray-400">Redirigiendo...</p>

@@ -199,7 +199,7 @@ export default function BookingSuccessPage() {
             <Button onClick={handleShare} variant="outline" className="border-gray-600"><Share className="w-4 h-4 mr-2"/>Compartir</Button>
         </div>
 
-        <Button onClick={() => router.push('/consumer/appointments')} className="w-full mt-4 bg-purple-600 hover:bg-purple-700">Ir a Mis Citas</Button>
+        <Button onClick={() => router.push('/quhealthy/consumer/dashboard/appointments')} className="w-full mt-4 bg-purple-600 hover:bg-purple-700">Ir a Mis Citas</Button>
       </motion.div>
     </div>
   );
