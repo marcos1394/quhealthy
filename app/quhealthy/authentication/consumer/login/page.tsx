@@ -47,7 +47,7 @@ export default function ConsumerLoginPage() {
 
     try {
       // Usamos el nuevo endpoint de login para consumidores
-      await axios.post('/api/auth/cosumer/login', formData, {
+      await axios.post('/api/auth/consumer/login', formData, {
         withCredentials: true
       });
 
