@@ -326,26 +326,33 @@ function PaymentSuccessContent() {
     ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/payments/invoice/${orderNumber}`
     : "#";
 
-  const handleContinue = async () => {
+const handleContinue = async () => {
     setIsNavigating(true);
     setError(null);
     
     try {
+      // --- INICIO DE LA CORRECCIÓN ---
+      // Usamos la ruta relativa correcta que pasa por el proxy de Vercel.
       const response = await axios.get<OnboardingStatusResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/status`,
+        '/api/auth/provider/status',
         { withCredentials: true }
       );
+      // --- FIN DE LA CORRECCIÓN ---
       
       const { onboardingStatus } = response.data;
-      let nextRoute = "/quhealthy/dashboard";
+      
+      // --- INICIO CORRECCIÓN DE RUTAS DE REDIRECCIÓN ---
+      // Las rutas de destino también deben ser actualizadas a la nueva estructura.
+      let nextRoute = "/provider/dashboard";
 
       if (!onboardingStatus.kyc.isComplete) {
-        nextRoute = "/quhealthy/authentication/providers/onboarding/kyc";
+        nextRoute = "/provider/onboarding/kyc";
       } else if (onboardingStatus.license.isRequired && !onboardingStatus.license.isComplete) {
-        nextRoute = "/quhealthy/authentication/providers/onboarding/validatelicense";
+        nextRoute = "/provider/onboarding/validatelicense";
       } else if (!onboardingStatus.marketplace.isConfigured) {
-        nextRoute = "/quhealthy/authentication/providers/onboarding/marketplaceconfiguration";
+        nextRoute = "/provider/onboarding/marketplace";
       }
+      // --- FIN CORRECCIÓN DE RUTAS DE REDIRECCIÓN ---
       
       toast.success("¡Redirigiendo a tu configuración!", { autoClose: 1500 });
       
@@ -353,7 +360,6 @@ function PaymentSuccessContent() {
         router.push(nextRoute);
       }, 1000);
       
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "No se pudo verificar tu estado.";
       setError(errorMessage);
