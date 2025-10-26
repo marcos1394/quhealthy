@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useEffect, useState, Suspense } from 'react';
@@ -34,8 +35,8 @@ function VerificationContent() {
         // Redirigimos al login correcto después de 3 segundos
         setTimeout(() => {
           const loginUrl = role === 'provider' 
-            ? '/provider/authentication/login' 
-            : '/login';
+            ? '/quhealthy/authentication/providers/login' 
+            : '/quhealthy/authentication/consumer/login';
           router.push(`${loginUrl}?verified=true`);
         }, 3000);
       })
