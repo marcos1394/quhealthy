@@ -23,6 +23,7 @@ interface FormData {
   password: string;
   confirmPassword: string;
   acceptTerms: boolean;
+  phone: '', // <-- AÑADE ESTA LÍNEA
   serviceType: 'health' | 'beauty';
 }
 
@@ -48,6 +49,7 @@ export default function ProviderSignupPage() {
     password: "",
     confirmPassword: "",
     acceptTerms: false,
+    phone: '', // <-- AÑADE ESTA LÍNEA
     serviceType: "health"
   });
 
@@ -107,6 +109,7 @@ export default function ProviderSignupPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         serviceType: formData.serviceType,
+        phone: formData.phone.trim(), // <-- AÑADE ESTA LÍNEA
         acceptTerms: formData.acceptTerms, // <-- AÑADE ESTA LÍNEA
         role: "provider"
       };
@@ -419,6 +422,7 @@ export default function ProviderSignupPage() {
                     }`}
                     required
                   />
+
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                     {passwordsMatch && (
                       <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -445,6 +449,28 @@ export default function ProviderSignupPage() {
                   </p>
                 )}
               </div>
+              {/* Phone Field */}
+<div className="space-y-2">
+  <label className="block text-sm font-medium text-gray-300">
+    Número de Teléfono (WhatsApp)
+  </label>
+  <div className="relative">
+    <input
+      type="tel"
+      name="phone"
+      placeholder="+52 667 123 4567"
+      value={formData.phone}
+      onChange={handleInputChange}
+      onFocus={() => setFocusedField('phone')}
+      onBlur={() => setFocusedField(null)}
+      className={`w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 bg-gray-700/50 text-white placeholder-gray-400 ${
+        focusedField === 'phone' ? 'border-purple-500 shadow-lg shadow-purple-500/20' :
+        'border-gray-600 hover:border-gray-500'
+      }`}
+      required
+    />
+  </div>
+</div>
 
               {/* Password Requirements */}
               <AnimatePresence>
