@@ -220,12 +220,20 @@ export default function ProviderLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <motion.div className="space-y-2" variants={staggerItem}>
-  <label className="block text-sm font-medium text-gray-300">
+             <label className="block text-sm font-medium text-gray-300">
     Email o Teléfono
   </label>
-  <div className="relative group">
-    <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ...`} />
-    <input
+              <div className="relative group">
+                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
+                  focusedField === 'email' 
+                    ? 'text-purple-400' 
+                    : getFieldStatus('email') === 'success'
+                    ? 'text-teal-400'
+                    : getFieldStatus('email') === 'error'
+                    ? 'text-red-400'
+                    : 'text-gray-500'
+                }`} />
+                <input
       ref={emailRef}
       type="text" // <-- Cambiado a "text" para aceptar ambos
       name="loginIdentifier" // <-- Cambiado a "loginIdentifier"
@@ -234,9 +242,17 @@ export default function ProviderLoginPage() {
       onChange={handleInputChange}
       onFocus={() => setFocusedField('loginIdentifier')} // <-- Cambiado a "loginIdentifier"
       onBlur={() => setFocusedField(null)}
-      className={`w-full pl-11 pr-12 py-4 ...`} // (tus clases se mantienen)
-      required
-    />
+                  className={`w-full pl-11 pr-12 py-4 rounded-xl bg-white/5 backdrop-blur-sm border-2 transition-all duration-300 text-white placeholder-gray-500 ${
+                    focusedField === 'email'
+                      ? 'border-purple-400 bg-white/10 shadow-lg shadow-purple-400/20'
+                      : getFieldStatus('email') === 'success'
+                      ? 'border-teal-400 bg-teal-900/10'
+                      : getFieldStatus('email') === 'error'
+                      ? 'border-red-400 bg-red-900/10'
+                      : 'border-gray-600 hover:border-gray-500'
+                  }`}
+                  required
+                />
                 {getFieldStatus('email') === 'success' && (
                   <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-teal-400" />
                 )}
