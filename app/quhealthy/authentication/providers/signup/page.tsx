@@ -138,8 +138,14 @@ export default function ProviderSignupPage() {
   };
 
   const handleGoogleSignup = async () => {
-    toast.info("Próximamente disponible", { position: "top-right" });
-  };
+  try {
+    const { data } = await axios.get('/api/auth/social/google'); // Llamada al nuevo endpoint
+    window.location.href = data.authUrl;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    toast.error("No se pudo iniciar sesión con Google.");
+  }
+};
 
   // Validaciones individuales
   const isEmailValid = formData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
