@@ -82,16 +82,16 @@ export const Navbar: React.FC = () => {
 
     // Rutas corregidas para el dashboard del proveedor
     const providerMenuItems = [
-      { name: 'Dashboard', href: '/provider/dashboard', icon: LayoutDashboard },
-      { name: 'Marketing', href: '/provider/dashboard/marketing', icon: Megaphone },
-      { name: 'Mi Tienda', href: '/provider/onboarding/marketplace', icon: Store },
-      { name: 'Agenda', href: '/provider/dashboard/calendar', icon: Calendar },
-      { name: 'Configuración', href: '/provider/dashboard/settings', icon: Settings },
+      { name: 'Dashboard', href: '/quhealthy/providers/dashboard', icon: LayoutDashboard },
+      { name: 'Marketing', href: '/quhealthy/providers/dashboard/marketing', icon: Megaphone },
+      { name: 'Mi Tienda', href: '/quhealthy/providers/onboarding/marketplace', icon: Store },
+      { name: 'Agenda', href: '/quhealthy/providers/dashboard/calendar', icon: Calendar },
+      { name: 'Configuración', href: '/quhealthy/providers/dashboard/settings', icon: Settings },
     ];
     
     const consumerMenuItems = [
-      { name: 'Mi Panel', href: '/consumer/dashboard', icon: LayoutDashboard },
-      { name: 'Mis Citas', href: '/consumer/appointments', icon: UserCircle },
+      { name: 'Mi Panel', href: '/quhealthy/consumer/dashboard', icon: LayoutDashboard },
+      { name: 'Mis Citas', href: '/quhealthy/consumer/appointments', icon: UserCircle },
     ];
 
     const menuItems = userRole === 'provider' ? providerMenuItems : consumerMenuItems;
@@ -133,13 +133,13 @@ export const Navbar: React.FC = () => {
 
   const AuthButtons = () => (
     <div className="flex items-center gap-4">
-      <Link href="/provider/authentication/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:block">
+      <Link href="/quhealthy/authentication/providers/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:block">
         Soy Proveedor
       </Link>
-      <Link href="/login" className="text-sm font-medium text-white hover:text-purple-400 transition-colors">
+      <Link href="/quhealthy/authentication/providers/login" className="text-sm font-medium text-white hover:text-purple-400 transition-colors">
         Ingresar
       </Link>
-      <Link href="/signup">
+      <Link href="/quhealthy/authentication/providers/signup">
         <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white border-0">
           Crear Cuenta
         </Button>
@@ -219,15 +219,15 @@ export const Navbar: React.FC = () => {
                             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Mi Cuenta</p>
                             {userRole === 'provider' ? (
                                 <>
-                                    <Link href="/provider/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Dashboard</Link>
-                                    <Link href="/provider/dashboard/marketing" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Megaphone size={16}/> Marketing</Link>
-                                    <Link href="/provider/onboarding/marketplace" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Store size={16}/> Mi Tienda</Link>
-                                    <Link href="/provider/dashboard/calendar" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Calendar size={16}/> Agenda</Link>
+                                    <Link href="/quhealthy/provider/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Dashboard</Link>
+                                    <Link href="/quhealthy/provider/dashboard/marketing" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Megaphone size={16}/> Marketing</Link>
+                                    <Link href="/quhealthy/provider/onboarding/marketplace" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Store size={16}/> Mi Tienda</Link>
+                                    <Link href="/quhealthy/provider/dashboard/calendar" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Calendar size={16}/> Agenda</Link>
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/consumer/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Mi Panel</Link>
-                                    <Link href="/consumer/appointments" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><UserCircle size={16}/> Mis Citas</Link>
+                                    <Link href="/quhealthy/consumer/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Mi Panel</Link>
+                                    <Link href="/quhealthy/consumer/appointments" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><UserCircle size={16}/> Mis Citas</Link>
                                 </>
                             )}
                             <Button variant="destructive" onClick={handleLogout} className="w-full justify-start mt-4">
