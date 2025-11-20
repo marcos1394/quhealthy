@@ -71,6 +71,7 @@ export default function EnhancedCategorySelection({
       const filteredCategories = categoriesResponse.data.find(p => p.name === parentCategoryName)?.categories || [];
       setCategories(filteredCategories);
       setAllTags(tagsResponse.data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError('No se pudieron cargar los datos.');
       toast.error('Error al cargar datos.');
