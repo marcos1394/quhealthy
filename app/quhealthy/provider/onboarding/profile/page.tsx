@@ -78,7 +78,7 @@ export default function OnboardingProfilePage() {
       toast.success("¡Perfil completado exitosamente!", { autoClose: 2000 });
       
       setTimeout(() => {
-        router.push('/quhealthy/onboarding/checklist');
+        router.push('/quhealthy/provider/onboarding/checklist');
       }, 1500);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
