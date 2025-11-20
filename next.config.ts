@@ -22,10 +22,10 @@ const nextConfig = {
         default-src 'self';
         script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://places.googleapis.com;
+        img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com;
         font-src 'self' data: https://fonts.gstatic.com;
         frame-src 'self' https://*.stripe.com https://js.stripe.com;
-        connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com;
+        connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com https://places.googleapis.com;
     `.replace(/\s{2,}/g, ' ').trim();
 
         return [
