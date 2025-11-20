@@ -120,7 +120,7 @@ export default function OnboardingChecklistPage(): React.JSX.Element {
       console.log("✅ Onboarding completo! Redirigiendo al Dashboard...");
       toast.success("¡Configuración completa! Bienvenido/a.", { autoClose: 2000 });
       setTimeout(() => {
-        router.replace('/quhealthy/dashboard');
+        router.replace('/quhealthy/provider/dashboard');
       }, 1500);
     }
   }, [loading, completedSteps, totalRequiredSteps, router]);
