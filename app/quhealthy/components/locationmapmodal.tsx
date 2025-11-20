@@ -294,7 +294,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect }
           mapContainerStyle={mapContainerStyle}
           zoom={5}
           center={defaultCenter}
-          options={Option} // Usa tus opciones de estilo oscuro
+          options={mapOptions} // Usa tus opciones de estilo oscuro
           onLoad={(map) => setMap(map)}
           onClick={(e) => e.latLng && processLocationSelection(e.latLng.lat(), e.latLng.lng())}
         >
