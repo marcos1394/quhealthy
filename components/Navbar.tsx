@@ -56,7 +56,7 @@ export const Navbar: React.FC = () => {
       
       // Redirección inteligente post-logout
       if (roleBeforeLogout === 'provider') {
-        router.push('/provider/authentication/login');
+        router.push('/quhealthy/authentication/providers/login');
       } else {
         router.push('/');
       }
