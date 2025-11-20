@@ -17,17 +17,16 @@ const nextConfig = {
 
     // === CABECERAS DE SEGURIDAD ===
     async headers() {
-        const cspHeader = `
-            default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com;
-            style-src 'self' 'unsafe-inline';
-            img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co;
-            font-src 'self' data:;
-            frame-src 'self' https://*.stripe.com https://js.stripe.com;
-            
-            connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://*.mapbox.com;
-            worker-src 'self' blob:;
-        `.replace(/\s{2,}/g, ' ').trim();
+        // en next.config.mjs
+    const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com;
+        font-src 'self' data: https://fonts.gstatic.com;
+        frame-src 'self' https://*.stripe.com https://js.stripe.com;
+        connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com;
+    `.replace(/\s{2,}/g, ' ').trim();
 
         return [
             {
