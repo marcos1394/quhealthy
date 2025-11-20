@@ -111,32 +111,124 @@ interface LocationPickerProps {
 
 // --- COMPONENTE INTERNO (Lógica del Mapa y Autocomplete) ---
 // Este componente solo se monta cuando la API de Google está lista.
+
+// --- COMPONENTE INTERNO (Lógica del Mapa y Autocomplete Nueva API) ---
 const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [currentAddress, setCurrentAddress] = useState('');
-  const [placeName, setPlaceName] = useState('');
+  
+  // Estados para el Autocomplete manual
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState('');
 
-  // Inicializamos el hook de autocomplete
-  const {
-    ready,
-    value,
-    suggestions: { status, data },
-    setValue,
-    clearSuggestions,
-  } = usePlacesAutocomplete({
-    requestOptions: {
-      componentRestrictions: { country: "mx" }, // Restringir a México (opcional)
-    },
-    debounce: 300,
-    initOnMount: true, // IMPORTANTE: Inicializar inmediatamente porque ya sabemos que la API está cargada
-  });
+  // --- 1. NUEVA LÓGICA DE BÚSQUEDA (Places API New) ---
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    if (value.length < 3) {
+      setSuggestions([]);
+      return;
+    }
 
-  // Función auxiliar para extraer componentes de dirección
-  const extractAddressComponents = (components: google.maps.GeocoderAddressComponent[]) => {
+    try {
+      const response = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+        },
+        body: JSON.stringify({
+          input: value,
+          includedRegionCodes: ['mx'], // Restringir a México
+          // locationBias: ... (Opcional: sesgar por ubicación del mapa)
+        })
+      });
+      
+      const data = await response.json();
+      setSuggestions(data.suggestions || []);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Error fetching places:", error);
+    }
+  };
+
+  // --- 2. PROCESAR SELECCIÓN ---
+  const handleSelectPrediction = async (placeId: string, description: string) => {
+    setInputValue(description);
+    setShowSuggestions(false);
+    setIsProcessing(true);
+
+    try {
+      // Obtenemos coordenadas usando Geocoder (más barato y fácil que Places Details para esto)
+      const geocoder = new google.maps.Geocoder();
+      const result = await geocoder.geocode({ placeId: placeId });
+
+      if (result.results[0]) {
+        const { lat, lng } = result.results[0].geometry.location;
+        const latNum = lat();
+        const lngNum = lng();
+
+        map?.panTo({ lat: latNum, lng: lngNum });
+        map?.setZoom(16);
+        
+        // Llamamos a la lógica de procesamiento central
+        processLocationSelection(latNum, lngNum, result.results[0]);
+      }
+    } catch (error) {
+      toast.error("Error al obtener detalles del lugar.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Lógica central para procesar cualquier ubicación (Click o Buscador)
+  const processLocationSelection = useCallback((lat: number, lng: number, geocodeResult?: google.maps.GeocoderResult) => {
+    setSelectedLocation({ lat, lng }); // Actualizamos el PIN
+
+    // Si no tenemos el resultado del geocoder (vino de un click), lo buscamos
+    if (!geocodeResult) {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          finalizeSelection(lat, lng, results[0]);
+        }
+      });
+    } else {
+      finalizeSelection(lat, lng, geocodeResult);
+    }
+  }, [onLocationSelect]);
+
+  const finalizeSelection = (lat: number, lng: number, result: google.maps.GeocoderResult) => {
+    const formattedAddress = result.formatted_address;
+    const components = extractAddressComponents(result); // Usa tu función existente
+    
+    setCurrentAddress(formattedAddress);
+    if (!inputValue) setInputValue(formattedAddress); // Solo actualiza input si estaba vacío o fue click
+
+    onLocationSelect({
+      lat,
+      lng,
+      address: formattedAddress,
+      name: components.neighborhood || "Ubicación seleccionada",
+      validationDetails: {
+        isValid: true,
+        message: "Verificado por Google",
+        formattedAddress,
+        addressComponents: components,
+        confidence: 1,
+        isServiceArea: true
+      }
+    });
+  };
+
+  // Tu función auxiliar existente
+  const extractAddressComponents = (result: google.maps.GeocoderResult) => {
+    const components = result.address_components;
     const getComponent = (type: string) => components.find(c => c.types.includes(type))?.long_name || '';
-
     return {
       street: getComponent('route'),
       houseNumber: getComponent('street_number'),
@@ -148,244 +240,91 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect }
     };
   };
 
-  /**
-   * Procesa la selección final, ya sea por clic o por autocompletado.
-   * Obtiene detalles ricos (nombre del negocio, dirección formateada).
-   */
-  const processLocation = useCallback(async (lat: number, lng: number, placeId?: string) => {
-    setIsProcessing(true);
-    setSelectedLocation({ lat, lng });
-
-    try {
-      let formattedAddress = '';
-      let name = '';
-      let addressComponents: any = {};
-
-      // Opción A: Si tenemos un PlaceID (del autocomplete o clic en POI), usamos PlacesService
-      if (placeId && map) {
-        const service = new google.maps.places.PlacesService(map);
-        
-        await new Promise<void>((resolve) => {
-          service.getDetails({
-            placeId: placeId,
-            fields: ['name', 'formatted_address', 'address_components', 'geometry']
-          }, (result, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && result) {
-              name = result.name || '';
-              formattedAddress = result.formatted_address || '';
-              if (result.address_components) {
-                addressComponents = extractAddressComponents(result.address_components);
-              }
-            }
-            resolve();
-          });
-        });
-      }
-
-      // Opción B: Si no tenemos datos aún (ej. clic en mapa sin POI), usamos Geocoder
-      if (!formattedAddress) {
-        const geocoder = new google.maps.Geocoder();
-        const response = await geocoder.geocode({ location: { lat, lng } });
-        
-        if (response.results[0]) {
-          const result = response.results[0];
-          formattedAddress = result.formatted_address;
-          addressComponents = extractAddressComponents(result.address_components);
-          // Si no teníamos nombre, intentamos usar el barrio o la calle
-          if (!name) {
-            name = addressComponents.neighborhood || addressComponents.street || "Ubicación seleccionada";
-          }
-        }
-      }
-
-      // Actualizamos estado local
-      setCurrentAddress(formattedAddress);
-      setPlaceName(name);
-      setValue(formattedAddress, false); // Actualiza el input sin buscar
-
-      // Enviamos al padre
-      const locationData: LocationData = {
-        lat,
-        lng,
-        address: formattedAddress,
-        name: name,
-        validationDetails: {
-          isValid: true,
-          message: "Ubicación verificada por Google",
-          formattedAddress: formattedAddress,
-          addressComponents: addressComponents,
-          isServiceArea: true,
-          confidence: 1
-        }
-      };
-      onLocationSelect(locationData);
-
-    } catch (error) {
-      console.error("Error processing location:", error);
-      toast.error("No se pudo obtener la información de la ubicación.");
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [map, onLocationSelect, setValue]);
-
-
-  // --- EVENTOS DEL MAPA ---
-
-  const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
-    setMap(mapInstance);
-  }, []);
-
-  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
-    if (e.latLng) {
-      // Si el usuario hizo clic en un "Lugar de interés" (POI), usamos su placeId
-      const placeId = 'placeId' in e ? (e as any).placeId : undefined;
-      
-      // Detenemos la propagación si es un POI para evitar clics dobles
-      if(placeId) {
-          e.stop(); 
-      }
-
-      processLocation(e.latLng.lat(), e.latLng.lng(), placeId);
-    }
-  }, [processLocation]);
-
-  // --- EVENTOS DEL AUTOCOMPLETE ---
-
-  const handleSelectPrediction = async (address: string, placeId: string) => {
-    setValue(address, false);
-    clearSuggestions();
-
-    try {
-      const results = await getGeocode({ address });
-      const { lat, lng } = await getLatLng(results[0]);
-      
-      map?.panTo({ lat, lng });
-      map?.setZoom(17);
-      processLocation(lat, lng, placeId);
-    } catch (error) {
-      toast.error("Error al obtener las coordenadas.");
-    }
-  };
-
-  const handleCurrentLocation = () => {
-    if (navigator.geolocation) {
-      setIsProcessing(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          map?.panTo({ lat: latitude, lng: longitude });
-          map?.setZoom(17);
-          processLocation(latitude, longitude);
-        },
-        () => {
-          toast.error("No se pudo obtener tu ubicación.");
-          setIsProcessing(false);
-        }
-      );
-    } else {
-        toast.error("Tu navegador no soporta geolocalización.");
-    }
-  };
-
+  // --- RENDERIZADO (Ajustado para la nueva estructura de datos) ---
   return (
     <div className="space-y-4 relative">
-      
-      {/* --- BARRA DE BÚSQUEDA --- */}
       <div className="relative z-10">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 pointer-events-none" />
           <input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            disabled={!ready}
+            value={inputValue}
+            onChange={handleInputChange}
             placeholder="Busca tu negocio, calle o colonia..."
             className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-gray-800 border-2 border-gray-600 focus:border-purple-500 text-white placeholder-gray-500 transition-all shadow-lg outline-none"
           />
-          
-          {/* Botón Limpiar */}
-          {value && (
+           {inputValue && (
             <button 
-                onClick={() => setValue("")}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white transition-colors"
+                onClick={() => { setInputValue(""); setSuggestions([]); }}
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-white"
             >
                 <X className="w-4 h-4"/>
             </button>
           )}
-
-          {/* Botón GPS */}
-          <button
-            onClick={handleCurrentLocation}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-purple-500/20 text-purple-400 transition-colors"
-            title="Usar mi ubicación actual"
-          >
-            <Navigation className="w-5 h-5" />
-          </button>
         </div>
 
-        {/* LISTA DE SUGERENCIAS */}
-        {status === "OK" && (
+        {/* Lista de Resultados (Estructura de la Nueva API) */}
+        {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto">
-            {data.map(({ place_id, description, structured_formatting }) => (
-              <li
-                key={place_id}
-                onClick={() => handleSelectPrediction(description, place_id)}
-                className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-0 transition-colors flex items-start gap-3"
-              >
-                <MapPin className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{structured_formatting.main_text}</p>
-                    <p className="text-xs text-gray-400 truncate">{structured_formatting.secondary_text}</p>
-                </div>
-              </li>
-            ))}
+            {suggestions.map((item: any) => {
+               // La API nueva devuelve una estructura diferente: item.placePrediction
+               const prediction = item.placePrediction;
+               const mainText = prediction.text.text;
+               const secondaryText = prediction.structuredFormat?.secondaryText?.text || "";
+
+               return (
+                <li
+                  key={prediction.placeId}
+                  onClick={() => handleSelectPrediction(prediction.placeId, mainText)}
+                  className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-0 transition-colors flex items-start gap-3"
+                >
+                  <MapPin className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{mainText}</p>
+                      <p className="text-xs text-gray-400 truncate">{secondaryText}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
 
-      {/* --- MAPA --- */}
       <div className="h-80 w-full rounded-xl overflow-hidden border-2 border-gray-700 shadow-inner relative">
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={5}
           center={defaultCenter}
-          options={mapOptions}
-          onLoad={onMapLoad}
-          onClick={onMapClick}
+          options={Option} // Usa tus opciones de estilo oscuro
+          onLoad={(map) => setMap(map)}
+          onClick={(e) => e.latLng && processLocationSelection(e.latLng.lat(), e.latLng.lng())}
         >
+          {/* CORRECCIÓN DEL PIN: Usamos MarkerF explícitamente y validamos selectedLocation */}
           {selectedLocation && (
             <MarkerF 
-                position={selectedLocation} 
-                animation={google.maps.Animation.DROP}
+                position={selectedLocation}
+                animation={window.google.maps.Animation.DROP} 
             />
           )}
         </GoogleMap>
-
-        {/* Overlay de Cargando */}
+        
         {isProcessing && (
-             <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm flex flex-col items-center justify-center z-20 text-white">
+             <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-20 text-white">
                 <Loader2 className="w-8 h-8 animate-spin text-purple-500 mb-2"/>
-                <span className="text-sm font-medium">Obteniendo detalles del lugar...</span>
+                <span className="text-sm font-medium">Procesando...</span>
              </div>
         )}
       </div>
-
-      {/* --- TARJETA DE RESULTADO --- */}
+      
+      {/* Tarjeta de Confirmación */}
       {currentAddress && !isProcessing && (
-        <div className="bg-gray-800/50 border border-purple-500/30 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-           <div className="p-2 bg-purple-500/10 rounded-lg">
-             <Building className="w-6 h-6 text-purple-400" />
-           </div>
-           <div className="flex-1">
-               <h4 className="text-sm font-bold text-white">{placeName}</h4>
-               <p className="text-xs text-gray-300 mt-1">{currentAddress}</p>
-               <div className="flex items-center gap-1 mt-2 text-green-400 text-xs font-medium">
-                 <CheckCircle2 className="w-3 h-3" />
-                 <span>Ubicación válida</span>
-               </div>
+        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 flex items-start gap-3 animate-in fade-in">
+           <CheckCircle2 className="w-6 h-6 text-green-400 mt-0.5 flex-shrink-0" />
+           <div>
+               <h4 className="text-sm font-semibold text-green-400">Ubicación Seleccionada</h4>
+               <p className="text-sm text-gray-300 mt-1">{currentAddress}</p>
            </div>
         </div>
       )}
-
     </div>
   );
 };
