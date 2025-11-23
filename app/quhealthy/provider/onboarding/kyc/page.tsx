@@ -139,7 +139,7 @@ export default function KycPage() {
         withCredentials: true,
       });
       toast.success("Documentos enviados correctamente.");
-      setTimeout(() => router.push('/provider/onboarding/checklist'), 1500);
+      setTimeout(() => router.push('/quhealthy/provider/onboarding/checklist'), 1500);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Error al subir documentos.");
     } finally {

@@ -1,324 +1,249 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 import { 
-  Shield, 
-  ArrowRight, 
+  GraduationCap, 
+  UploadCloud, 
+  X, 
   Loader2, 
-  AlertCircle, 
-  CheckCircle,
-  FileText,
-  Camera,
-  Info,
-  Clock
+  CheckCircle2, 
+  FileText, 
+  Clock, 
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FileUpload } from '@/app/quhealthy/components/Fleupload';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
-export default function LicenseValidationPage() {
+type LicenseStatus = 'pending' | 'processing_ai' | 'in_review' | 'verified' | 'rejected';
+
+export default function LicensePage() {
   const router = useRouter();
+  const [pageLoading, setPageLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const [status, setStatus] = useState<LicenseStatus>('pending');
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
+  
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({
-    licenseNumber: '',
-    frontImageUrl: '',
-    backImageUrl: '',
-  });
+  // 1. Cargar el estado actual al entrar
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const { data } = await axios.get('/api/license/status', { withCredentials: true });
+        setStatus(data.status);
+        if (data.status === 'rejected') {
+          setRejectionReason(data.rejectionReason);
+        }
+      } catch (error) {
+        console.error("Error al cargar estado de licencia");
+      } finally {
+        setPageLoading(false);
+      }
+    };
+    fetchStatus();
+  }, []);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState(1);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    if (e.target.name === 'licenseNumber' && e.target.value.trim() && currentStep === 1) {
-      setCurrentStep(2);
+    // Validaciones
+    if (selectedFile.size > 10 * 1024 * 1024) { // 10MB
+      return toast.error("El archivo es demasiado grande (Máx 10MB).");
     }
+    if (!selectedFile.type.startsWith('image/')) {
+      return toast.error("Por favor sube una imagen (JPG o PNG).");
+    }
+
+    setFile(selectedFile);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(selectedFile);
   };
 
-  const isFormValid = formData.licenseNumber.trim() && formData.frontImageUrl && formData.backImageUrl;
+  const removeFile = () => {
+    setFile(null);
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = '';
+  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!isFormValid) {
-      toast.warn("Por favor, completa todos los campos requeridos.");
-      return;
-    }
-    setLoading(true);
-    setError(null);
+  const handleSubmit = async () => {
+    if (!file) return;
+    setIsUploading(true);
+
+    const formData = new FormData();
+    formData.append('license', file);
 
     try {
-      await axios.put('/api/providers/onboarding/license', formData, { withCredentials: true });
-      toast.success("¡Documentos enviados exitosamente!");
-      router.push('/quhealthyonboarding/checklist');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error al procesar la solicitud.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const { data } = await axios.post('/api/license/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true
+      });
+
+      // Verificamos la respuesta de la IA
+      if (data.status === 'verified') {
+        toast.success("¡Cédula verificada exitosamente!");
+        setStatus('verified');
+      } else {
+        toast.info("Cédula recibida. Pasó a revisión manual.");
+        setStatus('in_review');
+      }
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Error al subir la cédula.");
     } finally {
-      setLoading(false);
+      setIsUploading(false);
     }
   };
 
-  const steps = [
-    { number: 1, title: 'Número de Cédula', completed: !!formData.licenseNumber.trim() },
-    { number: 2, title: 'Frente', completed: !!formData.frontImageUrl },
-    { number: 3, title: 'Reverso', completed: !!formData.backImageUrl }
-  ];
+  if (pageLoading) {
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-purple-500"/></div>;
+  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gray-900/10 opacity-20"></div>
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative w-full max-w-4xl"
-      >
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-2xl mb-6"
+  // --- VISTA: APROBADO ---
+  if (status === 'verified') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-800 border-green-500/30 text-white text-center p-8 shadow-2xl shadow-green-900/20">
+          <motion.div 
+            initial={{ scale: 0 }} animate={{ scale: 1 }}
+            className="mx-auto bg-green-500/10 p-4 rounded-full w-fit mb-4"
           >
-            <Shield className="w-10 h-10 text-white" />
+            <CheckCircle2 className="w-16 h-16 text-green-500" />
           </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
-          >
-            Validación Profesional
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed"
-          >
-            Verificamos tu cédula profesional para garantizar la confianza y seguridad de tus futuros pacientes
-          </motion.p>
-        </div>
+          <h2 className="text-2xl font-bold mb-2 text-green-400">¡Perfil Profesional Verificado!</h2>
+          <p className="text-gray-400 mb-8">
+            Hemos validado tu Cédula Profesional. Tu perfil ahora mostrará la insignia de verificación.
+          </p>
+          <Button onClick={() => router.push('/provider/onboarding/checklist')} className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg">
+            Continuar
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
-        {/* Progress Steps */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex justify-center mb-8"
-        >
-          <div className="flex items-center space-x-4 bg-slate-800/40 backdrop-blur-sm rounded-full px-6 py-3 border border-slate-700/50">
-            {steps.map((step, index) => (
-              <React.Fragment key={step.number}>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                    step.completed 
-                      ? 'bg-green-500 text-white' 
-                      : currentStep >= step.number 
-                        ? 'bg-purple-500 text-white' 
-                        : 'bg-slate-600 text-slate-400'
-                  }`}>
-                    {step.completed ? <CheckCircle className="w-4 h-4" /> : step.number}
-                  </div>
-                  <span className={`text-sm font-medium transition-colors duration-300 ${
-                    step.completed ? 'text-green-400' : currentStep >= step.number ? 'text-white' : 'text-slate-400'
-                  }`}>
-                    {step.title}
-                  </span>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`w-8 h-0.5 transition-colors duration-300 ${
-                    steps[index + 1].completed ? 'bg-green-500' : 'bg-slate-600'
-                  }`} />
-                )}
-              </React.Fragment>
-            ))}
+  // --- VISTA: EN REVISIÓN ---
+  if (status === 'in_review' || status === 'processing_ai') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-800 border-gray-700 text-white text-center p-8">
+          <div className="mx-auto bg-yellow-500/10 p-4 rounded-full w-fit mb-4">
+            <Clock className="w-12 h-12 text-yellow-400 animate-pulse" />
           </div>
-        </motion.div>
+          <h2 className="text-2xl font-bold mb-2">En Revisión</h2>
+          <p className="text-gray-400 mb-6">
+            Hemos recibido tu documento y nuestro equipo (o la IA) lo está analizando. Te notificaremos en cuanto esté listo.
+          </p>
+          <Button variant="outline" onClick={() => router.push('/provider/onboarding/checklist')} className="w-full border-gray-600 text-gray-300">
+            Volver al Checklist
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
-        {/* Main Form Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
-        >
-          <form onSubmit={handleSubmit} className="p-8">
-            {/* Error Alert */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mb-6"
+  // --- VISTA: FORMULARIO DE SUBIDA ---
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 md:p-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="w-full max-w-xl"
+      >
+        {/* Alerta de Rechazo */}
+        {status === 'rejected' && (
+           <div className="mb-6 bg-red-500/10 border border-red-500/50 rounded-xl p-4 flex items-start gap-3 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0" />
+              <div>
+                  <h4 className="font-bold text-red-400">Verificación Rechazada</h4>
+                  <p className="text-sm text-red-200">{rejectionReason || "El documento no era legible o no corresponde a una Cédula Profesional válida."}</p>
+              </div>
+           </div>
+        )}
+
+        <Card className="bg-gray-800 border-gray-700 text-white shadow-2xl">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto bg-purple-500/10 p-4 rounded-full w-fit mb-4">
+              <GraduationCap className="w-10 h-10 text-purple-400" />
+            </div>
+            <CardTitle className="text-2xl font-bold">Cédula Profesional</CardTitle>
+            <CardDescription className="text-gray-400">
+              Sube una foto clara de tu Cédula (física o digital) para habilitar tu perfil.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6 pt-6">
+            
+            <div className="space-y-2">
+              <Label className="text-gray-300">Documento</Label>
+              
+              {preview ? (
+                <div className="relative group h-64 w-full rounded-xl overflow-hidden border-2 border-purple-500/50">
+                  <img src={preview} alt="Cédula" className="w-full h-full object-contain bg-black/50"/>
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="destructive" onClick={removeFile}>
+                      <X className="w-4 h-4 mr-2" /> Cambiar Imagen
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => inputRef.current?.click()}
+                  className="h-64 w-full border-2 border-dashed border-gray-600 hover:border-purple-500 hover:bg-purple-500/5 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group"
                 >
-                  <Alert variant="destructive" className="bg-red-900/20 border-red-800">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-red-200">{error}</AlertDescription>
-                  </Alert>
-                </motion.div>
+                  <div className="p-4 rounded-full bg-gray-800 group-hover:bg-purple-500/20 transition-colors mb-3">
+                    <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-purple-400" />
+                  </div>
+                  <p className="text-gray-300 font-medium">Haz clic para subir imagen</p>
+                  <p className="text-xs text-gray-500 mt-1">JPG o PNG (Máx 10MB)</p>
+                </div>
               )}
-            </AnimatePresence>
-
-            <div className="space-y-8">
-              {/* License Number Section */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-                className="space-y-4"
-              >
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white">Número de Cédula Profesional</h3>
-                    <p className="text-slate-400 text-sm">Ingresa tu número de cédula tal como aparece en el documento</p>
-                  </div>
-                </div>
-                
-                <div className="relative">
-                  <input 
-                    id="licenseNumber"
-                    name="licenseNumber" 
-                    value={formData.licenseNumber}
-                    onChange={handleInputChange} 
-                    required 
-                    className="w-full p-4 bg-slate-700/50 rounded-xl border border-slate-600 text-white text-lg placeholder-slate-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200" 
-                    placeholder="Ej: 12345678"
-                  />
-                  {formData.licenseNumber.trim() && (
-                    <CheckCircle className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
-                  )}
-                </div>
-              </motion.div>
-
-              {/* File Upload Section */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
-                    <Camera className="w-5 h-5 text-indigo-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white">Fotografías del Documento</h3>
-                    <p className="text-slate-400 text-sm">Sube imágenes claras de ambos lados de tu cédula profesional</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                  >
-                    <FileUpload
-                      label="Frente de la Cédula"
-                      currentUrl={formData.frontImageUrl}
-                      onChange={(url) => setFormData(prev => ({...prev, frontImageUrl: url}))}
-                    />
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.0 }}
-                  >
-                    <FileUpload
-                      label="Reverso de la Cédula"
-                      currentUrl={formData.backImageUrl}
-                      onChange={(url) => setFormData(prev => ({...prev, backImageUrl: url}))}
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Tips Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 }}
-                  className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-4"
-                >
-                  <div className="flex items-start space-x-3">
-                    <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium text-blue-200 mb-2">Consejos para mejores resultados:</h4>
-                      <ul className="text-sm text-blue-300 space-y-1">
-                        <li>• Asegúrate de que el texto sea legible y no esté borroso</li>
-                        <li>• Evita sombras o reflejos en la imagen</li>
-                        <li>• Captura todo el documento dentro del marco</li>
-                      </ul>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
+              <input 
+                type="file" 
+                ref={inputRef} 
+                className="hidden" 
+                accept="image/png, image/jpeg, image/jpg" 
+                onChange={handleFileChange} 
+              />
             </div>
 
-            {/* Submit Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-              className="mt-8 pt-6 border-t border-slate-700"
-            >
-              <Button 
-                type="submit" 
-                disabled={loading || !isFormValid} 
-                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 rounded-xl shadow-lg hover:shadow-xl"
-              >
-                {loading ? (
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="animate-spin w-5 h-5" />
-                    <span>Procesando...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <span>Enviar para Verificación</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                )}
-              </Button>
-              
-              <div className="flex items-center justify-center space-x-2 mt-4 text-slate-400">
-                <Clock className="w-4 h-4" />
-                <p className="text-sm">
-                  Tiempo de revisión: 24-48 horas hábiles
-                </p>
-              </div>
-            </motion.div>
-          </form>
-        </motion.div>
+            <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4 flex gap-3 text-xs text-purple-200">
+              <BookOpen className="w-5 h-5 flex-shrink-0 text-purple-400" />
+              <p>
+                Validamos tu cédula automáticamente con Inteligencia Artificial para asegurar la calidad de los profesionales en QuHealthy.
+              </p>
+            </div>
 
-        {/* Security Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3 }}
-          className="text-center mt-6"
-        >
-          <div className="inline-flex items-center space-x-2 bg-slate-800/40 backdrop-blur-sm rounded-full px-4 py-2 border border-slate-700/50">
-            <Shield className="w-4 h-4 text-green-400" />
-            <span className="text-sm text-slate-300">Tus datos están protegidos con encriptación de grado militar</span>
-          </div>
-        </motion.div>
+            <Button 
+              className="w-full h-12 text-lg font-semibold bg-purple-600 hover:bg-purple-700 shadow-lg"
+              onClick={handleSubmit}
+              disabled={isUploading || !file}
+            >
+              {isUploading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Verificando con IA...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  <span>Validar Cédula</span>
+                </div>
+              )}
+            </Button>
+
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );
