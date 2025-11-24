@@ -145,74 +145,79 @@ const handleSavePackage = async (packageData: Partial<ServicePackage>) => {
     }
   };
 
-  const addService = async () => {
-    // Datos por defecto para un nuevo servicio
-    const newServiceData = {
-      name: 'Nuevo Servicio (Haz clic para editar)',
-      description: 'Describe tu nuevo servicio aquí...',
-      duration: 60,
-      price: 50.00,
-      serviceType: 'in_person'
-    };
-    
-    try {
-      // Llamamos al endpoint POST para crear el recurso
-      const response = await axios.post('/api/marketplace/services', newServiceData, { withCredentials: true });
-      
-      // Añadimos el nuevo servicio (devuelto por la API con su ID real) al estado para actualizar la UI
-      setServices(prev => [...prev, response.data]);
-      toast.success("Nuevo servicio añadido exitosamente.");
-
-    } catch (error) {
-      console.error('Error al añadir el servicio:', error);
-      toast.error("No se pudo añadir el nuevo servicio.");
-    }
-  };
-
-const updateService = async (id: number, updates: Partial<Service>) => {
-  // Guardamos el estado original en caso de que la API falle
-  const originalServices = [...services];
+const addService = () => {
+  // Generamos un ID temporal negativo para distinguir servicios nuevos
+  const tempId = -Date.now();
   
-  // 1. Actualización optimista: Actualizamos la UI al instante
+  const newService = {
+    id: tempId,
+    name: 'Nuevo Servicio (Haz clic para editar)',
+    description: 'Describe tu nuevo servicio aquí...',
+    duration: 60,
+    price: 50.00,
+    serviceDeliveryType: 'in_person',
+    cancellationPolicy: 'moderate',
+    rules: [],
+    isNew: true // Flag para identificar servicios no guardados
+  };
+  
+  setServices(prev => [...prev, newService]);
+};
+
+const updateService = (id: number, updates: Partial<Service>) => {
+  // Solo actualiza el estado local, sin llamar al backend
   setServices(prevServices => 
     prevServices.map(service => 
       service.id === id ? { ...service, ...updates } : service
     )
   );
-  
-  try {
-    // 2. Llamada a la API en segundo plano
-    await axios.put(`/api/marketplace/services/${id}`, updates, { withCredentials: true });
-    // Opcional: un toast sutil para confirmar el guardado
-    // toast.info("Cambio guardado.", { autoClose: 1000 });
+};
 
+const saveService = async (service: Service) => {
+  try {
+    if (service.isNew) {
+      // Es un servicio nuevo, hacer POST
+      const { id, isNew, ...serviceData } = service; // Quitamos id temporal y flag
+      const response = await axios.post('/api/marketplace/services', serviceData, { withCredentials: true });
+      
+      // Reemplazamos el servicio temporal con el que tiene ID real del backend
+      setServices(prev => 
+        prev.map(s => s.id === service.id ? { ...response.data, isNew: false } : s)
+      );
+      toast.success("Servicio guardado exitosamente.");
+    } else {
+      // Es un servicio existente, hacer PUT
+      await axios.put(`/api/marketplace/services/${service.id}`, service, { withCredentials: true });
+      toast.success("Cambios guardados.");
+    }
   } catch (error) {
-    console.error('Error al actualizar el servicio:', error);
-    toast.error("No se pudo guardar el cambio. Revirtiendo.");
-    // 3. Reversión: Si la API falla, restauramos el estado original de la UI
-    setServices(originalServices);
+    console.error('Error al guardar el servicio:', error);
+    toast.error("No se pudo guardar el servicio.");
   }
 };
 
-  const removeService = async (id: number) => {
-    const originalServices = [...services];
-    
-    // 1. Eliminación optimista en la UI
-    setServices(prevServices => prevServices.filter(service => service.id !== id));
-    
-    try {
-      // 2. Llamada a la API en segundo plano
-      await axios.delete(`/api/marketplace/services/${id}`, { withCredentials: true });
-      toast.success("Servicio eliminado.");
-
-    } catch (error) {
-      console.error('Error al eliminar el servicio:', error);
-      toast.error("No se pudo eliminar el servicio. Restaurando.");
-      // 3. Reversión: Si la API falla, restauramos el servicio
-      setServices(originalServices);
-    }
-  };
-
+const removeService = async (id: number) => {
+  const service = services.find(s => s.id === id);
+  
+  // Si es un servicio nuevo (no guardado), solo eliminarlo del estado
+  if (service?.isNew) {
+    setServices(prevServices => prevServices.filter(s => s.id !== id));
+    return;
+  }
+  
+  // Si es un servicio existente, eliminarlo del backend también
+  const originalServices = [...services];
+  setServices(prevServices => prevServices.filter(s => s.id !== id));
+  
+  try {
+    await axios.delete(`/api/marketplace/services/${id}`, { withCredentials: true });
+    toast.success("Servicio eliminado.");
+  } catch (error) {
+    console.error('Error al eliminar el servicio:', error);
+    toast.error("No se pudo eliminar el servicio. Restaurando.");
+    setServices(originalServices);
+  }
+};
 
 
 
@@ -528,19 +533,37 @@ const updateService = async (id: number, updates: Partial<Service>) => {
                         exit={{ opacity: 0, height: 0 }}
                         className="bg-gray-700/50 rounded-xl p-4 border border-gray-600"
                       >
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="flex items-center gap-2 cursor-grab">
-                            <GripVertical className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium text-gray-400">#{index + 1}</span>
-                          </div>
-                          <div className="flex-1" />
-                          <button
-                            onClick={() => removeService(service.id)}
-                            className="p-1 text-red-400 hover:text-red-300 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                      <div className="flex items-center gap-3 mb-4">
+  <div className="flex items-center gap-2 cursor-grab">
+    <GripVertical className="w-4 h-4 text-gray-500" />
+    <span className="text-sm font-medium text-gray-400">#{index + 1}</span>
+  </div>
+  
+  {/* AÑADE ESTE BADGE si es nuevo */}
+  {service.isNew && (
+    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+      No guardado
+    </span>
+  )}
+  
+  <div className="flex-1" />
+  
+  {/* AÑADE ESTE BOTÓN */}
+  <button
+    onClick={() => saveService(service)}
+    className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors"
+  >
+    <Save className="w-4 h-4" />
+    Guardar
+  </button>
+  
+  <button
+    onClick={() => removeService(service.id)}
+    className="p-1 text-red-400 hover:text-red-300 transition-colors"
+  >
+    <Trash2 className="w-4 h-4" />
+  </button>
+</div>
                         
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   {/* Nombre del Servicio */}

@@ -97,9 +97,7 @@ export interface Service {
   rules?: any[];
   serviceDeliveryType: 'in_person' | 'video_call'; // <-- AÑADE ESTA LÍNEA
   followUpPeriodDays?: number; // <-- AÑADE ESTA LÍNEA
-
-
-
+  isNew?: boolean;
 }
 
 // Representa un miembro del equipo (función premium)
