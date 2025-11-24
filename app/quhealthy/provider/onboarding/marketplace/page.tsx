@@ -149,7 +149,7 @@ const addService = () => {
   // Generamos un ID temporal negativo para distinguir servicios nuevos
   const tempId = -Date.now();
   
-  const newService = {
+  const newService: Service = {
     id: tempId,
     name: 'Nuevo Servicio (Haz clic para editar)',
     description: 'Describe tu nuevo servicio aquí...',
@@ -158,7 +158,9 @@ const addService = () => {
     serviceDeliveryType: 'in_person',
     cancellationPolicy: 'moderate',
     rules: [],
-    isNew: true // Flag para identificar servicios no guardados
+    customConditions: '', // <-- AÑADIDO
+    category: '',         // <-- AÑADIDO
+    isNew: true
   };
   
   setServices(prev => [...prev, newService]);
