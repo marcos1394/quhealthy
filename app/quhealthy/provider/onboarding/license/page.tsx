@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -98,6 +99,7 @@ export default function LicensePage() {
         setStatus('in_review');
       }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Error al subir la cédula.");
     } finally {
@@ -124,7 +126,7 @@ export default function LicensePage() {
           <p className="text-gray-400 mb-8">
             Hemos validado tu Cédula Profesional. Tu perfil ahora mostrará la insignia de verificación.
           </p>
-          <Button onClick={() => router.push('/provider/onboarding/checklist')} className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg">
+          <Button onClick={() => router.push('/quhealthy/provider/onboarding/checklist')} className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg">
             Continuar
           </Button>
         </Card>
