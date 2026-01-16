@@ -10,7 +10,7 @@ import CtaSection from "@/components/sections/CtaSection";
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top";
 
 // Constantes
-import { FEATURES, PRICING_PLANS, TESTIMONIALS } from "@/lib/constants";
+import {  PRICING_PLANS, TESTIMONIALS } from "@/lib/constants";
 
 // Metadatos SEO específicos para la Home (Opcional, si ya tienes un layout bueno)
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default function Home() {
 
       <SuiteSection />
 
-      <FeaturesSection features={FEATURES} />
+      <FeaturesSection />
 
       <div className="h-px w-full bg-gradient-to-r from-transparent via-pink-500/50 to-transparent" />
 
