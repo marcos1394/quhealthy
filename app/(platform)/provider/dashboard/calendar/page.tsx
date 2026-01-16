@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// Componentes del Calendario (Rutas Limpias)
+// Componentes del Calendario
 import { CalendarView, CalendarEvent } from '@/components/dashboard/CalendarView';
 import { OperatingHoursModal, OperatingHour } from '@/components/dashboard/OperatingHours';
 import { TimeBlockModal } from '@/components/dashboard/TimeBlockModal';
@@ -24,7 +24,18 @@ import { TimeBlockModal } from '@/components/dashboard/TimeBlockModal';
 // Hooks & Stores
 import { useSessionStore } from '@/stores/SessionStore';
 
-export default function CalendarPage() {
+// --- COMPONENTE DE CARGA (FALLBACK) ---
+function CalendarLoading() {
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-950">
+      <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-4" />
+      <p className="text-gray-400 animate-pulse">Cargando módulos del calendario...</p>
+    </div>
+  );
+}
+
+// --- CONTENIDO PRINCIPAL (Tu lógica original va aquí) ---
+function CalendarContent() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [operatingHours, setOperatingHours] = useState<OperatingHour[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +47,7 @@ export default function CalendarPage() {
 
   const { user, fetchSession } = useSessionStore();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // Esto es lo que causaba el error sin Suspense
 
   // --- FETCH DATA ---
   const fetchCalendarData = useCallback(async () => {
@@ -52,10 +63,10 @@ export default function CalendarPage() {
       // Transformar datos para FullCalendar
       const formattedEvents = eventsRes.data.map((evt: any) => ({
         id: evt.id,
-        title: evt.title || evt.serviceName, // Adaptar según tu API
+        title: evt.title || evt.serviceName,
         start: evt.startTime,
         end: evt.endTime,
-        backgroundColor: evt.type === 'BLOCK' ? '#ef4444' : '#8b5cf6', // Rojo para bloqueos, morado para citas
+        backgroundColor: evt.type === 'BLOCK' ? '#ef4444' : '#8b5cf6',
         borderColor: 'transparent'
       }));
       
@@ -63,7 +74,6 @@ export default function CalendarPage() {
 
     } catch (error) {
       console.error(error);
-      // En producción mostramos error, en desarrollo podríamos cargar mocks si falla
       // toast.error("No se pudo cargar el calendario.");
     } finally {
       setLoading(false);
@@ -79,11 +89,11 @@ export default function CalendarPage() {
     const syncStatus = searchParams.get('sync');
     if (syncStatus === 'success') {
       toast.success("¡Google Calendar conectado exitosamente!");
-      fetchSession(); // Recargar usuario para actualizar estado
-      router.replace('/dashboard/calendar'); // Limpiar URL
+      fetchSession(); // Recargar usuario
+      router.replace('/provider/dashboard/calendar'); // Corregí la ruta para asegurar consistencia
     } else if (syncStatus === 'error') {
       toast.error("Error al conectar con Google.");
-      router.replace('/dashboard/calendar');
+      router.replace('/provider/dashboard/calendar');
     }
   }, [searchParams, router, fetchSession]);
 
@@ -100,7 +110,6 @@ export default function CalendarPage() {
 
   // --- HANDLERS ---
   const handleDateClick = (info: any) => {
-    // Al hacer click en un día, abrimos el modal para bloquear tiempo en esa fecha
     setSelectedDate(new Date(info.date));
     setIsBlockModalOpen(true);
   };
@@ -148,7 +157,6 @@ export default function CalendarPage() {
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
                 <div className="p-2 bg-white rounded-lg">
-                    {/* Placeholder si no tienes la imagen local, usa texto o icono */}
                     <span className="text-xl font-bold text-blue-500">G</span> 
                 </div>
                 <div>
@@ -232,10 +240,19 @@ export default function CalendarPage() {
             isOpen={isBlockModalOpen}
             onClose={() => setIsBlockModalOpen(false)}
             onSaveSuccess={fetchCalendarData}
-            initialDate={selectedDate} // Pasamos la fecha clickeada
+            initialDate={selectedDate}
         />
 
       </motion.div>
     </div>
+  );
+}
+
+// --- EXPORT DEFAULT CON SUSPENSE (CORRECCIÓN FINAL) ---
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={<CalendarLoading />}>
+      <CalendarContent />
+    </Suspense>
   );
 }
