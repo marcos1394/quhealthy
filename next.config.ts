@@ -2,17 +2,13 @@ import type { NextConfig } from "next";
 import withPWAInit from "next-pwa";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
 
-const nextConfig: NextConfig & {
-  eslint?: { ignoreDuringBuilds?: boolean };
-  typescript?: { ignoreBuildErrors?: boolean };
-} = {
+const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
 
-  // === 1. BYPASS DE ERRORES (CRÍTICO PARA DESPLIEGUE) ===
-  // Esto le dice a Vercel: "Construye aunque haya errores de lint o tipos"
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // === 1. BYPASS DE ERRORES (ACTUALIZADO PARA NEXT 16) ===
+  // NOTA: Eliminamos la key 'eslint' porque Next 16 ya no la soporta aquí.
+  // Mantenemos typescript ignore por si acaso sigue siendo válido, 
+  // si falla, lo quitaremos en la siguiente iteración, pero por ahora suele advertir y no romper.
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -57,7 +53,7 @@ const nextConfig: NextConfig & {
   images: {
     remotePatterns: [
       {
-        protocol: 'https' as const, // En TS esto es correcto y seguro
+        protocol: 'https' as const,
         hostname: 'files.stripe.com',
       },
       {
@@ -81,7 +77,6 @@ const withPWA = withPWAInit({
   skipWaiting: true,
 });
 
-// Exportación final con cast a 'any' para evitar conflictos de tipos entre plugins
+// Exportación final
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const configured = withPWA(nextConfig as any) as any;
-export default withBundleAnalyzer(configured);
+export default withBundleAnalyzer(withPWA(nextConfig as unknown as any) as any);
