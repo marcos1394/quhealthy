@@ -1,9 +1,19 @@
 "use client";
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+
+// ShadCN UI
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Button } from '@/components/ui/button';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -12,6 +22,7 @@ interface ConfirmationModalProps {
   title: string;
   message: string;
   isLoading?: boolean;
+  variant?: 'destructive' | 'default'; // Para diferenciar borrar vs confirmar simple
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -20,38 +31,71 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   title,
   message,
-  isLoading = false
+  isLoading = false,
+  variant = 'destructive'
 }) => {
-  if (!isOpen) return null;
+  
+  // Manejador para evitar que el modal se cierre automáticamente si hay loading
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onConfirm();
+  };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md"
-        >
-          <div className="p-6 flex items-start gap-4">
-            <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20 shrink-0">
-              <AlertTriangle className="w-6 h-6 text-red-400" />
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+        
+        <AlertDialogHeader>
+          <div className="flex items-start gap-4">
+            {/* Icono dinámico según la variante */}
+            <div className={`p-3 rounded-full flex-shrink-0 border ${
+                variant === 'destructive' 
+                ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+            }`}>
+              <AlertTriangle className="w-6 h-6" />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">{title}</h2>
-              <p className="text-sm text-gray-400 mt-1">{message}</p>
+            
+            <div className="space-y-1">
+              <AlertDialogTitle className="text-xl font-bold">
+                {title}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400 leading-relaxed">
+                {message}
+              </AlertDialogDescription>
             </div>
           </div>
-          <div className="p-6 flex justify-end gap-3 border-t border-gray-700 bg-gray-800/50">
-            <Button variant="outline" onClick={onClose} className="border-gray-600">
-              No, volver
-            </Button>
-            <Button onClick={onConfirm} variant="destructive" disabled={isLoading}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Sí, continuar'}
-            </Button>
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel 
+            disabled={isLoading} 
+            className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent"
+          >
+            Cancelar
+          </AlertDialogCancel>
+          
+          <Button
+            variant={variant}
+            onClick={handleConfirm}
+            disabled={isLoading}
+            className={`
+                ${variant === 'destructive' 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-purple-600 hover:bg-purple-700 text-white'}
+            `}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando...
+              </>
+            ) : (
+              "Sí, confirmar"
+            )}
+          </Button>
+        </AlertDialogFooter>
+
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };

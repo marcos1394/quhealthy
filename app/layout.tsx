@@ -2,15 +2,19 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import CustomProvider from "@/components/ui/provider";
 import "./globals.css";
-import {Navbar} from "@/components/Navbar";
-import Footer from "@/components/Footer";
+
+// Vercel Pro Observability - Componentes para Analytics y Speed Insights
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
+// Notificaciones
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Configuración de la fuente
 const inter = Inter({ subsets: ["latin"] });
 
-// --- METADATOS PROFESIONALES PARA SEO (sin cambios) ---
+// --- METADATOS PROFESIONALES PARA SEO ---
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.quhealthy.com'),
   title: {
@@ -64,7 +68,7 @@ export const metadata: Metadata = {
   },
 };
 
-// --- VIEWPORT (sin cambios) ---
+// --- VIEWPORT ---
 export const viewport: Viewport = {
   themeColor: '#111827',
   width: 'device-width',
@@ -75,19 +79,26 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.className} bg-gray-900 text-white`}>
-        {/*
-          ELIMINAMOS GlobalStateInitializer de aquí.
-          Este layout ahora es "agnóstico": no sabe si un usuario ha iniciado sesión o no.
-          Su única responsabilidad es proveer la estructura base para TODA la aplicación.
+      <body className={`${inter.className} bg-gray-900 text-white antialiased`}>
+        {/* CustomProvider envuelve toda la app. 
+            Como tu CTO, te recuerdo que este provider debe manejar ShadCN/Context 
+            para maximizar el performance en Vercel.
         */}
         <CustomProvider>
-          <Navbar />
-          <main className="min-h-screen pt-20">
-            {children}
-          </main>
-          <Footer />
+          {/* Contenedor Base con soporte para Sticky Headers/Footers */}
+          <div className="min-h-screen flex flex-col relative">
+             {children}
+          </div>
+          
+          {/* Componente de notificaciones global */}
           <ToastContainer theme="dark" position="bottom-right" />
+
+          {/* Vercel Pro: Estas herramientas solo se activan en PRODUCCIÓN.
+              Analytics: Mide tráfico sin comprometer la privacidad.
+              Speed Insights: Monitorea Core Web Vitals en tiempo real.
+          */}
+          <Analytics />
+          <SpeedInsights />
         </CustomProvider>
       </body>
     </html>

@@ -7,7 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, LogOut, UserCircle, Store, Calendar, Settings, Megaphone } from "lucide-react";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+
+// Store
 import { useSessionStore } from '@/stores/SessionStore';
+
+// UI Components
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,21 +20,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { NotificationBell } from './ui/NotificationBell';
 
-// Items de navegación para usuarios NO autenticados
+// Si tienes este componente, úsalo. Si no, comenta la importación.
+// import { NotificationBell } from './ui/NotificationBell';
+
+// --- CONFIGURACIÓN DE NAVEGACIÓN ---
 const publicNavItems = [
   { name: "Descubrir", href: "/discover" },
-  // Puedes descomentar esto si quieres un link a una landing page para proveedores
-  // { name: "Para Profesionales", href: "/#profesionales" }, 
+  { name: "Para Doctores", href: "/business" }, // Landing para venderle a doctores
 ];
 
-// Items de navegación para CONSUMIDORES autenticados
 const consumerNavItems = [
-    { name: "Descubrir", href: "/discover" },
-    { name: "Mis Citas", href: "/consumer/appointments" },
+  { name: "Explorar", href: "/discover" },
+  { name: "Mis Citas", href: "/appointments" },
 ];
 
 export const Navbar: React.FC = () => {
@@ -40,58 +44,56 @@ export const Navbar: React.FC = () => {
   
   const { user, isLoading, fetchSession, clearSession } = useSessionStore();
   const isAuthenticated = !!user;
-  const userRole = user?.role;
+  const userRole = user?.role; // 'provider' | 'consumer' | 'admin'
 
-  // Iniciamos la carga de la sesión al montar el componente
+  // Hydration de sesión
   useEffect(() => {
     fetchSession();
   }, [fetchSession]);
 
-  const handleLogout = async () => {
-    try {
-      const roleBeforeLogout = user?.role;
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
-      clearSession();
-      toast.success('Sesión cerrada exitosamente.');
-      
-      // Redirección inteligente post-logout
-      if (roleBeforeLogout === 'provider') {
-        router.push('/quhealthy/authentication/providers/login');
-      } else {
-        router.push('/');
-      }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("No se pudo cerrar la sesión.");
-      clearSession();
-      router.push('/');
-    }
-  };
-
+  // Efecto de Scroll
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Determinamos qué items mostrar en la barra central
+  // Logout Handler
+  const handleLogout = async () => {
+    try {
+      await axios.post('/api/auth/logout'); // Asumiendo que tienes este endpoint
+      clearSession();
+      toast.success('Hasta pronto 👋');
+      router.push('/');
+      router.refresh(); // Forzar recarga para limpiar estados de servidor si los hay
+    } catch (error) {
+      console.error("Logout error", error);
+      // Fallback: Limpiamos localmente aunque falle el server
+      clearSession();
+      router.push('/');
+    }
+  };
+
+  // Selección de items según rol
   const navItems = userRole === 'consumer' ? consumerNavItems : publicNavItems;
 
-  const UserMenu = () => {
+  // --- SUB-COMPONENTES ---
+
+  const UserMenuDropdown = () => {
     if (!user) return null;
 
-    // Rutas corregidas para el dashboard del proveedor
+    // Rutas actualizadas a la nueva arquitectura
     const providerMenuItems = [
-      { name: 'Dashboard', href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
-      { name: 'Marketing', href: '/quhealthy/provider/dashboard/marketing', icon: Megaphone },
-      { name: 'Mi Tienda', href: '/quhealthy/provider/onboarding/marketplace', icon: Store },
-      { name: 'Agenda', href: '/quhealthy/provider/dashboard/calendar', icon: Calendar },
-      { name: 'Configuración', href: '/quhealthy/provider/dashboard/settings', icon: Settings },
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Marketing', href: '/dashboard/marketing', icon: Megaphone },
+      { name: 'Mi Tienda', href: '/dashboard/store', icon: Store },
+      { name: 'Agenda', href: '/dashboard/calendar', icon: Calendar },
+      { name: 'Ajustes', href: '/settings', icon: Settings },
     ];
     
     const consumerMenuItems = [
-      { name: 'Mi Panel', href: '/quhealthy/consumer/dashboard', icon: LayoutDashboard },
-      { name: 'Mis Citas', href: '/quhealthy/consumer/appointments', icon: UserCircle },
+      { name: 'Mi Panel', href: '/dashboard', icon: LayoutDashboard }, // Unificado a /dashboard
+      { name: 'Mis Citas', href: '/appointments', icon: UserCircle },
     ];
 
     const menuItems = userRole === 'provider' ? providerMenuItems : consumerMenuItems;
@@ -99,30 +101,35 @@ export const Navbar: React.FC = () => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <motion.button whileHover={{ scale: 1.05 }} className="flex items-center gap-3 focus:outline-none">
-            <Avatar className="w-9 h-9 border-2 border-purple-400 cursor-pointer">
-              <AvatarFallback className="bg-gray-700 text-purple-300 font-semibold">
+          <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-gray-800 focus:ring-0">
+            <Avatar className="h-9 w-9 border border-purple-500/50">
+              <AvatarImage src={user.image} alt={user.name} />
+              <AvatarFallback className="bg-purple-900 text-purple-200 font-bold">
                 {user.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden lg:block text-white font-medium text-sm">{user.name}</span>
-          </motion.button>
+          </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-gray-800 border-gray-700 text-white w-56 mt-2" align="end">
-          <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-gray-700" />
+        <DropdownMenuContent className="w-56 bg-gray-900 border-gray-800 text-gray-200" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none text-white">{user.name}</p>
+              <p className="text-xs leading-none text-gray-500">{user.email}</p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-gray-800" />
           
           {menuItems.map((item) => (
-            <DropdownMenuItem key={item.name} asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
-              <Link href={item.href} className="flex items-center w-full">
-                <item.icon className="mr-2 h-4 w-4 text-gray-400" />
+            <DropdownMenuItem key={item.name} asChild className="cursor-pointer focus:bg-gray-800 focus:text-white">
+              <Link href={item.href} className="flex items-center">
+                <item.icon className="mr-2 h-4 w-4 text-purple-400" />
                 <span>{item.name}</span>
               </Link>
             </DropdownMenuItem>
           ))}
           
-          <DropdownMenuSeparator className="bg-gray-700" />
-          <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:bg-red-500/20 focus:text-red-300 cursor-pointer">
+          <DropdownMenuSeparator className="bg-gray-800" />
+          <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:bg-red-900/20 focus:text-red-300 cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Cerrar Sesión</span>
           </DropdownMenuItem>
@@ -133,14 +140,11 @@ export const Navbar: React.FC = () => {
 
   const AuthButtons = () => (
     <div className="flex items-center gap-4">
-      <Link href="/quhealthy/authentication/providers/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:block">
-        Soy Proveedor
+      <Link href="/login" className="hidden sm:block text-sm font-medium text-gray-300 hover:text-white transition-colors">
+        Iniciar Sesión
       </Link>
-      <Link href="/quhealthy/authentication/providers/login" className="text-sm font-medium text-white hover:text-purple-400 transition-colors">
-        Ingresar
-      </Link>
-      <Link href="/quhealthy/authentication/providers/signup">
-        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white border-0">
+      <Link href="/register">
+        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg shadow-purple-500/20">
           Crear Cuenta
         </Button>
       </Link>
@@ -148,101 +152,127 @@ export const Navbar: React.FC = () => {
   );
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-gray-900/90 backdrop-blur-lg border-b border-gray-800 py-3" : "bg-transparent py-5"}`}>
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled || mobileMenuOpen 
+          ? "bg-gray-950/80 backdrop-blur-md border-b border-gray-800 py-3" 
+          : "bg-transparent py-5"
+      }`}
+    >
+      <div className="container mx-auto px-4 flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-          QuHealthy
+        <Link href="/" className="z-50 relative">
+          <span className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
+            QuHealthy
+          </span>
         </Link>
         
-        {/* Navegación Central (Solo si no es proveedor, para mantener el foco) */}
+        {/* Desktop Navigation */}
         {userRole !== 'provider' && (
-            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-            {navItems.map((item) => (
-                <Link key={item.name} href={item.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                {item.name}
-                </Link>
-            ))}
-            </nav>
+           <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+             {navItems.map((item) => (
+               <Link 
+                 key={item.name} 
+                 href={item.href} 
+                 className="text-sm font-medium text-gray-300 hover:text-white transition-colors hover:scale-105 transform duration-200"
+               >
+                 {item.name}
+               </Link>
+             ))}
+           </nav>
         )}
         
-        {/* Lado Derecho: Auth / User Menu */}
+        {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
           {isLoading ? (
-            // Skeleton de carga sutil para evitar saltos de layout
-            <div className="flex items-center gap-3 animate-pulse">
-                <div className="w-8 h-8 bg-gray-700 rounded-full" />
-                <div className="w-20 h-4 bg-gray-700 rounded hidden lg:block" />
-            </div>
+            <div className="h-9 w-9 bg-gray-800 rounded-full animate-pulse" />
           ) : isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <NotificationBell />
-                <UserMenu />
-              </div>
-            ) : (
-              <AuthButtons />
-            )
-          }
+            <div className="flex items-center gap-3">
+              {/* <NotificationBell />  <-- Descomentar cuando tengas el componente */}
+              <UserMenuDropdown />
+            </div>
+          ) : (
+            <AuthButtons />
+          )}
         </div>
         
-        {/* Menú Móvil */}
-        <div className="md:hidden flex items-center gap-4">
-            {/* Mostramos la campana también en móvil si está logueado */}
-            {isAuthenticated && <NotificationBell />}
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+        {/* Mobile Toggle */}
+        <div className="md:hidden z-50">
+           <button 
+             onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+             className="text-gray-300 hover:text-white p-2"
+             aria-label="Menu"
+           >
+             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+           </button>
         </div>
       </div>
 
-      {/* Dropdown Móvil */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
-            <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="md:hidden absolute top-full left-0 right-0 bg-gray-900 border-b border-gray-800 p-4 shadow-xl"
-            >
-                <nav className="flex flex-col gap-4">
-                    {navItems.map((item) => (
-                        <Link key={item.name} href={item.href} className="text-gray-300 hover:text-white py-2 border-b border-gray-800" onClick={() => setMobileMenuOpen(false)}>
-                            {item.name}
-                        </Link>
-                    ))}
-                    
-                    {isAuthenticated ? (
-                        // En móvil, el menú de usuario se expande aquí
-                         <div className="flex flex-col gap-2 pt-2">
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Mi Cuenta</p>
-                            {userRole === 'provider' ? (
-                                <>
-                                    <Link href="/quhealthy/provider/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Dashboard</Link>
-                                    <Link href="/quhealthy/provider/dashboard/marketing" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Megaphone size={16}/> Marketing</Link>
-                                    <Link href="/quhealthy/provider/onboarding/marketplace" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Store size={16}/> Mi Tienda</Link>
-                                    <Link href="/quhealthy/provider/dashboard/calendar" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><Calendar size={16}/> Agenda</Link>
-                                </>
-                            ) : (
-                                <>
-                                    <Link href="/quhealthy/consumer/dashboard" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><LayoutDashboard size={16}/> Mi Panel</Link>
-                                    <Link href="/quhealthy/consumer/appointments" className="flex items-center gap-2 text-gray-300 py-2" onClick={() => setMobileMenuOpen(false)}><UserCircle size={16}/> Mis Citas</Link>
-                                </>
-                            )}
-                            <Button variant="destructive" onClick={handleLogout} className="w-full justify-start mt-4">
-                                <LogOut size={16} className="mr-2"/> Cerrar Sesión
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-3 pt-4">
-                             <Link href="/login" onClick={() => setMobileMenuOpen(false)}><Button variant="outline" className="w-full border-gray-600 text-gray-300">Ingresar como Paciente</Button></Link>
-                             <Link href="/provider/authentication/login" onClick={() => setMobileMenuOpen(false)}><Button variant="ghost" className="w-full text-gray-400">Ingresar como Proveedor</Button></Link>
-                             <Link href="/signup" onClick={() => setMobileMenuOpen(false)}><Button className="w-full bg-purple-600">Crear Cuenta</Button></Link>
-                        </div>
-                    )}
-                </nav>
-            </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden bg-gray-950 border-b border-gray-800 overflow-hidden"
+          >
+             <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
+                {navItems.map((item) => (
+                    <Link 
+                      key={item.name} 
+                      href={item.href} 
+                      className="text-lg font-medium text-gray-300 hover:text-purple-400 py-2 border-b border-gray-800/50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                        {item.name}
+                    </Link>
+                ))}
+
+                <div className="pt-4">
+                  {isAuthenticated ? (
+                    <div className="flex flex-col gap-3">
+                       <div className="flex items-center gap-3 mb-2">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={user?.image} />
+                            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-white font-medium">{user?.name}</p>
+                            <p className="text-xs text-gray-500">{userRole === 'provider' ? 'Profesional' : 'Paciente'}</p>
+                          </div>
+                       </div>
+                       
+                       {/* Mobile Dashboard Links */}
+                       <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="outline" className="w-full justify-start border-gray-700 text-gray-300">
+                             <LayoutDashboard className="mr-2 h-4 w-4" /> Ir al Dashboard
+                          </Button>
+                       </Link>
+
+                       <Button variant="destructive" onClick={handleLogout} className="w-full justify-start">
+                          <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+                       </Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full border-gray-700 text-white hover:bg-gray-800">
+                          Iniciar Sesión
+                        </Button>
+                      </Link>
+                      <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                        <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                          Crear Cuenta Gratis
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+             </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </header>

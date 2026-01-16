@@ -1,42 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import TestimonialCard from "../cards/TestimonialCard";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Quote } from "lucide-react";
 
-// Define la interfaz para las props
-interface TestimonialsSectionProps {
-  testimonials: Testimonial[];
-}
+// Componentes UI de ShadCN
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
-// Define el tipo 'Testimonial'
+// --- FIX: Relajamos el tipo para que sea compatible con tu archivo global ---
 interface Testimonial {
   name: string;
   role: string;
   image: string;
   text: string;
-  product: string;
+  product: string; // Cambiado de Union Type a string general para evitar el error TS2322
+}
+
+interface TestimonialsSectionProps {
+  testimonials: Testimonial[];
 }
 
 const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testimonials }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const itemsPerView = { mobile: 1, tablet: 2, desktop: 3 };
-  const maxIndex = testimonials.length - itemsPerView.desktop;
-
-  const handleNext = () => {
-    setActiveIndex(prev => Math.min(prev + 1, maxIndex));
-  };
-
-  const handlePrev = () => {
-    setActiveIndex(prev => Math.max(prev - 1, 0));
+  
+  // Función helper blindada: Normalizamos a minúsculas para evitar errores de tipeo
+  const getBadgeClass = (product: string) => {
+    const normalizedProduct = product.toLowerCase().trim();
+    
+    if (normalizedProduct.includes('quhealthy')) {
+        return "bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border-purple-500/50";
+    }
+    if (normalizedProduct.includes('qumarket')) {
+        return "bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border-pink-500/50";
+    }
+    if (normalizedProduct.includes('qublocks')) {
+        return "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/50";
+    }
+    
+    // Fallback por defecto
+    return "bg-gray-800 text-gray-400 border-gray-700";
   };
 
   return (
-    <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-gray-950"></div>
+    <section id="testimonials" className="py-24 relative overflow-hidden bg-gray-950">
+      {/* ... (El resto del renderizado sigue igual, no necesitas cambiar nada abajo) ... */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-purple-900/10 via-gray-950 to-gray-950 pointer-events-none"></div>
       
-      <div className="max-w-7xl mx-auto px-6 relative">
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -44,51 +55,52 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ testimonials 
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-            Lo Que Dicen Nuestros Usuarios
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+            Historias de Éxito
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Profesionales que han transformado su práctica utilizando nuestra suite completa.
+          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
+            Descubre cómo profesionales como tú están transformando su práctica diaria.
           </p>
         </motion.div>
 
-        <div className="relative">
-          <div className="overflow-hidden">
-            <motion.div 
-              className="flex gap-6"
-              animate={{ x: `-${activeIndex * 33.33}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="h-full"
             >
-              {testimonials.map((testimonial, index) => (
-                <div key={index} className="min-w-full md:min-w-[50%] lg:min-w-[33.33%]">
-                  <TestimonialCard
-                    name={testimonial.name}
-                    role={testimonial.role}
-                    image={testimonial.image}
-                    text={testimonial.text}
-                    product={testimonial.product}
-                  />
-                </div>
-              ))}
+              <Card className="h-full bg-gray-900/40 border-gray-800 backdrop-blur-sm hover:bg-gray-800/60 transition-colors flex flex-col">
+                <CardHeader className="pb-4">
+                  <div className="flex justify-between items-start mb-4">
+                     <Quote className="text-purple-500/40 w-8 h-8 shrink-0" />
+                     <Badge variant="outline" className={getBadgeClass(testimonial.product)}>
+                        {testimonial.product}
+                     </Badge>
+                  </div>
+                  <p className="text-gray-300 italic leading-relaxed text-sm md:text-base">
+                    &quot;{testimonial.text}&quot;
+                  </p>
+                </CardHeader>
+                
+                <CardContent className="pt-0 flex items-center gap-4 border-t border-gray-800/50 mt-auto pt-6 mx-6 mb-2">
+                  <Avatar className="h-10 w-10 border border-gray-700">
+                    <AvatarImage src={testimonial.image} alt={testimonial.name} />
+                    <AvatarFallback className="bg-gray-800 text-gray-400">
+                      {testimonial.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="text-white font-semibold text-sm">{testimonial.name}</h4>
+                    <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
-          </div>
-
-          <div className="flex justify-center mt-8 gap-4">
-            <button 
-              onClick={handlePrev}
-              disabled={activeIndex === 0}
-              className={`p-3 rounded-full ${activeIndex === 0 ? 'bg-gray-700 text-gray-500' : 'bg-purple-500 text-white hover:bg-purple-600'} transition-colors`}
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <button 
-              onClick={handleNext}
-              disabled={activeIndex >= maxIndex}
-              className={`p-3 rounded-full ${activeIndex >= maxIndex ? 'bg-gray-700 text-gray-500' : 'bg-purple-500 text-white hover:bg-purple-600'} transition-colors`}
-            >
-              <ArrowRight size={20} />
-            </button>
-          </div>
+          ))}
         </div>
       </div>
     </section>
