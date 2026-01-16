@@ -3,7 +3,11 @@ import { Inter } from 'next/font/google';
 import CustomProvider from "@/components/ui/provider";
 import "./globals.css";
 
-// Vercel Pro Observability - Componentes para Analytics y Speed Insights
+// --- IMPORTACIÓN DE COMPONENTES UI (NUEVO) ---
+import { Navbar } from "@/components/Navbar"; // Asegúrate de que Navbar.tsx esté en components
+import Footer from "@/components/Footer";     // Asegúrate de que Footer.tsx esté en components
+
+// Vercel Pro Observability
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -80,23 +84,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} bg-gray-900 text-white antialiased`}>
-        {/* CustomProvider envuelve toda la app. 
-            Como tu CTO, te recuerdo que este provider debe manejar ShadCN/Context 
-            para maximizar el performance en Vercel.
-        */}
+        
         <CustomProvider>
-          {/* Contenedor Base con soporte para Sticky Headers/Footers */}
-          <div className="min-h-screen flex flex-col relative">
-             {children}
+          {/* Estructura Flex Global:
+            1. Navbar: Fijo arriba (fixed en su componente).
+            2. Main: Ocupa el espacio restante (flex-grow) y tiene padding-top (pt-20) 
+               para no quedar oculto bajo el Navbar.
+            3. Footer: Siempre al final.
+          */}
+          <div className="flex flex-col min-h-screen">
+            
+            <Navbar />
+            
+            <main className="flex-grow pt-20 relative z-0">
+               {children}
+            </main>
+
+            <Footer />
+            
           </div>
           
           {/* Componente de notificaciones global */}
           <ToastContainer theme="dark" position="bottom-right" />
 
-          {/* Vercel Pro: Estas herramientas solo se activan en PRODUCCIÓN.
-              Analytics: Mide tráfico sin comprometer la privacidad.
-              Speed Insights: Monitorea Core Web Vitals en tiempo real.
-          */}
+          {/* Vercel Pro Analytics & Insights */}
           <Analytics />
           <SpeedInsights />
         </CustomProvider>
