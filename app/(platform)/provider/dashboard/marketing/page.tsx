@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -31,10 +31,21 @@ import { useSessionStore } from '@/stores/SessionStore';
 // Tipos Locales
 interface Service { id: number; name: string; }
 
-export default function MarketingPage() {
+// --- COMPONENTE DE CARGA (FALLBACK) ---
+function MarketingLoading() {
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-950">
+      <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-4" />
+      <p className="text-gray-400 animate-pulse">Cargando estudio de marketing...</p>
+    </div>
+  );
+}
+
+// --- CONTENIDO PRINCIPAL (Tu lógica original) ---
+function MarketingContent() {
   const { user, fetchSession } = useSessionStore();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // Esto causaba el error sin Suspense
 
   // --- ESTADOS ---
   const [services, setServices] = useState<Service[]>([]);
@@ -71,22 +82,18 @@ export default function MarketingPage() {
         
         toast.success(`¡Cuenta de ${platformName} conectada!`);
         fetchSession(); // Actualizar usuario para ver el estado "Conectado"
-        router.replace('/dashboard/marketing'); // Limpiar URL
+        router.replace('/provider/dashboard/marketing'); // Limpiar URL
     }
     if (error) {
         toast.error("No se pudo conectar la cuenta.");
-        router.replace('/dashboard/marketing');
+        router.replace('/provider/dashboard/marketing');
     }
   }, [searchParams, router, fetchSession]);
 
   // 2. Cargar Datos Iniciales (Servicios y Galería)
   const fetchGallery = useCallback(async () => {
     try {
-      // Simulación en desarrollo si no hay API
-      // const { data } = await axios.get('/api/ai/gallery', { withCredentials: true });
-      // setGallery(data);
-      
-      // Mock Data para Demo
+      // Mock Data para Demo (o API real)
       await new Promise(r => setTimeout(r, 500));
       setGallery([
         { id: '1', prompt: 'Consejos de nutrición', generatedText: 'Come sano...', generatedImageUrl: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300', contentType: 'social_post_image', status: 'completed' } as any,
@@ -357,5 +364,14 @@ export default function MarketingPage() {
       />
 
     </div>
+  );
+}
+
+// --- EXPORT DEFAULT CON SUSPENSE (CORRECCIÓN CRÍTICA) ---
+export default function MarketingPage() {
+  return (
+    <Suspense fallback={<MarketingLoading />}>
+      <MarketingContent />
+    </Suspense>
   );
 }
