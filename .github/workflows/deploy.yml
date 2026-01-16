@@ -2,17 +2,18 @@ name: Enterprise Frontend CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master ] # Producción
   pull_request:
-    branches: [ master ]
+    branches: [ master ] # Preview
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
+  # Job 1: Verificación de Calidad (Se ejecuta en paralelo para ahorrar tiempo)
   quality-assurance:
-    name: Code Quality & Build Check
+    name: Code Quality Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Usamos la versión estable más reciente
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
@@ -29,47 +30,54 @@ jobs:
       - name: Lint Analysis
         run: npm run lint
 
-      # Recuperar la caché de Next.js para builds más rápidos
-      - name: Restore Next.js build cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+      # Test Unitarios (Preparado para cuando agreguemos Vitest/Jest)
+      # - name: Unit Tests
+      #   run: npm run test
 
-      - name: Dry-run Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-          # En una empresa profesional, usamos variables de build-time aquí
-          NEXT_PUBLIC_ANALYTICS_ID: ${{ secrets.NEXT_PUBLIC_ANALYTICS_ID }}
-
+  # Job 2: Construcción y Despliegue
   deploy:
-    name: Deploy to Vercel
-    needs: quality-assurance
+    name: Build & Deploy
+    needs: quality-assurance # Solo despliega si pasa el control de calidad
     runs-on: ubuntu-latest
-    # Solo desplegamos si es un push a main (Producción) o si es un PR (Preview)
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # PULL: Trae la configuración del proyecto desde Vercel
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
-      # BUILD: Genera el artefacto de producción (usando las variables de Vercel)
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Build para Preview (sin flag --prod)
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            # Build para Producción (con flag --prod)
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
-      # DEPLOY: Envía el artefacto pre-construido
-      - name: Deploy to Vercel (Production)
-        if: github.ref == 'refs/heads/main'
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel (Preview)
-        if: github.event_name == 'pull_request'
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy to Vercel
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Despliegue a URL temporal (Preview)
+            vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            # Despliegue a Dominio Principal (Production)
+            vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          fi
