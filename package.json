@@ -84,6 +84,7 @@
     "stripe": "^17.5.0",
     "swr": "^2.3.6",
     "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "three": "^0.171.0",
     "twilio-video": "^2.32.1",
     "use-places-autocomplete": "^4.0.1",

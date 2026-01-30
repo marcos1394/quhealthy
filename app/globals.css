@@ -2,3 +2,187 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* === QuHealthy Enterprise Design System === */
+    
+    /* Background Colors */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    
+    /* Card & Surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    /* Primary - Medical Teal (Trustworthy, Calming) */
+    --primary: 172 66% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Slate */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    
+    /* Muted */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    /* Accent - Soft Teal */
+    --accent: 172 66% 95%;
+    --accent-foreground: 172 66% 30%;
+    
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 172 66% 50%;
+    
+    /* Chart Colors */
+    --chart-1: 172 66% 50%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 142 76% 36%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+    
+    /* Sidebar */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 172 66% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 172 66% 50%;
+    
+    /* Radius */
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    /* === Dark Mode - Enterprise === */
+    
+    /* Background - Deep Slate */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Card & Surfaces */
+    --card: 240 6% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 6% 6%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary - Medical Teal */
+    --primary: 172 66% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    
+    /* Muted */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    /* Accent */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    
+    /* Destructive */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 172 66% 50%;
+    
+    /* Chart Colors */
+    --chart-1: 172 66% 50%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 142 76% 46%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+    
+    /* Sidebar */
+    --sidebar-background: 240 6% 4%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 172 66% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 10%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 12%;
+    --sidebar-ring: 172 66% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+@layer utilities {
+  /* Glass Effect */
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent;
+  }
+  
+  /* Subtle Glow */
+  .glow-primary {
+    box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.3);
+  }
+  
+  /* Status Colors */
+  .status-success { @apply bg-chart-3/10 text-chart-3 border-chart-3/20; }
+  .status-warning { @apply bg-chart-4/10 text-chart-4 border-chart-4/20; }
+  .status-error { @apply bg-destructive/10 text-destructive border-destructive/20; }
+  .status-info { @apply bg-chart-2/10 text-chart-2 border-chart-2/20; }
+  
+  /* Fade animations */
+  .animate-in {
+    animation: animateIn 0.3s ease-out;
+  }
+  
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+

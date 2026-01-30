@@ -2,113 +2,154 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, User, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Calendar, Clock, User, ArrowRight, Video, MapPin } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
-// Definición de tipo local (o importar de @/types)
 export interface Appointment {
   id: string;
   clientName: string;
+  clientImage?: string;
   service: string;
-  time: string; // formato "10:00 AM"
-  status?: 'confirmed' | 'pending';
+  time: string;
+  duration?: string;
+  status?: 'confirmed' | 'pending' | 'in-progress';
+  type?: 'in-person' | 'video';
 }
 
 interface UpcomingAppointmentsProps {
   appointments: Appointment[];
 }
 
+const statusConfig = {
+  confirmed: { label: 'Confirmada', class: 'status-success' },
+  pending: { label: 'Pendiente', class: 'status-warning' },
+  'in-progress': { label: 'En curso', class: 'status-info' },
+};
+
 export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({ appointments }) => {
   
   if (appointments.length === 0) {
     return (
-      <Card className="bg-gray-900 border-gray-800 h-full">
+      <Card className="bg-card border-border h-full">
         <CardHeader>
-            <CardTitle className="flex items-center text-xl text-white">
-                <div className="p-2 bg-purple-500/10 rounded-lg mr-3">
-                    <Calendar className="w-5 h-5 text-purple-400"/>
-                </div>
-                Próximas Citas
-            </CardTitle>
+          <CardTitle className="flex items-center text-lg text-foreground">
+            <div className="p-2 bg-primary/10 rounded-lg mr-3">
+              <Calendar className="w-5 h-5 text-primary"/>
+            </div>
+            Proximas Citas
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="bg-gray-800 p-4 rounded-full mb-4">
-                <Calendar className="w-8 h-8 text-gray-500" />
-            </div>
-            <p className="font-medium text-white">No tienes citas hoy.</p>
-            <p className="text-sm text-gray-400 mt-1 max-w-xs">
-                Comparte tu enlace de perfil para empezar a recibir reservaciones.
-            </p>
-            <Button variant="link" className="mt-2 text-purple-400">
-                Copiar Enlace
-            </Button>
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Calendar className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <p className="font-semibold text-foreground">Tu agenda esta libre</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xs">
+            No tienes citas programadas para hoy. Comparte tu enlace de reservas para empezar a recibir pacientes.
+          </p>
+          <Button variant="outline" className="mt-4">
+            Copiar Enlace de Reservas
+          </Button>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800 h-full flex flex-col">
-      <CardHeader className="pb-2">
+    <Card className="bg-card border-border h-full flex flex-col">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-            <div className="flex items-center">
-                <div className="p-2 bg-purple-500/10 rounded-lg mr-3 border border-purple-500/20">
-                    <Calendar className="w-5 h-5 text-purple-400"/>
-                </div>
-                <div>
-                    <CardTitle className="text-lg text-white">Próximas Citas</CardTitle>
-                    <CardDescription className="text-gray-400 text-xs mt-1">
-                        Agenda para hoy
-                    </CardDescription>
-                </div>
+          <CardTitle className="flex items-center text-lg text-foreground">
+            <div className="p-2 bg-primary/10 rounded-lg mr-3">
+              <Calendar className="w-5 h-5 text-primary"/>
             </div>
-            <Badge variant="secondary" className="bg-gray-800 text-purple-300 border-gray-700">
-              {appointments.length} pendientes
-            </Badge>
+            Proximas Citas
+          </CardTitle>
+          <Badge variant="secondary" className="text-xs">
+            {appointments.length} hoy
+          </Badge>
         </div>
       </CardHeader>
       
-      <CardContent className="flex-1 overflow-y-auto pr-2 custom-scrollbar pt-4">
-        <ul className="space-y-3">
-          {appointments.map((appt, index) => (
-            <motion.li 
-              key={appt.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="group flex items-center space-x-4 p-3 bg-gray-950/50 hover:bg-gray-800 rounded-xl border border-gray-800 transition-colors"
-            >
-              {/* Hora */}
-              <div className="flex flex-col items-center justify-center min-w-[60px] p-2 bg-gray-900 rounded-lg border border-gray-800 group-hover:border-purple-500/30 transition-colors">
-                <Clock className="w-4 h-4 text-purple-400 mb-1" />
-                <span className="text-xs font-bold text-white whitespace-nowrap">{appt.time}</span>
-              </div>
-              
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{appt.service}</p>
-                <div className="flex items-center mt-1">
-                    <User className="w-3 h-3 text-gray-500 mr-1.5 flex-shrink-0" />
-                    <p className="text-xs text-gray-400 truncate">{appt.clientName}</p>
+      <CardContent className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="space-y-3">
+          {appointments.map((appt) => {
+            const status = statusConfig[appt.status || 'confirmed'];
+            
+            return (
+              <div 
+                key={appt.id}
+                className="group flex items-start gap-4 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:bg-muted/50 transition-all duration-200"
+              >
+                {/* Time Block */}
+                <div className="flex flex-col items-center justify-center min-w-[56px] py-2 px-3 rounded-lg bg-muted text-center">
+                  <Clock className="w-3.5 h-3.5 text-muted-foreground mb-1" />
+                  <span className="text-sm font-bold text-foreground">{appt.time}</span>
+                  {appt.duration && (
+                    <span className="text-[10px] text-muted-foreground">{appt.duration}</span>
+                  )}
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {appt.service}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Avatar className="w-5 h-5">
+                          <AvatarImage src={appt.clientImage} />
+                          <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                            {appt.clientName.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {appt.clientName}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Type & Status */}
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Badge 
+                        variant="outline" 
+                        className={cn("text-[10px] px-2 py-0 h-5 border", status.class)}
+                      >
+                        {status.label}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                        {appt.type === 'video' ? (
+                          <>
+                            <Video className="w-3 h-3" />
+                            <span>Video</span>
+                          </>
+                        ) : (
+                          <>
+                            <MapPin className="w-3 h-3" />
+                            <span>Presencial</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Status Indicator (Optional) */}
-              <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-            </motion.li>
-          ))}
-        </ul>
+            );
+          })}
+        </div>
       </CardContent>
       
-      <div className="p-4 border-t border-gray-800 mt-auto">
-        <Link href="/dashboard/calendar" className="w-full">
-            <Button variant="ghost" className="w-full justify-between text-gray-400 hover:text-white hover:bg-gray-800 group">
-                Ver Calendario Completo
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+      <div className="p-4 border-t border-border mt-auto">
+        <Link href="/provider/dashboard/calendar">
+          <Button variant="ghost" className="w-full justify-between text-muted-foreground hover:text-foreground group">
+            Ver Calendario Completo
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </Link>
       </div>
     </Card>
