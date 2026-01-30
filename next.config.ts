@@ -5,25 +5,25 @@ import withBundleAnalyzerInit from "@next/bundle-analyzer";
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
 
-  // === 1. BYPASS DE ERRORES (ACTUALIZADO PARA NEXT 16) ===
-  // NOTA: Eliminamos la key 'eslint' porque Next 16 ya no la soporta aquí.
-  // Mantenemos typescript ignore por si acaso sigue siendo válido, 
-  // si falla, lo quitaremos en la siguiente iteración, pero por ahora suele advertir y no romper.
+  // === 1. CONFIGURACIÓN TURBOPACK (SILENCIA EL ERROR) ===
+  turbopack: {},
+
+  // === 2. BYPASS DE ERRORES (ACTUALIZADO PARA NEXT 16) ===
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  // === 2. REVERSE PROXY PARA LA API ===
+  // === 3. REVERSE PROXY PARA LA API ===
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://api.qubits-lm.com/api/:path*',
+        destination: 'https://api.quhealthy.org/api/:path*',
       },
     ];
   },
 
-  // === 3. CABECERAS DE SEGURIDAD (CSP) ===
+  // === 4. CABECERAS DE SEGURIDAD (CSP) ===
   async headers() {
     const cspHeader = `
       default-src 'self';
@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // === 4. OPTIMIZACIÓN DE IMÁGENES ===
+  // === 5. OPTIMIZACIÓN DE IMÁGENES ===
   images: {
     remotePatterns: [
       {
