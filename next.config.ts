@@ -25,15 +25,23 @@ const nextConfig: NextConfig = {
 
   // === 4. CABECERAS DE SEGURIDAD (CSP) ===
   async headers() {
+    // ⚠️ AQUÍ ESTABA EL BLOQUEO. HEMOS AGREGADO GOOGLE.
     const cspHeader = `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com;
+      
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com; 
+      
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; 
+      
+      img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.googleusercontent.com;
+      
       font-src 'self' data: https://fonts.gstatic.com;
-      frame-src 'self' https://*.stripe.com https://js.stripe.com;
-      connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com https://places.googleapis.com https://xqejlzevtuknggchvyfa.supabase.co;
+      
+      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com;
+      
+      connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com https://places.googleapis.com https://xqejlzevtuknggchvyfa.supabase.co https://accounts.google.com https://api.quhealthy.org;
     `.replace(/\s{2,}/g, ' ').trim();
+    // Nota: Agregué https://api.quhealthy.org en connect-src para permitir llamadas directas a tu API si Axios las hace.
 
     return [
       {
@@ -59,6 +67,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https' as const,
         hostname: 'xqejlzevtuknggchvyfa.supabase.co',
+      },
+      // ✅ ADDED: Necesario para mostrar la foto de perfil de Google si decides mostrarla
+      {
+        protocol: 'https' as const,
+        hostname: '*.googleusercontent.com',
       }
     ],
   },
