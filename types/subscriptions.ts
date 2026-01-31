@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Roles de usuario
-export type UserRole = 'paciente' | 'proveedor';
+export type UserRole = "PROVIDER" | "CONSUMER";
 
 // Ciclos de facturación
 export type BillingCycle = 'monthly' | 'yearly';

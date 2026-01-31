@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Stethoscope, Scissors, Loader2, AlertCircle, Sparkles, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "react-toastify";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import SocialButtons from '@/components/auth/SocialButtons';
 
 // Integración Enterprise
 import { useAuth } from "@/hooks/useAuth";
@@ -139,6 +141,7 @@ export default function ProviderSignupPage() {
   };
 
   return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Fondo Animado */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -316,5 +319,6 @@ export default function ProviderSignupPage() {
         </Card>
       </motion.div>
     </div>
+    </GoogleOAuthProvider>
   );
 }

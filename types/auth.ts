@@ -18,3 +18,9 @@ export interface AuthResponse {
     hasActivePlan: boolean;
   };
 }
+
+// ✅ NUEVO: DTO para Login Social
+export interface SocialLoginRequest {
+  token: string;       // El ID Token de Google
+  role: 'PROVIDER' | 'CONSUMER'; // Vital para que el backend sepa qué crear
+}
