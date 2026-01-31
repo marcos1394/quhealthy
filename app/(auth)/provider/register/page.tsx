@@ -178,6 +178,7 @@ export default function ProviderSignupPage() {
           </div>
 
           <div className="p-8">
+            <SocialButtons role="PROVIDER" />
             <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Selector de Tipo de Servicio (Tabs ShadCN) */}
