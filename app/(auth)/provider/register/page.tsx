@@ -5,8 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Stethoscope, Scissors, Loader2, AlertCircle, Sparkles, Eye, EyeOff, Check } from "lucide-react";
-import axios from "axios";
 import { toast } from "react-toastify";
+
+// Integración Enterprise
+import { useAuth } from "@/hooks/useAuth";
+import { RegisterProviderRequest } from "@/types/auth";
 
 // ShadCN UI Components
 import { Button } from "@/components/ui/button";
@@ -34,8 +37,10 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 
 export default function ProviderSignupPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  
+  // Hook de Autenticación Enterprise
+  const { registerProvider, loading, error: apiError } = useAuth();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
@@ -58,7 +63,7 @@ export default function ProviderSignupPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (error) setError("");
+    // Nota: El error del hook se limpiará automáticamente al intentar enviar de nuevo
   };
 
   const handleServiceChange = (value: string) => {
@@ -103,38 +108,33 @@ export default function ProviderSignupPage() {
       return;
     }
 
-    setLoading(true);
-    setError("");
-
     try {
-      const signupData = {
+      // 1. Construimos el DTO estricto
+      const signupData: RegisterProviderRequest = {
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         serviceType: formData.serviceType,
         phone: formData.phone.trim(),
-        acceptTerms: formData.acceptTerms,
-        role: "provider"
+        acceptTerms: formData.acceptTerms
       };
 
-      // Llamada al API (Ruta relativa, asumiendo proxy o misma API)
-      await axios.post('/api/auth/provider/signup', signupData);
+      // 2. Llamada al API a través del Hook -> Service -> Axios
+      const response = await registerProvider(signupData);
       
-      toast.success("¡Cuenta creada! Iniciando configuración...", { position: "top-center" });
+      // 3. Éxito
+      toast.success(response.message || "¡Cuenta creada! Iniciando configuración...", { position: "top-center" });
       
-      // REDIRECCIÓN ESTRATÉGICA:
-      // No mandamos al dashboard directo, mandamos al "Onboarding" para completar perfil.
+      // Redirección al Onboarding
       setTimeout(() => {
          router.push("/onboarding/profile"); 
       }, 1500);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error al crear la cuenta. Inténtalo de nuevo.";
-      setError(errorMessage);
+      // El error ya viene procesado por el interceptor de axios, pero lo mostramos en toast también
+      const errorMessage = err.message || "Error al crear la cuenta. Inténtalo de nuevo.";
       toast.error(errorMessage);
-    } finally {
-        setLoading(false);
     }
   };
 
@@ -283,13 +283,13 @@ export default function ProviderSignupPage() {
                     </div>
                 </div>
 
-                {/* Mensaje de Error */}
+                {/* Mensaje de Error (Conectado al Hook) */}
                 <AnimatePresence>
-                    {error && (
+                    {apiError && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                            <Alert variant="destructive" className="bg-red-900/20 border-red-900 text-red-200">
+                            <Alert variant="destructive" className="bg-red-900/20 border-red-900 text-red-200 mb-4">
                                 <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{error}</AlertDescription>
+                                <AlertDescription>{apiError}</AlertDescription>
                             </Alert>
                         </motion.div>
                     )}
