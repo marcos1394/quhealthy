@@ -18,15 +18,21 @@ export interface RegisterConsumerRequest {
 }
 
 export interface RegisterProviderRequest {
-  name: string;
+  // Datos divididos
+  firstName: string;
+  lastName: string;
+  
+  // Datos de contacto
   email: string;
   phone: string;
   password: string;
-  serviceType: ServiceType; // 👈 Tipado estricto
+  
+  // Datos de negocio requeridos
+  businessName: string;
+  parentCategoryId: number; // ⚠️ El backend pide ID numérico, no Enum string
+  
   termsAccepted: boolean;
-  referralCode?: string;
 }
-
 // ================================
 // LOGIN (REQUESTS)
 // ================================

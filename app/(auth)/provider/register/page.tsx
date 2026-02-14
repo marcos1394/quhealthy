@@ -212,60 +212,51 @@ export default function ProviderSignupPage() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  // Submit
- // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Validación Local (Frontend)
     if (!isFormValid()) {
-      toast.error("Por favor completa todos los campos requeridos y acepta los términos.");
+      toast.error("Por favor completa todos los campos.");
       return;
     }
 
     try {
-      // 2. Sanitización y Preparación del Payload
-      // Es vital asegurar que los datos cumplan estrictamente con RegisterProviderRequest
+      // 1. Separar Nombre y Apellido
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || 'Pendiente'; // Evita enviar vacío si solo puso un nombre
+
+      // 2. Mapear ServiceType a CategoryId
+      // ⚠️ IMPORTANTE: Debes saber qué ID tiene 'HEALTH' y 'WELLNESS' en tu BD.
+      // Asumiremos: 1 = Salud, 2 = Bienestar (Ajusta esto según tu tabla de categorías)
+      const categoryId = formData.serviceType === 'HEALTH' ? 1 : 2;
+
+      // 3. Generar un nombre de negocio por defecto (o agrega el input al form)
+      const defaultBusinessName = `Consultorio de ${firstName}`;
+
+      // 4. Construir el Payload exacto que pide Java
       const signupData: RegisterProviderRequest = {
-        name: formData.name.trim(),
+        firstName: firstName,
+        lastName: lastName,
         email: formData.email.toLowerCase().trim(),
-        password: formData.password, // No hacemos trim en password (espacios pueden ser válidos)
+        password: formData.password,
         phone: formData.phone.trim(),
-        // Casting explícito para asegurar que TypeScript acepte el string como Enum
-        serviceType: formData.serviceType as ServiceType, 
-        termsAccepted: formData.acceptTerms,
-        // referralCode: formData.referralCode?.trim() || undefined // Opcional
+        
+        // Campos nuevos requeridos:
+        businessName: defaultBusinessName, 
+        parentCategoryId: categoryId,
+        
+        termsAccepted: formData.acceptTerms
       };
 
-      // 3. Ejecución (El hook maneja el loading state)
       const response = await registerProvider(signupData);
       
-      // 4. Éxito
-      // Usamos el mensaje que viene del backend (ProviderRegistrationResponse)
-      toast.success(response.message || "¡Cuenta creada! Redirigiendo...", { 
-        position: "top-center",
-        autoClose: 3000
-      });
-      
-      // 5. Redirección
-      // Esperamos un momento para que el usuario lea el mensaje y el estado se asiente
-      setTimeout(() => {
-        // Redirigimos al Onboarding de Perfil porque el usuario ya existe (Status 201)
-        router.push("/onboarding/profile"); 
-      }, 1500);
+      toast.success(response.message || "¡Cuenta creada!", { position: "top-center" });
+      setTimeout(() => router.push("/onboarding/profile"), 1500);
 
     } catch (err: any) {
-      // 6. Manejo de Errores
-      // El hook useAuth ya procesó el error y extrajo el mensaje del backend
-      // (ej: "El correo ya está registrado")
-      const errorMessage = err.message || "Ocurrió un error al crear la cuenta.";
-      
-      toast.error(errorMessage, {
-        position: "top-center"
-      });
-      
-      // Opcional: Log para depuración
-      console.error("Registration failed:", err);
+      // Ahora verás el error específico si falla algo más
+      toast.error(err.message || "Error en el registro");
     }
   };
 

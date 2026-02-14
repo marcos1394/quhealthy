@@ -37,6 +37,8 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { RegisterConsumerRequest } from "@/types/auth";
 
 /**
  * ConsumerSignupPage Component
@@ -88,7 +90,7 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 
 export default function ConsumerSignupPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const { registerConsumer, loading: authLoading } = useAuth();
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -99,7 +101,9 @@ export default function ConsumerSignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
     acceptPrivacy: false,
+    acceptTerms: false,
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
@@ -154,39 +158,55 @@ export default function ConsumerSignupPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // 1. Validación Frontend (Campos vacíos, contraseñas no coinciden, etc.)
     if (!isFormValid()) {
-      toast.error("Por favor completa todos los campos requeridos");
+      toast.error("Por favor completa todos los campos requeridos y acepta los términos.");
       return;
     }
 
-    setLoading(true);
-    setError("");
-
     try {
-      const signupData = {
+      // 2. Construcción del Payload (DTO)
+      // Debe coincidir EXACTAMENTE con RegisterConsumerRequest.java del Backend
+      const signupData: RegisterConsumerRequest = {
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        role: "consumer"
+        phone: formData.phone.trim(),        // 👈 Campo obligatorio en Java
+        termsAccepted: formData.acceptTerms,   // 👈 Campo booleano obligatorio
+        // referralCode: formData.referralCode // Opcional
       };
+      
+      // Nota: Eliminamos 'role: "consumer"' porque el endpoint /register/consumer
+      // ya sabe que está creando un paciente. Enviar campos extra puede causar error 400.
 
-      await axios.post('/api/auth/signup', signupData);
+      // 3. Llamada al Backend vía Hook
+      const response = await registerConsumer(signupData);
       
-      toast.success("¡Bienvenido a QuHealthy!", { position: "top-center" });
+      // 4. Éxito
+      toast.success(response.message || "¡Bienvenido a QuHealthy!", { 
+        position: "top-center",
+        autoClose: 3000
+      });
       
+      // 5. Redirección
+      // Dependiendo de tu flujo, puedes enviarlos al Login o directo al Dashboard
       setTimeout(() => {
-        router.push('/dashboard'); 
+        router.push('/login'); 
       }, 1500);
 
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error al crear la cuenta";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+      // 6. Manejo de Errores
+      // El hook useAuth ya extrajo el mensaje limpio del backend (ej: "Email ya existe")
+      const errorMessage = err.message || "Error al crear la cuenta de paciente";
+      
+      toast.error(errorMessage, {
+        position: "top-center"
+      });
     }
-  };
+  
 
+  
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
@@ -562,10 +582,10 @@ export default function ConsumerSignupPage() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    disabled={!isFormValid() || loading}
+                    disabled={!isFormValid() || authLoading}
                     className="w-full h-12 text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-xl transition-all"
                   >
-                    {loading ? (
+                    {authLoading ? (
                       <>
                         <Loader2 className="animate-spin mr-2" />
                         Creando cuenta...
@@ -605,4 +625,4 @@ export default function ConsumerSignupPage() {
       />
     </GoogleOAuthProvider>
   );
-}
+}} 
