@@ -13,7 +13,7 @@ export interface RegisterConsumerRequest {
   email: string;
   phone: string;
   password: string;
-  acceptTerms: boolean;
+  termsAccepted: boolean;
   referralCode?: string;
 }
 
@@ -23,7 +23,7 @@ export interface RegisterProviderRequest {
   phone: string;
   password: string;
   serviceType: ServiceType; // 👈 Tipado estricto
-  acceptTerms: boolean;
+  termsAccepted: boolean;
   referralCode?: string;
 }
 

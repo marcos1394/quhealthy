@@ -233,7 +233,7 @@ export default function ProviderSignupPage() {
         phone: formData.phone.trim(),
         // Casting explícito para asegurar que TypeScript acepte el string como Enum
         serviceType: formData.serviceType as ServiceType, 
-        acceptTerms: formData.acceptTerms,
+        termsAccepted: formData.acceptTerms,
         // referralCode: formData.referralCode?.trim() || undefined // Opcional
       };
 
