@@ -1,12 +1,38 @@
-export interface RegisterProviderRequest {
-  name: string;        // Java: String name
-  email: string;       // Java: String email
-  phone: string;       // Java: String phone
-  password: string;    // Java: String password
-  serviceType: string; // Java: String serviceType
-  acceptTerms: boolean; // Java: boolean acceptTerms
-  referralCode?: string; // Java: String referralCode (Opcional)
+// ================================
+// REGISTRO
+// ================================
+
+export interface RegisterConsumerRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  acceptTerms: boolean;
+  referralCode?: string;
 }
+
+export interface RegisterProviderRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  serviceType: string;
+  acceptTerms: boolean;
+  referralCode?: string;
+}
+
+// ================================
+// LOGIN
+// ================================
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+// ================================
+// RESPUESTAS
+// ================================
 
 export interface AuthResponse {
   message: string;
@@ -19,8 +45,57 @@ export interface AuthResponse {
   };
 }
 
-// ✅ NUEVO: DTO para Login Social
+export interface ConsumerRegistrationResponse {
+  message: string;
+  consumerId: string;
+}
+
+export interface ProviderRegistrationResponse {
+  message: string;
+  providerId: string;
+}
+
+// ================================
+// VERIFICACIÓN
+// ================================
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface VerifyPhoneRequest {
+  phone: string;
+  code: string;
+}
+
+export interface ResendVerificationRequest {
+  email?: string;
+  phone?: string;
+}
+
+// ================================
+// PASSWORD RESET
+// ================================
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  selector: string;
+  verifier: string;
+  newPassword: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+// ================================
+// LOGIN SOCIAL (si lo agregas)
+// ================================
+
 export interface SocialLoginRequest {
-  token: string;       // El ID Token de Google
-  role: 'PROVIDER' | 'CONSUMER'; // Vital para que el backend sepa qué crear
+  token: string;
+  role: 'PROVIDER' | 'CONSUMER';
 }
