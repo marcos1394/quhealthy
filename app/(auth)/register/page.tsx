@@ -205,7 +205,7 @@ export default function ConsumerSignupPage() {
       });
     }
   
-
+  }
   
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
@@ -625,4 +625,4 @@ export default function ConsumerSignupPage() {
       />
     </GoogleOAuthProvider>
   );
-}} 
+}
