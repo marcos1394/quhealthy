@@ -1,5 +1,11 @@
 // ================================
-// REGISTRO
+// ENUMS & TYPES
+// ================================
+export type UserRole = 'PROVIDER' | 'CONSUMER' | 'ADMIN';
+export type ServiceType = 'HEALTH' | 'WELLNESS'; // Debe coincidir con tu Enum de Java
+
+// ================================
+// REGISTRO (REQUESTS)
 // ================================
 
 export interface RegisterConsumerRequest {
@@ -16,13 +22,13 @@ export interface RegisterProviderRequest {
   email: string;
   phone: string;
   password: string;
-  serviceType: string;
+  serviceType: ServiceType; // 👈 Tipado estricto
   acceptTerms: boolean;
   referralCode?: string;
 }
 
 // ================================
-// LOGIN
+// LOGIN (REQUESTS)
 // ================================
 
 export interface LoginRequest {
@@ -30,14 +36,27 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface SocialLoginRequest {
+  token: string; // Token de Google/Firebase
+  role: UserRole;
+}
+
 // ================================
-// RESPUESTAS
+// RESPUESTAS (RESPONSES)
 // ================================
 
+/**
+ * Respuesta exitosa del LOGIN.
+ * Contiene el JWT y el estado del usuario.
+ */
 export interface AuthResponse {
-  message: string;
-  token?: string | null;
-  status?: {
+  token: string;        // JWT Access Token
+  refreshToken: string; // Refresh Token
+  type: string;         // "Bearer"
+  id: number;
+  email: string;
+  roles: string[];
+  status?: {            // Estado de la cuenta para redirección en el Front
     isEmailVerified: boolean;
     isPhoneVerified: boolean;
     onboardingComplete: boolean;
@@ -45,18 +64,26 @@ export interface AuthResponse {
   };
 }
 
+/**
+ * Respuesta al REGISTRAR un CONSUMER (201 Created)
+ */
 export interface ConsumerRegistrationResponse {
   message: string;
-  consumerId: string;
+  consumerId: number; // o string, según tu Long en Java
+  email: string;
 }
 
+/**
+ * Respuesta al REGISTRAR un PROVIDER (201 Created)
+ */
 export interface ProviderRegistrationResponse {
   message: string;
-  providerId: string;
+  providerId: number; // o string
+  email: string;
 }
 
 // ================================
-// VERIFICACIÓN
+// VERIFICACIÓN & RECUPERACIÓN
 // ================================
 
 export interface VerifyEmailRequest {
@@ -69,33 +96,21 @@ export interface VerifyPhoneRequest {
 }
 
 export interface ResendVerificationRequest {
-  email?: string;
+  email?: string; // Puede ser email o phone, según el caso
   phone?: string;
 }
-
-// ================================
-// PASSWORD RESET
-// ================================
 
 export interface ForgotPasswordRequest {
   email: string;
 }
 
 export interface ResetPasswordRequest {
-  selector: string;
-  verifier: string;
+  selector: string; // Token de seguridad parte 1
+  verifier: string; // Token de seguridad parte 2
   newPassword: string;
 }
 
+// Respuesta genérica para operaciones simples (ej: "Email enviado")
 export interface MessageResponse {
   message: string;
-}
-
-// ================================
-// LOGIN SOCIAL (si lo agregas)
-// ================================
-
-export interface SocialLoginRequest {
-  token: string;
-  role: 'PROVIDER' | 'CONSUMER';
 }

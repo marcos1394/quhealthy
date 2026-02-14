@@ -30,7 +30,7 @@ import TermsModal from '@/components/auth/TermsModal';
 
 // Enterprise Integration
 import { useAuth } from "@/hooks/useAuth";
-import { RegisterProviderRequest } from "@/types/auth";
+import { RegisterProviderRequest, ServiceType } from "@/types/auth";
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -213,37 +213,59 @@ export default function ProviderSignupPage() {
   };
 
   // Submit
+ // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 1. Validación Local (Frontend)
     if (!isFormValid()) {
-      toast.error("Por favor completa todos los campos requeridos");
+      toast.error("Por favor completa todos los campos requeridos y acepta los términos.");
       return;
     }
 
     try {
+      // 2. Sanitización y Preparación del Payload
+      // Es vital asegurar que los datos cumplan estrictamente con RegisterProviderRequest
       const signupData: RegisterProviderRequest = {
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
-        password: formData.password,
-        serviceType: formData.serviceType,
+        password: formData.password, // No hacemos trim en password (espacios pueden ser válidos)
         phone: formData.phone.trim(),
-        acceptTerms: formData.acceptTerms
+        // Casting explícito para asegurar que TypeScript acepte el string como Enum
+        serviceType: formData.serviceType as ServiceType, 
+        acceptTerms: formData.acceptTerms,
+        // referralCode: formData.referralCode?.trim() || undefined // Opcional
       };
 
+      // 3. Ejecución (El hook maneja el loading state)
       const response = await registerProvider(signupData);
       
-      toast.success(response.message || "¡Cuenta creada! Iniciando configuración...", { 
-        position: "top-center" 
+      // 4. Éxito
+      // Usamos el mensaje que viene del backend (ProviderRegistrationResponse)
+      toast.success(response.message || "¡Cuenta creada! Redirigiendo...", { 
+        position: "top-center",
+        autoClose: 3000
       });
       
+      // 5. Redirección
+      // Esperamos un momento para que el usuario lea el mensaje y el estado se asiente
       setTimeout(() => {
+        // Redirigimos al Onboarding de Perfil porque el usuario ya existe (Status 201)
         router.push("/onboarding/profile"); 
       }, 1500);
 
     } catch (err: any) {
-      const errorMessage = err.message || "Error al crear la cuenta";
-      toast.error(errorMessage);
+      // 6. Manejo de Errores
+      // El hook useAuth ya procesó el error y extrajo el mensaje del backend
+      // (ej: "El correo ya está registrado")
+      const errorMessage = err.message || "Ocurrió un error al crear la cuenta.";
+      
+      toast.error(errorMessage, {
+        position: "top-center"
+      });
+      
+      // Opcional: Log para depuración
+      console.error("Registration failed:", err);
     }
   };
 

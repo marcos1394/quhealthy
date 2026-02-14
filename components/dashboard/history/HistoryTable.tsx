@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Table, 
@@ -67,18 +67,26 @@ import { cn } from "@/lib/utils";
  */
 
 // Tipos
-export interface HistoryEntry {
+export type HistoryEntry = {
+  duration: ReactNode;
   id: number;
   date: string;
   type: string;
-  status: 'completed' | 'cancelled' | 'rescheduled';
-  duration?: string;
-  cost: number;
+  status: 'completed' | 'cancelled' | 'rescheduled'; // add other statuses if needed
   rating?: number;
   notes?: string;
-  provider?: { name: string; specialty: string; location: string };
-  client?: { name: string; history?: string };
-}
+  provider: {
+    name: string;
+    specialty: string;
+    image?: string;
+    location?: string;
+  };
+  client: {
+    name: string;
+  };
+  priceAtBooking?: number; // <-- Add this line
+  cost?: number;
+};
 
 type UserRole = "paciente" | "proveedor";
 
