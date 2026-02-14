@@ -15,6 +15,7 @@ export interface SocialConnection {
 export interface UserSession {
   id: number;
   name: string;
+  phone?: string | null;
   email: string;
   // Corregido: Usamos string | null porque la API devuelve una URL, no un Blob
   image?: string | null; 

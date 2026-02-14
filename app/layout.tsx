@@ -20,7 +20,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 // --- METADATOS PROFESIONALES PARA SEO ---
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.quhealthy.com'),
+  metadataBase: new URL('https://www.quhealthy.org'),
   title: {
     template: '%s | QuHealthy',
     default: 'QuHealthy - Plataforma de Salud y Bienestar Digital',

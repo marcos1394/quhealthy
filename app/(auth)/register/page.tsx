@@ -4,9 +4,29 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Eye, EyeOff, Loader2, Check } from "lucide-react";
+import { 
+  UserPlus, 
+  Eye, 
+  EyeOff, 
+  Loader2, 
+  Check,
+  Heart,
+  Calendar,
+  Shield,
+  Sparkles,
+  ChevronRight,
+  Star,
+  Users,
+  TrendingUp,
+  X
+} from "lucide-react";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from "axios";
 import { toast } from "react-toastify";
+
+// Components
+import SocialAuthButtons from '@/components/auth/SocialButtons';
+import PrivacyModal from '@/components/auth/Privacymodal';
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -14,8 +34,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
-// Reglas de validación
+/**
+ * ConsumerSignupPage Component
+ * 
+ * Principios de Psicología UX aplicados:
+ * 
+ * 1. SATISFICING
+ *    - Social login prioritized
+ *    - Minimal required fields
+ *    - Quick signup flow
+ *    - Auto-fill support
+ * 
+ * 2. FEEDBACK INMEDIATO
+ *    - Real-time validation
+ *    - Progress indicator
+ *    - Field-level feedback
+ *    - Success states
+ * 
+ * 3. PRIMING
+ *    - Benefits highlighted
+ *    - Social proof stats
+ *    - Trust indicators
+ *    - Positive messaging
+ * 
+ * 4. CREDIBILIDAD
+ *    - Security badges
+ *    - User testimonials
+ *    - Professional design
+ *    - Trust signals
+ * 
+ * 5. MINIMIZAR ERRORES
+ *    - Password strength meter
+ *    - Email validation
+ *    - Match confirmation
+ *    - Clear error messages
+ */
+
 interface PasswordRule {
   regex: RegExp;
   message: string;
@@ -33,17 +91,32 @@ export default function ConsumerSignupPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    acceptPrivacy: false,
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
     passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
+
+  // Calculate progress - FEEDBACK INMEDIATO
+  const calculateProgress = () => {
+    const fields = ['name', 'email', 'password', 'confirmPassword', 'acceptPrivacy'];
+    const completed = fields.filter(field => {
+      const value = formData[field as keyof typeof formData];
+      return value !== '' && value !== false;
+    });
+    return (completed.length / fields.length) * 100;
+  };
+
+  const progress = calculateProgress();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,10 +124,17 @@ export default function ConsumerSignupPage() {
     if (error) setError("");
   };
 
-  // Validación en tiempo real de contraseña
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData(prev => ({ ...prev, acceptPrivacy: checked }));
+  };
+
+  // Password validation
   useEffect(() => {
     setPasswordValidation(
-      passwordRulesConfig.map(rule => ({ ...rule, valid: rule.regex.test(formData.password) }))
+      passwordRulesConfig.map(rule => ({ 
+        ...rule, 
+        valid: rule.regex.test(formData.password) 
+      }))
     );
   }, [formData.password]);
 
@@ -63,13 +143,19 @@ export default function ConsumerSignupPage() {
     const passwordsMatch = formData.password === formData.confirmPassword;
     const allPasswordRulesValid = passwordValidation.every(rule => rule.valid);
     
-    return !!(formData.name.trim().length >= 2 && isEmailValid && allPasswordRulesValid && passwordsMatch);
+    return !!(
+      formData.name.trim().length >= 2 && 
+      isEmailValid && 
+      allPasswordRulesValid && 
+      passwordsMatch &&
+      formData.acceptPrivacy
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isFormValid()) {
-      toast.error("Revisa los campos requeridos.");
+      toast.error("Por favor completa todos los campos requeridos");
       return;
     }
 
@@ -81,166 +167,442 @@ export default function ConsumerSignupPage() {
         name: formData.name.trim(),
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        role: "consumer" // Aseguramos que el backend sepa que es un consumidor
+        role: "consumer"
       };
 
-      // NOTA: Asegúrate de que este endpoint exista en tu carpeta app/api/...
       await axios.post('/api/auth/signup', signupData);
       
-      toast.success("¡Bienvenido a QuHealthy!");
+      toast.success("¡Bienvenido a QuHealthy!", { position: "top-center" });
       
-      // Redirigir al login o directo al dashboard si tu API devuelve un token/cookie
-      router.push('/login'); 
+      setTimeout(() => {
+        router.push('/dashboard'); 
+      }, 1500);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Error al conectar con el servidor.";
+      const errorMessage = err.response?.data?.message || "Error al crear la cuenta";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fondos decorativos alineados con la Landing Page */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-950 to-gray-950 pointer-events-none" />
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        <Card className="bg-gray-900/80 backdrop-blur-xl border-gray-800 shadow-2xl overflow-hidden">
-          <div className="p-8 text-center border-b border-gray-800">
-             {/* Logo o Icono */}
-            <div className="mx-auto w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-4 border border-purple-500/20">
-              <UserPlus className="w-8 h-8 text-purple-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Crear Cuenta Paciente</h1>
-            <p className="text-gray-400 text-sm">Comienza tu viaje hacia el bienestar.</p>
-          </div>
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
+        
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 8, repeat: Infinity }}
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.4, 0.6, 0.4],
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+            className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl"
+          />
+        </div>
+
+        <div className="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 gap-8">
           
-          <div className="p-8">
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mb-6"
-                >
-                  <Alert variant="destructive" className="bg-red-900/20 border-red-900 text-red-200">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-300">Nombre Completo</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Ej: Juan Pérez"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 h-11"
-                    required
-                  />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300">Correo Electrónico</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="tu@email.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 h-11"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">Contraseña</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="******"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 h-11 pr-10"
-                    required
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)} 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                
-                {/* Indicadores de fortaleza de contraseña */}
-                <div className="flex gap-2 mt-2 flex-wrap">
-                    {passwordValidation.map((rule, idx) => (
-                        <div key={idx} className={`flex items-center text-xs ${rule.valid ? 'text-emerald-400' : 'text-gray-500'} transition-colors duration-300`}>
-                            {rule.valid ? <Check size={12} className="mr-1" /> : <div className="w-3 h-3 rounded-full border border-gray-600 mr-1" />}
-                            {rule.message}
-                        </div>
-                    ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-300">Confirmar Contraseña</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="******"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`bg-gray-800/50 text-white h-11 ${
-                    formData.confirmPassword && formData.password !== formData.confirmPassword
-                      ? 'border-red-500 focus-visible:ring-red-500'
-                      : 'border-gray-700 focus:border-purple-500'
-                  }`}
-                  required
-                />
-                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                    <p className="text-xs text-red-400 mt-1">Las contraseñas no coinciden</p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                disabled={!isFormValid() || loading}
-                className="w-full h-12 text-base font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/20"
-              >
-                {loading ? <Loader2 className="animate-spin mr-2" /> : 'Crear Cuenta'}
-              </Button>
-            </form>
-            
-            <div className="text-center mt-6">
-              <p className="text-sm text-gray-400">
-                ¿Ya tienes cuenta?{' '}
-                <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold hover:underline">
-                  Inicia sesión
-                </Link>
+          {/* Left Panel - Benefits - PRIMING */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="hidden lg:block lg:col-span-2 space-y-6"
+          >
+            <div>
+              <h2 className="text-4xl font-black text-white mb-3">
+                Tu Salud en un Click
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Encuentra y agenda con los mejores profesionales
               </p>
             </div>
-          </div>
-        </Card>
-      </motion.div>
-    </div>
+
+            {/* Stats - CREDIBILIDAD */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: Users, label: '+50k Usuarios', color: 'emerald' },
+                { icon: Star, label: '4.8★ Rating', color: 'yellow' },
+                { icon: Calendar, label: '+100k Citas', color: 'blue' },
+                { icon: TrendingUp, label: '95% Satisfacción', color: 'purple' }
+              ].map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 + 0.3 }}
+                    className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-4"
+                  >
+                    <Icon className={cn(
+                      "w-8 h-8 mb-2",
+                      stat.color === 'emerald' ? "text-emerald-400" : "",
+                      stat.color === 'yellow' ? "text-yellow-400" : "",
+                      stat.color === 'blue' ? "text-blue-400" : "",
+                      stat.color === 'purple' ? "text-purple-400" : "",
+                    )} />
+                    <p className="text-white font-bold">{stat.label}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Benefits List */}
+            <div className="space-y-3">
+              {[
+                'Agenda citas en segundos',
+                'Compara precios y reseñas',
+                'Recordatorios automáticos',
+                'Historial médico centralizado',
+                'Pagos seguros en línea'
+              ].map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 + 0.6 }}
+                  className="flex items-center gap-3 text-gray-300"
+                >
+                  <div className="p-1 bg-emerald-500/10 rounded-full">
+                    <Check className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <span>{benefit}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Trust Badge */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3">
+              <Shield className="w-8 h-8 text-blue-400" />
+              <div>
+                <p className="text-blue-400 font-bold text-sm">100% Seguro</p>
+                <p className="text-blue-300/60 text-xs">
+                  Tus datos están protegidos
+                </p>
+              </div>
+            </div>
+
+            {/* Testimonial */}
+            <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+              <div className="flex gap-1 mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+              <p className="text-gray-300 text-sm mb-2">
+                "QuHealthy me ayudó a encontrar al especialista perfecto. ¡Super fácil y rápido!"
+              </p>
+              <p className="text-gray-500 text-xs">- María G.</p>
+            </div>
+          </motion.div>
+
+          {/* Right Panel - Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-3"
+          >
+            <Card className="bg-gray-900/90 backdrop-blur-xl border-gray-800 shadow-2xl overflow-hidden">
+              
+              {/* Header */}
+              <div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-900 to-gray-800 relative border-b border-gray-800">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                  className="mx-auto w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-xl relative"
+                >
+                  <Heart className="w-10 h-10 text-white" />
+                  <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
+                </motion.div>
+
+                <h1 className="text-3xl font-black text-white mb-2">
+                  Crea tu Cuenta
+                </h1>
+                <p className="text-gray-400">
+                  Únete a miles de usuarios satisfechos
+                </p>
+
+                {/* Progress Bar */}
+                <div className="mt-6 space-y-2">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-gray-500">Progreso</span>
+                    <span className="text-purple-400">{Math.round(progress)}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+              </div>
+
+              <div className="p-8">
+                
+                {/* Social Auth - SATISFICING */}
+                <SocialAuthButtons role="CONSUMER" />
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-800" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-gray-900 text-gray-500">
+                      O regístrate con email
+                    </span>
+                  </div>
+                </div>
+
+                {/* Error Alert */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mb-6"
+                    >
+                      <Alert variant="destructive" className="bg-red-900/20 border-red-900 text-red-200">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  
+                  {/* Name Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="name" className="text-gray-300 font-semibold">
+                      Nombre Completo
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Ej: Juan Pérez López"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={cn(
+                        "bg-gray-800/50 border-gray-700 text-white h-12 transition-all",
+                        "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
+                        !formData.name ? "border-red-500/30" : ""
+                      )}
+                      required
+                    />
+                  </motion.div>
+
+                  {/* Email Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="email" className="text-gray-300 font-semibold">
+                      Correo Electrónico
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      name="email"
+                      placeholder="tu@email.com"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-12"
+                      required
+                    />
+                  </motion.div>
+
+                  {/* Password Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="password" className="text-gray-300 font-semibold">
+                      Contraseña
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        placeholder="Mínimo 8 caracteres"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="bg-gray-800/50 border-gray-700 text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-12 pr-12"
+                        required
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                    
+                    {/* Password Strength Indicators */}
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {passwordValidation.map((rule, idx) => (
+                        <span
+                          key={idx}
+                          className={cn(
+                            "flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border transition-all",
+                            rule.valid 
+                              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
+                              : "bg-gray-800 border-gray-700 text-gray-500"
+                          )}
+                        >
+                          {rule.valid ? (
+                            <Check size={12} />
+                          ) : (
+                            <div className="w-3 h-3 rounded-full border border-gray-600" />
+                          )}
+                          {rule.message}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+
+                  {/* Confirm Password Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="confirmPassword" className="text-gray-300 font-semibold">
+                      Confirmar Contraseña
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        placeholder="Repite tu contraseña"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        className={cn(
+                          "bg-gray-800/50 text-white h-12 pr-12",
+                          formData.confirmPassword && formData.password !== formData.confirmPassword
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                            : "border-gray-700 focus:border-purple-500 focus:ring-purple-500/20"
+                        )}
+                        required
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                    {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                      <p className="text-xs text-red-400 flex items-center gap-1 mt-1">
+                        <X className="w-3 h-3" />
+                        Las contraseñas no coinciden
+                      </p>
+                    )}
+                  </motion.div>
+
+                  {/* Privacy Checkbox */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="flex items-start space-x-3 p-4 bg-purple-900/10 border border-purple-500/20 rounded-xl"
+                  >
+                    <Checkbox 
+                      id="privacy" 
+                      checked={formData.acceptPrivacy}
+                      onCheckedChange={handleCheckboxChange}
+                      className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <label 
+                        htmlFor="privacy" 
+                        className="text-sm font-semibold text-gray-200 cursor-pointer"
+                      >
+                        Acepto la política de privacidad
+                      </label>
+                      <p className="text-xs text-gray-500 leading-relaxed">
+                        Al registrarte, aceptas nuestra{' '}
+                        <button
+                          type="button"
+                          onClick={() => setShowPrivacyModal(true)}
+                          className="text-purple-400 hover:text-purple-300 underline"
+                        >
+                          Política de Privacidad
+                        </button>
+                        {' '}y{' '}
+                        <Link 
+                          href="/terms" 
+                          className="text-purple-400 hover:text-purple-300 underline"
+                        >
+                          Términos de Servicio
+                        </Link>.
+                      </p>
+                    </div>
+                  </motion.div>
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={!isFormValid() || loading}
+                    className="w-full h-12 text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-xl transition-all"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin mr-2" />
+                        Creando cuenta...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 w-5 h-5" />
+                        Crear Cuenta Gratis
+                        <ChevronRight className="ml-2 w-5 h-5" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+                
+                {/* Login Link */}
+                <div className="text-center mt-6 border-t border-gray-800 pt-6">
+                  <p className="text-sm text-gray-400">
+                    ¿Ya tienes cuenta?{' '}
+                    <Link 
+                      href="/login" 
+                      className="text-purple-400 hover:text-purple-300 font-semibold hover:underline"
+                    >
+                      Inicia sesión aquí
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Privacy Modal */}
+      <PrivacyModal 
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
+    </GoogleOAuthProvider>
   );
 }
