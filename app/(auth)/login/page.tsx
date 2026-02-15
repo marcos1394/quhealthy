@@ -112,7 +112,7 @@ export default function LoginPage() {
         router.push(target);
       } else {
         // Es CONSUMER (Paciente)
-        router.push("/discover");
+        router.push("/patient/discover");
       }
 
       router.refresh();
