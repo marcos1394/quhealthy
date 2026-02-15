@@ -1,37 +1,80 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-
-export interface OnboardingStep {
-  // Ampliamos los IDs para incluir 'profile' que mencionamos antes
-  id: 'profile' | 'kyc' | 'license' | 'marketplace' | string; 
-  title: string;
-  description: string;
-  isComplete: boolean;
-  isRequired: boolean;
-  statusText: string; // Ej: "Pendiente", "En Revisión", "Completado"
-  actionPath?: string; // La ruta a la que redirige el botón
-  actionDisabled: boolean; // Si es true, el botón se bloquea (ej: paso secuencial)
-}
+import { onboardingService } from '@/services/onboarding.service';
+import { OnboardingStepUI, OnboardingStatusResponse, OnboardingStepStatus } from '@/types/onboarding';
+import { toast } from 'react-toastify';
 
 export const useOnboardingChecklist = () => {
-  const [steps, setSteps] = useState<OnboardingStep[]>([]);
+  const [steps, setSteps] = useState<OnboardingStepUI[]>([]);
+  const [percentage, setPercentage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper para textos amigables
+  const getStatusText = (status: OnboardingStepStatus) => {
+    switch (status) {
+      case 'COMPLETED': return 'Completado';
+      case 'IN_PROGRESS': return 'En Progreso';
+      case 'REJECTED': return 'Requiere Cambios'; // ⚠️ Importante para UX
+      default: return 'Pendiente';
+    }
+  };
 
   const fetchChecklist = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Nota: Asegúrate de que esta ruta exista en tu backend o Next.js API Route
-      const response = await axios.get<OnboardingStep[]>('/api/auth/provider/onboarding/checklist');
-      setSteps(response.data);
+      const data = await onboardingService.getStatus();
+      
+      setPercentage(data.completionPercentage);
+
+      // --- TRANSFORMACIÓN DE DATOS (Backend -> UI) ---
+      
+      // 1. Paso Perfil (Siempre desbloqueado)
+      const profileStep: OnboardingStepUI = {
+        id: 'profile',
+        title: 'Perfil Profesional',
+        description: 'Información básica, especialidad y foto.',
+        status: data.profileStatus,
+        statusText: getStatusText(data.profileStatus),
+        isComplete: data.profileStatus === 'COMPLETED',
+        isLocked: false, 
+        actionPath: '/onboarding/profile',
+        rejectionReason: data.rejectionReasons?.['PROFILE']
+      };
+
+      // 2. Paso Documentación (Bloqueado si Perfil no está listo)
+      const kycStep: OnboardingStepUI = {
+        id: 'kyc',
+        title: 'Verificación de Identidad',
+        description: 'Cédula profesional e identificación oficial.',
+        status: data.kycStatus,
+        statusText: getStatusText(data.kycStatus),
+        isComplete: data.kycStatus === 'COMPLETED',
+        // Se bloquea si el perfil no está al menos "En Progreso" o "Completado"
+        isLocked: data.profileStatus === 'PENDING', 
+        actionPath: '/onboarding/kyc',
+        rejectionReason: data.rejectionReasons?.['KYC']
+      };
+      
+      // 3. Paso Licencia/Consultorio (Bloqueado si KYC no está listo)
+      const licenseStep: OnboardingStepUI = {
+        id: 'license',
+        title: 'Datos del Consultorio',
+        description: 'Dirección, horarios y permisos sanitarios.',
+        status: data.licenseStatus,
+        statusText: getStatusText(data.licenseStatus),
+        isComplete: data.licenseStatus === 'COMPLETED',
+        isLocked: data.kycStatus === 'PENDING',
+        actionPath: '/onboarding/license',
+        rejectionReason: data.rejectionReasons?.['LICENSE']
+      };
+
+      setSteps([profileStep, kycStep, licenseStep]);
+
     } catch (err: any) {
-      console.error("Error fetching checklist:", err);
-      // Fallback elegante: Si falla (404/500), no rompemos la app, mostramos error
-      const message = err.response?.data?.message || "No pudimos sincronizar tu progreso.";
-      setError(message);
-      // Opcional: toast.error(message); // A veces es mejor solo mostrar el error en la UI
+      console.error("Error onboarding status:", err);
+      // Fallback visual si falla la carga
+      setError("No pudimos cargar tu progreso. Intenta recargar.");
     } finally {
       setIsLoading(false);
     }
@@ -41,5 +84,11 @@ export const useOnboardingChecklist = () => {
     fetchChecklist();
   }, [fetchChecklist]);
 
-  return { steps, isLoading, error, refetch: fetchChecklist };
+  return { 
+    steps, 
+    percentage, 
+    isLoading, 
+    error, 
+    refetch: fetchChecklist 
+  };
 };
