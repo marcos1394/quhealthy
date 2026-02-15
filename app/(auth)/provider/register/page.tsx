@@ -110,12 +110,15 @@ const SIGNUP_STEPS = [
 
 export default function ProviderSignupPage() {
   const router = useRouter();
-  const { registerProvider, loading, error: apiError } = useAuth();
+  const { registerProvider, error: apiError } = useAuth();
+  
   
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -220,45 +223,43 @@ export default function ProviderSignupPage() {
       return;
     }
 
+    // 2. Estado de carga visual
+    setLoading(true); 
+
     try {
-      // 1. Separar Nombre y Apellido
+      // Preparación de datos (Igual que tenías)
       const nameParts = formData.name.trim().split(' ');
       const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || 'Pendiente'; // Evita enviar vacío si solo puso un nombre
-
-      // 2. Mapear ServiceType a CategoryId
-      // ⚠️ IMPORTANTE: Debes saber qué ID tiene 'HEALTH' y 'WELLNESS' en tu BD.
-      // Asumiremos: 1 = Salud, 2 = Bienestar (Ajusta esto según tu tabla de categorías)
+      const lastName = nameParts.slice(1).join(' ') || 'Pendiente';
       const categoryId = formData.serviceType === 'HEALTH' ? 1 : 2;
-
-      // 3. Generar un nombre de negocio por defecto (o agrega el input al form)
       const defaultBusinessName = `Consultorio de ${firstName}`;
 
-      // 4. Construir el Payload exacto que pide Java
       const signupData: RegisterProviderRequest = {
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         phone: formData.phone.trim(),
-        
-        // Campos nuevos requeridos:
         businessName: defaultBusinessName, 
         parentCategoryId: categoryId,
-        
         termsAccepted: formData.acceptTerms
       };
 
-      const response = await registerProvider(signupData);
+      // Llamada a la API
+      await registerProvider(signupData);
       
-      toast.success(response.message || "¡Cuenta creada!", { position: "top-center" });
-      setTimeout(() => router.push("/onboarding/profile"), 1500);
+      // 3. ✅ CAMBIO: No redirigimos. Mostramos la vista de éxito.
+      toast.success("Cuenta creada. Revisa tu correo.");
+      setIsRegistrationSuccess(true);
+      window.scrollTo(0, 0); // Subir para que vea el mensaje
 
     } catch (err: any) {
-      // Ahora verás el error específico si falla algo más
+      console.error(err);
       toast.error(err.message || "Error en el registro");
+    } finally {
+      setLoading(false);
     }
-  };
+};
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>

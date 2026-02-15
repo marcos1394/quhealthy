@@ -81,36 +81,41 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true); // Agregamos visual feedback
+    setLoading(true); 
     setError("");
 
     try {
       // 1. Ejecución del Login
+      // Si el email NO está verificado, el backend lanzará error (403/401)
+      // y caeremos en el catch de abajo.
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password
       });
 
-      // 2. Notificación
       toast.success(`¡Bienvenido de nuevo!`);
 
-      // 3. Lógica de Redirección (CORREGIDA)
-      // El backend devuelve "role": "CONSUMER" | "PROVIDER" | "ADMIN"
-      const role = response.role; 
+      // 3. Lógica de Redirección Inteligente
+      const role = response.role; // "PROVIDER" | "CONSUMER" | "ADMIN"
 
       if (role === 'ADMIN') {
         router.push("/admin/dashboard");
-      } else if (role === 'PROVIDER') {
-        // Verificamos onboarding
-        // Nota: Asegúrate de que response.status venga definido, si no usa optional chaining
-        const onboardingComplete = response.status?.onboardingComplete;
+      } 
+      else if (role === 'PROVIDER') {
+        // ✅ LÓGICA DE ONBOARDING
+        // Verificamos si el flag onboardingComplete es true o false
+        const isOnboardingComplete = response.status?.onboardingComplete;
         
-        const target = onboardingComplete 
-          ? "/dashboard" 
-          : "/onboarding/profile"; // O la ruta donde completan sus datos
-          
-        router.push(target);
-      } else {
+        if (isOnboardingComplete) {
+            // Ya terminó todo, va a su panel de control real
+            router.push("/dashboard");
+        } else {
+            // Falta completar perfil, documentos o plan.
+            // Lo enviamos al "Panel de Onboarding" (Hub)
+            router.push("/onboarding"); 
+        }
+      } 
+      else {
         // Es CONSUMER (Paciente)
         router.push("/patient/discover");
       }
@@ -119,8 +124,14 @@ export default function LoginPage() {
 
     } catch (err: any) {
       console.error(err);
+      // Aquí capturamos si la cuenta no está verificada aún
       const errorMessage = err.message || "Credenciales incorrectas.";
-      setError(errorMessage);
+      
+      if (errorMessage.includes("verificar")) {
+         setError("Debes verificar tu correo antes de entrar. Revisa tu bandeja de entrada.");
+      } else {
+         setError(errorMessage);
+      }
       toast.error(errorMessage);
     } finally {
       setLoading(false);
