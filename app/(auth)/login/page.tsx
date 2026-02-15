@@ -37,47 +37,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
-/**
- * LoginPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Tab selector for user type
- *    - Email/password autofill
- *    - Remember me option
- *    - Visual role indicators
- * 
- * 2. SATISFICING
- *    - Social login options
- *    - Quick login flow
- *    - Minimal fields
- *    - Auto-remember preference
- * 
- * 3. FEEDBACK INMEDIATO
- *    - Loading states
- *    - Error messages
- *    - Success confirmation
- *    - Field validation
- * 
- * 4. MINIMIZAR ERRORES
- *    - Clear error messages
- *    - Forgot password link
- *    - Email format validation
- *    - Disabled state when incomplete
- * 
- * 5. CREDIBILIDAD
- *    - Security badges
- *    - SSL indicator
- *    - Professional design
- *    - Trust signals
- * 
- * 6. PRIMING
- *    - Role-specific messaging
- *    - Success states
- *    - Welcome back message
- *    - Positive reinforcement
- */
 
 export default function LoginPage() {
   const router = useRouter();
@@ -122,47 +81,49 @@ export default function LoginPage() {
       return;
     }
 
+    setLoading(true); // Agregamos visual feedback
     setError("");
 
     try {
-      // 2. Ejecución del Login centralizado
-      // No necesitamos diferenciar endpoint por rol aquí, 
-      // el backend nos dirá quién es el usuario en la respuesta.
+      // 1. Ejecución del Login
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password
       });
 
-      toast.success(`¡Bienvenido de nuevo, ${response.email}!`, { 
-        position: "top-center"
-      });
+      // 2. Notificación
+      toast.success(`¡Bienvenido de nuevo!`);
 
-      // 3. Lógica de Redirección Inteligente
-      // En lugar de usar el 'userType' del tab (que puede ser engañoso),
-      // usamos el rol REAL que devuelve el JWT/Backend.
-      const isAdmin = response.roles.includes("ROLE_ADMIN");
-      const isProvider = response.roles.includes("ROLE_PROVIDER");
+      // 3. Lógica de Redirección (CORREGIDA)
+      // El backend devuelve "role": "CONSUMER" | "PROVIDER" | "ADMIN"
+      const role = response.role; 
 
-      if (isAdmin) {
+      if (role === 'ADMIN') {
         router.push("/admin/dashboard");
-      } else if (isProvider) {
-        // Si es doctor, verificamos si terminó su perfil
-        const target = response.status?.onboardingComplete 
+      } else if (role === 'PROVIDER') {
+        // Verificamos onboarding
+        // Nota: Asegúrate de que response.status venga definido, si no usa optional chaining
+        const onboardingComplete = response.status?.onboardingComplete;
+        
+        const target = onboardingComplete 
           ? "/dashboard" 
-          : "/onboarding/profile";
+          : "/onboarding/profile"; // O la ruta donde completan sus datos
+          
         router.push(target);
       } else {
-        // Es un paciente (Consumer)
+        // Es CONSUMER (Paciente)
         router.push("/discover");
       }
 
       router.refresh();
 
     } catch (err: any) {
-      // 4. El error ya viene procesado por el hook
+      console.error(err);
       const errorMessage = err.message || "Credenciales incorrectas.";
       setError(errorMessage);
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 

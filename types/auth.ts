@@ -50,6 +50,13 @@ export interface SocialLoginRequest {
   role: UserRole;
 }
 
+export interface AuthStatus {
+  onboardingComplete: boolean;
+  hasActivePlan: boolean;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+}
+
 // ================================
 // RESPUESTAS (RESPONSES)
 // ================================
@@ -59,22 +66,17 @@ export interface SocialLoginRequest {
  * Contiene el JWT y el estado del usuario.
  */
 export interface AuthResponse {
-  image: null;
-  message: any;
-  lastName: any;
-  firstName: any;
-  token: string;        // JWT Access Token
-  refreshToken: string; // Refresh Token
-  type: string;         // "Bearer"
-  id: number;
-  email: string;
-  roles: string[];
-  status?: {            // Estado de la cuenta para redirección en el Front
-    isEmailVerified: boolean;
-    isPhoneVerified: boolean;
-    onboardingComplete: boolean;
-    hasActivePlan: boolean;
-  };
+  token: string;
+  type: string;
+  refreshToken: string | null;
+  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN'; // 👈 Singular y tipos exactos
+  message: string;
+  status: AuthStatus;
+  // Agregamos los opcionales que a veces mandas
+  id?: number;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 /**
