@@ -1,161 +1,110 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
 import { 
   Loader2, 
   CheckCircle, 
   XCircle, 
   Mail,
   Sparkles,
-  AlertCircle,
   ArrowRight,
-  RefreshCw,
   Shield,
-  Clock
+  Stethoscope,
+  User
 } from 'lucide-react';
+
+// Services
+import { authService } from '@/services/auth.services';
 
 // UI Components
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 /**
- * VerifyEmailPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR ANSIEDAD
- *    - Clear verification status
- *    - Progress indicator
- *    - Time estimates
- *    - Reassuring messages
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Real-time verification
- *    - Animated states
- *    - Success celebration
- *    - Clear error messages
- * 
- * 3. CREDIBILIDAD
- *    - Security badges
- *    - Professional design
- *    - Trust indicators
- *    - Official branding
- * 
- * 4. PRIMING
- *    - Success animations
- *    - Positive messaging
- *    - Next step guidance
- *    - Welcome messaging
- * 
- * 5. RECONOCIMIENTO
- *    - Role-specific messaging
- *    - Clear visual states
- *    - Icon indicators
- *    - Color coding
+ * Componente interno que maneja la lógica de los SearchParams.
+ * Debe estar dentro de Suspense para evitar errores de hidratación en Next.js App Router.
  */
-
-// Internal component for verification logic
 function VerificationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Verificando tu cuenta...');
-  const [progress, setProgress] = useState(0);
-  const [countdown, setCountdown] = useState(3);
-  const [shouldRedirect, setShouldRedirect] = useState(false);
-
   const token = searchParams.get('token');
-  const role = searchParams.get('role');
+  // El rol es opcional, solo para personalizar el saludo (provider/consumer)
+  const roleParam = searchParams.get('role'); 
 
-  // Progress animation for loading state
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState('Verificando la seguridad de tu enlace...');
+  const [progress, setProgress] = useState(10);
+  const [countdown, setCountdown] = useState(5);
+
+  // --- EFECTO: Simulación de Progreso (UX) ---
   useEffect(() => {
     if (status === 'loading') {
       const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + 10;
-        });
-      }, 200);
+        setProgress((prev) => (prev >= 90 ? prev : prev + 15));
+      }, 300);
       return () => clearInterval(interval);
     }
   }, [status]);
 
-  // Countdown timer for success state
+  // --- EFECTO: Cuenta Regresiva para Redirección ---
   useEffect(() => {
-    if (status === 'success' && shouldRedirect && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
-      }, 1000);
+    if (status === 'success' && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (status === 'success' && shouldRedirect && countdown === 0) {
-      handleRedirect();
+    } else if (status === 'success' && countdown === 0) {
+      router.push('/login?verified=true');
     }
-  }, [status, shouldRedirect, countdown]);
+  }, [status, countdown, router]);
 
-  // Verification logic
+  // --- EFECTO PRINCIPAL: Verificar Token ---
   useEffect(() => {
-    if (!token || !role) {
-      setStatus('error');
-      setMessage('El enlace de verificación es inválido o está incompleto.');
-      setProgress(100);
-      return;
-    }
+    const verify = async () => {
+      // 1. Validar presencia del token
+      if (!token) {
+        setStatus('error');
+        setMessage('El enlace de verificación es inválido o está incompleto.');
+        setProgress(100);
+        return;
+      }
 
-    // Call backend verification endpoint
-    axios.get(`/api/auth/verify-email?token=${token}&role=${role}`)
-      .then(response => {
+      try {
+        // 2. Llamada al Backend (GET /api/auth/verify-email?token=...)
+        // No necesitamos pasar el rol al backend, él ya sabe quién es por el token.
+        await authService.verifyEmail(token);
+        
+        // 3. Éxito
         setProgress(100);
         setStatus('success');
         setMessage('¡Tu cuenta ha sido verificada exitosamente!');
-        setShouldRedirect(true);
-      })
-      .catch(error => {
+      } catch (error: any) {
+        // 4. Error
         setProgress(100);
         setStatus('error');
-        const errorMsg = error.response?.data?.message || 'El enlace es inválido o ha expirado.';
-        setMessage(errorMsg);
-      });
-  }, [token, role]);
+        // Mensaje amigable desde el backend o fallback
+        const msg = error.response?.data?.message || 'El enlace ha expirado o ya fue utilizado.';
+        setMessage(msg);
+      }
+    };
 
-  // Redirect handler
-  const handleRedirect = () => {
-    const loginUrl = role === 'provider' 
-      ? '/login?verified=true&role=provider' 
-      : '/login?verified=true';
-    router.push(loginUrl);
-  };
+    // Pequeño delay artificial para que el usuario vea la animación de carga (UX)
+    // y no sea un parpadeo instantáneo.
+    const timeout = setTimeout(() => {
+        verify();
+    }, 1500);
 
-  // Get role-specific content
-  const getRoleContent = () => {
-    if (role === 'provider') {
-      return {
-        title: 'Cuenta Profesional',
-        welcome: '¡Bienvenido a QuHealthy!',
-        message: 'Ya puedes comenzar a gestionar tu práctica',
-        color: 'pink',
-        icon: Sparkles
-      };
-    } else {
-      return {
-        title: 'Cuenta de Paciente',
-        welcome: '¡Bienvenido a QuHealthy!',
-        message: 'Ya puedes agendar tus citas',
-        color: 'purple',
-        icon: CheckCircle
-      };
-    }
-  };
+    return () => clearTimeout(timeout);
+  }, [token]);
 
-  const roleContent = getRoleContent();
-  const RoleIcon = roleContent.icon;
+  // --- UI HELPERS ---
+  const isProvider = roleParam === 'provider';
+  
+  // Icono dinámico según rol
+  const RoleIcon = isProvider ? Stethoscope : User;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 p-4 relative overflow-hidden">
