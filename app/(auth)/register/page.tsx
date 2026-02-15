@@ -159,53 +159,55 @@ export default function ConsumerSignupPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 1. Validación Frontend (Campos vacíos, contraseñas no coinciden, etc.)
+    // 1. Validación Frontend
     if (!isFormValid()) {
       toast.error("Por favor completa todos los campos requeridos y acepta los términos.");
       return;
     }
 
     try {
+      // --- LÓGICA DE TRANSFORMACIÓN ---
+      // Dividimos el nombre completo en partes
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || 'Pendiente'; 
+      // --------------------------------
+
       // 2. Construcción del Payload (DTO)
-      // Debe coincidir EXACTAMENTE con RegisterConsumerRequest.java del Backend
+      // Debe coincidir EXACTAMENTE con RegisterConsumerRequest.java
       const signupData: RegisterConsumerRequest = {
-        name: formData.name.trim(),
+        firstName: firstName,                // 👈 Mapeado desde la división
+        lastName: lastName,                  // 👈 Mapeado desde la división
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        phone: formData.phone.trim(),        // 👈 Campo obligatorio en Java
-        termsAccepted: formData.acceptTerms,   // 👈 Campo booleano obligatorio
-        // referralCode: formData.referralCode // Opcional
+        phone: formData.phone ? formData.phone.trim() : undefined, 
+        termsAccepted: formData.acceptTerms, // 👈 Se envía como 'termsAccepted' para Java
+        // Campos opcionales de marketing si los tienes en el estado:
+        utmSource: "web_direct", 
+        utmMedium: "organic"
       };
-      
-      // Nota: Eliminamos 'role: "consumer"' porque el endpoint /register/consumer
-      // ya sabe que está creando un paciente. Enviar campos extra puede causar error 400.
 
       // 3. Llamada al Backend vía Hook
+      // Recuerda que este hook debe estar configurado para llamar a /api/auth/register/consumer
       const response = await registerConsumer(signupData);
       
       // 4. Éxito
       toast.success(response.message || "¡Bienvenido a QuHealthy!", { 
         position: "top-center",
-        autoClose: 3000
       });
       
-      // 5. Redirección
-      // Dependiendo de tu flujo, puedes enviarlos al Login o directo al Dashboard
+      // 5. Redirección al Login (para que valide su email)
       setTimeout(() => {
         router.push('/login'); 
       }, 1500);
 
     } catch (err: any) {
       // 6. Manejo de Errores
-      // El hook useAuth ya extrajo el mensaje limpio del backend (ej: "Email ya existe")
+      // El hook useAuth ya extrae el mensaje: "El email ya existe", "Contraseña débil", etc.
       const errorMessage = err.message || "Error al crear la cuenta de paciente";
-      
-      toast.error(errorMessage, {
-        position: "top-center"
-      });
+      toast.error(errorMessage, { position: "top-center" });
     }
-  
-  }
+  };
   
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>

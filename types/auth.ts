@@ -9,12 +9,15 @@ export type ServiceType = 'HEALTH' | 'WELLNESS'; // Debe coincidir con tu Enum d
 // ================================
 
 export interface RegisterConsumerRequest {
-  name: string;
+  firstName: string;      // 👈 Cambiado de 'name'
+  lastName: string;       // 👈 Nuevo campo
   email: string;
-  phone: string;
   password: string;
-  termsAccepted: boolean;
+  phone?: string;         // 👈 Opcional según tu @Pattern en Java
+  termsAccepted: boolean; // 👈 Alineado con el nombre en Java
   referralCode?: string;
+  utmSource?: string;
+  utmMedium?: string;
 }
 
 export interface RegisterProviderRequest {
