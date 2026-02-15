@@ -154,7 +154,7 @@ export default function VerifyPhonePage() {
 
       // Redirect based on role
       setTimeout(() => {
-        if (user?.role === 'provider') {
+        if (user?.role === 'PROVIDER') {
           router.push('/provider/onboarding/checklist');
         } else {
           router.push('/dashboard');
@@ -196,7 +196,7 @@ export default function VerifyPhonePage() {
 
   // Skip verification (optional)
   const handleSkip = () => {
-    if (user?.role === 'provider') {
+    if (user?.role === 'PROVIDER') {
       router.push('/provider/onboarding/checklist?phone_pending=true');
     } else {
       router.push('/dashboard?phone_pending=true');
@@ -439,14 +439,14 @@ export default function VerifyPhonePage() {
                           ✓ Verificación Completa
                         </p>
                         <p className="text-xs text-emerald-300/80">
-                          Redirigiendo a tu {user?.role === 'provider' ? 'panel de control' : 'dashboard'}...
+                          Redirigiendo a tu {user?.role === 'PROVIDER' ? 'panel de control' : 'dashboard'}...
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <Button
-                    onClick={() => router.push(user?.role === 'provider' ? '/provider/onboarding/checklist' : '/dashboard')}
+                    onClick={() => router.push(user?.role === 'PROVIDER' ? '/provider/onboarding/checklist' : '/dashboard')}
                     className="w-full h-12 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-base font-bold shadow-xl"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />

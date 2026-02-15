@@ -1,28 +1,23 @@
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // O 'next/router' si usas Pages Router
-import { authService } from '@/services/auth.services';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth.services'; // Asegúrate de la ruta correcta
 import {
-  // Tipos de Request
+  // Tipos
   RegisterProviderRequest,
   RegisterConsumerRequest,
   LoginRequest,
-  VerifyEmailRequest,
-  VerifyPhoneRequest,
   ResendVerificationRequest,
-  ForgotPasswordRequest,
   ResetPasswordRequest,
-  // Tipos de Response
+  // Responses
   AuthResponse,
   ProviderRegistrationResponse,
   ConsumerRegistrationResponse,
   MessageResponse,
-  // Enums
   UserRole
 } from '@/types/auth';
 
-// ✅ DEFINIMOS EL CONTRATO DE RETORNO (Interfaz Completa)
+// ✅ Interfaz actualizada
 interface UseAuthReturn {
-  // Estado
   loading: boolean;
   error: string | null;
 
@@ -33,6 +28,7 @@ interface UseAuthReturn {
   // Autenticación
   login: (data: LoginRequest) => Promise<AuthResponse>;
   loginWithGoogle: (token: string, role: UserRole) => Promise<AuthResponse>;
+  checkSession: () => Promise<AuthResponse | null>; // 👈 NUEVO
   logout: () => void;
 
   // Verificación
@@ -40,7 +36,7 @@ interface UseAuthReturn {
   verifyPhone: (phone: string, code: string) => Promise<MessageResponse>;
   resendVerification: (data: ResendVerificationRequest) => Promise<MessageResponse>;
 
-  // Recuperación de Password
+  // Password
   forgotPassword: (email: string) => Promise<MessageResponse>;
   resetPassword: (data: ResetPasswordRequest) => Promise<MessageResponse>;
 }
@@ -50,83 +46,76 @@ export const useAuth = (): UseAuthReturn => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // 🛠️ Helper para manejar errores de forma uniforme
+  // Helper de errores
   const handleError = (err: any): never => {
     const msg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado';
     setError(msg);
-    throw new Error(msg); // Re-lanzamos para que el componente (UI) pueda mostrar el toast
+    throw new Error(msg);
   };
-
-  // =================================================================
-  // 📝 1. REGISTRO
-  // =================================================================
-
-  const registerProvider = async (data: RegisterProviderRequest): Promise<ProviderRegistrationResponse> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.registerProvider(data);
-      return response;
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const registerConsumer = async (data: RegisterConsumerRequest): Promise<ConsumerRegistrationResponse> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.registerConsumer(data);
-      return response;
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // =================================================================
-  // 🔐 2. LOGIN (Guarda Token)
-  // =================================================================
 
   const handleLoginSuccess = (response: AuthResponse) => {
     if (response.token) {
       localStorage.setItem('token', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      // Opcional: Guardar info básica del usuario
+      localStorage.setItem('refreshToken', response.refreshToken || '');
       localStorage.setItem('user', JSON.stringify({
-        id: response.id,
-        email: response.email,
-        roles: response.roles
+        role: response.roles,
+        status: response.status
       }));
     }
   };
 
-  const login = async (data: LoginRequest): Promise<AuthResponse> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await authService.login(data);
-      handleLoginSuccess(response);
-      return response;
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+  // --- Registro ---
+  const registerProvider = async (data: RegisterProviderRequest) => {
+    setLoading(true); setError(null);
+    try { return await authService.registerProvider(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  const loginWithGoogle = async (token: string, role: UserRole): Promise<AuthResponse> => {
-    setLoading(true);
-    setError(null);
+  const registerConsumer = async (data: RegisterConsumerRequest) => {
+    setLoading(true); setError(null);
+    try { return await authService.registerConsumer(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  // --- Login ---
+  const login = async (data: LoginRequest) => {
+    setLoading(true); setError(null);
     try {
-      const response = await authService.googleLogin({ token, role });
-      handleLoginSuccess(response);
-      return response;
+      const res = await authService.login(data);
+      handleLoginSuccess(res);
+      return res;
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const loginWithGoogle = async (token: string, role: UserRole) => {
+    setLoading(true); setError(null);
+    try {
+      const res = await authService.googleLogin({ token, role });
+      handleLoginSuccess(res);
+      return res;
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  // ✅ NUEVO: Validar Sesión
+  const checkSession = async () => {
+    // Si no hay token local, ni intentamos llamar al back
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    setLoading(true);
+    try {
+      const res = await authService.getSession();
+      // Si el back responde OK, actualizamos/confirmamos data local
+      handleLoginSuccess(res); 
+      return res;
     } catch (err) {
-      return handleError(err);
+      // Si falla (401/403), limpiamos sesión
+      logout();
+      return null;
     } finally {
       setLoading(false);
     }
@@ -134,73 +123,49 @@ export const useAuth = (): UseAuthReturn => {
 
   const logout = () => {
     authService.logout();
-    router.push('/login'); // Redirigir al login
+    router.push('/auth/login');
   };
 
-  // =================================================================
-  // ✅ 3. VERIFICACIÓN
-  // =================================================================
-
-  const verifyEmail = async (token: string): Promise<MessageResponse> => {
-    setLoading(true);
+  // --- Verificación ---
+  const verifyEmail = async (token: string) => {
+    setLoading(true); setError(null);
     try {
-      return await authService.verifyEmail({ token });
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+      // 🔄 Ahora llamamos directo con el string, el servicio se encarga del GET param
+      return await authService.verifyEmail(token);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  const verifyPhone = async (phone: string, code: string): Promise<MessageResponse> => {
-    setLoading(true);
+  const verifyPhone = async (phone: string, code: string) => {
+    setLoading(true); setError(null);
     try {
-      return await authService.verifyPhone({ phone, code });
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+      return await authService.verifyPhone({ phone, code }); // Ajuste de nombre campo
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  const resendVerification = async (data: ResendVerificationRequest): Promise<MessageResponse> => {
-    setLoading(true);
-    try {
-      return await authService.resendVerification(data);
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+  const resendVerification = async (data: ResendVerificationRequest) => {
+    setLoading(true); setError(null);
+    try { return await authService.resendVerification(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  // =================================================================
-  // 🔄 4. PASSWORD RESET
-  // =================================================================
-
-  const forgotPassword = async (email: string): Promise<MessageResponse> => {
-    setLoading(true);
-    try {
-      return await authService.forgotPassword({ email });
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+  // --- Password ---
+  const forgotPassword = async (email: string) => {
+    setLoading(true); setError(null);
+    try { return await authService.forgotPassword({ email }); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  const resetPassword = async (data: ResetPasswordRequest): Promise<MessageResponse> => {
-    setLoading(true);
-    try {
-      return await authService.resetPassword(data);
-    } catch (err) {
-      return handleError(err);
-    } finally {
-      setLoading(false);
-    }
+  const resetPassword = async (data: ResetPasswordRequest) => {
+    setLoading(true); setError(null);
+    try { return await authService.resetPassword(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
   };
 
-  // Retornamos todas las funciones y el estado
   return {
     loading,
     error,
@@ -208,6 +173,7 @@ export const useAuth = (): UseAuthReturn => {
     registerConsumer,
     login,
     loginWithGoogle,
+    checkSession, // 👈 Exportamos
     logout,
     verifyEmail,
     verifyPhone,

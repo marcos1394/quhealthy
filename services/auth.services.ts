@@ -5,7 +5,6 @@ import {
   RegisterConsumerRequest,
   LoginRequest,
   SocialLoginRequest,
-  VerifyEmailRequest,
   VerifyPhoneRequest,
   ResendVerificationRequest,
   ForgotPasswordRequest,
@@ -17,20 +16,15 @@ import {
   MessageResponse
 } from '@/types/auth';
 
-// Rutas base del controlador Java
 const BASE_AUTH = '/api/auth';
 const BASE_REGISTER = '/api/auth/register';
 
 export const authService = {
 
   // =================================================================
-  // 📝 1. REGISTRO (ONBOARDING)
+  // 📝 1. REGISTRO
   // =================================================================
 
-  /**
-   * Registra un nuevo Profesional (Provider).
-   * Retorna mensaje de éxito e ID, no loguea automáticamente.
-   */
   registerProvider: async (data: RegisterProviderRequest): Promise<ProviderRegistrationResponse> => {
     const response = await axiosInstance.post<ProviderRegistrationResponse>(
       `${BASE_REGISTER}/provider`,
@@ -39,9 +33,6 @@ export const authService = {
     return response.data;
   },
 
-  /**
-   * Registra un nuevo Paciente (Consumer).
-   */
   registerConsumer: async (data: RegisterConsumerRequest): Promise<ConsumerRegistrationResponse> => {
     const response = await axiosInstance.post<ConsumerRegistrationResponse>(
       `${BASE_REGISTER}/consumer`,
@@ -51,13 +42,9 @@ export const authService = {
   },
 
   // =================================================================
-  // 🔐 2. AUTENTICACIÓN (LOGIN)
+  // 🔐 2. AUTENTICACIÓN
   // =================================================================
 
-  /**
-   * Login tradicional con Email y Password.
-   * Retorna el JWT y datos del usuario.
-   */
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>(
       `${BASE_AUTH}/login`,
@@ -66,10 +53,6 @@ export const authService = {
     return response.data;
   },
 
-  /**
-   * Login/Registro con Google (OAuth2).
-   * Envía el token de Google y el rol deseado.
-   */
   googleLogin: async (data: SocialLoginRequest): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>(
       `${BASE_AUTH}/social/google`,
@@ -78,37 +61,37 @@ export const authService = {
     return response.data;
   },
 
-  /**
-   * Cierra sesión (Lado del cliente y opcionalmente notifica al server para invalidar refresh tokens)
-   */
+  // ✅ AGREGADO: Validar sesión al recargar página
+  getSession: async (): Promise<AuthResponse> => {
+    // Axios interceptor inyectará el token "Authorization: Bearer ..."
+    const response = await axiosInstance.get<AuthResponse>(
+      `${BASE_AUTH}/session`
+    );
+    return response.data;
+  },
+
   logout: async (): Promise<void> => {
-    // Si manejas lista negra de tokens en redis:
-    // await axiosInstance.post(`${BASE_AUTH}/logout`);
-    
     // Limpieza local
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+    }
   },
 
   // =================================================================
   // ✅ 3. VERIFICACIÓN DE IDENTIDAD
   // =================================================================
 
-  /**
-   * Verifica el correo electrónico mediante token.
-   */
-  verifyEmail: async (data: VerifyEmailRequest): Promise<MessageResponse> => {
-    const response = await axiosInstance.post<MessageResponse>(
+  // 🔄 MODIFICADO: Usamos GET para token de email (más estándar para links)
+  verifyEmail: async (token: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.get<MessageResponse>(
       `${BASE_AUTH}/verify-email`,
-      data
+      { params: { token } } // Esto genera: /api/auth/verify-email?token=xyz
     );
     return response.data;
   },
 
-  /**
-   * Verifica el teléfono mediante código OTP (SMS).
-   */
   verifyPhone: async (data: VerifyPhoneRequest): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/verify-phone`,
@@ -117,9 +100,6 @@ export const authService = {
     return response.data;
   },
 
-  /**
-   * Reenvía el código de verificación o email de activación.
-   */
   resendVerification: async (data: ResendVerificationRequest): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/resend-verification`,
@@ -132,9 +112,6 @@ export const authService = {
   // 🔄 4. RECUPERACIÓN DE CONTRASEÑA
   // =================================================================
 
-  /**
-   * Solicita un reset de contraseña (envía email con link).
-   */
   forgotPassword: async (data: ForgotPasswordRequest): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/forgot-password`,
@@ -143,9 +120,6 @@ export const authService = {
     return response.data;
   },
 
-  /**
-   * Establece la nueva contraseña usando los tokens de seguridad.
-   */
   resetPassword: async (data: ResetPasswordRequest): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/reset-password`,

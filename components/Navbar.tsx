@@ -4,11 +4,17 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, LogOut, UserCircle, Store, Calendar, Settings, Megaphone, Sparkles } from "lucide-react";
-import axios from 'axios';
+import { 
+  Menu, X, LayoutDashboard, LogOut, UserCircle, 
+  Store, Calendar, Settings, Sparkles, Stethoscope, 
+  Megaphone
+} from "lucide-react";
 import { toast } from 'react-toastify';
 
-// Store
+// ✅ Importamos el servicio que acabamos de arreglar
+import { authService } from '@/services/auth.services';
+
+// Store (Asumimos que este store llama a authService internamente, ver abajo)
 import { useSessionStore } from '@/stores/SessionStore';
 
 // UI Components
@@ -24,14 +30,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 // --- CONFIGURACIÓN DE NAVEGACIÓN ---
-const publicNavItems = [
+const GUEST_LINKS = [
   { name: "Descubrir", href: "/discover" },
   { name: "Para Doctores", href: "/business" },
 ];
 
-const consumerNavItems = [
-  { name: "Explorar", href: "/discover" },
+const CONSUMER_LINKS = [
+  { name: "Explorar Doctores", href: "/discover" },
   { name: "Mis Citas", href: "/appointments" },
+];
+
+const PROVIDER_LINKS = [
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Mi Agenda", href: "/dashboard/calendar" },
+  { name: "Pacientes", href: "/dashboard/patients" },
 ];
 
 export const Navbar: React.FC = () => {
@@ -39,38 +51,47 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   
+  // Extraemos estado y acciones del Store
   const { user, isLoading, fetchSession, clearSession } = useSessionStore();
   const isAuthenticated = !!user;
-  const userRole = user?.role;
-
-  // Hydration de sesión
+  const userRole = user?.role ?? null; // <-- Añadido para definir userRole
+  
+  // ✅ 1. Hydration de sesión: Esto valida el token contra el Backend al cargar la página
   useEffect(() => {
     fetchSession();
   }, [fetchSession]);
 
-  // Efecto de Scroll mejorado
+  // Efecto de Scroll
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Logout Handler
+  // ✅ 2. Logout Handler: Limpieza total
   const handleLogout = async () => {
     try {
-      await axios.post('/api/auth/logout');
+      // Limpiamos localStorage y tokens
+      await authService.logout();
+      
+      // Limpiamos el estado global de Zustand
       clearSession();
-      toast.success('Hasta pronto 👋');
-      router.push('/');
-      router.refresh();
+      
+      toast.info('Sesión cerrada correctamente');
+      router.push('/login');
+      router.refresh(); // Refresca para limpiar cualquier caché de Next.js
     } catch (error) {
       console.error("Logout error", error);
-      clearSession();
+      clearSession(); // Forzamos limpieza local aunque falle algo raro
       router.push('/');
     }
   };
-
-  const navItems = userRole === 'consumer' ? consumerNavItems : publicNavItems;
+  // Definir los items de navegación según el rol
+  const navItems = userRole === 'PROVIDER'
+    ? PROVIDER_LINKS
+    : userRole === 'CONSUMER'
+      ? CONSUMER_LINKS
+      : GUEST_LINKS;
 
   // --- SUB-COMPONENTES ---
 
@@ -90,7 +111,7 @@ export const Navbar: React.FC = () => {
       { name: 'Mis Citas', href: '/appointments', icon: UserCircle },
     ];
 
-    const menuItems = userRole === 'provider' ? providerMenuItems : consumerMenuItems;
+    const menuItems = userRole === 'PROVIDER' ? providerMenuItems : consumerMenuItems;
 
     return (
       <DropdownMenu>
@@ -127,7 +148,7 @@ export const Navbar: React.FC = () => {
                 <p className="text-xs text-gray-400 truncate">{user.email}</p>
                 {userRole && (
                   <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-medium uppercase">
-                    {userRole === 'provider' ? 'Profesional' : 'Paciente'}
+                    {userRole === 'PROVIDER' ? 'Profesional' : 'Paciente'}
                   </span>
                 )}
               </div>
@@ -215,7 +236,7 @@ export const Navbar: React.FC = () => {
         </Link>
         
         {/* Desktop Navigation */}
-        {userRole !== 'provider' && (
+        {userRole !== 'PROVIDER' && (
           <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
             {navItems.map((item) => (
               <Link 
@@ -291,7 +312,7 @@ export const Navbar: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <p className="text-white font-semibold truncate">{user?.name}</p>
                         <p className="text-xs text-gray-400 truncate">
-                          {userRole === 'provider' ? 'Profesional' : 'Paciente'}
+                          {userRole === 'PROVIDER' ? 'Profesional' : 'Paciente'}
                         </p>
                       </div>
                     </div>
