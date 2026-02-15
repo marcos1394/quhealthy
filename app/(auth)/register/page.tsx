@@ -152,7 +152,8 @@ export default function ConsumerSignupPage() {
       isEmailValid && 
       allPasswordRulesValid && 
       passwordsMatch &&
-      formData.acceptPrivacy
+      formData.acceptTerms
+
     );
   };
 
