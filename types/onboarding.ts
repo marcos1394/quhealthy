@@ -31,3 +31,47 @@ export interface OnboardingStepUI {
   actionPath: string;           // Ruta de navegación (/onboarding/profile)
   rejectionReason?: string;     // Mensaje de error si fue rechazado
 }
+
+export interface UpdateProfileRequest {
+  businessName: string;
+  bio: string;
+  profileImageUrl: string;
+  
+  // Ubicación
+  address: string;
+  latitude: number;
+  longitude: number;
+  placeId?: string; // Opcional porque puede no venir de Google
+
+  // Contacto
+  websiteUrl?: string;
+  contactPhone?: string;
+  contactEmail: string; // ✅ Vital para notificaciones
+
+  // Categoría
+  categoryId: number;
+  subCategoryId: number;
+}
+
+// ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)
+export interface ProfileResponse {
+  providerId: number;
+  businessName: string;
+  bio: string;
+  profileImageUrl: string;
+  slug: string;
+  
+  address: string;
+  latitude: number;
+  longitude: number;
+  googlePlaceId?: string;
+  
+  websiteUrl?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  
+  categoryId: number;
+  subCategoryId: number;
+  
+  profileStatus: string; // 'PENDING', 'COMPLETED', etc.
+}
