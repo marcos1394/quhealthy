@@ -129,7 +129,7 @@ export default function ConsumerSignupPage() {
   };
 
   const handleCheckboxChange = (checked: boolean) => {
-    setFormData(prev => ({ ...prev, acceptPrivacy: checked }));
+    setFormData(prev => ({ ...prev, acceptTerms: checked }));
   };
 
   // Password validation
