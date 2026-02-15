@@ -129,8 +129,12 @@ export default function ConsumerSignupPage() {
   };
 
   const handleCheckboxChange = (checked: boolean) => {
-    setFormData(prev => ({ ...prev, acceptTerms: checked }));
-  };
+  setFormData(prev => ({ 
+    ...prev, 
+    acceptPrivacy: checked, // Para el UI
+    acceptTerms: checked    // Para la validación y el Backend
+  }));
+};
 
   // Password validation
   useEffect(() => {
@@ -549,12 +553,12 @@ export default function ConsumerSignupPage() {
                     transition={{ delay: 0.4 }}
                     className="flex items-start space-x-3 p-4 bg-purple-900/10 border border-purple-500/20 rounded-xl"
                   >
-                    <Checkbox 
-                      id="privacy" 
-                      checked={formData.acceptPrivacy}
-                      onCheckedChange={handleCheckboxChange}
-                      className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
-                    />
+                  <Checkbox 
+  id="terms" // Cambiamos el ID a terms para ser semánticos
+  checked={formData.acceptTerms} // 👈 Ahora lee acceptTerms
+  onCheckedChange={handleCheckboxChange} // 👈 Usa el handler que actualiza ambos
+  className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
+/>
                     <div className="grid gap-1.5 leading-none">
                       <label 
                         htmlFor="privacy" 
