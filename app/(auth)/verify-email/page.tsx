@@ -12,7 +12,11 @@ import {
   ArrowRight,
   Shield,
   Stethoscope,
-  User
+  User,
+  AlertCircle,
+  Badge,
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 
 // Services
@@ -105,6 +109,29 @@ function VerificationContent() {
   
   // Icono dinámico según rol
   const RoleIcon = isProvider ? Stethoscope : User;
+
+  // Role content mapping
+  const roleContent = isProvider 
+    ? {
+        title: 'Proveedor de Salud',
+        welcome: '¡Bienvenido, Proveedor!',
+        message: 'Tu cuenta de proveedor está lista para atender pacientes.',
+        color: 'purple' as const,
+      }
+    : {
+        title: 'Paciente',
+        welcome: '¡Bienvenido!',
+        message: 'Tu cuenta está lista para acceder a los servicios de salud.',
+        color: 'pink' as const,
+      };
+
+  // Determine if should show redirect countdown
+  const shouldRedirect = true;
+
+  // Handle redirect function
+  const handleRedirect = () => {
+    router.push('/login?verified=true');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 p-4 relative overflow-hidden">

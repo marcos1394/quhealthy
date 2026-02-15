@@ -59,6 +59,10 @@ export interface SocialLoginRequest {
  * Contiene el JWT y el estado del usuario.
  */
 export interface AuthResponse {
+  image: null;
+  message: any;
+  lastName: any;
+  firstName: any;
   token: string;        // JWT Access Token
   refreshToken: string; // Refresh Token
   type: string;         // "Bearer"

@@ -8,97 +8,65 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-/**
- * SocialAuthButtons Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. SATISFICING
- *    - One-click authentication
- *    - Multiple provider options
- *    - Quick signup flow
- *    - Skip form filling
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Loading states per button
- *    - Success/error toasts
- *    - Disabled states
- *    - Visual feedback
- * 
- * 3. CREDIBILIDAD
- *    - Official brand logos
- *    - Secure OAuth flows
- *    - Trust indicators
- *    - Professional appearance
- * 
- * 4. AFFORDANCE
- *    - Clear brand recognition
- *    - Hover effects
- *    - Click feedback
- *    - Distinct buttons
- */
+// ✅ Importamos nuestro Hook y Tipos
+import { useAuth } from '@/hooks/useAuth';
+import { UserRole } from '@/types/auth';
 
 interface SocialAuthButtonsProps {
   role?: 'PROVIDER' | 'CONSUMER';
-  onSuccess?: (provider: string, data: any) => void;
+  onSuccess?: () => void;
 }
 
 export default function SocialAuthButtons({ 
   role = 'PROVIDER',
   onSuccess 
 }: SocialAuthButtonsProps) {
+  
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  
+  // 1. Instanciamos nuestro hook de autenticación
+  const { loginWithGoogle } = useAuth();
 
-  // Google OAuth
+  // 2. Configuración de Google Login
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         setLoadingProvider('google');
         
-        // Get user info from Google
-        const userInfoResponse = await fetch(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
-          }
-        );
+        // 3. ENVIAMOS EL TOKEN AL BACKEND
+        // No pedimos user info aquí. El backend lo hará de forma segura.
+        await loginWithGoogle(tokenResponse.access_token, role as UserRole);
         
-        const userInfo = await userInfoResponse.json();
-        
-        // TODO: Send to your backend
-        console.log('Google user info:', userInfo);
-        toast.success(`¡Bienvenido ${userInfo.name}!`);
+        toast.success(`¡Bienvenido! Sesión iniciada con Google.`);
         
         if (onSuccess) {
-          onSuccess('google', userInfo);
+          onSuccess();
         }
         
-      } catch (error) {
-        toast.error('Error al iniciar sesión con Google');
+      } catch (error: any) {
         console.error('Google auth error:', error);
+        // El error ya lo maneja useAuth, pero por si acaso:
+        if (!toast.isActive('google-error')) {
+            toast.error(error.message || 'Error al iniciar sesión con Google', { toastId: 'google-error' });
+        }
       } finally {
         setLoadingProvider(null);
       }
     },
     onError: () => {
-      toast.error('Error al conectar con Google');
+      toast.error('No se pudo conectar con Google.');
       setLoadingProvider(null);
     },
+    // Opcional: Solicitar scopes adicionales si necesitas calendario, etc.
+     scope: 'https://www.googleapis.com/auth/calendar.events', 
   });
 
-  // Apple Sign In
+  // Apple Sign In (Placeholder)
   const handleAppleSignIn = async () => {
     setLoadingProvider('apple');
-    
     try {
-      // Apple Sign In implementation
-      toast.info('Apple Sign In - En desarrollo');
-      
-      // TODO: Implement Apple OAuth
-      // Reference: https://developer.apple.com/sign-in-with-apple/
-      
+      toast.info('Inicio con Apple próximamente');
+      // Lógica futura aquí
     } catch (error) {
       toast.error('Error al iniciar sesión con Apple');
     } finally {
@@ -106,17 +74,12 @@ export default function SocialAuthButtons({
     }
   };
 
-  // Facebook Login
+  // Facebook Login (Placeholder)
   const handleFacebookLogin = async () => {
     setLoadingProvider('facebook');
-    
     try {
-      // Facebook Login implementation
-      toast.info('Facebook Login - En desarrollo');
-      
-      // TODO: Implement Facebook OAuth
-      // Reference: https://developers.facebook.com/docs/facebook-login/web
-      
+      toast.info('Inicio con Facebook próximamente');
+      // Lógica futura aquí
     } catch (error) {
       toast.error('Error al iniciar sesión con Facebook');
     } finally {
@@ -124,6 +87,7 @@ export default function SocialAuthButtons({
     }
   };
 
+  // Configuración visual de los botones
   const socialProviders = [
     {
       id: 'google',
@@ -148,7 +112,8 @@ export default function SocialAuthButtons({
           />
         </svg>
       ),
-      bgColor: 'bg-white hover:bg-gray-100',
+      // Estilos Google standard
+      bgColor: 'bg-white hover:bg-gray-50',
       textColor: 'text-gray-700',
       borderColor: 'border-gray-300',
       onClick: () => googleLogin(),
@@ -161,6 +126,7 @@ export default function SocialAuthButtons({
           <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
         </svg>
       ),
+      // Estilos Apple standard
       bgColor: 'bg-black hover:bg-gray-900',
       textColor: 'text-white',
       borderColor: 'border-black',
@@ -177,6 +143,7 @@ export default function SocialAuthButtons({
           />
         </svg>
       ),
+      // Estilos Facebook standard
       bgColor: 'bg-[#1877F2] hover:bg-[#1665D8]',
       textColor: 'text-white',
       borderColor: 'border-[#1877F2]',
@@ -195,29 +162,36 @@ export default function SocialAuthButtons({
         >
           <Button
             type="button"
-            variant="outline"
+            variant="outline" // Base style
             onClick={provider.onClick}
             disabled={loadingProvider !== null}
             className={cn(
-              "w-full h-12 text-base font-semibold transition-all",
+              "w-full h-12 text-base font-medium relative transition-all duration-200 shadow-sm",
+              // Aplicamos los colores específicos
               provider.bgColor,
               provider.textColor,
-              `border ${provider.borderColor}`,
-              loadingProvider === provider.id ? "opacity-80 cursor-wait" : "hover:opacity-90"
+              provider.borderColor,
+              // Estado Disabled/Loading
+              loadingProvider !== null && loadingProvider !== provider.id 
+                ? "opacity-50 cursor-not-allowed" 
+                : "",
+              loadingProvider === provider.id 
+                ? "opacity-90 cursor-wait" 
+                : ""
             )}
           >
             {loadingProvider === provider.id ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                Conectando...
-              </>
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                <span>Conectando...</span>
+              </div>
             ) : (
-              <>
-                {provider.icon}
-                <span className="ml-3">
-                  Continuar con {provider.name}
+              <div className="flex items-center justify-center w-full">
+                <span className="absolute left-4 flex items-center">
+                  {provider.icon}
                 </span>
-              </>
+                <span>Continuar con {provider.name}</span>
+              </div>
             )}
           </Button>
         </motion.div>
