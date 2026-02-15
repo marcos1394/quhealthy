@@ -35,6 +35,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * LoginPage Component
@@ -82,6 +83,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { login, loading: authLoading } = useAuth(); // 👈 Usamos nuestro hook
   const [showPassword, setShowPassword] = useState(false);
   
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
@@ -120,41 +122,47 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
     setError("");
 
     try {
-      const endpoint = userType === "consumer" 
-        ? "/api/auth/consumer/login" 
-        : "/api/auth/provider/login";
-        
-      const redirectPath = userType === "consumer"
-        ? "/discover"
-        : "/dashboard";
-
-      await axios.post(endpoint, {
+      // 2. Ejecución del Login centralizado
+      // No necesitamos diferenciar endpoint por rol aquí, 
+      // el backend nos dirá quién es el usuario en la respuesta.
+      const response = await login({
         email: formData.email.toLowerCase().trim(),
-        password: formData.password,
-        rememberMe: formData.rememberMe
+        password: formData.password
       });
 
-      toast.success(`¡Bienvenido de nuevo!`, { 
-        position: "top-center",
-        icon: <span> "👋"</span>
+      toast.success(`¡Bienvenido de nuevo, ${response.email}!`, { 
+        position: "top-center"
       });
-      
-      setTimeout(() => {
-        router.push(redirectPath);
-        router.refresh();
-      }, 500);
+
+      // 3. Lógica de Redirección Inteligente
+      // En lugar de usar el 'userType' del tab (que puede ser engañoso),
+      // usamos el rol REAL que devuelve el JWT/Backend.
+      const isAdmin = response.roles.includes("ROLE_ADMIN");
+      const isProvider = response.roles.includes("ROLE_PROVIDER");
+
+      if (isAdmin) {
+        router.push("/admin/dashboard");
+      } else if (isProvider) {
+        // Si es doctor, verificamos si terminó su perfil
+        const target = response.status?.onboardingComplete 
+          ? "/dashboard" 
+          : "/onboarding/profile";
+        router.push(target);
+      } else {
+        // Es un paciente (Consumer)
+        router.push("/discover");
+      }
+
+      router.refresh();
 
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 
-        "Credenciales incorrectas. Verifica tu email y contraseña.";
+      // 4. El error ya viene procesado por el hook
+      const errorMessage = err.message || "Credenciales incorrectas.";
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
