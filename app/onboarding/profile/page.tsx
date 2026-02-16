@@ -648,24 +648,7 @@ const selectPlace = async (prediction: any) => {
       />
     </div>
 
-    {/* Botón Siguiente (Valida y marca en verde) */}
-    <div className="pt-4">
-      <Button
-        onClick={() => {
-          if (isStep1Valid) {
-            // ✅ Solo aquí marcamos como completado para que se ponga en verde
-            setCompletedSteps(prev => new Set(prev).add(1));
-            setActiveStep(2);
-          } else {
-            toast.warning("Por favor completa los campos: Nombre (3+), Bio (20+) y Teléfono (10+)");
-          }
-        }}
-        className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 group"
-      >
-        Continuar a Especialidad
-        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-      </Button>
-    </div>
+    
   </motion.div>
 )}
 
@@ -724,36 +707,6 @@ const selectPlace = async (prediction: any) => {
     {/* ❌ AQUÍ BORRAMOS EL BLOQUE "AnimatePresence" QUE TENÍAS ANTES */}
     {/* Ya no renderizamos los tags manualmente aquí abajo para evitar duplicidad */}
 
-    {/* Footer de Navegación */}
-    <div className="flex flex-col gap-3 pt-4">
-      <Button
-        type="button"
-        // Validamos que haya categoría y subcategoría. Los tags suelen ser opcionales.
-        disabled={formData.categoryId === 0 || formData.subCategoryId === 0}
-        onClick={() => {
-          setCompletedSteps(prev => new Set(prev).add(2));
-          setActiveStep(3);
-          toast.success("Perfil profesional configurado");
-        }}
-        className={cn(
-          "w-full h-14 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3",
-          (formData.categoryId > 0 && formData.subCategoryId > 0)
-            ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white" 
-            : "bg-gray-800 text-gray-500 cursor-not-allowed"
-        )}
-      >
-        <span>Continuar a Ubicación</span>
-        <ArrowRight className="w-6 h-6" />
-      </Button>
-      
-      <button 
-        type="button"
-        onClick={() => setActiveStep(1)}
-        className="text-gray-500 text-xs font-bold hover:text-gray-300 transition-colors py-2"
-      >
-        ← Volver a Información Básica
-      </button>
-    </div>
   </motion.div>
 )}
 

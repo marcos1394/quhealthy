@@ -98,7 +98,7 @@ const MapEngine = dynamic(
 
 // --- COMPONENTE PRINCIPAL ---
 export default function LocationPicker({ 
-  onLocationSelect,
+   onLocationSelect,
   initialLocation,
   className 
 }: LocationPickerProps) {
