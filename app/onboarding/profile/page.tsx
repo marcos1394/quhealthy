@@ -754,23 +754,27 @@ const selectPlace = async (prediction: any) => {
     {/* Mapa Interactivo */}
     <div className="rounded-3xl overflow-hidden border-2 border-gray-800 h-[350px] shadow-2xl relative">
       <LocationPicker 
-        // Le pasamos los datos que ya traemos de Google o del perfil
-        initialAddress={formData.address}
-        initialCoords={{
-          lat: formData.latitude || 23.6345, // Fallback a centro de México si no hay nada
-          lng: formData.longitude || -102.5528
-        }}
-        onLocationSelect={(data) => {
-          // Actualizamos el estado cuando el usuario mueva el marcador o cambie la dirección
-          setFormData(prev => ({
-            ...prev,
-            address: data.address,
-            latitude: data.lat,
-            longitude: data.lng,
-            placeId: data.placeId || prev.placeId
-          }));
-        }}
-      />
+    className="w-full h-full"
+    // ✅ CORRECCIÓN AQUÍ:
+    // Antes enviabas: initialAddress y initialCoords por separado (ERROR)
+    // Ahora enviamos: un objeto 'initialLocation' completo (CORRECTO)
+    initialLocation={{
+      address: formData.address || "", 
+      // Si no hay coordenadas, usamos CDMX como fallback para que no truene
+      lat: formData.latitude || 19.4326, 
+      lng: formData.longitude || -99.1332
+    }}
+    onLocationSelect={(data) => {
+      setFormData(prev => ({
+        ...prev,
+        address: data.address,
+        latitude: data.lat,
+        longitude: data.lng,
+        placeId: data.placeId || prev.placeId
+      }));
+      setCompletedSteps(prev => new Set(prev).add(3));
+    }}
+  />
     </div>
 
     {/* Info Ayuda */}
