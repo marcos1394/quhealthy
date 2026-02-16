@@ -66,12 +66,12 @@ const {
 
   // Form state
 // ✅ 2. Estado alineado con UpdateProfileRequest
-  const [formData, setFormData] = useState<UpdateProfileRequest>({
+const [formData, setFormData] = useState<UpdateProfileRequest>({
     businessName: '',
-    bio: '', // Faltaba
-    profileImageUrl: '', // Faltaba (Deberás manejar subida de imagen o default)
-    contactPhone: '', // Renombrado de 'phone'
-    contactEmail: '', // Faltaba (Vital)
+    bio: '',
+    profileImageUrl: '', // Se enviará como null en el hook si está vacío
+    contactPhone: '',
+    contactEmail: '', // ⚠️ Idealmente pre-llenar con el email del usuario auth
     websiteUrl: '',
     address: '',
     latitude: 0,
@@ -79,7 +79,8 @@ const {
     placeId: '',
     categoryId: 0,
     subCategoryId: 0,
-  });
+    tagIds: [] // ✅ AGREGADO: Lista vacía para los tags
+});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +110,7 @@ const [activeStep, setActiveStep] = useState<number>(1);
         placeId: initialData.googlePlaceId || '',
         categoryId: initialData.categoryId || 0,
         subCategoryId: initialData.subCategoryId || 0,
+        tagIds: initialData.tagIds || [] // Aseguramos que sea un array
       });
       // Validar pasos completados visualmente...
     }
@@ -268,17 +270,16 @@ const selectPlace = async (prediction: any) => {
 };
   
   // ✅ 6. Submit Real
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleFinish = async () => {
+    // 1. Validación final de seguridad
     if (!isFormValid) {
         toast.error("Por favor completa todos los pasos requeridos.");
         return;
     }
 
-    // El hook se encarga del try/catch, loading y toast de éxito/error
+    // 2. Llamada al hook (que ya tiene la lógica de sanitización y try/catch)
     await saveProfile(formData); 
-  };
-
+};
   // Get next incomplete step
   const getNextIncompleteStep = () => {
     if (!isStep1Valid) return 1;
@@ -826,29 +827,37 @@ const selectPlace = async (prediction: any) => {
                         <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     ) : (
-                      <Button
-                        type="submit"
-                        disabled={!isFormValid || loading}
-                        className={cn(
-                          "group",
-                          isFormValid
-                            ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-xl"
-                            : "bg-gray-800 text-gray-500"
-                        )}
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Guardando...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                            Finalizar Configuración
-                            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                          </>
-                        )}
-                      </Button>
+                     <Button
+    // ⚠️ CAMBIO CRÍTICO: type="button" 
+    // Esto evita que se envíe solo si hay un <form> residual o al dar Enter en el mapa
+    type="button"
+    
+    // ✅ Conectamos el manejador aquí
+    onClick={handleFinish}
+    
+    // Mantenemos la lógica de deshabilitado
+    disabled={!isFormValid || loading}
+    
+    className={cn(
+      "group font-bold transition-all shadow-xl text-white",
+      isFormValid
+        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+        : "bg-gray-800 text-gray-500 cursor-not-allowed"
+    )}
+>
+    {loading ? (
+      <>
+        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+        Guardando...
+      </>
+    ) : (
+      <>
+        <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+        Finalizar Configuración
+        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+      </>
+    )}
+</Button>
                     )}
                   </div>
                 </div>

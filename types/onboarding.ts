@@ -35,23 +35,27 @@ export interface OnboardingStepUI {
 export interface UpdateProfileRequest {
   businessName: string;
   bio: string;
-  profileImageUrl: string;
   
+  // Opcional en Java ahora, opcional aquí también
+  profileImageUrl?: string | null; 
+
   // Ubicación
   address: string;
   latitude: number;
   longitude: number;
-  placeId?: string; // Opcional porque puede no venir de Google
+  placeId?: string | null;
 
   // Contacto
-  websiteUrl?: string;
-  contactPhone?: string;
-  contactEmail: string; // ✅ Vital para notificaciones
+  websiteUrl?: string | null;
+  contactPhone?: string; // Java lo permite nulo, pero mejor enviarlo si lo tenemos
+  contactEmail: string;
 
   // Categoría
   categoryId: number;
   subCategoryId: number;
-  tagIds?: number[]; // Agregado para soportar la relación ManyToMany
+  
+  // ✅ Agregamos Tags para que coincida con Java
+  tagIds: number[]; 
 }
 
 // ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)

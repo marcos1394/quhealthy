@@ -50,26 +50,52 @@ const loadProfile = useCallback(async () => {
   }, [loadProfile]);
 
   // Guardar datos
-  const saveProfile = async (data: UpdateProfileRequest) => {
+  const saveProfile = async (formData: any) => {
     setIsSaving(true);
     try {
-      await onboardingService.updateProfile(data);
       
-      toast.success("Perfil actualizado correctamente");
+      // 🛠️ CONSTRUCCIÓN DEL PAYLOAD (DTO)
+      const payload: UpdateProfileRequest = {
+        // Textos (Trim para quitar espacios basura)
+        businessName: formData.businessName.trim(),
+        bio: formData.bio.trim(),
+        contactPhone: formData.contactPhone?.trim() || "",
+        contactEmail: formData.contactEmail.trim(),
+        websiteUrl: formData.websiteUrl ? formData.websiteUrl.trim() : null,
+        
+        // Imagen (Enviamos null explícito para que Java no se queje)
+        profileImageUrl: null, 
+        
+        // Ubicación (Conversión segura a números)
+        address: formData.address,
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
+        placeId: formData.placeId || null,
+
+        // Categorías (Conversión a Enteros Long)
+        categoryId: Number(formData.categoryId),
+        subCategoryId: Number(formData.subCategoryId),
+        
+        // Tags (Si es undefined, enviamos lista vacía [])
+        tagIds: Array.isArray(formData.tagIds) ? formData.tagIds.map(Number) : []
+      };
+
+      // Llamada al servicio
+      await onboardingService.updateProfile(payload);
       
-      // Forzamos un refresh del status de onboarding para desbloquear el siguiente paso
-      // Y redirigimos al checklist principal
-      router.push('/onboarding'); 
-      router.refresh();
+      toast.success("¡Perfil configurado exitosamente!");
+      router.push('/onboarding'); // Volver al menú principal
+      router.refresh(); 
       
     } catch (error: any) {
-      console.error("Error guardando perfil:", error);
-      const msg = error.response?.data?.message || "Error al guardar el perfil.";
+      console.error("Error payload:", error);
+      const msg = error.response?.data?.message || "Error al guardar perfil.";
       toast.error(msg);
     } finally {
       setIsSaving(false);
     }
-  };
+};
+
 
   // Función para cargar catálogos iniciales
   const loadCatalogs = useCallback(async () => {
