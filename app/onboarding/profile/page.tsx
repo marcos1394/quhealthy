@@ -669,7 +669,7 @@ const selectPlace = async (prediction: any) => {
   </motion.div>
 )}
 
- {/* Step 2: Specialty */}
+{/* Step 2: Specialty */}
 {activeStep === 2 && (
   <motion.div
     key="step2"
@@ -678,15 +678,15 @@ const selectPlace = async (prediction: any) => {
     exit={{ opacity: 0, x: -20 }}
     className="space-y-6"
   >
-    {/* Header con mejor contraste */}
+    {/* Header */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="p-3 bg-yellow-500/10 rounded-2xl ring-1 ring-yellow-500/20">
           <Star className="w-6 h-6 text-yellow-400" />
         </div>
         <div>
-          <h3 className="text-xl font-black text-white">Especialidad y Estilo</h3>
-          <p className="text-sm text-gray-400">¿Cómo quieres que te encuentren los pacientes?</p>
+          <h3 className="text-xl font-black text-white">Especialidad y Características</h3>
+          <p className="text-sm text-gray-400">Define tu servicio y tus diferenciadores</p>
         </div>
       </div>
       {completedSteps.has(2) && (
@@ -699,100 +699,45 @@ const selectPlace = async (prediction: any) => {
 
     <Separator className="bg-gray-800" />
 
-    {/* Contenedor Principal de Selección */}
-    <div className="grid gap-6">
-      {/* Selector de Categorías */}
-      <div className="bg-gray-900/40 backdrop-blur-sm p-6 rounded-3xl border border-gray-800 shadow-inner">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 block">
-          Categoría Profesional
-        </label>
-        <CategorySelector
-          tags={tags} 
-          categories={categories}
-          onGetSubCategories={getSubCategories}
-          selectedCategoryId={formData.categoryId}
-          selectedSubCategoryId={formData.subCategoryId}
-          selectedTagIds={formData.tagIds} 
-          onSelectionChange={(catId, subId, tagIds) => {
-            setFormData(prev => ({
-              ...prev,
-              categoryId: catId,
-              subCategoryId: subId,
-              tagIds: tagIds
-            }));
-          }}
-        />
-      </div>
-
-      {/* Sección de Tags con Diseño de "Marketplace" */}
-      <AnimatePresence>
-        {formData.subCategoryId > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-purple-600/5 border border-purple-500/20 rounded-3xl p-6 space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-purple-500/20 rounded-lg">
-                  <Zap className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white">Etiquetas de Valor</h4>
-                  <p className="text-[11px] text-gray-500">Añade características que te hagan resaltar</p>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-[10px] border-purple-500/30 text-purple-400">
-                {formData.tagIds?.length || 0} Seleccionadas
-              </Badge>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {tags.map(tag => {
-                const isSelected = formData.tagIds?.includes(tag.id);
-                return (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => {
-                      const currentTags = formData.tagIds || [];
-                      const newTags = isSelected
-                        ? currentTags.filter(id => id !== tag.id)
-                        : [...currentTags, tag.id];
-                      setFormData(prev => ({ ...prev, tagIds: newTags }));
-                    }}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border-2",
-                      isSelected
-                        ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20"
-                        : "bg-gray-900/50 border-gray-800 text-gray-400 hover:border-purple-500/40 hover:text-purple-300"
-                    )}
-                  >
-                    {isSelected && <Check className="w-3 h-3" />}
-                    {tag.name}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    {/* ✅ EL COMPONENTE ÚNICO */}
+    {/* CategorySelector ya maneja internamente: Categoría -> Subcategoría -> Tags */}
+    <div className="bg-gray-900/40 backdrop-blur-sm p-1 rounded-3xl border border-gray-800">
+      <CategorySelector
+        tags={tags} // Pasamos los tags cargados desde la DB (los nuevos que insertamos)
+        categories={categories}
+        onGetSubCategories={getSubCategories}
+        selectedCategoryId={formData.categoryId}
+        selectedSubCategoryId={formData.subCategoryId}
+        selectedTagIds={formData.tagIds} 
+        onSelectionChange={(catId, subId, tagIds) => {
+          // Actualizamos todo el estado desde aquí
+          setFormData(prev => ({
+            ...prev,
+            categoryId: catId,
+            subCategoryId: subId,
+            tagIds: tagIds
+          }));
+        }}
+      />
     </div>
 
-    {/* Footer de Navegación del Paso */}
+    {/* ❌ AQUÍ BORRAMOS EL BLOQUE "AnimatePresence" QUE TENÍAS ANTES */}
+    {/* Ya no renderizamos los tags manualmente aquí abajo para evitar duplicidad */}
+
+    {/* Footer de Navegación */}
     <div className="flex flex-col gap-3 pt-4">
       <Button
         type="button"
-        disabled={!isStep2Valid}
+        // Validamos que haya categoría y subcategoría. Los tags suelen ser opcionales.
+        disabled={formData.categoryId === 0 || formData.subCategoryId === 0}
         onClick={() => {
-          // Marcamos como completado y avanzamos manualmente
           setCompletedSteps(prev => new Set(prev).add(2));
           setActiveStep(3);
-          toast.success("Especialidad configurada correctamente");
+          toast.success("Perfil profesional configurado");
         }}
         className={cn(
           "w-full h-14 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3",
-          isStep2Valid 
+          (formData.categoryId > 0 && formData.subCategoryId > 0)
             ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white" 
             : "bg-gray-800 text-gray-500 cursor-not-allowed"
         )}
