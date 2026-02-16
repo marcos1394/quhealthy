@@ -456,10 +456,10 @@ const {
                               focusedField === 'phone' ? "text-purple-400" : "text-gray-500"
                             )} />
                             <Input 
-                              name="phone"
+                              name="contactPhone"
                               value={formData.contactPhone}
                               onChange={handleInputChange}
-                              onFocus={() => setFocusedField('phone')}
+                              onFocus={() => setFocusedField('contactPhone')}
                               onBlur={() => setFocusedField(null)}
                               placeholder="+52 555 123 4567"
                               className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
