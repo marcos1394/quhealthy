@@ -450,7 +450,7 @@ const selectPlace = async (prediction: any) => {
         </motion.div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
+      <div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -781,46 +781,7 @@ const selectPlace = async (prediction: any) => {
       </p>
     </div>
 
-    {/* Botones de Acción Final */}
-    <div className="flex flex-col gap-3 pt-4">
-      <Button
-        type="button"
-        disabled={!isStep3Valid || isSaving}
-        onClick={async () => {
-          // 1. Marcamos visualmente el paso como completado
-          setCompletedSteps(prev => new Set(prev).add(3));
-          // 2. Llamamos a la función de guardado del hook useProfileOnboarding
-          await saveProfile(formData);
-        }}
-        className={cn(
-          "w-full h-14 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3",
-          isStep3Valid 
-            ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white" 
-            : "bg-gray-800 text-gray-500 cursor-not-allowed"
-        )}
-      >
-        {isSaving ? (
-          <>
-            <Loader2 className="w-6 h-6 animate-spin" />
-            <span>Guardando Perfil...</span>
-          </>
-        ) : (
-          <>
-            <span>Finalizar Configuración</span>
-            <Sparkles className="w-6 h-6" />
-          </>
-        )}
-      </Button>
-      
-      <button 
-        type="button"
-        disabled={isSaving}
-        onClick={() => setActiveStep(2)}
-        className="text-gray-500 text-xs font-bold hover:text-gray-300 transition-colors py-2"
-      >
-        ← Volver a Especialidad
-      </button>
-    </div>
+   
   </motion.div>
 )}
                   
@@ -890,7 +851,7 @@ const selectPlace = async (prediction: any) => {
               </CardContent>
             </Card>
           </motion.div>
-        </form>
+        </div>
 
         {/* Security Footer */}
         <motion.div
