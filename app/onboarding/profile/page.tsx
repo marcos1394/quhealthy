@@ -84,12 +84,14 @@ const {
   const [error, setError] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [activeStep, setActiveStep] = useState(1);
   const [predictions, setPredictions] = useState<any[]>([]);
 const [isSearching, setIsSearching] = useState(false);
 const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null); // Para mostrar estrellas/fotos
 const [debouncedSearch, setDebouncedSearch] = useState("");
 const [isPlaceSelected, setIsPlaceSelected] = useState(false);  
+const [activeStep, setActiveStep] = useState<number>(1);
+
+
 // ✅ 3. Efecto para cargar datos si es modo edición
   useEffect(() => {
     if (initialData) {
@@ -124,24 +126,21 @@ const [isPlaceSelected, setIsPlaceSelected] = useState(false);
 
   const isFormValid = isStep1Valid && isStep2Valid && isStep3Valid;
 
-  // 1. Efecto para detectar cambios y marcar pasos como completados
+  // ✅ 1. Efecto corregido: Solo detecta validez visual, NO navega
   useEffect(() => {
     const newCompleted = new Set<number>();
     
-    // Si la validación pasa, lo agregamos al Set de completados
+    // Si los datos son válidos, el círculo superior mostrará un Check
     if (isStep1Valid) newCompleted.add(1);
     if (isStep2Valid) newCompleted.add(2);
     if (isStep3Valid) newCompleted.add(3);
     
     setCompletedSteps(newCompleted);
 
-    // Opcional: Auto-avance (Si termino el paso 1, muéveme al 2 automáticamente)
-    if (isStep1Valid && activeStep === 1 && !isStep2Valid) {
-      setActiveStep(2);
-    } else if (isStep2Valid && activeStep === 2 && !isStep3Valid) {
-      setActiveStep(3);
-    }
-  }, [isStep1Valid, isStep2Valid, isStep3Valid, activeStep]);
+    // ❌ BORRAMOS el bloque de "setActiveStep" que estaba aquí.
+    // La navegación ahora es responsabilidad única de los botones "Continuar".
+    
+  }, [isStep1Valid, isStep2Valid, isStep3Valid]); // Ya no necesita 'activeStep' como dependencia
 
   // 2. Variable calculada para la barra de progreso
   const completionPercentage = (completedSteps.size / 3) * 100;
@@ -624,37 +623,7 @@ const selectPlace = async (prediction: any) => {
   </motion.div>
 )}
 
-    {/* 2. Contacto: Email y Teléfono */}
-    <div className="grid md:grid-cols-2 gap-6">
-      <div className="space-y-3">
-        <Label className="text-gray-300 font-semibold">Email de Contacto *</Label>
-        <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</div>
-          <Input 
-            name="contactEmail"
-            type="email"
-            value={formData.contactEmail}
-            onChange={handleInputChange}
-            placeholder="negocio@ejemplo.com"
-            className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-gray-300 font-semibold">Teléfono de Contacto *</Label>
-        <div className="relative group">
-          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-          <Input 
-            name="contactPhone"
-            value={formData.contactPhone}
-            onChange={handleInputChange}
-            placeholder="+52 555..."
-            className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500"
-          />
-        </div>
-      </div>
-    </div>
+ 
 
     {/* 3. Biografía Profesional (Mínimo 20 caracteres) */}
     <div className="space-y-3">
@@ -699,7 +668,7 @@ const selectPlace = async (prediction: any) => {
   </motion.div>
 )}
 
-                  {/* Step 2: Specialty */}
+ {/* Step 2: Specialty */}
 {activeStep === 2 && (
   <motion.div
     key="step2"
@@ -708,86 +677,137 @@ const selectPlace = async (prediction: any) => {
     exit={{ opacity: 0, x: -20 }}
     className="space-y-6"
   >
+    {/* Header con mejor contraste */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="p-3 bg-yellow-500/10 rounded-xl">
+        <div className="p-3 bg-yellow-500/10 rounded-2xl ring-1 ring-yellow-500/20">
           <Star className="w-6 h-6 text-yellow-400" />
         </div>
         <div>
-          <h3 className="text-xl font-black text-white">Tu Especialidad</h3>
-          <p className="text-sm text-gray-400">Selecciona tu área de expertise</p>
+          <h3 className="text-xl font-black text-white">Especialidad y Estilo</h3>
+          <p className="text-sm text-gray-400">¿Cómo quieres que te encuentren los pacientes?</p>
         </div>
       </div>
-      {isStep2Valid && (
+      {completedSteps.has(2) && (
         <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
           <CheckCircle2 className="w-3 h-3 mr-1" />
-          Completado
+          Configurado
         </Badge>
       )}
     </div>
 
     <Separator className="bg-gray-800" />
 
-    {/* ✅ Selector de Categorías Real */}
-    <div className="bg-gray-900/50 p-1 rounded-2xl border border-gray-800">
-      <CategorySelector
-  // ✅ 1. Agregamos la propiedad tags (que viene de tu hook)
-  tags={tags} 
-  categories={categories}
-  onGetSubCategories={getSubCategories}
-  selectedCategoryId={formData.categoryId}
-  selectedSubCategoryId={formData.subCategoryId}
-  // ✅ 2. Agregamos el estado de los tags seleccionados
-  selectedTagIds={formData.tagIds} 
-  // ✅ 3. Ajustamos la función para recibir los 3 argumentos (cat, sub, tags)
-  onSelectionChange={(catId, subId, tagIds) => {
-    setFormData(prev => ({
-      ...prev,
-      categoryId: catId,
-      subCategoryId: subId,
-      tagIds: tagIds // Ahora guardamos los tags en el form
-    }));
-  }}
-  // ✅ 4. Pasamos el error si existe
-/>
+    {/* Contenedor Principal de Selección */}
+    <div className="grid gap-6">
+      {/* Selector de Categorías */}
+      <div className="bg-gray-900/40 backdrop-blur-sm p-6 rounded-3xl border border-gray-800 shadow-inner">
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 block">
+          Categoría Profesional
+        </label>
+        <CategorySelector
+          tags={tags} 
+          categories={categories}
+          onGetSubCategories={getSubCategories}
+          selectedCategoryId={formData.categoryId}
+          selectedSubCategoryId={formData.subCategoryId}
+          selectedTagIds={formData.tagIds} 
+          onSelectionChange={(catId, subId, tagIds) => {
+            setFormData(prev => ({
+              ...prev,
+              categoryId: catId,
+              subCategoryId: subId,
+              tagIds: tagIds
+            }));
+          }}
+        />
+      </div>
+
+      {/* Sección de Tags con Diseño de "Marketplace" */}
+      <AnimatePresence>
+        {formData.subCategoryId > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-purple-600/5 border border-purple-500/20 rounded-3xl p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <Zap className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Etiquetas de Valor</h4>
+                  <p className="text-[11px] text-gray-500">Añade características que te hagan resaltar</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-[10px] border-purple-500/30 text-purple-400">
+                {formData.tagIds?.length || 0} Seleccionadas
+              </Badge>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {tags.map(tag => {
+                const isSelected = formData.tagIds?.includes(tag.id);
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => {
+                      const currentTags = formData.tagIds || [];
+                      const newTags = isSelected
+                        ? currentTags.filter(id => id !== tag.id)
+                        : [...currentTags, tag.id];
+                      setFormData(prev => ({ ...prev, tagIds: newTags }));
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border-2",
+                      isSelected
+                        ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20"
+                        : "bg-gray-900/50 border-gray-800 text-gray-400 hover:border-purple-500/40 hover:text-purple-300"
+                    )}
+                  >
+                    {isSelected && <Check className="w-3 h-3" />}
+                    {tag.name}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
 
-    {/* Espacio para Tags (Opcional) */}
-    {formData.subCategoryId > 0 && (
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10"
+    {/* Footer de Navegación del Paso */}
+    <div className="flex flex-col gap-3 pt-4">
+      <Button
+        type="button"
+        disabled={!isStep2Valid}
+        onClick={() => {
+          // Marcamos como completado y avanzamos manualmente
+          setCompletedSteps(prev => new Set(prev).add(2));
+          setActiveStep(3);
+          toast.success("Especialidad configurada correctamente");
+        }}
+        className={cn(
+          "w-full h-14 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3",
+          isStep2Valid 
+            ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white" 
+            : "bg-gray-800 text-gray-500 cursor-not-allowed"
+        )}
       >
-        <p className="text-sm text-purple-300 flex items-center gap-2 mb-3">
-          <Zap className="w-4 h-4" />
-          ¿Tienes alguna sub-especialidad o certificación extra?
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {tags.map(tag => (
-            <Badge
-              key={tag.id}
-              variant="outline"
-              onClick={() => {
-                const currentTags = formData.tagIds || [];
-                const newTags = currentTags.includes(tag.id)
-                  ? currentTags.filter(id => id !== tag.id)
-                  : [...currentTags, tag.id];
-                setFormData(prev => ({ ...prev, tagIds: newTags }));
-              }}
-              className={cn(
-                "cursor-pointer transition-all",
-                formData.tagIds?.includes(tag.id)
-                  ? "bg-purple-500 border-purple-500 text-white"
-                  : "border-gray-700 text-gray-400 hover:border-purple-500/50"
-              )}
-            >
-              {tag.name}
-            </Badge>
-          ))}
-        </div>
-      </motion.div>
-    )}
+        <span>Continuar a Ubicación</span>
+        <ArrowRight className="w-6 h-6" />
+      </Button>
+      
+      <button 
+        type="button"
+        onClick={() => setActiveStep(1)}
+        className="text-gray-500 text-xs font-bold hover:text-gray-300 transition-colors py-2"
+      >
+        ← Volver a Información Básica
+      </button>
+    </div>
   </motion.div>
 )}
 
