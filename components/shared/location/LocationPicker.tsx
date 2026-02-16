@@ -89,7 +89,7 @@ const MapLoadingSkeleton = () => {
 // --- IMPORTACIÓN DINÁMICA DEL MOTOR REAL ---
 // Importamos el modal que creamos antes, el cual tiene toda la lógica de Google
 const MapEngine = dynamic(
-  () => import('./MapModal').then(mod => ({ default: mod.EnhancedLocationPicker })), 
+  () => import('./MapModal'), 
   {
     ssr: false,
     loading: () => <MapLoadingSkeleton />
