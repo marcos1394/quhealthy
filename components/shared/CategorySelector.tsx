@@ -35,284 +35,108 @@ import {
   Info,
   TrendingUp,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  AlertCircle,
+  Star
 } from 'lucide-react';
+import { 
+  CategoryResponse, 
+  SubCategoryResponse, 
+  TagResponse 
+} from '@/types/onboarding';
 
-/**
- * CategorySelector Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- *    - Progress bar visual (0/3 pasos)
- *    - Tag counter dinámico
- *    - Selection confirmation
- *    - Step indicators
- * 
- * 2. JERARQUÍA VISUAL
- *    - Steps numerados y destacados
- *    - Active step con color
- *    - Icons por categoría
- *    - Visual grouping
- * 
- * 3. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Icons descriptivos
- *    - Search filter
- *    - Popular tags badge
- *    - Visual categories
- * 
- * 4. SATISFICING
- *    - Quick tag selection
- *    - Popular categories first
- *    - Search shortcut
- *    - One-click tags
- * 
- * 5. PRIMING
- *    - Success checkmarks
- *    - Progress indicator
- *    - Popular badges
- *    - Completion feedback
- * 
- * 6. AFFORDANCE
- *    - Clickable tags clara
- *    - Search filter visible
- *    - Hover effects
- *    - Interactive badges
- */
-
-// Interfaces
-interface Category {
-  id: number;
-  name: string;
-  subcategories: SubCategory[];
-  icon?: string;
-  popular?: boolean;
-}
-
-interface SubCategory {
-  id: number;
-  name: string;
-  description?: string;
-}
-
-interface Tag {
-  id: number;
-  name: string;
-  color: string;
-  popular?: boolean;
-}
 
 interface CategorySelectorProps {
-  serviceType: 'health' | 'beauty';
-  onSelectionChange: (categoryId: number, subCategoryId: number, tagIds: number[]) => void;
-  initialCategory?: number;
-  initialSubCategory?: number;
-  initialTags?: number[];
+  categories: CategoryResponse[];
+  tags: TagResponse[];
+  selectedCategoryId?: number;
+  selectedSubCategoryId?: number;
+  selectedTagIds?: number[];
+  onGetSubCategories: (catId: number) => Promise<SubCategoryResponse[]>;
+  onSelectionChange: (catId: number, subId: number, tagIds: number[]) => void;
+  error?: string | null; // ✅ Agregado para corregir "Cannot find name error"
 }
 
-// Icon mapping
-const categoryIcons: Record<string, any> = {
-  'Medicina General': Stethoscope, 
-  'Odontología': Sticker, 
-  'Dermatología': Hand,
-  'Psicología': Brain, 
-  'Nutrición': Apple, 
-  'Fisioterapia': Activity,
-  'Estilismo': Scissors, 
-  'Estética Facial': Wand, 
-  'Manicura': Paintbrush,
-  'default': Sparkles
-};
 
 export default function CategorySelector({ 
-  serviceType, 
+  categories,
+  tags,
+  selectedCategoryId,
+  selectedSubCategoryId,
+  selectedTagIds = [],
+  onGetSubCategories,
   onSelectionChange,
-  initialCategory,
-  initialSubCategory,
-  initialTags = []
+  error // ✅ Desestructurado aquí
 }: CategorySelectorProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  const [filteredTags, setFilteredTags] = useState<Tag[]>([]);
   
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [selectedCatId, setSelectedCatId] = useState<string | undefined>(
-    initialCategory?.toString()
-  );
-  const [selectedSubId, setSelectedSubId] = useState<string | undefined>(
-    initialSubCategory?.toString()
-  );
-  const [selectedTags, setSelectedTags] = useState<number[]>(initialTags);
+  const [subCategories, setSubCategories] = useState<SubCategoryResponse[]>([]);
+  const [isLoadingSub, setIsLoadingSub] = useState(false);
   const [tagSearchQuery, setTagSearchQuery] = useState('');
 
-  // Progress calculation - FEEDBACK INMEDIATO
-  const completionSteps = [
-    { id: 1, label: 'Especialidad', completed: !!selectedCatId },
-    { id: 2, label: 'Enfoque', completed: !!selectedSubId },
-    { id: 3, label: 'Etiquetas', completed: selectedTags.length > 0 }
-  ];
-  const progress = (completionSteps.filter(s => s.completed).length / completionSteps.length) * 100;
+  // 1. Cargar subcategorías si ya hay una categoría seleccionada (Modo Edición)
+  const loadInitialSubCategories = useCallback(async () => {
+    if (selectedCategoryId && selectedCategoryId > 0) {
+      setIsLoadingSub(true);
+      const subs = await onGetSubCategories(selectedCategoryId);
+      setSubCategories(subs);
+      setIsLoadingSub(false);
+    }
+  }, [selectedCategoryId, onGetSubCategories]);
 
-  // Fetch data - CREDIBILIDAD
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    loadInitialSubCategories();
+  }, [loadInitialSubCategories]);
+
+  // 2. Handlers de Selección
+  const handleCatChange = async (catId: number) => {
+    if (catId === selectedCategoryId) return;
+
+    setIsLoadingSub(true);
+    const categoryName = categories.find(c => c.id === catId)?.name;
+    
+    // Notificamos al padre (reseteando subcategoría)
+    onSelectionChange(catId, 0, selectedTagIds);
+    
     try {
-      setLoading(true);
-      
-      // Simulate API call
-      await new Promise(r => setTimeout(r, 800));
-      
-      if (serviceType === 'health') {
-        setCategories([
-          { 
-            id: 1, 
-            name: 'Medicina General', 
-            popular: true,
-            subcategories: [
-              { id: 101, name: 'Consulta General', description: 'Diagnóstico y tratamiento' },
-              { id: 102, name: 'Urgencias', description: 'Atención inmediata' },
-              { id: 103, name: 'Medicina Preventiva', description: 'Check-ups y prevención' }
-            ]
-          },
-          { 
-            id: 2, 
-            name: 'Odontología', 
-            popular: true,
-            subcategories: [
-              { id: 201, name: 'Ortodoncia', description: 'Corrección dental' },
-              { id: 202, name: 'Limpieza', description: 'Higiene bucal' },
-              { id: 203, name: 'Endodoncia', description: 'Tratamiento de conductos' }
-            ]
-          },
-          { 
-            id: 3, 
-            name: 'Psicología',
-            subcategories: [
-              { id: 301, name: 'Terapia Cognitiva', description: 'TCC' },
-              { id: 302, name: 'Terapia de Pareja', description: 'Relaciones' },
-              { id: 303, name: 'Terapia Infantil', description: 'Niños y adolescentes' }
-            ]
-          },
-          { 
-            id: 4, 
-            name: 'Nutrición',
-            subcategories: [
-              { id: 401, name: 'Nutrición Deportiva', description: 'Atletas' },
-              { id: 402, name: 'Control de Peso', description: 'Pérdida/ganancia' },
-              { id: 403, name: 'Nutrición Clínica', description: 'Condiciones médicas' }
-            ]
-          },
-        ]);
-      } else {
-        setCategories([
-          { 
-            id: 5, 
-            name: 'Estilismo',
-            popular: true,
-            subcategories: [
-              { id: 501, name: 'Corte', description: 'Corte y peinado' },
-              { id: 502, name: 'Color', description: 'Tintes y mechas' },
-              { id: 503, name: 'Tratamientos', description: 'Keratina, botox capilar' }
-            ]
-          },
-          { 
-            id: 6, 
-            name: 'Estética Facial',
-            popular: true,
-            subcategories: [
-              { id: 601, name: 'Limpieza Facial', description: 'Deep cleaning' },
-              { id: 602, name: 'Botox', description: 'Toxina botulínica' },
-              { id: 603, name: 'Rellenos', description: 'Ácido hialurónico' }
-            ]
-          },
-        ]);
-      }
-      
-      const tags = [
-        { id: 1, name: 'Atención a Niños', color: '#10B981', popular: true },
-        { id: 2, name: 'Urgencias 24h', color: '#EF4444', popular: true },
-        { id: 3, name: 'Acepta Seguro', color: '#3B82F6', popular: true },
-        { id: 4, name: 'Visita a Domicilio', color: '#8B5CF6' },
-        { id: 5, name: 'Telemedicina', color: '#06B6D4' },
-        { id: 6, name: 'Parking Gratuito', color: '#F59E0B' },
-        { id: 7, name: 'Accesible Silla Ruedas', color: '#84CC16' },
-        { id: 8, name: 'Inglés/Español', color: '#EC4899' },
-      ];
-      
-      setAllTags(tags);
-      setFilteredTags(tags);
-
-    } catch (err) {
-      setError('Error al cargar catálogo.');
-      toast.error('No se pudieron cargar las categorías.');
+      const subs = await onGetSubCategories(catId);
+      setSubCategories(subs);
+      toast.success(`Especialidad: ${categoryName}`);
+    } catch (error) {
+      toast.error("No se pudieron cargar las subcategorías.");
     } finally {
-      setLoading(false);
+      setIsLoadingSub(false);
     }
-  }, [serviceType]);
-
-  useEffect(() => { 
-    fetchData(); 
-  }, [fetchData]);
-
-  // Filter tags - RECONOCIMIENTO
-  useEffect(() => {
-    if (tagSearchQuery) {
-      const filtered = allTags.filter(tag => 
-        tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase())
-      );
-      setFilteredTags(filtered);
-    } else {
-      setFilteredTags(allTags);
-    }
-  }, [tagSearchQuery, allTags]);
-
-  // Handle category change - JERARQUÍA
-  const handleCatChange = (val: string) => {
-    setSelectedCatId(val);
-    const cat = categories.find(c => c.id.toString() === val);
-    setSubCategories(cat?.subcategories || []);
-    setSelectedSubId(undefined);
-    toast.success(`${cat?.name} seleccionada`);
   };
 
-  // Handle subcategory change
-  const handleSubChange = (val: string) => {
-    setSelectedSubId(val);
-    const sub = subCategories.find(s => s.id.toString() === val);
-    toast.success(`Enfoque: ${sub?.name}`);
+  const handleSubChange = (subId: number) => {
+    const subName = subCategories.find(s => s.id === subId)?.name;
+    onSelectionChange(selectedCategoryId || 0, subId, selectedTagIds);
+    if (subName) toast.success(`Enfoque: ${subName}`);
   };
 
-  // Handle tag toggle - AFFORDANCE
-  const handleTagToggle = (id: number) => {
-    setSelectedTags(prev => {
-      const newTags = prev.includes(id) 
-        ? prev.filter(t => t !== id) 
-        : [...prev, id];
-      
-      const tag = allTags.find(t => t.id === id);
-      if (newTags.includes(id)) {
-        toast.success(`✓ ${tag?.name} añadida`);
-      }
-      
-      return newTags;
-    });
+  const handleTagToggle = (tagId: number) => {
+    const newTags = selectedTagIds.includes(tagId)
+      ? selectedTagIds.filter(id => id !== tagId)
+      : [...selectedTagIds, tagId];
+    
+    onSelectionChange(selectedCategoryId || 0, selectedSubCategoryId || 0, newTags);
   };
 
-  // Notify parent - FEEDBACK
-  useEffect(() => {
-    if (selectedCatId && selectedSubId) {
-      onSelectionChange(
-        parseInt(selectedCatId), 
-        parseInt(selectedSubId), 
-        selectedTags
-      );
-    }
-  }, [selectedCatId, selectedSubId, selectedTags, onSelectionChange]);
+  // 3. Filtrado de Tags para la UI
+  const filteredTags = tags.filter(tag => 
+    tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase())
+  );
 
-  // Loading State
-  if (loading) {
+  // 4. Cálculo de Progreso del Componente
+  const completionSteps = [
+    { label: 'Especialidad', completed: (selectedCategoryId || 0) > 0 },
+    { label: 'Enfoque', completed: (selectedSubCategoryId || 0) > 0 },
+    { label: 'Etiquetas', completed: selectedTagIds.length > 0 }
+  ];
+  const progress = (completionSteps.filter(s => s.completed).length / 3) * 100;
+
+  // Loading State - Se activa cuando no hay categorías iniciales o carga el componente
+  if (categories.length === 0 && !selectedCategoryId) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -326,17 +150,18 @@ export default function CategorySelector({
     );
   }
 
-  // Error State
+  // Error State - Utiliza el error capturado en la lógica
+  // Nota: Si 'error' viene de props o estado local
   if (error) {
     return (
       <div className="p-6 bg-red-500/10 border border-red-500/30 rounded-2xl">
         <div className="flex items-start gap-3">
-          <X className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="text-red-400 font-bold mb-1">Error al Cargar</h3>
             <p className="text-sm text-gray-400 mb-3">{error}</p>
             <Button
-              onClick={() => fetchData()}
+              onClick={() => window.location.reload()}
               size="sm"
               className="bg-red-600 hover:bg-red-700"
             >
@@ -351,7 +176,7 @@ export default function CategorySelector({
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-6 border border-gray-800 space-y-6 shadow-xl">
       
-      {/* Progress Header - FEEDBACK INMEDIATO */}
+      {/* Progress Header */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-black text-white">Configura tu Especialidad</h3>
@@ -366,7 +191,7 @@ export default function CategorySelector({
         <div className="flex gap-3">
           {completionSteps.map((step, index) => (
             <div 
-              key={step.id}
+              key={index}
               className={cn(
                 "flex items-center gap-2 text-xs font-semibold transition-all",
                 step.completed ? "text-emerald-400" : "text-gray-600"
@@ -381,7 +206,7 @@ export default function CategorySelector({
                 {step.completed ? (
                   <CheckCircle2 className="w-4 h-4" />
                 ) : (
-                  <span className="text-xs">{step.id}</span>
+                  <span className="text-xs">{index + 1}</span>
                 )}
               </div>
               <span className="hidden sm:inline">{step.label}</span>
@@ -393,7 +218,7 @@ export default function CategorySelector({
         </div>
       </div>
 
-      {/* Step 1: Category - JERARQUÍA VISUAL */}
+      {/* Step 1: Category */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -406,49 +231,44 @@ export default function CategorySelector({
             </span>
             Especialidad Principal
           </label>
-          {selectedCatId && (
+          {(selectedCategoryId || 0) > 0 && (
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           )}
         </div>
         
-        <Select value={selectedCatId} onValueChange={handleCatChange}>
+        <Select 
+          value={selectedCategoryId?.toString()} 
+          onValueChange={(val) => handleCatChange(Number(val))}
+        >
           <SelectTrigger className={cn(
             "w-full h-14 text-base transition-all",
-            "bg-gray-950 border-gray-700",
-            selectedCatId && "border-emerald-500/30 ring-2 ring-emerald-500/10"
+            "bg-gray-950 border-gray-700 text-white",
+            (selectedCategoryId || 0) > 0 ? "border-emerald-500/30 ring-2 ring-emerald-500/10" : ""
           )}>
             <SelectValue placeholder="Selecciona tu área de especialidad..." />
           </SelectTrigger>
           <SelectContent className="bg-gray-900 border-gray-700 text-gray-200">
-            {categories.map((cat) => {
-              const Icon = categoryIcons[cat.name] || categoryIcons['default'];
-              return (
-                <SelectItem 
-                  key={cat.id} 
-                  value={cat.id.toString()}
-                  className="py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                      <Icon className="w-4 h-4 text-purple-400" />
-                    </div>
-                    <span className="font-semibold">{cat.name}</span>
-                    {cat.popular && (
-                      <Badge className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20 text-xs">
-                        Popular
-                      </Badge>
-                    )}
+            {categories.map((cat) => (
+              <SelectItem 
+                key={cat.id} 
+                value={cat.id.toString()}
+                className="py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Star className="w-4 h-4 text-purple-400" />
                   </div>
-                </SelectItem>
-              );
-            })}
+                  <span className="font-semibold">{cat.name}</span>
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </motion.div>
 
-      {/* Step 2: Subcategory - RECONOCIMIENTO */}
+      {/* Step 2: Subcategory */}
       <AnimatePresence>
-        {selectedCatId && (
+        {(selectedCategoryId || 0) > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -462,18 +282,29 @@ export default function CategorySelector({
                 </span>
                 Enfoque Específico
               </label>
-              {selectedSubId && (
+              {(selectedSubCategoryId || 0) > 0 && (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               )}
             </div>
             
-            <Select value={selectedSubId} onValueChange={handleSubChange}>
+            <Select 
+              value={selectedSubCategoryId?.toString()} 
+              onValueChange={(val) => handleSubChange(Number(val))}
+              disabled={isLoadingSub}
+            >
               <SelectTrigger className={cn(
                 "w-full h-14 text-base transition-all",
-                "bg-gray-950 border-gray-700",
-                selectedSubId && "border-emerald-500/30 ring-2 ring-emerald-500/10"
+                "bg-gray-950 border-gray-700 text-white",
+                (selectedSubCategoryId || 0) > 0 ? "border-emerald-500/30 ring-2 ring-emerald-500/10" : ""
               )}>
-                <SelectValue placeholder="¿Cuál es tu enfoque principal?" />
+                {isLoadingSub ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Cargando enfoques...</span>
+                  </div>
+                ) : (
+                  <SelectValue placeholder="¿Cuál es tu enfoque principal?" />
+                )}
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-700 text-gray-200">
                 {subCategories.map((sub) => (
@@ -484,9 +315,6 @@ export default function CategorySelector({
                   >
                     <div>
                       <p className="font-semibold">{sub.name}</p>
-                      {sub.description && (
-                        <p className="text-xs text-gray-500">{sub.description}</p>
-                      )}
                     </div>
                   </SelectItem>
                 ))}
@@ -496,9 +324,9 @@ export default function CategorySelector({
         )}
       </AnimatePresence>
 
-      {/* Step 3: Tags - AFFORDANCE */}
+      {/* Step 3: Tags */}
       <AnimatePresence>
-        {selectedSubId && (
+        {(selectedSubCategoryId || 0) > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -514,7 +342,7 @@ export default function CategorySelector({
                 <span className="text-gray-600 text-xs normal-case">(Opcional)</span>
               </label>
               <Badge className="bg-gray-800 text-gray-400 text-xs">
-                {selectedTags.length} seleccionadas
+                {selectedTagIds.length} seleccionadas
               </Badge>
             </div>
 
@@ -525,10 +353,11 @@ export default function CategorySelector({
                 value={tagSearchQuery}
                 onChange={(e) => setTagSearchQuery(e.target.value)}
                 placeholder="Buscar etiquetas..."
-                className="pl-10 bg-gray-950 border-gray-700 h-11"
+                className="pl-10 bg-gray-950 border-gray-700 h-11 text-white"
               />
               {tagSearchQuery && (
                 <button
+                  type="button"
                   onClick={() => setTagSearchQuery('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                 >
@@ -537,54 +366,15 @@ export default function CategorySelector({
               )}
             </div>
 
-            {/* Popular Tags Section */}
-            {!tagSearchQuery && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Populares
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {filteredTags.filter(t => t.popular).map((tag) => {
-                    const isSelected = selectedTags.includes(tag.id);
-                    return (
-                      <motion.button
-                        key={tag.id}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleTagToggle(tag.id)}
-                        className={cn(
-                          "px-4 py-2 rounded-lg transition-all text-sm font-semibold border-2",
-                          isSelected 
-                            ? 'text-white shadow-lg' 
-                            : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
-                        )}
-                        style={{ 
-                          backgroundColor: isSelected ? tag.color : undefined,
-                          borderColor: isSelected ? tag.color : undefined
-                        }}
-                      >
-                        {isSelected && <Check className="w-4 h-4 mr-1.5 inline-block" />}
-                        {tag.name}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {/* All Tags Section */}
             <div className="space-y-2">
-              {!tagSearchQuery && (
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Todas las Etiquetas
-                </p>
-              )}
               <div className="flex flex-wrap gap-2">
-                {filteredTags.filter(t => !t.popular || tagSearchQuery).map((tag) => {
-                  const isSelected = selectedTags.includes(tag.id);
+                {filteredTags.map((tag) => {
+                  const isSelected = selectedTagIds.includes(tag.id);
                   return (
                     <motion.button
                       key={tag.id}
+                      type="button"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ scale: 1.05 }}
@@ -593,13 +383,14 @@ export default function CategorySelector({
                       className={cn(
                         "px-3 py-1.5 rounded-lg transition-all text-sm font-medium border",
                         isSelected 
-                          ? 'text-white shadow-md' 
+                          ? 'bg-purple-600 border-purple-500 text-white shadow-md' 
                           : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
                       )}
                       style={{ 
-                        backgroundColor: isSelected ? tag.color : undefined,
-                        borderColor: isSelected ? tag.color : undefined
-                      }}
+    // ✅ Corrección: Forzamos a que sea string o undefined, nunca boolean
+    backgroundColor: isSelected ? (tag.color ?? '#8B5CF6') : undefined,
+    borderColor: isSelected ? (tag.color ?? '#8B5CF6') : undefined
+  }}
                     >
                       {isSelected && <Check className="w-3 h-3 mr-1 inline-block" />}
                       {tag.name}
@@ -635,11 +426,10 @@ export default function CategorySelector({
               ¡Configuración Completa!
             </h4>
             <p className="text-xs text-emerald-300/80">
-              Tu especialidad está configurada correctamente con {selectedTags.length} etiquetas.
+              Tu especialidad está configurada correctamente con {selectedTagIds.length} etiquetas.
             </p>
           </div>
         </motion.div>
       )}
     </div>
-  );
-}
+  )};

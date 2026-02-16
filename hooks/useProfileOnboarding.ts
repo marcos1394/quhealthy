@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { onboardingService } from '@/services/onboarding.service';
-import { UpdateProfileRequest, ProfileResponse } from '@/types/onboarding';
+import { UpdateProfileRequest, ProfileResponse, CategoryResponse, TagResponse } from '@/types/onboarding';
 import { toast } from 'react-toastify';
 
 export const useProfileOnboarding = () => {
@@ -9,6 +9,8 @@ export const useProfileOnboarding = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [tags, setTags] = useState<TagResponse[]>([]);
   
   // Estado inicial del perfil (para pre-llenar el formulario)
   const [initialData, setInitialData] = useState<ProfileResponse | null>(null);
@@ -69,12 +71,44 @@ const loadProfile = useCallback(async () => {
     }
   };
 
+  // Función para cargar catálogos iniciales
+  const loadCatalogs = useCallback(async () => {
+    try {
+      const [cats, availableTags] = await Promise.all([
+        onboardingService.getCategories(),
+        onboardingService.getTags()
+      ]);
+      setCategories(cats);
+      setTags(availableTags);
+    } catch (err) {
+      console.error("Error cargando catálogos:", err);
+    }
+  }, []);
+
+  // Función para cargar subcategorías bajo demanda
+  const getSubCategories = async (categoryId: number) => {
+    try {
+      return await onboardingService.getSubCategories(categoryId);
+    } catch (err) {
+      console.error("Error cargando subcategorías:", err);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    loadProfile();
+    loadCatalogs(); // Cargar categorías y tags al montar
+  }, [loadProfile, loadCatalogs]);
+
   return {
     initialData,
+    categories,
+    tags,
+    getSubCategories,
     isLoading,
     isSaving,
+    error,
     saveProfile,
-    error,   // ✅ Exponemos el error
-    refetch: loadProfile // ✅ Exponemos la función para reintentar
+    refetch: loadProfile
   };
 };

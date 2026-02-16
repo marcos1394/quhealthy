@@ -1,8 +1,9 @@
 import axiosInstance from '@/lib/axios';
-import { OnboardingStatusResponse, ProfileResponse, UpdateProfileRequest } from '@/types/onboarding';
+import { CategoryResponse, OnboardingStatusResponse, ProfileResponse, SubCategoryResponse, TagResponse, UpdateProfileRequest } from '@/types/onboarding';
 
 const BASE_URL = '/api/onboarding';
 const BASE_PROFILE = '/api/onboarding/profile'; // ✅ Nueva Base URL
+const BASE_CATALOGS = '/api/onboarding/catalogs';
 
 export const onboardingService = {
   /**
@@ -48,6 +49,27 @@ export const onboardingService = {
     const response = await axiosInstance.get<ProfileResponse>(
       `${BASE_PROFILE}/${providerId}`
     );
+    return response.data;
+  },
+
+  // =================================================================
+  // 📚 CATÁLOGOS (Públicos)
+  // =================================================================
+
+  getCategories: async (): Promise<CategoryResponse[]> => {
+    const response = await axiosInstance.get<CategoryResponse[]>(`${BASE_CATALOGS}/categories`);
+    return response.data;
+  },
+
+  getSubCategories: async (categoryId: number): Promise<SubCategoryResponse[]> => {
+    const response = await axiosInstance.get<SubCategoryResponse[]>(
+      `${BASE_CATALOGS}/categories/${categoryId}/subcategories`
+    );
+    return response.data;
+  },
+
+  getTags: async (): Promise<TagResponse[]> => {
+    const response = await axiosInstance.get<TagResponse[]>(`${BASE_CATALOGS}/tags`);
     return response.data;
   }
 };

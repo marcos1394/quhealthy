@@ -56,7 +56,10 @@ const {
     isSaving, 
     saveProfile,
     error: pageError, // ✅ Renombramos 'error' a 'pageError' para coincidir con tu UI
-    refetch           // ✅ Obtenemos la función
+    refetch,
+    categories,
+    tags,
+    getSubCategories      
   } = useProfileOnboarding();
 
   // Form state
@@ -489,37 +492,96 @@ const {
                   )}
 
                   {/* Step 2: Specialty */}
-                  {activeStep === 2 && (
-                    <motion.div
-                      key="step2"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-3 bg-yellow-500/10 rounded-xl">
-                            <Star className="w-6 h-6 text-yellow-400" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-black text-white">Tu Especialidad</h3>
-                            <p className="text-sm text-gray-400">Selecciona tu área de expertise</p>
-                          </div>
-                        </div>
-                        {isStep2Valid && (
-                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Completado
-                          </Badge>
-                        )}
-                      </div>
+{activeStep === 2 && (
+  <motion.div
+    key="step2"
+    initial={{ opacity: 0, x: 20 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: -20 }}
+    className="space-y-6"
+  >
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="p-3 bg-yellow-500/10 rounded-xl">
+          <Star className="w-6 h-6 text-yellow-400" />
+        </div>
+        <div>
+          <h3 className="text-xl font-black text-white">Tu Especialidad</h3>
+          <p className="text-sm text-gray-400">Selecciona tu área de expertise</p>
+        </div>
+      </div>
+      {isStep2Valid && (
+        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Completado
+        </Badge>
+      )}
+    </div>
 
-                      <Separator className="bg-gray-800" />
+    <Separator className="bg-gray-800" />
 
-                     
-                    </motion.div>
-                  )}
+    {/* ✅ Selector de Categorías Real */}
+    <div className="bg-gray-900/50 p-1 rounded-2xl border border-gray-800">
+      <CategorySelector
+  // ✅ 1. Agregamos la propiedad tags (que viene de tu hook)
+  tags={tags} 
+  categories={categories}
+  onGetSubCategories={getSubCategories}
+  selectedCategoryId={formData.categoryId}
+  selectedSubCategoryId={formData.subCategoryId}
+  // ✅ 2. Agregamos el estado de los tags seleccionados
+  selectedTagIds={formData.tagIds} 
+  // ✅ 3. Ajustamos la función para recibir los 3 argumentos (cat, sub, tags)
+  onSelectionChange={(catId, subId, tagIds) => {
+    setFormData(prev => ({
+      ...prev,
+      categoryId: catId,
+      subCategoryId: subId,
+      tagIds: tagIds // Ahora guardamos los tags en el form
+    }));
+  }}
+  // ✅ 4. Pasamos el error si existe
+/>
+    </div>
+
+    {/* Espacio para Tags (Opcional) */}
+    {formData.subCategoryId > 0 && (
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10"
+      >
+        <p className="text-sm text-purple-300 flex items-center gap-2 mb-3">
+          <Zap className="w-4 h-4" />
+          ¿Tienes alguna sub-especialidad o certificación extra?
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <Badge
+              key={tag.id}
+              variant="outline"
+              onClick={() => {
+                const currentTags = formData.tagIds || [];
+                const newTags = currentTags.includes(tag.id)
+                  ? currentTags.filter(id => id !== tag.id)
+                  : [...currentTags, tag.id];
+                setFormData(prev => ({ ...prev, tagIds: newTags }));
+              }}
+              className={cn(
+                "cursor-pointer transition-all",
+                formData.tagIds?.includes(tag.id)
+                  ? "bg-purple-500 border-purple-500 text-white"
+                  : "border-gray-700 text-gray-400 hover:border-purple-500/50"
+              )}
+            >
+              {tag.name}
+            </Badge>
+          ))}
+        </div>
+      </motion.div>
+    )}
+  </motion.div>
+)}
 
                   {/* Step 3: Location */}
                   {activeStep === 3 && (

@@ -51,6 +51,7 @@ export interface UpdateProfileRequest {
   // Categoría
   categoryId: number;
   subCategoryId: number;
+  tagIds?: number[]; // Agregado para soportar la relación ManyToMany
 }
 
 // ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)
@@ -74,4 +75,27 @@ export interface ProfileResponse {
   subCategoryId: number;
   
   profileStatus: string; // 'PENDING', 'COMPLETED', etc.
+}
+
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  slug: string;
+  iconUrl?: string;
+  description?: string;
+}
+
+export interface SubCategoryResponse {
+  id: number;
+  name: string;
+  slug: string;
+  categoryId: number;
+}
+
+export interface TagResponse {
+  id: number;
+  name: string;
+  slug: string;
+  color?: string;
 }
