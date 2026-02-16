@@ -88,8 +88,9 @@ const {
   const [predictions, setPredictions] = useState<any[]>([]);
 const [isSearching, setIsSearching] = useState(false);
 const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null); // Para mostrar estrellas/fotos
-
-  // ✅ 3. Efecto para cargar datos si es modo edición
+const [debouncedSearch, setDebouncedSearch] = useState("");
+const [isPlaceSelected, setIsPlaceSelected] = useState(false);  
+// ✅ 3. Efecto para cargar datos si es modo edición
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -192,56 +193,77 @@ const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null); // Para m
     }));
   };
 
-  // Handler para buscar mientras escribe
-const handleBusinessNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value;
-  setFormData(prev => ({ ...prev, businessName: value }));
+  useEffect(() => {
+  // Si el usuario acaba de seleccionar un lugar, no buscamos
+  if (isPlaceSelected) return;
 
-  if (value.length > 3) {
-    setIsSearching(true);
-    try {
-      const data = await googleService.autocomplete(value);
-      setPredictions(data || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSearching(false);
-    }
+  const searchTerm = formData.businessName;
+
+  if (searchTerm.length >= 3) {
+    const handler = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const data = await googleService.autocomplete(searchTerm);
+        // La librería devuelve un JSON string o objeto, asegúrate de parsear si es necesario
+        setPredictions(typeof data === 'string' ? JSON.parse(data) : data);
+      } catch (error) {
+        console.error("Error en autocomplete:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 800); // ⏱️ 800ms: Equilibrio perfecto entre UX y ahorro de API
+
+    return () => clearTimeout(handler);
   } else {
     setPredictions([]);
   }
+}, [formData.businessName, isPlaceSelected]);
+
+const handleBusinessNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  
+  // Si el usuario vuelve a escribir, reseteamos el estado de selección
+  setIsPlaceSelected(false);
+  if (selectedPlaceInfo) setSelectedPlaceInfo(null);
+  
+  setFormData(prev => ({ ...prev, businessName: value }));
 };
 
-// Handler al seleccionar un negocio de la lista de Google
 const selectPlace = async (prediction: any) => {
+  // 1. Bloqueamos búsquedas automáticas inmediatas
+  setIsPlaceSelected(true);
   setPredictions([]);
-  setFormData(prev => ({ ...prev, businessName: prediction.description }));
   
+  // Usamos el nombre principal de la predicción
+  const displayName = prediction.structuredFormatting?.mainText || prediction.description;
+  setFormData(prev => ({ ...prev, businessName: displayName }));
+
   try {
-    const details = await googleService.getDetails(prediction.placeId);
-    
-    // Auto-completamos los campos que Google nos de
+    const detailsRaw = await googleService.getDetails(prediction.placeId);
+    const details = typeof detailsRaw === 'string' ? JSON.parse(detailsRaw) : detailsRaw;
+
+    // 2. Mapeo inteligente de datos al DTO
     setFormData(prev => ({
       ...prev,
-      businessName: details.name,
-      contactPhone: details.internationalPhoneNumber || prev.contactPhone,
+      businessName: details.name || displayName,
+      contactPhone: (details.internationalPhoneNumber || details.formattedPhoneNumber || prev.contactPhone || '').replace(/\s+/g, ''),
       websiteUrl: details.website || prev.websiteUrl,
-      address: details.formattedAddress,
-      latitude: details.geometry.location.lat,
-      longitude: details.geometry.location.lng,
+      address: details.formattedAddress || prev.address,
+      latitude: details.geometry?.location?.lat || prev.latitude,
+      longitude: details.geometry?.location?.lng || prev.longitude,
       placeId: details.placeId
     }));
 
-    // Guardamos info extra para mostrar visualmente (Rating, Fotos)
+    // 3. Info visual para la Card de reputación
     setSelectedPlaceInfo({
-      rating: details.rating,
-      userRatingsTotal: details.userRatingsTotal,
-      photo: details.photos?.[0]?.photoReference // Necesitarás un helper para la URL real
+      rating: details.rating || 0,
+      userRatingsTotal: details.userRatingsTotal || 0,
     });
 
-    toast.success("Información de Google Business importada");
+    toast.success("🏪 Información importada de Google");
   } catch (error) {
-    toast.error("No se pudieron obtener detalles del lugar");
+    console.error("Error al obtener detalles:", error);
+    toast.error("No se pudo sincronizar la información detallada");
   }
 };
   
