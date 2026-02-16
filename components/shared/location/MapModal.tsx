@@ -40,7 +40,6 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
 
-  // --- LÓGICA DE ACTUALIZACIÓN ---
 
   const updateLocationDetails = async (lat: number, lng: number, placeId?: string) => {
     setIsProcessing(true);
