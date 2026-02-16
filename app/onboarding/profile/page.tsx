@@ -545,33 +545,84 @@ const selectPlace = async (prediction: any) => {
       </AnimatePresence>
     </div>
 
-    {/* Info de Google Seleccionada (Rating & Reviews) */}
-    {selectedPlaceInfo && (
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }} 
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-gradient-to-r from-yellow-500/5 to-orange-500/5 border border-yellow-500/20 rounded-2xl p-4 flex items-center justify-between"
-      >
-        <div className="flex items-center gap-4">
-          <div className="bg-yellow-500 text-gray-950 px-3 py-1 rounded-lg font-black text-xl">
-            {selectedPlaceInfo.rating}
-          </div>
-          <div>
-            <div className="flex gap-1 mb-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={cn("w-3.5 h-3.5", i < Math.floor(selectedPlaceInfo.rating) ? "fill-yellow-500 text-yellow-500" : "text-gray-700")} />
-              ))}
-            </div>
-            <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
-              {selectedPlaceInfo.userRatingsTotal} Reseñas en Google Business
-            </p>
+    {/* Previsualización de la Información Importada */}
+{selectedPlaceInfo && (
+  <motion.div 
+    initial={{ opacity: 0, y: 10 }} 
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-gray-900/80 border border-purple-500/30 rounded-3xl overflow-hidden shadow-2xl"
+  >
+    <div className="p-6 space-y-4">
+      {/* Badge de Fuente */}
+      <div className="flex justify-between items-start">
+        <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px]">
+          DATOS VINCULADOS DE GOOGLE BUSINESS
+        </Badge>
+        <div className="flex items-center gap-1 text-yellow-500">
+          <Star className="w-4 h-4 fill-yellow-500" />
+          <span className="font-bold text-sm">{selectedPlaceInfo.rating}</span>
+          <span className="text-gray-500 text-xs">({selectedPlaceInfo.userRatingsTotal} reseñas)</span>
+        </div>
+      </div>
+
+      <div className="flex gap-4">
+        {/* Placeholder para Foto (Usando la primera de Google si decides implementarlo) */}
+        <div className="w-20 h-20 rounded-2xl bg-gray-800 flex-shrink-0 flex items-center justify-center border border-gray-700">
+          <Building2 className="w-8 h-8 text-gray-600" />
+        </div>
+        
+        <div className="flex-1 space-y-1">
+          <h4 className="text-white font-bold text-lg leading-tight">{formData.businessName}</h4>
+          <p className="text-gray-400 text-xs flex items-center gap-1">
+            <MapPin className="w-3 h-3" /> {formData.address}
+          </p>
+          
+          {/* Mostrar Sitio Web si existe */}
+          {formData.websiteUrl && (
+            <a 
+              href={formData.websiteUrl} 
+              target="_blank" 
+              className="text-purple-400 text-xs flex items-center gap-1 hover:underline pt-1"
+            >
+              <Zap className="w-3 h-3" /> Visitar sitio web oficial
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Horarios (Resumen) */}
+      {selectedPlaceInfo.openingHours && (
+        <div className="pt-2 border-t border-gray-800">
+          <p className="text-[10px] text-gray-500 uppercase font-black mb-2 tracking-widest">
+            Horarios detectados
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+            {selectedPlaceInfo.openingHours.weekdayText?.map((day: string, i: number) => (
+              <Badge key={i} variant="outline" className="whitespace-nowrap bg-gray-950 border-gray-800 text-[9px] text-gray-400">
+                {day.split(': ')[0]}: {day.split(': ')[1]}
+              </Badge>
+            ))}
           </div>
         </div>
-        <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-[10px]">
-          DATOS VINCULADOS
-        </Badge>
-      </motion.div>
-    )}
+      )}
+    </div>
+
+    {/* Footer de la Card informativa */}
+    <div className="bg-purple-500/10 p-3 px-6 flex justify-between items-center">
+      <p className="text-[10px] text-purple-300">
+        Esta información se usará para crear tu <strong>Tienda QuHealthy</strong>.
+      </p>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-7 text-[10px] text-purple-400 hover:text-purple-300"
+        onClick={() => setSelectedPlaceInfo(null)}
+      >
+        Cambiar negocio
+      </Button>
+    </div>
+  </motion.div>
+)}
 
     {/* 2. Contacto: Email y Teléfono */}
     <div className="grid md:grid-cols-2 gap-6">
