@@ -58,7 +58,7 @@ export const useAuth = (): UseAuthReturn => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('refreshToken', response.refreshToken || '');
       localStorage.setItem('user', JSON.stringify({
-        role: response.roles,
+        role: response.role,
         status: response.status
       }));
     }

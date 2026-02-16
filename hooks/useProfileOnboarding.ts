@@ -13,21 +13,32 @@ export const useProfileOnboarding = () => {
   // Estado inicial del perfil (para pre-llenar el formulario)
   const [initialData, setInitialData] = useState<ProfileResponse | null>(null);
 
- const loadProfile = useCallback(async () => {
+const loadProfile = useCallback(async () => {
     setIsLoading(true);
     setError(null); // Limpiar errores previos
+    
     try {
       const data = await onboardingService.getProfile();
       setInitialData(data);
     } catch (err: any) {
-      // Si es 404 (Usuario nuevo), no es error. Si es otra cosa, sí.
-      if (err.response?.status !== 404) {
+      const status = err.response?.status;
+
+      // CASO 1: Usuario Nuevo (404)
+      // Si el backend dice "No encontrado", significa que debemos mostrar el formulario vacío.
+      // NO seteamos error, solo dejamos de cargar.
+      if (status === 404) {
+        console.log("Usuario nuevo detectado. Mostrando formulario vacío.");
+        setInitialData(null); 
+      } 
+      // CASO 2: Error Real (500, Sin Internet, 403, etc.)
+      else {
         const msg = "No pudimos cargar tu información existente.";
         console.error("Error cargando perfil:", err);
-        toast.error(msg);
-        setError(msg); // ✅ Guardamos el error
+        // toast.error(msg); // Opcional: puedes quitarlo para no molestar al usuario si recarga mucho
+        setError(msg); // ❌ Esto es lo que activa la pantalla roja
       }
     } finally {
+      // Siempre apagamos el loading, sea éxito, 404 o error real.
       setIsLoading(false);
     }
   }, []);
