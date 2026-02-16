@@ -45,6 +45,7 @@ import CategorySelector from '@/components/shared/CategorySelector';
 import { useProfileOnboarding } from '@/hooks/useProfileOnboarding';
 import { UpdateProfileRequest } from '@/types/onboarding';
 import { cn } from '@/lib/utils';
+import { googleService } from '@/services/google.service';
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
@@ -84,6 +85,9 @@ const {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [activeStep, setActiveStep] = useState(1);
+  const [predictions, setPredictions] = useState<any[]>([]);
+const [isSearching, setIsSearching] = useState(false);
+const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null); // Para mostrar estrellas/fotos
 
   // ✅ 3. Efecto para cargar datos si es modo edición
   useEffect(() => {
@@ -188,9 +192,58 @@ const {
     }));
   };
 
-  const handleCategorySelect = (categoryId: number, subCategoryId: number) => {
-    setFormData(prev => ({ ...prev, categoryId, subCategoryId }));
-  };
+  // Handler para buscar mientras escribe
+const handleBusinessNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setFormData(prev => ({ ...prev, businessName: value }));
+
+  if (value.length > 3) {
+    setIsSearching(true);
+    try {
+      const data = await googleService.autocomplete(value);
+      setPredictions(data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSearching(false);
+    }
+  } else {
+    setPredictions([]);
+  }
+};
+
+// Handler al seleccionar un negocio de la lista de Google
+const selectPlace = async (prediction: any) => {
+  setPredictions([]);
+  setFormData(prev => ({ ...prev, businessName: prediction.description }));
+  
+  try {
+    const details = await googleService.getDetails(prediction.placeId);
+    
+    // Auto-completamos los campos que Google nos de
+    setFormData(prev => ({
+      ...prev,
+      businessName: details.name,
+      contactPhone: details.internationalPhoneNumber || prev.contactPhone,
+      websiteUrl: details.website || prev.websiteUrl,
+      address: details.formattedAddress,
+      latitude: details.geometry.location.lat,
+      longitude: details.geometry.location.lng,
+      placeId: details.placeId
+    }));
+
+    // Guardamos info extra para mostrar visualmente (Rating, Fotos)
+    setSelectedPlaceInfo({
+      rating: details.rating,
+      userRatingsTotal: details.userRatingsTotal,
+      photo: details.photos?.[0]?.photoReference // Necesitarás un helper para la URL real
+    });
+
+    toast.success("Información de Google Business importada");
+  } catch (error) {
+    toast.error("No se pudieron obtener detalles del lugar");
+  }
+};
   
   // ✅ 6. Submit Real
   const handleSubmit = async (e: React.FormEvent) => {
@@ -386,110 +439,192 @@ const {
                 
                 <AnimatePresence mode="wait">
                   
-                  {/* Step 1: Basic Info */}
-                  {activeStep === 1 && (
-                    <motion.div
-                      key="step1"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-3 bg-purple-500/10 rounded-xl">
-                            <Building2 className="w-6 h-6 text-purple-400" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-black text-white">Información Básica</h3>
-                            <p className="text-sm text-gray-400">Nombre de tu negocio o consultorio</p>
-                          </div>
-                        </div>
-                        {isStep1Valid && (
-                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Completado
-                          </Badge>
-                        )}
-                      </div>
+                 {/* Step 1: Basic Info */}
+{activeStep === 1 && (
+  <motion.div
+    key="step1"
+    initial={{ opacity: 0, x: 20 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: -20 }}
+    className="space-y-6"
+  >
+    {/* Header del Paso */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="p-3 bg-purple-500/10 rounded-xl">
+          <Building2 className="w-6 h-6 text-purple-400" />
+        </div>
+        <div>
+          <h3 className="text-xl font-black text-white">Información Básica</h3>
+          <p className="text-sm text-gray-400">Configura tu identidad profesional</p>
+        </div>
+      </div>
+      {/* El badge verde solo se muestra si el paso ya está en el set de completados */}
+      {completedSteps.has(1) && (
+        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 animate-in fade-in zoom-in">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Completado
+        </Badge>
+      )}
+    </div>
 
-                      <Separator className="bg-gray-800" />
+    <Separator className="bg-gray-800" />
 
-                     
+    {/* 1. Buscador de Negocio (Google Places) */}
+    <div className="space-y-3 relative">
+      <Label className="text-gray-300 font-semibold flex items-center gap-2">
+        Nombre del Consultorio o Negocio *
+        <span className="text-[10px] text-gray-500 font-normal">(Auto-completa con Google)</span>
+      </Label>
+      <div className="relative group">
+        <Building2 className={cn(
+          "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
+          focusedField === 'businessName' ? "text-purple-400" : "text-gray-500"
+        )} />
+        <Input 
+          name="businessName"
+          value={formData.businessName}
+          onChange={handleBusinessNameChange} // Usar el handler de Google
+          onFocus={() => setFocusedField('businessName')}
+          onBlur={() => setFocusedField(null)}
+          placeholder="Busca tu consultorio o escribe el nombre..."
+          className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+        />
+        {isSearching && (
+          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-purple-500" />
+        )}
+      </div>
 
-                      {/* Business Name & Phone */}
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <Label className="text-gray-300 font-semibold">
-                            Nombre Público *
-                          </Label>
-                          <div className="relative group">
-                            <Building2 className={cn(
-                              "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
-                              focusedField === 'businessName' ? "text-purple-400" : "text-gray-500"
-                            )} />
-                            <Input 
-                              name="businessName"
-                              value={formData.businessName}
-                              onChange={handleInputChange}
-                              onFocus={() => setFocusedField('businessName')}
-                              onBlur={() => setFocusedField(null)}
-                              placeholder={formData.businessName === 'individual' ? "Ej: Dr. Juan Pérez" : "Ej: Clínica Salud Total"}
-                              className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                            />
-                            {formData.businessName.length >= 2 && (
-                              <Check className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                            )}
-                          </div>
-                          {formData.businessName.length > 0 && formData.businessName.length < 2 && (
-                            <p className="text-xs text-orange-400 flex items-center gap-1">
-                              <Info className="w-3 h-3" />
-                              Mínimo 2 caracteres
-                            </p>
-                          )}
-                        </div>  
+      {/* Lista de Predicciones de Google */}
+      <AnimatePresence>
+        {predictions.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0 }}
+            className="absolute z-50 w-full bg-gray-900 border border-gray-700 rounded-xl mt-1 shadow-2xl max-h-60 overflow-y-auto custom-scrollbar"
+          >
+            {predictions.map((p: any) => (
+              <button 
+                key={p.placeId} 
+                onClick={() => selectPlace(p)}
+                type="button"
+                className="w-full p-3 text-left hover:bg-purple-500/10 border-b border-gray-800 last:border-0 flex items-start gap-3 transition-colors group"
+              >
+                <MapPin className="w-4 h-4 text-gray-500 group-hover:text-purple-400 mt-1" />
+                <div>
+                  <p className="text-sm font-bold text-white">{p.structuredFormatting.mainText}</p>
+                  <p className="text-[10px] text-gray-500">{p.structuredFormatting.secondaryText}</p>
+                </div>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
 
-                        <div className="space-y-3">
-                          <Label className="text-gray-300 font-semibold">
-                            Teléfono de Contacto *
-                          </Label>
-                          <div className="relative group">
-                            <Phone className={cn(
-                              "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
-                              focusedField === 'phone' ? "text-purple-400" : "text-gray-500"
-                            )} />
-                            <Input 
-                              name="contactPhone"
-                              value={formData.contactPhone}
-                              onChange={handleInputChange}
-                              onFocus={() => setFocusedField('contactPhone')}
-                              onBlur={() => setFocusedField(null)}
-                              placeholder="+52 555 123 4567"
-                              className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                            />
-                            {(formData.contactPhone?.length ?? 0) >= 10 && (
-                              <Check className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                            )}
-                          </div>
-                          {formData.contactPhone && formData.contactPhone.length < 10 && (
-                            <p className="text-xs text-orange-400 flex items-center gap-1">
-                              <Info className="w-3 h-3" />
-                              Mínimo 10 dígitos
-                            </p>
-                          )}
-                        </div>
-                      </div>
+    {/* Info de Google Seleccionada (Rating & Reviews) */}
+    {selectedPlaceInfo && (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }} 
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-gradient-to-r from-yellow-500/5 to-orange-500/5 border border-yellow-500/20 rounded-2xl p-4 flex items-center justify-between"
+      >
+        <div className="flex items-center gap-4">
+          <div className="bg-yellow-500 text-gray-950 px-3 py-1 rounded-lg font-black text-xl">
+            {selectedPlaceInfo.rating}
+          </div>
+          <div>
+            <div className="flex gap-1 mb-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={cn("w-3.5 h-3.5", i < Math.floor(selectedPlaceInfo.rating) ? "fill-yellow-500 text-yellow-500" : "text-gray-700")} />
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+              {selectedPlaceInfo.userRatingsTotal} Reseñas en Google Business
+            </p>
+          </div>
+        </div>
+        <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-[10px]">
+          DATOS VINCULADOS
+        </Badge>
+      </motion.div>
+    )}
 
-                      {/* Info Card */}
-                      <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
-                        <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <div className="text-sm text-blue-300/80">
-                          <p className="font-semibold text-blue-400 mb-1">Información visible</p>
-                          <p>Este será el nombre que verán los pacientes al buscarte. Asegúrate de usar tu nombre profesional.</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+    {/* 2. Contacto: Email y Teléfono */}
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-3">
+        <Label className="text-gray-300 font-semibold">Email de Contacto *</Label>
+        <div className="relative group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">@</div>
+          <Input 
+            name="contactEmail"
+            type="email"
+            value={formData.contactEmail}
+            onChange={handleInputChange}
+            placeholder="negocio@ejemplo.com"
+            className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-gray-300 font-semibold">Teléfono de Contacto *</Label>
+        <div className="relative group">
+          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <Input 
+            name="contactPhone"
+            value={formData.contactPhone}
+            onChange={handleInputChange}
+            placeholder="+52 555..."
+            className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* 3. Biografía Profesional (Mínimo 20 caracteres) */}
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <Label className="text-gray-300 font-semibold">Biografía / Descripción *</Label>
+        <span className={cn(
+          "text-[10px] font-bold px-2 py-0.5 rounded-full",
+          formData.bio.length >= 20 ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-400"
+        )}>
+          {formData.bio.length} / 20 mín.
+        </span>
+      </div>
+      <textarea
+        name="bio"
+        value={formData.bio}
+        onChange={handleInputChange}
+        onFocus={() => setFocusedField('bio')}
+        onBlur={() => setFocusedField(null)}
+        placeholder="Describe tu trayectoria, especialidad y enfoque de atención..."
+        className="w-full min-h-[120px] bg-gray-950 border border-gray-700 rounded-xl p-4 text-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none resize-none"
+      />
+    </div>
+
+    {/* Botón Siguiente (Valida y marca en verde) */}
+    <div className="pt-4">
+      <Button
+        onClick={() => {
+          if (isStep1Valid) {
+            // ✅ Solo aquí marcamos como completado para que se ponga en verde
+            setCompletedSteps(prev => new Set(prev).add(1));
+            setActiveStep(2);
+          } else {
+            toast.warning("Por favor completa los campos: Nombre (3+), Bio (20+) y Teléfono (10+)");
+          }
+        }}
+        className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 group"
+      >
+        Continuar a Especialidad
+        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+      </Button>
+    </div>
+  </motion.div>
+)}
 
                   {/* Step 2: Specialty */}
 {activeStep === 2 && (
