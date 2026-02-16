@@ -51,10 +51,20 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error: AxiosError<ApiErrorResponse>) => {
+    
+    // ✅ CORRECCIÓN CRÍTICA: EXCEPCIÓN PARA 404
+    // Si el error es 404 (Not Found), lo devolvemos intacto.
+    // Esto permite que los hooks detecten "Usuario Nuevo" o "Recurso no encontrado"
+    // y manejen la lógica (ej: mostrar formulario vacío) en lugar de lanzar una alerta de error.
+    if (error.response && error.response.status === 404) {
+      return Promise.reject(error);
+    }
+
+    // --- Inicio de lógica de errores genéricos ---
     let errorMessage = 'Ocurrió un error inesperado. Intenta nuevamente.';
 
     if (error.response) {
-      // El servidor respondió con un código de error (4xx, 5xx)
+      // El servidor respondió con un código de error (4xx, 5xx) pero NO es 404
       
       // Prioridad 1: Mensaje personalizado del Backend (DTO de error)
       if (error.response.data?.message) {
@@ -69,8 +79,11 @@ axiosInstance.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           errorMessage = 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.';
-          // Opcional: Lógica de logout automático
-          // if (typeof window !== 'undefined') localStorage.removeItem('token');
+          // Opcional: Lógica de logout automático si lo deseas
+          if (typeof window !== 'undefined') {
+             // localStorage.removeItem('token');
+             // window.location.href = '/auth/login';
+          }
           break;
         case 403:
           errorMessage = 'No tienes permisos para realizar esta acción.';
@@ -84,8 +97,14 @@ axiosInstance.interceptors.response.use(
       errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
     }
 
-    // Rechazamos la promesa con un objeto Error limpio que contiene solo el mensaje
-    return Promise.reject(new Error(errorMessage));
+    // Rechazamos la promesa con un objeto Error limpio que contiene solo el mensaje procesado
+    // Nota: Esto llega al catch() de tus servicios como "err.message"
+    const customError = new Error(errorMessage);
+    
+    // Opcional: Adjuntamos el status original por si se necesita debuggear
+    (customError as any).status = error.response?.status;
+
+    return Promise.reject(customError);
   }
 );
 
