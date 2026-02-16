@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import { CategoryResponse, OnboardingStatusResponse, ProfileResponse, SubCategoryResponse, TagResponse, UpdateProfileRequest } from '@/types/onboarding';
+import { CategoryResponse, KycDocumentResponse, OnboardingStatusResponse, ProfileResponse, SubCategoryResponse, TagResponse, UpdateProfileRequest } from '@/types/onboarding';
 
 const BASE_URL = '/api/onboarding';
 const BASE_PROFILE = '/api/onboarding/profile'; // ✅ Nueva Base URL
@@ -70,6 +70,29 @@ export const onboardingService = {
 
   getTags: async (): Promise<TagResponse[]> => {
     const response = await axiosInstance.get<TagResponse[]>(`${BASE_CATALOGS}/tags`);
+    return response.data;
+  },
+
+  uploadKycDocument: async (file: File, type: DocumentType): Promise<KycDocumentResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // POST /api/onboarding/kyc/upload?type=INE_FRONT
+    const response = await axiosInstance.post<KycDocumentResponse>(
+      `/api/onboarding/kyc/upload?type=${type}`, 
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000 // Gemini puede tardar unos segundos en analizar
+      }
+    );
+    return response.data;
+  },
+
+  getKycDocuments: async (): Promise<KycDocumentResponse[]> => {
+    // Necesitas crear este endpoint GET en tu KycController si no existe,
+    // para recuperar el estado al recargar la página.
+    const response = await axiosInstance.get<KycDocumentResponse[]>('/api/onboarding/kyc/documents');
     return response.data;
   }
 };

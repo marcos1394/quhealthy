@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -14,7 +12,9 @@ import {
   CheckCircle2, 
   ScanFace, 
   Camera, 
-  ArrowLeft 
+  ArrowLeft,
+  AlertCircle,
+  FileCheck
 } from 'lucide-react';
 
 // ShadCN UI
@@ -23,327 +23,436 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
-type DocType = 'ine' | 'passport';
+// Hooks & Types
+import { useKycOnboarding } from '@/hooks/useKycOnboarding';
+import { DocumentType, KycDocumentResponse, VerificationStatus } from '@/types/onboarding';
+
+// Tipo interno para la UI (No confundir con el del Backend)
+type UiDocType = 'ine' | 'passport';
 
 export default function KycPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [docType, setDocType] = useState<DocType>('ine');
   
-  // Estado para archivos y previews
-  const [files, setFiles] = useState<{ front: File | null; back: File | null }>({ front: null, back: null });
-  const [previews, setPreviews] = useState<{ front: string | null; back: string | null }>({ front: null, back: null });
+  // Hook de Lógica de Negocio
+  const { 
+    documents, 
+    uploadingState, 
+    uploadDocument, 
+    isKycComplete,
+    isLoading: isInitialLoading 
+  } = useKycOnboarding();
 
-  // --- ESTADOS PARA LA CÁMARA ---
+  // Estado UI Local
+  const [activeTab, setActiveTab] = useState<UiDocType>('ine');
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [activeSide, setActiveSide] = useState<'front' | 'back' | null>(null);
+  const [activeCaptureType, setActiveCaptureType] = useState<DocumentType | null>(null);
+  
+  // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null); // ✅ Ref para limpiar stream correctamente
   
-  // Referencias a inputs ocultos
-  const frontInputRef = useRef<HTMLInputElement>(null);
-  const backInputRef = useRef<HTMLInputElement>(null);
+  // Inputs ocultos
+  const ineFrontInput = useRef<HTMLInputElement>(null);
+  const ineBackInput = useRef<HTMLInputElement>(null);
+  const passportInput = useRef<HTMLInputElement>(null);
+  const selfieInput = useRef<HTMLInputElement>(null);
 
   // --- LÓGICA DE CÁMARA ---
-  const startCamera = async (side: 'front' | 'back') => {
-    setActiveSide(side);
+  const startCamera = async (docType: DocumentType) => {
+    setActiveCaptureType(docType);
     setIsCameraOpen(true);
     try {
-      // Intentar usar cámara trasera (environment)
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
-      });
-      setStream(mediaStream);
-      // Pequeño delay para asegurar que el ref del video esté montado
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
+      const isSelfie = docType === 'SELFIE';
+      const constraints = {
+        video: { 
+          facingMode: isSelfie ? 'user' : 'environment',
+          width: { ideal: 1920 }, 
+          height: { ideal: 1080 } 
         }
-      }, 100);
+      };
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = mediaStream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
     } catch (err) {
-      console.error("Error al acceder a la cámara:", err);
-      toast.error("No se pudo acceder a la cámara. Verifica los permisos de tu navegador.");
+      console.error("Error cámara:", err);
+      toast.error("No se pudo acceder a la cámara.");
       setIsCameraOpen(false);
     }
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
     setIsCameraOpen(false);
-    setActiveSide(null);
+    setActiveCaptureType(null);
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current || !activeSide) return;
+    if (!videoRef.current || !canvasRef.current || !activeCaptureType) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
-    // Configurar canvas al tamaño del video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // Dibujar el frame actual
     const context = canvas.getContext('2d');
     if (context) {
+      // Si es selfie, espejear horizontalmente para UX natural
+      if (activeCaptureType === 'SELFIE') {
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+      }
+
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // Convertir a archivo JPG
       canvas.toBlob((blob) => {
         if (blob) {
-          const file = new File([blob], `${activeSide}_capture.jpg`, { type: 'image/jpeg' });
-          handleFileProcess(file, activeSide);
+          const file = new File([blob], `${activeCaptureType}_capture.jpg`, { type: 'image/jpeg' });
+          handleUpload(file, activeCaptureType);
           stopCamera();
-          toast.success("Foto capturada correctamente");
         }
-      }, 'image/jpeg', 0.9);
+      }, 'image/jpeg', 0.9); // Calidad 90%
     }
   };
 
-  // --- LÓGICA DE ARCHIVOS ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
+  // --- MANEJO DE ARCHIVOS ---
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: DocumentType) => {
     const file = e.target.files?.[0];
-    if (file) handleFileProcess(file, side);
+    if (file) handleUpload(file, type);
   };
 
-  const handleFileProcess = (file: File, side: 'front' | 'back') => {
-    // Validaciones
-    if (file.size > 15 * 1024 * 1024) { // 15MB
-      toast.error("El archivo es demasiado grande. Máximo 15MB.");
+  const handleUpload = async (file: File, type: DocumentType) => {
+    // Validaciones básicas antes de llamar al hook
+    if (file.size > 10 * 1024 * 1024) { 
+      toast.warning("El archivo es muy pesado (Máx 10MB).");
       return;
     }
-    if (!file.type.startsWith('image/')) {
-      toast.error("Solo se permiten imágenes (JPG, PNG).");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviews(prev => ({ ...prev, [side]: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
-    setFiles(prev => ({ ...prev, [side]: file }));
+    
+    // Llamada al Hook (Sube a S3 + Analiza con Gemini)
+    await uploadDocument(file, type);
   };
 
-  const removeFile = (side: 'front' | 'back') => {
-    setFiles(prev => ({ ...prev, [side]: null }));
-    setPreviews(prev => ({ ...prev, [side]: null }));
-    if (side === 'front' && frontInputRef.current) frontInputRef.current.value = '';
-    if (side === 'back' && backInputRef.current) backInputRef.current.value = '';
-  };
-
-  // --- SUBMIT ---
-  const handleSubmit = async () => {
-    if (!files.front) return toast.warn("Debes subir la parte frontal.");
-    if (docType === 'ine' && !files.back) return toast.warn("Para INE, es obligatorio subir ambos lados.");
-
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append('documentType', docType);
-    formData.append('front', files.front);
-    if (files.back) formData.append('back', files.back);
-
-    try {
-      // Endpoint simulado o real
-      await axios.post('/api/kyc/upload-documents', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
-      });
-      
-      toast.success("Documentos enviados a revisión.");
-      
-      // Redirigir al checklist principal
-      setTimeout(() => router.push('/onboarding'), 1500);
-
-    } catch (error: any) {
-      console.error(error);
-      // En modo dev, simulamos éxito aunque falle
-      toast.info("Modo Demo: Documentos 'subidos'. Redirigiendo...");
-      setTimeout(() => router.push('/onboarding'), 1500);
-    } finally {
-      setIsLoading(false);
+  // --- RENDERIZADO DE ESTADO ---
+  const getStatusBadge = (status?: VerificationStatus) => {
+    switch (status) {
+      case 'APPROVED':
+        return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Aprobado ✅</Badge>;
+      case 'REJECTED':
+        return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Rechazado ❌</Badge>;
+      case 'PROCESSING':
+        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse">Analizando AI 🤖</Badge>;
+      default:
+        return <Badge variant="outline" className="text-gray-500 border-gray-700">Pendiente</Badge>;
     }
   };
 
-  // --- UI COMPONENTS ---
-  const UploadZone = ({ side, label }: { side: 'front' | 'back', label: string }) => (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <Label className="text-gray-300 font-medium">{label}</Label>
-        {previews[side] && <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs px-2 py-0.5">Listo</Badge>}
+  // Componente Reutilizable de Zona de Carga
+  const UploadZone = ({ 
+    type, 
+    label, 
+    description,
+    inputRef 
+  }: { 
+    type: DocumentType, 
+    label: string, 
+    description?: string,
+    inputRef: React.RefObject<HTMLInputElement | null> 
+  }) => {
+    const docData = documents[type];
+    const isUploading = uploadingState[type];
+    const isApproved = docData?.verificationStatus === 'APPROVED';
+    const isRejected = docData?.verificationStatus === 'REJECTED';
+
+    return (
+      <div className={cn(
+        "relative group rounded-xl border-2 transition-all p-4 flex flex-col gap-3",
+        isApproved 
+          ? "border-emerald-500/30 bg-emerald-500/5" 
+          : isRejected 
+            ? "border-red-500/30 bg-red-500/5"
+            : "border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-gray-800/50"
+      )}>
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div>
+            <Label className={cn("font-semibold text-base", isApproved ? "text-emerald-400" : "text-gray-200")}>
+              {label}
+            </Label>
+            {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+          </div>
+          {getStatusBadge(docData?.verificationStatus)}
+        </div>
+
+        {/* Feedback de Error */}
+        {isRejected && docData?.rejectionReason && (
+          <div className="bg-red-900/20 p-2 rounded-lg border border-red-500/20 flex gap-2 items-start">
+            <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-red-300">{docData.rejectionReason}</p>
+          </div>
+        )}
+
+        {/* Preview o Acciones */}
+        {docData?.fileUrl ? (
+          <div className="relative h-40 w-full mt-2 rounded-lg overflow-hidden bg-black/50 border border-gray-700 group/preview">
+            <img src={docData.fileUrl} alt="Preview" className="w-full h-full object-contain" />
+            
+            {/* Overlay para Reintentar si falló */}
+            {!isApproved && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity">
+                 <Button size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
+                    <UploadCloud className="w-4 h-4 mr-2" /> Reintentar
+                 </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex gap-3 h-32 mt-2">
+             {/* Botón Subir */}
+             <div 
+                onClick={() => !isUploading && inputRef.current?.click()}
+                className="flex-1 rounded-lg border border-gray-700 bg-gray-900/50 hover:bg-purple-500/10 hover:border-purple-500/30 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all"
+             >
+                {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-purple-500" /> : <UploadCloud className="w-6 h-6 text-gray-400" />}
+                <span className="text-xs text-gray-400 font-medium">{isUploading ? "Subiendo..." : "Subir Imagen"}</span>
+             </div>
+
+             {/* Botón Cámara */}
+             <div 
+                onClick={() => !isUploading && startCamera(type)}
+                className="w-1/3 rounded-lg border border-gray-700 bg-gray-900/50 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all"
+             >
+                <Camera className="w-6 h-6 text-gray-400" />
+                <span className="text-xs text-gray-400 font-medium">Cámara</span>
+             </div>
+          </div>
+        )}
+
+        {/* Input Oculto */}
+        <input 
+          type="file" 
+          ref={inputRef} 
+          className="hidden" 
+          accept="image/png, image/jpeg, image/jpg" 
+          onChange={(e) => handleFileChange(e, type)}
+        />
       </div>
-      
-      {previews[side] ? (
-        <div className="relative group h-48 w-full rounded-xl overflow-hidden border-2 border-purple-500/50 shadow-lg shadow-purple-900/20">
-          <img src={previews[side]!} alt="Vista previa" className="w-full h-full object-cover"/>
-          
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <Button variant="destructive" size="sm" onClick={() => removeFile(side)}>
-                <X className="w-4 h-4 mr-2"/> Eliminar
-            </Button>
-          </div>
-          
-          <div className="absolute top-2 right-2 bg-emerald-500 rounded-full p-1 shadow-md">
-            <CheckCircle2 className="w-4 h-4 text-white"/>
-          </div>
-        </div>
-      ) : (
-        <div className="flex gap-3 h-48">
-          {/* Botón de Subir Archivo */}
-          <div 
-            onClick={() => side === 'front' ? frontInputRef.current?.click() : backInputRef.current?.click()}
-            className="flex-1 rounded-xl border-2 border-dashed border-gray-700 hover:border-purple-500 hover:bg-purple-500/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 group"
-          >
-            <div className="p-3 rounded-full bg-gray-800 group-hover:bg-purple-500/20 transition-colors">
-              <UploadCloud className="w-6 h-6 text-gray-400 group-hover:text-purple-400" />
-            </div>
-            <p className="text-xs text-gray-400 group-hover:text-gray-300 font-medium">Subir Imagen</p>
-          </div>
+    );
+  };
 
-          {/* Botón de Cámara */}
-          <div 
-            onClick={() => startCamera(side)}
-            className="w-1/3 rounded-xl border-2 border-dashed border-gray-700 hover:border-blue-500 hover:bg-blue-500/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 group"
-          >
-            <div className="p-3 rounded-full bg-gray-800 group-hover:bg-blue-500/20 transition-colors">
-              <Camera className="w-6 h-6 text-gray-400 group-hover:text-blue-400" />
-            </div>
-            <p className="text-xs text-gray-400 group-hover:text-gray-300 font-medium">Cámara</p>
-          </div>
+  // --- LÓGICA DE FINALIZACIÓN ---
+  const handleFinishStep = () => {
+    // Validación final
+    if (isKycComplete()) {
+        toast.success("¡Identidad Verificada! Avanzando...");
+        router.push('/onboarding');
+        router.refresh();
+    } else {
+        toast.warn("Aún tienes documentos pendientes o rechazados.");
+    }
+  };
+
+  // --- RENDER ---
+  if (isInitialLoading) {
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+            <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
         </div>
-      )}
-      <input type="file" ref={side === 'front' ? frontInputRef : backInputRef} className="hidden" accept="image/png, image/jpeg" onChange={(e) => handleFileChange(e, side)}/>
-    </div>
-  );
+    );
+  }
+
+  // ¿Ya se aprobó la identidad base (INE/Pasaporte)?
+  const isIdentityApproved = 
+    (documents['INE_FRONT']?.verificationStatus === 'APPROVED' && documents['INE_BACK']?.verificationStatus === 'APPROVED') ||
+    documents['PASSPORT']?.verificationStatus === 'APPROVED';
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white p-4 md:p-8 relative overflow-x-hidden font-sans">
       
-      {/* Fondo Decorativo */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-950 to-gray-950 pointer-events-none" />
+      {/* Fondo */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/10 via-black to-black pointer-events-none" />
 
-      {/* MODAL DE CÁMARA (Overlay Completo) */}
+      {/* --- MODAL CÁMARA --- */}
       <AnimatePresence>
         {isCameraOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4"
-          >
-            <div className="relative w-full max-w-3xl aspect-[9/16] md:aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-              <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-              <canvas ref={canvasRef} className="hidden" />
-              
-              {/* Overlay de Guía */}
-              <div className="absolute inset-0 border-[3px] border-white/30 m-8 rounded-lg pointer-events-none flex items-center justify-center">
-                 <p className="text-white/50 text-sm font-medium bg-black/40 px-3 py-1 rounded-full">Alinea tu documento aquí</p>
-              </div>
+            <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center"
+            >
+                <div className="relative w-full h-full md:h-[90vh] md:w-auto md:aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-800">
+                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                    <canvas ref={canvasRef} className="hidden" />
+                    
+                    {/* Overlay Guía */}
+                    <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                         <div className={cn(
+                            "border-2 border-white/50 rounded-2xl",
+                            activeCaptureType === 'SELFIE' ? "w-64 h-80 rounded-full" : "w-80 h-52"
+                         )} />
+                         <p className="mt-4 bg-black/50 px-4 py-2 rounded-full text-white text-sm backdrop-blur-md">
+                            {activeCaptureType === 'SELFIE' ? "Centra tu rostro" : "Centra el documento"}
+                         </p>
+                    </div>
 
-              {/* Botones de Control de Cámara */}
-              <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-10">
-                <Button 
-                    variant="secondary" 
-                    size="default"
-                    className="rounded-full h-14 w-14 bg-gray-800/80 hover:bg-gray-700 backdrop-blur-md border border-gray-600" 
-                    onClick={stopCamera}
-                >
-                  <X className="w-6 h-6 text-white"/>
-                </Button>
-                
-                <button 
-                    onClick={capturePhoto} 
-                    className="h-20 w-20 rounded-full bg-white border-4 border-gray-300 ring-4 ring-transparent hover:ring-purple-500/50 transition-all active:scale-95"
-                ></button>
-                
-                {/* Espaciador para balance visual */}
-                <div className="w-14"></div> 
-              </div>
-            </div>
-          </motion.div>
+                    {/* Controles */}
+                    <div className="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-8">
+                        <Button variant="ghost" size="default" onClick={stopCamera} className="rounded-full bg-gray-800/50 text-white hover:bg-gray-700">
+                            <X className="w-6 h-6" />
+                        </Button>
+                        <button onClick={capturePhoto} className="w-20 h-20 rounded-full border-4 border-white bg-white/20 active:scale-95 transition-transform" />
+                        <div className="w-10" /> {/* Spacer */}
+                    </div>
+                </div>
+            </motion.div>
         )}
       </AnimatePresence>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        className="w-full max-w-3xl relative z-10"
-      >
-        <Button 
-            variant="ghost" 
-            className="mb-6 text-gray-400 hover:text-white pl-0 hover:bg-transparent"
-            onClick={() => router.back()}
-        >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al checklist
-        </Button>
+      {/* --- CONTENIDO --- */}
+      <div className="max-w-4xl mx-auto relative z-10 space-y-6">
+        
+        {/* Header de Navegación */}
+        <div className="flex items-center justify-between">
+            <Button variant="ghost" className="text-gray-400 hover:text-white pl-0" onClick={() => router.back()}>
+                <ArrowLeft className="mr-2 w-4 h-4" /> Volver al checklist
+            </Button>
+            <Badge variant="outline" className="border-purple-500/30 text-purple-400 bg-purple-500/10">
+                Paso 2 de 4
+            </Badge>
+        </div>
 
-        <Card className="bg-gray-900/80 backdrop-blur-xl border-gray-800 shadow-2xl">
-          <CardHeader className="text-center pb-6 border-b border-gray-800">
-            <div className="mx-auto bg-gradient-to-br from-purple-600 to-blue-600 p-4 rounded-2xl w-fit mb-4 shadow-lg shadow-purple-900/20">
-              <ShieldCheck className="w-10 h-10 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-white">Verificación de Identidad (KYC)</CardTitle>
-            <CardDescription className="text-gray-400 max-w-md mx-auto">
-                Para garantizar la seguridad de nuestros pacientes, necesitamos verificar que eres un profesional real.
-            </CardDescription>
-          </CardHeader>
+        <div className="space-y-2">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                Verificación de Identidad
+            </h1>
+            <p className="text-gray-400">
+                Nuestra IA validará tus documentos en segundos. Asegúrate de que las fotos sean claras y sin reflejos.
+            </p>
+        </div>
 
-          <CardContent className="space-y-8 pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Selector de Documento */}
-            <div className="flex justify-center">
-              <Tabs defaultValue="ine" className="w-full max-w-md" onValueChange={(v) => setDocType(v as DocType)}>
-                <TabsList className="grid w-full grid-cols-2 bg-gray-950 border border-gray-800 h-12">
-                  <TabsTrigger value="ine" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10">INE / IFE</TabsTrigger>
-                  <TabsTrigger value="passport" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10">Pasaporte</TabsTrigger>
-                </TabsList>
-              </Tabs>
+            {/* COLUMNA IZQUIERDA: DOCUMENTOS */}
+            <div className="lg:col-span-2 space-y-6">
+                
+                {/* 1. SECCIÓN IDENTIFICACIÓN */}
+                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg text-white">
+                            <ShieldCheck className="w-5 h-5 text-blue-500" /> 
+                            1. Identificación Oficial
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as UiDocType)} className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 bg-gray-950 border border-gray-800">
+                                <TabsTrigger value="ine" disabled={isIdentityApproved}>INE / IFE</TabsTrigger>
+                                <TabsTrigger value="passport" disabled={isIdentityApproved}>Pasaporte</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+
+                        {/* INE FLOW */}
+                        {activeTab === 'ine' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <UploadZone 
+                                    type="INE_FRONT" 
+                                    label="Frente" 
+                                    inputRef={ineFrontInput} 
+                                />
+                                <UploadZone 
+                                    type="INE_BACK" 
+                                    label="Reverso" 
+                                    inputRef={ineBackInput} 
+                                />
+                            </div>
+                        )}
+
+                        {/* PASSPORT FLOW */}
+                        {activeTab === 'passport' && (
+                            <UploadZone 
+                                type="PASSPORT" 
+                                label="Página de Datos" 
+                                description="Sube la página donde aparece tu foto y datos personales."
+                                inputRef={passportInput} 
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* 2. SECCIÓN PRUEBA DE VIDA (Solo se habilita si ID está OK) */}
+                <Card className={cn("border-gray-800 transition-colors", isIdentityApproved ? "bg-gray-900/50" : "bg-gray-900/20 opacity-50")}>
+                    <CardHeader>
+                         <CardTitle className="flex items-center gap-2 text-lg text-white">
+                            <ScanFace className={cn("w-5 h-5", isIdentityApproved ? "text-purple-500" : "text-gray-600")} /> 
+                            2. Prueba de Vida
+                        </CardTitle>
+                        <CardDescription>
+                            Compararemos tu rostro con la foto de tu identificación.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isIdentityApproved ? (
+                            <UploadZone 
+                                type="SELFIE" 
+                                label="Selfie en Vivo" 
+                                description="Tómate una foto ahora mismo. Sin lentes ni gorras."
+                                inputRef={selfieInput}
+                            />
+                        ) : (
+                            <div className="p-4 rounded-lg border border-yellow-500/20 bg-yellow-500/5 text-yellow-200 text-sm flex gap-3 items-center">
+                                <AlertCircle className="w-4 h-4" />
+                                <span>Completa el paso 1 para desbloquear la prueba de vida.</span>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Zonas de Carga */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <UploadZone side="front" label="Parte Frontal (Con Foto)" />
-              {docType === 'ine' && <UploadZone side="back" label="Parte Trasera" />}
-            </div>
+            {/* COLUMNA DERECHA: RESUMEN Y ACCIÓN */}
+            <div className="space-y-6">
+                <Card className="bg-gray-900/50 border-gray-800 sticky top-8">
+                    <CardHeader>
+                        <CardTitle className="text-white text-base">Estado del Proceso</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">Identificación</span>
+                                {isIdentityApproved ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <span className="text-gray-600">-</span>}
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">Prueba de Vida</span>
+                                {documents['SELFIE']?.verificationStatus === 'APPROVED' ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <span className="text-gray-600">-</span>}
+                            </div>
+                        </div>
 
-            {/* Aviso de Privacidad Mini */}
-            <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex gap-3 text-sm text-blue-300 items-start">
-              <ScanFace className="w-5 h-5 flex-shrink-0 text-blue-400 mt-0.5" />
-              <p className="leading-relaxed">
-                Tus documentos son encriptados (AES-256) antes de guardarse. Solo se utilizan para validar tu identidad automáticamente y luego se archivan de forma segura.
-              </p>
+                        <div className="pt-4 border-t border-gray-800">
+                             <Button 
+                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold"
+                                disabled={!isKycComplete()}
+                                onClick={handleFinishStep}
+                             >
+                                Confirmar y Finalizar
+                             </Button>
+                             {!isKycComplete() && (
+                                <p className="text-xs text-center text-gray-500 mt-2">
+                                    Completa todos los pasos requeridos para continuar.
+                                </p>
+                             )}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
-
-            {/* Botón de Envío */}
-            <div className="pt-2">
-                <Button 
-                className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-xl shadow-purple-900/20"
-                onClick={handleSubmit}
-                disabled={isLoading || !files.front}
-                >
-                {isLoading ? (
-                    <div className="flex items-center gap-2">
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        <span>Analizando documentos...</span>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-6 h-6" />
-                        <span>Enviar y Verificar</span>
-                    </div>
-                )}
-                </Button>
-            </div>
-
-          </CardContent>
-        </Card>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

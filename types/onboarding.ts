@@ -60,6 +60,7 @@ export interface UpdateProfileRequest {
 
 // ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)
 export interface ProfileResponse {
+  tagIds: never[];
   providerId: number;
   businessName: string;
   bio: string;
@@ -102,4 +103,26 @@ export interface TagResponse {
   name: string;
   slug: string;
   color?: string;
+}
+
+export type DocumentType = 
+  | 'INE_FRONT' 
+  | 'INE_BACK' 
+  | 'PASSPORT' 
+  | 'SELFIE' 
+  | 'PROFESSIONAL_LICENSE' 
+  | 'TAX_CERTIFICATE' 
+  | 'PROOF_OF_ADDRESS';
+
+// Estado de Verificación (Igual a tu Java)
+export type VerificationStatus = 'PENDING' | 'PROCESSING' | 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW_NEEDED';
+
+// Respuesta del Backend (KycDocumentResponse)
+export interface KycDocumentResponse {
+  documentType: DocumentType;
+  verificationStatus: VerificationStatus;
+  rejectionReason?: string; // Mensaje de Gemini ("Foto borrosa")
+  fileUrl: string; // URL firmada para previsualizar
+  extractedData?: Record<string, any>; // Datos OCR (Nombre, CURP)
+  lastUpdated: string;
 }
