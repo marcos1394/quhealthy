@@ -22,7 +22,8 @@ import {
   ChevronRight,
   Shield,
   Trophy,
-  Check
+  Check,
+  Navigation
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -38,7 +39,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 
 // Components
-import LocationPicker, { LocationData } from '@/components/shared/location/LocationPicker';
+import LocationPicker from '@/components/shared/location/LocationPicker';
 import CategorySelector from '@/components/shared/CategorySelector';
 
 // Hooks
@@ -811,38 +812,119 @@ const selectPlace = async (prediction: any) => {
   </motion.div>
 )}
 
-                  {/* Step 3: Location */}
-                  {activeStep === 3 && (
-                    <motion.div
-                      key="step3"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-3 bg-blue-500/10 rounded-xl">
-                            <MapPin className="w-6 h-6 text-blue-400" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-black text-white">Ubicación</h3>
-                            <p className="text-sm text-gray-400">Donde brindas tus servicios</p>
-                          </div>
-                        </div>
-                        {isStep3Valid && (
-                          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Completado
-                          </Badge>
-                        )}
-                      </div>
+{/* Step 3: Location */}
+{activeStep === 3 && (
+  <motion.div
+    key="step3"
+    initial={{ opacity: 0, x: 20 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: -20 }}
+    className="space-y-6"
+  >
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="p-3 bg-blue-500/10 rounded-2xl ring-1 ring-blue-500/20">
+          <MapPin className="w-6 h-6 text-blue-400" />
+        </div>
+        <div>
+          <h3 className="text-xl font-black text-white">Confirma tu Ubicación</h3>
+          <p className="text-sm text-gray-400">Asegúrate de que el marcador esté en el lugar exacto</p>
+        </div>
+      </div>
+      {completedSteps.has(3) && (
+        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Ubicación Lista
+        </Badge>
+      )}
+    </div>
 
-                      <Separator className="bg-gray-800" />
+    <Separator className="bg-gray-800" />
 
-                      <LocationPicker onLocationSelect={handleLocationSelect} />
-                    </motion.div>
-                  )}
+    {/* Resumen de Dirección Importada */}
+    <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-2xl flex items-start gap-4">
+      <div className="p-2 bg-gray-800 rounded-lg">
+        <Navigation className="w-5 h-5 text-purple-400" />
+      </div>
+      <div className="flex-1">
+        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">Dirección Registrada</p>
+        <p className="text-sm text-white font-medium">{formData.address || "No se ha especificado dirección"}</p>
+      </div>
+    </div>
+
+    {/* Mapa Interactivo */}
+    <div className="rounded-3xl overflow-hidden border-2 border-gray-800 h-[350px] shadow-2xl relative">
+      <LocationPicker 
+        // Le pasamos los datos que ya traemos de Google o del perfil
+        initialAddress={formData.address}
+        initialCoords={{
+          lat: formData.latitude || 23.6345, // Fallback a centro de México si no hay nada
+          lng: formData.longitude || -102.5528
+        }}
+        onLocationSelect={(data) => {
+          // Actualizamos el estado cuando el usuario mueva el marcador o cambie la dirección
+          setFormData(prev => ({
+            ...prev,
+            address: data.address,
+            latitude: data.lat,
+            longitude: data.lng,
+            placeId: data.placeId || prev.placeId
+          }));
+        }}
+      />
+    </div>
+
+    {/* Info Ayuda */}
+    <div className="flex items-center gap-2 px-2">
+      <Info className="w-4 h-4 text-blue-400" />
+      <p className="text-[11px] text-gray-500 italic">
+        Puedes arrastrar el marcador rojo para ajustar la posición exacta de tu entrada.
+      </p>
+    </div>
+
+    {/* Botones de Acción Final */}
+    <div className="flex flex-col gap-3 pt-4">
+      <Button
+        type="button"
+        disabled={!isStep3Valid || isSaving}
+        onClick={async () => {
+          // 1. Marcamos visualmente el paso como completado
+          setCompletedSteps(prev => new Set(prev).add(3));
+          // 2. Llamamos a la función de guardado del hook useProfileOnboarding
+          await saveProfile(formData);
+        }}
+        className={cn(
+          "w-full h-14 rounded-2xl font-black text-lg transition-all shadow-xl flex items-center justify-center gap-3",
+          isStep3Valid 
+            ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white" 
+            : "bg-gray-800 text-gray-500 cursor-not-allowed"
+        )}
+      >
+        {isSaving ? (
+          <>
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Guardando Perfil...</span>
+          </>
+        ) : (
+          <>
+            <span>Finalizar Configuración</span>
+            <Sparkles className="w-6 h-6" />
+          </>
+        )}
+      </Button>
+      
+      <button 
+        type="button"
+        disabled={isSaving}
+        onClick={() => setActiveStep(2)}
+        className="text-gray-500 text-xs font-bold hover:text-gray-300 transition-colors py-2"
+      >
+        ← Volver a Especialidad
+      </button>
+    </div>
+  </motion.div>
+)}
                   
                 </AnimatePresence>
 
