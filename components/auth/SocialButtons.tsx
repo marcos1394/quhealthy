@@ -27,39 +27,29 @@ export default function SocialAuthButtons({
   // 1. Instanciamos nuestro hook de autenticación
   const { loginWithGoogle } = useAuth();
 
-  // 2. Configuración de Google Login
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setLoadingProvider('google');
-        
-        // 3. ENVIAMOS EL TOKEN AL BACKEND
-        // No pedimos user info aquí. El backend lo hará de forma segura.
-        await loginWithGoogle(tokenResponse.access_token, role as UserRole);
-        
-        toast.success(`¡Bienvenido! Sesión iniciada con Google.`);
-        
-        if (onSuccess) {
-          onSuccess();
-        }
-        
-      } catch (error: any) {
-        console.error('Google auth error:', error);
-        // El error ya lo maneja useAuth, pero por si acaso:
-        if (!toast.isActive('google-error')) {
-            toast.error(error.message || 'Error al iniciar sesión con Google', { toastId: 'google-error' });
-        }
-      } finally {
-        setLoadingProvider(null);
-      }
-    },
-    onError: () => {
-      toast.error('No se pudo conectar con Google.');
+// En tu componente de Login (ej. LoginPage.tsx)
+
+const googleLogin = useGoogleLogin({
+  // ✅ Pide SOLO identidad básica. Esto elimina el error 403 inmediato.
+  scope: 'openid email profile', 
+  
+  onSuccess: async (tokenResponse) => {
+    try {
+      setLoadingProvider('google');
+      // Enviar token al backend para crear sesión
+      await loginWithGoogle(tokenResponse.access_token, role as UserRole);
+      toast.success(`¡Bienvenido! Sesión iniciada.`);
+      if (onSuccess) onSuccess();
+    } catch (error: any) {
+      toast.error(error.message || 'Error al iniciar sesión');
+    } finally {
       setLoadingProvider(null);
-    },
-    // Opcional: Solicitar scopes adicionales si necesitas calendario, etc.
-     scope: 'https://www.googleapis.com/auth/calendar.events', 
-  });
+    }
+  },
+  onError: () => {
+    toast.error('No se pudo conectar con Google.');
+  }
+});
 
   // Apple Sign In (Placeholder)
   const handleAppleSignIn = async () => {
