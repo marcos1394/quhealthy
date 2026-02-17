@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
       
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; 
       
-      img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.googleusercontent.com https://streetviewpixels-pa.googleapis.com https://www.google.com;
+      img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.googleusercontent.com https://streetviewpixels-pa.googleapis.com https://www.google.com https://storage.googleapis.com;
       
       font-src 'self' data: https://fonts.gstatic.com;
       
