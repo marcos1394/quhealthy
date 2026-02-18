@@ -70,20 +70,30 @@ export const authService = {
     return response.data;
   },
 
-  // ✅ Validar sesión al recargar página (F5)
+  // =================================================================
+  // 🚨 AQUÍ ESTABA EL PROBLEMA (CORREGIDO)
+  // =================================================================
+  
   getSession: async (): Promise<AuthResponse | null> => {
+    // 1. EL GUARDIA: Verificamos si existe un token en el Store antes de llamar.
+    const token = useSessionStore.getState().token;
+    
+    // Si NO hay token (es un visitante), retornamos null inmediatamente.
+    // Esto evita que Axios lance el GET /session y reciba un 403.
+    if (!token) {
+        return null; 
+    }
+
     try {
-      // Axios interceptor inyectará el token automáticamente desde el Store
-      const response = await axiosInstance.get<AuthResponse>(
-        `${BASE_AUTH}/session`
-      );
+      // 2. Si hay token, validamos que siga vivo en el backend
+      const response = await axiosInstance.get<AuthResponse>(`${BASE_AUTH}/session`);
       
-      // ✅ REFRESCA LOS DATOS EN EL STORE
+      // 3. Actualizamos estado global
       useSessionStore.getState().setSession(response.data);
-      
       return response.data;
     } catch (error) {
-      // Si falla (401), el interceptor ya limpió la sesión.
+      // Si falla (token vencido), el interceptor de Axios ya habrá limpiado la sesión.
+      // Aquí solo retornamos null para que el hook sepa que no hay sesión válida.
       return null;
     }
   },
