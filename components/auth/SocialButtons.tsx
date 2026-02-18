@@ -6,15 +6,16 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-toastify';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils'; // Asegúrate de tener esta utilidad o usa classnames
+import { cn } from '@/lib/utils';
 
 // ✅ Importamos nuestro Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
-import { UserRole } from '@/types/auth'; // Usamos el tipo correcto 'PROVIDER' | 'CONSUMER'
+import { UserRole, AuthResponse } from '@/types/auth'; 
 
 interface SocialAuthButtonsProps {
-  role?: UserRole; // Tipado fuerte
-  onSuccess?: () => void;
+  role?: UserRole; // 'PROVIDER' | 'CONSUMER'
+  // ✅ Callback clave: Recibe la respuesta del backend para que el padre (LoginPage) redirija
+  onSuccess?: (response: AuthResponse) => void; 
 }
 
 export default function SocialAuthButtons({ 
@@ -24,32 +25,36 @@ export default function SocialAuthButtons({
   
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   
-  // 1. Instanciamos nuestro hook de autenticación
+  // 1. Instanciamos nuestro hook que ya maneja el Store Global
   const { loginWithGoogle } = useAuth();
 
-  // 2. Configuración de Google Login (React OAuth Google)
+  // 2. Configuración de Google Login
   const googleLogin = useGoogleLogin({
-    // ✅ Pide SOLO identidad básica para evitar errores de permisos
+    // Pedimos solo lo básico para evitar bloqueos de permisos
     scope: 'openid email profile', 
     
     onSuccess: async (tokenResponse) => {
       try {
         setLoadingProvider('google');
         
-        // 🚀 LLAMADA AL HOOK:
-        // El hook se encarga de llamar al servicio y actualizar el Store Global.
-        await loginWithGoogle({ 
+        // A. Llamamos al Backend a través del Hook
+        // El hook se encarga de guardar el token y el usuario en el SessionStore
+        const response = await loginWithGoogle({ 
             token: tokenResponse.access_token, 
-            role: role // Pasamos el rol seleccionado (Provider/Consumer)
+            role: role 
         });
         
         toast.success(`¡Bienvenido! Sesión iniciada.`);
         
-        if (onSuccess) onSuccess();
+        // B. Pasamos la respuesta al componente padre (LoginPage) para que haga la redirección
+        if (onSuccess) {
+            onSuccess(response);
+        }
         
       } catch (error: any) {
-        // El hook useAuth ya lanza un error procesado con el mensaje del backend
-        toast.error(error.message || 'Error al iniciar sesión con Google');
+        // El hook useAuth ya procesa el mensaje de error del backend
+        const msg = error.message || 'Error al iniciar sesión con Google';
+        toast.error(msg);
       } finally {
         setLoadingProvider(null);
       }
@@ -72,7 +77,7 @@ export default function SocialAuthButtons({
     toast.info('Inicio de sesión con Facebook próximamente');
   };
 
-  // --- Configuración Visual ---
+  // --- Configuración Visual de los Botones ---
 
   const socialProviders = [
     {
@@ -99,9 +104,9 @@ export default function SocialAuthButtons({
         </svg>
       ),
       bgColor: 'bg-white hover:bg-gray-50 border-gray-200 text-gray-700',
-      onClick: () => googleLogin(), // ✅ Llama a la función del hook de Google
+      onClick: () => googleLogin(), // ✅ Ejecuta la función del hook de Google
     },
-    // Puedes descomentar estos cuando implementes Apple/Facebook real
+    // Descomentar cuando se implementen
     /*
     {
       id: 'apple',
@@ -131,6 +136,7 @@ export default function SocialAuthButtons({
             className={cn(
               "w-full h-11 relative flex items-center justify-center gap-3 transition-all duration-200 shadow-sm border",
               provider.bgColor,
+              // Estilo disabled
               loadingProvider !== null && loadingProvider !== provider.id ? "opacity-50 cursor-not-allowed" :"",
               "hover:shadow-md"
             )}

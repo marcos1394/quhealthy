@@ -36,6 +36,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthResponse } from "@/types/auth";
 
 
 export default function LoginPage() {
@@ -73,6 +74,33 @@ export default function LoginPage() {
     return isEmailValid && formData.password.length >= 6;
   };
 
+  // ===============================================================
+  // 🧭 LÓGICA DE NAVEGACIÓN CENTRALIZADA
+  // ===============================================================
+  const handleAuthNavigation = (response: AuthResponse) => {
+      const role = response.role; 
+
+      if (role === 'ADMIN') {
+        router.push("/admin/dashboard");
+      } 
+      else if (role === 'PROVIDER') {
+        // Revisamos el status del objeto UserDTO/AuthStatus
+        const isOnboardingComplete = response.status?.onboardingComplete;
+        
+        if (isOnboardingComplete) {
+            router.push("/dashboard");
+        } else {
+            router.push("/onboarding"); 
+        }
+      } 
+      else {
+        // CONSUMER
+        router.push("/patient/discover");
+      }
+      
+      router.refresh();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -85,9 +113,6 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // 1. Ejecución del Login
-      // Si el email NO está verificado, el backend lanzará error (403/401)
-      // y caeremos en el catch de abajo.
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password
@@ -95,32 +120,8 @@ export default function LoginPage() {
 
       toast.success(`¡Bienvenido de nuevo!`);
 
-      // 3. Lógica de Redirección Inteligente
-      const role = response.role; // "PROVIDER" | "CONSUMER" | "ADMIN"
-
-      if (role === 'ADMIN') {
-        router.push("/admin/dashboard");
-      } 
-      else if (role === 'PROVIDER') {
-        // ✅ LÓGICA DE ONBOARDING
-        // Verificamos si el flag onboardingComplete es true o false
-        const isOnboardingComplete = response.status?.onboardingComplete;
-        
-        if (isOnboardingComplete) {
-            // Ya terminó todo, va a su panel de control real
-            router.push("/dashboard");
-        } else {
-            // Falta completar perfil, documentos o plan.
-            // Lo enviamos al "Panel de Onboarding" (Hub)
-            router.push("/onboarding"); 
-        }
-      } 
-      else {
-        // Es CONSUMER (Paciente)
-        router.push("/patient/discover");
-      }
-
-      router.refresh();
+      // ✅ USAMOS LA FUNCIÓN CENTRALIZADA
+      handleAuthNavigation(response);
 
     } catch (err: any) {
       console.error(err);
@@ -329,6 +330,8 @@ export default function LoginPage() {
                 {/* Social Login - SATISFICING */}
                 <SocialAuthButtons 
                   role={userType === "consumer" ? "CONSUMER" : "PROVIDER"} 
+                  // ✅ PASAMOS LA FUNCIÓN DE NAVEGACIÓN AQUÍ
+                  onSuccess={handleAuthNavigation} 
                 />
 
                 <div className="relative my-6">
