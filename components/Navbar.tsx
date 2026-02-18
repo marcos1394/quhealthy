@@ -243,7 +243,12 @@ export const Navbar: React.FC = () => {
         
         {/* ACTIONS */}
         <div className="hidden md:flex items-center gap-3">
-          {isLoading ? (
+          
+          {/* ✅ LÓGICA MEJORADA: 
+             Solo mostramos el esqueleto si está cargando Y ADEMÁS creemos que hay sesión (token existe).
+             Si está cargando pero no hay token, mostramos los botones de invitado directamente.
+          */}
+          {isLoading && useSessionStore.getState().token ? (
              <div className="h-9 w-9 bg-gray-800 rounded-full animate-pulse" />
           ) : isAuthenticated ? (
             <div className="flex items-center gap-4">
@@ -255,6 +260,7 @@ export const Navbar: React.FC = () => {
               <UserMenuDropdown />
             </div>
           ) : (
+            // ESTADO GUEST (Visitante)
             <>
               <Link href="/login">
                 <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/5">

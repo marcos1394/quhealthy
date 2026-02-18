@@ -75,25 +75,24 @@ export const authService = {
   // =================================================================
   
   getSession: async (): Promise<AuthResponse | null> => {
-    // 1. EL GUARDIA: Verificamos si existe un token en el Store antes de llamar.
-    const token = useSessionStore.getState().token;
+    const store = useSessionStore.getState();
+    const token = store.token;
     
-    // Si NO hay token (es un visitante), retornamos null inmediatamente.
-    // Esto evita que Axios lance el GET /session y reciba un 403.
+    // 1. EL GUARDIA CORREGIDO
     if (!token) {
+        // 🚨 AQUÍ ESTABA EL DETALLE:
+        // Si no hay token, debemos apagar el loading manualmente.
+        store.setLoading(false); 
         return null; 
     }
 
     try {
-      // 2. Si hay token, validamos que siga vivo en el backend
       const response = await axiosInstance.get<AuthResponse>(`${BASE_AUTH}/session`);
-      
-      // 3. Actualizamos estado global
-      useSessionStore.getState().setSession(response.data);
+      store.setSession(response.data); // Esto ya pone isLoading: false internamente
       return response.data;
     } catch (error) {
-      // Si falla (token vencido), el interceptor de Axios ya habrá limpiado la sesión.
-      // Aquí solo retornamos null para que el hook sepa que no hay sesión válida.
+      // Si falla, también apagamos el loading
+      store.setLoading(false);
       return null;
     }
   },
