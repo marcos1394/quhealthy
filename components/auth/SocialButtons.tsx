@@ -6,14 +6,14 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-toastify';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'; // Asegúrate de tener esta utilidad o usa classnames
 
-// ✅ Importamos nuestro Hook y Tipos
+// ✅ Importamos nuestro Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
-import { UserRole } from '@/types/auth';
+import { UserRole } from '@/types/auth'; // Usamos el tipo correcto 'PROVIDER' | 'CONSUMER'
 
 interface SocialAuthButtonsProps {
-  role?: 'PROVIDER' | 'CONSUMER';
+  role?: UserRole; // Tipado fuerte
   onSuccess?: () => void;
 }
 
@@ -27,57 +27,53 @@ export default function SocialAuthButtons({
   // 1. Instanciamos nuestro hook de autenticación
   const { loginWithGoogle } = useAuth();
 
-// En tu componente de Login (ej. LoginPage.tsx)
+  // 2. Configuración de Google Login (React OAuth Google)
+  const googleLogin = useGoogleLogin({
+    // ✅ Pide SOLO identidad básica para evitar errores de permisos
+    scope: 'openid email profile', 
+    
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoadingProvider('google');
+        
+        // 🚀 LLAMADA AL HOOK:
+        // El hook se encarga de llamar al servicio y actualizar el Store Global.
+        await loginWithGoogle({ 
+            token: tokenResponse.access_token, 
+            role: role // Pasamos el rol seleccionado (Provider/Consumer)
+        });
+        
+        toast.success(`¡Bienvenido! Sesión iniciada.`);
+        
+        if (onSuccess) onSuccess();
+        
+      } catch (error: any) {
+        // El hook useAuth ya lanza un error procesado con el mensaje del backend
+        toast.error(error.message || 'Error al iniciar sesión con Google');
+      } finally {
+        setLoadingProvider(null);
+      }
+    },
+    onError: () => {
+      toast.error('No se pudo conectar con Google. Verifica tu conexión.');
+      setLoadingProvider(null);
+    }
+  });
 
-const googleLogin = useGoogleLogin({
-  // ✅ Pide SOLO identidad básica. Esto elimina el error 403 inmediato.
-  scope: 'openid email profile', 
+  // --- Placeholders para Apple y Facebook ---
   
-  onSuccess: async (tokenResponse) => {
-    try {
-      setLoadingProvider('google');
-      // Enviar token al backend para crear sesión
-      await loginWithGoogle(tokenResponse.access_token, role as UserRole);
-      toast.success(`¡Bienvenido! Sesión iniciada.`);
-      if (onSuccess) onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || 'Error al iniciar sesión');
-    } finally {
-      setLoadingProvider(null);
-    }
-  },
-  onError: () => {
-    toast.error('No se pudo conectar con Google.');
-  }
-});
-
-  // Apple Sign In (Placeholder)
   const handleAppleSignIn = async () => {
-    setLoadingProvider('apple');
-    try {
-      toast.info('Inicio con Apple próximamente');
-      // Lógica futura aquí
-    } catch (error) {
-      toast.error('Error al iniciar sesión con Apple');
-    } finally {
-      setLoadingProvider(null);
-    }
+    // setLoadingProvider('apple');
+    toast.info('Inicio de sesión con Apple próximamente');
   };
 
-  // Facebook Login (Placeholder)
   const handleFacebookLogin = async () => {
-    setLoadingProvider('facebook');
-    try {
-      toast.info('Inicio con Facebook próximamente');
-      // Lógica futura aquí
-    } catch (error) {
-      toast.error('Error al iniciar sesión con Facebook');
-    } finally {
-      setLoadingProvider(null);
-    }
+    // setLoadingProvider('facebook');
+    toast.info('Inicio de sesión con Facebook próximamente');
   };
 
-  // Configuración visual de los botones
+  // --- Configuración Visual ---
+
   const socialProviders = [
     {
       id: 'google',
@@ -102,86 +98,53 @@ const googleLogin = useGoogleLogin({
           />
         </svg>
       ),
-      // Estilos Google standard
-      bgColor: 'bg-white hover:bg-gray-50',
-      textColor: 'text-gray-700',
-      borderColor: 'border-gray-300',
-      onClick: () => googleLogin(),
+      bgColor: 'bg-white hover:bg-gray-50 border-gray-200 text-gray-700',
+      onClick: () => googleLogin(), // ✅ Llama a la función del hook de Google
     },
+    // Puedes descomentar estos cuando implementes Apple/Facebook real
+    /*
     {
       id: 'apple',
       name: 'Apple',
-      icon: (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-        </svg>
-      ),
-      // Estilos Apple standard
-      bgColor: 'bg-black hover:bg-gray-900',
-      textColor: 'text-white',
-      borderColor: 'border-black',
+      icon: <AppleIcon />, 
+      bgColor: 'bg-black hover:bg-gray-900 text-white border-black',
       onClick: handleAppleSignIn,
     },
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      icon: (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            fill="#1877F2"
-            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-          />
-        </svg>
-      ),
-      // Estilos Facebook standard
-      bgColor: 'bg-[#1877F2] hover:bg-[#1665D8]',
-      textColor: 'text-white',
-      borderColor: 'border-[#1877F2]',
-      onClick: handleFacebookLogin,
-    },
+    */
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3 w-full">
       {socialProviders.map((provider, index) => (
         <motion.div
           key={provider.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
+          className="w-full"
         >
           <Button
             type="button"
-            variant="outline" // Base style
+            variant="outline"
             onClick={provider.onClick}
             disabled={loadingProvider !== null}
             className={cn(
-              "w-full h-12 text-base font-medium relative transition-all duration-200 shadow-sm",
-              // Aplicamos los colores específicos
+              "w-full h-11 relative flex items-center justify-center gap-3 transition-all duration-200 shadow-sm border",
               provider.bgColor,
-              provider.textColor,
-              provider.borderColor,
-              // Estado Disabled/Loading
-              loadingProvider !== null && loadingProvider !== provider.id 
-                ? "opacity-50 cursor-not-allowed" 
-                : "",
-              loadingProvider === provider.id 
-                ? "opacity-90 cursor-wait" 
-                : ""
+              loadingProvider !== null && loadingProvider !== provider.id ? "opacity-50 cursor-not-allowed" :"",
+              "hover:shadow-md"
             )}
           >
             {loadingProvider === provider.id ? (
-              <div className="flex items-center justify-center">
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                <span>Conectando...</span>
-              </div>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Conectando...</span>
+              </>
             ) : (
-              <div className="flex items-center justify-center w-full">
-                <span className="absolute left-4 flex items-center">
-                  {provider.icon}
-                </span>
-                <span>Continuar con {provider.name}</span>
-              </div>
+              <>
+                <span className="absolute left-4">{provider.icon}</span>
+                <span className="text-sm font-medium">Continuar con {provider.name}</span>
+              </>
             )}
           </Button>
         </motion.div>

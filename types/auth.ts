@@ -50,34 +50,48 @@ export interface SocialLoginRequest {
   role: UserRole;
 }
 
+// ================================
+// 👤 USER DTO (NUEVO - ALINEADO CON BACKEND)
+// ================================
+export interface UserDTO {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profileImageUrl?: string; // Puede venir null
+}
+
+// ================================
+// 🚦 ESTADO DE CUENTA
+// ================================
 export interface AuthStatus {
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
   onboardingComplete: boolean;
   hasActivePlan: boolean;
-  emailVerified: boolean;
-  phoneVerified: boolean;
 }
+
+// ================================
+// 🔐 RESPUESTA DE AUTENTICACIÓN
+// ================================
+export interface AuthResponse {
+  token: string;
+  type: string;
+  refreshToken: string | null;
+  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN';
+  message: string;
+  
+  // ✅ ESTOS SON LOS CAMBIOS CLAVE:
+  user: UserDTO;      // Objeto completo del usuario
+  status: AuthStatus; // Estado de la cuenta
+}
+
 
 // ================================
 // RESPUESTAS (RESPONSES)
 // ================================
 
-/**
- * Respuesta exitosa del LOGIN.
- * Contiene el JWT y el estado del usuario.
- */
-export interface AuthResponse {
-  token: string;
-  type: string;
-  refreshToken: string | null;
-  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN'; // 👈 Singular y tipos exactos
-  message: string;
-  status: AuthStatus;
-  // Agregamos los opcionales que a veces mandas
-  id?: number;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-}
+
 
 /**
  * Respuesta al REGISTRAR un CONSUMER (201 Created)
