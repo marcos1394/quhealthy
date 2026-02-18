@@ -88,7 +88,7 @@ export default function LoginPage() {
         const isOnboardingComplete = response.status?.onboardingComplete;
         
         if (isOnboardingComplete) {
-            router.push("/dashboard");
+            router.push("/provider/dashboard");
         } else {
             router.push("/onboarding"); 
         }

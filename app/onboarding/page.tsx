@@ -530,7 +530,7 @@ export default function OnboardingChecklistPage() {
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button
                       size="lg"
-                      onClick={() => router.push('/dashboard')}
+                      onClick={() => router.push('/provider/dashboard')}
                       className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-black px-10 py-6 text-lg shadow-2xl shadow-emerald-500/20 group h-14"
                     >
                       <Sparkles className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
