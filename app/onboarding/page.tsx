@@ -22,14 +22,15 @@ import {
   Star,
   Gift,
   ChevronRight,
-  Info
+  Info,
+  Target
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Confetti from 'react-confetti';
 
 // Hooks
 import { useOnboardingChecklist } from "@/hooks/useOnboardingChecklist";
-import { OnboardingStepUI } from '@/types/onboarding'; // 1. Importar el tipo correcto
+import { OnboardingStepUI } from '@/types/onboarding';
 
 // ShadCN UI
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
+/**
+ * OnboardingChecklistPage Component
+ * 
+ * Textos actualizados según especificaciones:
+ * - Paso 1: Configuración de Perfil
+ * - Paso 2: Validación de Identidad (KYC)
+ * - Paso 3: Validación de Licencia/Cédula Profesional
+ * - Paso 4: Configuración de Marketplace
+ */
 
 // Icon mapping
 const getIconForStep = (id: string) => {
@@ -58,21 +68,17 @@ const StepItem = ({
   onAction,
   isNext 
 }: { 
-  step: OnboardingStepUI; // 2. Actualizar el tipo de la prop
+  step: OnboardingStepUI;
   index: number; 
   onAction: (path?: string) => void;
   isNext: boolean;
 }) => {
   const Icon = getIconForStep(step.id);
   
-  // 3. AJUSTE DE LÓGICA
   const isCompleted = step.isComplete;
-  
-  // Antes: const isLocked = step.actionDisabled && !isCompleted;
-  // Ahora: Usamos directo la propiedad del nuevo tipo
   const isLocked = step.isLocked; 
-  
   const isCurrent = !isCompleted && !isLocked && isNext;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -83,24 +89,24 @@ const StepItem = ({
       className="relative"
     >
       <Card className={cn(
-        "overflow-hidden transition-all duration-300 border-2 group",
-        isCurrent ? "bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/50 shadow-xl shadow-purple-900/20 ring-2 ring-purple-500/20" : "",
-        isCompleted ? "bg-emerald-500/5 border-emerald-500/30" : "",
-        isLocked ? "bg-gray-900/20 border-gray-800 opacity-60" : "",
-        !isCurrent && !isCompleted && !isLocked ? "bg-gray-900/40 border-gray-800 hover:border-gray-700" : ""
+        "overflow-hidden transition-all duration-300 border-2 group hover:shadow-2xl",
+        isCurrent ? "bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/50 shadow-2xl shadow-purple-900/20 ring-2 ring-purple-500/20" : "",
+        isCompleted ? "bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/30 shadow-lg shadow-emerald-900/10" : "",
+        isLocked ? "bg-gray-900/30 border-gray-800 opacity-60 cursor-not-allowed" : "",
+        !isCurrent && !isCompleted && !isLocked ? "bg-gradient-to-br from-gray-900/50 to-gray-900/30 border-gray-800 hover:border-gray-700" : ""
       )}>
         <CardContent className="p-0">
-          <div className="flex items-start gap-4 p-6">
+          <div className="flex items-start gap-6 p-6 md:p-8">
             
             {/* Step Number & Icon */}
             <div className="relative flex-shrink-0">
               <motion.div 
                 className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-300",
-                  isCompleted ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/30" : "",
-                  isCurrent ? "bg-gradient-to-br from-purple-600 to-pink-600 border-purple-500 text-white shadow-lg shadow-purple-500/30" : "",
-                  isLocked ? "bg-gray-800 border-gray-700 text-gray-600" : "",
-                  !isCurrent && !isCompleted && !isLocked ? "bg-gray-800 border-gray-700 text-purple-400" : ""
+                  "w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 shadow-xl",
+                  isCompleted ? "bg-gradient-to-br from-emerald-500 to-emerald-600 border-emerald-400 text-white shadow-emerald-500/40" : "",
+                  isCurrent ? "bg-gradient-to-br from-purple-600 to-pink-600 border-purple-400 text-white shadow-purple-500/40" : "",
+                  isLocked ? "bg-gray-800 border-gray-700 text-gray-600 shadow-none" : "",
+                  !isCurrent && !isCompleted && !isLocked ? "bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 text-gray-400 hover:border-gray-600" : ""
                 )}
                 animate={isCurrent ? { 
                   scale: [1, 1.05, 1],
@@ -113,64 +119,77 @@ const StepItem = ({
                 }}
               >
                 {isCompleted ? (
-                  <CheckCircle2 className="w-7 h-7" />
+                  <CheckCircle2 className="w-8 h-8" />
                 ) : isLocked ? (
-                  <Lock className="w-6 h-6" />
+                  <Lock className="w-7 h-7" />
                 ) : (
-                  <Icon className="w-6 h-6" />
+                  <Icon className="w-7 h-7" />
                 )}
               </motion.div>
               
               {/* Step Number Badge */}
-              <div className={cn(
-                "absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black border-2",
-                isCompleted ? "bg-emerald-500 border-emerald-400 text-white" : "",
-                isCurrent ? "bg-purple-600 border-purple-500 text-white"  : "",
-                isLocked ? "bg-gray-700 border-gray-600 text-gray-400" : "",
-                !isCurrent && !isCompleted && !isLocked ? "bg-gray-800 border-gray-700 text-gray-400" : ""
-              )}>
+              <motion.div 
+                className={cn(
+                  "absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black border-2 shadow-lg",
+                  isCompleted ? "bg-emerald-500 border-emerald-400 text-white shadow-emerald-500/30" : "",
+                  isCurrent ? "bg-purple-600 border-purple-500 text-white shadow-purple-500/30" : "",
+                  isLocked ? "bg-gray-700 border-gray-600 text-gray-400" : "",
+                  !isCurrent && !isCompleted && !isLocked ? "bg-gray-800 border-gray-700 text-gray-400" : ""
+                )}
+                animate={isCurrent ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 1.5, repeat: isCurrent ? Infinity : 0, repeatDelay: 1 }}
+              >
                 {index + 1}
-              </div>
+              </motion.div>
             </div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className={cn(
-                    "font-black text-lg",
-                    isCompleted ? "text-emerald-400" : "",
-                    isCurrent ? "text-white" : "",
-                    isLocked ? "text-gray-500" : "",
-                    !isCurrent && !isCompleted && !isLocked ? "text-gray-300" : ""
-                  )}>
-                    {step.title}
-                  </h3>
-                  
-                  {isCurrent && (
-                    <Badge className="bg-purple-600 hover:bg-purple-700 text-white border-0 animate-pulse">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Actual
-                    </Badge>
-                  )}
-                  
-                  {/* Al ser onboarding, todo es requerido por defecto si no está completo */}
-                  {!isCompleted && (
-                    <Badge variant="outline" className="border-orange-500/30 text-orange-400 bg-orange-500/10">
-                      Requerido
-                    </Badge>
-                  )}
-                  
-                  {isCompleted && (
-                    <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
-                      Completado
-                    </Badge>
-                  )}
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className={cn(
+                      "font-black text-xl",
+                      isCompleted ? "text-emerald-400" : "",
+                      isCurrent ? "text-white" : "",
+                      isLocked ? "text-gray-500" : "",
+                      !isCurrent && !isCompleted && !isLocked ? "text-gray-300" : ""
+                    )}>
+                      {step.title}
+                    </h3>
+                    
+                    {isCurrent && (
+                      <Badge className="bg-purple-600 hover:bg-purple-700 text-white border-0 shadow-lg animate-pulse">
+                        <Zap className="w-3 h-3 mr-1" />
+                        En Progreso
+                      </Badge>
+                    )}
+                    
+                    {!isCompleted && !isLocked && !isCurrent && (
+                      <Badge variant="outline" className="border-orange-500/40 text-orange-400 bg-orange-500/10">
+                        <Target className="w-3 h-3 mr-1" />
+                        Requerido
+                      </Badge>
+                    )}
+                    
+                    {isCompleted && (
+                      <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-md">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Completado
+                      </Badge>
+                    )}
+
+                    {isLocked && (
+                      <Badge variant="outline" className="border-gray-700 text-gray-500 bg-gray-800/50">
+                        <Lock className="w-3 h-3 mr-1" />
+                        Bloqueado
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-400 leading-relaxed mb-3">
+              <p className="text-sm text-gray-400 leading-relaxed mb-4">
                 {step.description}
               </p>
 
@@ -197,9 +216,9 @@ const StepItem = ({
 
                 {/* Action Button */}
                 {isCompleted ? (
-                  <div className="flex items-center gap-2 text-emerald-500">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-sm font-semibold">Completado</span>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm font-semibold text-emerald-400">Completado</span>
                   </div>
                 ) : (
                   <Button
@@ -207,10 +226,12 @@ const StepItem = ({
                     onClick={() => onAction(step.actionPath)}
                     size="sm"
                     className={cn(
-                      "group/btn",
+                      "group/btn shadow-lg h-10 px-5",
                       isCurrent 
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg" 
-                        : "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-purple-500/30" 
+                        : isLocked
+                        ? "bg-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                        : "bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 hover:border-gray-600"
                     )}
                   >
                     {isLocked ? (
@@ -220,7 +241,7 @@ const StepItem = ({
                       </>
                     ) : (
                       <>
-                        Continuar
+                        {isCurrent ? 'Continuar' : 'Comenzar'}
                         <ChevronRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
                       </>
                     )}
@@ -242,9 +263,9 @@ export default function OnboardingChecklistPage() {
   const [hasShownConfetti, setHasShownConfetti] = useState(false);
   
   // Hook
-const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist();
+  const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist();
 
-// 2. Cálculos de UI: Derivamos los contadores para el Card
+  // Calculate UI data
   const { completedSteps, totalRequiredSteps, nextStep, progressPercentage } = useMemo(() => {
     if (!steps || steps.length === 0) {
       return { 
@@ -255,25 +276,20 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
       };
     }
 
-    // Calculamos completados
     const completed = steps.filter(step => step.isComplete).length;
     const total = steps.length;
-    
-    // Buscamos el siguiente paso lógico (El primero que no esté completo ni bloqueado)
-    // OJO: Si hay uno REJECTED, ese debería ser el prioritario (depende de tu lógica, pero isLocked lo maneja)
     const next = steps.find(step => !step.isComplete && !step.isLocked);
 
     return {
       completedSteps: completed,
       totalRequiredSteps: total,
       nextStep: next,
-      progressPercentage: percentage // Usamos el porcentaje real que calculó el backend (o hook)
+      progressPercentage: percentage
     };
   }, [steps, percentage]);
 
-// Show confetti on completion
+  // Show confetti on completion
   useEffect(() => {
-    // Usamos 'percentage' directo del hook
     if (percentage === 100 && !hasShownConfetti) {
       setShowConfetti(true);
       setHasShownConfetti(true);
@@ -302,9 +318,9 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
         >
-          <Sparkles className="w-12 h-12 text-purple-500" />
+          <Sparkles className="w-16 h-16 text-purple-500" />
         </motion.div>
-        <p className="text-gray-400 animate-pulse">Sincronizando tu perfil...</p>
+        <p className="text-gray-400 animate-pulse text-lg">Sincronizando tu perfil...</p>
       </div>
     );
   }
@@ -317,13 +333,16 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <Card className="bg-gray-900 border-gray-800 max-w-md w-full">
+          <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 max-w-md w-full shadow-2xl">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-red-500/10 rounded-xl">
-                  <AlertCircle className="w-6 h-6 text-red-400" />
+                  <AlertCircle className="w-7 h-7 text-red-400" />
                 </div>
-                <CardTitle className="text-red-400">Error de Carga</CardTitle>
+                <div>
+                  <CardTitle className="text-red-400 text-xl font-black">Error de Carga</CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">No pudimos cargar tu información</p>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -331,10 +350,10 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
               <Button 
                 onClick={refetch} 
                 variant="outline" 
-                className="w-full border-gray-700 text-white hover:bg-gray-800"
+                className="w-full border-gray-700 text-white hover:bg-gray-800 h-11"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Reintentar
+                Reintentar Carga
               </Button>
             </CardContent>
           </Card>
@@ -369,24 +388,24 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
         />
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10 space-y-6">
+      <div className="max-w-5xl mx-auto relative z-10 space-y-8">
         
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-3"
+          className="text-center space-y-4"
         >
-          <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-semibold text-purple-400">Configuración Inicial</span>
+          <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-6 py-3 mb-2 shadow-lg shadow-purple-500/10">
+            <Sparkles className="w-5 h-5 text-purple-400" />
+            <span className="text-sm font-bold text-purple-400">Configuración Inicial</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
             Bienvenido a QuHealthy
           </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            Completa estos pasos para activar tu cuenta y comenzar a recibir pacientes
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+            Completa estos pasos para activar tu cuenta profesional y comenzar a recibir pacientes
           </p>
         </motion.div>
 
@@ -396,34 +415,32 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-gradient-to-br from-gray-900/90 to-gray-900/50 backdrop-blur-xl border-gray-800 shadow-2xl">
-            <CardHeader className="pb-6 border-b border-gray-800">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-purple-500/10 rounded-xl">
-                    <ClipboardList className="w-6 h-6 text-purple-500" />
+          <Card className="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-gray-900/80 backdrop-blur-xl border-gray-800 shadow-2xl">
+            <CardHeader className="pb-8 border-b border-gray-800/50">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-500/20">
+                    <ClipboardList className="w-7 h-7 text-purple-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl text-white">
-                      Tu Progreso
+                    <CardTitle className="text-2xl text-white font-black">
+                      Tu Progreso de Onboarding
                     </CardTitle>
-                    <p className="text-sm text-gray-400 mt-1">
-                      {/* Usamos las variables calculadas en el useMemo */}
+                    <p className="text-sm text-gray-400 mt-1 font-semibold">
                       {completedSteps} de {totalRequiredSteps} pasos completados
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  {/* Usamos 'percentage' (del hook) o 'progressPercentage' (del useMemo), ambos funcionan */}
                   {progressPercentage === 100 ? (
-                    <div className="flex items-center gap-2 text-emerald-400">
-                      <Trophy className="w-6 h-6" />
-                      <span className="text-2xl font-black">¡Completo!</span>
+                    <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 shadow-lg">
+                      <Trophy className="w-7 h-7 text-emerald-400" />
+                      <span className="text-2xl font-black text-emerald-400">¡Completo!</span>
                     </div>
                   ) : (
                     <div className="text-right">
-                      <span className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      <span className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
                         {progressPercentage}%
                       </span>
                     </div>
@@ -431,39 +448,45 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
                 </div>
               </div>
 
-              <div className="mt-6 space-y-2">
-                <Progress value={progressPercentage} className="h-3" />
+              <div className="mt-8 space-y-3">
+                <Progress value={progressPercentage} className="h-4 shadow-inner" />
                 {nextStep && (
-                  <div className="flex items-center gap-2 text-sm text-purple-400">
-                    <Zap className="w-4 h-4" />
-                    <span>Siguiente: {nextStep.title}</span>
-                  </div>
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/20"
+                  >
+                    <Zap className="w-5 h-5 text-purple-400" />
+                    <span className="text-sm font-semibold text-purple-400">
+                      Siguiente paso: {nextStep.title}
+                    </span>
+                  </motion.div>
                 )}
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4 pt-6">
+            <CardContent className="space-y-6 pt-8">
               <AnimatePresence mode="popLayout">
                 {steps.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-center py-12"
+                    className="text-center py-16"
                   >
-                    <Trophy className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                    <p className="text-lg font-semibold text-white">
+                    <Trophy className="w-20 h-20 text-emerald-400 mx-auto mb-4" />
+                    <p className="text-xl font-bold text-white mb-2">
                       ¡No hay pasos pendientes!
                     </p>
-                    <p className="text-gray-400 mt-2">Todo está listo para comenzar</p>
+                    <p className="text-gray-400">Todo está listo para comenzar tu experiencia</p>
                   </motion.div>
                 ) : (
                   steps.map((step, index) => (
                     <StepItem 
-                      key={step.id} // ✅ Corrección: step.id ahora es un string único
+                      key={step.id}
                       step={step} 
                       index={index} 
-                      onAction={handleAction} // ✅ Corrección: Pasa la función que espera (path: string)
-                      isNext={nextStep ? step.id === nextStep.id : false} // ✅ Corrección: Comparación segura de IDs
+                      onAction={handleAction}
+                      isNext={nextStep ? step.id === nextStep.id : false}
                     />
                   ))
                 )}
@@ -481,46 +504,49 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
               exit={{ opacity: 0, y: -20 }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <Card className="bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border-emerald-500/30 shadow-xl">
-                <CardContent className="p-8 text-center space-y-6">
+              <Card className="bg-gradient-to-br from-emerald-500/10 via-blue-500/10 to-purple-500/10 border-emerald-500/30 shadow-2xl">
+                <CardContent className="p-10 text-center space-y-8">
                   <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
+                    animate={{ 
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 0.6 }}
                   >
-                    <Trophy className="w-20 h-20 text-emerald-400 mx-auto" />
+                    <Trophy className="w-24 h-24 text-emerald-400 mx-auto" />
                   </motion.div>
                   
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-white">
-                      ¡Felicitaciones!
+                  <div className="space-y-3">
+                    <h3 className="text-3xl font-black text-white">
+                      ¡Felicitaciones! 🎉
                     </h3>
-                    <p className="text-gray-300 max-w-md mx-auto">
-                      Has completado todos los pasos requeridos. Ya puedes acceder a tu dashboard y comenzar a recibir pacientes.
+                    <p className="text-gray-300 max-w-lg mx-auto text-lg leading-relaxed">
+                      Has completado todos los pasos requeridos. Tu cuenta está verificada y lista para comenzar a recibir pacientes.
                     </p>
                   </div>
 
                   <Separator className="bg-emerald-500/20" />
 
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button
                       size="lg"
                       onClick={() => router.push('/dashboard')}
-                      className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-bold px-8 shadow-xl group"
+                      className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-black px-10 py-6 text-lg shadow-2xl shadow-emerald-500/20 group h-14"
                     >
-                      <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                      <Sparkles className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
                       Ir a mi Dashboard
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </div>
 
-                  <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-400" />
-                      <span>Cuenta Verificada</span>
+                  <div className="flex items-center justify-center gap-8 text-sm text-gray-400 pt-4">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                      <span className="font-semibold text-yellow-400">Cuenta Verificada</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Gift className="w-4 h-4 text-purple-400" />
-                      <span>Beneficios Activos</span>
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <Gift className="w-5 h-5 text-purple-400" />
+                      <span className="font-semibold text-purple-400">Beneficios Activos</span>
                     </div>
                   </div>
                 </CardContent>
@@ -535,14 +561,16 @@ const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist(
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-blue-500/5 border-blue-500/20">
-            <CardContent className="p-4 flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-300/80">
-                <p className="font-semibold text-blue-400 mb-1">¿Necesitas ayuda?</p>
+          <Card className="bg-blue-500/5 border-blue-500/20 shadow-lg">
+            <CardContent className="p-6 flex items-start gap-4">
+              <div className="p-3 bg-blue-500/10 rounded-xl flex-shrink-0">
+                <Info className="w-6 h-6 text-blue-400" />
+              </div>
+              <div className="text-sm text-blue-300/80 leading-relaxed">
+                <p className="font-bold text-blue-400 mb-2 text-base">¿Necesitas ayuda con el onboarding?</p>
                 <p>
-                  Si tienes dudas sobre algún paso, puedes contactar a nuestro equipo de soporte en{' '}
-                  <a href="mailto:support@quhealthy.com" className="underline hover:text-blue-300">
+                  Si tienes dudas sobre algún paso o necesitas asistencia, nuestro equipo de soporte está disponible para ayudarte. Contáctanos en{' '}
+                  <a href="mailto:support@quhealthy.com" className="underline hover:text-blue-300 font-semibold">
                     support@quhealthy.com
                   </a>
                 </p>
