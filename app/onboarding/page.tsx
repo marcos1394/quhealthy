@@ -90,7 +90,7 @@ const StepItem = ({
     >
       <Card className={cn(
         "overflow-hidden transition-all duration-300 border-2 group hover:shadow-2xl",
-        isCurrent ? "bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/50 shadow-2xl shadow-purple-900/20 ring-2 ring-purple-500/20" : "",
+        isCurrent ? "bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/50 shadow-2xl shadow-purple-900/20 ring-2 ring-purple-500/20" : "bg-gradient-to-br from-gray-900/30 to-gray-900/10 border-gray-800",
         isCompleted ? "bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/30 shadow-lg shadow-emerald-900/10" : "",
         isLocked ? "bg-gray-900/30 border-gray-800 opacity-60 cursor-not-allowed" : "",
         !isCurrent && !isCompleted && !isLocked ? "bg-gradient-to-br from-gray-900/50 to-gray-900/30 border-gray-800 hover:border-gray-700" : ""

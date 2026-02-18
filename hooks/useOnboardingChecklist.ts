@@ -46,7 +46,7 @@ export const useOnboardingChecklist = () => {
       const kycStep: OnboardingStepUI = {
         id: 'kyc',
         title: 'Verificación de Identidad',
-        description: 'Cédula profesional e identificación oficial.',
+        description: 'Identificación oficial y Prueba de Vida',
         status: data.kycStatus,
         statusText: getStatusText(data.kycStatus),
         isComplete: data.kycStatus === 'COMPLETED',
@@ -59,8 +59,8 @@ export const useOnboardingChecklist = () => {
       // 3. Paso Licencia/Consultorio (Bloqueado si KYC no está listo)
       const licenseStep: OnboardingStepUI = {
         id: 'license',
-        title: 'Datos del Consultorio',
-        description: 'Dirección, horarios y permisos sanitarios.',
+        title: 'Validacion de Cédula Profesional o Licencias Sanitarias',
+        description: 'Cédula profesional, licencia sanitaria o permiso de funcionamiento.',
         status: data.licenseStatus,
         statusText: getStatusText(data.licenseStatus),
         isComplete: data.licenseStatus === 'COMPLETED',
