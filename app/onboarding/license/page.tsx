@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { 
   GraduationCap, 
@@ -26,39 +23,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type LicenseStatus = 'pending' | 'processing_ai' | 'in_review' | 'verified' | 'rejected';
+// ✅ IMPORTAMOS NUESTRO HOOK ALINEADO
+import { useLicenseOnboarding } from '@/hooks/useLicenseOnboarding';
+import { toast } from 'react-toastify';
 
 export default function LicensePage() {
   const router = useRouter();
-  const [pageLoading, setPageLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
   
-  const [status, setStatus] = useState<LicenseStatus>('pending');
-  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
-  
+  // 1. Usamos el Hook especializado
+  const { 
+    license, 
+    isLoading: pageLoading, 
+    isUploading, 
+    uploadLicense 
+  } = useLicenseOnboarding();
+
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Cargar estado inicial
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        // Simulamos llamada a API real
-        const { data } = await axios.get('/api/license/status');
-        setStatus(data.status);
-        if (data.status === 'rejected') setRejectionReason(data.rejectionReason);
-      } catch (error) {
-        console.warn("API no disponible, usando estado 'pending' (Demo Mode)");
-        setStatus('pending');
-      } finally {
-        setPageLoading(false);
-      }
-    };
-    fetchStatus();
-  }, []);
-
   // --- HANDLERS ---
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
@@ -80,27 +65,13 @@ export default function LicensePage() {
 
   const handleSubmit = async () => {
     if (!file) return;
-    setIsUploading(true);
-
-    const formData = new FormData();
-    formData.append('license', file);
-
-    try {
-      // Llamada real
-      await axios.post('/api/license/upload', formData);
-      toast.success("Cédula enviada a verificación.");
-      setStatus('in_review'); // Optimistic update
-      
-      setTimeout(() => router.push('/onboarding'), 1500);
-
-    } catch (error: any) {
-      console.error(error);
-      // Fallback Demo
-      toast.info("Modo Demo: Cédula enviada.");
-      setTimeout(() => router.push('/onboarding'), 1500);
-    } finally {
-      setIsUploading(false);
-    }
+    
+    // Llamamos a la función del hook
+    await uploadLicense(file);
+    
+    // Si la subida fue exitosa (el hook actualiza el estado 'license'), 
+    // podemos decidir si redirigir o mostrar éxito aquí.
+    // El hook ya muestra Toasts, así que aquí solo limpiamos si es necesario.
   };
 
   // --- RENDERIZADO CONDICIONAL ---
@@ -113,8 +84,8 @@ export default function LicensePage() {
     );
   }
 
-  // Vista: Verificado
-  if (status === 'verified') {
+  // ✅ VISTA: APROBADO (Usamos el status real del backend)
+  if (license?.status === 'APPROVED') {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-gray-900 border-emerald-500/30 shadow-2xl shadow-emerald-900/10">
@@ -123,10 +94,13 @@ export default function LicensePage() {
               <CheckCircle2 className="w-16 h-16 text-emerald-500" />
             </div>
             <h2 className="text-2xl font-bold mb-2 text-white">¡Cédula Verificada!</h2>
-            <p className="text-gray-400 mb-8">
-              Tu perfil profesional está habilitado y cuenta con la insignia de verificación.
-            </p>
-            <Button onClick={() => router.push('/onboarding')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-6 text-left border border-gray-700">
+                <p className="text-sm text-gray-400">Profesional:</p>
+                <p className="text-white font-medium mb-2">{license.licenseNumber}</p>
+                <p className="text-sm text-gray-400">Carrera:</p>
+                <p className="text-white font-medium">{license.careerName}</p>
+            </div>
+            <Button onClick={() => router.push('/onboarding')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12">
               Continuar
             </Button>
           </CardContent>
@@ -135,8 +109,9 @@ export default function LicensePage() {
     );
   }
 
-  // Vista: En Revisión
-  if (status === 'in_review' || status === 'processing_ai') {
+  // ✅ VISTA: EN REVISIÓN (PENDING)
+  // Si subió el archivo pero la IA no lo aprobó/rechazó instantáneamente (casos raros o manuales)
+  if (license?.status === 'PENDING') {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <Card className="w-full max-w-md bg-gray-900 border-gray-800 text-center">
@@ -146,10 +121,10 @@ export default function LicensePage() {
             </div>
             <h2 className="text-2xl font-bold mb-2 text-white">En Revisión</h2>
             <p className="text-gray-400 mb-6">
-              Estamos validando tu documento. Este proceso suele tomar menos de 24 horas.
+              Estamos validando tu documento manualmente. Te notificaremos cuando esté listo.
             </p>
             <Button variant="outline" onClick={() => router.push('/onboarding')} className="w-full border-gray-700 text-gray-300 hover:bg-gray-800">
-              Volver al Checklist
+              Volver al Inicio
             </Button>
           </CardContent>
         </Card>
@@ -157,7 +132,7 @@ export default function LicensePage() {
     );
   }
 
-  // Vista: Formulario de Carga
+  // ✅ VISTA: FORMULARIO (Default o REJECTED)
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
       
@@ -177,13 +152,13 @@ export default function LicensePage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Volver
         </Button>
 
-        {/* Alerta de Rechazo */}
-        {status === 'rejected' && (
-            <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900 text-red-200">
+        {/* ALERTA DE RECHAZO (Feedback de la IA) */}
+        {license?.status === 'REJECTED' && (
+            <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-900 text-red-200 animate-in fade-in slide-in-from-top-4">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Verificación Rechazada</AlertTitle>
+                <AlertTitle>Verificación No Exitosa</AlertTitle>
                 <AlertDescription>
-                    {rejectionReason || "El documento no era legible. Por favor intenta con una foto más clara."}
+                    {license.rejectionReason || "El documento no es legible. Intenta con una foto más clara y sin reflejos."}
                 </AlertDescription>
             </Alert>
         )}
@@ -201,12 +176,13 @@ export default function LicensePage() {
 
           <CardContent className="space-y-6 pt-6">
             
+            {/* INPUT DE ARCHIVO */}
             <div className="space-y-3">
               <Label className="text-gray-300">Archivo de Imagen</Label>
               
               {preview ? (
-                <div className="relative group h-64 w-full rounded-xl overflow-hidden border-2 border-purple-500/50 shadow-lg">
-                  <img src={preview} alt="Vista previa" className="w-full h-full object-contain bg-black/50"/>
+                <div className="relative group h-64 w-full rounded-xl overflow-hidden border-2 border-purple-500/50 shadow-lg bg-black">
+                  <img src={preview} alt="Vista previa" className="w-full h-full object-contain opacity-90"/>
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="destructive" onClick={removeFile}>
                       <X className="w-4 h-4 mr-2" /> Cambiar Imagen
@@ -216,7 +192,7 @@ export default function LicensePage() {
               ) : (
                 <div 
                   onClick={() => inputRef.current?.click()}
-                  className="h-64 w-full border-2 border-dashed border-gray-700 hover:border-purple-500 hover:bg-purple-500/5 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group"
+                  className="h-64 w-full border-2 border-dashed border-gray-700 hover:border-purple-500 hover:bg-purple-500/5 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group bg-gray-900/50"
                 >
                   <div className="p-4 rounded-full bg-gray-800 group-hover:bg-purple-500/20 transition-colors mb-3">
                     <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-purple-400" />
@@ -234,22 +210,24 @@ export default function LicensePage() {
               />
             </div>
 
+            {/* INFO BOX */}
             <div className="bg-blue-900/10 border border-blue-900/30 rounded-lg p-4 flex gap-3 text-xs text-blue-200">
               <BookOpen className="w-5 h-5 flex-shrink-0 text-blue-400" />
               <p>
-                Validamos tu cédula automáticamente contra el registro oficial para asegurar la calidad de los profesionales.
+                Validamos tu cédula automáticamente contra el registro oficial para asegurar la calidad de los profesionales en QuHealthy.
               </p>
             </div>
 
+            {/* SUBMIT BUTTON */}
             <Button 
-              className="w-full h-12 text-lg font-bold bg-purple-600 hover:bg-purple-700 shadow-lg shadow-purple-900/20"
+              className="w-full h-12 text-lg font-bold bg-purple-600 hover:bg-purple-700 shadow-lg shadow-purple-900/20 transition-all"
               onClick={handleSubmit}
               disabled={isUploading || !file}
             >
               {isUploading ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Verificando...</span>
+                  <span>Analizando con IA...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">

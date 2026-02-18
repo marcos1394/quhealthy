@@ -1,9 +1,18 @@
 import axiosInstance from '@/lib/axios';
-import { CategoryResponse, KycDocumentResponse, OnboardingStatusResponse, ProfileResponse, SubCategoryResponse, TagResponse, UpdateProfileRequest } from '@/types/onboarding';
+import { CategoryResponse, 
+    KycDocumentResponse, 
+    OnboardingStatusResponse, 
+    ProfileResponse, 
+    SubCategoryResponse, 
+    TagResponse, 
+    UpdateProfileRequest,
+    LicenseResponse 
+} from '@/types/onboarding';
 
 const BASE_URL = '/api/onboarding';
 const BASE_PROFILE = '/api/onboarding/profile'; // ✅ Nueva Base URL
 const BASE_CATALOGS = '/api/onboarding/catalogs';
+const BASE_LICENSE = '/api/onboarding/license';
 
 export const onboardingService = {
   /**
@@ -94,5 +103,39 @@ export const onboardingService = {
     // para recuperar el estado al recargar la página.
     const response = await axiosInstance.get<KycDocumentResponse[]>('/api/onboarding/kyc/documents');
     return response.data;
+  },
+
+  // =================================================================
+  // 🎓 CÉDULA PROFESIONAL (NUEVO)
+  // =================================================================
+
+  /**
+   * Sube la cédula para extracción OCR con Gemini.
+   */
+  uploadLicense: async (file: File): Promise<LicenseResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // El backend NO pide ?type=... porque es un endpoint dedicado
+    const response = await axiosInstance.post<LicenseResponse>(
+      `${BASE_LICENSE}/upload`, 
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000 // ⚠️ Damos más tiempo (60s) porque Gemini lee mucho texto en cédulas
+      }
+    );
+    return response.data;
+  },
+
+  /**
+   * Obtiene el estado actual de la licencia.
+   */
+  getLicense: async (): Promise<LicenseResponse> => {
+    const response = await axiosInstance.get<LicenseResponse>(`${BASE_LICENSE}`);
+    return response.data;
   }
+
 };
+
+

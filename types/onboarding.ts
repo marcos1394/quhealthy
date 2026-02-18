@@ -126,3 +126,12 @@ export interface KycDocumentResponse {
   extractedData?: Record<string, any>; // Datos OCR (Nombre, CURP)
   lastUpdated: string;
 }
+
+export interface LicenseResponse {
+  licenseNumber: string;
+  careerName: string;
+  institutionName: string;
+  status: 'APPROVED' | 'REJECTED' | 'PENDING' | 'NOT_UPLOADED';
+  rejectionReason?: string;
+  documentUrl?: string; // URL firmada para previsualizar
+}
