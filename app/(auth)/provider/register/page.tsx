@@ -135,54 +135,39 @@ export default function ProviderSignupPage() {
   // Submit
  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!isFormValid()) {
-      toast.error("Por favor completa todos los campos correctamente.");
-      return;
-    }
+    if (!isFormValid()) return;
 
     setLoading(true); 
 
     try {
       const nameParts = formData.name.trim().split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || '';
-
       const signupData: RegisterProviderRequest = {
-        firstName,
-        lastName,
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(' ') || '',
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         termsAccepted: formData.acceptTerms
       };
 
-      // 1. Capturamos la respuesta del registro (que trae el token y status)
       const res = await registerProvider(signupData);
       
-      toast.success(`¡Bienvenido, ${firstName}!`);
-
-      // 2. Verificamos el estado real del usuario que viene en tu JSON
-      // Accedemos a res.status.onboardingComplete
+      // Si llegamos aquí, el backend ya respondió 201
       if (res && res.status) {
-        if (!res.status.onboardingComplete) {
-          // Si no ha terminado, al onboarding
-          router.push("/onboarding");
-        } else {
-          // Si ya estaba completo (caso raro en registro, pero útil), al dashboard
-          router.push("/provider/dashboard");
-        }
+        toast.success("¡Cuenta creada correctamente!");
+        // Priorizamos la navegación
+        router.push(res.status.onboardingComplete ? "/provider/dashboard" : "/onboarding");
       } else {
-        // Fallback por si la respuesta no trae el status (ej. registro manual con verificación pendiente)
+        // Solo aquí activamos el estado de éxito visual si no hay redirección
         setIsRegistrationSuccess(true);
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
     } catch (err: any) {
+      setLoading(false); // Solo apagamos el loading si hubo un error para que pueda reintentar
       console.error("Error en registro:", err);
       toast.error(err.message || "Error en el registro");
-    } finally {
-      setLoading(false);
     }
+    // Quitamos el finally para que el botón se quede bloqueado mientras cambia de página
   };
 
   return (
