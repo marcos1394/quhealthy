@@ -157,10 +157,14 @@ export default function ProviderSignupPage() {
       };
 
       await registerProvider(signupData);
+
+
       
       toast.success("Cuenta creada. Revisa tu correo.");
-      setIsRegistrationSuccess(true);
-      window.scrollTo(0, 0);
+      // 3. 🔥 LA PIEZA FALNTANTE: Redirigir al Onboarding
+      // Como el registro ya te devuelve el token (según tu JSON),
+      // el middleware o el hook de auth detectará la sesión y permitirá entrar.
+      router.push("/onboarding");
 
     } catch (err: any) {
       console.error(err);
