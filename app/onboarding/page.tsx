@@ -43,11 +43,11 @@ import { cn } from "@/lib/utils";
 /**
  * OnboardingChecklistPage Component
  * 
- * Textos actualizados según especificaciones:
- * - Paso 1: Configuración de Perfil
- * - Paso 2: Validación de Identidad (KYC)
- * - Paso 3: Validación de Licencia/Cédula Profesional
- * - Paso 4: Configuración de Marketplace
+ * LÓGICA INTELIGENTE POR SECTOR:
+ * - Sector SALUD (1): 100% = Profile + KYC + License (3 pasos)
+ * - Sector BELLEZA (2): 100% = Profile + KYC (2 pasos, License opcional)
+ * 
+ * El cálculo del porcentaje solo cuenta pasos OBLIGATORIOS (isRequired)
  */
 
 // Icon mapping
@@ -78,6 +78,7 @@ const StepItem = ({
   const isCompleted = step.isComplete;
   const isLocked = step.isLocked; 
   const isCurrent = !isCompleted && !isLocked && isNext;
+  const isOptional = !step.isRequired; // Nueva propiedad
 
   return (
     <motion.div
@@ -165,7 +166,16 @@ const StepItem = ({
                       </Badge>
                     )}
                     
-                    {!isCompleted && !isLocked && !isCurrent && (
+                    {/* Badge de Opcional */}
+                    {isOptional && !isCompleted && (
+                      <Badge variant="outline" className="border-blue-500/40 text-blue-400 bg-blue-500/10">
+                        <Info className="w-3 h-3 mr-1" />
+                        Opcional
+                      </Badge>
+                    )}
+                    
+                    {/* Badge de Requerido */}
+                    {!isOptional && !isCompleted && !isLocked && !isCurrent && (
                       <Badge variant="outline" className="border-orange-500/40 text-orange-400 bg-orange-500/10">
                         <Target className="w-3 h-3 mr-1" />
                         Requerido
@@ -263,43 +273,49 @@ export default function OnboardingChecklistPage() {
   const [hasShownConfetti, setHasShownConfetti] = useState(false);
   
   // Hook
-  const { steps, percentage, isLoading, error, refetch } = useOnboardingChecklist();
+  const { steps, percentage, isLoading, error, userSector, refetch } = useOnboardingChecklist();
 
   // Calculate UI data
-  const { completedSteps, totalRequiredSteps, nextStep, progressPercentage } = useMemo(() => {
+  const { completedSteps, totalRequiredSteps, nextStep, progressPercentage, canProceedToDashboard } = useMemo(() => {
     if (!steps || steps.length === 0) {
       return { 
         completedSteps: 0, 
         totalRequiredSteps: 0, 
         nextStep: null,
-        progressPercentage: 0
+        progressPercentage: 0,
+        canProceedToDashboard: false
       };
     }
 
-    const completed = steps.filter(step => step.isComplete).length;
-    const total = steps.length;
+    // Solo cuenta pasos OBLIGATORIOS (isRequired)
+    const requiredSteps = steps.filter(step => step.isRequired);
+    const completedRequired = requiredSteps.filter(step => step.isComplete).length;
     const next = steps.find(step => !step.isComplete && !step.isLocked);
 
+    // Can proceed si todos los pasos OBLIGATORIOS están completos
+    const canProceed = requiredSteps.every(step => step.isComplete);
+
     return {
-      completedSteps: completed,
-      totalRequiredSteps: total,
+      completedSteps: completedRequired,
+      totalRequiredSteps: requiredSteps.length,
       nextStep: next,
-      progressPercentage: percentage
+      progressPercentage: percentage,
+      canProceedToDashboard: canProceed
     };
   }, [steps, percentage]);
 
   // Show confetti on completion
   useEffect(() => {
-    if (percentage === 100 && !hasShownConfetti) {
+    if (canProceedToDashboard && !hasShownConfetti) {
       setShowConfetti(true);
       setHasShownConfetti(true);
-      toast.success("🎉 ¡Felicidades! Has completado el onboarding", {
+      toast.success("🎉 ¡Felicidades! Has completado los pasos obligatorios", {
         position: "top-center",
         autoClose: 5000
       });
       setTimeout(() => setShowConfetti(false), 5000);
     }
-  }, [percentage, hasShownConfetti]);
+  }, [canProceedToDashboard, hasShownConfetti]);
 
   // Handle action
   const handleAction = (path?: string) => {
@@ -405,7 +421,7 @@ export default function OnboardingChecklistPage() {
             Bienvenido a QuHealthy
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            Completa estos pasos para activar tu cuenta profesional y comenzar a recibir pacientes
+            Completa estos pasos para activar tu cuenta profesional y comenzar a recibir clientes
           </p>
         </motion.div>
 
@@ -427,13 +443,13 @@ export default function OnboardingChecklistPage() {
                       Tu Progreso de Onboarding
                     </CardTitle>
                     <p className="text-sm text-gray-400 mt-1 font-semibold">
-                      {completedSteps} de {totalRequiredSteps} pasos completados
+                      {completedSteps} de {totalRequiredSteps} pasos obligatorios completados
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
-                  {progressPercentage === 100 ? (
+                  {canProceedToDashboard ? (
                     <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 shadow-lg">
                       <Trophy className="w-7 h-7 text-emerald-400" />
                       <span className="text-2xl font-black text-emerald-400">¡Completo!</span>
@@ -450,7 +466,7 @@ export default function OnboardingChecklistPage() {
 
               <div className="mt-8 space-y-3">
                 <Progress value={progressPercentage} className="h-4 shadow-inner" />
-                {nextStep && (
+                {nextStep && !canProceedToDashboard && (
                   <motion.div 
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -497,7 +513,7 @@ export default function OnboardingChecklistPage() {
 
         {/* Completion CTA */}
         <AnimatePresence>
-          {progressPercentage === 100 && (
+          {canProceedToDashboard && (
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -521,7 +537,7 @@ export default function OnboardingChecklistPage() {
                       ¡Felicitaciones! 🎉
                     </h3>
                     <p className="text-gray-300 max-w-lg mx-auto text-lg leading-relaxed">
-                      Has completado todos los pasos requeridos. Tu cuenta está verificada y lista para comenzar a recibir pacientes.
+                      Has completado todos los pasos obligatorios. Tu cuenta está verificada y lista para comenzar.
                     </p>
                   </div>
 

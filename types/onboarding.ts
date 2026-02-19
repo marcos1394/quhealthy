@@ -11,7 +11,7 @@ export interface OnboardingStatusResponse {
   licenseStatus: OnboardingStepStatus;
   fiscalStatus: OnboardingStepStatus;
   marketplaceStatus: OnboardingStepStatus;
-  
+  parentCategoryId: number; // 1=Salud, 2=Belleza (para lógica de pasos)
   // Mapa de rechazos (clave: módulo, valor: motivo)
   rejectionReasons?: Record<string, string>;
   
@@ -25,7 +25,8 @@ export interface OnboardingStepUI {
   title: string;
   description: string;
   status: OnboardingStepStatus; // Estado real
-  statusText: string;           // Texto amigable ("Completado", "Pendiente")
+  statusText: string;
+  isRequired: boolean;          // Si es obligatorio (para cálculo de porcentaje)
   isComplete: boolean;          // Helper para UI
   isLocked: boolean;            // Si está bloqueado (secuencial)
   actionPath: string;           // Ruta de navegación (/onboarding/profile)
@@ -89,6 +90,7 @@ export interface CategoryResponse {
   name: string;
   slug: string;
   iconUrl?: string;
+  parentCategoryId: number; // 👈 CRÍTICO: Para el filtrado inteligente
   description?: string;
 }
 

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -118,6 +118,10 @@ useEffect(() => {
   }
 }, [initialData]);
 
+
+// Estado local para las subcategorías que cargaremos dinámicamente
+const [availableSubCategories, setAvailableSubCategories] = useState<any[]>([]);
+
   // ✅ 4. Validaciones (Ajustadas a los nuevos campos)
   const isStep1Valid = formData.businessName.length >= 3 && 
                        formData.bio.length >= 20 &&
@@ -179,6 +183,12 @@ useEffect(() => {
       color: "blue"
     }
   ];
+
+  // 🧠 Categorías filtradas por el sector elegido (Paso 0/Paso 1)
+const filteredCategories = useMemo(() => {
+  return categories.filter(cat => cat.parentCategoryId === formData.parentCategoryId);
+}, [categories, formData.parentCategoryId]);
+
 
   // Handlers
 // ✅ 5. Handlers de Inputs
@@ -268,6 +278,32 @@ const selectPlace = async (prediction: any) => {
   } catch (error) {
     console.error("Error al obtener detalles:", error);
     toast.error("No se pudo sincronizar la información detallada");
+  }
+};
+
+const handleCategoryChange = async (categoryId: string) => {
+  const catId = Number(categoryId);
+  
+  // 1. Actualizamos el estado
+  setFormData(prev => ({ 
+    ...prev, 
+    categoryId: catId, 
+    subCategoryId: 0 // Reset de subcategoría al cambiar categoría
+  }));
+
+  // 2. Cargamos subcategorías desde el servicio
+  try {
+    const subs = await getSubCategories(catId);
+    setAvailableSubCategories(subs);
+
+    // 💡 UX Pro: Si solo hay una subcategoría (como las "General" que creamos), 
+    // la seleccionamos automáticamente.
+    if (subs.length === 1) {
+      setFormData(prev => ({ ...prev, subCategoryId: subs[0].id }));
+    }
+  } catch (err) {
+    console.error("Error al cargar subcategorías:", err);
+    setAvailableSubCategories([]);
   }
 };
   
@@ -708,7 +744,7 @@ const selectPlace = async (prediction: any) => {
     <div className="bg-gray-900/40 backdrop-blur-sm p-1 rounded-3xl border border-gray-800">
       <CategorySelector
         tags={tags} // Pasamos los tags cargados desde la DB (los nuevos que insertamos)
-        categories={categories}
+        categories={filteredCategories}
         onGetSubCategories={getSubCategories}
         selectedCategoryId={formData.categoryId}
         selectedSubCategoryId={formData.subCategoryId}
