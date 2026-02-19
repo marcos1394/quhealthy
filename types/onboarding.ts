@@ -33,35 +33,36 @@ export interface OnboardingStepUI {
 }
 
 export interface UpdateProfileRequest {
+  // Identidad e Industria
   businessName: string;
+  parentCategoryId: number | null; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
   bio: string;
   
-  // Opcional en Java ahora, opcional aquí también
+  // Imagen (Opcional)
   profileImageUrl?: string | null; 
 
-  // Ubicación
+  // Ubicación (Google Places)
   address: string;
   latitude: number;
   longitude: number;
   placeId?: string | null;
 
   // Contacto
-  websiteUrl?: string | null;
-  contactPhone?: string; // Java lo permite nulo, pero mejor enviarlo si lo tenemos
   contactEmail: string;
+  contactPhone?: string; 
+  websiteUrl?: string | null;
 
-  // Categoría
-  categoryId: number;
-  subCategoryId: number;
-  
-  // ✅ Agregamos Tags para que coincida con Java
-  tagIds: number[]; 
+  // Especialización (Componente CategorySelector)
+  categoryId: number;    // Especialidad (Ej: Dentista)
+  subCategoryId: number; // Sub-especialidad (Ej: Ortodoncista)
+  tagIds: number[];      // Tags (Ej: Bilingüe, Urgencias)
 }
 
 // ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)
 export interface ProfileResponse {
   tagIds: never[];
   providerId: number;
+  parentCategoryId: number; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
   businessName: string;
   bio: string;
   profileImageUrl: string;

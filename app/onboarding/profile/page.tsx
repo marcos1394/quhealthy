@@ -23,7 +23,9 @@ import {
   Shield,
   Trophy,
   Check,
-  Navigation
+  Navigation,
+  Stethoscope,
+  Scissors
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -68,18 +70,19 @@ const {
 // ✅ 2. Estado alineado con UpdateProfileRequest
 const [formData, setFormData] = useState<UpdateProfileRequest>({
     businessName: '',
+    parentCategoryId: 0, // 🆕 Inicializado en 0 (indica que no ha elegido)
     bio: '',
-    profileImageUrl: '', // Se enviará como null en el hook si está vacío
-    contactPhone: '',
-    contactEmail: '', // ⚠️ Idealmente pre-llenar con el email del usuario auth
-    websiteUrl: '',
+    profileImageUrl: '',
     address: '',
     latitude: 0,
     longitude: 0,
     placeId: '',
+    contactEmail: '', // El hook de carga se encargará de pre-llenarlo
+    contactPhone: '',
+    websiteUrl: '',
     categoryId: 0,
     subCategoryId: 0,
-    tagIds: [] // ✅ AGREGADO: Lista vacía para los tags
+    tagIds: [] 
 });
 
   const [loading, setLoading] = useState(false);
@@ -94,27 +97,26 @@ const [isPlaceSelected, setIsPlaceSelected] = useState(false);
 const [activeStep, setActiveStep] = useState<number>(1);
 
 
-// ✅ 3. Efecto para cargar datos si es modo edición
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        businessName: initialData.businessName || '',
-        bio: initialData.bio || '',
-        profileImageUrl: initialData.profileImageUrl || '',
-        contactPhone: initialData.contactPhone || '',
-        contactEmail: initialData.contactEmail || '',
-        websiteUrl: initialData.websiteUrl || '',
-        address: initialData.address || '',
-        latitude: initialData.latitude || 0,
-        longitude: initialData.longitude || 0,
-        placeId: initialData.googlePlaceId || '',
-        categoryId: initialData.categoryId || 0,
-        subCategoryId: initialData.subCategoryId || 0,
-        tagIds: initialData.tagIds || [] // Aseguramos que sea un array
-      });
-      // Validar pasos completados visualmente...
-    }
-  }, [initialData]);
+useEffect(() => {
+  if (initialData) {
+    setFormData({
+      businessName: initialData.businessName || '',
+      parentCategoryId: initialData.parentCategoryId || 0, // 🆕 Recuperamos industria
+      bio: initialData.bio || '',
+      profileImageUrl: initialData.profileImageUrl || '',
+      address: initialData.address || '',
+      latitude: initialData.latitude || 0,
+      longitude: initialData.longitude || 0,
+      placeId: initialData.googlePlaceId || '',
+      contactEmail: initialData.contactEmail || '',
+      contactPhone: initialData.contactPhone || '',
+      websiteUrl: initialData.websiteUrl || '',
+      categoryId: initialData.categoryId || 0,
+      subCategoryId: initialData.subCategoryId || 0,
+      tagIds: initialData.tagIds || []
+    });
+  }
+}, [initialData]);
 
   // ✅ 4. Validaciones (Ajustadas a los nuevos campos)
   const isStep1Valid = formData.businessName.length >= 3 && 
@@ -271,23 +273,29 @@ const selectPlace = async (prediction: any) => {
   
   // ✅ 6. Submit Real
  const handleFinish = async () => {
-    // 1. Validación final de seguridad
-    if (!isFormValid) {
-        toast.error("Por favor completa todos los pasos requeridos.");
+    // 1. Validación de integridad de jerarquía
+    if (formData.parentCategoryId === 0 || formData.categoryId === 0) {
+        toast.error("Por favor, selecciona tu sector y tu especialidad principal.");
         return;
     }
 
-    // 2. Llamada al hook (que ya tiene la lógica de sanitización y try/catch)
-    await saveProfile(formData); 
-};
-  // Get next incomplete step
-  const getNextIncompleteStep = () => {
-    if (!isStep1Valid) return 1;
-    if (!isStep2Valid) return 2;
-    if (!isStep3Valid) return 3;
-    return null;
-  };
+    // 2. Validación de textos mínimos
+    if (formData.businessName.length < 3 || formData.bio.length < 20) {
+        toast.error("El nombre del negocio y la biografía son obligatorios.");
+        return;
+    }
 
+    // 3. Disparamos la persistencia
+    // El hook 'saveProfile' enviará el objeto completo al microservicio de Onboarding
+    const success = await saveProfile(formData); 
+
+    if (success) {
+        toast.success("¡Perfil profesional configurado exitosamente!");
+        // Aquí podrías redirigir al Dashboard final
+        router.push("/provider/dashboard");
+    }
+};
+  
   // Loading state
   if (pageLoading) {
     return (
@@ -469,187 +477,199 @@ const selectPlace = async (prediction: any) => {
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: -20 }}
-    className="space-y-6"
+    className="space-y-8"
   >
-    {/* Header del Paso */}
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="p-3 bg-purple-500/10 rounded-xl">
-          <Building2 className="w-6 h-6 text-purple-400" />
-        </div>
-        <div>
-          <h3 className="text-xl font-black text-white">Información Básica</h3>
-          <p className="text-sm text-gray-400">Configura tu identidad profesional</p>
-        </div>
-      </div>
-      {/* El badge verde solo se muestra si el paso ya está en el set de completados */}
-      {completedSteps.has(1) && (
-        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 animate-in fade-in zoom-in">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          Completado
-        </Badge>
-      )}
-    </div>
-
-    <Separator className="bg-gray-800" />
-
-    {/* 1. Buscador de Negocio (Google Places) */}
-    <div className="space-y-3 relative">
-      <Label className="text-gray-300 font-semibold flex items-center gap-2">
-        Nombre del Consultorio o Negocio *
-        <span className="text-[10px] text-gray-500 font-normal">(Auto-completa con Google)</span>
-      </Label>
-      <div className="relative group">
-        <Building2 className={cn(
-          "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
-          focusedField === 'businessName' ? "text-purple-400" : "text-gray-500"
-        )} />
-        <Input 
-          name="businessName"
-          value={formData.businessName}
-          onChange={handleBusinessNameChange} // Usar el handler de Google
-          onFocus={() => setFocusedField('businessName')}
-          onBlur={() => setFocusedField(null)}
-          placeholder="Busca tu consultorio o escribe el nombre..."
-          className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-        />
-        {isSearching && (
-          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-purple-500" />
-        )}
-      </div>
-
-      {/* Lista de Predicciones de Google */}
-      <AnimatePresence>
-        {predictions.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0 }}
-            className="absolute z-50 w-full bg-gray-900 border border-gray-700 rounded-xl mt-1 shadow-2xl max-h-60 overflow-y-auto custom-scrollbar"
-          >
-            {predictions.map((p: any) => (
-              <button 
-                key={p.placeId} 
-                onClick={() => selectPlace(p)}
-                type="button"
-                className="w-full p-3 text-left hover:bg-purple-500/10 border-b border-gray-800 last:border-0 flex items-start gap-3 transition-colors group"
-              >
-                <MapPin className="w-4 h-4 text-gray-500 group-hover:text-purple-400 mt-1" />
-                <div>
-                  <p className="text-sm font-bold text-white">{p.structuredFormatting.mainText}</p>
-                  <p className="text-[10px] text-gray-500">{p.structuredFormatting.secondaryText}</p>
-                </div>
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-
-    {/* Previsualización de la Información Importada */}
-{selectedPlaceInfo && (
-  <motion.div 
-    initial={{ opacity: 0, y: 10 }} 
-    animate={{ opacity: 1, y: 0 }}
-    className="bg-gray-900/80 border border-purple-500/30 rounded-3xl overflow-hidden shadow-2xl"
-  >
-    <div className="p-6 space-y-4">
-      {/* Badge de Fuente */}
-      <div className="flex justify-between items-start">
-        <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px]">
-          DATOS VINCULADOS DE GOOGLE BUSINESS
-        </Badge>
-        <div className="flex items-center gap-1 text-yellow-500">
-          <Star className="w-4 h-4 fill-yellow-500" />
-          <span className="font-bold text-sm">{selectedPlaceInfo.rating}</span>
-          <span className="text-gray-500 text-xs">({selectedPlaceInfo.userRatingsTotal} reseñas)</span>
-        </div>
-      </div>
-
-      <div className="flex gap-4">
-        {/* Placeholder para Foto (Usando la primera de Google si decides implementarlo) */}
-        <div className="w-20 h-20 rounded-2xl bg-gray-800 flex-shrink-0 flex items-center justify-center border border-gray-700">
-          <Building2 className="w-8 h-8 text-gray-600" />
-        </div>
-        
-        <div className="flex-1 space-y-1">
-          <h4 className="text-white font-bold text-lg leading-tight">{formData.businessName}</h4>
-          <p className="text-gray-400 text-xs flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> {formData.address}
-          </p>
-          
-          {/* Mostrar Sitio Web si existe */}
-          {formData.websiteUrl && (
-            <a 
-              href={formData.websiteUrl} 
-              target="_blank" 
-              className="text-purple-400 text-xs flex items-center gap-1 hover:underline pt-1"
-            >
-              <Zap className="w-3 h-3" /> Visitar sitio web oficial
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* Horarios (Resumen) */}
-      {selectedPlaceInfo.openingHours && (
-        <div className="pt-2 border-t border-gray-800">
-          <p className="text-[10px] text-gray-500 uppercase font-black mb-2 tracking-widest">
-            Horarios detectados
-          </p>
-          <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-            {selectedPlaceInfo.openingHours.weekdayText?.map((day: string, i: number) => (
-              <Badge key={i} variant="outline" className="whitespace-nowrap bg-gray-950 border-gray-800 text-[9px] text-gray-400">
-                {day.split(': ')[0]}: {day.split(': ')[1]}
-              </Badge>
-            ))}
+    {/* --- SUB-PASO A: SELECCIÓN DE INDUSTRIA --- */}
+    <AnimatePresence mode="wait">
+      {!formData.parentCategoryId ? (
+        <motion.div
+          key="industry-choice"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="space-y-6"
+        >
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-black text-white">¡Bienvenido! Comencemos</h3>
+            <p className="text-gray-400">¿En qué sector se desarrolla tu práctica profesional?</p>
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Opción Salud */}
+            <button
+              onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: 1 }))}
+              className="relative p-8 rounded-3xl border-2 border-gray-800 bg-gray-900/40 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-300 text-left group"
+            >
+              <div className="p-4 bg-purple-500/10 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform">
+                <Stethoscope className="w-8 h-8 text-purple-400" />
+              </div>
+              <p className="text-xl font-bold text-white mb-1">Sector Salud</p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Para médicos, dentistas, psicólogos, terapeutas y clínicas especializadas.
+              </p>
+            </button>
+
+            {/* Opción Belleza */}
+            <button
+              onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: 2 }))}
+              className="relative p-8 rounded-3xl border-2 border-gray-800 bg-gray-900/40 hover:border-pink-500/50 hover:bg-pink-500/5 transition-all duration-300 text-left group"
+            >
+              <div className="p-4 bg-pink-500/10 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform">
+                <Scissors className="w-8 h-8 text-pink-400" />
+              </div>
+              <p className="text-xl font-bold text-white mb-1">Sector Belleza</p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Para salones de belleza, barberías, spas, estética avanzada y bienestar.
+              </p>
+            </button>
+          </div>
+        </motion.div>
+      ) : (
+        /* --- SUB-PASO B: INFORMACIÓN DEL NEGOCIO (Google Places) --- */
+        <motion.div
+          key="business-info"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-6"
+        >
+          {/* Header con botón de regreso al sector */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "p-3 rounded-xl ring-1",
+                formData.parentCategoryId === 1 ? "bg-purple-500/10 ring-purple-500/20" : "bg-pink-500/10 ring-pink-500/20"
+              )}>
+                {formData.parentCategoryId === 1 ? (
+                  <Stethoscope className="w-6 h-6 text-purple-400" />
+                ) : (
+                  <Scissors className="w-6 h-6 text-pink-400" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white">Identidad de tu Negocio</h3>
+                <p className="text-sm text-gray-400">Vinculemos tu perfil con Google para ahorrar tiempo</p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs text-gray-500 hover:text-white"
+              onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: null }))}
+            >
+              Cambiar Sector
+            </Button>
+          </div>
+
+          <Separator className="bg-gray-800" />
+
+          {/* 1. Buscador de Negocio (Google Places) */}
+          <div className="space-y-3 relative">
+            <Label className="text-gray-300 font-semibold flex items-center gap-2 text-sm">
+              Nombre del Consultorio o Negocio *
+              <span className="text-[10px] text-gray-500 font-normal">(Auto-completa con Google)</span>
+            </Label>
+            <div className="relative group">
+              <Building2 className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
+                focusedField === 'businessName' ? "text-purple-400" : "text-gray-500"
+              )} />
+              <Input 
+                name="businessName"
+                value={formData.businessName}
+                onChange={handleBusinessNameChange}
+                onFocus={() => setFocusedField('businessName')}
+                onBlur={() => setFocusedField(null)}
+                placeholder={formData.parentCategoryId === 1 ? "Ej: Clínica Dental Central" : "Ej: Studio de Belleza Luxe"}
+                className="bg-gray-950 border-gray-700 h-12 pl-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-purple-500" />
+              )}
+            </div>
+
+            {/* Lista de Predicciones */}
+            <AnimatePresence>
+              {predictions.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="absolute z-50 w-full bg-gray-900 border border-gray-700 rounded-xl mt-1 shadow-2xl max-h-60 overflow-y-auto custom-scrollbar"
+                >
+                  {predictions.map((p: any) => (
+                    <button 
+                      key={p.placeId} onClick={() => selectPlace(p)} type="button"
+                      className="w-full p-3 text-left hover:bg-purple-500/10 border-b border-gray-800 last:border-0 flex items-start gap-3 transition-colors group"
+                    >
+                      <MapPin className="w-4 h-4 text-gray-500 group-hover:text-purple-400 mt-1" />
+                      <div>
+                        <p className="text-sm font-bold text-white">{p.structuredFormatting.mainText}</p>
+                        <p className="text-[10px] text-gray-500">{p.structuredFormatting.secondaryText}</p>
+                      </div>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Card informativa de Google Business */}
+          {selectedPlaceInfo && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-gray-900/80 border border-purple-500/30 rounded-3xl overflow-hidden shadow-2xl"
+            >
+              <div className="p-6 space-y-4">
+                <div className="flex justify-between items-start">
+                  <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px]">DATOS VINCULADOS DE GOOGLE BUSINESS</Badge>
+                  <div className="flex items-center gap-1 text-yellow-500">
+                    <Star className="w-4 h-4 fill-yellow-500" />
+                    <span className="font-bold text-sm">{selectedPlaceInfo.rating}</span>
+                    <span className="text-gray-500 text-xs">({selectedPlaceInfo.userRatingsTotal})</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gray-800 flex-shrink-0 flex items-center justify-center border border-gray-700">
+                    <Building2 className="w-7 h-7 text-gray-600" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <h4 className="text-white font-bold text-base leading-tight">{formData.businessName}</h4>
+                    <p className="text-gray-400 text-[11px] flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {formData.address}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-purple-500/10 p-3 px-6 flex justify-between items-center">
+                <p className="text-[10px] text-purple-300">Información importada correctamente.</p>
+                <Button variant="ghost" size="sm" className="h-7 text-[10px]" onClick={() => setSelectedPlaceInfo(null)}>Cambiar</Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 3. Biografía Profesional */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-gray-300 font-semibold text-sm">Biografía / Descripción *</Label>
+              <span className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                formData.bio.length >= 20 ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-400"
+              )}>
+                {formData.bio.length} / 20 mín.
+              </span>
+            </div>
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleInputChange}
+              onFocus={() => setFocusedField('bio')}
+              onBlur={() => setFocusedField(null)}
+              placeholder="Describe tu trayectoria, especialidad y enfoque de atención..."
+              className="w-full min-h-[120px] bg-gray-950 border border-gray-700 rounded-2xl p-4 text-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none resize-none"
+            />
+          </div>
+        </motion.div>
       )}
-    </div>
-
-    {/* Footer de la Card informativa */}
-    <div className="bg-purple-500/10 p-3 px-6 flex justify-between items-center">
-      <p className="text-[10px] text-purple-300">
-        Esta información se usará para crear tu <strong>Tienda QuHealthy</strong>.
-      </p>
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="h-7 text-[10px] text-purple-400 hover:text-purple-300"
-        onClick={() => setSelectedPlaceInfo(null)}
-      >
-        Cambiar negocio
-      </Button>
-    </div>
-  </motion.div>
-)}
-
- 
-
-    {/* 3. Biografía Profesional (Mínimo 20 caracteres) */}
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <Label className="text-gray-300 font-semibold">Biografía / Descripción *</Label>
-        <span className={cn(
-          "text-[10px] font-bold px-2 py-0.5 rounded-full",
-          formData.bio.length >= 20 ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-400"
-        )}>
-          {formData.bio.length} / 20 mín.
-        </span>
-      </div>
-      <textarea
-        name="bio"
-        value={formData.bio}
-        onChange={handleInputChange}
-        onFocus={() => setFocusedField('bio')}
-        onBlur={() => setFocusedField(null)}
-        placeholder="Describe tu trayectoria, especialidad y enfoque de atención..."
-        className="w-full min-h-[120px] bg-gray-950 border border-gray-700 rounded-xl p-4 text-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none resize-none"
-      />
-    </div>
-
-    
+    </AnimatePresence>
   </motion.div>
 )}
 
