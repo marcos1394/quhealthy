@@ -292,7 +292,7 @@ const selectPlace = async (prediction: any) => {
     if (success) {
         toast.success("¡Perfil profesional configurado exitosamente!");
         // Aquí podrías redirigir al Dashboard final
-        router.push("/provider/dashboard");
+        router.push("/onboarding");
     }
 };
   

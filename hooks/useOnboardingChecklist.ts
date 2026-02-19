@@ -19,17 +19,15 @@ export const useOnboardingChecklist = () => {
     }
   };
 
-  const fetchChecklist = useCallback(async () => {
+const fetchChecklist = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await onboardingService.getStatus();
-      
-      setPercentage(data.completionPercentage);
 
       // --- TRANSFORMACIÓN DE DATOS (Backend -> UI) ---
       
-      // 1. Paso Perfil (Siempre desbloqueado)
+      // 1. Paso Perfil
       const profileStep: OnboardingStepUI = {
         id: 'profile',
         title: 'Perfil Profesional',
@@ -42,7 +40,7 @@ export const useOnboardingChecklist = () => {
         rejectionReason: data.rejectionReasons?.['PROFILE']
       };
 
-      // 2. Paso Documentación (Bloqueado si Perfil no está listo)
+      // 2. Paso Documentación
       const kycStep: OnboardingStepUI = {
         id: 'kyc',
         title: 'Verificación de Identidad',
@@ -50,16 +48,15 @@ export const useOnboardingChecklist = () => {
         status: data.kycStatus,
         statusText: getStatusText(data.kycStatus),
         isComplete: data.kycStatus === 'COMPLETED',
-        // Se bloquea si el perfil no está al menos "En Progreso" o "Completado"
         isLocked: data.profileStatus === 'PENDING', 
         actionPath: '/onboarding/kyc',
         rejectionReason: data.rejectionReasons?.['KYC']
       };
       
-      // 3. Paso Licencia/Consultorio (Bloqueado si KYC no está listo)
+      // 3. Paso Licencia/Consultorio
       const licenseStep: OnboardingStepUI = {
         id: 'license',
-        title: 'Validacion de Cédula Profesional o Licencias Sanitarias',
+        title: 'Validación de Cédula o Licencias',
         description: 'Cédula profesional, licencia sanitaria o permiso de funcionamiento.',
         status: data.licenseStatus,
         statusText: getStatusText(data.licenseStatus),
@@ -69,11 +66,18 @@ export const useOnboardingChecklist = () => {
         rejectionReason: data.rejectionReasons?.['LICENSE']
       };
 
-      setSteps([profileStep, kycStep, licenseStep]);
+      const generatedSteps = [profileStep, kycStep, licenseStep];
+
+      // 🚀 SOLUCIÓN: Calcular el porcentaje aquí mismo
+      const completedCount = generatedSteps.filter(step => step.isComplete).length;
+      const calculatedPercentage = Math.round((completedCount / generatedSteps.length) * 100);
+
+      // Actualizar los estados
+      setSteps(generatedSteps);
+      setPercentage(calculatedPercentage);
 
     } catch (err: any) {
       console.error("Error onboarding status:", err);
-      // Fallback visual si falla la carga
       setError("No pudimos cargar tu progreso. Intenta recargar.");
     } finally {
       setIsLoading(false);
