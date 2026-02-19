@@ -44,48 +44,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- * ProviderSignupPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR ANSIEDAD
- *    - Multi-step progress visible
- *    - Save progress indicator
- *    - Clear next steps
- *    - Back navigation
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Real-time password validation
- *    - Field-level validation
- *    - Progress percentage
- *    - Success indicators
- * 
- * 3. CREDIBILIDAD
- *    - Social proof stats
- *    - Security badges
- *    - Professional branding
- *    - Trust indicators
- * 
- * 4. PRIMING
- *    - Success examples
- *    - Positive messaging
- *    - Growth stats
- *    - Benefit highlights
- * 
- * 5. MINIMIZAR ERRORES
- *    - Password strength meter
- *    - Confirmation matching
- *    - Format validation
- *    - Clear error messages
- * 
- * 6. SATISFICING
- *    - Social login options
- *    - Quick validation
- *    - Auto-fill support
- *    - Skip optional fields
- */
-
 // Types
 interface PasswordRule {
   regex: RegExp;
@@ -104,18 +62,19 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 const SIGNUP_STEPS = [
   { id: 1, title: 'Crear Cuenta', fields: ['name', 'email', 'password', 'confirmPassword', 'acceptTerms'] }
 ];
+
 export default function ProviderSignupPage() {
   const router = useRouter();
   const { registerProvider, error: apiError } = useAuth();
   
-  // 1. Estados Visuales
+  // Estados Visuales
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // 2. Form State Limpio (Sin phone, sin serviceType)
+  // Form State
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -128,9 +87,8 @@ export default function ProviderSignupPage() {
     passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
 
-  // 3. Progreso simplificado
+  // Progreso
   const calculateProgress = () => {
-    // Solo contamos los campos que existen ahora
     const totalFields = ['name', 'email', 'password', 'confirmPassword', 'acceptTerms'];
     const completedFields = totalFields.filter(field => {
       const value = formData[field as keyof typeof formData];
@@ -141,7 +99,7 @@ export default function ProviderSignupPage() {
 
   const progress = calculateProgress();
 
-  // 4. Handlers
+  // Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -151,7 +109,7 @@ export default function ProviderSignupPage() {
     setFormData(prev => ({ ...prev, acceptTerms: checked }));
   };
 
-  // 5. Validación de Password (Efecto)
+  // Validación de Password
   useEffect(() => {
     setPasswordValidation(
       passwordRulesConfig.map(rule => ({ 
@@ -161,7 +119,7 @@ export default function ProviderSignupPage() {
     );
   }, [formData.password]);
 
-  // 6. Validación del Formulario Completo (Reemplaza a isStepValid)
+  // Validación del Formulario
   const isFormValid = (): boolean => {
     const isNameValid = formData.name.trim().length >= 2;
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
@@ -174,11 +132,10 @@ export default function ProviderSignupPage() {
     return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted;
   };
 
-  // 7. Submit Limpio (Sin lógica de categorías)
+  // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Doble check de seguridad
     if (!isFormValid()) {
       toast.error("Por favor completa todos los campos correctamente.");
       return;
@@ -187,24 +144,20 @@ export default function ProviderSignupPage() {
     setLoading(true); 
 
     try {
-      // Separar nombre (Lógica de presentación)
       const nameParts = formData.name.trim().split(' ');
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(' ') || '';
 
-      // Payload alineado con el Backend (RegisterProviderRequest)
       const signupData: RegisterProviderRequest = {
         firstName,
         lastName,
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         termsAccepted: formData.acceptTerms
-        // Eliminamos: phone, businessName, parentCategoryId
       };
 
       await registerProvider(signupData);
       
-      // Éxito
       toast.success("Cuenta creada. Revisa tu correo.");
       setIsRegistrationSuccess(true);
       window.scrollTo(0, 0);
@@ -217,10 +170,9 @@ export default function ProviderSignupPage() {
     }
   };
 
-  // ... Aquí empieza el return (JSX) ...
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
         
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -242,19 +194,19 @@ export default function ProviderSignupPage() {
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           
-          {/* Left Panel - Benefits - PRIMING */}
+          {/* Left Panel - Benefits - CENTERED */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block lg:col-span-2 space-y-6"
+            className="hidden lg:flex lg:col-span-2 flex-col justify-center space-y-8"
           >
-            <div>
-              <h2 className="text-4xl font-black text-white mb-3">
+            <div className="text-center lg:text-left">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
                 Impulsa tu Práctica Profesional
               </h2>
-              <p className="text-gray-400 text-lg">
+              <p className="text-gray-400 text-lg leading-relaxed">
                 Únete a miles de profesionales que ya confían en QuHealthy
               </p>
             </div>
@@ -274,23 +226,23 @@ export default function ProviderSignupPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 + 0.3 }}
-                    className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-4"
+                    className="bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-all"
                   >
                     <Icon className={cn(
-                      "w-8 h-8 mb-2",
+                      "w-10 h-10 mb-3",
                       stat.color === 'emerald' ? "text-emerald-400" : "",
                       stat.color === 'blue' ? "text-blue-400" : "",
                       stat.color === 'purple' ? "text-purple-400" : "",
                       stat.color === 'yellow' ? "text-yellow-400" : ""
                     )} />
-                    <p className="text-white font-bold">{stat.label}</p>
+                    <p className="text-white font-bold text-sm leading-tight">{stat.label}</p>
                   </motion.div>
                 );
               })}
             </div>
 
             {/* Benefits List */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {[
                 'Agenda online 24/7',
                 'Pagos automáticos seguros',
@@ -303,22 +255,24 @@ export default function ProviderSignupPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 + 0.6 }}
-                  className="flex items-center gap-3 text-gray-300"
+                  className="flex items-center gap-3 text-gray-300 group"
                 >
-                  <div className="p-1 bg-emerald-500/10 rounded-full">
+                  <div className="p-1.5 bg-emerald-500/10 rounded-full group-hover:bg-emerald-500/20 transition-colors">
                     <Check className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <span>{benefit}</span>
+                  <span className="text-base">{benefit}</span>
                 </motion.div>
               ))}
             </div>
 
             {/* Security Badge */}
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3">
-              <Shield className="w-8 h-8 text-blue-400" />
+            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/30 rounded-2xl p-5 flex items-center gap-4">
+              <div className="p-3 bg-blue-500/10 rounded-xl">
+                <Shield className="w-8 h-8 text-blue-400" />
+              </div>
               <div>
-                <p className="text-blue-400 font-bold text-sm">100% Seguro</p>
-                <p className="text-blue-300/60 text-xs">
+                <p className="text-blue-400 font-bold text-base">100% Seguro</p>
+                <p className="text-blue-300/70 text-sm leading-relaxed">
                   Tus datos están encriptados y protegidos
                 </p>
               </div>
@@ -332,41 +286,38 @@ export default function ProviderSignupPage() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-3"
           >
-            <Card className="bg-gray-900/90 backdrop-blur-xl border-gray-800 shadow-2xl overflow-hidden">
+            <Card className="bg-gradient-to-br from-gray-900/95 to-gray-900/80 backdrop-blur-xl border-gray-800 shadow-2xl overflow-hidden">
               
-              {/* Header Simplificado */}
-<div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-900 to-gray-800 relative border-b border-gray-800">
-  {/* Icono Central Neutral (Crecimiento/Profesionalismo) */}
-  <motion.div
-    initial={{ scale: 0.8, opacity: 0 }}
-    animate={{ scale: 1, opacity: 1 }}
-    transition={{ duration: 0.5 }}
-    className="mx-auto w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-xl relative"
-  >
-    {/* Usamos TrendingUp para denotar crecimiento del negocio, o podrías usar UserPlus */}
-    <TrendingUp className="w-10 h-10 text-white" />
-    
-    <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
-  </motion.div>
+              {/* Header */}
+              <div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-900 to-gray-800/50 relative border-b border-gray-800/50">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="mx-auto w-20 h-20 mb-5 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/20 relative"
+                >
+                  <TrendingUp className="w-10 h-10 text-white" />
+                  <Sparkles className="absolute -top-2 -right-2 w-7 h-7 text-yellow-400 fill-yellow-400 animate-pulse" />
+                </motion.div>
 
-  <h1 className="text-3xl font-black text-white mb-2">
-    Únete a QuHealthy
-  </h1>
-  <p className="text-gray-400 text-sm max-w-xs mx-auto">
-    Crea tu cuenta profesional y digitaliza tu práctica hoy mismo.
-  </p>
-</div>
+                <h1 className="text-4xl font-black text-white mb-2">
+                  Únete a QuHealthy
+                </h1>
+                <p className="text-gray-400 text-base max-w-md mx-auto">
+                  Crea tu cuenta profesional y digitaliza tu práctica hoy mismo
+                </p>
+              </div>
 
-              <div className="p-8">
+              <div className="p-8 md:p-10">
                 {/* Social Auth Buttons */}
                 <SocialAuthButtons role="PROVIDER" />
 
-                <div className="relative my-6">
+                <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-800" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-gray-900 text-gray-500">
+                    <span className="px-4 bg-gray-900 text-gray-500 font-medium">
                       O continúa con email
                     </span>
                   </div>
@@ -374,159 +325,161 @@ export default function ProviderSignupPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   
-                <motion.div
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.4 }}
-  className="space-y-5 py-2"
->
-  {/* 1. Nombre */}
-  <div className="space-y-2">
-    <Label htmlFor="name" className="text-gray-300">
-      Nombre Completo
-    </Label>
-    <Input 
-      id="name" 
-      name="name" 
-      placeholder="Ej: Alejandro Magno" 
-      value={formData.name} 
-      onChange={handleInputChange} 
-      className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 transition-all" 
-    />
-  </div>
-  
-  {/* 2. Email */}
-  <div className="space-y-2">
-    <Label htmlFor="email" className="text-gray-300">
-      Correo Electrónico
-    </Label>
-    <Input 
-      id="email" 
-      name="email" 
-      type="email"
-      placeholder="tucorreo@ejemplo.com" 
-      value={formData.email} 
-      onChange={handleInputChange} 
-      className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 transition-all" 
-    />
-  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="space-y-6"
+                  >
+                    {/* Nombre */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-gray-300 font-semibold text-sm">
+                        Nombre Completo *
+                      </Label>
+                      <Input 
+                        id="name" 
+                        name="name" 
+                        placeholder="Ej: Dr. Alejandro Pérez" 
+                        value={formData.name} 
+                        onChange={handleInputChange} 
+                        className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" 
+                      />
+                    </div>
+                    
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-gray-300 font-semibold text-sm">
+                        Correo Electrónico *
+                      </Label>
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email"
+                        placeholder="tu@correo.com" 
+                        value={formData.email} 
+                        onChange={handleInputChange} 
+                        className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" 
+                      />
+                    </div>
 
-  {/* 3. Password */}
-  <div className="space-y-2">
-    <Label htmlFor="password" className="text-gray-300">
-      Contraseña
-    </Label>
-    <div className="relative">
-      <Input 
-        id="password" 
-        name="password" 
-        type={showPassword ? "text" : "password"}
-        value={formData.password} 
-        onChange={handleInputChange} 
-        className="bg-gray-800/50 border-gray-700 h-12 pr-12 focus:border-purple-500 transition-all" 
-      />
-      <button 
-        type="button" 
-        onClick={() => setShowPassword(!showPassword)} 
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-      >
-        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-      </button>
-    </div>
-    
-    {/* Password Rules */}
-    <div className="flex flex-wrap gap-2 mt-2">
-      {passwordValidation.map((rule, idx) => (
-        <span 
-          key={idx} 
-          className={cn(
-            "text-xs flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all duration-300",
-            rule.valid 
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
-              : "bg-gray-800 border-gray-700 text-gray-500"
-          )}
-        >
-          {rule.valid && <Check size={12} />}
-          {rule.message}
-        </span>
-      ))}
-    </div>
-  </div>
+                    {/* Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-gray-300 font-semibold text-sm">
+                        Contraseña *
+                      </Label>
+                      <div className="relative">
+                        <Input 
+                          id="password" 
+                          name="password" 
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={formData.password} 
+                          onChange={handleInputChange} 
+                          className="bg-gray-800/50 border-gray-700 h-12 pr-12 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" 
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPassword(!showPassword)} 
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                      
+                      {/* Password Rules */}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {passwordValidation.map((rule, idx) => (
+                          <span 
+                            key={idx} 
+                            className={cn(
+                              "text-xs flex items-center gap-1.5 px-3 py-2 rounded-full border transition-all duration-300",
+                              rule.valid 
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
+                                : "bg-gray-800 border-gray-700 text-gray-500"
+                            )}
+                          >
+                            {rule.valid && <Check size={12} />}
+                            {rule.message}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
 
-  {/* 4. Confirm Password */}
-  <div className="space-y-2">
-    <Label htmlFor="confirmPassword" className="text-gray-300">
-      Confirmar Contraseña
-    </Label>
-    <div className="relative">
-      <Input 
-        id="confirmPassword" 
-        name="confirmPassword" 
-        type={showConfirmPassword ? "text" : "password"}
-        value={formData.confirmPassword} 
-        onChange={handleInputChange} 
-        className={cn(
-          "bg-gray-800/50 border-gray-700 h-12 pr-12 transition-all",
-          formData.confirmPassword && formData.password !== formData.confirmPassword 
-            ? "border-red-500 focus:border-red-500" 
-            : "focus:border-purple-500"
-        )}
-      />
-      <button 
-        type="button" 
-        onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-      >
-        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-      </button>
-    </div>
-    {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-      <motion.p 
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-xs text-red-400 flex items-center gap-1 mt-1"
-      >
-        <AlertCircle className="w-3 h-3" />
-        Las contraseñas no coinciden
-      </motion.p>
-    )}
-  </div>
+                    {/* Confirm Password */}
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-gray-300 font-semibold text-sm">
+                        Confirmar Contraseña *
+                      </Label>
+                      <div className="relative">
+                        <Input 
+                          id="confirmPassword" 
+                          name="confirmPassword" 
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={formData.confirmPassword} 
+                          onChange={handleInputChange} 
+                          className={cn(
+                            "bg-gray-800/50 border-gray-700 h-12 pr-12 transition-all",
+                            formData.confirmPassword && formData.password !== formData.confirmPassword 
+                              ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20" 
+                              : "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                          )}
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                        >
+                          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <motion.p 
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-xs text-red-400 flex items-center gap-1.5 mt-1"
+                        >
+                          <AlertCircle className="w-3 h-3" />
+                          Las contraseñas no coinciden
+                        </motion.p>
+                      )}
+                    </div>
 
-  {/* 5. Terms */}
-  <div className="flex items-start space-x-3 p-4 bg-purple-900/10 border border-purple-500/20 rounded-xl mt-6 transition-colors hover:border-purple-500/40">
-    <Checkbox 
-      id="terms" 
-      checked={formData.acceptTerms}
-      onCheckedChange={handleCheckboxChange}
-      className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
-    />
-    <div className="grid gap-1 leading-none">
-      <label 
-        htmlFor="terms" 
-        className="text-sm font-semibold text-gray-200 cursor-pointer select-none"
-      >
-        Acepto los términos y condiciones
-      </label>
-      <p className="text-xs text-gray-500 leading-relaxed">
-        Al registrarte, aceptas nuestros{' '}
-        <button
-          type="button"
-          onClick={() => setShowTermsModal(true)}
-          className="text-purple-400 hover:text-purple-300 underline transition-colors"
-        >
-          Términos de Servicio
-        </button>{' '}
-        y{' '}
-        <Link 
-          href="/privacy" 
-          className="text-purple-400 hover:text-purple-300 underline transition-colors"
-        >
-          Política de Privacidad
-        </Link>.
-      </p>
-    </div>
-  </div>
-</motion.div>
+                    {/* Terms */}
+                    <div className="flex items-start space-x-3 p-5 bg-purple-900/10 border border-purple-500/20 rounded-xl transition-colors hover:border-purple-500/30">
+                      <Checkbox 
+                        id="terms" 
+                        checked={formData.acceptTerms}
+                        onCheckedChange={handleCheckboxChange}
+                        className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label 
+                          htmlFor="terms" 
+                          className="text-sm font-semibold text-gray-200 cursor-pointer select-none"
+                        >
+                          Acepto los términos y condiciones
+                        </label>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          Al registrarte, aceptas nuestros{' '}
+                          <button
+                            type="button"
+                            onClick={() => setShowTermsModal(true)}
+                            className="text-purple-400 hover:text-purple-300 underline transition-colors"
+                          >
+                            Términos de Servicio
+                          </button>{' '}
+                          y{' '}
+                          <Link 
+                            href="/privacy" 
+                            className="text-purple-400 hover:text-purple-300 underline transition-colors"
+                          >
+                            Política de Privacidad
+                          </Link>.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
 
                   {/* API Error */}
                   <AnimatePresence>
@@ -544,46 +497,44 @@ export default function ProviderSignupPage() {
                     )}
                   </AnimatePresence>
 
-                  {/* Navigation Buttons */}
-                    {/* Botón de Acción Único */}
-<div className="pt-6">
-  <Button 
-    type="submit" 
-    onClick={handleSubmit} // Aseguramos que dispare el submit
-    disabled={loading || !isFormValid()} 
-    className={cn(
-      "w-full h-14 text-base font-bold rounded-xl shadow-xl transition-all duration-300 transform",
-      isFormValid() 
-        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 hover:scale-[1.01] hover:shadow-purple-500/25" 
-        : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
-    )}
-  >
-    {loading ? (
-      <>
-        <Loader2 className="animate-spin mr-2 w-5 h-5" />
-        Creando tu cuenta...
-      </>
-    ) : (
-      <>
-        <Sparkles className="mr-2 w-5 h-5 text-yellow-300" />
-        Crear Cuenta Profesional
-      </>
-    )}
-  </Button>
-  
-  <p className="text-center text-xs text-gray-500 mt-4">
-    No te pediremos tarjeta de crédito para empezar.
-  </p>
-</div>
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <Button 
+                      type="submit" 
+                      disabled={loading || !isFormValid()} 
+                      className={cn(
+                        "w-full h-14 text-base font-bold rounded-xl shadow-xl transition-all duration-300 transform",
+                        isFormValid() 
+                          ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20" 
+                          : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                      )}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="animate-spin mr-2 w-5 h-5" />
+                          Creando tu cuenta...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 w-5 h-5 text-yellow-300" />
+                          Crear Cuenta Profesional
+                        </>
+                      )}
+                    </Button>
+                    
+                    <p className="text-center text-xs text-gray-500 mt-4">
+                      No te pediremos tarjeta de crédito para empezar.
+                    </p>
+                  </div>
                 </form>
 
                 {/* Login Link */}
-                <div className="mt-6 text-center border-t border-gray-800 pt-6">
+                <div className="mt-8 text-center border-t border-gray-800 pt-6">
                   <p className="text-sm text-gray-400">
                     ¿Ya tienes una cuenta?{' '}
                     <Link 
                       href="/login" 
-                      className="text-purple-400 hover:text-purple-300 font-semibold hover:underline"
+                      className="text-purple-400 hover:text-purple-300 font-semibold hover:underline transition-colors"
                     >
                       Inicia sesión aquí
                     </Link>
