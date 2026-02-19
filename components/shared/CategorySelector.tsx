@@ -136,19 +136,20 @@ export default function CategorySelector({
   const progress = (completionSteps.filter(s => s.completed).length / 3) * 100;
 
   // Loading State - Se activa cuando no hay categorías iniciales o carga el componente
-  if (categories.length === 0 && !selectedCategoryId) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center p-12 bg-gray-900/50 border border-gray-800 rounded-2xl"
-      >
-        <Loader2 className="w-10 h-10 animate-spin text-purple-500 mb-4" />
-        <p className="text-gray-400 font-semibold mb-1">Cargando especialidades...</p>
-        <p className="text-gray-600 text-sm">Preparando catálogo personalizado</p>
-      </motion.div>
-    );
-  }
+ // ✅ Por esto (solo mostramos el loader si NO hay categorías Y no hay error):
+if (categories.length === 0 && !selectedCategoryId && !error) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col items-center justify-center p-12 bg-gray-900/50 border border-gray-800 rounded-2xl"
+    >
+      <Loader2 className="w-10 h-10 animate-spin text-purple-500 mb-4" />
+      <p className="text-gray-400 font-semibold mb-1">Esperando selección de sector...</p>
+      <p className="text-gray-600 text-sm">Elige Salud o Belleza para ver las opciones</p>
+    </motion.div>
+  );
+}
 
   // Error State - Utiliza el error capturado en la lógica
   // Nota: Si 'error' viene de props o estado local
@@ -237,9 +238,10 @@ export default function CategorySelector({
         </div>
         
         <Select 
-          value={selectedCategoryId?.toString()} 
-          onValueChange={(val) => handleCatChange(Number(val))}
-        >
+  value={selectedCategoryId?.toString()} 
+  onValueChange={(val) => handleCatChange(Number(val))}
+  disabled={categories.length === 0} // 👈 Bloqueado si no hay nada que mostrar
+>
           <SelectTrigger className={cn(
             "w-full h-14 text-base transition-all",
             "bg-gray-950 border-gray-700 text-white",

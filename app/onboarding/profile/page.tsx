@@ -184,11 +184,13 @@ const [availableSubCategories, setAvailableSubCategories] = useState<any[]>([]);
     }
   ];
 
-  // 🧠 Categorías filtradas por el sector elegido (Paso 0/Paso 1)
 const filteredCategories = useMemo(() => {
-  return categories.filter(cat => cat.parentCategoryId === formData.parentCategoryId);
+  if (!formData.parentCategoryId) return []; // Si no hay padre, lista vacía
+  
+  return categories.filter(cat => 
+    Number(cat.parentCategoryId) === Number(formData.parentCategoryId)
+  );
 }, [categories, formData.parentCategoryId]);
-
 
   // Handlers
 // ✅ 5. Handlers de Inputs
