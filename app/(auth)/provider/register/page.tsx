@@ -102,32 +102,25 @@ const passwordRulesConfig: Omit<PasswordRule, 'valid'>[] = [
 
 // Steps configuration
 const SIGNUP_STEPS = [
-  { id: 1, title: 'Tipo de Servicio', fields: ['serviceType'] },
-  { id: 2, title: 'Información Básica', fields: ['name', 'email', 'phone'] },
-  { id: 3, title: 'Seguridad', fields: ['password', 'confirmPassword'] },
-  { id: 4, title: 'Confirmación', fields: ['acceptTerms'] }
+  { id: 1, title: 'Crear Cuenta', fields: ['name', 'email', 'password', 'confirmPassword', 'acceptTerms'] }
 ];
-
 export default function ProviderSignupPage() {
   const router = useRouter();
   const { registerProvider, error: apiError } = useAuth();
   
-  
-  const [currentStep, setCurrentStep] = useState(1);
+  // 1. Estados Visuales
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Form state
+  // 2. Form State Limpio (Sin phone, sin serviceType)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    phone: "",
-    serviceType: "health",
     acceptTerms: false,
   });
 
@@ -135,9 +128,10 @@ export default function ProviderSignupPage() {
     passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
 
-  // Calculate progress - FEEDBACK INMEDIATO
+  // 3. Progreso simplificado
   const calculateProgress = () => {
-    const totalFields = ['serviceType', 'name', 'email', 'phone', 'password', 'confirmPassword', 'acceptTerms'];
+    // Solo contamos los campos que existen ahora
+    const totalFields = ['name', 'email', 'password', 'confirmPassword', 'acceptTerms'];
     const completedFields = totalFields.filter(field => {
       const value = formData[field as keyof typeof formData];
       return value !== '' && value !== false;
@@ -147,21 +141,17 @@ export default function ProviderSignupPage() {
 
   const progress = calculateProgress();
 
-  // Handlers
+  // 4. Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleServiceChange = (value: string) => {
-    setFormData(prev => ({ ...prev, serviceType: value }));
   };
 
   const handleCheckboxChange = (checked: boolean) => {
     setFormData(prev => ({ ...prev, acceptTerms: checked }));
   };
 
-  // Password validation
+  // 5. Validación de Password (Efecto)
   useEffect(() => {
     setPasswordValidation(
       passwordRulesConfig.map(rule => ({ 
@@ -171,87 +161,53 @@ export default function ProviderSignupPage() {
     );
   }, [formData.password]);
 
-  // Step validation
-  const isStepValid = (step: number): boolean => {
-    const stepConfig = SIGNUP_STEPS.find(s => s.id === step);
-    if (!stepConfig) return false;
-
-    switch (step) {
-      case 1:
-        return !!formData.serviceType;
-      case 2:
-        return !!(
-          formData.name.trim().length >= 2 &&
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
-          formData.phone.trim().length >= 10
-        );
-      case 3:
-        return !!(
-          passwordValidation.every(rule => rule.valid) &&
-          formData.password === formData.confirmPassword &&
-          formData.confirmPassword.length > 0
-        );
-      case 4:
-        return formData.acceptTerms;
-      default:
-        return false;
-    }
-  };
-
+  // 6. Validación del Formulario Completo (Reemplaza a isStepValid)
   const isFormValid = (): boolean => {
-    return SIGNUP_STEPS.every(step => isStepValid(step.id));
+    const isNameValid = formData.name.trim().length >= 2;
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    const isPasswordValid = 
+      passwordValidation.every(rule => rule.valid) &&
+      formData.password === formData.confirmPassword &&
+      formData.confirmPassword.length > 0;
+    const areTermsAccepted = formData.acceptTerms;
+
+    return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted;
   };
 
-  // Navigation
-  const handleNextStep = () => {
-    if (isStepValid(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, SIGNUP_STEPS.length));
-    } else {
-      toast.error("Por favor completa los campos requeridos");
-    }
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-
+  // 7. Submit Limpio (Sin lógica de categorías)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Doble check de seguridad
     if (!isFormValid()) {
-      toast.error("Por favor completa todos los campos.");
+      toast.error("Por favor completa todos los campos correctamente.");
       return;
     }
 
-    // 2. Estado de carga visual
     setLoading(true); 
 
     try {
-      // Preparación de datos (Igual que tenías)
+      // Separar nombre (Lógica de presentación)
       const nameParts = formData.name.trim().split(' ');
       const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || 'Pendiente';
-      const categoryId = formData.serviceType === 'HEALTH' ? 1 : 2;
-      const defaultBusinessName = `Consultorio de ${firstName}`;
+      const lastName = nameParts.slice(1).join(' ') || '';
 
+      // Payload alineado con el Backend (RegisterProviderRequest)
       const signupData: RegisterProviderRequest = {
         firstName,
         lastName,
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        phone: formData.phone.trim(),
-        businessName: defaultBusinessName, 
-        parentCategoryId: categoryId,
         termsAccepted: formData.acceptTerms
+        // Eliminamos: phone, businessName, parentCategoryId
       };
 
-      // Llamada a la API
       await registerProvider(signupData);
       
-      // 3. ✅ CAMBIO: No redirigimos. Mostramos la vista de éxito.
+      // Éxito
       toast.success("Cuenta creada. Revisa tu correo.");
       setIsRegistrationSuccess(true);
-      window.scrollTo(0, 0); // Subir para que vea el mensaje
+      window.scrollTo(0, 0);
 
     } catch (err: any) {
       console.error(err);
@@ -259,8 +215,9 @@ export default function ProviderSignupPage() {
     } finally {
       setLoading(false);
     }
-};
+  };
 
+  // ... Aquí empieza el return (JSX) ...
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
       <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
@@ -377,75 +334,28 @@ export default function ProviderSignupPage() {
           >
             <Card className="bg-gray-900/90 backdrop-blur-xl border-gray-800 shadow-2xl overflow-hidden">
               
-              {/* Header */}
-              <div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-900 to-gray-800 relative border-b border-gray-800">
-                <motion.div
-                  key={formData.serviceType}
-                  initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
-                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                  className="mx-auto w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-xl relative"
-                >
-                  {formData.serviceType === "health" ? (
-                    <Stethoscope className="w-10 h-10 text-white" />
-                  ) : (
-                    <Scissors className="w-10 h-10 text-white" />
-                  )}
-                  <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
-                </motion.div>
+              {/* Header Simplificado */}
+<div className="p-8 pb-6 text-center bg-gradient-to-br from-gray-900 to-gray-800 relative border-b border-gray-800">
+  {/* Icono Central Neutral (Crecimiento/Profesionalismo) */}
+  <motion.div
+    initial={{ scale: 0.8, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    transition={{ duration: 0.5 }}
+    className="mx-auto w-20 h-20 mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-xl relative"
+  >
+    {/* Usamos TrendingUp para denotar crecimiento del negocio, o podrías usar UserPlus */}
+    <TrendingUp className="w-10 h-10 text-white" />
+    
+    <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
+  </motion.div>
 
-                <h1 className="text-3xl font-black text-white mb-2">
-                  Únete a QuHealthy
-                </h1>
-                <p className="text-gray-400">
-                  Crea tu cuenta profesional en minutos
-                </p>
-
-                {/* Progress Bar */}
-                <div className="mt-6 space-y-2">
-                  <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-gray-500">Progreso</span>
-                    <span className="text-purple-400">{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
-
-                {/* Step Indicators */}
-                <div className="mt-4 flex justify-between">
-                  {SIGNUP_STEPS.map((step, index) => (
-                    <div 
-                      key={step.id}
-                      className="flex items-center"
-                    >
-                      <button
-                        onClick={() => {
-                          if (step.id <= currentStep) {
-                            setCurrentStep(step.id);
-                          }
-                        }}
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                          currentStep === step.id ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-900" : "",
-                          isStepValid(step.id) 
-                            ? "bg-emerald-500 text-white" 
-                            : currentStep > step.id
-                            ? "bg-gray-700 text-gray-400"
-                            : currentStep === step.id
-                            ? "bg-purple-600 text-white"
-                            : "bg-gray-800 text-gray-600"
-                        )}
-                      >
-                        {isStepValid(step.id) ? <Check className="w-4 h-4" /> : step.id}
-                      </button>
-                      {index < SIGNUP_STEPS.length - 1 && (
-                        <div className={cn(
-                          "w-8 h-0.5 mx-1",
-                          isStepValid(step.id) ? "bg-emerald-500" : "bg-gray-800"
-                        )} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+  <h1 className="text-3xl font-black text-white mb-2">
+    Únete a QuHealthy
+  </h1>
+  <p className="text-gray-400 text-sm max-w-xs mx-auto">
+    Crea tu cuenta profesional y digitaliza tu práctica hoy mismo.
+  </p>
+</div>
 
               <div className="p-8">
                 {/* Social Auth Buttons */}
@@ -464,230 +374,159 @@ export default function ProviderSignupPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   
-                  <AnimatePresence mode="wait">
-                    {/* Step 1: Service Type */}
-                    {currentStep === 1 && (
-                      <motion.div
-                        key="step1"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
-                      >
-                        <div>
-                          <Label className="text-gray-300 text-base font-bold mb-3 block">
-                            ¿Cuál es tu especialidad principal?
-                          </Label>
-                          <Tabs 
-                            value={formData.serviceType} 
-                            onValueChange={handleServiceChange} 
-                            className="w-full"
-                          >
-                            <TabsList className="grid w-full grid-cols-2 bg-gray-800 h-14">
-                              <TabsTrigger 
-                                value="health" 
-                                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white h-12 text-base"
-                              >
-                                <Stethoscope className="w-5 h-5 mr-2" /> Salud
-                              </TabsTrigger>
-                              <TabsTrigger 
-                                value="beauty" 
-                                className="data-[state=active]:bg-pink-600 data-[state=active]:text-white h-12 text-base"
-                              >
-                                <Scissors className="w-5 h-5 mr-2" /> Belleza
-                              </TabsTrigger>
-                            </TabsList>
-                          </Tabs>
-                        </div>
-                      </motion.div>
-                    )}
+                <motion.div
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4 }}
+  className="space-y-5 py-2"
+>
+  {/* 1. Nombre */}
+  <div className="space-y-2">
+    <Label htmlFor="name" className="text-gray-300">
+      Nombre Completo
+    </Label>
+    <Input 
+      id="name" 
+      name="name" 
+      placeholder="Ej: Alejandro Magno" 
+      value={formData.name} 
+      onChange={handleInputChange} 
+      className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 transition-all" 
+    />
+  </div>
+  
+  {/* 2. Email */}
+  <div className="space-y-2">
+    <Label htmlFor="email" className="text-gray-300">
+      Correo Electrónico
+    </Label>
+    <Input 
+      id="email" 
+      name="email" 
+      type="email"
+      placeholder="tucorreo@ejemplo.com" 
+      value={formData.email} 
+      onChange={handleInputChange} 
+      className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500 transition-all" 
+    />
+  </div>
 
-                    {/* Step 2: Basic Info */}
-                    {currentStep === 2 && (
-                      <motion.div
-                        key="step2"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
-                      >
-                        <div className="space-y-2">
-                          <Label htmlFor="name" className="text-gray-300">
-                            Nombre Profesional / Clínica
-                          </Label>
-                          <Input 
-                            id="name" 
-                            name="name" 
-                            placeholder="Ej: Dr. Alejandro o Clínica Vital" 
-                            value={formData.name} 
-                            onChange={handleInputChange} 
-                            className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500" 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="text-gray-300">
-                            Correo Profesional
-                          </Label>
-                          <Input 
-                            id="email" 
-                            name="email" 
-                            type="email"
-                            placeholder="contacto@tuclinica.com" 
-                            value={formData.email} 
-                            onChange={handleInputChange} 
-                            className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500" 
-                          />
-                        </div>
+  {/* 3. Password */}
+  <div className="space-y-2">
+    <Label htmlFor="password" className="text-gray-300">
+      Contraseña
+    </Label>
+    <div className="relative">
+      <Input 
+        id="password" 
+        name="password" 
+        type={showPassword ? "text" : "password"}
+        value={formData.password} 
+        onChange={handleInputChange} 
+        className="bg-gray-800/50 border-gray-700 h-12 pr-12 focus:border-purple-500 transition-all" 
+      />
+      <button 
+        type="button" 
+        onClick={() => setShowPassword(!showPassword)} 
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+      >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
+    
+    {/* Password Rules */}
+    <div className="flex flex-wrap gap-2 mt-2">
+      {passwordValidation.map((rule, idx) => (
+        <span 
+          key={idx} 
+          className={cn(
+            "text-xs flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all duration-300",
+            rule.valid 
+              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
+              : "bg-gray-800 border-gray-700 text-gray-500"
+          )}
+        >
+          {rule.valid && <Check size={12} />}
+          {rule.message}
+        </span>
+      ))}
+    </div>
+  </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-gray-300">
-                            Teléfono (WhatsApp)
-                          </Label>
-                          <Input 
-                            id="phone" 
-                            name="phone" 
-                            type="tel"
-                            placeholder="+52 55 1234 5678" 
-                            value={formData.phone} 
-                            onChange={handleInputChange} 
-                            className="bg-gray-800/50 border-gray-700 h-12 focus:border-purple-500" 
-                          />
-                        </div>
-                      </motion.div>
-                    )}
+  {/* 4. Confirm Password */}
+  <div className="space-y-2">
+    <Label htmlFor="confirmPassword" className="text-gray-300">
+      Confirmar Contraseña
+    </Label>
+    <div className="relative">
+      <Input 
+        id="confirmPassword" 
+        name="confirmPassword" 
+        type={showConfirmPassword ? "text" : "password"}
+        value={formData.confirmPassword} 
+        onChange={handleInputChange} 
+        className={cn(
+          "bg-gray-800/50 border-gray-700 h-12 pr-12 transition-all",
+          formData.confirmPassword && formData.password !== formData.confirmPassword 
+            ? "border-red-500 focus:border-red-500" 
+            : "focus:border-purple-500"
+        )}
+      />
+      <button 
+        type="button" 
+        onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+      >
+        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
+    {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+      <motion.p 
+        initial={{ opacity: 0, y: -5 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-xs text-red-400 flex items-center gap-1 mt-1"
+      >
+        <AlertCircle className="w-3 h-3" />
+        Las contraseñas no coinciden
+      </motion.p>
+    )}
+  </div>
 
-                    {/* Step 3: Security */}
-                    {currentStep === 3 && (
-                      <motion.div
-                        key="step3"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
-                      >
-                        <div className="space-y-2">
-                          <Label htmlFor="password" className="text-gray-300">
-                            Contraseña
-                          </Label>
-                          <div className="relative">
-                            <Input 
-                              id="password" 
-                              name="password" 
-                              type={showPassword ? "text" : "password"}
-                              value={formData.password} 
-                              onChange={handleInputChange} 
-                              className="bg-gray-800/50 border-gray-700 h-12 pr-12 focus:border-purple-500" 
-                            />
-                            <button 
-                              type="button" 
-                              onClick={() => setShowPassword(!showPassword)} 
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                            >
-                              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                          </div>
-                          
-                          {/* Password Rules */}
-                          <div className="flex flex-wrap gap-2 mt-3">
-                            {passwordValidation.map((rule, idx) => (
-                              <span 
-                                key={idx} 
-                                className={cn(
-                                  "text-xs flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all",
-                                  rule.valid 
-                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
-                                    : "bg-gray-800 border-gray-700 text-gray-500"
-                                )}
-                              >
-                                {rule.valid && <Check size={12} />}
-                                {rule.message}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="confirmPassword" className="text-gray-300">
-                            Confirmar Contraseña
-                          </Label>
-                          <div className="relative">
-                            <Input 
-                              id="confirmPassword" 
-                              name="confirmPassword" 
-                              type={showConfirmPassword ? "text" : "password"}
-                              value={formData.confirmPassword} 
-                              onChange={handleInputChange} 
-                              className={cn(
-                                "bg-gray-800/50 border-gray-700 h-12 pr-12",
-                                formData.confirmPassword && formData.password !== formData.confirmPassword 
-                                  ? "border-red-500 focus:border-red-500" 
-                                  : "focus:border-purple-500"
-                              )}
-                            />
-                            <button 
-                              type="button" 
-                              onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                            >
-                              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                          </div>
-                          {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                            <p className="text-xs text-red-400 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3" />
-                              Las contraseñas no coinciden
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Step 4: Terms */}
-                    {currentStep === 4 && (
-                      <motion.div
-                        key="step4"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
-                      >
-                        <div className="flex items-start space-x-3 p-5 bg-purple-900/10 border-2 border-purple-500/20 rounded-xl">
-                          <Checkbox 
-                            id="terms" 
-                            checked={formData.acceptTerms}
-                            onCheckedChange={handleCheckboxChange}
-                            className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
-                          />
-                          <div className="grid gap-2 leading-none">
-                            <label 
-                              htmlFor="terms" 
-                              className="text-sm font-semibold text-gray-200 cursor-pointer"
-                            >
-                              Acepto los términos y condiciones
-                            </label>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                              Al registrarte, aceptas nuestros{' '}
-                              <button
-                                type="button"
-                                onClick={() => setShowTermsModal(true)}
-                                className="text-purple-400 hover:text-purple-300 underline"
-                              >
-                                Términos de Servicio
-                              </button>{' '}
-                              y{' '}
-                              <Link 
-                                href="/privacy" 
-                                className="text-purple-400 hover:text-purple-300 underline"
-                              >
-                                Política de Privacidad
-                              </Link>.
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+  {/* 5. Terms */}
+  <div className="flex items-start space-x-3 p-4 bg-purple-900/10 border border-purple-500/20 rounded-xl mt-6 transition-colors hover:border-purple-500/40">
+    <Checkbox 
+      id="terms" 
+      checked={formData.acceptTerms}
+      onCheckedChange={handleCheckboxChange}
+      className="mt-1 data-[state=checked]:bg-purple-600 border-gray-500"
+    />
+    <div className="grid gap-1 leading-none">
+      <label 
+        htmlFor="terms" 
+        className="text-sm font-semibold text-gray-200 cursor-pointer select-none"
+      >
+        Acepto los términos y condiciones
+      </label>
+      <p className="text-xs text-gray-500 leading-relaxed">
+        Al registrarte, aceptas nuestros{' '}
+        <button
+          type="button"
+          onClick={() => setShowTermsModal(true)}
+          className="text-purple-400 hover:text-purple-300 underline transition-colors"
+        >
+          Términos de Servicio
+        </button>{' '}
+        y{' '}
+        <Link 
+          href="/privacy" 
+          className="text-purple-400 hover:text-purple-300 underline transition-colors"
+        >
+          Política de Privacidad
+        </Link>.
+      </p>
+    </div>
+  </div>
+</motion.div>
 
                   {/* API Error */}
                   <AnimatePresence>
@@ -706,49 +545,36 @@ export default function ProviderSignupPage() {
                   </AnimatePresence>
 
                   {/* Navigation Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    {currentStep > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handlePrevStep}
-                        className="flex-1 h-12 border-gray-700 text-gray-300 hover:bg-gray-800"
-                      >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Anterior
-                      </Button>
-                    )}
-                    
-                    {currentStep < SIGNUP_STEPS.length ? (
-                      <Button
-                        type="button"
-                        onClick={handleNextStep}
-                        disabled={!isStepValid(currentStep)}
-                        className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                      >
-                        Siguiente
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    ) : (
-                      <Button 
-                        type="submit" 
-                        disabled={!isFormValid() || loading} 
-                        className="flex-1 h-12 text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-xl"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="animate-spin mr-2" />
-                            Creando cuenta...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="mr-2 w-5 h-5" />
-                            Crear Cuenta Profesional
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </div>
+                    {/* Botón de Acción Único */}
+<div className="pt-6">
+  <Button 
+    type="submit" 
+    onClick={handleSubmit} // Aseguramos que dispare el submit
+    disabled={loading || !isFormValid()} 
+    className={cn(
+      "w-full h-14 text-base font-bold rounded-xl shadow-xl transition-all duration-300 transform",
+      isFormValid() 
+        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 hover:scale-[1.01] hover:shadow-purple-500/25" 
+        : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+    )}
+  >
+    {loading ? (
+      <>
+        <Loader2 className="animate-spin mr-2 w-5 h-5" />
+        Creando tu cuenta...
+      </>
+    ) : (
+      <>
+        <Sparkles className="mr-2 w-5 h-5 text-yellow-300" />
+        Crear Cuenta Profesional
+      </>
+    )}
+  </Button>
+  
+  <p className="text-center text-xs text-gray-500 mt-4">
+    No te pediremos tarjeta de crédito para empezar.
+  </p>
+</div>
                 </form>
 
                 {/* Login Link */}

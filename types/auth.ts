@@ -21,19 +21,15 @@ export interface RegisterConsumerRequest {
 }
 
 export interface RegisterProviderRequest {
-  // Datos divididos
+  // Datos de identidad
   firstName: string;
   lastName: string;
   
-  // Datos de contacto
+  // Credenciales
   email: string;
-  phone: string;
   password: string;
   
-  // Datos de negocio requeridos
-  businessName: string;
-  parentCategoryId: number; // ⚠️ El backend pide ID numérico, no Enum string
-  
+  // Legal
   termsAccepted: boolean;
 }
 // ================================

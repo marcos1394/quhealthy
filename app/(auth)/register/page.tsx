@@ -40,41 +40,6 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { RegisterConsumerRequest } from "@/types/auth";
 
-/**
- * ConsumerSignupPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. SATISFICING
- *    - Social login prioritized
- *    - Minimal required fields
- *    - Quick signup flow
- *    - Auto-fill support
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Real-time validation
- *    - Progress indicator
- *    - Field-level feedback
- *    - Success states
- * 
- * 3. PRIMING
- *    - Benefits highlighted
- *    - Social proof stats
- *    - Trust indicators
- *    - Positive messaging
- * 
- * 4. CREDIBILIDAD
- *    - Security badges
- *    - User testimonials
- *    - Professional design
- *    - Trust signals
- * 
- * 5. MINIMIZAR ERRORES
- *    - Password strength meter
- *    - Email validation
- *    - Match confirmation
- *    - Clear error messages
- */
 
 interface PasswordRule {
   regex: RegExp;
