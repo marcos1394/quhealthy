@@ -132,6 +132,23 @@ export default function ProviderSignupPage() {
     return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted;
   };
 
+  // Nueva función para manejar el éxito de Google/Facebook
+  const handleSocialSuccess = (res: any) => {
+    // Exactamente la misma lógica inteligente que en el handleSubmit
+    if (res && res.status) {
+      if (!res.status.onboardingComplete) {
+        console.log("🚀 Google Auth: Navegando a /onboarding...");
+        router.push("/onboarding");
+      } else {
+        console.log("🚀 Google Auth: Navegando a /provider/dashboard...");
+        router.push("/provider/dashboard");
+      }
+    } else {
+      // Fallback de seguridad
+      router.push("/onboarding");
+    }
+  };
+
   // Submit
  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -310,7 +327,9 @@ export default function ProviderSignupPage() {
 
               <div className="p-8 md:p-10">
                 {/* Social Auth Buttons */}
-                <SocialAuthButtons role="PROVIDER" />
+                <SocialAuthButtons role="PROVIDER"
+                onSuccess={handleSocialSuccess} 
+                />
 
                 <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center">
