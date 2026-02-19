@@ -105,6 +105,11 @@ export const onboardingService = {
     return response.data;
   },
 
+  // Agrega esto dentro de tu objeto onboardingService
+  finalizeOnboarding: async (): Promise<void> => {
+    await axiosInstance.post('/onboarding/finalize');
+  },
+
   // =================================================================
   // 🎓 CÉDULA PROFESIONAL (NUEVO)
   // =================================================================

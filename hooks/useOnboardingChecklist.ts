@@ -20,6 +20,7 @@ export const useOnboardingChecklist = () => {
   const [percentage, setPercentage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const [userSector, setUserSector] = useState<number>(1); // 1=Salud, 2=Belleza
 
   // Helper para textos amigables
@@ -29,6 +30,21 @@ export const useOnboardingChecklist = () => {
       case 'IN_PROGRESS': return 'En Progreso';
       case 'REJECTED': return 'Requiere Cambios';
       default: return 'Pendiente';
+    }
+  };
+
+  // 2. Agrega esta función antes del return
+  const handleFinalize = async () => {
+    setIsFinalizing(true);
+    try {
+      await onboardingService.finalizeOnboarding();
+      return true; // Éxito
+    } catch (err) {
+      console.error("Error al finalizar:", err);
+      toast.error("Hubo un problema al sincronizar tu cuenta.");
+      return false; // Fallo
+    } finally {
+      setIsFinalizing(false);
     }
   };
 
@@ -124,6 +140,8 @@ export const useOnboardingChecklist = () => {
     percentage, 
     isLoading, 
     error, 
+    finalize: handleFinalize, // Exponemos la función de finalización
+    isFinalizing, // Estado de finalización para mostrar loader en el botón
     userSector, // 🆕 Exportamos el sector para uso en otros componentes
     refetch: fetchChecklist 
   };

@@ -273,7 +273,10 @@ export default function OnboardingChecklistPage() {
   const [hasShownConfetti, setHasShownConfetti] = useState(false);
   
   // Hook
-  const { steps, percentage, isLoading, error, userSector, refetch } = useOnboardingChecklist();
+  const { steps, percentage, isLoading, error, userSector, refetch,
+    finalize, // Función para finalizar onboarding
+    isFinalizing // Estado de finalización para mostrar loader
+   } = useOnboardingChecklist();
 
   // Calculate UI data
   const { completedSteps, totalRequiredSteps, nextStep, progressPercentage, canProceedToDashboard } = useMemo(() => {
@@ -323,6 +326,16 @@ export default function OnboardingChecklistPage() {
       router.push(path);
     } else {
       toast.info("Esta acción no tiene una ruta configurada");
+    }
+  };
+
+  const onFinalizeAndProceed = async () => {
+    // Disparamos la sincronización en Java
+    const success = await finalize();
+    
+    // Si la base de datos se actualizó correctamente, lo mandamos al dashboard
+    if (success) {
+      router.push('/provider/dashboard');
     }
   };
 
@@ -544,15 +557,25 @@ export default function OnboardingChecklistPage() {
                   <Separator className="bg-emerald-500/20" />
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button
-                      size="lg"
-                      onClick={() => router.push('/provider/dashboard')}
-                      className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-black px-10 py-6 text-lg shadow-2xl shadow-emerald-500/20 group h-14"
-                    >
-                      <Sparkles className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
-                      Ir a mi Dashboard
-                      <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
+                  <Button
+  size="lg"
+  onClick={onFinalizeAndProceed}
+  disabled={isFinalizing}
+  className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-black px-10 py-6 text-lg shadow-2xl shadow-emerald-500/20 group h-14"
+>
+  {isFinalizing ? (
+    <>
+      <Loader2 className="w-6 h-6 mr-2 animate-spin" />
+      Sincronizando cuenta...
+    </>
+  ) : (
+    <>
+      <Sparkles className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
+      Ir a mi Dashboard
+      <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+    </>
+  )}
+</Button>
                   </div>
 
                   <div className="flex items-center justify-center gap-8 text-sm text-gray-400 pt-4">
