@@ -105,9 +105,9 @@ export const onboardingService = {
     return response.data;
   },
 
-  // Agrega esto dentro de tu objeto onboardingService
-  finalizeOnboarding: async (): Promise<void> => {
-    await axiosInstance.post('/onboarding/finalize');
+ finalizeOnboarding: async (): Promise<void> => {
+    // ✅ Usamos la constante BASE_URL (/api/onboarding)
+    await axiosInstance.post(`${BASE_URL}/finalize`);
   },
 
   // =================================================================
