@@ -133,7 +133,7 @@ export default function ProviderSignupPage() {
   };
 
   // Submit
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!isFormValid()) {
@@ -156,18 +156,29 @@ export default function ProviderSignupPage() {
         termsAccepted: formData.acceptTerms
       };
 
-      await registerProvider(signupData);
-
-
+      // 1. Capturamos la respuesta del registro (que trae el token y status)
+      const res = await registerProvider(signupData);
       
-      toast.success("Cuenta creada. Revisa tu correo.");
-      // 3. 🔥 LA PIEZA FALNTANTE: Redirigir al Onboarding
-      // Como el registro ya te devuelve el token (según tu JSON),
-      // el middleware o el hook de auth detectará la sesión y permitirá entrar.
-      router.push("/onboarding");
+      toast.success(`¡Bienvenido, ${firstName}!`);
+
+      // 2. Verificamos el estado real del usuario que viene en tu JSON
+      // Accedemos a res.status.onboardingComplete
+      if (res && res.status) {
+        if (!res.status.onboardingComplete) {
+          // Si no ha terminado, al onboarding
+          router.push("/onboarding");
+        } else {
+          // Si ya estaba completo (caso raro en registro, pero útil), al dashboard
+          router.push("/provider/dashboard");
+        }
+      } else {
+        // Fallback por si la respuesta no trae el status (ej. registro manual con verificación pendiente)
+        setIsRegistrationSuccess(true);
+        window.scrollTo(0, 0);
+      }
 
     } catch (err: any) {
-      console.error(err);
+      console.error("Error en registro:", err);
       toast.error(err.message || "Error en el registro");
     } finally {
       setLoading(false);

@@ -101,10 +101,33 @@ export interface ConsumerRegistrationResponse {
 /**
  * Respuesta al REGISTRAR un PROVIDER (201 Created)
  */
+/**
+ * Respuesta al REGISTRAR un PROVIDER (201 Created)
+ * Alineada con el flujo de "Auto-Login" y "Baja Fricción"
+ */
 export interface ProviderRegistrationResponse {
   message: string;
-  providerId: number; // o string
-  email: string;
+  token: string;
+  type: string;
+  refreshToken: string | null;
+  role: 'PROVIDER' | 'CONSUMER';
+  
+  // Datos del usuario creado
+  user: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    profileImageUrl: string | null;
+  };
+
+  // 🚩 VITAL: Semáforos de estado para navegación
+  status: {
+    onboardingComplete: boolean;
+    hasActivePlan: boolean;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+  };
 }
 
 // ================================
