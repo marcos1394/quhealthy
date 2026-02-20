@@ -48,7 +48,8 @@ export interface IdentitySettings {
 interface VisualIdentitySectionProps {
   settings: IdentitySettings;
   onChange: (key: keyof IdentitySettings, value: string) => void;
-  onImageUpload?: (type: 'logo' | 'banner', file: File) => void;
+  // 👇 Le agregamos Promise<void> para que el componente espere al servidor
+  onImageUpload?: (type: 'logo' | 'banner', file: File) => Promise<void>; 
   onImageDelete?: (type: 'logo' | 'banner') => void;
 }
 
@@ -94,31 +95,37 @@ export function VisualIdentitySection({
     validateSlug(sanitized);
   };
 
-  // Handle image upload - FEEDBACK INMEDIATO
-  const handleImageUpload = (type: 'logo' | 'banner', event: React.ChangeEvent<HTMLInputElement>) => {
+ // 👇 Agregamos async aquí
+  const handleImageUpload = async (type: 'logo' | 'banner', event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('El archivo debe ser una imagen');
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('La imagen debe ser menor a 5MB');
       return;
     }
 
-    setUploadingType(type);
+    setUploadingType(type); // ⏳ Activa el spinner
 
     if (onImageUpload) {
-      onImageUpload(type, file);
-      toast.success(`${type === 'logo' ? 'Logo' : 'Banner'} cargado exitosamente`);
+      try {
+        // 👇 AWAIT: Espera a que termine la subida real a GCP
+        await onImageUpload(type, file); 
+        // Nota: Quitamos el toast de éxito de aquí, porque el Hook ya lanza uno.
+      } catch (error) {
+        console.error("Error en componente al subir imagen", error);
+      }
     }
 
-    setTimeout(() => setUploadingType(null), 1000);
+    setUploadingType(null); // ✅ Apaga el spinner cuando termina
+    
+    // 👇 Limpia el input por si el usuario borra la imagen y quiere volver a subir la misma
+    event.target.value = ''; 
   };
 
   // Get image specs - CREDIBILIDAD
