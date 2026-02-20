@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   ChevronRight,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Users
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,8 @@ import { cn } from "@/lib/utils";
 const MOCK_STORE_STATUS = {
   identityConfigured: false,
   servicesCount: 0,
-  policiesConfigured: false
+  policiesConfigured: false,
+  staffingConfigured: false
 };
 
 export default function StoreSetupPage() {
@@ -56,7 +58,15 @@ export default function StoreSetupPage() {
       icon: ShieldCheck,
       isComplete: MOCK_STORE_STATUS.policiesConfigured,
       path: "/provider/store/policies"
-    }
+    },
+    {
+      id: "staff",
+      title: "Equipo de Trabajo",
+      description: "Agrega especialistas y asistentes a tu consultorio.",
+      icon: Users,
+      isComplete: MOCK_STORE_STATUS.staffingConfigured, // 🚧 TODO: Validar con backend si hay > 0 miembros
+      path: "/provider/store/staff"
+    },
   ];
 
   const completedCount = steps.filter(s => s.isComplete).length;
