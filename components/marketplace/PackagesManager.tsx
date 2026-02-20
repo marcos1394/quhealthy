@@ -43,6 +43,7 @@ export interface ServicePackage {
   id: number;
   name: string;
   description: string;
+  category: string; // 🚀 NUEVO CAMPO
   price: number;
   serviceIds: number[];
   imageUrl?: string; // 📸 NUEVO
@@ -117,6 +118,7 @@ export function PackagesManager({
         id: -Date.now(),
         name: "",
         description: "",
+        category: "",
         price: 0,
         serviceIds: [],
         isNew: true,
@@ -127,14 +129,15 @@ export function PackagesManager({
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (editingPackage && editingPackage.name && editingPackage.price > 0 && editingPackage.serviceIds.length > 0) {
+ const handleSave = () => {
+    // 🚀 NUEVO: Validar que editingPackage.category exista
+    if (editingPackage && editingPackage.name && editingPackage.category && editingPackage.price > 0 && editingPackage.serviceIds.length > 0) {
       onSave(editingPackage);
       toast.success("¡Paquete guardado exitosamente! 🎉");
       setIsDialogOpen(false);
       setEditingPackage(null);
     } else {
-      toast.error("Completa todos los campos requeridos");
+      toast.error("Completa el nombre, categoría, servicios y precio");
     }
   };
 
@@ -417,7 +420,7 @@ export function PackagesManager({
                  {/* Left Column: Package Details */}
                   <div className="space-y-6 flex-1 pr-0 lg:pr-6">
                     
-                    {/* Row 1: Image & Name */}
+                   {/* Row 1: Image, Name & Category */}
                     <div className="flex gap-4 items-start">
                       {/* 📸 Imagen del Paquete */}
                       <div className="relative group/pkg-img flex-shrink-0">
@@ -441,10 +444,8 @@ export function PackagesManager({
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file && onImageUpload && editingPackage) {
-                              // Actualizamos localmente para feedback inmediato (preview visual)
-                              const tempUrl = URL.createObjectURL(file);
-                              setEditingPackage({ ...editingPackage, imageUrl: tempUrl });
-                              // Llamamos a la subida real a GCP
+                              // 🚀 FIX CSP: Quitamos URL.createObjectURL (blob)
+                              // Simplemente mandamos el archivo y esperamos la URL limpia de GCP (igual que en servicios)
                               onImageUpload(editingPackage.id, file);
                             }
                             e.target.value = '';
@@ -452,16 +453,38 @@ export function PackagesManager({
                         />
                       </div>
 
-                      <div className="space-y-2 flex-1">
-                        <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                          Nombre del Paquete
-                        </Label>
-                        <Input 
-                          value={editingPackage.name}
-                          onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                          placeholder="Ej: Pack Bienestar Total"
-                          className="bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
-                        />
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                        {/* Nombre */}
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+                            Nombre del Paquete
+                          </Label>
+                          <Input 
+                            value={editingPackage.name}
+                            onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
+                            placeholder="Ej: Pack Bienestar"
+                            className={cn(
+                              "bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              !editingPackage.name ? "border-red-500/50" : ""
+                            )}
+                          />
+                        </div>
+
+                        {/* 🚀 NUEVO: Categoría */}
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+                            Categoría
+                          </Label>
+                          <Input 
+                            value={editingPackage.category || ''}
+                            onChange={(e) => setEditingPackage({ ...editingPackage, category: e.target.value })}
+                            placeholder="Ej: Promociones"
+                            className={cn(
+                              "bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              !editingPackage.category ? "border-red-500/50" : ""
+                            )}
+                          />
+                        </div>
                       </div>
                     </div>
 
