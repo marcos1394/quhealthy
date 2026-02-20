@@ -149,7 +149,7 @@ export default function DashboardPage() {
                 </div>
                 <Button 
                   size="lg" 
-                  onClick={() => router.push('/provider/services')}
+                  onClick={() => router.push('/provider/store')}
                   className="w-full md:w-auto bg-white text-purple-900 hover:bg-gray-100 font-black h-12 px-8 shadow-xl shadow-white/10 transition-transform group-hover:scale-105"
                 >
                   Configurar Mi Tienda
