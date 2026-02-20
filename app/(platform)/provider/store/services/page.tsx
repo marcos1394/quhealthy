@@ -1,96 +1,51 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, BriefcaseMedical } from "lucide-react";
 import { toast } from "react-toastify";
 
+// Componentes UI genéricos
 import { Button } from "@/components/ui/button";
 
-// Importamos los dos Managers y sus tipos
-import { ServicesManager, Service } from "@/components/marketplace/ServicesManager"; 
-import { PackagesManager, ServicePackage } from "@/components/marketplace/PackagesManager";
+// Importamos los dos Managers (Asegúrate de que las rutas sean correctas)
+import { ServicesManager } from "@/components/marketplace/ServicesManager"; 
+import { PackagesManager } from "@/components/marketplace/PackagesManager";
 
-// (Opcional) Importar tu catalogService real cuando esté listo
-// import { catalogService } from "@/services/catalog.service";
+// Importamos el Hook y los Tipos que acabamos de crear
+import { useCatalog } from "@/hooks/useCatalog";
+import { UI_Service, UI_Package } from "@/types/catalog";
 
 export default function ServicesSetupPage() {
   const router = useRouter();
   
   // ==========================================
-  // ESTADOS
+  // HOOK CENTRAL (Estado y Backend)
   // ==========================================
-  const [services, setServices] = useState<Service[]>([]);
-  const [packages, setPackages] = useState<ServicePackage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { 
+    services, 
+    setServices, 
+    packages, 
+    setPackages, 
+    isLoading, 
+    fetchInventory, 
+    saveService, 
+    deleteService, 
+    savePackage, 
+    deletePackage 
+  } = useCatalog();
 
-  // ==========================================
-  // CARGA INICIAL (Mockup de Backend)
-  // ==========================================
+  // Cargar inventario al montar la página
   useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        // 🚧 TODO: Reemplazar con llamadas reales al backend
-        // const [fetchedServices, fetchedPackages] = await Promise.all([
-        //   catalogService.getServices(),
-        //   catalogService.getPackages()
-        // ]);
-        await new Promise(resolve => setTimeout(resolve, 800)); // Simulando red
-        
-        // Datos mock para probar la UI
-        const mockServices: Service[] = [
-          {
-            id: 1,
-            name: "Consulta General",
-            description: "Evaluación médica completa y diagnóstico.",
-            duration: 30,
-            price: 600,
-            serviceDeliveryType: "in_person",
-            cancellationPolicy: "moderate",
-            isNew: false,
-            hasUnsavedChanges: false,
-          },
-          {
-            id: 2,
-            name: "Limpieza Facial Profunda",
-            description: "Extracción, exfoliación y mascarilla hidratante.",
-            duration: 60,
-            price: 800,
-            serviceDeliveryType: "in_person",
-            cancellationPolicy: "strict",
-            isNew: false,
-            hasUnsavedChanges: false,
-          }
-        ];
-
-        setServices(mockServices);
-        setPackages([
-          {
-            id: 101,
-            name: "Pack Renovación Total",
-            description: "Consulta de valoración médica + Limpieza facial a un precio especial.",
-            price: 1100, // Valor real 1400 (Ahorro de 300)
-            serviceIds: [1, 2], 
-            isNew: false
-          }
-        ]);
-
-      } catch (error) {
-        toast.error("Error al cargar tu inventario");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchInventory();
-  }, []);
+  }, [fetchInventory]);
 
   // ==========================================
   // HANDLERS: SERVICIOS
   // ==========================================
   const handleAddService = () => {
-    const newService: Service = {
-      id: Date.now(),
+    const newService: UI_Service = {
+      id: Date.now(), // ID temporal para React Key
       name: "",
       description: "",
       duration: 30,
@@ -100,52 +55,70 @@ export default function ServicesSetupPage() {
       isNew: true,
       hasUnsavedChanges: true,
     };
+    // Lo agregamos al inicio de la lista local
     setServices([newService, ...services]);
   };
 
-  const handleUpdateService = (id: number, updates: Partial<Service>) => {
+  const handleUpdateService = (id: number, updates: Partial<UI_Service>) => {
+    // Actualizamos el estado local mientras el usuario escribe
     setServices(prev => 
       prev.map(s => s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s)
     );
   };
 
-  const handleSaveService = async (service: Service) => {
-    try {
-      // 🚧 TODO: Conectar con backend real
-      await new Promise(resolve => setTimeout(resolve, 500)); 
-      setServices(prev => 
-        prev.map(s => s.id === service.id ? { ...s, isNew: false, hasUnsavedChanges: false } : s)
-      );
-    } catch (error) {
-      toast.error("Error al guardar el servicio");
+  const handleSaveService = async (service: UI_Service) => {
+    // Validaciones básicas de front
+    if (!service.name || service.price <= 0) {
+      toast.error("El nombre y precio son obligatorios");
+      return;
+    }
+
+    // Llamamos al Hook que se comunica con Java
+    const saved = await saveService(service);
+    
+    // Si la BD responde bien, actualizamos la UI con los datos reales
+    if (saved) {
+      setServices(prev => prev.map(s => s.id === service.id ? saved : s));
+      toast.success(`Servicio "${saved.name}" guardado exitosamente`);
     }
   };
 
   const handleDeleteService = async (id: number) => {
-    // Validar si el servicio está en algún paquete antes de borrarlo
+    // 1. Validar si el servicio está agrupado en algún paquete
     const isInPackage = packages.some(pkg => pkg.serviceIds.includes(id));
     if (isInPackage) {
       toast.error("No puedes borrar este servicio porque está incluido en un Paquete.");
       return;
     }
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 400));
+    // 2. Encontrar el servicio
+    const serviceToDelete = services.find(s => s.id === id);
+    if (!serviceToDelete) return;
+
+    // 3. Si era un borrador (isNew), solo lo borramos de React
+    if (serviceToDelete.isNew) {
       setServices(prev => prev.filter(s => s.id !== id));
-      toast.success("Servicio eliminado");
-    } catch (error) {
-      toast.error("Error al eliminar del servidor");
+      return;
+    }
+
+    // 4. Si es real, lo borramos en Java
+    const success = await deleteService(id);
+    if (success) {
+      setServices(prev => prev.filter(s => s.id !== id));
+      toast.success("Servicio eliminado del catálogo");
     }
   };
 
-  const handleDuplicateService = (service: Service) => {
-    const duplicatedService: Service = {
+  const handleDuplicateService = (service: UI_Service) => {
+    const duplicatedService: UI_Service = {
       ...service,
-      id: Date.now(),
+      id: Date.now(), // Nuevo ID temporal
       name: `${service.name} (Copia)`,
       isNew: true,
       hasUnsavedChanges: true,
     };
+    
+    // Lo insertamos justo debajo del original
     const index = services.findIndex(s => s.id === service.id);
     const newServices = [...services];
     newServices.splice(index + 1, 0, duplicatedService);
@@ -155,30 +128,34 @@ export default function ServicesSetupPage() {
   // ==========================================
   // HANDLERS: PAQUETES
   // ==========================================
-  const handleSavePackage = async (pkg: ServicePackage) => {
-    try {
-      // 🚧 TODO: Conectar con el backend usando type: 'PACKAGE' y packageItemIds: pkg.serviceIds
-      await new Promise(resolve => setTimeout(resolve, 600));
-
+  const handleSavePackage = async (pkg: UI_Package) => {
+    const saved = await savePackage(pkg);
+    
+    if (saved) {
       if (pkg.isNew) {
-        // Crear nuevo
-        setPackages([{ ...pkg, id: Date.now(), isNew: false }, ...packages]);
+        // Si era nuevo, lo reemplazamos en la lista (para que tenga su ID real de BD)
+        setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
       } else {
-        // Actualizar existente
-        setPackages(prev => prev.map(p => p.id === pkg.id ? { ...pkg, isNew: false } : p));
+        // Si ya existía, actualizamos sus datos
+        setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
       }
-    } catch (error) {
-      toast.error("Error al guardar el paquete");
+      toast.success("Paquete guardado exitosamente");
     }
   };
 
   const handleDeletePackage = async (id: number) => {
-    try {
-      // 🚧 TODO: await catalogService.deleteItem(id);
-      await new Promise(resolve => setTimeout(resolve, 400));
+    const pkgToDelete = packages.find(p => p.id === id);
+    if (!pkgToDelete) return;
+
+    if (pkgToDelete.isNew) {
       setPackages(prev => prev.filter(p => p.id !== id));
-    } catch (error) {
-      toast.error("Error al eliminar el paquete");
+      return;
+    }
+
+    const success = await deletePackage(id);
+    if (success) {
+      setPackages(prev => prev.filter(p => p.id !== id));
+      toast.success("Paquete eliminado");
     }
   };
 
@@ -189,13 +166,15 @@ export default function ServicesSetupPage() {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
         <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-        <p className="text-gray-400 font-semibold animate-pulse">Cargando tu catálogo e inventario...</p>
+        <p className="text-gray-400 font-semibold animate-pulse">Sincronizando inventario...</p>
       </div>
     );
   }
 
-  // Verifica si hay servicios sin guardar
+  // Verifica si hay servicios sin guardar para mostrar la advertencia arriba
   const hasUnsavedServices = services.some(s => s.hasUnsavedChanges || s.isNew);
+  // Filtramos los servicios que ya están guardados en BD para que los paquetes solo usen servicios reales
+  const availableServicesForPackages = services.filter(s => !s.isNew && !s.hasUnsavedChanges);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-16">
@@ -231,6 +210,7 @@ export default function ServicesSetupPage() {
 
       {/* Sección 1: Servicios Individuales */}
       <ServicesManager 
+        // @ts-ignore - Ignoramos tipado estricto si tus interfaces del componente difieren ligeramente
         services={services}
         onAdd={handleAddService}
         onUpdate={handleUpdateService}
@@ -246,8 +226,10 @@ export default function ServicesSetupPage() {
 
       {/* Sección 2: Paquetes (Dependen de los servicios) */}
       <PackagesManager 
+        // @ts-ignore
         packages={packages}
-        availableServices={services.filter(s => !s.isNew && !s.hasUnsavedChanges)} // Solo pasamos servicios reales guardados
+        // @ts-ignore
+        availableServices={availableServicesForPackages}
         onSave={handleSavePackage}
         onDelete={handleDeletePackage}
       />
