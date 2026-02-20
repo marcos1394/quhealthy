@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
@@ -13,7 +13,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Zap,
-  ArrowRight
+  ArrowRight,
+  UploadCloud,
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,8 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
-// Interfaz de datos
 export interface PublicInfoSettings {
   description: string;
   videoUrl?: string;
@@ -36,13 +39,18 @@ interface PublicInfoSectionProps {
   onChange: (key: keyof PublicInfoSettings, value: string) => void;
   isPremium?: boolean;
   onUpgrade?: () => void;
+  // 👇 NUEVAS PROPS PARA GCP
+  onVideoUpload?: (file: File) => Promise<void>;
+  onVideoDelete?: () => void;
 }
 
 export function PublicInfoSection({ 
   settings, 
   onChange, 
   isPremium = false,
-  onUpgrade 
+  onUpgrade,
+  onVideoDelete,
+  onVideoUpload 
 }: PublicInfoSectionProps) {
   const [showPreviewTips, setShowPreviewTips] = useState(false);
   const [videoUrlError, setVideoUrlError] = useState<string>('');
@@ -50,22 +58,29 @@ export function PublicInfoSection({
   const charCount = settings.description.length;
   const charLimit = 500;
   const charPercent = (charCount / charLimit) * 100;
+  // 👇 NUEVOS ESTADOS PARA GCP
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
-  // Helper para validar URL de video - MINIMIZAR ERRORES
-  const validateVideoUrl = (url: string) => {
-    if (!url) {
-      setVideoUrlError('');
+  const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast.error('El archivo debe ser un video (MP4, WebM)');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) { // 20MB Max
+      toast.error('El video debe pesar menos de 20MB');
       return;
     }
 
-    const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
-    const isVimeo = url.includes('vimeo.com');
-    
-    if (!isYoutube && !isVimeo) {
-      setVideoUrlError('Por favor usa un enlace de YouTube o Vimeo');
-    } else {
-      setVideoUrlError('');
+    setIsUploadingVideo(true);
+    if (onVideoUpload) {
+      await onVideoUpload(file);
     }
+    setIsUploadingVideo(false);
+    e.target.value = ''; // Limpiar input
   };
 
   // Helper para color de contador - FEEDBACK VISUAL
@@ -291,32 +306,54 @@ export function PublicInfoSection({
               )}
             </div>
 
-            {/* Input */}
+            {/* 👇 NUEVA UI DE SUBIDA DE VIDEO GCP */}
             <div className="space-y-2">
-              <Input 
-                type="url"
-                placeholder="https://youtube.com/watch?v=..."
-                value={settings.videoUrl || ''}
-                onChange={(e) => {
-                  onChange('videoUrl', e.target.value);
-                  validateVideoUrl(e.target.value);
-                }}
-                disabled={!isPremium}
-                className={cn(
-                  "h-11 transition-all",
-                  isPremium 
-                    ? "bg-gray-900 border-purple-500/30 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white" 
-                    : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed"
-                )}
-              />
-
-              {/* URL Error */}
-              {videoUrlError && isPremium && (
-                <div className="flex items-center gap-2 text-xs text-red-400">
-                  <AlertCircle className="w-3 h-3" />
-                  {videoUrlError}
+              {settings.videoUrl ? (
+                <div className="relative group rounded-xl overflow-hidden bg-black aspect-video border border-gray-800">
+                  <video src={settings.videoUrl} controls className="w-full h-full object-contain" />
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => onVideoDelete && onVideoDelete()}
+                      className="bg-red-500/80 hover:bg-red-600"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => isPremium && videoInputRef.current?.click()}
+                  className={cn(
+                    "border-2 border-dashed rounded-xl p-8 text-center transition-all",
+                    isPremium 
+                      ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 cursor-pointer bg-gray-900" 
+                      : "border-gray-800 bg-gray-950/50 cursor-not-allowed opacity-50"
+                  )}
+                >
+                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                    {isUploadingVideo ? (
+                      <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+                    ) : (
+                      <UploadCloud className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-300 font-semibold">
+                    Sube tu Video de Bienvenida
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">MP4 o WebM • Máx 20MB</p>
                 </div>
               )}
+              
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4,video/webm"
+                className="hidden"
+                disabled={!isPremium}
+                onChange={handleVideoFileChange}
+              />
             </div>
 
             {/* Info/Upgrade Section */}

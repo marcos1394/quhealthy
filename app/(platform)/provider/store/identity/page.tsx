@@ -6,27 +6,34 @@ import { ArrowLeft, Save, Loader2, Sparkles } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
-// Asegúrate de ajustar la ruta de VisualIdentitySection a donde lo tengas guardado
+// Asegúrate de que las rutas a tus componentes sean correctas
 import { VisualIdentitySection, IdentitySettings } from "@/components/marketplace/VisualIdentitySection";
-// Importamos el Hook que conecta con tu Backend
+import { PublicInfoSection, PublicInfoSettings } from "@/components/marketplace/PublicInfoSection"; // Ajusta la ruta
+
+// Hook del backend
 import { useStoreProfile } from "@/hooks/useStoreProfile"; 
+
+// Unimos los tipos localmente para manejar todo el formulario
+type FullStoreSettings = IdentitySettings & PublicInfoSettings;
 
 export default function IdentitySetupPage() {
   const router = useRouter();
   
-  // 🚀 Extraemos la magia del Hook
+  // Extraemos datos del Hook
   const { profile, isLoading, isSaving, updateProfile, uploadMedia } = useStoreProfile();
 
-  // Estado local para los inputs del formulario
-  const [settings, setSettings] = useState<IdentitySettings>({
+  // Estado unificado para toda la página
+  const [settings, setSettings] = useState<FullStoreSettings>({
     storeName: "",
     storeSlug: "",
     primaryColor: "#9333ea",
     storeLogoUrl: "",
-    bannerImageUrl: ""
+    bannerImageUrl: "",
+    description: "",
+    videoUrl: ""
   });
 
-  // 🔄 Efecto: Cuando los datos del Backend llegan, pre-llenamos los inputs
+  // Pre-llenar inputs cuando lleguen los datos de GCP/BD
   useEffect(() => {
     if (profile) {
       setSettings({
@@ -34,73 +41,83 @@ export default function IdentitySetupPage() {
         storeSlug: profile.slug || "",
         primaryColor: profile.primaryColor || "#9333ea",
         storeLogoUrl: profile.logoUrl || "",
-        bannerImageUrl: profile.bannerUrl || ""
+        bannerImageUrl: profile.bannerUrl || "",
+        description: profile.bio || "",
+        videoUrl: profile.previewVideoUrl || ""
       });
     }
   }, [profile]);
 
-  // Handler para cambios de texto y color
-  const handleChange = (key: keyof IdentitySettings, value: string) => {
+  // Handler genérico para inputs de texto/color en cualquier componente
+  const handleChange = (key: keyof FullStoreSettings, value: string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  // 💾 Guardar los datos en el Backend (y validar slug duplicado)
+  // 💾 Guardar TODO en la Base de Datos
   const handleSave = async () => {
-    // Validaciones básicas de Frontend
     if (!settings.storeName || !settings.storeSlug) {
       toast.error("El nombre del consultorio y la URL son obligatorios");
       return;
     }
 
-    // Llamamos al Hook mapeando los nombres de React a los de Java
     const success = await updateProfile({
       displayName: settings.storeName,
       slug: settings.storeSlug,
       primaryColor: settings.primaryColor,
       logoUrl: settings.storeLogoUrl,
-      bannerUrl: settings.bannerImageUrl
+      bannerUrl: settings.bannerImageUrl,
+      bio: settings.description,
+      previewVideoUrl: settings.videoUrl
     });
 
-    // Si guardó bien (no hubo error 500 ni URL duplicada), regresamos al Checklist
     if (success) {
       router.push("/provider/store"); 
     }
   };
 
-  // ☁️ Subir imágenes reales a GCP
+  // ☁️ Subida de Imágenes (Logo, Banner)
   const handleImageUpload = async (type: 'logo' | 'banner', file: File) => {
-    // Convertimos el tipo de UI al Enum de Java ('LOGO' o 'BANNER')
     const mediaType = type === 'logo' ? 'LOGO' : 'BANNER';
-    
-    // Subimos y esperamos la URL real de Google Cloud
     const newUrl = await uploadMedia(file, mediaType);
-    
-    // Actualizamos la UI para mostrar la imagen ya alojada en el servidor
     if (newUrl) {
       handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', newUrl);
     }
   };
 
-  // Eliminar imágenes (Solo las quitamos del estado, se sobrescriben al guardar)
   const handleImageDelete = (type: 'logo' | 'banner') => {
     handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', "");
   };
 
-  // ⏳ Pantalla de carga mientras se llama a /api/store/profile/me
+  // ☁️ Subida de Video (GCP)
+  const handleVideoUpload = async (file: File) => {
+    const newUrl = await uploadMedia(file, 'PREVIEW_VIDEO');
+    if (newUrl) {
+      handleChange('videoUrl', newUrl);
+    }
+  };
+
+  const handleVideoDelete = () => {
+    handleChange('videoUrl', "");
+  };
+
+  // Pantalla de carga inicial
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
         <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-        <p className="text-gray-400 font-semibold animate-pulse">Cargando identidad de tu tienda...</p>
+        <p className="text-gray-400 font-semibold animate-pulse">Cargando la vitrina de tu tienda...</p>
       </div>
     );
   }
 
+  // Simulación: Comprobar si el usuario es Premium (puedes sacar esto del Token de tu SessionStore después)
+  const isPremiumUser = true; // Cambiar a false para ver el diseño del "Upsell"
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16">
       
       {/* 🚀 Top Bar Navigation */}
-      <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-2xl border border-gray-800 shadow-xl">
+      <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-2xl border border-gray-800 shadow-xl sticky top-20 z-40 backdrop-blur-md">
         <Button 
           variant="ghost" 
           onClick={() => router.push('/provider/store')}
@@ -123,24 +140,45 @@ export default function IdentitySetupPage() {
         </Button>
       </div>
 
-      {/* Contextual Header */}
+      {/* Header Contextual */}
       <div className="px-2">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-purple-400" />
-          Dale vida a tu marca
+          Perfil del Consultorio
         </h1>
         <p className="text-gray-400 mt-2 text-lg">
-          Configura tu identidad visual para que los pacientes te reconozcan instantáneamente.
+          Configura cómo te verán los pacientes en el Marketplace. Tu imagen y mensaje son clave.
         </p>
       </div>
 
-      {/* 🚀 Componente de Formulario Visual Integrado */}
-      <VisualIdentitySection 
-        settings={settings}
-        onChange={handleChange}
-        onImageUpload={handleImageUpload}
-        onImageDelete={handleImageDelete}
-      />
+      <div className="space-y-8">
+        {/* Sección 1: Identidad Visual (Logo, Banner, URL, Color) */}
+        <VisualIdentitySection 
+          settings={{
+            storeName: settings.storeName,
+            storeSlug: settings.storeSlug,
+            primaryColor: settings.primaryColor,
+            storeLogoUrl: settings.storeLogoUrl,
+            bannerImageUrl: settings.bannerImageUrl
+          }}
+          onChange={handleChange}
+          onImageUpload={handleImageUpload}
+          onImageDelete={handleImageDelete}
+        />
+
+        {/* Sección 2: Información Pública (Bio y Video) */}
+        <PublicInfoSection 
+          settings={{
+            description: settings.description,
+            videoUrl: settings.videoUrl
+          }}
+          onChange={handleChange}
+          isPremium={isPremiumUser}
+          onUpgrade={() => toast.info("Redirigiendo a planes y precios...")}
+          onVideoUpload={handleVideoUpload}
+          onVideoDelete={handleVideoDelete}
+        />
+      </div>
       
     </div>
   );
