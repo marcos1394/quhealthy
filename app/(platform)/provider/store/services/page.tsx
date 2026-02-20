@@ -2,146 +2,200 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Sparkles, BriefcaseMedical } from "lucide-react";
+import { ArrowLeft, Loader2, BriefcaseMedical } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
-// Asegúrate de importar correctamente el componente y el tipo Service
+
+// Importamos los dos Managers y sus tipos
 import { ServicesManager, Service } from "@/components/marketplace/ServicesManager"; 
+import { PackagesManager, ServicePackage } from "@/components/marketplace/PackagesManager";
+
+// (Opcional) Importar tu catalogService real cuando esté listo
+// import { catalogService } from "@/services/catalog.service";
 
 export default function ServicesSetupPage() {
   const router = useRouter();
   
-  // Estado local para los servicios
+  // ==========================================
+  // ESTADOS
+  // ==========================================
   const [services, setServices] = useState<Service[]>([]);
+  const [packages, setPackages] = useState<ServicePackage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🔄 Cargar servicios desde el backend al entrar
+  // ==========================================
+  // CARGA INICIAL (Mockup de Backend)
+  // ==========================================
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchInventory = async () => {
       try {
-        // 🚧 TODO: Reemplazar con llamada real: await catalogService.getServices()
+        // 🚧 TODO: Reemplazar con llamadas reales al backend
+        // const [fetchedServices, fetchedPackages] = await Promise.all([
+        //   catalogService.getServices(),
+        //   catalogService.getPackages()
+        // ]);
         await new Promise(resolve => setTimeout(resolve, 800)); // Simulando red
         
-        // Datos mock para empezar
-        setServices([
+        // Datos mock para probar la UI
+        const mockServices: Service[] = [
           {
             id: 1,
             name: "Consulta General",
-            description: "Evaluación médica completa, diagnóstico y receta electrónica.",
+            description: "Evaluación médica completa y diagnóstico.",
             duration: 30,
             price: 600,
             serviceDeliveryType: "in_person",
             cancellationPolicy: "moderate",
-            followUpPeriodDays: 7,
+            isNew: false,
+            hasUnsavedChanges: false,
+          },
+          {
+            id: 2,
+            name: "Limpieza Facial Profunda",
+            description: "Extracción, exfoliación y mascarilla hidratante.",
+            duration: 60,
+            price: 800,
+            serviceDeliveryType: "in_person",
+            cancellationPolicy: "strict",
             isNew: false,
             hasUnsavedChanges: false,
           }
+        ];
+
+        setServices(mockServices);
+        setPackages([
+          {
+            id: 101,
+            name: "Pack Renovación Total",
+            description: "Consulta de valoración médica + Limpieza facial a un precio especial.",
+            price: 1100, // Valor real 1400 (Ahorro de 300)
+            serviceIds: [1, 2], 
+            isNew: false
+          }
         ]);
+
       } catch (error) {
-        toast.error("Error al cargar tus servicios");
+        toast.error("Error al cargar tu inventario");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchServices();
+    fetchInventory();
   }, []);
 
-  // ➕ Crear un nuevo servicio "en borrador"
+  // ==========================================
+  // HANDLERS: SERVICIOS
+  // ==========================================
   const handleAddService = () => {
     const newService: Service = {
-      id: Date.now(), // ID temporal para React Key
+      id: Date.now(),
       name: "",
       description: "",
       duration: 30,
       price: 0,
       serviceDeliveryType: "in_person",
       cancellationPolicy: "flexible",
-      isNew: true, // Flag para saber que no existe en BD
+      isNew: true,
       hasUnsavedChanges: true,
     };
-    // Lo agregamos al inicio de la lista
     setServices([newService, ...services]);
   };
 
-  // ✏️ Actualizar estado local mientras el usuario escribe
   const handleUpdateService = (id: number, updates: Partial<Service>) => {
     setServices(prev => 
-      prev.map(service => 
-        service.id === id 
-          ? { ...service, ...updates, hasUnsavedChanges: true } 
-          : service
-      )
+      prev.map(s => s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s)
     );
   };
 
-  // 💾 Guardar un servicio específico en la Base de Datos
   const handleSaveService = async (service: Service) => {
     try {
       // 🚧 TODO: Conectar con backend real
-      // const savedService = await catalogService.saveService(service);
-      await new Promise(resolve => setTimeout(resolve, 600)); // Simulando red
-      
-      // Actualizamos el estado para quitar las alertas de "Sin guardar"
+      await new Promise(resolve => setTimeout(resolve, 500)); 
       setServices(prev => 
-        prev.map(s => 
-          s.id === service.id 
-            ? { ...s, isNew: false, hasUnsavedChanges: false } // Si el backend regresa un ID real, reemplazarlo aquí
-            : s
-        )
+        prev.map(s => s.id === service.id ? { ...s, isNew: false, hasUnsavedChanges: false } : s)
       );
     } catch (error) {
       toast.error("Error al guardar el servicio");
     }
   };
 
-  // 🗑️ Eliminar un servicio
   const handleDeleteService = async (id: number) => {
-    const serviceToDelete = services.find(s => s.id === id);
-    
-    // Si ya existía en la BD, lo borramos del backend primero
-    if (serviceToDelete && !serviceToDelete.isNew) {
-      try {
-        // 🚧 TODO: await catalogService.deleteService(id);
-        await new Promise(resolve => setTimeout(resolve, 400));
-      } catch (error) {
-        toast.error("Error al eliminar del servidor");
-        return;
-      }
+    // Validar si el servicio está en algún paquete antes de borrarlo
+    const isInPackage = packages.some(pkg => pkg.serviceIds.includes(id));
+    if (isInPackage) {
+      toast.error("No puedes borrar este servicio porque está incluido en un Paquete.");
+      return;
     }
 
-    // Lo quitamos de la UI
-    setServices(prev => prev.filter(s => s.id !== id));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setServices(prev => prev.filter(s => s.id !== id));
+      toast.success("Servicio eliminado");
+    } catch (error) {
+      toast.error("Error al eliminar del servidor");
+    }
   };
 
-  // 📋 Duplicar un servicio
   const handleDuplicateService = (service: Service) => {
     const duplicatedService: Service = {
       ...service,
-      id: Date.now(), // Nuevo ID temporal
+      id: Date.now(),
       name: `${service.name} (Copia)`,
       isNew: true,
       hasUnsavedChanges: true,
     };
-    
-    // Lo insertamos justo después del original
     const index = services.findIndex(s => s.id === service.id);
     const newServices = [...services];
     newServices.splice(index + 1, 0, duplicatedService);
-    
     setServices(newServices);
   };
 
-  // ⏳ Pantalla de carga
+  // ==========================================
+  // HANDLERS: PAQUETES
+  // ==========================================
+  const handleSavePackage = async (pkg: ServicePackage) => {
+    try {
+      // 🚧 TODO: Conectar con el backend usando type: 'PACKAGE' y packageItemIds: pkg.serviceIds
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      if (pkg.isNew) {
+        // Crear nuevo
+        setPackages([{ ...pkg, id: Date.now(), isNew: false }, ...packages]);
+      } else {
+        // Actualizar existente
+        setPackages(prev => prev.map(p => p.id === pkg.id ? { ...pkg, isNew: false } : p));
+      }
+    } catch (error) {
+      toast.error("Error al guardar el paquete");
+    }
+  };
+
+  const handleDeletePackage = async (id: number) => {
+    try {
+      // 🚧 TODO: await catalogService.deleteItem(id);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      setPackages(prev => prev.filter(p => p.id !== id));
+    } catch (error) {
+      toast.error("Error al eliminar el paquete");
+    }
+  };
+
+  // ==========================================
+  // RENDER
+  // ==========================================
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
         <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-        <p className="text-gray-400 font-semibold animate-pulse">Cargando tu catálogo de servicios...</p>
+        <p className="text-gray-400 font-semibold animate-pulse">Cargando tu catálogo e inventario...</p>
       </div>
     );
   }
+
+  // Verifica si hay servicios sin guardar
+  const hasUnsavedServices = services.some(s => s.hasUnsavedChanges || s.isNew);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-16">
@@ -157,10 +211,9 @@ export default function ServicesSetupPage() {
           Volver a Mi Tienda
         </Button>
 
-        {/* Muestra un indicador si hay cosas sin guardar */}
-        {services.some(s => s.hasUnsavedChanges || s.isNew) && (
+        {hasUnsavedServices && (
           <span className="text-sm font-semibold text-amber-400 animate-pulse hidden sm:block">
-            Tienes cambios sin guardar
+            Tienes servicios sin guardar
           </span>
         )}
       </div>
@@ -169,14 +222,14 @@ export default function ServicesSetupPage() {
       <div className="px-2">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <BriefcaseMedical className="w-8 h-8 text-purple-400" />
-          Tus Servicios Médicos
+          Tus Servicios y Paquetes
         </h1>
         <p className="text-gray-400 mt-2 text-lg">
-          Agrega consultas, procedimientos y tratamientos. Tus pacientes verán esta lista al agendar.
+          Agrega tus consultas individuales primero, y luego agrúpalas en paquetes para aumentar tus ventas.
         </p>
       </div>
 
-      {/* 🚀 Componente Manager Integrado */}
+      {/* Sección 1: Servicios Individuales */}
       <ServicesManager 
         services={services}
         onAdd={handleAddService}
@@ -184,6 +237,19 @@ export default function ServicesSetupPage() {
         onSave={handleSaveService}
         onDelete={handleDeleteService}
         onDuplicate={handleDuplicateService}
+      />
+
+      {/* Separador Visual Elegante */}
+      <div className="flex items-center justify-center py-4">
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full max-w-md" />
+      </div>
+
+      {/* Sección 2: Paquetes (Dependen de los servicios) */}
+      <PackagesManager 
+        packages={packages}
+        availableServices={services.filter(s => !s.isNew && !s.hasUnsavedChanges)} // Solo pasamos servicios reales guardados
+        onSave={handleSavePackage}
+        onDelete={handleDeletePackage}
       />
       
     </div>
