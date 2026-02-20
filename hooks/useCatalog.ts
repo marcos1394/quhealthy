@@ -36,6 +36,7 @@ export const useCatalog = () => {
           id: item.id!,
           name: item.name,
           description: item.description || '',
+            category: item.category || '', // 🚀 NUEVO CAMPO
           price: item.price,
           duration: item.durationMinutes || 30,
           serviceDeliveryType: mapModalityToDelivery(item.modality),
@@ -53,6 +54,7 @@ export const useCatalog = () => {
           id: item.id!,
           name: item.name,
           description: item.description || '',
+          category: item.category || '', // 🚀 NUEVO CAMPO
           price: item.price,
           serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
           imageUrl: item.imageUrl, // 📸 Mapeo de imagen
@@ -75,6 +77,7 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'SERVICE',
       name: service.name,
+      category: service.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
       description: service.description,
       price: service.price,
       durationMinutes: service.duration,
@@ -113,6 +116,7 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'PACKAGE',
       name: pkg.name,
+    category: pkg.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
       description: pkg.description,
       price: pkg.price,
       packageItemIds: pkg.serviceIds,

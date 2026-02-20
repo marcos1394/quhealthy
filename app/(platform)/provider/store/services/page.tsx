@@ -48,6 +48,7 @@ export default function ServicesSetupPage() {
       id: Date.now(), 
       name: "",
       description: "",
+        category: "", // 🚀 Nuevo campo categoría
       duration: 30,
       price: 0,
       serviceDeliveryType: "in_person",

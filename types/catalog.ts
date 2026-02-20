@@ -32,6 +32,7 @@ export interface UI_Service {
   name: string;
   description: string;
   duration: number;
+  category: string; // 🚀 NUEVO Y OBLIGATORIO
   price: number;
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
@@ -46,6 +47,7 @@ export interface UI_Package {
   id: number;
   name: string;
   description: string;
+  category?: string; // 🚀 NUEVO CAMPO OPCIONAL
   price: number;
   serviceIds: number[];
   imageUrl?: string; // 📸 Agregado

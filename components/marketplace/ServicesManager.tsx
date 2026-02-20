@@ -47,6 +47,7 @@ export interface Service {
   name: string;
   description: string;
   duration: number;
+  category: string; // 🚀 NUEVO CAMPO
   price: number;
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
@@ -242,8 +243,7 @@ export function ServicesManager({
           {services.map((service, index) => {
             const priceWarning = getPriceWarning(service.price);
             const isExpanded = expandedService === service.id;
-            const isValid = service.name && service.price > 0 && service.duration > 0;
-
+            const isValid = service.name && service.category && service.price > 0 && service.duration > 0;
             return (
               <motion.div
                 key={service.id}
@@ -383,7 +383,34 @@ export function ServicesManager({
       )}
     />
   </div>
+{/* 🚀 NUEVO: Input de Categoría */}
+      <div className="space-y-2">
+        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+          Categoría
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="w-3 h-3 text-gray-600" />
+              </TooltipTrigger>
+              <TooltipContent>
+                Agrupa tus servicios (Ej: Masajes, Faciales, Consultas)
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Label>
+        <Input 
+          value={service.category || ''}
+          onChange={(e) => onUpdate(service.id, { category: e.target.value, hasUnsavedChanges: true })}
+          placeholder="Ej: Masajes Corporales"
+          className={cn(
+            "bg-gray-900 border-gray-700 h-12 text-base transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
+            !service.category ? "border-red-500/50" : ""
+          )}
+        />
+      </div>
 </div>
+
+
 {/* 🚀 ROW NUEVA: PRECIO Y DURACIÓN (Lo que te faltaba) */}
                     <div className="grid grid-cols-2 gap-4">
                       {/* Price */}
