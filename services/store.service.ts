@@ -2,8 +2,10 @@
 import axiosInstance from '@/lib/axios';
 import { StoreProfile, StoreMediaType, UploadMediaResponse } from '@/types/store';
 
-const BASE_URL_PROFILE = '/api/store/profile';
-const BASE_URL_MEDIA = '/api/store/media';
+
+
+const BASE_URL_PROFILE = '/api/catalog/store/profile';
+const BASE_URL_MEDIA = '/api/catalog/store/media';
 
 export const storeService = {
   /**

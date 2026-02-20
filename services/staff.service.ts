@@ -2,7 +2,7 @@
 import axiosInstance from '@/lib/axios';
 import { StaffDTO } from '@/types/staff';
 
-const BASE_URL = '/api/store/staff';
+const BASE_URL = '/api/catalog/store/staff';
 
 export const staffService = {
   
