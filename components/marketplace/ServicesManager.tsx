@@ -384,7 +384,68 @@ export function ServicesManager({
     />
   </div>
 </div>
-                    
+{/* 🚀 ROW NUEVA: PRECIO Y DURACIÓN (Lo que te faltaba) */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Price */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                          Precio
+                          {priceWarning && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <AlertCircle className={cn(
+                                    "w-3 h-3",
+                                    priceWarning.level === 'low' ? "text-amber-400" : "text-blue-400"
+                                  )} />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{priceWarning.message}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input 
+                            type="number" 
+                            min="0"
+                            step="50"
+                            value={service.price || ''}
+                            onChange={(e) => onUpdate(service.id, { price: Number(e.target.value), hasUnsavedChanges: true })}
+                            className={cn(
+                              "bg-gray-900 border-gray-700 pl-9 h-12 text-lg font-bold transition-all focus:border-purple-500",
+                              !service.price || service.price <= 0 ? "border-red-500/50" : ""
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Duration */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                          Duración
+                        </Label>
+                        <div className="relative">
+                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input 
+                            type="number" 
+                            min="5"
+                            step="5"
+                            value={service.duration || ''}
+                            onChange={(e) => onUpdate(service.id, { duration: Number(e.target.value), hasUnsavedChanges: true })}
+                            className={cn(
+                              "bg-gray-900 border-gray-700 pl-9 pr-12 h-12 text-lg font-bold transition-all focus:border-purple-500",
+                              !service.duration || service.duration <= 0 ? "border-red-500/50" : ""
+                            )}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500 uppercase">
+                            min
+                          </span>
+                        </div>
+                      </div>
+                    </div>                    
                     
                    
                     {/* Row 2: Description */}
