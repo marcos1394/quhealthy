@@ -1,52 +1,38 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Save, Users, Crown } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Users } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
-// Asegúrate de importar tu componente correctamente
-import { StaffManager, StaffMember } from "@/components/marketplace/StaffManager";
+import { StaffManager } from "@/components/marketplace/StaffManager";
+import { useStaff } from "@/hooks/useStaff";
+import { UI_StaffMember } from "@/types/staff";
 
 export default function StaffSetupPage() {
   const router = useRouter();
   
-  const [staff, setStaff] = useState<StaffMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  // Extraemos las funciones del nuevo Hook
+  const { 
+    staff, setStaff, 
+    isLoading, fetchStaff, 
+    saveMember, deleteMember, uploadAvatar 
+  } = useStaff();
 
-  // 🚧 TODO: Sacar esto de tu SessionStore real (Hook de Auth)
-  const isBusinessPlan = true; // Cambia a false para ver tu hermoso mensaje de Upsell
+  const [isSavingAll, setIsSavingAll] = useState(false);
+
+  // 🚧 TODO: Validar con tu sistema de Auth si el usuario es Plan Business
+  const isBusinessPlan = true; 
 
   useEffect(() => {
-    // 🚧 TODO: Llamada real: await catalogService.getStaff()
-    const fetchStaff = async () => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setStaff([
-          {
-            id: 1,
-            name: "Dr. Marcos Sandoval",
-            specialty: "Médico Cirujano",
-            bio: "Especialista con 10 años de experiencia...",
-            role: "lead",
-            isNew: false,
-            hasUnsavedChanges: false
-          }
-        ]);
-      } catch (error) {
-        toast.error("Error al cargar tu equipo");
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchStaff();
-  }, []);
+  }, [fetchStaff]);
 
-  // --- HANDLERS ---
+  // --- HANDLERS DEL COMPONENTE ---
+
   const handleAddMember = () => {
-    const newMember: StaffMember = {
+    const newMember: UI_StaffMember = {
       id: Date.now(),
       name: "",
       specialty: "",
@@ -55,49 +41,79 @@ export default function StaffSetupPage() {
       isNew: true,
       hasUnsavedChanges: true
     };
-    setStaff([...staff, newMember]);
+    setStaff([newMember, ...staff]); // Lo ponemos al principio
   };
 
-  const handleUpdateMember = (id: number, field: keyof StaffMember, value: string) => {
+  const handleUpdateMember = (id: number, field: keyof UI_StaffMember, value: string) => {
     setStaff(prev => prev.map(member => 
       member.id === id ? { ...member, [field]: value, hasUnsavedChanges: true } : member
     ));
   };
 
-  const handleDeleteMember = (id: number) => {
-    // 🚧 TODO: Si no es isNew, llamar API delete
-    setStaff(prev => prev.filter(member => member.id !== id));
-  };
+  const handleDeleteMember = async (id: number) => {
+    const member = staff.find(m => m.id === id);
+    if (!member) return;
 
-  const handleImageUpload = async (id: number, file: File) => {
-    // 🚧 TODO: Llamar al servicio GCP que hicimos: await storeService.uploadMedia(file, 'STAFF_AVATAR')
-    const tempUrl = URL.createObjectURL(file);
-    handleUpdateMember(id, 'imageUrl', tempUrl);
-  };
+    if (member.isNew) {
+      setStaff(prev => prev.filter(m => m.id !== id));
+      return;
+    }
 
-  // 💾 Guardar Todo
-  const handleSaveAll = async () => {
-    setIsSaving(true);
-    try {
-      // 🚧 TODO: Enviar el array de staff al backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success("Equipo actualizado correctamente");
-      // Limpiamos los flags de cambios sin guardar
-      setStaff(prev => prev.map(m => ({ ...m, isNew: false, hasUnsavedChanges: false })));
-      router.push("/provider/store");
-    } catch (error) {
-      toast.error("Error al guardar el equipo");
-    } finally {
-      setIsSaving(false);
+    const success = await deleteMember(id);
+    if (success) {
+      setStaff(prev => prev.filter(m => m.id !== id));
     }
   };
 
+  // ☁️ Subida a GCP
+  const handleImageUpload = async (id: number, file: File) => {
+    const newUrl = await uploadAvatar(file);
+    if (newUrl) {
+      // Actualizamos la URL de la imagen en el estado local (esto activa el hasUnsavedChanges)
+      handleUpdateMember(id, 'imageUrl', newUrl);
+    }
+  };
+
+  // 💾 Guardado Masivo
+  const handleSaveAll = async () => {
+    // Validar que todos los que tengan cambios tengan al menos un nombre
+    const invalidMembers = staff.filter(m => (m.isNew || m.hasUnsavedChanges) && !m.name);
+    if (invalidMembers.length > 0) {
+      toast.error("Todos los colaboradores deben tener un nombre.");
+      return;
+    }
+
+    setIsSavingAll(true);
+    try {
+      // Filtramos solo los que necesitan ser guardados
+      const membersToSave = staff.filter(m => m.isNew || m.hasUnsavedChanges);
+      
+      // Guardamos en paralelo
+      const savePromises = membersToSave.map(m => saveMember(m));
+      const results = await Promise.all(savePromises);
+
+      // Si todo sale bien
+      const allSuccessful = results.every(res => res !== null);
+      if (allSuccessful) {
+        toast.success("Equipo actualizado correctamente");
+        router.push("/provider/store");
+      } else {
+        // En caso de fallos parciales, recargamos de la BD para sincronizar
+        fetchStaff(); 
+      }
+    } catch (error) {
+      toast.error("Error general al guardar el equipo");
+    } finally {
+      setIsSavingAll(false);
+    }
+  };
+
+  // --- RENDER ---
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
         <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-        <p className="text-gray-400 font-semibold animate-pulse">Cargando tu equipo...</p>
+        <p className="text-gray-400 font-semibold animate-pulse">Sincronizando equipo...</p>
       </div>
     );
   }
@@ -120,10 +136,10 @@ export default function StaffSetupPage() {
 
         <Button 
           onClick={handleSaveAll}
-          disabled={isSaving || !hasUnsavedChanges}
+          disabled={isSavingAll || !hasUnsavedChanges}
           className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold px-8 shadow-lg shadow-emerald-500/20"
         >
-          {isSaving ? (
+          {isSavingAll ? (
             <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Guardando...</>
           ) : (
             <><Save className="w-5 h-5 mr-2" /> Guardar Equipo</>
@@ -138,17 +154,18 @@ export default function StaffSetupPage() {
           Tu Equipo de Trabajo
         </h1>
         <p className="text-gray-400 mt-2 text-lg">
-          Agrega a los profesionales que atienden en tu consultorio. Los pacientes podrán elegir con quién agendar.
+          Agrega a los profesionales que atienden en tu consultorio. Sube sus fotos para aumentar la confianza.
         </p>
       </div>
 
-      {/* Integración del Componente */}
+      {/* Integración del Componente Visual */}
       <StaffManager 
+        // @ts-ignore
         staff={staff}
         onAdd={handleAddMember}
         onUpdate={handleUpdateMember}
         onDelete={handleDeleteMember}
-        onImageUpload={handleImageUpload}
+        onImageUpload={handleImageUpload} // Aquí le pasamos la magia de GCP
         isBusinessPlan={isBusinessPlan}
         onUpgrade={() => toast.info("Redirigiendo a planes...")}
       />
