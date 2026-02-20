@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
@@ -12,34 +12,66 @@ import {
   ChevronRight,
   Sparkles,
   ArrowRight,
-  Users
+  Users,
+  Loader2
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// 🚧 TODO: Reemplazar con datos reales del backend (Catalog Service)
-const MOCK_STORE_STATUS = {
-  identityConfigured: false,
-  servicesCount: 0,
-  policiesConfigured: false,
-  staffingConfigured: false
-};
+// 🚀 IMPORTAMOS NUESTROS HOOKS REALES
+import { useStoreProfile } from "@/hooks/useStoreProfile";
+import { useCatalog } from "@/hooks/useCatalog";
+import { useStaff } from "@/hooks/useStaff";
 
 export default function StoreSetupPage() {
   const router = useRouter();
 
-  // Calcular Progreso
+  // ==========================================
+  // 1. EXTRAER DATOS DEL BACKEND
+  // ==========================================
+  const { profile, isLoading: loadingProfile } = useStoreProfile();
+  const { services, fetchInventory, isLoading: loadingCatalog } = useCatalog();
+  const { staff, fetchStaff, isLoading: loadingStaff } = useStaff();
+
+  // Disparamos las llamadas al montar la página
+  useEffect(() => {
+    fetchInventory();
+    fetchStaff();
+  }, [fetchInventory, fetchStaff]);
+
+  // Estado de carga global (esperar a que los 3 terminen)
+  const isGlobalLoading = loadingProfile || loadingCatalog || loadingStaff;
+
+  // ==========================================
+  // 2. LÓGICA DE PROGRESO REAL
+  // ==========================================
+  // Identidad: Consideramos completa si tiene Nombre y Slug (y opcionalmente Logo)
+  const isIdentityComplete = !!profile?.displayName && !!profile?.slug;
+  
+  // Servicios: Completado si hay al menos 1 servicio creado y guardado en BD
+  const realServicesCount = services.filter(s => !s.isNew).length;
+  const isServicesComplete = realServicesCount > 0;
+
+  // Políticas: Completado si escribió algo en cancellationPolicy
+  const isPoliciesComplete = !!profile?.cancellationPolicy;
+
+  // Equipo: Completado si hay al menos 1 miembro en el staff guardado
+  const isStaffComplete = staff.filter(s => !s.isNew).length > 0;
+
+  // ==========================================
+  // 3. CONFIGURACIÓN DE LOS PASOS
+  // ==========================================
   const steps = [
     {
       id: "identity",
       title: "Identidad Visual",
       description: "Logo, banner, colores y URL de tu tienda.",
       icon: Palette,
-      isComplete: MOCK_STORE_STATUS.identityConfigured,
+      isComplete: isIdentityComplete,
       path: "/provider/store/identity"
     },
     {
@@ -47,16 +79,16 @@ export default function StoreSetupPage() {
       title: "Catálogo de Servicios",
       description: "Tratamientos, precios y duración de consultas.",
       icon: BriefcaseMedical,
-      isComplete: MOCK_STORE_STATUS.servicesCount > 0,
+      isComplete: isServicesComplete,
       path: "/provider/store/services",
-      badge: MOCK_STORE_STATUS.servicesCount > 0 ? `${MOCK_STORE_STATUS.servicesCount} creados` : null
+      badge: realServicesCount > 0 ? `${realServicesCount} creados` : null
     },
     {
       id: "policies",
       title: "Políticas de Cita",
       description: "Reglas de cancelación y reprogramación.",
       icon: ShieldCheck,
-      isComplete: MOCK_STORE_STATUS.policiesConfigured,
+      isComplete: isPoliciesComplete,
       path: "/provider/store/policies"
     },
     {
@@ -64,7 +96,7 @@ export default function StoreSetupPage() {
       title: "Equipo de Trabajo",
       description: "Agrega especialistas y asistentes a tu consultorio.",
       icon: Users,
-      isComplete: MOCK_STORE_STATUS.staffingConfigured, // 🚧 TODO: Validar con backend si hay > 0 miembros
+      isComplete: isStaffComplete, 
       path: "/provider/store/staff"
     },
   ];
@@ -72,6 +104,19 @@ export default function StoreSetupPage() {
   const completedCount = steps.filter(s => s.isComplete).length;
   const progressPercentage = Math.round((completedCount / steps.length) * 100);
   const isStoreReady = completedCount === steps.length;
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+  
+  if (isGlobalLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col justify-center items-center gap-4">
+        <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
+        <p className="text-gray-400 font-semibold animate-pulse">Analizando el estado de tu tienda...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -139,7 +184,7 @@ export default function StoreSetupPage() {
             >
               <div className="flex items-center gap-5">
                 <div className={cn(
-                  "w-14 h-14 rounded-full flex items-center justify-center border-2 transition-colors",
+                  "w-14 h-14 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0",
                   isComplete 
                     ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
                     : "bg-gray-800 border-gray-700 text-gray-400 group-hover:bg-purple-500/10 group-hover:border-purple-500/30 group-hover:text-purple-400"
