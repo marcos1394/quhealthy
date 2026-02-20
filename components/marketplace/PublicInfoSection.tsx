@@ -25,48 +25,6 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-/**
- * PublicInfoSection Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- *    - Character counter visual con colores
- *    - Preview tips en tiempo real
- *    - Validación de URL
- *    - Progress bar
- * 
- * 2. PRIMING
- *    - Stats de conversión (+40%)
- *    - Ejemplos específicos
- *    - Badges de valor
- *    - Success cases
- * 
- * 3. FEATURE GATING SUAVE
- *    - Premium badge visible pero no agresivo
- *    - Beneficios claros
- *    - Upgrade CTA atractivo
- *    - Value proposition clara
- * 
- * 4. CREDIBILIDAD
- *    - Stats específicos
- *    - Preview visible
- *    - Ejemplos reales
- *    - Sin exageraciones
- * 
- * 5. MINIMIZAR ERRORES
- *    - Character limits claros
- *    - URL validation
- *    - Writing tips
- *    - Format guidance
- * 
- * 6. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Placeholder examples
- *    - Writing tips inline
- *    - Visual counter
- *    - Clear labels
- */
-
 // Interfaz de datos
 export interface PublicInfoSettings {
   description: string;

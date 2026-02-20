@@ -35,47 +35,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 
-/**
- * ServicesManager Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- *    - Validation visual
- *    - Character counter
- *    - Price suggestions
- *    - Unsaved indicator
- * 
- * 2. SATISFICING
- *    - Service templates
- *    - Quick duplicate
- *    - Common durations
- *    - Price tiers
- * 
- * 3. MINIMIZAR ERRORES
- *    - Required fields validation
- *    - Price range warnings
- *    - Duration suggestions
- *    - Confirmation on delete
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Icons por tipo
- *    - Visual states
- *    - Clear labels
- *    - Templates examples
- * 
- * 5. CREDIBILIDAD
- *    - Market insights
- *    - Popular durations
- *    - Price benchmarks
- *    - Best practices tips
- * 
- * 6. AFFORDANCE
- *    - Drag handle visible
- *    - Hover actions
- *    - Toggle buttons
- *    - Clear CTAs
- */
 
 // --- TIPOS ---
 export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';

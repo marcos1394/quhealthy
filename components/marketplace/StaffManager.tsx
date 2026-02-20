@@ -31,48 +31,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- * StaffManager Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEATURE GATING SUAVE
- *    - Premium badge visible pero no agresivo
- *    - Beneficios claros (+60% confianza)
- *    - Upgrade CTA atractivo
- *    - Value proposition específica
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Upload image preview
- *    - Character counter
- *    - Validation visual
- *    - Save confirmation
- * 
- * 3. PRIMING
- *    - Stats de valor (+60% confianza)
- *    - Role badges (Lead, Specialist)
- *    - Success examples
- *    - Team showcase
- * 
- * 4. CREDIBILIDAD
- *    - Stats específicos
- *    - Professional presentation
- *    - Clear roles
- *    - Social proof
- * 
- * 5. AFFORDANCE
- *    - Avatar upload clear
- *    - Hover effects
- *    - Drag reorder
- *    - Visual hierarchy
- * 
- * 6. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Placeholders específicos
- *    - Role icons
- *    - Clear labels
- *    - Examples visible
- */
-
 // --- TIPOS ---
 export interface StaffMember {
   id: number;

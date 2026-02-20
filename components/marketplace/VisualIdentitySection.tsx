@@ -24,47 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- * VisualIdentitySection Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- *    - Slug validation en tiempo real
- *    - Image preview instantáneo
- *    - Color preview live
- *    - URL availability check
- * 
- * 2. SATISFICING
- *    - Color presets populares
- *    - Quick upload
- *    - Default suggestions
- *    - One-click presets
- * 
- * 3. MINIMIZAR ERRORES
- *    - Slug auto-sanitization
- *    - Image size validation
- *    - Format validation
- *    - Clear error messages
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Visual previews
- *    - Example URLs
- *    - Color swatches
- *    - Upload dropzone
- * 
- * 5. CREDIBILIDAD
- *    - Professional preview
- *    - Best practices tips
- *    - Dimension specs
- *    - Format guidance
- * 
- * 6. AFFORDANCE
- *    - Clickable color picker
- *    - Drag & drop upload
- *    - Clear upload zones
- *    - Visual feedback
- */
 
 // Color presets - SATISFICING
 const colorPresets = [

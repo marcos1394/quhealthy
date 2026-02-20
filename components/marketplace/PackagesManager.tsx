@@ -34,48 +34,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
-/**
- * PackagesManager Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. AVERSIÓN A LA PÉRDIDA
- *    - Ahorro destacado (%)
- *    - Valor real vs precio paquete
- *    - "Ahorras $X" visible
- *    - Comparación visual
- * 
- * 2. SATISFICING
- *    - Sugerencias de precio smart
- *    - Templates de descuento (10%, 15%, 20%)
- *    - Auto-cálculo de valor
- *    - Quick actions
- * 
- * 3. FEEDBACK INMEDIATO
- *    - Cálculo en tiempo real
- *    - Preview de ahorro
- *    - Validación visual
- *    - Progress indicators
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Servicios con checkboxes visuales
- *    - Preview de paquete
- *    - Iconos descriptivos
- *    - Labels claros
- * 
- * 5. CREDIBILIDAD
- *    - Stats de conversión
- *    - Ejemplos de savings
- *    - Valor calculado transparente
- *    - Sin trucos
- * 
- * 6. PRIMING
- *    - Verde = ahorro
- *    - Purple = premium
- *    - Badges de valor
- *    - Destacar beneficios
- */
-
 // Importamos el tipo Service
 import { Service } from "./ServicesManager";
 
