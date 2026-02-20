@@ -414,53 +414,138 @@ export function PackagesManager({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   
                   {/* Left Column: Package Details */}
-                 <div className="flex gap-4 items-start">
-  {/* 📸 Imagen del Paquete */}
-  <div className="relative group/pkg-img flex-shrink-0">
-    <div className={cn(
-      "w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950",
-      editingPackage.imageUrl ? "border-pink-500/50" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-800"
-    )}>
-      {editingPackage.imageUrl ? (
-        <img src={editingPackage.imageUrl} alt="Paquete" className="w-full h-full object-cover" />
-      ) : (
-        <>
-          <Camera className="w-5 h-5 text-gray-500 mb-1 group-hover/pkg-img:text-pink-400 transition-colors" />
-          <span className="text-[9px] text-gray-500 font-bold uppercase">Foto</span>
-        </>
-      )}
-    </div>
-    <input 
-      type="file" 
-      accept="image/*"
-      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-      onChange={(e) => {
-        const file = e.target.files?.[0];
-        if (file && onImageUpload && editingPackage) {
-          // Actualizamos localmente para feedback inmediato
-          const tempUrl = URL.createObjectURL(file);
-          setEditingPackage({ ...editingPackage, imageUrl: tempUrl });
-          // Llamamos a la subida real a GCP
-          onImageUpload(editingPackage.id, file);
-        }
-        e.target.value = '';
-      }}
-    />
-  </div>
+                 {/* Left Column: Package Details */}
+                  <div className="space-y-6 flex-1 pr-0 lg:pr-6">
+                    
+                    {/* Row 1: Image & Name */}
+                    <div className="flex gap-4 items-start">
+                      {/* 📸 Imagen del Paquete */}
+                      <div className="relative group/pkg-img flex-shrink-0">
+                        <div className={cn(
+                          "w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950",
+                          editingPackage.imageUrl ? "border-pink-500/50" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-800"
+                        )}>
+                          {editingPackage.imageUrl ? (
+                            <img src={editingPackage.imageUrl} alt="Paquete" className="w-full h-full object-cover" />
+                          ) : (
+                            <>
+                              <Camera className="w-5 h-5 text-gray-500 mb-1 group-hover/pkg-img:text-pink-400 transition-colors" />
+                              <span className="text-[9px] text-gray-500 font-bold uppercase">Foto</span>
+                            </>
+                          )}
+                        </div>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file && onImageUpload && editingPackage) {
+                              // Actualizamos localmente para feedback inmediato (preview visual)
+                              const tempUrl = URL.createObjectURL(file);
+                              setEditingPackage({ ...editingPackage, imageUrl: tempUrl });
+                              // Llamamos a la subida real a GCP
+                              onImageUpload(editingPackage.id, file);
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+                      </div>
 
-  <div className="space-y-2 flex-1">
-    <Label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-      <Tag className="w-4 h-4 text-purple-400" />
-      Nombre del Paquete
-    </Label>
-    <Input 
-      value={editingPackage.name}
-      onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-      placeholder="Ej: Pack Bienestar Total"
-      className="bg-gray-950 border-gray-700 h-12 text-base focus:border-purple-500"
-    />
-  </div>
-</div>
+                      <div className="space-y-2 flex-1">
+                        <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
+                          Nombre del Paquete
+                        </Label>
+                        <Input 
+                          value={editingPackage.name}
+                          onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
+                          placeholder="Ej: Pack Bienestar Total"
+                          className="bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 🚀 NUEVO: Row 2: Description */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                          Descripción (Opcional)
+                        </Label>
+                        <span className="text-xs text-gray-600">
+                          {editingPackage.description?.length || 0}/200
+                        </span>
+                      </div>
+                      <Textarea 
+                        value={editingPackage.description}
+                        onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value.slice(0, 200) })}
+                        placeholder="Menciona los beneficios de adquirir este paquete..."
+                        rows={2}
+                        maxLength={200}
+                        className="bg-gray-950 border-gray-700 resize-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                      />
+                    </div>
+
+                    {/* 🚀 NUEVO: Row 3: Pricing Engine */}
+                    {editingPackage.serviceIds.length > 0 && (
+                      <div className="space-y-4 pt-4 border-t border-gray-800">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                            <Percent className="w-4 h-4 text-emerald-400" />
+                            Aplicar Descuento: {discountPercent}%
+                          </Label>
+                          <span className="text-xs font-mono text-emerald-400 font-bold">
+                            Ahorro: ${savings}
+                          </span>
+                        </div>
+                        
+                        <div className="pt-2 pb-4">
+                          <Slider 
+                            value={[discountPercent]} 
+                            max={50} 
+                            min={0}
+                            step={5}
+                            onValueChange={(vals) => applyDiscountPercent(vals[0])}
+                            className="[&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-emerald-400"
+                          />
+                        </div>
+
+                        <div className="flex gap-2 mb-4">
+                          {getSuggestedPrices(realValue).map((sug, idx) => (
+                            <Badge 
+                              key={idx}
+                              variant="outline" 
+                              className="cursor-pointer hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400 flex-1 justify-center py-1"
+                              onClick={() => applySuggestedPrice(sug.price, sug.percent)}
+                            >
+                              {sug.label}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            O ajusta el precio final manualmente
+                          </Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <Input 
+                              type="number" 
+                              min="0"
+                              value={editingPackage.price || ''}
+                              onChange={(e) => {
+                                const newPrice = Number(e.target.value);
+                                setEditingPackage({ ...editingPackage, price: newPrice });
+                                // Recalculamos el slider basado en el input manual
+                                const newPercent = calculateSavingsPercent(realValue, newPrice);
+                                setDiscountPercent(Math.max(0, Math.min(100, newPercent)));
+                              }}
+                              className="bg-gray-950 border-gray-700 pl-9 h-12 text-lg font-bold transition-all focus:border-pink-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Right Column: Services Selection */}
                   <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col h-full">
