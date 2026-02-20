@@ -1,6 +1,7 @@
 // hooks/useCatalog.ts
 import { useState, useCallback } from 'react';
 import { catalogService } from '@/services/catalog.service';
+import { storeService } from '@/services/store.service'; // 📸 Requerido para subir a GCP
 import { UI_Service, UI_Package, CatalogItemDTO, ServiceModality, ServiceDeliveryType, CancellationPolicy } from '@/types/catalog';
 import { toast } from 'react-toastify';
 
@@ -40,6 +41,7 @@ export const useCatalog = () => {
           serviceDeliveryType: mapModalityToDelivery(item.modality),
           cancellationPolicy: (item.cancellationPolicy as CancellationPolicy) || 'flexible',
           followUpPeriodDays: item.followUpPeriodDays,
+          imageUrl: item.imageUrl, // 📸 Mapeo de imagen
           isNew: false,
           hasUnsavedChanges: false
         }));
@@ -52,9 +54,10 @@ export const useCatalog = () => {
           name: item.name,
           description: item.description || '',
           price: item.price,
-          // Extraemos los IDs de los servicios incluidos a partir del 'packageContents' del response
           serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
-          isNew: false
+          imageUrl: item.imageUrl, // 📸 Mapeo de imagen
+          isNew: false,
+          hasUnsavedChanges: false
         }));
 
       setServices(loadedServices);
@@ -77,7 +80,8 @@ export const useCatalog = () => {
       durationMinutes: service.duration,
       modality: mapDeliveryToModality(service.serviceDeliveryType),
       cancellationPolicy: service.cancellationPolicy,
-      followUpPeriodDays: service.followUpPeriodDays
+      followUpPeriodDays: service.followUpPeriodDays,
+      imageUrl: service.imageUrl // 📸 Incluir en el envío
     };
 
     try {
@@ -111,7 +115,8 @@ export const useCatalog = () => {
       name: pkg.name,
       description: pkg.description,
       price: pkg.price,
-      packageItemIds: pkg.serviceIds // 🚀 ¡Magia del backend!
+      packageItemIds: pkg.serviceIds,
+      imageUrl: pkg.imageUrl // 📸 Incluir en el envío
     };
 
     try {
@@ -121,7 +126,7 @@ export const useCatalog = () => {
       } else {
         savedItem = await catalogService.updateItem(pkg.id, payload);
       }
-      return { ...pkg, id: savedItem.id!, isNew: false };
+      return { ...pkg, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Error al guardar el paquete.");
       return null;
@@ -138,9 +143,22 @@ export const useCatalog = () => {
     }
   };
 
+  // 📸 --- SUBIDA A GCP ---
+  const uploadItemImage = async (file: File): Promise<string | null> => {
+    try {
+      // Reutiliza la función de storeService con el enum correcto
+      const response = await storeService.uploadMedia(file, 'ITEM_IMAGE' as any);
+      return response.url;
+    } catch (error) {
+      console.error("Error en uploadItemImage", error);
+      toast.error("Error al subir la imagen.");
+      return null;
+    }
+  };
+
   return {
     services,
-    setServices, // Expuesto para manejo local inmediato (drag&drop, typing)
+    setServices,
     packages,
     setPackages,
     isLoading,
@@ -148,6 +166,7 @@ export const useCatalog = () => {
     saveService,
     deleteService,
     savePackage,
-    deletePackage
+    deletePackage,
+    uploadItemImage // 📸 Expuesto hacia la página
   };
 };

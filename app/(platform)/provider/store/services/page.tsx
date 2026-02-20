@@ -8,11 +8,11 @@ import { toast } from "react-toastify";
 // Componentes UI genéricos
 import { Button } from "@/components/ui/button";
 
-// Importamos los dos Managers (Asegúrate de que las rutas sean correctas)
+// Importamos los dos Managers
 import { ServicesManager } from "@/components/marketplace/ServicesManager"; 
 import { PackagesManager } from "@/components/marketplace/PackagesManager";
 
-// Importamos el Hook y los Tipos que acabamos de crear
+// Importamos el Hook y los Tipos
 import { useCatalog } from "@/hooks/useCatalog";
 import { UI_Service, UI_Package } from "@/types/catalog";
 
@@ -20,7 +20,7 @@ export default function ServicesSetupPage() {
   const router = useRouter();
   
   // ==========================================
-  // HOOK CENTRAL (Estado y Backend)
+  // HOOK CENTRAL
   // ==========================================
   const { 
     services, 
@@ -32,10 +32,10 @@ export default function ServicesSetupPage() {
     saveService, 
     deleteService, 
     savePackage, 
-    deletePackage 
+    deletePackage,
+    uploadItemImage // 📸 Función extraída
   } = useCatalog();
 
-  // Cargar inventario al montar la página
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
@@ -45,7 +45,7 @@ export default function ServicesSetupPage() {
   // ==========================================
   const handleAddService = () => {
     const newService: UI_Service = {
-      id: Date.now(), // ID temporal para React Key
+      id: Date.now(), 
       name: "",
       description: "",
       duration: 30,
@@ -55,28 +55,21 @@ export default function ServicesSetupPage() {
       isNew: true,
       hasUnsavedChanges: true,
     };
-    // Lo agregamos al inicio de la lista local
     setServices([newService, ...services]);
   };
 
   const handleUpdateService = (id: number, updates: Partial<UI_Service>) => {
-    // Actualizamos el estado local mientras el usuario escribe
     setServices(prev => 
       prev.map(s => s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s)
     );
   };
 
   const handleSaveService = async (service: UI_Service) => {
-    // Validaciones básicas de front
     if (!service.name || service.price <= 0) {
       toast.error("El nombre y precio son obligatorios");
       return;
     }
-
-    // Llamamos al Hook que se comunica con Java
     const saved = await saveService(service);
-    
-    // Si la BD responde bien, actualizamos la UI con los datos reales
     if (saved) {
       setServices(prev => prev.map(s => s.id === service.id ? saved : s));
       toast.success(`Servicio "${saved.name}" guardado exitosamente`);
@@ -84,24 +77,20 @@ export default function ServicesSetupPage() {
   };
 
   const handleDeleteService = async (id: number) => {
-    // 1. Validar si el servicio está agrupado en algún paquete
     const isInPackage = packages.some(pkg => pkg.serviceIds.includes(id));
     if (isInPackage) {
       toast.error("No puedes borrar este servicio porque está incluido en un Paquete.");
       return;
     }
 
-    // 2. Encontrar el servicio
     const serviceToDelete = services.find(s => s.id === id);
     if (!serviceToDelete) return;
 
-    // 3. Si era un borrador (isNew), solo lo borramos de React
     if (serviceToDelete.isNew) {
       setServices(prev => prev.filter(s => s.id !== id));
       return;
     }
 
-    // 4. Si es real, lo borramos en Java
     const success = await deleteService(id);
     if (success) {
       setServices(prev => prev.filter(s => s.id !== id));
@@ -112,17 +101,25 @@ export default function ServicesSetupPage() {
   const handleDuplicateService = (service: UI_Service) => {
     const duplicatedService: UI_Service = {
       ...service,
-      id: Date.now(), // Nuevo ID temporal
+      id: Date.now(),
       name: `${service.name} (Copia)`,
+      imageUrl: undefined, // 📸 Evitamos copiar la imagen por default para que suban una nueva
       isNew: true,
       hasUnsavedChanges: true,
     };
-    
-    // Lo insertamos justo debajo del original
     const index = services.findIndex(s => s.id === service.id);
     const newServices = [...services];
     newServices.splice(index + 1, 0, duplicatedService);
     setServices(newServices);
+  };
+
+  // 📸 Subir Imagen para Servicio
+  const handleServiceImageUpload = async (id: number, file: File) => {
+    const newUrl = await uploadItemImage(file);
+    if (newUrl) {
+      handleUpdateService(id, { imageUrl: newUrl });
+      toast.success("Imagen de servicio cargada");
+    }
   };
 
   // ==========================================
@@ -130,13 +127,10 @@ export default function ServicesSetupPage() {
   // ==========================================
   const handleSavePackage = async (pkg: UI_Package) => {
     const saved = await savePackage(pkg);
-    
     if (saved) {
       if (pkg.isNew) {
-        // Si era nuevo, lo reemplazamos en la lista (para que tenga su ID real de BD)
         setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
       } else {
-        // Si ya existía, actualizamos sus datos
         setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
       }
       toast.success("Paquete guardado exitosamente");
@@ -159,6 +153,17 @@ export default function ServicesSetupPage() {
     }
   };
 
+  // 📸 Subir Imagen para Paquete
+  const handlePackageImageUpload = async (id: number, file: File) => {
+    const newUrl = await uploadItemImage(file);
+    if (newUrl) {
+      setPackages(prev => prev.map(p => 
+        p.id === id ? { ...p, imageUrl: newUrl, hasUnsavedChanges: true } : p
+      ));
+      toast.success("Imagen de paquete cargada");
+    }
+  };
+
   // ==========================================
   // RENDER
   // ==========================================
@@ -171,9 +176,7 @@ export default function ServicesSetupPage() {
     );
   }
 
-  // Verifica si hay servicios sin guardar para mostrar la advertencia arriba
   const hasUnsavedServices = services.some(s => s.hasUnsavedChanges || s.isNew);
-  // Filtramos los servicios que ya están guardados en BD para que los paquetes solo usen servicios reales
   const availableServicesForPackages = services.filter(s => !s.isNew && !s.hasUnsavedChanges);
 
   return (
@@ -210,13 +213,14 @@ export default function ServicesSetupPage() {
 
       {/* Sección 1: Servicios Individuales */}
       <ServicesManager 
-        // @ts-ignore - Ignoramos tipado estricto si tus interfaces del componente difieren ligeramente
+        // @ts-ignore
         services={services}
         onAdd={handleAddService}
         onUpdate={handleUpdateService}
         onSave={handleSaveService}
         onDelete={handleDeleteService}
         onDuplicate={handleDuplicateService}
+        onImageUpload={handleServiceImageUpload} // 📸 Prop de imagen enviada
       />
 
       {/* Separador Visual Elegante */}
@@ -232,6 +236,7 @@ export default function ServicesSetupPage() {
         availableServices={availableServicesForPackages}
         onSave={handleSavePackage}
         onDelete={handleDeletePackage}
+        onImageUpload={handlePackageImageUpload} // 📸 Prop de imagen enviada
       />
       
     </div>

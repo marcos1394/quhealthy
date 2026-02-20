@@ -19,7 +19,8 @@ import {
   TrendingUp,
   Sparkles,
   X,
-  Tag
+  Tag,
+  Camera
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -40,6 +41,7 @@ import { cn } from "@/lib/utils";
 export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';
 export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
 
+
 export interface Service {
   id: number;
   name: string;
@@ -49,6 +51,7 @@ export interface Service {
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
   followUpPeriodDays?: number;
+  imageUrl?: string; // 📸 NUEVO
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
@@ -60,6 +63,7 @@ interface ServicesManagerProps {
   onDelete: (id: number) => void;
   onSave: (service: Service) => void;
   onDuplicate?: (service: Service) => void;
+  onImageUpload?: (id: number, file: File) => void; // 📸 NUEVO
 }
 
 // Common service templates - SATISFICING
@@ -79,7 +83,8 @@ export function ServicesManager({
   onUpdate, 
   onDelete, 
   onSave,
-  onDuplicate 
+  onDuplicate,
+  onImageUpload 
 }: ServicesManagerProps) {
   const [showTemplates, setShowTemplates] = useState(false);
   const [expandedService, setExpandedService] = useState<number | null>(null);
@@ -328,81 +333,60 @@ export function ServicesManager({
 
                   {/* Form Grid */}
                   <div className="space-y-5">
+                  {/* Row 1: Image & Name */}
+<div className="flex gap-4 items-start">
+  
+  {/* 📸 Recuadro de Imagen */}
+  <div className="relative group/service-img flex-shrink-0">
+    <div className={cn(
+      "w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950",
+      service.imageUrl ? "border-purple-500/50" : "border-dashed border-gray-700 hover:border-purple-500/50 hover:bg-gray-800"
+    )}>
+      {service.imageUrl ? (
+        <img src={service.imageUrl} alt="Servicio" className="w-full h-full object-cover" />
+      ) : (
+        <>
+          <Camera className="w-5 h-5 text-gray-500 mb-1 group-hover/service-img:text-purple-400 transition-colors" />
+          <span className="text-[9px] text-gray-500 font-bold uppercase">Foto</span>
+        </>
+      )}
+    </div>
+    <input 
+      type="file" 
+      accept="image/*"
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file && onImageUpload) {
+          onImageUpload(service.id, file);
+        }
+        e.target.value = ''; // Limpiar input
+      }}
+    />
+  </div>
+
+  {/* Input del Nombre */}
+  <div className="space-y-2 flex-1">
+    <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+      Nombre del Servicio
+    </Label>
+    <Input 
+      value={service.name}
+      onChange={(e) => {
+        onUpdate(service.id, { name: e.target.value, hasUnsavedChanges: true });
+      }}
+      placeholder="Ej: Consulta General, Valoración Inicial..."
+      className={cn(
+        "bg-gray-900 border-gray-700 h-12 text-base transition-all",
+        "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
+        !service.name ? "border-red-500/50" : ""
+      )}
+    />
+  </div>
+</div>
                     
-                    {/* Row 1: Name and Price/Duration */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                      <div className="space-y-2">
-                        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                          Nombre del Servicio
-                        </Label>
-                        <Input 
-                          value={service.name}
-                          onChange={(e) => {
-                            onUpdate(service.id, { name: e.target.value, hasUnsavedChanges: true });
-                          }}
-                          placeholder="Ej: Consulta General, Valoración Inicial..."
-                          className={cn(
-                            "bg-gray-900 border-gray-700 h-12 text-base transition-all",
-                            "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-                            !service.name ? "border-red-500/50" : ""
-                          )}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                            <DollarSign className="w-3 h-3" /> Precio
-                          </Label>
-                          <Input 
-                            type="number"
-                            value={service.price}
-                            onChange={(e) => {
-                              onUpdate(service.id, { price: Number(e.target.value), hasUnsavedChanges: true });
-                            }}
-                            className={cn(
-                              "bg-gray-900 border-gray-700 h-12 text-lg font-bold transition-all",
-                              "focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20",
-                              priceWarning && priceWarning.level === 'low' ? "border-amber-500/50" : "",
-                              service.price === 0 ? "border-red-500/50" : ""
-                            )}
-                          />
-                          {priceWarning && (
-                            <p className="text-xs text-amber-400 flex items-center gap-1">
-                              <Info className="w-3 h-3" />
-                              {priceWarning.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> Duración
-                          </Label>
-                          <Select
-                            value={String(service.duration)}
-                            onValueChange={(val) => {
-                              onUpdate(service.id, { duration: Number(val), hasUnsavedChanges: true });
-                            }}
-                          >
-                            <SelectTrigger className={cn(
-                              "bg-gray-900 border-gray-700 h-12",
-                              getDurationColor(service.duration)
-                            )}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-900 border-gray-800">
-                              {commonDurations.map(dur => (
-                                <SelectItem key={dur} value={String(dur)}>
-                                  {dur} minutos
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-
+                    
+                   
                     {/* Row 2: Description */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">

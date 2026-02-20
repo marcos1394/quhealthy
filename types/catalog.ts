@@ -13,6 +13,7 @@ export interface CatalogItemDTO {
   category?: string;
   description?: string;
   price: number;
+  imageUrl?: string; // 📸 Agregado para GCP
   
   // Específico de Servicios
   durationMinutes?: number;
@@ -25,7 +26,7 @@ export interface CatalogItemDTO {
   packageContents?: any[]; // Resumen que manda el backend
 }
 
-// Interfaz para la UI de Servicios (Extiende para manejar estados visuales)
+// Interfaz para la UI de Servicios
 export interface UI_Service {
   id: number;
   name: string;
@@ -35,6 +36,7 @@ export interface UI_Service {
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
   followUpPeriodDays?: number;
+  imageUrl?: string; // 📸 Agregado
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
@@ -46,5 +48,7 @@ export interface UI_Package {
   description: string;
   price: number;
   serviceIds: number[];
+  imageUrl?: string; // 📸 Agregado
   isNew?: boolean;
+  hasUnsavedChanges?: boolean;
 }

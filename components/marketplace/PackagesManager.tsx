@@ -17,7 +17,8 @@ import {
   Percent,
   X,
   Zap,
-  ShoppingCart
+  ShoppingCart,
+  Camera
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -44,6 +45,7 @@ export interface ServicePackage {
   description: string;
   price: number;
   serviceIds: number[];
+  imageUrl?: string; // 📸 NUEVO
   isNew?: boolean;
   color?: string;
 }
@@ -53,13 +55,15 @@ interface PackagesManagerProps {
   availableServices: Service[];
   onSave: (pkg: ServicePackage) => void;
   onDelete: (id: number) => void;
+  onImageUpload?: (id: number, file: File) => void; // 📸 NUEVO
 }
 
 export function PackagesManager({ 
   packages, 
   availableServices, 
   onSave, 
-  onDelete 
+  onDelete,
+  onImageUpload
 }: PackagesManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<ServicePackage | null>(null);
@@ -410,92 +414,53 @@ export function PackagesManager({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   
                   {/* Left Column: Package Details */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-                        <Tag className="w-4 h-4 text-purple-400" />
-                        Nombre del Paquete
-                      </Label>
-                      <Input 
-                        value={editingPackage.name}
-                        onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                        placeholder="Ej: Pack Bienestar Total"
-                        className="bg-gray-950 border-gray-700 h-12 text-base focus:border-purple-500"
-                      />
-                    </div>
+                 <div className="flex gap-4 items-start">
+  {/* 📸 Imagen del Paquete */}
+  <div className="relative group/pkg-img flex-shrink-0">
+    <div className={cn(
+      "w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950",
+      editingPackage.imageUrl ? "border-pink-500/50" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-800"
+    )}>
+      {editingPackage.imageUrl ? (
+        <img src={editingPackage.imageUrl} alt="Paquete" className="w-full h-full object-cover" />
+      ) : (
+        <>
+          <Camera className="w-5 h-5 text-gray-500 mb-1 group-hover/pkg-img:text-pink-400 transition-colors" />
+          <span className="text-[9px] text-gray-500 font-bold uppercase">Foto</span>
+        </>
+      )}
+    </div>
+    <input 
+      type="file" 
+      accept="image/*"
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file && onImageUpload && editingPackage) {
+          // Actualizamos localmente para feedback inmediato
+          const tempUrl = URL.createObjectURL(file);
+          setEditingPackage({ ...editingPackage, imageUrl: tempUrl });
+          // Llamamos a la subida real a GCP
+          onImageUpload(editingPackage.id, file);
+        }
+        e.target.value = '';
+      }}
+    />
+  </div>
 
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-                        <DollarSign className="w-4 h-4 text-emerald-400" />
-                        Precio Final
-                      </Label>
-                      <Input 
-                        type="number"
-                        value={editingPackage.price}
-                        onChange={(e) => setEditingPackage({ ...editingPackage, price: Number(e.target.value) })}
-                        className="bg-gray-950 border-gray-700 h-14 text-2xl font-black focus:border-emerald-500"
-                      />
-                    </div>
-
-                    {/* Discount Slider - SATISFICING */}
-                    {realValue > 0 && (
-                      <div className="space-y-3 p-4 bg-gray-950 border border-gray-800 rounded-xl">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs font-bold uppercase tracking-wider">
-                            Descuento Rápido
-                          </Label>
-                          <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-                            <Percent className="w-3 h-3 mr-1" />
-                            {discountPercent}%
-                          </Badge>
-                        </div>
-                        <Slider
-                          value={[discountPercent]}
-                          onValueChange={([value]) => applyDiscountPercent(value)}
-                          max={50}
-                          step={5}
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-
-                    {/* Quick Suggestions - SATISFICING */}
-                    {realValue > 0 && (
-                      <div className="space-y-2">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                          Sugerencias Populares
-                        </Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {getSuggestedPrices(realValue).map((suggestion) => (
-                            <Button
-                              key={suggestion.percent}
-                              variant="outline"
-                              onClick={() => applySuggestedPrice(suggestion.price, suggestion.percent)}
-                              className={cn(
-                                "flex flex-col items-center py-3 h-auto",
-                                suggestion.color === 'emerald' ? "border-emerald-500/30 hover:bg-emerald-500/10" : "",
-                                suggestion.color === 'purple' ? "border-purple-500/30 hover:bg-purple-500/10" : "",
-                                suggestion.color === 'blue' ? "border-blue-500/30 hover:bg-blue-500/10" : ""
-                              )}
-                            >
-                              <span className="text-xs font-bold text-gray-400">{suggestion.label}</span>
-                              <span className="text-lg font-black text-white">${suggestion.price}</span>
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label>Descripción</Label>
-                      <Textarea 
-                        value={editingPackage.description}
-                        onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value })}
-                        placeholder="Describe los beneficios del paquete..."
-                        className="bg-gray-950 border-gray-700 resize-none h-24 focus:border-purple-500"
-                      />
-                    </div>
-                  </div>
+  <div className="space-y-2 flex-1">
+    <Label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+      <Tag className="w-4 h-4 text-purple-400" />
+      Nombre del Paquete
+    </Label>
+    <Input 
+      value={editingPackage.name}
+      onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
+      placeholder="Ej: Pack Bienestar Total"
+      className="bg-gray-950 border-gray-700 h-12 text-base focus:border-purple-500"
+    />
+  </div>
+</div>
 
                   {/* Right Column: Services Selection */}
                   <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col h-full">
