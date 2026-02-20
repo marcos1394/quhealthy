@@ -13,83 +13,52 @@ import {
   CreditCard,
   Settings,
   Store,
-  Shield,
   LogOut,
-  Activity,
   ChevronRight,
-  Sparkles,
-  TrendingUp,
   Bell,
   HelpCircle,
   Crown,
-  ChevronLeft
+  ChevronLeft,
+  BriefcaseMedical,
+  UserCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "react-toastify";
 
-/**
- * Sidebar Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. JERARQUÍA VISUAL
- *    - Active state destacado (purple gradient)
- *    - Secciones claramente separadas
- *    - Icons con colores distintivos
- *    - Badges informativos
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Active indicator visual
- *    - Hover effects claros
- *    - Collapse animation suave
- *    - Badge counters
- * 
- * 3. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Icons descriptivos por sección
- *    - Labels claros
- *    - Tooltips en collapsed mode
- *    - Visual grouping
- * 
- * 4. PRIMING
- *    - Quick stats visibles
- *    - Unread badges
- *    - Premium indicator
- *    - Growth metrics
- * 
- * 5. AFFORDANCE
- *    - Clickable areas claras
- *    - Hover states distintos
- *    - Collapse toggle visible
- *    - Clear CTAs
- * 
- * 6. CREDIBILIDAD
- *    - Professional branding
- *    - Stats display
- *    - Plan badge
- *    - Trust indicators
- */
+// 🚀 1. IMPORTAMOS TU HOOK DE AUTH
+import { useAuth } from "@/hooks/useAuth"; // Ajusta la ruta si es necesario
 
-// Sidebar links con badges y counters - PRIMING
+// MENÚS REALES DEL NEGOCIO
 const sidebarLinks = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "Agenda", href: "/dashboard/calendar", icon: CalendarDays, badge: { count: 8, color: 'blue' } },
-  { label: "Pacientes", href: "/dashboard/patients", icon: Users, badge: { count: 3, color: 'emerald' } },
-  { label: "Finanzas", href: "/dashboard/finance", icon: CreditCard, badge: null },
-  { label: "Mi Tienda", href: "/dashboard/store", icon: Store, badge: null },
+  { label: "Resumen", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
+  { label: "Agenda", href: "/provider/calendar", icon: CalendarDays, badge: { count: 3, color: 'blue' } },
+  { label: "Pacientes", href: "/provider/patients", icon: Users, badge: null },
+  { label: "Mis Servicios", href: "/provider/services", icon: BriefcaseMedical, badge: null },
+  { label: "Finanzas", href: "/provider/finance", icon: CreditCard, badge: null },
 ];
 
 const settingsLinks = [
-  { label: "Seguridad", href: "/settings/security", icon: Shield, badge: null },
-  { label: "Actividad", href: "/settings/security/activity", icon: Activity, badge: null },
-  { label: "Configuración", href: "/settings/general", icon: Settings, badge: null },
+  { label: "Mi Perfil Público", href: "/provider/profile", icon: UserCircle, badge: null },
+  { label: "Configuración", href: "/provider/settings", icon: Settings, badge: null },
 ];
 
 export const Sidebar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Extraemos la función logout de tu hook
+  const { logout } = useAuth(); 
 
-  // NavItem Component - JERARQUÍA VISUAL
+  // 🚀 2. LÓGICA DE CERRAR SESIÓN DELEGADA AL HOOK
+  const handleLogout = () => {
+    toast.info("Sesión cerrada exitosamente", { autoClose: 2000 });
+    // El hook ya se encarga de limpiar el Store, localStorage y redirigir
+    logout(); 
+  };
+
+  // NavItem Component
   const NavItem = ({  
     href, 
     icon: Icon, 
@@ -101,7 +70,8 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
     label: string;
     badge?: { count: number; color: string } | null;
   }) => {
-    const isActive = pathname === href || (href !== "/dashboard" && pathname?.startsWith(href));
+    // Lógica para marcar activo (exacto o subrutas)
+    const isActive = pathname === href || (href !== "/provider/dashboard" && pathname?.startsWith(href));
 
     return (
       <Link
@@ -113,7 +83,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             : "text-gray-400 hover:text-white hover:bg-gray-800/50"
         )}
       >
-        {/* Active Indicator */}
+        {/* Active Indicator Animado */}
         {isActive && (
           <motion.div
             layoutId="activeTab"
@@ -144,25 +114,19 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             )}
           </AnimatePresence>
 
-          {/* Badge Counter - PRIMING */}
+          {/* Badges de Notificación */}
           {badge && !isCollapsed && (
             <Badge 
               className={cn(
                 "ml-auto text-xs px-1.5 min-w-[20px] h-5",
                 badge.color === 'blue' ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "",
-                badge.color === 'emerald' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "",
-                badge.color === 'purple' ? "bg-purple-500/10 text-purple-400 border-purple-500/20" : ""
+                badge.color === 'emerald' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : ""
               )}
             >
               {badge.count}
             </Badge>
           )}
         </div>
-
-        {/* Chevron Indicator */}
-        {isActive && !isCollapsed && (
-          <ChevronRight className="w-4 h-4 text-white ml-auto opacity-50" />
-        )}
       </Link>
     );
   };
@@ -173,12 +137,12 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
         "flex flex-col h-full bg-gray-950 border-r border-gray-800 relative",      
-        ` ${className ?? ""}`
+        className
       )}
     >
-      {/* Logo Area */}
+      {/* Header del Sidebar / Logo */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800">
-        <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
+        <Link href="/provider/dashboard" className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/30">
             <span className="font-black text-white text-lg">Q</span>
           </div>
@@ -197,49 +161,35 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
           </AnimatePresence>
         </Link>
 
-        {/* Collapse Toggle - AFFORDANCE */}
+        {/* Botón Colapsar */}
         <Button
           variant="ghost"
           size="default"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg h-8 w-8 flex-shrink-0"
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </Button>
       </div>
 
-      {/* Quick Stats Banner - CREDIBILIDAD */}
+      {/* Banner de Plan (Solo visible expandido) */}
       {!isCollapsed && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mx-4 mt-4 p-3 bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20 rounded-xl"
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2">
             <Crown className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-bold text-purple-400">Plan Premium</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-center">
-            <div>
-              <p className="text-lg font-black text-emerald-400">24</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Hoy</p>
-            </div>
-            <div>
-              <p className="text-lg font-black text-blue-400">4.8★</p>
-              <p className="text-[9px] text-gray-500 uppercase tracking-wider">Rating</p>
-            </div>
+            <span className="text-xs font-bold text-purple-400">Plan Básico</span>
           </div>
         </motion.div>
       )}
 
-      {/* Scrollable Content */}
+      {/* Contenido Scrolleable (Menús) */}
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6 custom-scrollbar">
         
-        {/* Main Menu */}
+        {/* Sección Principal */}
         <nav>
           <AnimatePresence>
             {!isCollapsed && (
@@ -253,7 +203,6 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
               </motion.h3>
             )}
           </AnimatePresence>
-          
           <div className="space-y-1">
             {sidebarLinks.map((link) => (
               <NavItem key={link.href} {...link} />
@@ -263,7 +212,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
 
         <Separator className="bg-gray-800" />
 
-        {/* Settings Menu */}
+        {/* Sección Ajustes */}
         <nav>
           <AnimatePresence>
             {!isCollapsed && (
@@ -273,11 +222,10 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
                 exit={{ opacity: 0, height: 0 }}
                 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2"
               >
-                Ajustes
+                Configuración
               </motion.h3>
             )}
           </AnimatePresence>
-          
           <div className="space-y-1">
             {settingsLinks.map((link) => (
               <NavItem key={link.href} {...link} />
@@ -286,42 +234,26 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
         </nav>
       </div>
 
-      {/* Quick Actions Section */}
-      {!isCollapsed && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 pb-4 space-y-2"
-        >
+      {/* Footer: Acciones y Logout */}
+      <div className="p-4 border-t border-gray-800 space-y-2">
+        {!isCollapsed && (
           <Button
-            variant="outline"
-            className="w-full justify-start gap-2 border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 h-10"
+            variant="ghost"
+            className="w-full justify-start gap-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl"
           >
-            <Bell className="w-4 h-4" />
-            <span className="text-sm">Notificaciones</span>
-            <Badge className="ml-auto bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs">
-              3
-            </Badge>
+            <HelpCircle className="w-5 h-5" />
+            <span className="text-sm font-semibold">Soporte</span>
           </Button>
+        )}
 
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-2 border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 h-10"
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span className="text-sm">Ayuda</span>
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Footer / Logout */}
-      <div className="p-4 border-t border-gray-800">
         <button 
+          onClick={handleLogout}
           className={cn(
             "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all group",
-            "text-gray-400 hover:text-red-400 hover:bg-red-900/10",
+            "text-gray-400 hover:text-red-400 hover:bg-red-500/10",
             isCollapsed ? "justify-center" : ""
           )}
+          title={isCollapsed ? "Cerrar Sesión" : ""}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           <AnimatePresence>
@@ -338,18 +270,6 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
           </AnimatePresence>
         </button>
       </div>
-
-      {/* Collapsed Stats Indicator */}
-      {isCollapsed && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute top-20 left-1/2 -translate-x-1/2 flex flex-col gap-2"
-        >
-          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-          <div className="w-2 h-2 bg-blue-500 rounded-full" />
-        </motion.div>
-      )}
     </motion.div>
   );
 };
