@@ -3,10 +3,6 @@ import { Inter } from 'next/font/google';
 import CustomProvider from "@/components/ui/provider";
 import "./globals.css";
 
-// --- IMPORTACIÓN DE COMPONENTES UI (NUEVO) ---
-import { Navbar } from "@/components/Navbar"; // Asegúrate de que Navbar.tsx esté en components
-import Footer from "@/components/Footer";     // Asegúrate de que Footer.tsx esté en components
-
 // Vercel Pro Observability
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -83,26 +79,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.className} bg-gray-900 text-white antialiased`}>
+      <body className={`${inter.className} bg-gray-900 text-white antialiased flex flex-col min-h-screen`}>
         
         <CustomProvider>
-          {/* Estructura Flex Global:
-            1. Navbar: Fijo arriba (fixed en su componente).
-            2. Main: Ocupa el espacio restante (flex-grow) y tiene padding-top (pt-20) 
-               para no quedar oculto bajo el Navbar.
-            3. Footer: Siempre al final.
-          */}
-          <div className="flex flex-col min-h-screen">
-            
-            <Navbar />
-            
-            <main className="flex-grow pt-20 relative z-0">
-               {children}
-            </main>
-
-            <Footer />
-            
-          </div>
+          {/* 🚀 AQUÍ SOLO SE RENDERIZAN LOS LAYOUTS HIJOS. CERO NAVBAR O FOOTER */}
+          {children}
           
           {/* Componente de notificaciones global */}
           <ToastContainer theme="dark" position="bottom-right" />
@@ -111,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Analytics />
           <SpeedInsights />
         </CustomProvider>
+        
       </body>
     </html>
   );

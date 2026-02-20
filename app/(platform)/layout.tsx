@@ -23,7 +23,6 @@ export default function PlatformLayout({
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
         
         {/* 3. Contenido Scrollable */}
-        {/* Añadimos pt-6 para compensar la eliminación del Header */}
         <main className="flex-1 overflow-x-hidden relative pt-6">
           <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl animate-in fade-in-0 duration-500">
             {children}
