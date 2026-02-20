@@ -6,23 +6,19 @@ import { ArrowLeft, Save, Loader2, Sparkles } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
-// Asegúrate de que las rutas a tus componentes sean correctas
 import { VisualIdentitySection, IdentitySettings } from "@/components/marketplace/VisualIdentitySection";
-import { PublicInfoSection, PublicInfoSettings } from "@/components/marketplace/PublicInfoSection"; // Ajusta la ruta
+import { PublicInfoSection, PublicInfoSettings } from "@/components/marketplace/PublicInfoSection";
 
 // Hook del backend
 import { useStoreProfile } from "@/hooks/useStoreProfile"; 
 
-// Unimos los tipos localmente para manejar todo el formulario
 type FullStoreSettings = IdentitySettings & PublicInfoSettings;
 
 export default function IdentitySetupPage() {
   const router = useRouter();
   
-  // Extraemos datos del Hook
   const { profile, isLoading, isSaving, updateProfile, uploadMedia } = useStoreProfile();
 
-  // Estado unificado para toda la página
   const [settings, setSettings] = useState<FullStoreSettings>({
     storeName: "",
     storeSlug: "",
@@ -33,7 +29,6 @@ export default function IdentitySetupPage() {
     videoUrl: ""
   });
 
-  // Pre-llenar inputs cuando lleguen los datos de GCP/BD
   useEffect(() => {
     if (profile) {
       setSettings({
@@ -48,18 +43,19 @@ export default function IdentitySetupPage() {
     }
   }, [profile]);
 
-  // Handler genérico para inputs de texto/color en cualquier componente
   const handleChange = (key: keyof FullStoreSettings, value: string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  // 💾 Guardar TODO en la Base de Datos
+  // 💾 Guardar TODO en la Base de Datos con mejor UX
   const handleSave = async () => {
+    // 1. Validaciones
     if (!settings.storeName || !settings.storeSlug) {
-      toast.error("El nombre del consultorio y la URL son obligatorios");
+      toast.warning("El nombre del consultorio y la URL son obligatorios");
       return;
     }
 
+    // 2. Llamada al Backend
     const success = await updateProfile({
       displayName: settings.storeName,
       slug: settings.storeSlug,
@@ -70,17 +66,24 @@ export default function IdentitySetupPage() {
       previewVideoUrl: settings.videoUrl
     });
 
+    // 3. Feedback visual (La clave para que el usuario sepa que funcionó)
     if (success) {
-      router.push("/provider/store"); 
+      toast.success("¡Perfil guardado con éxito!");
+      // Opcional: un pequeño delay para que el usuario lea el Toast antes del salto
+      setTimeout(() => {
+        router.push("/provider/store"); 
+      }, 800);
+    } else {
+      toast.error("Hubo un problema al guardar. Intenta de nuevo.");
     }
   };
 
-  // ☁️ Subida de Imágenes (Logo, Banner)
   const handleImageUpload = async (type: 'logo' | 'banner', file: File) => {
     const mediaType = type === 'logo' ? 'LOGO' : 'BANNER';
     const newUrl = await uploadMedia(file, mediaType);
     if (newUrl) {
       handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', newUrl);
+      toast.success(`Imagen subida a la nube correctamente`);
     }
   };
 
@@ -88,11 +91,11 @@ export default function IdentitySetupPage() {
     handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', "");
   };
 
-  // ☁️ Subida de Video (GCP)
   const handleVideoUpload = async (file: File) => {
     const newUrl = await uploadMedia(file, 'PREVIEW_VIDEO');
     if (newUrl) {
       handleChange('videoUrl', newUrl);
+      toast.success(`Video procesado y guardado`);
     }
   };
 
@@ -100,7 +103,6 @@ export default function IdentitySetupPage() {
     handleChange('videoUrl', "");
   };
 
-  // Pantalla de carga inicial
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
@@ -110,14 +112,14 @@ export default function IdentitySetupPage() {
     );
   }
 
-  // Simulación: Comprobar si el usuario es Premium (puedes sacar esto del Token de tu SessionStore después)
-  const isPremiumUser = true; // Cambiar a false para ver el diseño del "Upsell"
+  const isPremiumUser = true;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16">
+    <div className="max-w-5xl mx-auto pb-16 relative">
       
-      {/* 🚀 Top Bar Navigation */}
-      <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-2xl border border-gray-800 shadow-xl sticky top-20 z-40 backdrop-blur-md">
+      {/* 🚀 Top Bar Navigation - UX MEJORADA */}
+      {/* Agregamos mb-8 para empujar el contenido hacia abajo, oscurecemos el fondo y aumentamos el blur */}
+      <div className="flex items-center justify-between bg-gray-950/90 p-4 rounded-2xl border border-gray-700 shadow-2xl sticky top-24 z-50 backdrop-blur-xl mb-8">
         <Button 
           variant="ghost" 
           onClick={() => router.push('/provider/store')}
@@ -141,7 +143,7 @@ export default function IdentitySetupPage() {
       </div>
 
       {/* Header Contextual */}
-      <div className="px-2">
+      <div className="px-2 mb-8">
         <h1 className="text-3xl font-black text-white flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-purple-400" />
           Perfil del Consultorio
@@ -151,8 +153,7 @@ export default function IdentitySetupPage() {
         </p>
       </div>
 
-      <div className="space-y-8">
-        {/* Sección 1: Identidad Visual (Logo, Banner, URL, Color) */}
+      <div className="space-y-12">
         <VisualIdentitySection 
           settings={{
             storeName: settings.storeName,
@@ -166,7 +167,6 @@ export default function IdentitySetupPage() {
           onImageDelete={handleImageDelete}
         />
 
-        {/* Sección 2: Información Pública (Bio y Video) */}
         <PublicInfoSection 
           settings={{
             description: settings.description,
