@@ -261,7 +261,7 @@ const DiscoverMapContent = () => {
                           style={isSelected ? { backgroundColor: provider.color } : {}}
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`/store/${provider.slug}`, '_blank');
+                            window.open(`/provider/store/${provider.slug}`, '_blank');
                           }}
                         >
                           Ver Tienda <ChevronRight className="w-3 h-3 ml-1" />
