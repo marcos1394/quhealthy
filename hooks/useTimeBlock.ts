@@ -1,0 +1,29 @@
+// hooks/useTimeBlock.ts
+import { useState } from 'react';
+import { scheduleService } from '@/services/schedule.service';
+import { CreateTimeBlockPayload } from '@/types/schedule';
+import { toast } from 'react-toastify';
+
+export const useTimeBlock = () => {
+  const [isCreating, setIsCreating] = useState(false);
+
+  const createBlock = async (payload: CreateTimeBlockPayload): Promise<boolean> => {
+    setIsCreating(true);
+    try {
+      await scheduleService.createTimeBlock(payload);
+      return true; // Retornamos true si fue exitoso
+    } catch (error: any) {
+      console.error("Error al crear el bloqueo:", error);
+      const errorMessage = error.response?.data?.message || "Ocurrió un error al bloquear el horario.";
+      toast.error(errorMessage);
+      return false; // Retornamos false si falló
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return {
+    createBlock,
+    isCreating
+  };
+};

@@ -1,84 +1,28 @@
+// components/provider/schedule/TimeBlockModal.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Calendar, 
-  Loader2, 
-  Plus, 
-  Sparkles, 
-  Clock, 
-  AlertCircle,
-  X,
-  Coffee,
-  Utensils,
-  Plane,
-  Sun,
-  Moon,
-  Info,
-  CheckCircle2,
-  Zap
+  Calendar, Loader2, Plus, Sparkles, Clock, AlertCircle,
+  X, Coffee, Utensils, Plane, Sun, Info, CheckCircle2, Zap
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+
+// 🚀 IMPORTAMOS TU INSTANCIA DE AXIOS
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-
-/**
- * TimeBlockModal Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR CARGA COGNITIVA
- *    - Templates predefinidos (Almuerzo, Break, Vacaciones)
- *    - Auto-cálculo de duración
- *    - Defaults inteligentes
- *    - Quick actions
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Validación en tiempo real
- *    - Preview de duración
- *    - Estados visuales claros
- *    - Error messages inline
- * 
- * 3. MINIMIZAR ERRORES
- *    - Validación de fechas
- *    - End time auto-adjust
- *    - Warnings visibles
- *    - Confirmación clara
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Iconos por tipo de bloqueo
- *    - Colores distintivos
- *    - Labels claros
- *    - Templates visuales
- * 
- * 5. AFFORDANCE
- *    - Templates clickeables
- *    - Estados disabled claros
- *    - Hover effects
- *    - Visual hierarchy
- * 
- * 6. CREDIBILIDAD
- *    - Duración calculada visible
- *    - Impacto explicado
- *    - Preview claro
- *    - Sin sorpresas
- */
+import { useTimeBlock } from '@/hooks/useTimeBlock';
 
 interface TimeBlockModalProps {
   isOpen: boolean;
@@ -87,7 +31,7 @@ interface TimeBlockModalProps {
   initialDate?: Date;
 }
 
-// Templates predefinidos - MINIMIZAR CARGA COGNITIVA
+// Templates predefinidos
 const blockTemplates = [
   {
     id: 'lunch',
@@ -128,10 +72,7 @@ const blockTemplates = [
 ];
 
 export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSaveSuccess,
-  initialDate 
+  isOpen, onClose, onSaveSuccess, initialDate 
 }) => {
   const [formData, setFormData] = useState({
     title: 'Tiempo Bloqueado',
@@ -145,18 +86,20 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
   const [validationError, setValidationError] = useState<string>('');
   const [duration, setDuration] = useState<number>(0);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-
-  // Prellenar o resetear - DEFAULTS INTELIGENTES
+  const { createBlock, isCreating } = useTimeBlock();
+  // Prellenar al abrir
   useEffect(() => {
     if (isOpen) {
       const today = initialDate || new Date();
-      const dateString = today.toISOString().split('T')[0];
+      // Ajuste de zona horaria para evitar que dé el día anterior
+      const offset = today.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(today.getTime() - offset)).toISOString().split('T')[0];
       
       setFormData({
         title: 'Tiempo Personal',
-        startDate: dateString,
+        startDate: localISOTime,
         startTime: '12:00',
-        endDate: dateString,
+        endDate: localISOTime,
         endTime: '13:00',
       });
       
@@ -166,7 +109,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
     }
   }, [isOpen, initialDate]);
 
-  // Calcular duración automáticamente - FEEDBACK INMEDIATO
+  // Calcular duración y validar
   useEffect(() => {
     if (formData.startDate && formData.startTime && formData.endDate && formData.endTime) {
       const start = new Date(`${formData.startDate}T${formData.startTime}`);
@@ -176,11 +119,8 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
       
       setDuration(diffMins);
 
-      // Validación - MINIMIZAR ERRORES
       if (diffMins <= 0) {
         setValidationError('La hora de fin debe ser posterior al inicio');
-      } else if (diffMins > 1440) { // > 24 horas
-        setValidationError('El bloqueo no puede exceder 24 horas en un día');
       } else {
         setValidationError('');
       }
@@ -191,26 +131,26 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Aplicar template - SATISFICING
   const applyTemplate = (templateId: string) => {
     const template = blockTemplates.find(t => t.id === templateId);
     if (!template) return;
 
-    const now = new Date(formData.startDate || new Date().toISOString().split('T')[0]);
-    const startTime = '12:00'; // Default start
-    const [hours, minutes] = startTime.split(':').map(Number);
+    const startStr = formData.startDate || new Date().toISOString().split('T')[0];
+    const startTimeStr = '12:00'; 
+    const [hours, minutes] = startTimeStr.split(':').map(Number);
     
-    const start = new Date(now);
-    start.setHours(hours, minutes);
+    const startObj = new Date(`${startStr}T00:00:00`);
+    startObj.setHours(hours, minutes);
     
-    const end = new Date(start.getTime() + template.duration * 60000);
+    const endObj = new Date(startObj.getTime() + template.duration * 60000);
     
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
       title: template.title,
-      startTime,
-      endTime: `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`
-    }));
+      startDate: startStr,
+      startTime: startTimeStr,
+      endDate: endObj.toISOString().split('T')[0],
+      endTime: `${String(endObj.getHours()).padStart(2, '0')}:${String(endObj.getMinutes()).padStart(2, '0')}`
+    });
     
     setSelectedTemplate(templateId);
     toast.success(`Plantilla "${template.title}" aplicada`);
@@ -222,42 +162,33 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
       return;
     }
 
-    setLoading(true);
-    setSavingStep('saving');
+    setSavingStep('saving'); // Controlamos la animación del botón
 
-    try {
-      const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
-      const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+    // Formato ISO exacto
+    const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`).toISOString();
+    const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`).toISOString();
 
-      const payload = {
-        title: formData.title,
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
-        type: 'BLOCK'
-      };
-      
-      await axios.post('/api/calendar/time-blocks', payload, { withCredentials: true });
-      
+    // 🚀 USAMOS EL HOOK
+    const success = await createBlock({
+      startDateTime,
+      endDateTime,
+      reason: formData.title // Mapeamos el título a la propiedad reason de Java
+    });
+
+    if (success) {
       setSavingStep('success');
       toast.success("¡Tiempo bloqueado exitosamente! 🎉");
-
       setTimeout(() => {
         onSaveSuccess();
         onClose();
       }, 1500);
-
-    } catch (error: any) {
-      console.error(error);
+    } else {
       setSavingStep('idle');
-      toast.error(error?.response?.data?.message || "No se pudo crear el bloqueo");
-    } finally {
-      setTimeout(() => setLoading(false), 1500);
     }
   };
 
   const isFormValid = formData.startDate && formData.startTime && formData.endDate && formData.endTime && formData.title && !validationError;
 
-  // Helper para formatear duración - CREDIBILIDAD
   const formatDuration = (mins: number) => {
     if (mins < 60) return `${mins} min`;
     const hours = Math.floor(mins / 60);
@@ -267,9 +198,9 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white sm:max-w-2xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-800 text-white sm:max-w-2xl max-h-[95vh] overflow-y-auto">
         
-        {/* Header - JERARQUÍA VISUAL */}
+        {/* Header */}
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
@@ -281,7 +212,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
               >
                 <Calendar className="w-6 h-6 text-purple-400" />
               </motion.div>
-              <div className="flex-1">
+              <div className="flex-1 text-left">
                 <DialogTitle className="text-2xl font-black text-white mb-1">
                   Bloquear Horario
                 </DialogTitle>
@@ -292,12 +223,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
             </div>
 
             {!loading && (
-              <Button
-                variant="ghost"
-                size="default"
-                onClick={onClose}
-                className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
-              >
+              <Button variant="ghost" size="default" onClick={onClose} className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg">
                 <X className="w-5 h-5" />
               </Button>
             )}
@@ -306,7 +232,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
 
         <div className="space-y-6 py-4">
           
-          {/* Templates - SATISFICING */}
+          {/* Templates */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">
@@ -319,7 +245,6 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
               {blockTemplates.map((template) => {
                 const Icon = template.icon;
                 const isSelected = selectedTemplate === template.id;
-                
                 return (
                   <motion.button
                     key={template.id}
@@ -328,15 +253,10 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
                     whileTap={{ scale: 0.98 }}
                     className={cn(
                       "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
-                      isSelected
-                        ? cn("bg-gray-900", template.borderColor, template.bgColor, "ring-2 ring-purple-500")
-                        : "bg-gray-900/50 border-gray-800 hover:border-purple-500/30"
+                      isSelected ? cn("bg-gray-900", template.borderColor, template.bgColor, "ring-2 ring-purple-500") : "bg-gray-900/50 border-gray-800 hover:border-purple-500/30"
                     )}
                   >
-                    <div className={cn(
-                      "p-2 rounded-lg",
-                      isSelected ? template.bgColor : "bg-gray-800"
-                    )}>
+                    <div className={cn("p-2 rounded-lg", isSelected ? template.bgColor : "bg-gray-800")}>
                       <Icon className={cn("w-4 h-4", isSelected ? template.color : "text-gray-500")} />
                     </div>
                     <div className="text-center">
@@ -351,181 +271,70 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
 
           <Separator className="bg-gray-800" />
 
-          {/* Título - AFFORDANCE */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="space-y-2"
-          >
+          {/* Title Input */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-2">
             <Label className="flex items-center text-sm font-bold text-gray-300 uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 mr-2 text-yellow-400" />
-              Título del Evento
+              <Sparkles className="w-4 h-4 mr-2 text-yellow-400" /> Título del Evento
             </Label>
             <Input
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              placeholder="Ej: Almuerzo, Vacaciones, Reunión Personal..."
-              className={cn(
-                "bg-gray-950 border-gray-700 h-12 text-base transition-all",
-                "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
-              )}
+              placeholder="Ej: Almuerzo, Vacaciones..."
+              className="bg-gray-900 border-gray-700 h-12 text-base transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
               disabled={loading}
             />
           </motion.div>
 
-          {/* Date/Time Grid - JERARQUÍA */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid sm:grid-cols-2 gap-4"
-          >
-            {/* Inicio */}
+          {/* Date/Time Pickers */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid sm:grid-cols-2 gap-4">
+            
+            {/* Start */}
             <div className="space-y-3 p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
                   <Clock className="w-4 h-4" /> Inicio
                 </div>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
-                  Desde
-                </Badge>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">Desde</Badge>
               </div>
-              <div className="space-y-2">
-                <Input 
-                  type="date" 
-                  name="startDate" 
-                  value={formData.startDate} 
-                  onChange={handleInputChange}
-                  className="bg-gray-950 border-gray-700 h-10 text-sm focus:border-emerald-500"
-                  disabled={loading}
-                />
-                <Input 
-                  type="time" 
-                  name="startTime" 
-                  value={formData.startTime} 
-                  onChange={handleInputChange}
-                  className="bg-gray-950 border-gray-700 h-10 text-sm focus:border-emerald-500"
-                  disabled={loading}
-                />
+              <div className="space-y-2 flex flex-col">
+                <Input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} className="bg-gray-900 border-gray-700 h-10 text-sm focus:border-emerald-500" disabled={loading} style={{ colorScheme: 'dark' }} />
+                <Input type="time" name="startTime" value={formData.startTime} onChange={handleInputChange} className="bg-gray-900 border-gray-700 h-10 text-sm focus:border-emerald-500" disabled={loading} style={{ colorScheme: 'dark' }} />
               </div>
             </div>
 
-            {/* Fin */}
+            {/* End */}
             <div className="space-y-3 p-4 bg-red-500/5 rounded-xl border border-red-500/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-red-400 uppercase tracking-wider">
                   <Clock className="w-4 h-4" /> Fin
                 </div>
-                <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20 text-xs">
-                  Hasta
-                </Badge>
+                <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20 text-xs">Hasta</Badge>
               </div>
-              <div className="space-y-2">
-                <Input 
-                  type="date" 
-                  name="endDate" 
-                  value={formData.endDate} 
-                  onChange={handleInputChange}
-                  className="bg-gray-950 border-gray-700 h-10 text-sm focus:border-red-500"
-                  disabled={loading}
-                />
-                <Input 
-                  type="time" 
-                  name="endTime" 
-                  value={formData.endTime} 
-                  onChange={handleInputChange}
-                  className="bg-gray-950 border-gray-700 h-10 text-sm focus:border-red-500"
-                  disabled={loading}
-                />
+              <div className="space-y-2 flex flex-col">
+                <Input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} className="bg-gray-900 border-gray-700 h-10 text-sm focus:border-red-500" disabled={loading} style={{ colorScheme: 'dark' }} />
+                <Input type="time" name="endTime" value={formData.endTime} onChange={handleInputChange} className="bg-gray-900 border-gray-700 h-10 text-sm focus:border-red-500" disabled={loading} style={{ colorScheme: 'dark' }} />
               </div>
             </div>
           </motion.div>
 
-          {/* Duration Preview - FEEDBACK INMEDIATO */}
-          {duration > 0 && !validationError && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-500/10 rounded-lg">
-                  <Zap className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Duración Total</p>
-                  <p className="text-xs text-gray-400">Tiempo que se bloqueará</p>
-                </div>
-              </div>
-              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-lg px-4 py-2">
-                {formatDuration(duration)}
-              </Badge>
-            </motion.div>
-          )}
-
-          {/* Error Message - MINIMIZAR ERRORES */}
+          {/* Validation Error */}
           {validationError && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3"
-            >
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
+              <div className="flex-1 text-left">
                 <p className="text-sm font-semibold text-red-400">Error de Validación</p>
                 <p className="text-xs text-red-300/80 mt-1">{validationError}</p>
               </div>
             </motion.div>
           )}
-
-          {/* Impact Info - CREDIBILIDAD */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4"
-          >
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 space-y-2">
-                <p className="text-sm font-semibold text-blue-400">
-                  ¿Qué sucederá al bloquear este tiempo?
-                </p>
-                <ul className="space-y-1.5 text-xs text-blue-300/80">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                    <span>Este horario quedará marcado como no disponible en tu calendario</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                    <span>Los pacientes no podrán agendar citas en este intervalo</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                    <span>Aparecerá en tu calendario con el título que defines</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                    <span>Puedes editarlo o eliminarlo en cualquier momento</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </motion.div>
         </div>
 
         <Separator className="bg-gray-800" />
 
         {/* Footer */}
-        <DialogFooter className="flex-col sm:flex-row gap-3">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            disabled={loading}
-            className="flex-1 sm:flex-none border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
-          >
+        <DialogFooter className="flex-col sm:flex-row gap-3 pt-4">
+          <Button variant="outline" onClick={onClose} disabled={loading} className="flex-1 sm:flex-none border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
             Cancelar
           </Button>
           
@@ -533,47 +342,24 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
             onClick={handleSave} 
             disabled={loading || !isFormValid}
             className={cn(
-              "flex-1 sm:flex-none min-w-[180px] h-12 font-bold shadow-xl transition-all duration-300",
-              savingStep === 'success'
-                ? "bg-emerald-600 hover:bg-emerald-700"
-                : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+              "flex-1 sm:flex-none min-w-[180px] h-10 font-bold shadow-xl transition-all duration-300",
+              savingStep === 'success' ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
             )}
           >
             <AnimatePresence mode="wait">
               {savingStep === 'saving' && (
-                <motion.div
-                  key="saving"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
-                >
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Creando Bloqueo...
+                <motion.div key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
                 </motion.div>
               )}
               {savingStep === 'success' && (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  ¡Creado!
+                <motion.div key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> ¡Creado!
                 </motion.div>
               )}
               {savingStep === 'idle' && (
-                <motion.div
-                  key="idle"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  Crear Bloqueo
+                <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> Bloquear Tiempo
                 </motion.div>
               )}
             </AnimatePresence>
