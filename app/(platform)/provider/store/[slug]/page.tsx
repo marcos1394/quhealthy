@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   MapPin, 
@@ -24,12 +25,15 @@ import { cn } from "@/lib/utils";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 
-export default function PublicStorePage({ params }: { params: { slug: string } }) {
+export default function PublicStorePage() {
+  const params = useParams(); // Hook nativo de Next.js
+  const slug = params?.slug as string; // Aseguramos que es un string
+  
   const [activeTab, setActiveTab] = useState<'servicios' | 'paquetes'>('servicios');
   const [cart, setCart] = useState<StorefrontItem[]>([]);
 
-  // 🚀 LLAMADA REAL A TU BACKEND (SPRING BOOT)
-  const { store, isLoading, isError } = useStorefront(params.slug);
+  // 🚀 LLAMADA REAL A TU BACKEND
+  const { store, isLoading, isError } = useStorefront(slug);
 
   const handleBook = (item: StorefrontItem) => {
     setCart([...cart, item]);
