@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
       img-src 'self' data: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.googleusercontent.com https://streetviewpixels-pa.googleapis.com https://www.google.com https://storage.googleapis.com;
       
       font-src 'self' data: https://fonts.gstatic.com;
+
+      media-src 'self' https://storage.googleapis.com;
       
       frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com;
       
