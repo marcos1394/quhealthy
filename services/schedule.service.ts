@@ -5,21 +5,26 @@ import { ProviderSchedule, TimeBlock, CreateTimeBlockPayload } from '@/types/sch
 const BASE_URL = '/api/schedules';
 
 export const scheduleService = {
-  
-  // -- HORARIOS BASE --
+  /**
+   * Obtiene la configuración de la semana laboral del doctor (GET /api/schedules)
+   */
   getMySchedule: async (): Promise<ProviderSchedule[]> => {
     const response = await axiosInstance.get<ProviderSchedule[]>(BASE_URL);
     return response.data;
   },
 
+  /**
+   * Actualiza (Wipe & Replace) la configuración de la semana laboral (PUT /api/schedules)
+   */
   updateSchedule: async (schedules: ProviderSchedule[]): Promise<ProviderSchedule[]> => {
     const response = await axiosInstance.put<ProviderSchedule[]>(BASE_URL, schedules);
     return response.data;
   },
 
-  // -- BLOQUEOS DE TIEMPO (VACACIONES/PERMISOS) --
+  /**
+   * Crea un bloqueo temporal en la agenda (POST /api/schedules/blocks)
+   */
   createTimeBlock: async (data: CreateTimeBlockPayload): Promise<TimeBlock> => {
-    // 🚀 POST /api/schedules/blocks
     const response = await axiosInstance.post<TimeBlock>(`${BASE_URL}/blocks`, data);
     return response.data;
   }

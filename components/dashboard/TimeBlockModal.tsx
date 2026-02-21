@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { useTimeBlock } from '@/hooks/useTimeBlock';
+import { useTimeBlock} from '@/hooks/useTimeBlock';
 
 interface TimeBlockModalProps {
   isOpen: boolean;

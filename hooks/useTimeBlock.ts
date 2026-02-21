@@ -11,12 +11,12 @@ export const useTimeBlock = () => {
     setIsCreating(true);
     try {
       await scheduleService.createTimeBlock(payload);
-      return true; // Retornamos true si fue exitoso
+      return true; // Retornamos true si fue exitoso para que el Modal avance
     } catch (error: any) {
       console.error("Error al crear el bloqueo:", error);
       const errorMessage = error.response?.data?.message || "Ocurrió un error al bloquear el horario.";
       toast.error(errorMessage);
-      return false; // Retornamos false si falló
+      return false; // Retornamos false si falló para que el Modal no se cierre
     } finally {
       setIsCreating(false);
     }
