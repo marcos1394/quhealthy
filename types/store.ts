@@ -13,6 +13,11 @@ export interface StoreProfile {
   bannerUrl: string | null;
   previewVideoUrl: string | null;
   promotionalImages: string[];
+  category?: string;
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+  city?: string;
   
   primaryColor: string;
   secondaryColor: string | null;

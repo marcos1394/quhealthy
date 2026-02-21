@@ -2,14 +2,13 @@
 import axiosInstance from '@/lib/axios';
 import { StoreProfile, StoreMediaType, UploadMediaResponse } from '@/types/store';
 
-
-
 const BASE_URL_PROFILE = '/api/catalog/store/profile';
 const BASE_URL_MEDIA = '/api/catalog/store/media';
 
 export const storeService = {
   /**
    * Obtiene el perfil actual de la tienda del profesional autenticado.
+   * Si es su primera vez, el backend (Java) lo creará copiando los datos del Onboarding.
    */
   getMyStore: async (): Promise<StoreProfile> => {
     const response = await axiosInstance.get<StoreProfile>(`${BASE_URL_PROFILE}/me`);
@@ -17,7 +16,7 @@ export const storeService = {
   },
 
   /**
-   * Actualiza la identidad visual y configuración comercial.
+   * Actualiza la identidad visual, configuración comercial y UBICACIÓN.
    */
   updateMyStore: async (data: Partial<StoreProfile>): Promise<StoreProfile> => {
     const response = await axiosInstance.put<StoreProfile>(`${BASE_URL_PROFILE}/me`, data);
@@ -25,7 +24,7 @@ export const storeService = {
   },
 
   /**
-   * Sube un archivo multimedia (Logo, Banner, Video) directo al bucket público de GCP.
+   * Sube un archivo multimedia (Logo, Banner, Video, etc) directo al bucket de GCP.
    */
   uploadMedia: async (file: File, type: StoreMediaType): Promise<UploadMediaResponse> => {
     const formData = new FormData();
@@ -38,7 +37,7 @@ export const storeService = {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        // Aumentamos el timeout porque los videos de 15MB pueden tardar en subir
+        // Aumentamos el timeout a 60s porque los videos pesados (ej. preview_video) tardan más en subir
         timeout: 60000 
       }
     );

@@ -1,4 +1,3 @@
-
 // hooks/useStoreProfile.ts
 import { useState, useEffect, useCallback } from 'react';
 import { storeService } from '@/services/store.service';
@@ -11,7 +10,7 @@ export const useStoreProfile = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
-  // Cargar el perfil al montar el hook
+  // 📥 Cargar el perfil al montar el hook
   const fetchProfile = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -29,15 +28,20 @@ export const useStoreProfile = () => {
     fetchProfile();
   }, [fetchProfile]);
 
-  // Actualizar el perfil en la base de datos
+  // 💾 Actualizar el perfil en la base de datos (Incluye ahora Lat/Lng y Categoría)
   const updateProfile = async (updates: Partial<StoreProfile>): Promise<boolean> => {
     setIsSaving(true);
     try {
-      const updatedData = await storeService.updateMyStore({ ...profile, ...updates } as StoreProfile);
+      // Combinamos el perfil actual con las actualizaciones antes de enviar
+      const payload = { ...profile, ...updates } as StoreProfile;
+      const updatedData = await storeService.updateMyStore(payload);
+      
+      // Actualizamos el estado local con la respuesta fresca del backend
       setProfile(updatedData);
       toast.success("Cambios guardados exitosamente");
       return true;
     } catch (error: any) {
+      console.error("Error actualizando perfil:", error);
       // Manejar el error específico del Slug duplicado que configuramos en Java
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
@@ -50,22 +54,30 @@ export const useStoreProfile = () => {
     }
   };
 
-  // Subir imagen/video y actualizar el estado automáticamente
+  // ☁️ Subir imagen/video y actualizar el estado automáticamente
   const uploadMedia = async (file: File, type: StoreMediaType): Promise<string | null> => {
     setIsUploading(true);
     try {
       const response = await storeService.uploadMedia(file, type);
       const newUrl = response.url;
 
-      // Actualizar el estado local inmediatamente para que la UI reaccione
-      if (profile) {
-        if (type === 'LOGO') setProfile({ ...profile, logoUrl: newUrl });
-        if (type === 'BANNER') setProfile({ ...profile, bannerUrl: newUrl });
-        if (type === 'PREVIEW_VIDEO') setProfile({ ...profile, previewVideoUrl: newUrl });
-        if (type === 'GALLERY') setProfile({ ...profile, promotionalImages: [...profile.promotionalImages, newUrl] });
-      }
+      // Actualizar el estado local inmediatamente para que la UI reaccione sin tener que recargar
+      setProfile((prevProfile) => {
+        if (!prevProfile) return prevProfile;
+        
+        const updatedProfile = { ...prevProfile };
+        if (type === 'LOGO') updatedProfile.logoUrl = newUrl;
+        if (type === 'BANNER') updatedProfile.bannerUrl = newUrl;
+        if (type === 'PREVIEW_VIDEO') updatedProfile.previewVideoUrl = newUrl;
+        if (type === 'GALLERY') {
+          updatedProfile.promotionalImages = [...(updatedProfile.promotionalImages || []), newUrl];
+        }
+        return updatedProfile;
+      });
 
-      toast.success("Archivo subido con éxito");
+      // Nota: STAFF_AVATAR y ITEM_IMAGE no se guardan en el StoreProfile general,
+      // se gestionan en sus respectivos componentes/hooks.
+
       return newUrl;
     } catch (error: any) {
       console.error("Error subiendo archivo:", error);
@@ -78,12 +90,12 @@ export const useStoreProfile = () => {
 
   return {
     profile,
-    setProfile, // Expuesto por si necesitas hacer cambios optimistas en la UI antes de guardar
+    setProfile, // Expuesto por si necesitas hacer cambios optimistas rápidos en la UI
     isLoading,
     isSaving,
     isUploading,
     updateProfile,
     uploadMedia,
-    refresh: fetchProfile
+    refresh: fetchProfile // Útil si necesitas forzar una recarga desde algún componente
   };
 };
