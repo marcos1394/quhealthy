@@ -116,7 +116,7 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'PACKAGE',
       name: pkg.name,
-    category: pkg.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
+      category: pkg.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
       description: pkg.description,
       price: pkg.price,
       packageItemIds: pkg.serviceIds,

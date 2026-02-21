@@ -443,12 +443,11 @@ export function PackagesManager({
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file && onImageUpload && editingPackage) {
-                              // 🚀 FIX CSP: Quitamos URL.createObjectURL (blob)
-                              // Simplemente mandamos el archivo y esperamos la URL limpia de GCP (igual que en servicios)
-                              onImageUpload(editingPackage.id, file);
-                            }
-                            e.target.value = '';
+                            // Lo dejamos exactamente como lo tienes en ServicesManager.tsx
+if (file && onImageUpload && editingPackage) {
+  onImageUpload(editingPackage.id, file); 
+}
+e.target.value = '';
                           }}
                         />
                       </div>
