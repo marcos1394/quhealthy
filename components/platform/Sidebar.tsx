@@ -66,39 +66,34 @@ const NavItem = ({
     <Link
       href={href}
       className={cn(
-        "relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group overflow-hidden",
+        "relative flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group overflow-hidden",
         isCollapsed ? "justify-center" : "",
         isActive
-          ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl shadow-purple-900/30"
-          : "text-gray-400 hover:text-white hover:bg-gray-800/80 hover:shadow-lg"
+          ? "bg-blue-600 text-white shadow-lg"
+          : "text-gray-400 hover:text-white hover:bg-gray-800/60"
       )}
       title={isCollapsed ? label : ""}
     >
-      {/* Glow effect on hover */}
+      {/* Subtle glow effect on active */}
+      {isActive && (
+        <div className="absolute inset-0 bg-blue-500/20 blur-xl" />
+      )}
+
+      {/* Hover glow effect */}
       {!isActive && (
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gray-700/0 group-hover:bg-gray-700/30 transition-all duration-300" />
       )}
 
       <div className={cn("relative z-10 flex items-center", isCollapsed ? "justify-center w-full" : "gap-4 flex-1")}>
-        <div className={cn(
-          "relative",
-        )}>
+        <div className="relative">
           <Icon 
             className={cn(
               "w-6 h-6 flex-shrink-0 transition-all duration-300",
               isActive 
-                ? "text-white scale-110" 
-                : "text-gray-500 group-hover:text-purple-400 group-hover:scale-110"
+                ? "text-white" 
+                : "text-gray-500 group-hover:text-white"
             )} 
           />
-          {/* Dot indicator for active */}
-          {isActive && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full shadow-lg"
-            />
-          )}
         </div>
         
         <AnimatePresence mode="wait">
@@ -110,7 +105,7 @@ const NavItem = ({
               transition={{ duration: 0.2 }}
               className={cn(
                 "text-sm font-bold whitespace-nowrap",
-                isActive ? "text-white" : "text-gray-400"
+                isActive ? "text-white" : ""
               )}
             >
               {label}
@@ -128,9 +123,9 @@ const NavItem = ({
             <Badge 
               variant="outline"
               className={cn(
-                "text-xs px-2 min-w-[22px] h-6 border-none font-bold shadow-lg",
-                badge.color === 'blue' ? "bg-blue-500 text-white" : "",
-                badge.color === 'emerald' ? "bg-emerald-500 text-white" : ""
+                "text-xs px-2 min-w-[22px] h-6 border-none font-bold",
+                badge.color === 'blue' ? "bg-blue-500/90 text-white" : "",
+                badge.color === 'emerald' ? "bg-emerald-500/90 text-white" : ""
               )}
             >
               {badge.count}
@@ -146,7 +141,7 @@ const NavItem = ({
             className="absolute -top-1 -right-1"
           >
             <div className={cn(
-              "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-lg",
+              "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white",
               badge.color === 'blue' ? "bg-blue-500" : "",
               badge.color === 'emerald' ? "bg-emerald-500" : ""
             )}>
@@ -160,7 +155,7 @@ const NavItem = ({
       {isActive && (
         <motion.div
           layoutId="activeIndicator"
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-lg"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-blue-400 rounded-r-full"
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
       )}
@@ -215,16 +210,16 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
         {/* Toggle Button Expandido */}
         {!isCollapsed && (
           <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Button
               variant="ghost"
               size="default"
               onClick={() => setIsCollapsed(true)}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl h-10 w-10 flex-shrink-0 transition-all"
+              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl h-11 w-11 flex-shrink-0 transition-all shadow-lg hover:shadow-xl"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-6 h-6" />
             </Button>
           </motion.div>
         )}
