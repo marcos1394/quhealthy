@@ -18,7 +18,8 @@ import {
   Crown,
   ChevronLeft,
   BriefcaseMedical,
-  UserCircle
+  UserCircle,
+  Menu
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -134,7 +135,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
     >
       {/* Header del Sidebar / Logo & Toggle */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800 flex-shrink-0">
-        <Link href="/provider/dashboard" className={cn("flex items-center gap-3 min-w-0", isCollapsed ? "justify-center w-full" : "")}>
+        <Link href="/provider/dashboard" className={cn("flex items-center gap-3 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/30">
             <span className="font-black text-white text-lg">Q</span>
           </div>
@@ -153,18 +154,32 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
           </AnimatePresence>
         </Link>
 
-        {/* Toggle Button - Oculto si está colapsado para ahorrar espacio (se muestra un chevron para expandir) */}
+        {/* 🚀 Hamburguesa para OCULTAR (Expandido) */}
         {!isCollapsed && (
             <Button
-            variant="ghost"
-            size="default"
-            onClick={() => setIsCollapsed(true)}
-            className="text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg h-8 w-8 flex-shrink-0"
+              variant="ghost"
+              size="default"
+              onClick={() => setIsCollapsed(true)}
+              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg h-9 w-9 flex-shrink-0"
             >
-            <ChevronLeft className="w-4 h-4" />
+              <Menu className="w-5 h-5" />
             </Button>
         )}
       </div>
+      
+      {/* 🚀 Hamburguesa para MOSTRAR (Colapsado) */}
+      {isCollapsed && (
+        <div className="flex justify-center mt-3 mb-1">
+            <Button
+              variant="ghost"
+              size="default"
+              onClick={() => setIsCollapsed(false)}
+              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg h-10 w-10"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+        </div>
+      )}
       
       {/* Si está colapsado, mostramos un botón para expandir debajo del logo */}
       {isCollapsed && (
