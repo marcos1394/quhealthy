@@ -36,6 +36,9 @@ export default function StoreSetupPage() {
   const { profile, isLoading: loadingProfile } = useStoreProfile();
   const { services, fetchInventory, isLoading: loadingCatalog } = useCatalog();
   const { staff, fetchStaff, isLoading: loadingStaff } = useStaff();
+    const [isPublishing, setIsPublishing] = React.useState(false);
+  const { updateProfile } = useStoreProfile(); // Asegúrate de extraer updateProfile del hook
+
 
   // Disparamos las llamadas al montar la página
   useEffect(() => {
@@ -61,6 +64,22 @@ export default function StoreSetupPage() {
 
   // Equipo: Completado si hay al menos 1 miembro en el staff guardado
   const isStaffComplete = staff.filter(s => !s.isNew).length > 0;
+
+  const handlePublishStore = async () => {
+    setIsPublishing(true);
+    
+    // 1. Actualizamos el flag en el backend
+    // Nota: Asegúrate de que tu interfaz en useStoreProfile acepte marketplaceVisible
+    const success = await updateProfile({ marketplaceVisible: true });
+    
+    if (success) {
+      // 2. Experiencia Netflix: Abrimos su tienda pública en una nueva pestaña
+      // Ajusta la ruta '/store/' según cómo vayas a llamar a la ruta pública en Next.js
+      window.open(`/store/${profile?.slug}`, '_blank'); 
+    }
+    
+    setIsPublishing(false);
+  };
 
   // ==========================================
   // 3. CONFIGURACIÓN DE LOS PASOS
@@ -136,9 +155,18 @@ export default function StoreSetupPage() {
         </div>
         
         {isStoreReady && (
-          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-xl shadow-purple-500/20 font-bold">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Publicar Tienda
+          <Button 
+            onClick={handlePublishStore}
+            disabled={isPublishing || profile?.marketplaceVisible}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-xl shadow-purple-500/20 font-bold transition-all hover:scale-105"
+          >
+            {isPublishing ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Publicando...</>
+            ) : profile?.marketplaceVisible ? (
+              <><CheckCircle2 className="w-4 h-4 mr-2" /> Tienda Pública</>
+            ) : (
+              <><Sparkles className="w-4 h-4 mr-2" /> Publicar Tienda</>
+            )}
           </Button>
         )}
       </div>
