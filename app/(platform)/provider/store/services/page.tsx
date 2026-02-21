@@ -2,11 +2,14 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, BriefcaseMedical } from "lucide-react";
+import { ArrowLeft, Loader2, BriefcaseMedical, Sparkles, Info } from "lucide-react";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 // Componentes UI genéricos
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // Importamos los dos Managers
 import { ServicesManager } from "@/components/marketplace/ServicesManager"; 
@@ -15,13 +18,12 @@ import { PackagesManager } from "@/components/marketplace/PackagesManager";
 // Importamos el Hook y los Tipos
 import { useCatalog } from "@/hooks/useCatalog";
 import { UI_Service, UI_Package } from "@/types/catalog";
+import { cn } from "@/lib/utils";
 
 export default function ServicesSetupPage() {
   const router = useRouter();
   
-  // ==========================================
-  // HOOK CENTRAL
-  // ==========================================
+  // Hook central
   const { 
     services, 
     setServices, 
@@ -33,22 +35,20 @@ export default function ServicesSetupPage() {
     deleteService, 
     savePackage, 
     deletePackage,
-    uploadItemImage // 📸 Función extraída
+    uploadItemImage
   } = useCatalog();
 
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
 
-  // ==========================================
-  // HANDLERS: SERVICIOS
-  // ==========================================
+  // Handlers: Servicios
   const handleAddService = () => {
     const newService: UI_Service = {
       id: Date.now(), 
       name: "",
       description: "",
-        category: "", // 🚀 Nuevo campo categoría
+      category: "",
       duration: 30,
       price: 0,
       serviceDeliveryType: "in_person",
@@ -104,7 +104,7 @@ export default function ServicesSetupPage() {
       ...service,
       id: Date.now(),
       name: `${service.name} (Copia)`,
-      imageUrl: undefined, // 📸 Evitamos copiar la imagen por default para que suban una nueva
+      imageUrl: undefined,
       isNew: true,
       hasUnsavedChanges: true,
     };
@@ -114,7 +114,6 @@ export default function ServicesSetupPage() {
     setServices(newServices);
   };
 
-  // 📸 Subir Imagen para Servicio
   const handleServiceImageUpload = async (id: number, file: File) => {
     const newUrl = await uploadItemImage(file);
     if (newUrl) {
@@ -123,9 +122,7 @@ export default function ServicesSetupPage() {
     }
   };
 
-  // ==========================================
-  // HANDLERS: PAQUETES
-  // ==========================================
+  // Handlers: Paquetes
   const handleSavePackage = async (pkg: UI_Package) => {
     const saved = await savePackage(pkg);
     if (saved) {
@@ -154,7 +151,6 @@ export default function ServicesSetupPage() {
     }
   };
 
-  // 📸 Subir Imagen para Paquete
   const handlePackageImageUpload = async (id: number, file: File) => {
     const newUrl = await uploadItemImage(file);
     if (newUrl) {
@@ -165,14 +161,20 @@ export default function ServicesSetupPage() {
     }
   };
 
-  // ==========================================
-  // RENDER
-  // ==========================================
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4">
-        <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-        <p className="text-gray-400 font-semibold animate-pulse">Sincronizando inventario...</p>
+      <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <Sparkles className="w-16 h-16 text-purple-500" />
+        </motion.div>
+        <div className="text-center space-y-2">
+          <p className="text-gray-300 font-bold text-lg">Sincronizando inventario</p>
+          <p className="text-gray-500 animate-pulse">Cargando servicios y paquetes...</p>
+        </div>
       </div>
     );
   }
@@ -181,64 +183,125 @@ export default function ServicesSetupPage() {
   const availableServicesForPackages = services.filter(s => !s.isNew && !s.hasUnsavedChanges);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16">
+    <div className="max-w-6xl mx-auto space-y-10 pb-20">
       
-      {/* 🚀 Top Bar Navigation */}
-      <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-2xl border border-gray-800 shadow-xl sticky top-20 z-40 backdrop-blur-md">
-        <Button 
-          variant="ghost" 
-          onClick={() => router.push('/provider/store')}
-          className="text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Volver a Mi Tienda
-        </Button>
+      {/* Sticky Top Bar Navigation */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky top-20 z-40 backdrop-blur-xl"
+      >
+        <Card className="bg-gradient-to-r from-gray-900/95 to-gray-900/90 border-gray-800 shadow-2xl overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <Button 
+                variant="ghost" 
+                onClick={() => router.push('/provider/store')}
+                className="text-gray-400 hover:text-white hover:bg-gray-800 transition-colors group"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                Volver a Mi Tienda
+              </Button>
 
-        {hasUnsavedServices && (
-          <span className="text-sm font-semibold text-amber-400 animate-pulse hidden sm:block">
-            Tienes servicios sin guardar
-          </span>
-        )}
-      </div>
+              {hasUnsavedServices && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-3"
+                >
+                  <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse">
+                    <Info className="w-3 h-3 mr-1" />
+                    Cambios sin guardar
+                  </Badge>
+                </motion.div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Header Contextual */}
-      <div className="px-2">
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
-          <BriefcaseMedical className="w-8 h-8 text-purple-400" />
-          Tus Servicios y Paquetes
-        </h1>
-        <p className="text-gray-400 mt-2 text-lg">
-          Agrega tus consultas individuales primero, y luego agrúpalas en paquetes para aumentar tus ventas.
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="space-y-4"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-500/20">
+            <BriefcaseMedical className="w-10 h-10 text-purple-400" />
+          </div>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+              Servicios y Paquetes
+            </h1>
+            <div className="flex items-center gap-3 mt-2">
+              <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Catálogo
+              </Badge>
+              {services.length > 0 && (
+                <span className="text-gray-400 text-sm">
+                  {services.length} {services.length === 1 ? 'servicio' : 'servicios'}
+                </span>
+              )}
+              {packages.length > 0 && (
+                <span className="text-gray-400 text-sm">
+                  • {packages.length} {packages.length === 1 ? 'paquete' : 'paquetes'}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <p className="text-gray-400 text-lg max-w-3xl leading-relaxed">
+          Agrega tus consultas individuales primero, y luego agrúpalas en paquetes promocionales para aumentar tus ventas
         </p>
-      </div>
+      </motion.div>
 
       {/* Sección 1: Servicios Individuales */}
-      <ServicesManager 
-        // @ts-ignore
-        services={services}
-        onAdd={handleAddService}
-        onUpdate={handleUpdateService}
-        onSave={handleSaveService}
-        onDelete={handleDeleteService}
-        onDuplicate={handleDuplicateService}
-        onImageUpload={handleServiceImageUpload} // 📸 Prop de imagen enviada
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <ServicesManager 
+          // @ts-ignore
+          services={services}
+          onAdd={handleAddService}
+          onUpdate={handleUpdateService}
+          onSave={handleSaveService}
+          onDelete={handleDeleteService}
+          onDuplicate={handleDuplicateService}
+          onImageUpload={handleServiceImageUpload}
+        />
+      </motion.div>
 
       {/* Separador Visual Elegante */}
-      <div className="flex items-center justify-center py-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full max-w-md" />
-      </div>
+      <motion.div
+        initial={{ opacity: 0, scaleX: 0 }}
+        animate={{ opacity: 1, scaleX: 1 }}
+        transition={{ delay: 0.3 }}
+        className="flex items-center justify-center py-8"
+      >
+        <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent w-full max-w-2xl" />
+      </motion.div>
 
-      {/* Sección 2: Paquetes (Dependen de los servicios) */}
-      <PackagesManager 
-        // @ts-ignore
-        packages={packages}
-        // @ts-ignore
-        availableServices={availableServicesForPackages}
-        onSave={handleSavePackage}
-        onDelete={handleDeletePackage}
-        onImageUpload={handlePackageImageUpload} // 📸 Prop de imagen enviada
-      />
+      {/* Sección 2: Paquetes */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <PackagesManager 
+          // @ts-ignore
+          packages={packages}
+          // @ts-ignore
+          availableServices={availableServicesForPackages}
+          onSave={handleSavePackage}
+          onDelete={handleDeletePackage}
+          onImageUpload={handlePackageImageUpload}
+        />
+      </motion.div>
       
     </div>
   );
