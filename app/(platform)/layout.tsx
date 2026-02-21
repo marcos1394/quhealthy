@@ -12,23 +12,23 @@ export default function PlatformLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-950 text-white font-sans antialiased selection:bg-purple-500/30">
+    // 1. Contenedor principal: Altura exacta de la pantalla (h-screen) y oculta el scroll global
+    <div className="flex h-screen w-full bg-[#09090b] text-white font-sans antialiased selection:bg-purple-500/30 overflow-hidden">
       
-      {/* 1. Sidebar Fijo (Solo Desktop) */}
-      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 z-50">
-        <Sidebar className="h-full w-full" />
-      </aside>
-
-      {/* 2. Área Principal */}
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
-        
-        {/* 3. Contenido Scrollable */}
-        <main className="flex-1 overflow-x-hidden relative pt-6">
-          <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl animate-in fade-in-0 duration-500">
-            {children}
-          </div>
-        </main>
+      {/* 2. Sidebar (Solo Desktop). 
+          Al no ser 'fixed', se comporta como una columna real.
+          Framer Motion en el componente Sidebar se encargará de animar el ancho. */}
+      <div className="hidden md:flex flex-shrink-0 h-full z-50 shadow-2xl">
+        <Sidebar />
       </div>
+
+      {/* 3. Área Principal (Toma todo el espacio sobrante fluídamente) 
+          Aquí es donde ocurre el scroll real (overflow-y-auto) */}
+      <main className="flex-1 overflow-y-auto relative bg-[#09090b]">
+        <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl animate-in fade-in-0 duration-500">
+          {children}
+        </div>
+      </main>
       
     </div>
   );
