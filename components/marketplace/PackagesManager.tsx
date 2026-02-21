@@ -33,20 +33,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 
 // Importamos el tipo Service
 import { Service } from "./ServicesManager";
 
-// --- TIPOS ---
+// Types
 export interface ServicePackage {
   id: number;
   name: string;
   description: string;
-  category: string; // 🚀 NUEVO CAMPO
+  category: string;
   price: number;
   serviceIds: number[];
-  imageUrl?: string; // 📸 NUEVO
+  imageUrl?: string;
   isNew?: boolean;
   color?: string;
 }
@@ -56,7 +57,7 @@ interface PackagesManagerProps {
   availableServices: Service[];
   onSave: (pkg: ServicePackage) => void;
   onDelete: (id: number) => void;
-  onImageUpload?: (id: number, file: File) => void; // 📸 NUEVO
+  onImageUpload?: (id: number, file: File) => void;
 }
 
 export function PackagesManager({ 
@@ -83,7 +84,7 @@ export function PackagesManager({
     }
   }, [editingPackage]);
 
-  // --- HELPERS ---
+  // Helpers
   const calculateRealValue = (serviceIds: number[]) => {
     return serviceIds.reduce((total, id) => {
       const service = availableServices.find(s => s.id === id);
@@ -106,7 +107,7 @@ export function PackagesManager({
     ];
   };
 
-  // --- LÓGICA DE EDICIÓN ---
+  // Lógica de edición
   const handleOpenDialog = (pkg?: ServicePackage) => {
     if (pkg) {
       setEditingPackage({ ...pkg });
@@ -129,8 +130,7 @@ export function PackagesManager({
     setIsDialogOpen(true);
   };
 
- const handleSave = () => {
-    // 🚀 NUEVO: Validar que editingPackage.category exista
+  const handleSave = () => {
     if (editingPackage && editingPackage.name && editingPackage.category && editingPackage.price > 0 && editingPackage.serviceIds.length > 0) {
       onSave(editingPackage);
       toast.success("¡Paquete guardado exitosamente! 🎉");
@@ -173,25 +173,25 @@ export function PackagesManager({
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800 shadow-xl">
+    <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 shadow-2xl overflow-hidden">
       
       {/* Header */}
-      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-800 pb-4">
-        <div className="space-y-2">
-          <CardTitle className="flex items-center gap-3 text-white text-xl">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-800/50 pb-6 bg-gradient-to-br from-gray-900 to-gray-800/50">
+        <div className="space-y-3">
+          <CardTitle className="flex items-center gap-4 text-white text-2xl">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-xl border border-pink-500/20"
+              className="p-3 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-2xl border border-pink-500/30 shadow-lg shadow-pink-500/10"
             >
-              <Package className="w-6 h-6 text-pink-400" />
+              <Package className="w-7 h-7 text-pink-400" />
             </motion.div>
             Paquetes y Promociones
           </CardTitle>
-          <CardDescription className="text-gray-400 flex items-center gap-2">
+          <CardDescription className="text-gray-400 flex items-center gap-3 text-base">
             Agrupa servicios para aumentar ventas
-            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs shadow-md">
               <TrendingUp className="w-3 h-3 mr-1" />
               +40% conversión
             </Badge>
@@ -199,30 +199,30 @@ export function PackagesManager({
         </div>
         <Button 
           onClick={() => handleOpenDialog()} 
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-2xl"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all hover:scale-105 h-11 font-bold"
         >
           <Plus className="w-4 h-4 mr-2" /> Crear Paquete
         </Button>
       </CardHeader>
       
-      <CardContent className="space-y-6 pt-6">
+      <CardContent className="space-y-8 pt-8 p-8">
         
         {/* Empty State */}
         {packages.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50"
+            className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-800 rounded-3xl bg-gradient-to-br from-gray-900/50 to-gray-900/30"
           >
-            <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full mb-4 border border-gray-700">
-              <Tag className="w-8 h-8 text-gray-500" />
+            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl mb-6 border border-gray-700 shadow-xl">
+              <Tag className="w-12 h-12 text-gray-500" />
             </div>
-            <p className="text-base font-semibold text-white mb-1">No hay paquetes activos</p>
-            <p className="text-sm text-gray-500 mb-4">Crea tu primer paquete para aumentar ventas</p>
+            <p className="text-xl font-black text-white mb-2">No hay paquetes activos</p>
+            <p className="text-sm text-gray-500 mb-8">Crea tu primer paquete para aumentar ventas</p>
             <Button 
               onClick={() => handleOpenDialog()}
               variant="outline"
-              className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+              className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 h-11"
             >
               <Plus className="w-4 h-4 mr-2" />
               Crear Primer Paquete
@@ -230,7 +230,7 @@ export function PackagesManager({
           </motion.div>
         ) : (
           /* Packages Grid */
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AnimatePresence>
               {packages.map((pkg) => {
                 const realVal = calculateRealValue(pkg.serviceIds);
@@ -243,20 +243,20 @@ export function PackagesManager({
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ y: -4 }}
-                    className="bg-gradient-to-br from-gray-950 to-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 group relative overflow-hidden"
+                    whileHover={{ y: -6 }}
+                    className="bg-gradient-to-br from-gray-950 to-gray-900 border-2 border-gray-800 rounded-3xl p-6 hover:border-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 group relative overflow-hidden"
                   >
                     {/* Glow effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {/* Content */}
                     <div className="relative z-10">
-                      <div className="flex justify-between items-start mb-4">
+                      <div className="flex justify-between items-start mb-6">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-black text-white">{pkg.name}</h3>
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="text-xl font-black text-white">{pkg.name}</h3>
                             {savingsAmt > 0 && (
-                              <Badge className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 text-emerald-400 border-emerald-500/20">
+                              <Badge className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 text-emerald-400 border-emerald-500/30 shadow-md">
                                 <Sparkles className="w-3 h-3 mr-1" />
                                 {savingsPerc}% OFF
                               </Badge>
@@ -268,12 +268,12 @@ export function PackagesManager({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
                           <Button 
                             variant="ghost" 
                             size="default"
                             onClick={() => handleOpenDialog(pkg)} 
-                            className="h-9 w-9 text-gray-400 hover:text-white hover:bg-gray-800"
+                            className="h-10 w-10 text-gray-400 hover:text-white hover:bg-gray-800"
                           >
                             <Edit2 className="w-4 h-4" />
                           </Button>
@@ -284,7 +284,7 @@ export function PackagesManager({
                               onDelete(pkg.id);
                               toast.success("Paquete eliminado");
                             }}
-                            className="h-9 w-9 text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                            className="h-10 w-10 text-gray-400 hover:text-red-400 hover:bg-red-900/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -292,13 +292,13 @@ export function PackagesManager({
                       </div>
 
                       {/* Services Chips */}
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-6">
                         {pkg.serviceIds.map(id => {
                           const s = availableServices.find(service => service.id === id);
                           return s ? (
                             <span 
                               key={id} 
-                              className="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-lg border border-gray-700 flex items-center gap-1"
+                              className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-xl border border-gray-700 flex items-center gap-1.5 font-medium"
                             >
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                               {s.name}
@@ -307,26 +307,28 @@ export function PackagesManager({
                         })}
                       </div>
 
+                      <Separator className="bg-gray-800 mb-6" />
+
                       {/* Pricing */}
-                      <div className="flex items-end justify-between pt-4 border-t border-gray-800">
+                      <div className="flex items-end justify-between">
                         <div>
                           {savingsAmt > 0 && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm text-gray-500 line-through">${realVal}</span>
-                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm text-gray-500 line-through font-semibold">${realVal}</span>
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs font-bold">
                                 Ahorras ${savingsAmt}
                               </Badge>
                             </div>
                           )}
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                               ${pkg.price}
                             </span>
-                            <span className="text-sm text-gray-500">MXN</span>
+                            <span className="text-sm text-gray-500 font-semibold">MXN</span>
                           </div>
                         </div>
 
-                        <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                        <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 shadow-md">
                           {pkg.serviceIds.length} servicios
                         </Badge>
                       </div>
@@ -343,39 +345,41 @@ export function PackagesManager({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3"
+            className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-2xl p-6 flex items-start gap-4 shadow-lg"
           >
-            <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-blue-300/80">
-              <p className="font-semibold text-blue-400 mb-1">
+            <div className="p-2 bg-blue-500/10 rounded-xl">
+              <Info className="w-6 h-6 text-blue-400 flex-shrink-0" />
+            </div>
+            <div className="text-sm text-blue-300/80">
+              <p className="font-bold text-blue-400 mb-2 text-base">
                 💡 Tip: Los paquetes aumentan las ventas en promedio un 40%
               </p>
-              <p>
+              <p className="leading-relaxed">
                 Los clientes prefieren paquetes con 15-20% de descuento. 
-                Mantén tus precios competitivos y atractivos.
+                Mantén tus precios competitivos y atractivos para maximizar conversiones.
               </p>
             </div>
           </motion.div>
         )}
 
-        {/* --- MODAL DE EDICIÓN --- */}
+        {/* Modal de Edición */}
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && setIsDialogOpen(false)}>
-          <DialogContent className="bg-gray-900 border-gray-800 max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-gray-900 border-gray-800 max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <DialogTitle className="text-2xl font-black text-white mb-1">
+                  <DialogTitle className="text-3xl font-black text-white mb-2">
                     {editingPackage?.id && editingPackage.id > 0 ? "Editar Paquete" : "Crear Nuevo Paquete"}
                   </DialogTitle>
-                  <DialogDescription className="text-gray-400">
-                    Combina servicios para crear una oferta atractiva
+                  <DialogDescription className="text-gray-400 text-base">
+                    Combina servicios para crear una oferta atractiva y aumentar ventas
                   </DialogDescription>
                 </div>
                 <Button
                   variant="ghost"
                   size="default"
                   onClick={() => setIsDialogOpen(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-400 hover:text-white h-10 w-10"
                 >
                   <X className="w-5 h-5" />
                 </Button>
@@ -383,30 +387,30 @@ export function PackagesManager({
             </DialogHeader>
 
             {editingPackage && (
-              <div className="space-y-6 py-4">
+              <div className="space-y-8 py-6">
                 
                 {/* Value Preview Card - FEEDBACK VISUAL */}
                 {editingPackage.serviceIds.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20 rounded-xl p-4"
+                    className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-6 shadow-xl"
                   >
-                    <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="grid grid-cols-3 gap-6 text-center">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-1">Valor Real</p>
-                        <p className="text-2xl font-black text-white">${realValue}</p>
+                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Valor Real</p>
+                        <p className="text-3xl font-black text-white">${realValue}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-1">Tu Precio</p>
-                        <p className="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Tu Precio</p>
+                        <p className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                           ${editingPackage.price}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-1">Ahorro</p>
-                        <p className="text-2xl font-black text-emerald-400">${savings}</p>
-                        <p className="text-xs text-emerald-400">
+                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Ahorro</p>
+                        <p className="text-3xl font-black text-emerald-400">${savings}</p>
+                        <p className="text-xs text-emerald-400 font-bold mt-1">
                           {calculateSavingsPercent(realValue, editingPackage.price)}% OFF
                         </p>
                       </div>
@@ -414,26 +418,25 @@ export function PackagesManager({
                   </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   
                   {/* Left Column: Package Details */}
-                 {/* Left Column: Package Details */}
-                  <div className="space-y-6 flex-1 pr-0 lg:pr-6">
+                  <div className="space-y-6">
                     
-                   {/* Row 1: Image, Name & Category */}
+                    {/* Row 1: Image, Name & Category */}
                     <div className="flex gap-4 items-start">
-                      {/* 📸 Imagen del Paquete */}
+                      {/* Image Upload */}
                       <div className="relative group/pkg-img flex-shrink-0">
                         <div className={cn(
-                          "w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950",
-                          editingPackage.imageUrl ? "border-pink-500/50" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-800"
+                          "w-24 h-24 rounded-2xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950 shadow-lg",
+                          editingPackage.imageUrl ? "border-pink-500/50 shadow-pink-500/20" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-900 hover:shadow-xl"
                         )}>
                           {editingPackage.imageUrl ? (
                             <img src={editingPackage.imageUrl} alt="Paquete" className="w-full h-full object-cover" />
                           ) : (
                             <>
-                              <Camera className="w-5 h-5 text-gray-500 mb-1 group-hover/pkg-img:text-pink-400 transition-colors" />
-                              <span className="text-[9px] text-gray-500 font-bold uppercase">Foto</span>
+                              <Camera className="w-6 h-6 text-gray-500 mb-2 group-hover/pkg-img:text-pink-400 transition-colors" />
+                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Foto</span>
                             </>
                           )}
                         </div>
@@ -443,43 +446,42 @@ export function PackagesManager({
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            // Lo dejamos exactamente como lo tienes en ServicesManager.tsx
-if (file && onImageUpload && editingPackage) {
-  onImageUpload(editingPackage.id, file); 
-}
-e.target.value = '';
+                            if (file && onImageUpload && editingPackage) {
+                              onImageUpload(editingPackage.id, file); 
+                            }
+                            e.target.value = '';
                           }}
                         />
                       </div>
 
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                        {/* Nombre */}
-                        <div className="space-y-2">
+                        {/* Name */}
+                        <div className="space-y-3">
                           <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Nombre del Paquete
+                            Nombre del Paquete *
                           </Label>
                           <Input 
                             value={editingPackage.name}
                             onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
                             placeholder="Ej: Pack Bienestar"
                             className={cn(
-                              "bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              "bg-gray-950 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
                               !editingPackage.name ? "border-red-500/50" : ""
                             )}
                           />
                         </div>
 
-                        {/* 🚀 NUEVO: Categoría */}
-                        <div className="space-y-2">
+                        {/* Category */}
+                        <div className="space-y-3">
                           <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Categoría
+                            Categoría *
                           </Label>
                           <Input 
                             value={editingPackage.category || ''}
                             onChange={(e) => setEditingPackage({ ...editingPackage, category: e.target.value })}
                             placeholder="Ej: Promociones"
                             className={cn(
-                              "bg-gray-950 border-gray-700 h-12 text-base focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              "bg-gray-950 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
                               !editingPackage.category ? "border-red-500/50" : ""
                             )}
                           />
@@ -487,13 +489,13 @@ e.target.value = '';
                       </div>
                     </div>
 
-                    {/* 🚀 NUEVO: Row 2: Description */}
-                    <div className="space-y-2">
+                    {/* Description */}
+                    <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                           Descripción (Opcional)
                         </Label>
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-gray-600 font-mono">
                           {editingPackage.description?.length || 0}/200
                         </span>
                       </div>
@@ -501,15 +503,15 @@ e.target.value = '';
                         value={editingPackage.description}
                         onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value.slice(0, 200) })}
                         placeholder="Menciona los beneficios de adquirir este paquete..."
-                        rows={2}
+                        rows={3}
                         maxLength={200}
                         className="bg-gray-950 border-gray-700 resize-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                       />
                     </div>
 
-                    {/* 🚀 NUEVO: Row 3: Pricing Engine */}
+                    {/* Pricing Engine */}
                     {editingPackage.serviceIds.length > 0 && (
-                      <div className="space-y-4 pt-4 border-t border-gray-800">
+                      <div className="space-y-5 pt-6 border-t border-gray-800">
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                             <Percent className="w-4 h-4 text-emerald-400" />
@@ -531,12 +533,12 @@ e.target.value = '';
                           />
                         </div>
 
-                        <div className="flex gap-2 mb-4">
+                        <div className="flex gap-3">
                           {getSuggestedPrices(realValue).map((sug, idx) => (
                             <Badge 
                               key={idx}
                               variant="outline" 
-                              className="cursor-pointer hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400 flex-1 justify-center py-1"
+                              className="cursor-pointer hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400 flex-1 justify-center py-2 font-bold transition-all"
                               onClick={() => applySuggestedPrice(sug.price, sug.percent)}
                             >
                               {sug.label}
@@ -544,12 +546,12 @@ e.target.value = '';
                           ))}
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                             O ajusta el precio final manualmente
                           </Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                             <Input 
                               type="number" 
                               min="0"
@@ -557,11 +559,10 @@ e.target.value = '';
                               onChange={(e) => {
                                 const newPrice = Number(e.target.value);
                                 setEditingPackage({ ...editingPackage, price: newPrice });
-                                // Recalculamos el slider basado en el input manual
                                 const newPercent = calculateSavingsPercent(realValue, newPrice);
                                 setDiscountPercent(Math.max(0, Math.min(100, newPercent)));
                               }}
-                              className="bg-gray-950 border-gray-700 pl-9 h-12 text-lg font-bold transition-all focus:border-pink-500"
+                              className="bg-gray-950 border-gray-700 pl-12 h-14 text-xl font-black transition-all focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                             />
                           </div>
                         </div>
@@ -570,16 +571,16 @@ e.target.value = '';
                   </div>
 
                   {/* Right Column: Services Selection */}
-                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col h-full">
-                    <Label className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-                      <ShoppingCart className="w-4 h-4 text-blue-400" />
+                  <div className="bg-gray-950 border-2 border-gray-800 rounded-2xl p-6 flex flex-col h-full">
+                    <Label className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-wider">
+                      <ShoppingCart className="w-5 h-5 text-blue-400" />
                       Servicios Incluidos ({editingPackage.serviceIds.length})
                     </Label>
                     
                     {availableServices.length === 0 ? (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-gray-800 rounded-lg">
-                        <AlertCircle className="w-8 h-8 text-amber-400 mb-3" />
-                        <p className="text-sm font-semibold text-white mb-1">
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-gray-800 rounded-2xl">
+                        <AlertCircle className="w-10 h-10 text-amber-400 mb-4" />
+                        <p className="text-base font-bold text-white mb-2">
                           No hay servicios disponibles
                         </p>
                         <p className="text-xs text-gray-500">
@@ -587,8 +588,8 @@ e.target.value = '';
                         </p>
                       </div>
                     ) : (
-                      <ScrollArea className="flex-1 h-[300px] pr-3">
-                        <div className="space-y-2">
+                      <ScrollArea className="flex-1 h-[350px] pr-3">
+                        <div className="space-y-3">
                           {availableServices.map(service => {
                             const isSelected = editingPackage.serviceIds.includes(service.id);
                             
@@ -598,10 +599,10 @@ e.target.value = '';
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 className={cn(
-                                  "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                                  "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer",
                                   isSelected 
-                                    ? "bg-purple-500/10 border-purple-500/30 shadow-lg shadow-purple-500/10" 
-                                    : "border-gray-800 hover:bg-gray-800 hover:border-gray-700"
+                                    ? "bg-purple-500/10 border-purple-500/40 shadow-lg shadow-purple-500/20" 
+                                    : "border-gray-800 hover:bg-gray-900 hover:border-gray-700"
                                 )}
                                 onClick={() => toggleServiceInPackage(service.id)}
                               >
@@ -611,22 +612,22 @@ e.target.value = '';
                                   className="border-gray-600 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                                 />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-white mb-0.5">
+                                  <p className="text-sm font-bold text-white mb-1">
                                     {service.name}
                                   </p>
                                   <div className="flex items-center gap-2">
-                                    <Badge className="bg-gray-800 text-gray-400 text-xs">
+                                    <Badge className="bg-gray-800 text-gray-400 text-xs font-bold">
                                       ${service.price}
                                     </Badge>
                                     {service.duration && (
-                                      <span className="text-xs text-gray-600">
+                                      <span className="text-xs text-gray-600 font-semibold">
                                         {service.duration} min
                                       </span>
                                     )}
                                   </div>
                                 </div>
                                 {isSelected && (
-                                  <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                  <CheckCircle2 className="w-6 h-6 text-purple-400 flex-shrink-0" />
                                 )}
                               </motion.div>
                             );
@@ -639,17 +640,17 @@ e.target.value = '';
               </div>
             )}
 
-            <DialogFooter className="gap-3">
+            <DialogFooter className="gap-3 pt-6 border-t border-gray-800">
               <Button 
                 variant="outline" 
                 onClick={() => setIsDialogOpen(false)} 
-                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                className="border-gray-700 text-gray-300 hover:bg-gray-800 h-11"
               >
                 Cancelar
               </Button>
               <Button 
                 onClick={handleSave} 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 min-w-[140px]"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 min-w-[160px] h-11 font-bold shadow-xl"
                 disabled={!editingPackage?.serviceIds.length || !editingPackage?.name || editingPackage.price <= 0}
               >
                 <Zap className="w-4 h-4 mr-2" />
