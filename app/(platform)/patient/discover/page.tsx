@@ -1,17 +1,11 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// ✅ Usamos useJsApiLoader para mantener consistencia con tu otro componente
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { 
-  Loader2, 
-  Search, 
-  SlidersHorizontal, 
-  Star, 
-  ChevronRight,
-  Sparkles,
-  Navigation
+  Loader2, Search, SlidersHorizontal, Star, 
+  ChevronRight, Sparkles, Navigation, PlayCircle, MapPin
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -19,14 +13,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+// 🚀 IMPORTAMOS NUESTROS HOOKS REALES
+import { useDiscover } from '@/hooks/useDiscover';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { DiscoverProvider } from '@/types/discover';
+
 // ==========================================
 // 1. CONFIGURACIÓN DEL MAPA
 // ==========================================
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
-const defaultCenter = { lat: 25.7904, lng: -108.9858 }; // Los Mochis
+const defaultCenter = { lat: 25.7904, lng: -108.9858 }; // Los Mochis (Fallback)
 
-// Tema ultra oscuro
 const ultraDarkMapStyle = [
   { elementType: "geometry", stylers: [{ color: "#09090b" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#09090b" }] },
@@ -42,62 +40,160 @@ const ultraDarkMapStyle = [
 
 const mapOptions: google.maps.MapOptions = {
     styles: ultraDarkMapStyle,
-    disableDefaultUI: true, // Oculta botones de Google
-    zoomControl: true, // Deja solo el control de zoom
+    disableDefaultUI: true,
+    zoomControl: true,
     gestureHandling: 'greedy',
-    clickableIcons: false, // Evita que los POIs de google sean clickeables
+    clickableIcons: false,
 };
 
 // ==========================================
-// 2. MOCK DATA
+// 2. COMPONENTE DE TARJETA (Efecto Netflix)
 // ==========================================
-const mockProviders = [
-  {
-    id: 1,
-    name: "Thaly Falomir Beauty Spa",
-    category: "Spa Médico",
-    lat: 25.7920,
-    lng: -108.9900,
-    rating: 4.9,
-    reviews: 128,
-    slug: "thalyfalomirbeautyspa",
-    imageUrl: "https://storage.googleapis.com/quhealthy-public-media-prod/store-media/15/BANNER-4403fb52-07e9-4daf-9e18-025ae0697cbf.png",
-    logoUrl: "https://storage.googleapis.com/quhealthy-public-media-prod/store-media/15/LOGO-5d86c818-037e-445d-8edc-888258ce3796.png",
-    color: "#9333ea",
-    isPremium: true
-  },
-  {
-    id: 2,
-    name: "Dermatología Integral",
-    category: "Clínica",
-    lat: 25.7850,
-    lng: -108.9800,
-    rating: 4.7,
-    reviews: 84,
-    slug: "dermatologia-integral",
-    imageUrl: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=800&auto=format&fit=crop",
-    logoUrl: "",
-    color: "#0ea5e9",
-    isPremium: false
-  },
-  {
-    id: 3,
-    name: "Zen Dental Studio",
-    category: "Odontología",
-    lat: 25.7950,
-    lng: -108.9820,
-    rating: 5.0,
-    reviews: 215,
-    slug: "zen-dental",
-    imageUrl: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop",
-    logoUrl: "",
-    color: "#10b981",
-    isPremium: true
-  }
-];
+const MapProviderCard = ({ 
+  provider, 
+  isSelected, 
+  onClick, 
+  onHover, 
+  onLeave 
+}: { 
+  provider: DiscoverProvider & { distanceKm?: number }, 
+  isSelected: boolean,
+  onClick: () => void,
+  onHover: () => void,
+  onLeave: () => void
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Reproducir video on hover
+  useEffect(() => {
+    if ((isHovered || isSelected) && videoRef.current) {
+      videoRef.current.play().catch(() => console.log("Autoplay bloqueado"));
+    } else if (!isHovered && !isSelected && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [isHovered, isSelected]);
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      onMouseEnter={() => { setIsHovered(true); onHover(); }}
+      onMouseLeave={() => { setIsHovered(false); onLeave(); }}
+      onClick={onClick}
+      className={cn(
+        "relative flex-shrink-0 w-[85vw] md:w-full snap-center rounded-[2rem] p-1 transition-all duration-300 cursor-pointer overflow-hidden group",
+        isSelected ? "shadow-2xl" : "hover:shadow-xl"
+      )}
+    >
+      {/* GLOW BACKGROUND */}
+      <div 
+        className={cn(
+          "absolute inset-0 transition-opacity duration-500 blur-md pointer-events-none",
+          isSelected ? "opacity-50" : "opacity-0 group-hover:opacity-30"
+        )}
+        style={{ backgroundColor: provider.color }}
+      />
+
+      {/* CARD CONTENT */}
+      <div className={cn(
+        "relative h-full bg-[#09090b]/80 backdrop-blur-2xl rounded-[1.8rem] border flex flex-col overflow-hidden transition-colors",
+        isSelected ? "border-white/20" : "border-white/5 hover:border-white/10"
+      )}>
+        
+        {/* ÁREA MULTIMEDIA (Banner + Video) */}
+        <div className="h-32 md:h-40 w-full relative overflow-hidden bg-gray-950">
+          <img 
+            src={provider.imageUrl || '/placeholder-banner.jpg'} 
+            alt={provider.name} 
+            className={cn(
+              "absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105",
+              (isHovered || isSelected) && provider.previewVideoUrl ? "opacity-0" : "opacity-80"
+            )} 
+          />
+          
+          {provider.previewVideoUrl && (
+            <video
+              ref={videoRef}
+              src={provider.previewVideoUrl}
+              muted
+              loop
+              playsInline
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-700",
+                isHovered || isSelected ? "opacity-100" : "opacity-0"
+              )}
+            />
+          )}
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent" />
+          
+          {/* Indicador de Video si no está hover */}
+          {provider.previewVideoUrl && !isHovered && !isSelected && (
+            <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md rounded-full p-1.5 border border-white/10">
+              <PlayCircle className="w-4 h-4 text-white/80" />
+            </div>
+          )}
+
+          {provider.isPremium && (
+            <Badge className="absolute top-3 left-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
+              <Sparkles className="w-3 h-3 mr-1 text-yellow-400" /> Premium
+            </Badge>
+          )}
+          
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
+            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <span className="text-xs font-bold text-white">{provider.rating || '4.9'}</span>
+            <span className="text-[10px] text-zinc-400">({provider.reviews || '0'})</span>
+          </div>
+        </div>
+
+        {/* INFO */}
+        <div className="p-4 flex-1 flex flex-col">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3 className="font-bold text-lg text-white leading-tight line-clamp-1">{provider.name}</h3>
+            {provider.logoUrl && (
+              <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-full border border-white/10 bg-zinc-900 flex-shrink-0 object-cover" />
+            )}
+          </div>
+          
+          <div className="flex items-center justify-between text-xs text-zinc-400 mb-4">
+            <Badge variant="outline" className="border-white/10 text-zinc-300 font-medium truncate max-w-[120px]">
+              {provider.category || 'Especialista'}
+            </Badge>
+            <span className="flex items-center text-purple-400 font-medium">
+              <Navigation className="w-3 h-3 mr-1" /> 
+              {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km` : 'Calculando...'}
+            </span>
+          </div>
+
+          <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+            <span className="text-xs text-zinc-500 font-medium">Disponible hoy</span>
+            <Button 
+              size="sm"
+              className={cn(
+                "rounded-xl font-bold transition-all h-8 px-4",
+                isSelected ? "text-white shadow-lg" : "bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white"
+              )}
+              style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`/store/${provider.slug}`, '_blank');
+              }}
+            >
+              Ver Tienda <ChevronRight className="w-3 h-3 ml-1" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 // ==========================================
-// 3. COMPONENTE INTERNO DEL MAPA
+// 3. COMPONENTE PRINCIPAL (Orquestador)
 // ==========================================
 const DiscoverMapContent = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -105,38 +201,93 @@ const DiscoverMapContent = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
+  // 🚀 LLAMADAS REALES AL BACKEND Y GPS
+  const { providers, isLoading: isFetchingProviders } = useDiscover();
+  const { coordinates, calculateDistance } = useGeolocation();
+
+  // 🚀 PROCESAMIENTO DE DATOS: Calculamos distancias y ordenamos del más cercano al más lejano
+  const enrichedProviders = useMemo(() => {
+    if (!providers) return [];
+    
+    return providers.map(p => {
+      let distance = undefined;
+      // Si el usuario dio permiso de GPS y el doctor tiene lat/lng, calculamos:
+      if (coordinates && p.lat && p.lng) {
+        distance = calculateDistance(coordinates.lat, coordinates.lng, p.lat, p.lng);
+      }
+      return { ...p, distanceKm: distance };
+    })
+    .sort((a, b) => (a.distanceKm || 9999) - (b.distanceKm || 9999)) // Ordena por cercanía
+    .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase())); // Buscador en vivo
+  }, [providers, coordinates, calculateDistance, searchQuery]);
+
+  const mapCenter = useMemo(() => {
+    if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
+    return defaultCenter;
+  }, [coordinates]);
+
   const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
   }, []);
 
-  const handleSelectProvider = (provider: typeof mockProviders[0]) => {
+  const handleSelectProvider = (provider: typeof enrichedProviders[0]) => {
     setSelectedId(provider.id);
-    if (map) {
+    if (map && provider.lat && provider.lng) {
       map.panTo({ lat: provider.lat, lng: provider.lng });
       map.setZoom(15);
     }
   };
 
+  // PANTALLA DE CARGA DEL BACKEND
+  if (isFetchingProviders) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#09090b]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
+          <p className="text-zinc-400 font-medium animate-pulse">Buscando especialistas cerca de ti...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-screen bg-[#09090b] overflow-hidden selection:bg-purple-500/30">
+    <div className="relative w-full h-[calc(100vh-64px)] bg-[#09090b] overflow-hidden selection:bg-purple-500/30">
       
-      {/* --- EL MAPA EN EL FONDO (Z-0) --- */}
+      {/* --- EL MAPA EN EL FONDO --- */}
       <div className="absolute inset-0 z-0">
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          zoom={13}
-          center={defaultCenter}
+          zoom={coordinates ? 13 : 11} // Más zoom si tenemos la ubicación del usuario
+          center={mapCenter}
           onLoad={onMapLoad}
           onClick={() => setSelectedId(null)}
           options={mapOptions}
         >
-          {mockProviders.map((provider) => {
+          {/* Pin del Paciente (Tú) */}
+          {coordinates && (
+             <MarkerF
+                position={{ lat: coordinates.lat, lng: coordinates.lng }}
+                icon={{
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#3b82f6',
+                  fillOpacity: 1,
+                  strokeWeight: 4,
+                  strokeColor: '#ffffff',
+                  scale: 8,
+                }}
+             />
+          )}
+
+          {/* Pines de Clínicas */}
+          {enrichedProviders.map((provider) => {
             const isSelected = selectedId === provider.id;
             const isHovered = hoveredId === provider.id;
             
+            if(!provider.lat || !provider.lng) return null; // Saltar si no tiene coords
+
             return (
               <MarkerF
-                key={provider.id}
+                key={`marker-${provider.id}`}
                 position={{ lat: provider.lat, lng: provider.lng }}
                 onClick={() => handleSelectProvider(provider)}
                 onMouseOver={() => setHoveredId(provider.id)}
@@ -157,19 +308,18 @@ const DiscoverMapContent = () => {
         </GoogleMap>
       </div>
 
-      {/* --- GRADIENTES --- */}
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#09090b]/90 to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#09090b]/90 to-transparent z-10 pointer-events-none md:hidden" />
 
-      {/* --- BARRA DE BÚSQUEDA FLOTANTE (Z-20) --- */}
+      {/* --- BARRA DE BÚSQUEDA FLOTANTE --- */}
       <div className="absolute top-6 left-4 right-4 md:left-8 md:w-[420px] z-20">
         <div className="flex items-center gap-2">
           <div className="relative flex-1 group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-            <div className="relative flex items-center bg-[#09090b]/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
+            <div className="relative flex items-center bg-[#09090b]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
               <Search className="w-5 h-5 text-zinc-400 mr-3" />
               <Input 
-                placeholder="Buscar servicios, especialistas..." 
+                placeholder="Buscar clínica, especialidad..." 
                 className="bg-transparent border-none p-0 h-auto text-white placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -180,102 +330,41 @@ const DiscoverMapContent = () => {
             </div>
           </div>
         </div>
+        
+        {/* Aviso de GPS si no hay coordenadas */}
+        {!coordinates && (
+           <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-400/90 text-xs font-medium backdrop-blur-md">
+             <MapPin className="w-4 h-4" /> Activa tu ubicación para ver resultados exactos
+           </div>
+        )}
       </div>
 
-      {/* --- PANEL DE LISTA (Z-20) --- */}
-      <div className="absolute bottom-6 left-0 w-full md:top-28 md:bottom-8 md:left-8 md:w-[420px] z-20 pointer-events-none">
-        <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto w-full h-full gap-4 px-4 md:px-0 custom-scrollbar pointer-events-auto snap-x snap-mandatory pb-4 md:pb-0">
-          <AnimatePresence>
-            {mockProviders.map((provider) => {
-              const isSelected = selectedId === provider.id;
-
-              return (
-                <motion.div
-                  key={provider.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  onMouseEnter={() => setHoveredId(provider.id)}
-                  onMouseLeave={() => setHoveredId(null)}
+      {/* --- PANEL DE LISTA DE TARJETAS --- */}
+      <div className="absolute bottom-6 left-0 w-full md:top-36 md:bottom-8 md:left-8 md:w-[420px] z-20 pointer-events-none">
+        
+        {enrichedProviders.length === 0 ? (
+          <div className="w-[90%] md:w-full mx-auto bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-center pointer-events-auto">
+             <Search className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+             <h3 className="text-white font-bold text-lg">No hay resultados</h3>
+             <p className="text-zinc-400 text-sm mt-2">Intenta buscar con otras palabras clave.</p>
+          </div>
+        ) : (
+          <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto w-full h-full gap-4 px-4 md:px-0 custom-scrollbar pointer-events-auto snap-x snap-mandatory pb-4 md:pb-0">
+            <AnimatePresence>
+              {enrichedProviders.map((provider) => (
+                <MapProviderCard
+                  key={`card-${provider.id}`}
+                  provider={provider}
+                  isSelected={selectedId === provider.id}
                   onClick={() => handleSelectProvider(provider)}
-                  className={cn(
-                    "relative flex-shrink-0 w-[85vw] md:w-full snap-center rounded-[2rem] p-1 transition-all duration-300 cursor-pointer overflow-hidden group",
-                    isSelected ? "shadow-2xl" : "hover:shadow-xl"
-                  )}
-                >
-                  <div 
-                    className={cn(
-                      "absolute inset-0 transition-opacity duration-500 blur-md",
-                      isSelected ? "opacity-50" : "opacity-0 group-hover:opacity-30"
-                    )}
-                    style={{ backgroundColor: provider.color }}
-                  />
-
-                  <div className={cn(
-                    "relative h-full bg-[#09090b]/80 backdrop-blur-2xl rounded-[1.8rem] border flex flex-col overflow-hidden transition-colors",
-                    isSelected ? "border-white/20" : "border-white/5 hover:border-white/10"
-                  )}>
-                    
-                    <div className="h-32 w-full relative overflow-hidden">
-                      <img src={provider.imageUrl} alt={provider.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] to-transparent" />
-                      
-                      {provider.isPremium && (
-                        <Badge className="absolute top-3 left-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
-                          <Sparkles className="w-3 h-3 mr-1 text-yellow-400" /> Top Choice
-                        </Badge>
-                      )}
-                      
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-xs font-bold text-white">{provider.rating}</span>
-                        <span className="text-[10px] text-zinc-400">({provider.reviews})</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-bold text-lg text-white leading-tight line-clamp-1">{provider.name}</h3>
-                        {provider.logoUrl && (
-                          <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-full border border-white/10 bg-zinc-900 flex-shrink-0" />
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                        <Badge variant="outline" className="border-white/10 text-zinc-300 font-medium">
-                          {provider.category}
-                        </Badge>
-                        <span className="flex items-center">
-                          <Navigation className="w-3 h-3 mr-1 opacity-70" /> 1.2 km
-                        </span>
-                      </div>
-
-                      <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className="text-xs text-zinc-500 font-medium">Disponibilidad hoy</span>
-                        <Button 
-                          size="sm"
-                          className={cn(
-                            "rounded-xl font-bold transition-all h-8 px-4",
-                            isSelected ? "text-white shadow-lg shadow-purple-500/20" : "bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white"
-                          )}
-                          style={isSelected ? { backgroundColor: provider.color } : {}}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`/provider/store/${provider.slug}`, '_blank');
-                          }}
-                        >
-                          Ver Tienda <ChevronRight className="w-3 h-3 ml-1" />
-                        </Button>
-                      </div>
-                    </div>
-
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-          <div className="w-4 md:hidden flex-shrink-0" />
-        </div>
+                  onHover={() => setHoveredId(provider.id)}
+                  onLeave={() => setHoveredId(null)}
+                />
+              ))}
+            </AnimatePresence>
+            <div className="w-4 md:hidden flex-shrink-0" />
+          </div>
+        )}
       </div>
       
     </div>
@@ -286,7 +375,6 @@ const DiscoverMapContent = () => {
 // 4. COMPONENTE WRAPPER (Carga Segura de Maps)
 // ==========================================
 export default function DiscoverPageWrapper() {
-  // ✅ Usamos useJsApiLoader igual que en tu otro componente para evitar conflictos
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
