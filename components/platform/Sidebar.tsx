@@ -36,7 +36,7 @@ const sidebarLinks = [
   { label: "Agenda", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: 'blue' } },
   { label: "Pacientes", href: "/provider/dashboard/patients", icon: Users, badge: null },
   { label: "Mis Servicios", href: "/provider/store", icon: BriefcaseMedical, badge: null },
-  { label: "Finanzas", href: "/provider/finance", icon: CreditCard, badge: null },
+  { label: "Finanzas", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
 ];
 
 const settingsLinks = [
