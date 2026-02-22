@@ -2,7 +2,7 @@
 import axiosInstance from '@/lib/axios';
 import { ProviderSchedule, TimeBlock, CreateTimeBlockPayload } from '@/types/schedule';
 
-const BASE_URL = '/api/schedules';
+const BASE_URL = '/api/appointments/schedules'; // 🚀 Ajustado
 
 export const scheduleService = {
   /**

@@ -53,7 +53,7 @@ function CalendarContent() {
   useEffect(() => {
     const checkGoogleStatus = async () => {
       try {
-        const { data } = await axiosInstance.get('/api/integrations/calendar/status');
+const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/status'); // 🚀 Ajustado
         setIsGoogleConnected(data.connected);
       } catch (error) {
         console.error("Error verificando estado de Google Calendar", error);
@@ -81,7 +81,7 @@ function CalendarContent() {
   // 3. INICIAR CONEXIÓN CON GOOGLE (Llama a tu Controller para pedir la URL de Auth)
   const handleGoogleConnect = async () => {
     try {
-      const { data } = await axiosInstance.get('/api/integrations/calendar/connect/GOOGLE');
+      const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/connect/GOOGLE'); // 🚀 Ajustado
       window.location.href = data; // Redirigir a la pantalla de Google
     } catch (error) {
       toast.error("No se pudo iniciar la conexión con Google.");
@@ -131,7 +131,14 @@ function CalendarContent() {
         <div className="bg-gradient-to-r from-gray-900 to-gray-900/50 border border-gray-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-4">
                 <div className="p-3 bg-white rounded-xl shadow-md">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" className="w-6 h-6" />
+                <svg className="w-6 h-6" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#4285F4" d="M3 10.5v27C3 41.085 5.915 44 9.5 44h29c3.585 0 6.5-2.915 6.5-6.5v-27H3z"/>
+  <path fill="#1666D5" d="M3 10.5v12h42v-12H3z"/>
+  <path fill="#E8EAED" d="M3 10.5h42V20H3z"/>
+  <text x="24" y="34" fill="#1666D5" fontFamily="Arial" fontSize="16" fontWeight="bold" textAnchor="middle">31</text>
+  <path fill="#EA4335" d="M9.5 4h5v9h-5z"/>
+  <path fill="#FBBC04" d="M33.5 4h5v9h-5z"/>
+</svg>
                 </div>
                 <div>
                     <h3 className="font-bold text-white flex items-center gap-2 text-lg">
