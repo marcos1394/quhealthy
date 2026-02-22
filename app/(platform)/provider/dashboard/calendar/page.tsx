@@ -81,7 +81,7 @@ const { data } = await axiosInstance.get('/api/appointments/integrations/calenda
   // 3. INICIAR CONEXIÓN CON GOOGLE (Llama a tu Controller para pedir la URL de Auth)
   const handleGoogleConnect = async () => {
     try {
-      const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/connect/GOOGLE'); // 🚀 Ajustado
+      const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/connect/GOOGLE_CALENDAR'); // 🚀 Ajustado
       window.location.href = data; // Redirigir a la pantalla de Google
     } catch (error) {
       toast.error("No se pudo iniciar la conexión con Google.");
