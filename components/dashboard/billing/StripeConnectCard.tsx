@@ -2,7 +2,12 @@
 
 import { useEffect } from "react";
 import { useStripeConnect } from "@/hooks/useStripeConnect";
-import { CreditCard, CheckCircle2, AlertCircle, ExternalLink, Loader2 } from "lucide-react";
+import { CreditCard, CheckCircle2, AlertCircle, ExternalLink, Loader2, Shield, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default function StripeConnectCard() {
   const { status, isLoadingStatus, isRedirecting, fetchStatus, handleOnboarding } = useStripeConnect();
@@ -11,102 +16,141 @@ export default function StripeConnectCard() {
     fetchStatus();
   }, [fetchStatus]);
 
+  // Loading State
   if (isLoadingStatus) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm animate-pulse">
-        <div className="flex items-center space-x-4">
-          <div className="h-12 w-12 rounded-xl bg-slate-100" />
-          <div className="space-y-2">
-            <div className="h-4 w-48 rounded bg-slate-100" />
-            <div className="h-3 w-32 rounded bg-slate-100" />
+      <Card className="bg-gray-900 border-gray-800 shadow-xl overflow-hidden">
+        <CardContent className="p-8">
+          <div className="flex items-center space-x-6 animate-pulse">
+            <div className="h-16 w-16 rounded-2xl bg-gray-800" />
+            <div className="space-y-3 flex-1">
+              <div className="h-5 w-64 rounded-lg bg-gray-800" />
+              <div className="h-4 w-96 rounded-lg bg-gray-800" />
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   const isReady = status?.ready === true;
   
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md">
-      <div className="p-6 sm:flex sm:items-center sm:justify-between">
-        
-        {/* Información del Estado */}
-        <div className="sm:flex sm:space-x-5 items-center">
-          <div className="flex-shrink-0 mt-1 sm:mt-0">
-            {isReady ? (
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 border border-emerald-100">
-                <CheckCircle2 className="h-7 w-7 text-emerald-600" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className={cn(
+        "bg-gradient-to-br overflow-hidden shadow-2xl border-2 transition-all duration-300 hover:shadow-3xl",
+        isReady 
+          ? "from-gray-900 to-gray-900/50 border-emerald-500/30 hover:border-emerald-500/40" 
+          : "from-gray-900 to-gray-900/50 border-gray-800 hover:border-purple-500/30"
+      )}>
+        <CardContent className="p-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            
+            {/* Información del Estado */}
+            <div className="flex items-start gap-6 flex-1">
+              
+              {/* Icon */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200 }}
+                className="flex-shrink-0"
+              >
+                {isReady ? (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 shadow-lg shadow-emerald-500/20">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                  </div>
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 shadow-lg shadow-purple-500/20">
+                    <AlertCircle className="h-8 w-8 text-purple-400" />
+                  </div>
+                )}
+              </motion.div>
+              
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-3">
+                  <h3 className="text-2xl font-black text-white">
+                    Cobros y Transferencias
+                  </h3>
+                  {isReady ? (
+                    <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-md">
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Activo
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 shadow-md animate-pulse">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Pendiente
+                    </Badge>
+                  )}
+                </div>
+                
+                <p className="text-base text-gray-400 leading-relaxed max-w-2xl">
+                  {isReady 
+                    ? "Tu cuenta bancaria está vinculada correctamente. Estás listo para recibir los pagos de tus consultas directamente en tu cuenta."
+                    : "Para poder cobrar por tus servicios, necesitas vincular una cuenta bancaria y verificar tu identidad de forma segura."}
+                </p>
               </div>
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 border border-amber-100">
-                <AlertCircle className="h-7 w-7 text-amber-500" />
-              </div>
-            )}
-          </div>
-          
-          <div className="mt-4 sm:mt-0 text-left">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Cobros y Transferencias
-              </h3>
-              {isReady ? (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                  Activo
-                </span>
-              ) : (
-                <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                  Pendiente
-                </span>
-              )}
             </div>
-            <p className="text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
-              {isReady 
-                ? "Tu cuenta bancaria está vinculada correctamente. Estás listo para recibir los pagos de tus consultas directamente en tu cuenta."
-                : "Para poder cobrar por tus servicios, necesitas vincular una cuenta bancaria y verificar tu identidad de forma segura."}
-            </p>
-          </div>
-        </div>
 
-        {/* Botón de Acción */}
-        <div className="mt-6 sm:mt-0 sm:ml-6 flex-shrink-0">
-          <button
-            onClick={handleOnboarding}
-            disabled={isRedirecting}
-            className={`inline-flex items-center justify-center w-full sm:w-auto rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              isReady 
-                ? "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-sky-700 focus:ring-slate-200" 
-                : "bg-gradient-to-r from-sky-600 to-teal-600 text-white hover:from-sky-700 hover:to-teal-700 focus:ring-sky-600 border border-transparent hover:shadow-md"
-            } disabled:opacity-70 disabled:cursor-not-allowed`}
+            {/* Botón de Acción */}
+            <div className="flex-shrink-0">
+              <Button
+                onClick={handleOnboarding}
+                disabled={isRedirecting}
+                size="lg"
+                className={cn(
+                  "w-full lg:w-auto h-14 px-8 text-base font-bold shadow-xl transition-all duration-300 group",
+                  isReady 
+                    ? "bg-gray-800 text-white border-2 border-gray-700 hover:bg-gray-700 hover:border-gray-600" 
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-105"
+                )}
+              >
+                {isRedirecting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Redirigiendo...
+                  </>
+                ) : isReady ? (
+                  <>
+                    Ver panel financiero
+                    <ExternalLink className="ml-2 h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Vincular Cuenta Bancaria
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        
+        {/* Footer de seguridad */}
+        {!isReady && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gradient-to-r from-purple-500/5 to-pink-500/5 px-8 py-5 border-t border-gray-800/50"
           >
-            {isRedirecting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Redirigiendo...
-              </>
-            ) : isReady ? (
-              <>
-                Ver panel financiero
-                <ExternalLink className="ml-2 -mr-1 h-4 w-4 text-slate-400" />
-              </>
-            ) : (
-              <>
-                <CreditCard className="mr-2 -ml-1 h-4 w-4" />
-                Vincular Cuenta
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-      
-      {/* Footer de seguridad */}
-      {!isReady && (
-        <div className="bg-slate-50 px-6 py-3.5 border-t border-slate-100">
-          <p className="text-xs text-slate-500 flex items-center justify-center sm:justify-start">
-            <span className="mr-2">🔒</span> Tus datos están protegidos y encriptados por Stripe.
-          </p>
-        </div>
-      )}
-    </div>
+            <div className="flex items-center justify-center lg:justify-start gap-3">
+              <div className="p-2 bg-purple-500/10 rounded-lg">
+                <Shield className="h-4 w-4 text-purple-400" />
+              </div>
+              <p className="text-sm text-gray-400 font-medium">
+                Tus datos están protegidos y encriptados por Stripe
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </Card>
+    </motion.div>
   );
 }
