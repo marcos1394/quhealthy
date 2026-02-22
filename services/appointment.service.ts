@@ -4,7 +4,6 @@ import { Appointment, ReschedulePayload } from '@/types/appointments';
 
 const BASE_URL = '/api/appointments';
 
-// Interfaz para la respuesta paginada de Spring Data
 interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -14,24 +13,37 @@ interface PageResponse<T> {
 export const appointmentService = {
   
   /**
-   * Obtiene mis citas (Auto-detecta si eres Doctor o Paciente por el token)
+   * Obtiene mis citas
+   * 🚀 CAMBIO: Apunta a /list para evitar errores de ruteo
    */
   getMyAppointments: async (): Promise<Appointment[]> => {
-    // Pedimos hasta 500 citas para pintar el mes completo
-    const response = await axiosInstance.get<PageResponse<Appointment>>(`${BASE_URL}?size=500&sort=startTime,asc`);
+    const response = await axiosInstance.get<PageResponse<Appointment>>(
+      `${BASE_URL}/list?size=500&sort=startTime,asc`
+    );
     return response.data.content;
+  },
+
+  /**
+   * Crea una nueva reserva
+   * 🚀 CAMBIO: Apunta a /create
+   */
+  createAppointment: async (payload: any): Promise<Appointment> => {
+    const response = await axiosInstance.post<Appointment>(`${BASE_URL}/create`, payload);
+    return response.data;
   },
 
   /**
    * Cancela una cita
    */
   cancelAppointment: async (id: number, reason: string): Promise<Appointment> => {
-    const response = await axiosInstance.patch<Appointment>(`${BASE_URL}/${id}/cancel?reason=${encodeURIComponent(reason)}`);
+    const response = await axiosInstance.patch<Appointment>(
+      `${BASE_URL}/${id}/cancel?reason=${encodeURIComponent(reason)}`
+    );
     return response.data;
   },
 
   /**
-   * Reprograma una cita (Ideal para el Drag & Drop del calendario)
+   * Reprograma una cita
    */
   rescheduleAppointment: async (id: number, payload: ReschedulePayload): Promise<Appointment> => {
     const response = await axiosInstance.post<Appointment>(`${BASE_URL}/${id}/reschedule`, payload);
@@ -39,7 +51,7 @@ export const appointmentService = {
   },
 
   /**
-   * Marca la cita como completada (Solo Doctor)
+   * Marca la cita como completada
    */
   completeAppointment: async (id: number, notes: string): Promise<Appointment> => {
     const response = await axiosInstance.patch<Appointment>(`${BASE_URL}/${id}/complete`, { notes });
