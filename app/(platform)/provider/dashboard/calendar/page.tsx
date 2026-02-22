@@ -1,117 +1,91 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// app/provider/dashboard/calendar/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { 
   Calendar as CalendarIcon, Clock, Plus, Loader2, Settings, 
-  Link as LinkIcon, CheckCircle 
+  Link as LinkIcon, CheckCircle, RefreshCcw,
+  Badge
 } from 'lucide-react';
+
+// 🚀 IMPORTAMOS TU INSTANCIA DE AXIOS
+import axiosInstance from '@/lib/axios';
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// Componentes del Calendario
-import { CalendarView, CalendarEvent } from '@/components/dashboard/CalendarView';
-import { OperatingHoursModal, OperatingHour } from '@/components/dashboard/OperatingHours';
+// Tus Componentes Inteligentes
+import { CalendarView } from '@/components/dashboard/CalendarView';
+import { OperatingHoursModal } from '@/components/dashboard/OperatingHours';
 import { TimeBlockModal } from '@/components/dashboard/TimeBlockModal';
-
-// Hooks & Stores
-import { useSessionStore } from '@/stores/SessionStore';
 
 // --- COMPONENTE DE CARGA (FALLBACK) ---
 function CalendarLoading() {
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-950">
+    <div className="h-[80vh] w-full flex flex-col items-center justify-center bg-gray-950">
       <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-4" />
-      <p className="text-gray-400 animate-pulse">Cargando módulos del calendario...</p>
+      <p className="text-gray-400 animate-pulse font-medium">Cargando tu espacio de trabajo...</p>
     </div>
   );
 }
 
-// --- CONTENIDO PRINCIPAL (Tu lógica original va aquí) ---
+// --- CONTENIDO PRINCIPAL ---
 function CalendarContent() {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [operatingHours, setOperatingHours] = useState<OperatingHour[]>([]);
-  const [loading, setLoading] = useState(true);
-  
+  const router = useRouter();
+  const searchParams = useSearchParams(); 
+
   // Estados de Modales
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  
+  // Estado para Sincronizar Componentes (Fuerza a CalendarView a recargar cuando creamos algo)
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const { user, fetchSession } = useSessionStore();
-  const router = useRouter();
-  const searchParams = useSearchParams(); // Esto es lo que causaba el error sin Suspense
+  // Estado de Google Calendar
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
+  const [isCheckingGoogle, setIsCheckingGoogle] = useState(true);
 
-  // --- FETCH DATA ---
-  const fetchCalendarData = useCallback(async () => {
-    setLoading(true);
-    try {
-      // 1. Obtener Horarios de Operación
-      const hoursRes = await axios.get('/api/calendar/operating-hours', { withCredentials: true });
-      setOperatingHours(hoursRes.data);
+  // 1. VERIFICAR ESTADO DE GOOGLE CALENDAR (Llama a tu CalendarIntegrationController)
+  useEffect(() => {
+    const checkGoogleStatus = async () => {
+      try {
+        const { data } = await axiosInstance.get('/api/integrations/calendar/status');
+        setIsGoogleConnected(data.connected);
+      } catch (error) {
+        console.error("Error verificando estado de Google Calendar", error);
+      } finally {
+        setIsCheckingGoogle(false);
+      }
+    };
 
-      // 2. Obtener Eventos (Citas + Bloqueos)
-      const eventsRes = await axios.get('/api/calendar/events', { withCredentials: true });
-      
-      // Transformar datos para FullCalendar
-      const formattedEvents = eventsRes.data.map((evt: any) => ({
-        id: evt.id,
-        title: evt.title || evt.serviceName,
-        start: evt.startTime,
-        end: evt.endTime,
-        backgroundColor: evt.type === 'BLOCK' ? '#ef4444' : '#8b5cf6',
-        borderColor: 'transparent'
-      }));
-      
-      setEvents(formattedEvents);
-
-    } catch (error) {
-      console.error(error);
-      // toast.error("No se pudo cargar el calendario.");
-    } finally {
-      setLoading(false);
-    }
+    checkGoogleStatus();
   }, []);
 
+  // 2. MANEJAR CALLBACK OAUTH DE GOOGLE
   useEffect(() => {
-    fetchCalendarData();
-  }, [fetchCalendarData]);
-
-  // --- GOOGLE CALENDAR SYNC HANDLING ---
-  useEffect(() => {
-    const syncStatus = searchParams.get('sync');
+    const syncStatus = searchParams.get('calendar_status'); // Coincide con tu redirect de Java
     if (syncStatus === 'success') {
-      toast.success("¡Google Calendar conectado exitosamente!");
-      fetchSession(); // Recargar usuario
-      router.replace('/provider/dashboard/calendar'); // Corregí la ruta para asegurar consistencia
+      toast.success("¡Google Calendar conectado exitosamente! 🎉");
+      setIsGoogleConnected(true);
+      router.replace('/provider/dashboard/calendar'); // Limpiar URL
     } else if (syncStatus === 'error') {
       toast.error("Error al conectar con Google.");
-      router.replace('/provider/dashboard/calendar');
+      router.replace('/provider/dashboard/calendar'); // Limpiar URL
     }
-  }, [searchParams, router, fetchSession]);
+  }, [searchParams, router]);
 
+  // 3. INICIAR CONEXIÓN CON GOOGLE (Llama a tu Controller para pedir la URL de Auth)
   const handleGoogleConnect = async () => {
     try {
-      const { data } = await axios.get('/api/google/calendar/auth', { withCredentials: true });
-      window.location.href = data.authUrl;
+      const { data } = await axiosInstance.get('/api/integrations/calendar/connect/GOOGLE');
+      window.location.href = data; // Redirigir a la pantalla de Google
     } catch (error) {
-      toast.error("No se pudo iniciar la conexión.");
+      toast.error("No se pudo iniciar la conexión con Google.");
     }
-  };
-
-  const isGoogleConnected = !!(user as any)?.google_calendar_id;
-
-  // --- HANDLERS ---
-  const handleDateClick = (info: any) => {
-    setSelectedDate(new Date(info.date));
-    setIsBlockModalOpen(true);
   };
 
   return (
@@ -120,7 +94,7 @@ function CalendarContent() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }} 
-        className="space-y-8"
+        className="space-y-8 max-w-[1600px] mx-auto"
       >
         
         {/* --- HEADER --- */}
@@ -128,24 +102,24 @@ function CalendarContent() {
           <div className="space-y-1">
             <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
               <CalendarIcon className="w-8 h-8 text-purple-500" />
-              Mi Agenda
+              Disponibilidad y Agenda
             </h1>
-            <p className="text-gray-400">Gestiona tu disponibilidad y eventos.</p>
+            <p className="text-gray-400">Gestiona tus horarios laborales y citas agendadas.</p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <Button 
               onClick={() => setIsHoursModalOpen(true)} 
               variant="outline" 
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white transition-all shadow-sm"
             >
               <Clock className="w-4 h-4 mr-2 text-purple-400" />
               Configurar Horarios
             </Button>
 
             <Button 
-              onClick={() => { setSelectedDate(undefined); setIsBlockModalOpen(true); }}
-              className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/20"
+              onClick={() => setIsBlockModalOpen(true)}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-900/20 transition-all hover:scale-105"
             >
               <Plus className="w-4 h-4 mr-2" />
               Bloquear Tiempo
@@ -154,76 +128,68 @@ function CalendarContent() {
         </div>
 
         {/* --- GOOGLE INTEGRATION CARD --- */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-900/50 border border-gray-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-4">
-                <div className="p-2 bg-white rounded-lg">
-                    <span className="text-xl font-bold text-blue-500">G</span> 
+                <div className="p-3 bg-white rounded-xl shadow-md">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" className="w-6 h-6" />
                 </div>
                 <div>
-                    <h3 className="font-medium text-white flex items-center gap-2">
+                    <h3 className="font-bold text-white flex items-center gap-2 text-lg">
                         Google Calendar
-                        {isGoogleConnected && <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">Activo</span>}
+                        {isGoogleConnected && <Badge className="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] uppercase">Conectado</Badge>}
                     </h3>
-                    <p className="text-sm text-gray-400">Sincroniza tus eventos para evitar conflictos.</p>
+                    <p className="text-sm text-gray-400">Sincroniza tus eventos personales para evitar que los pacientes agenden sobre ellos.</p>
                 </div>
             </div>
             
-            {isGoogleConnected ? (
-                <Button variant="ghost" disabled className="text-green-500 hover:text-green-400 hover:bg-green-500/10">
+            {isCheckingGoogle ? (
+              <Loader2 className="w-5 h-5 text-gray-500 animate-spin" />
+            ) : isGoogleConnected ? (
+                <Button variant="ghost" disabled className="text-green-500 bg-green-500/5 border border-green-500/10">
                     <CheckCircle className="w-4 h-4 mr-2" /> Sincronizado
                 </Button>
             ) : (
-                <Button onClick={handleGoogleConnect} variant="secondary" className="bg-gray-800 text-white hover:bg-gray-700">
+                <Button onClick={handleGoogleConnect} variant="secondary" className="bg-white text-gray-900 hover:bg-gray-200 font-bold shadow-lg">
                     <LinkIcon className="w-4 h-4 mr-2" /> Conectar Cuenta
                 </Button>
             )}
         </div>
 
-        {/* --- CALENDARIO --- */}
-        <div className="h-[75vh] min-h-[600px] relative">
-            {loading && events.length === 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950/80 z-10 rounded-xl backdrop-blur-sm">
-                    <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-4" />
-                    <p className="text-gray-400 animate-pulse">Cargando agenda...</p>
-                </div>
-            ) : null}
-            
-            <CalendarView 
-                events={events} 
-                onDateClick={handleDateClick}
-                onEventClick={(info) => toast.info(`Evento: ${info.event.title}`)}
-            />
+        {/* --- CALENDARIO PRINCIPAL --- */}
+        <div className="h-[75vh] min-h-[650px] relative rounded-xl bg-gray-950 border border-gray-800 shadow-2xl overflow-hidden p-2">
+            {/* Al cambiar el 'key', forzamos a CalendarView a re-montarse y re-cargar los eventos del backend */}
+            <CalendarView key={refreshKey} />
         </div>
 
         {/* --- QUICK STATS --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gray-900 border-gray-800 p-4 flex items-center gap-4">
-                <div className="p-3 bg-purple-500/10 rounded-lg text-purple-400">
+            <Card className="bg-gray-900 border-gray-800 p-5 flex items-center gap-4 hover:border-purple-500/30 transition-colors">
+                <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
                     <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-500">Horario Configurado</p>
-                    <p className="text-xl font-bold text-white">{operatingHours.filter((h: any) => h.isActive || h.day_of_week !== undefined).length} días/sem</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Horario</p>
+                    <p className="text-lg font-bold text-white">Configurado</p>
                 </div>
             </Card>
             
-            <Card className="bg-gray-900 border-gray-800 p-4 flex items-center gap-4">
-                <div className="p-3 bg-blue-500/10 rounded-lg text-blue-400">
-                    <CalendarIcon className="w-6 h-6" />
+            <Card className="bg-gray-900 border-gray-800 p-5 flex items-center gap-4 hover:border-blue-500/30 transition-colors">
+                <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+                    <RefreshCcw className="w-6 h-6" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-500">Eventos Totales</p>
-                    <p className="text-xl font-bold text-white">{events.length}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Sincronización</p>
+                    <p className="text-lg font-bold text-white">{isGoogleConnected ? 'Activa' : 'Inactiva'}</p>
                 </div>
             </Card>
 
-            <Card className="bg-gray-900 border-gray-800 p-4 flex items-center gap-4">
-                <div className="p-3 bg-emerald-500/10 rounded-lg text-emerald-400">
+            <Card className="bg-gray-900 border-gray-800 p-5 flex items-center gap-4 hover:border-emerald-500/30 transition-colors">
+                <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
                     <Settings className="w-6 h-6" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-500">Estado del Sistema</p>
-                    <p className="text-xl font-bold text-emerald-400">Operativo</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Estado</p>
+                    <p className="text-lg font-bold text-emerald-400">Operativo</p>
                 </div>
             </Card>
         </div>
@@ -232,15 +198,13 @@ function CalendarContent() {
         <OperatingHoursModal
             isOpen={isHoursModalOpen}
             onClose={() => setIsHoursModalOpen(false)}
-            initialHours={operatingHours}
-            onSaveSuccess={fetchCalendarData}
+            onSaveSuccess={() => setRefreshKey(prev => prev + 1)} // 🚀 Actualiza el calendario al guardar
         />
 
         <TimeBlockModal
             isOpen={isBlockModalOpen}
             onClose={() => setIsBlockModalOpen(false)}
-            onSaveSuccess={fetchCalendarData}
-            initialDate={selectedDate}
+            onSaveSuccess={() => setRefreshKey(prev => prev + 1)} // 🚀 Actualiza el calendario al guardar
         />
 
       </motion.div>
@@ -248,7 +212,7 @@ function CalendarContent() {
   );
 }
 
-// --- EXPORT DEFAULT CON SUSPENSE (CORRECCIÓN FINAL) ---
+// --- EXPORT DEFAULT CON SUSPENSE ---
 export default function CalendarPage() {
   return (
     <Suspense fallback={<CalendarLoading />}>
