@@ -33,8 +33,8 @@ import { useAuth } from "@/hooks/useAuth";
 // MENÚS REALES DEL NEGOCIO
 const sidebarLinks = [
   { label: "Resumen", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "Agenda", href: "/provider/calendar", icon: CalendarDays, badge: { count: 3, color: 'blue' } },
-  { label: "Pacientes", href: "/provider/patients", icon: Users, badge: null },
+  { label: "Agenda", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: 'blue' } },
+  { label: "Pacientes", href: "/provider/dashboard/patients", icon: Users, badge: null },
   { label: "Mis Servicios", href: "/provider/store", icon: BriefcaseMedical, badge: null },
   { label: "Finanzas", href: "/provider/finance", icon: CreditCard, badge: null },
 ];
