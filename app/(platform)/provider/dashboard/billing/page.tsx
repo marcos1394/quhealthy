@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import StripeConnectCard from "@/components/dashboard/billing/StripeConnectCard";
 import { Building2, ReceiptText, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,21 @@ export const metadata = {
   title: "Facturación y Pagos | QuHealthy",
   description: "Configura tu cuenta para recibir pagos y administra tus recibos.",
 };
+
+// Componente de carga para el Suspense
+function StripeConnectCardSkeleton() {
+  return (
+    <div className="rounded-3xl border border-gray-800 bg-gray-900 p-8 shadow-xl animate-pulse">
+      <div className="flex items-center space-x-6">
+        <div className="h-16 w-16 rounded-2xl bg-gray-800" />
+        <div className="space-y-3 flex-1">
+          <div className="h-5 w-64 rounded-lg bg-gray-800" />
+          <div className="h-4 w-96 rounded-lg bg-gray-800" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function BillingSettingsPage() {
   return (
@@ -50,7 +66,11 @@ export default function BillingSettingsPage() {
                 </p>
               </div>
             </div>
-            <StripeConnectCard />
+            
+            {/* 🚀 Suspense es OBLIGATORIO porque StripeConnectCard usa useSearchParams */}
+            <Suspense fallback={<StripeConnectCardSkeleton />}>
+              <StripeConnectCard />
+            </Suspense>
           </section>
 
           {/* SECCIÓN 2: Historial (Placeholder) */}

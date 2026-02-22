@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useStripeConnect } from "@/hooks/useStripeConnect";
 import { CreditCard, CheckCircle2, AlertCircle, ExternalLink, Loader2, Shield, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
@@ -10,14 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export default function StripeConnectCard() {
-  const { status, isLoadingStatus, isRedirecting, fetchStatus, handleOnboarding } = useStripeConnect();
+  const { status, isLoadingStatus, isRedirecting, handleOnboarding } = useStripeConnect();
 
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
-
-  // Loading State
-  if (isLoadingStatus) {
+  // El loading inicial ahora se maneja en el Suspense de la página,
+  // pero dejamos este por seguridad si el fetchStatus tarda mucho.
+  if (isLoadingStatus && !status) {
     return (
       <Card className="bg-gray-900 border-gray-800 shadow-xl overflow-hidden">
         <CardContent className="p-8">
@@ -34,6 +30,7 @@ export default function StripeConnectCard() {
   }
 
   const isReady = status?.ready === true;
+  const isPending = status?.status === "PENDING";
   
   return (
     <motion.div
@@ -48,7 +45,7 @@ export default function StripeConnectCard() {
           : "from-gray-900 to-gray-900/50 border-gray-800 hover:border-purple-500/30"
       )}>
         <CardContent className="p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
             
             {/* Información del Estado */}
             <div className="flex items-start gap-6 flex-1">
@@ -82,10 +79,14 @@ export default function StripeConnectCard() {
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Activo
                     </Badge>
-                  ) : (
-                    <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 shadow-md animate-pulse">
+                  ) : isPending ? (
+                    <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-md">
                       <Sparkles className="w-3 h-3 mr-1" />
-                      Pendiente
+                      Verificación Pendiente
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-gray-800 text-gray-400 border-gray-700 shadow-md">
+                      No Configurado
                     </Badge>
                   )}
                 </div>
@@ -95,11 +96,23 @@ export default function StripeConnectCard() {
                     ? "Tu cuenta bancaria está vinculada correctamente. Estás listo para recibir los pagos de tus consultas directamente en tu cuenta."
                     : "Para poder cobrar por tus servicios, necesitas vincular una cuenta bancaria y verificar tu identidad de forma segura."}
                 </p>
+
+                {/* Sub-badges para mostrar qué falta en caso de estar pendiente */}
+                {isPending && status && (
+                  <div className="flex gap-3 mt-4">
+                    <span className={cn("text-xs px-2 py-1 rounded-md border", status.charges_enabled ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-gray-800 border-gray-700 text-gray-500")}>
+                      Cobros: {status.charges_enabled ? 'Habilitados' : 'Pendientes'}
+                    </span>
+                    <span className={cn("text-xs px-2 py-1 rounded-md border", status.payouts_enabled ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-gray-800 border-gray-700 text-gray-500")}>
+                      Depósitos: {status.payouts_enabled ? 'Habilitados' : 'Pendientes'}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Botón de Acción */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 pt-2 lg:pt-0">
               <Button
                 onClick={handleOnboarding}
                 disabled={isRedirecting}
@@ -114,11 +127,11 @@ export default function StripeConnectCard() {
                 {isRedirecting ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Redirigiendo...
+                    Procesando...
                   </>
                 ) : isReady ? (
                   <>
-                    Ver panel financiero
+                    Gestionar en Stripe
                     <ExternalLink className="ml-2 h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
                   </>
                 ) : (
@@ -145,7 +158,7 @@ export default function StripeConnectCard() {
                 <Shield className="h-4 w-4 text-purple-400" />
               </div>
               <p className="text-sm text-gray-400 font-medium">
-                Tus datos están protegidos y encriptados por Stripe
+                Tus datos están protegidos y encriptados por Stripe Connect
               </p>
             </div>
           </motion.div>

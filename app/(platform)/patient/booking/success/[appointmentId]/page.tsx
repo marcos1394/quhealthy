@@ -41,47 +41,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-/**
- * BookingSuccessPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. PRIMING
- *    - Success celebration
- *    - Confetti animation
- *    - Positive messaging
- *    - Achievement unlocked
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Instant confirmation
- *    - Visual success state
- *    - Email notification
- *    - QR code generation
- * 
- * 3. CREDIBILIDAD
- *    - Professional design
- *    - Official confirmation
- *    - Security badges
- *    - Trust indicators
- * 
- * 4. MINIMIZAR ANSIEDAD
- *    - Next steps clear
- *    - Calendar integration
- *    - Reminder options
- *    - Support access
- * 
- * 5. SATISFICING
- *    - Quick actions (PDF, Share)
- *    - One-click calendar add
- *    - Easy navigation
- *    - Copy details
- * 
- * 6. AVERSIÓN A LA PÉRDIDA
- *    - Confirmation saved
- *    - Multiple backups (email, PDF)
- *    - QR code backup
- *    - Appointment in dashboard
- */
 
 // Interface for appointment details
 interface AppointmentDetails {
