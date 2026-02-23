@@ -5,20 +5,22 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, 
-  Calendar as CalendarIcon, 
   Clock, 
-  CreditCard,
-  AlertCircle,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
-  CalendarX2
+  CalendarX2,
+  Calendar as CalendarIcon,
+  Loader2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useBookingStore } from "@/hooks/useBookingStore"; 
 import { useAvailability } from "@/hooks/useAvailability";
+import { CalendarDay } from "@/components/booking/CalendarDay";
+import { TimeSlot } from "@/components/booking/TimeSlot";
+import { BookingSummary } from "@/components/booking/BookingSummary";
 import { 
   format, 
   addMonths, 
@@ -29,8 +31,6 @@ import {
   endOfWeek, 
   addDays, 
   isSameMonth, 
-  isSameDay, 
-  isToday,
   isBefore,
   startOfDay
 } from "date-fns";
@@ -42,7 +42,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const { cart, providerId, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
   const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
 
-  // --- ESTADOS DEL CALENDARIO ---
+  // Estados del calendario
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -53,20 +53,24 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
   }, [cart, providerId, router, params.slug]);
 
-  // --- LÓGICA DEL CALENDARIO MENSUAL ---
+  // Lógica del calendario
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
   const handleDateSelect = (date: Date) => {
-    // Evitar seleccionar días en el pasado
     if (isBefore(date, startOfDay(new Date()))) return;
 
     setSelectedDate(date);
-    setSelectedTime(null); // Reseteamos la hora si cambia de día
+    setSelectedTime(null);
     
     if (providerId) {
       fetchAvailableSlots(providerId, date, getTotalDuration());
     }
+  };
+
+  const handleCheckout = () => {
+    // Lógica de checkout
+    console.log('Ir a checkout');
   };
 
   // Prevenimos renderizado si falta info
@@ -76,10 +80,10 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   const total = getTotalPrice();
   const duration = getTotalDuration();
 
-  // Generar la cuadrícula de días del mes actual
+  // Generar cuadrícula de días
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Semana empieza en Lunes
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
   const calendarDays = [];
@@ -90,229 +94,189 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white selection:bg-purple-500/30 pb-32">
+    <div className="min-h-screen bg-gray-950 text-white pb-32">
       
-      {/* --- HEADER --- */}
-      <div className="sticky top-0 z-40 bg-[#09090b]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
-          <button 
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-gray-950/95 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <Button
+            variant="ghost"
             onClick={() => router.back()}
-            className="flex items-center text-zinc-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white hover:bg-gray-800 h-11 gap-2"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-5 h-5" />
             Volver
-          </button>
+          </Button>
+          
           <div className="text-right">
-            <p className="text-sm font-medium text-zinc-500">Agendando con</p>
-            <p className="font-bold text-white" style={{ color: safeColor }}>{providerName}</p>
+            <p className="text-sm font-semibold text-gray-500">Agendando con</p>
+            <p className="font-black text-lg text-white" style={{ color: safeColor }}>
+              {providerName}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 mt-8 flex flex-col lg:flex-row gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 flex flex-col lg:flex-row gap-10">
         
-        {/* --- COLUMNA IZQUIERDA: CALENDARIO Y HORARIOS --- */}
-        <div className="flex-1 space-y-10">
+        {/* Columna Izquierda: Calendario y Horarios */}
+        <div className="flex-1 space-y-12">
           
-          {/* PASO 1: Calendario Mensual */}
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
-                <span className="font-bold text-sm">1</span>
+          {/* PASO 1: Calendario */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center border-2 border-purple-500/30">
+                <span className="font-black text-lg text-purple-400">1</span>
               </div>
-              <h2 className="text-2xl font-black">Elige un día</h2>
+              <div>
+                <h2 className="text-3xl font-black text-white">Elige un día</h2>
+                <p className="text-sm text-gray-500 mt-1">Selecciona la fecha de tu cita</p>
+              </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-2xl">
-              {/* Controles del mes */}
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold capitalize text-white">
-                  {format(currentMonth, "MMMM yyyy", { locale: es })}
-                </h3>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={prevMonth}
-                    disabled={isBefore(currentMonth, startOfMonth(new Date()))}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft className="w-5 h-5 text-zinc-300" />
-                  </button>
-                  <button 
-                    onClick={nextMonth}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                  >
-                    <ChevronRight className="w-5 h-5 text-zinc-300" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Días de la semana (L, M, X, J, V, S, D) */}
-              <div className="grid grid-cols-7 mb-4">
-                {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(dayName => (
-                  <div key={dayName} className="text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                    {dayName}
+            <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 shadow-2xl overflow-hidden">
+              <CardContent className="p-8">
+                
+                {/* Controles del mes */}
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-xl">
+                      <CalendarIcon className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <h3 className="text-2xl font-black capitalize text-white">
+                      {format(currentMonth, "MMMM yyyy", { locale: es })}
+                    </h3>
                   </div>
-                ))}
-              </div>
-
-              {/* Cuadrícula de días */}
-              <div className="grid grid-cols-7 gap-2">
-                {calendarDays.map((date, i) => {
-                  const isPast = isBefore(date, startOfDay(new Date()));
-                  const isCurrentMonth = isSameMonth(date, monthStart);
-                  const selected = selectedDate ? isSameDay(date, selectedDate) : false;
-                  const today = isToday(date);
-
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => handleDateSelect(date)}
-                      disabled={isPast || !isCurrentMonth}
-                      className={`
-                        relative flex flex-col items-center justify-center h-14 rounded-2xl transition-all duration-300
-                        ${!isCurrentMonth || isPast ? 'opacity-20 cursor-not-allowed' : 'hover:bg-white/10 cursor-pointer'}
-                        ${selected ? 'shadow-lg scale-105 z-10' : 'bg-transparent'}
-                      `}
-                      style={selected ? { backgroundColor: safeColor, color: '#fff' } : {}}
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="default"
+                      onClick={prevMonth}
+                      disabled={isBefore(currentMonth, startOfMonth(new Date()))}
+                      className="border-gray-800 bg-gray-900 hover:bg-gray-800 disabled:opacity-30 h-11 w-11 p-0"
                     >
-                      {/* Indicador de "Hoy" */}
-                      {today && !selected && (
-                        <span className="absolute top-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: safeColor }} />
-                      )}
-                      
-                      <span className={`text-lg font-bold ${selected ? 'text-white' : (isCurrentMonth && !isPast ? 'text-zinc-300' : 'text-zinc-600')}`}>
-                        {format(date, 'd')}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      onClick={nextMonth}
+                      className="border-gray-800 bg-gray-900 hover:bg-gray-800 h-11 w-11 p-0"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
 
-          {/* PASO 2: Horarios Reales (Desde la API) */}
+                {/* Días de la semana */}
+                <div className="grid grid-cols-7 mb-4">
+                  {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(dayName => (
+                    <div key={dayName} className="text-center text-xs font-black text-gray-500 uppercase tracking-wider">
+                      {dayName}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Cuadrícula de días */}
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDays.map((date, i) => {
+                    const isPast = isBefore(date, startOfDay(new Date()));
+                    const isCurrentMonth = isSameMonth(date, monthStart);
+
+                    return (
+                      <CalendarDay
+                        key={i}
+                        date={date}
+                        isCurrentMonth={isCurrentMonth}
+                        isPast={isPast}
+                        selectedDate={selectedDate}
+                        providerColor={safeColor}
+                        onSelect={handleDateSelect}
+                      />
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* PASO 2: Horarios */}
           <AnimatePresence>
             {selectedDate && (
               <motion.section
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
-                    <span className="font-bold text-sm">2</span>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-10 h-10 rounded-2xl bg-pink-500/10 flex items-center justify-center border-2 border-pink-500/30">
+                    <span className="font-black text-lg text-pink-400">2</span>
                   </div>
-                  <h2 className="text-2xl font-black">Horarios disponibles</h2>
-                  <Badge className="ml-auto bg-white/5 text-zinc-400 border-none">
-                    <Clock className="w-3 h-3 mr-1" /> {duration} min req.
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-black text-white">Horarios disponibles</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
+                    </p>
+                  </div>
+                  <Badge className="bg-gray-900 text-gray-400 border-gray-800 h-8">
+                    <Clock className="w-3 h-3 mr-1" /> 
+                    {duration} min requeridos
                   </Badge>
                 </div>
 
-                {isLoadingSlots ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                      <div key={i} className="h-14 rounded-xl bg-white/5 animate-pulse border border-white/10" />
-                    ))}
-                  </div>
-                ) : availableSlots.length > 0 ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {availableSlots.map((time) => {
-                      const isSelected = selectedTime === time;
-                      return (
-                        <button
-                          key={time}
-                          onClick={() => setSelectedTime(time)}
-                          className={`h-14 rounded-xl border font-bold transition-all duration-300 ${
-                            isSelected 
-                              ? 'text-white shadow-lg scale-105' 
-                              : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10 hover:border-white/20'
-                          }`}
-                          style={isSelected ? { backgroundColor: safeColor, borderColor: safeColor } : {}}
-                        >
-                          {time}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="p-8 bg-white/5 border border-white/10 rounded-3xl text-center flex flex-col items-center">
-                    <CalendarX2 className="w-10 h-10 text-zinc-600 mb-3" />
-                    <p className="text-zinc-300 font-bold text-lg">No hay horarios disponibles</p>
-                    <p className="text-sm text-zinc-500 mt-1 max-w-sm">
-                      El doctor no tiene disponibilidad o está fuera de horario en la fecha seleccionada.
-                    </p>
-                  </div>
-                )}
+                <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 shadow-2xl">
+                  <CardContent className="p-8">
+                    {isLoadingSlots ? (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                          <div key={i} className="h-16 rounded-2xl bg-gray-900 animate-pulse border border-gray-800" />
+                        ))}
+                      </div>
+                    ) : availableSlots.length > 0 ? (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {availableSlots.map((time) => (
+                          <TimeSlot
+                            key={time}
+                            time={time}
+                            isSelected={selectedTime === time}
+                            providerColor={safeColor}
+                            onSelect={setSelectedTime}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-16 flex flex-col items-center text-center">
+                        <div className="w-20 h-20 rounded-2xl bg-gray-900 flex items-center justify-center mb-6 border border-gray-800">
+                          <CalendarX2 className="w-10 h-10 text-gray-600" />
+                        </div>
+                        <p className="text-xl font-black text-white mb-2">
+                          No hay horarios disponibles
+                        </p>
+                        <p className="text-sm text-gray-500 max-w-md leading-relaxed">
+                          El profesional no tiene disponibilidad en la fecha seleccionada. Intenta con otro día.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </motion.section>
             )}
           </AnimatePresence>
         </div>
 
-        {/* --- COLUMNA DERECHA: RESUMEN (Sticky) --- */}
-        <div className="w-full lg:w-96">
-          <div className="sticky top-28 bg-[#09090b]/50 backdrop-blur-2xl rounded-[2rem] border border-white/10 p-6 sm:p-8 shadow-2xl">
-            <h3 className="text-xl font-black text-white mb-6 flex items-center">
-              <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
-              Resumen de tu cita
-            </h3>
-
-            <div className="space-y-4 mb-6">
-              {cart.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-start border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                  <div className="flex-1 pr-4">
-                    <p className="font-bold text-zinc-200">{item.name}</p>
-                    <p className="text-xs text-zinc-500 flex items-center mt-1">
-                      <Clock className="w-3 h-3 mr-1" /> {item.durationMinutes} min
-                    </p>
-                  </div>
-                  <span className="font-black text-white">${item.price}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10 mb-8 space-y-2">
-              <div className="flex justify-between text-zinc-400 text-sm">
-                <span>Subtotal</span>
-                <span>${total}</span>
-              </div>
-              <div className="flex justify-between text-zinc-400 text-sm">
-                <span>Impuestos</span>
-                <span>$0.00</span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-2">
-                <span className="font-medium text-white">Total a pagar</span>
-                <span className="text-2xl font-black text-white" style={{ color: safeColor }}>
-                  ${total}
-                </span>
-              </div>
-            </div>
-
-            <Button 
-              disabled={!selectedDate || !selectedTime}
-              className={`w-full h-14 rounded-xl font-black text-base shadow-xl transition-all ${
-                (!selectedDate || !selectedTime) 
-                  ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
-                  : 'hover:scale-[1.02] hover:brightness-110 text-white'
-              }`}
-              style={(!selectedDate || !selectedTime) ? {} : { backgroundColor: safeColor }}
-            >
-              {(!selectedDate || !selectedTime) ? (
-                'Selecciona fecha y hora'
-              ) : (
-                <>
-                  <CreditCard className="w-5 h-5 mr-2" />
-                  Ir al Checkout
-                </>
-              )}
-            </Button>
-            
-            <p className="text-center text-xs text-zinc-500 mt-4 flex items-center justify-center">
-              <AlertCircle className="w-3 h-3 mr-1" /> No se te cobrará nada aún.
-            </p>
-          </div>
-        </div>
-
+        {/* Columna Derecha: Resumen */}
+        <BookingSummary
+          cart={cart}
+          total={total}
+          providerColor={safeColor}
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          onCheckout={handleCheckout}
+        />
       </div>
     </div>
   );
