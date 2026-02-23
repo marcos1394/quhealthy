@@ -1,7 +1,7 @@
 // hooks/useBookingCheckout.ts
 import { useState } from 'react';
 import { appointmentService } from '@/services/appointment.service';
-import { paymentService } from '@/services/payment.service'; // 🚀 Ahora sí existe
+import { paymentService } from '@/services/payment.service';
 import { CheckoutParams, CreateAppointmentRequest } from '@/types/booking';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
@@ -19,49 +19,57 @@ export const useBookingCheckout = () => {
       startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
       const startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
 
-      // 2. Extraer IDs según el tipo
-      const serviceIds = cart
-        .filter(item => item.type === 'SERVICE')
-        .map(item => item.id);
-      
-      const packageIds = cart
-        .filter(item => item.type === 'PACKAGE')
-        .map(item => item.id);
+      // 2. Validación de seguridad del carrito
+      if (cart.length === 0) {
+        throw new Error("El carrito está vacío.");
+      }
 
-      // 3. Crear la Cita (Estado: PENDING_PAYMENT)
+      /**
+       * 3. Mapeo al DTO de Java (CreateAppointmentRequest)
+       * Tu backend actual pide UN solo serviceId. 
+       * Tomamos el primer ítem del carrito para esta cita.
+       */
+      const mainItem = cart[0];
+
       const payload: CreateAppointmentRequest = {
         providerId,
+        serviceId: mainItem.id, // 🚀 ID único solicitado por el backend
         startTime: startTimeIso,
-        serviceIds,
-        packageIds,
-        notes: "Agendado vía QuHealthy Storefront"
+        appointmentType: 'ONLINE', // 🚀 Campo obligatorio en tu DTO
+        paymentMethod: 'CREDIT_CARD', // 🚀 Campo obligatorio para el flujo de Stripe
+        consumerSymptoms: `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
       };
 
+      // 4. Crear la Cita (Estado inicial: PENDING_PAYMENT)
       const appointment = await appointmentService.createAppointment(payload);
 
       if (!appointment?.id) {
-        throw new Error("No se pudo obtener el ID de la cita generada.");
+        throw new Error("El servidor no devolvió un ID de cita válido.");
       }
 
-      // 4. Solicitar URL de pago a Stripe vía Payment Service
+      // 5. Solicitar URL de pago a Stripe
       const checkoutUrl = await paymentService.createCheckoutSession(appointment.id);
 
       if (checkoutUrl) {
-        // 5. Redirección final a la pasarela de Stripe
+        // 6. Redirección final al checkout seguro de Stripe
         window.location.href = checkoutUrl;
       } else {
-        throw new Error("Stripe no devolvió una URL de pago válida.");
+        throw new Error("No se pudo generar la sesión de pago de Stripe.");
       }
 
     } catch (error: any) {
       console.error("❌ Checkout Error:", error);
       
-      const status = error.response?.status;
+      const errorData = error.response?.data;
       
-      if (status === 401) {
-        toast.error("Tu sesión ha expirado o no has iniciado sesión.", { theme: 'dark' });
+      // Manejo inteligente de errores de validación del backend
+      if (errorData?.code === "VALIDATION_ERROR") {
+        const validationMsgs = Object.values(errorData.errors).join(", ");
+        toast.error(`Datos inválidos: ${validationMsgs}`, { theme: 'dark' });
+      } else if (error.response?.status === 401) {
+        toast.error("Debes iniciar sesión para completar la reserva.", { theme: 'dark' });
       } else {
-        const errorMsg = error.response?.data?.message || "Error al procesar la reserva. Intenta de nuevo.";
+        const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
         toast.error(errorMsg, { theme: 'dark' });
       }
       
