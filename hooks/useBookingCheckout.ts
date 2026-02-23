@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const processCheckout = async ({ providerId, selectedDate, selectedTime, cart }: CheckoutParams) => {
+  const processCheckout = async ({ providerId, consumerId, selectedDate, selectedTime, cart }: CheckoutParams) => {
     setIsProcessing(true);
 
     try {
@@ -24,19 +24,16 @@ export const useBookingCheckout = () => {
         throw new Error("El carrito está vacío.");
       }
 
-      /**
-       * 3. Mapeo al DTO de Java (CreateAppointmentRequest)
-       * Tu backend actual pide UN solo serviceId. 
-       * Tomamos el primer ítem del carrito para esta cita.
-       */
+      // 3. Mapeo al DTO de Java
       const mainItem = cart[0];
 
       const payload: CreateAppointmentRequest = {
         providerId,
-        serviceId: mainItem.id, // 🚀 ID único solicitado por el backend
+        consumerId, // 🚀 ESCENARIO 2: Si el doctor agenda, aquí va el ID del paciente. Si no, va undefined.
+        serviceId: mainItem.id, 
         startTime: startTimeIso,
-        appointmentType: 'ONLINE', // 🚀 Campo obligatorio en tu DTO
-        paymentMethod: 'CREDIT_CARD', // 🚀 Campo obligatorio para el flujo de Stripe
+        appointmentType: 'ONLINE', 
+        paymentMethod: 'CREDIT_CARD', 
         consumerSymptoms: `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
       };
 
@@ -62,7 +59,6 @@ export const useBookingCheckout = () => {
       
       const errorData = error.response?.data;
       
-      // Manejo inteligente de errores de validación del backend
       if (errorData?.code === "VALIDATION_ERROR") {
         const validationMsgs = Object.values(errorData.errors).join(", ");
         toast.error(`Datos inválidos: ${validationMsgs}`, { theme: 'dark' });

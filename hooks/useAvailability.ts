@@ -28,8 +28,15 @@ export const useAvailability = () => {
       setAvailableSlots(slots);
     } catch (error: any) {
       console.error("Error al obtener disponibilidad:", error);
-      const errorMessage = error.response?.data?.message || "No pudimos cargar los horarios para este día.";
-      toast.error(errorMessage, { theme: 'dark' });
+      
+      // 🚀 Manejo específico para el error 403 (Problema de permisos en el backend)
+      if (error.response?.status === 403) {
+        toast.error("Tu cuenta actual no tiene permisos para ver esta agenda. (Contacta soporte si eres paciente)", { theme: 'dark' });
+      } else {
+        const errorMessage = error.response?.data?.message || "No pudimos cargar los horarios para este día.";
+        toast.error(errorMessage, { theme: 'dark' });
+      }
+      
       setAvailableSlots([]); // Nos aseguramos de limpiar en caso de error
     } finally {
       setIsLoadingSlots(false);
