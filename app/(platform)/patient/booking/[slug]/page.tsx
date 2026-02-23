@@ -10,55 +10,84 @@ import {
   CreditCard,
   AlertCircle,
   Sparkles,
+  ChevronLeft,
   ChevronRight,
   CalendarX2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useBookingStore } from "@/hooks/useBookingStore"; // Asegúrate de que esta ruta sea correcta
-import { useAvailability } from "@/hooks/useAvailability"; // 🚀 Nuestro nuevo hook conectado al backend
-import { format, addDays } from "date-fns";
+import { useBookingStore } from "@/hooks/useBookingStore"; 
+import { useAvailability } from "@/hooks/useAvailability";
+import { 
+  format, 
+  addMonths, 
+  subMonths, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  addDays, 
+  isSameMonth, 
+  isSameDay, 
+  isToday,
+  isBefore,
+  startOfDay
+} from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function BookingPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   
-  // 🚀 LEEMOS EL ESTADO GLOBAL Y EL PROVIDER ID
   const { cart, providerId, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
-  
+  const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
+
+  // --- ESTADOS DEL CALENDARIO ---
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  // 🚀 INSTANCIAMOS EL MOTOR DE DISPONIBILIDAD
-  const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
-
-  // Redirigir si el carrito está vacío o si no tenemos el ID del doctor
   useEffect(() => {
     if (cart.length === 0 || !providerId) {
       router.replace(`/patient/store/${params.slug}`);
     }
   }, [cart, providerId, router, params.slug]);
 
-  // Generamos los próximos 14 días para el UI
-  const nextDays = Array.from({ length: 14 }).map((_, i) => addDays(new Date(), i));
+  // --- LÓGICA DEL CALENDARIO MENSUAL ---
+  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
-  // 🚀 AL SELECCIONAR FECHA, CONSULTAMOS A LA API
   const handleDateSelect = (date: Date) => {
+    // Evitar seleccionar días en el pasado
+    if (isBefore(date, startOfDay(new Date()))) return;
+
     setSelectedDate(date);
-    setSelectedTime(null);
+    setSelectedTime(null); // Reseteamos la hora si cambia de día
     
     if (providerId) {
       fetchAvailableSlots(providerId, date, getTotalDuration());
     }
   };
 
-  // Prevenimos renderizado si falta info (evita errores y parpadeos)
+  // Prevenimos renderizado si falta info
   if (cart.length === 0 || !providerId) return null;
 
   const safeColor = providerColor || '#9333ea';
   const total = getTotalPrice();
   const duration = getTotalDuration();
+
+  // Generar la cuadrícula de días del mes actual
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(monthStart);
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Semana empieza en Lunes
+  const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+  const calendarDays = [];
+  let day = startDate;
+  while (day <= endDate) {
+    calendarDays.push(day);
+    day = addDays(day, 1);
+  }
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white selection:bg-purple-500/30 pb-32">
@@ -82,10 +111,10 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
 
       <div className="max-w-5xl mx-auto px-4 mt-8 flex flex-col lg:flex-row gap-8">
         
-        {/* --- COLUMNA IZQUIERDA: SELECCIÓN DE FECHA Y HORA --- */}
+        {/* --- COLUMNA IZQUIERDA: CALENDARIO Y HORARIOS --- */}
         <div className="flex-1 space-y-10">
           
-          {/* PASO 1: Fecha */}
+          {/* PASO 1: Calendario Mensual */}
           <section>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
@@ -94,30 +123,70 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
               <h2 className="text-2xl font-black">Elige un día</h2>
             </div>
 
-            {/* Scroll Horizontal de Días */}
-            <div className="flex overflow-x-auto pb-4 pt-2 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar gap-3">
-              {nextDays.map((date, i) => {
-                const isSelected = selectedDate?.toDateString() === date.toDateString();
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleDateSelect(date)}
-                    className={`flex flex-col items-center justify-center min-w-[4.5rem] h-20 rounded-2xl border transition-all duration-300 ${
-                      isSelected 
-                        ? 'bg-white/10 border-transparent shadow-lg transform -translate-y-1' 
-                        : 'bg-transparent border-white/10 hover:border-white/20 hover:bg-white/5'
-                    }`}
-                    style={isSelected ? { borderColor: safeColor, boxShadow: `0 10px 25px -5px ${safeColor}40` } : {}}
+            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-2xl">
+              {/* Controles del mes */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold capitalize text-white">
+                  {format(currentMonth, "MMMM yyyy", { locale: es })}
+                </h3>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={prevMonth}
+                    disabled={isBefore(currentMonth, startOfMonth(new Date()))}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
-                    <span className="text-xs font-semibold uppercase tracking-wider mb-1" style={isSelected ? { color: safeColor } : { color: '#a1a1aa' }}>
-                      {format(date, 'EEE', { locale: es })}
-                    </span>
-                    <span className={`text-xl font-black ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
-                      {format(date, 'd')}
-                    </span>
+                    <ChevronLeft className="w-5 h-5 text-zinc-300" />
                   </button>
-                );
-              })}
+                  <button 
+                    onClick={nextMonth}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5 text-zinc-300" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Días de la semana (L, M, X, J, V, S, D) */}
+              <div className="grid grid-cols-7 mb-4">
+                {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(dayName => (
+                  <div key={dayName} className="text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                    {dayName}
+                  </div>
+                ))}
+              </div>
+
+              {/* Cuadrícula de días */}
+              <div className="grid grid-cols-7 gap-2">
+                {calendarDays.map((date, i) => {
+                  const isPast = isBefore(date, startOfDay(new Date()));
+                  const isCurrentMonth = isSameMonth(date, monthStart);
+                  const selected = selectedDate ? isSameDay(date, selectedDate) : false;
+                  const today = isToday(date);
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleDateSelect(date)}
+                      disabled={isPast || !isCurrentMonth}
+                      className={`
+                        relative flex flex-col items-center justify-center h-14 rounded-2xl transition-all duration-300
+                        ${!isCurrentMonth || isPast ? 'opacity-20 cursor-not-allowed' : 'hover:bg-white/10 cursor-pointer'}
+                        ${selected ? 'shadow-lg scale-105 z-10' : 'bg-transparent'}
+                      `}
+                      style={selected ? { backgroundColor: safeColor, color: '#fff' } : {}}
+                    >
+                      {/* Indicador de "Hoy" */}
+                      {today && !selected && (
+                        <span className="absolute top-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: safeColor }} />
+                      )}
+                      
+                      <span className={`text-lg font-bold ${selected ? 'text-white' : (isCurrentMonth && !isPast ? 'text-zinc-300' : 'text-zinc-600')}`}>
+                        {format(date, 'd')}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
@@ -140,16 +209,13 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                   </Badge>
                 </div>
 
-                {/* 🚀 LÓGICA DE CARGA Y RESULTADOS */}
                 {isLoadingSlots ? (
-                  // Estado: Cargando
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {[1, 2, 3, 4, 5, 6].map(i => (
                       <div key={i} className="h-14 rounded-xl bg-white/5 animate-pulse border border-white/10" />
                     ))}
                   </div>
                 ) : availableSlots.length > 0 ? (
-                  // Estado: Horarios Encontrados
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {availableSlots.map((time) => {
                       const isSelected = selectedTime === time;
@@ -170,7 +236,6 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                     })}
                   </div>
                 ) : (
-                  // Estado: Sin Horarios / Día Descanso
                   <div className="p-8 bg-white/5 border border-white/10 rounded-3xl text-center flex flex-col items-center">
                     <CalendarX2 className="w-10 h-10 text-zinc-600 mb-3" />
                     <p className="text-zinc-300 font-bold text-lg">No hay horarios disponibles</p>
