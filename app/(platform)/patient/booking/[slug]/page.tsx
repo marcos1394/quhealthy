@@ -10,52 +10,51 @@ import {
   CreditCard,
   AlertCircle,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  CalendarX2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useBookingStore } from "@/hooks/useBookingStore";
+import { useBookingStore } from "@/hooks/useBookingStore"; // Asegúrate de que esta ruta sea correcta
+import { useAvailability } from "@/hooks/useAvailability"; // 🚀 Nuestro nuevo hook conectado al backend
 import { format, addDays } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function BookingPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   
-  // 🚀 LEEMOS EL ESTADO GLOBAL (El carrito que llenamos en la página anterior)
-  const { cart, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
+  // 🚀 LEEMOS EL ESTADO GLOBAL Y EL PROVIDER ID
+  const { cart, providerId, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
   
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Redirigir si el carrito está vacío (ej. si el usuario recarga la página de golpe)
+  // 🚀 INSTANCIAMOS EL MOTOR DE DISPONIBILIDAD
+  const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
+
+  // Redirigir si el carrito está vacío o si no tenemos el ID del doctor
   useEffect(() => {
-    if (cart.length === 0) {
-      router.replace(`/patient/store/${params.slug}`); // Ajusta la ruta a la de tu tienda
+    if (cart.length === 0 || !providerId) {
+      router.replace(`/patient/store/${params.slug}`);
     }
-  }, [cart, router, params.slug]);
+  }, [cart, providerId, router, params.slug]);
 
-  // --- GENERAR DÍAS PARA EL SELECTOR ---
   // Generamos los próximos 14 días para el UI
   const nextDays = Array.from({ length: 14 }).map((_, i) => addDays(new Date(), i));
 
-  // --- MOCK DE HORARIOS (Sustituiremos esto por tu Backend) ---
-  const mockSlots = ["09:00", "09:30", "10:00", "11:30", "16:00", "16:30", "17:00"];
-
+  // 🚀 AL SELECCIONAR FECHA, CONSULTAMOS A LA API
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     setSelectedTime(null);
-    setIsLoadingSlots(true);
     
-    // 🚧 AQUÍ HAREMOS LA LLAMADA AL BACKEND EN EL FUTURO:
-    // fetch(`/api/appointments/slots?date=${date}&duration=${getTotalDuration()}`)
-    
-    // Simulamos el tiempo de carga de la API
-    setTimeout(() => setIsLoadingSlots(false), 800);
+    if (providerId) {
+      fetchAvailableSlots(providerId, date, getTotalDuration());
+    }
   };
 
-  if (cart.length === 0) return null; // Evita parpadeos mientras redirige
+  // Prevenimos renderizado si falta info (evita errores y parpadeos)
+  if (cart.length === 0 || !providerId) return null;
 
   const safeColor = providerColor || '#9333ea';
   const total = getTotalPrice();
@@ -122,7 +121,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
             </div>
           </section>
 
-          {/* PASO 2: Horarios (Aparece solo si hay fecha) */}
+          {/* PASO 2: Horarios Reales (Desde la API) */}
           <AnimatePresence>
             {selectedDate && (
               <motion.section
@@ -141,15 +140,18 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                   </Badge>
                 </div>
 
+                {/* 🚀 LÓGICA DE CARGA Y RESULTADOS */}
                 {isLoadingSlots ? (
+                  // Estado: Cargando
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {[1, 2, 3, 4, 5, 6].map(i => (
                       <div key={i} className="h-14 rounded-xl bg-white/5 animate-pulse border border-white/10" />
                     ))}
                   </div>
-                ) : (
+                ) : availableSlots.length > 0 ? (
+                  // Estado: Horarios Encontrados
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {mockSlots.map((time) => {
+                    {availableSlots.map((time) => {
                       const isSelected = selectedTime === time;
                       return (
                         <button
@@ -166,6 +168,15 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
                         </button>
                       );
                     })}
+                  </div>
+                ) : (
+                  // Estado: Sin Horarios / Día Descanso
+                  <div className="p-8 bg-white/5 border border-white/10 rounded-3xl text-center flex flex-col items-center">
+                    <CalendarX2 className="w-10 h-10 text-zinc-600 mb-3" />
+                    <p className="text-zinc-300 font-bold text-lg">No hay horarios disponibles</p>
+                    <p className="text-sm text-zinc-500 mt-1 max-w-sm">
+                      El doctor no tiene disponibilidad o está fuera de horario en la fecha seleccionada.
+                    </p>
                   </div>
                 )}
               </motion.section>

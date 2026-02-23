@@ -27,5 +27,34 @@ export const scheduleService = {
   createTimeBlock: async (data: CreateTimeBlockPayload): Promise<TimeBlock> => {
     const response = await axiosInstance.post<TimeBlock>(`${BASE_URL}/blocks`, data);
     return response.data;
+  },
+
+  /**
+   * 📅 PÚBLICO: Obtiene los horarios disponibles reales para un doctor
+   * Cruza la agenda base con Google Calendar y citas existentes.
+   */
+  getAvailableSlots: async (
+    providerId: number,
+    startDate: string,
+    endDate: string,
+    durationMinutes: number
+  ): Promise<string[]> => {
+    const response = await axiosInstance.get<string[]>(
+      `${BASE_URL}/${providerId}/available-slots`,
+      {
+        params: {
+          startDate,
+          endDate,
+          durationMinutes
+        }
+      }
+    );
+
+    // El backend devuelve un array de LocalDateTime: ["2026-02-23T09:00:00", "2026-02-23T09:30:00"]
+    // Lo mapeamos aquí mismo para devolverle al UI solo las horas ("09:00", "09:30")
+    return response.data.map((dateTimeStr: string) => {
+      return dateTimeStr.split('T')[1].substring(0, 5); 
+    });
   }
+
 };

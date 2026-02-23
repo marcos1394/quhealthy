@@ -38,10 +38,15 @@ export default function PublicStorePage() {
 
   const { store, isLoading, isError } = useStorefront(slug);
 
-  // Guardamos la info del doctor en el store global en cuanto cargue
   useEffect(() => {
     if (store && slug) {
-      setProvider(slug, store.displayName, store.primaryColor || '#9333ea');
+      // 🚀 CORRECCIÓN: Usamos store.providerId tal cual lo define tu tipado
+      setProvider(
+        store.providerId, 
+        slug, 
+        store.displayName, 
+        store.primaryColor || '#9333ea'
+      );
     }
   }, [store, slug, setProvider]);
 

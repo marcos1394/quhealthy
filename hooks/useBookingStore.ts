@@ -3,16 +3,18 @@ import { create } from 'zustand';
 import { StorefrontItem } from '@/types/storefront';
 
 interface BookingState {
-  // Datos del Doctor (Para mantener el diseño en el checkout)
-  providerSlug: string | null;
-  providerName: string | null;
-  providerColor: string | null;
+  // Datos del Doctor (Para mantener el diseño y consultar la API)
+  providerId: number | null;     // 🚀 NUEVO: Necesario para el endpoint de Java
+  providerSlug: string | null;   // Necesario para la URL
+  providerName: string | null;   // Necesario para el UI
+  providerColor: string | null;  // Necesario para el tema (Dark/Neon)
   
   // El carrito de compras
   cart: StorefrontItem[];
   
   // Acciones
-  setProvider: (slug: string, name: string, color: string) => void;
+  // 🚀 ACTUALIZADO: Ahora recibe el ID numérico
+  setProvider: (id: number, slug: string, name: string, color: string) => void;
   addToCart: (item: StorefrontItem, currentSlug: string) => void;
   removeFromCart: (itemId: number) => void;
   clearCart: () => void;
@@ -23,24 +25,31 @@ interface BookingState {
 }
 
 export const useBookingStore = create<BookingState>((set, get) => ({
+  providerId: null,
   providerSlug: null,
   providerName: null,
   providerColor: null,
   cart: [],
 
-  setProvider: (slug, name, color) => 
-    set({ providerSlug: slug, providerName: name, providerColor: color }),
+  // 🚀 ACTUALIZADO: Guardamos el ID en el estado global
+  setProvider: (id, slug, name, color) => 
+    set({ 
+      providerId: id, 
+      providerSlug: slug, 
+      providerName: name, 
+      providerColor: color 
+    }),
 
   addToCart: (item, currentSlug) => {
     const { providerSlug, clearCart } = get();
     
-    // Si el paciente cambia de doctor, limpiamos el carrito anterior por seguridad
+    // Si el paciente cambia de doctor (cambia el slug), limpiamos el carrito anterior por seguridad
     if (providerSlug && providerSlug !== currentSlug) {
       clearCart();
     }
     
     set((state) => {
-      // Evitamos duplicados en el carrito (opcional, pero buena UX para servicios médicos)
+      // Evitamos duplicados en el carrito (buena UX para servicios médicos)
       const exists = state.cart.some((cartItem) => cartItem.id === item.id);
       if (exists) return state;
 
@@ -51,8 +60,15 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   removeFromCart: (itemId) => 
     set((state) => ({ cart: state.cart.filter((i) => i.id !== itemId) })),
 
+  // 🚀 ACTUALIZADO: Limpiamos también el providerId
   clearCart: () => 
-    set({ cart: [], providerSlug: null, providerName: null, providerColor: null }),
+    set({ 
+      cart: [], 
+      providerId: null, 
+      providerSlug: null, 
+      providerName: null, 
+      providerColor: null 
+    }),
 
   getTotalPrice: () => {
     return get().cart.reduce((total, item) => total + item.price, 0);
