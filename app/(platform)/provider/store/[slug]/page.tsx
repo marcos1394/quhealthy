@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   MapPin, 
@@ -24,23 +24,31 @@ import { cn } from "@/lib/utils";
 // 🚀 IMPORTAMOS EL HOOK Y EL TIPO
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
+import { useBookingStore } from "@/hooks/useBookingStore"; // 🚀 Importamos Zustand
 
 export default function PublicStorePage() {
   const params = useParams(); // Hook nativo de Next.js
+  const router = useRouter(); // 🚀 Inicializamos el router
   const slug = params?.slug as string; // Aseguramos que es un string
   
   const [activeTab, setActiveTab] = useState<'servicios' | 'paquetes'>('servicios');
-  const [cart, setCart] = useState<StorefrontItem[]>([]);
+  // 🚀 CONECTAMOS CON ZUSTAND (El estado ahora es global)
+  const { cart, addToCart, setProvider, getTotalPrice } = useBookingStore();
+  const totalCart = getTotalPrice();
 
-  // 🚀 LLAMADA REAL A TU BACKEND
   const { store, isLoading, isError } = useStorefront(slug);
 
+  // Guardamos la info del doctor en el store global en cuanto cargue
+  useEffect(() => {
+    if (store && slug) {
+      setProvider(slug, store.displayName, store.primaryColor || '#9333ea');
+    }
+  }, [store, slug, setProvider]);
+
   const handleBook = (item: StorefrontItem) => {
-    setCart([...cart, item]);
+    // 🚀 Pasamos el slug actual para que Zustand sepa de quién es la cita
+    addToCart(item, slug);
   };
-
-  const totalCart = cart.reduce((acc, item) => acc + item.price, 0);
-
   // Helper para convertir el HEX del doctor a RGB (para los glows)
   const hexToRgb = (hex: string) => {
     if (!hex) return '147, 51, 234'; // Default purple
@@ -330,7 +338,7 @@ export default function PublicStorePage() {
       </div>
 
       {/* --- BOTTOM DOCK (Flotante Premium) --- */}
-      <AnimatePresence>
+     <AnimatePresence>
         {cart.length > 0 && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
@@ -346,6 +354,7 @@ export default function PublicStorePage() {
                 </span>
               </div>
               <Button 
+                onClick={() => router.push(`/patient/booking/${slug}`)} // 🚀 REDIRECCIÓN MÁGICA
                 className="rounded-full px-8 py-6 font-black text-base shadow-xl transition-transform hover:scale-105 hover:brightness-110"
                 style={{ backgroundColor: safePrimaryColor, color: '#fff' }}
               >
