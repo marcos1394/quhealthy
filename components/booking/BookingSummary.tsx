@@ -1,18 +1,21 @@
+// components/booking/BookingSummary.tsx
+"use client";
+
 import { motion } from "framer-motion";
 import { Sparkles, Clock, CreditCard, AlertCircle, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { StorefrontItem } from "@/types/storefront"; // 🚀 Import the correct type
+import { StorefrontItem } from "@/types/storefront";
 
 interface BookingSummaryProps {
-  cart: StorefrontItem[]; // 🚀 Use the official type here
+  cart: StorefrontItem[];
   total: number;
   providerColor: string;
   selectedDate: Date | null;
   selectedTime: string | null;
-  isProcessing?: boolean; // Added so you can show the loader
+  isProcessing?: boolean;
   onCheckout: () => void;
 }
 
@@ -54,10 +57,10 @@ export function BookingSummary({
             <Separator className="bg-gray-800" />
 
             {/* Cart Items */}
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 hide-scrollbar">
               {cart.map((item, idx) => (
                 <motion.div 
-                  key={idx}
+                  key={item.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
@@ -68,7 +71,6 @@ export function BookingSummary({
                     <div className="flex items-center gap-2">
                       <Badge className="bg-gray-800 text-gray-400 border-gray-700 text-xs">
                         <Clock className="w-3 h-3 mr-1" />
-                        {/* Fallback to 0 if durationMinutes is undefined */}
                         {item.durationMinutes || 0} min
                       </Badge>
                     </div>
@@ -124,13 +126,13 @@ export function BookingSummary({
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-6 h-6 mr-2 animate-spin" />
                     Procesando...
                   </>
                 ) : !isReady ? (
                   <>
                     <AlertCircle className="w-5 h-5 mr-2" />
-                    Selecciona fecha y hora
+                    Selecciona horario
                   </>
                 ) : (
                   <>
@@ -141,10 +143,9 @@ export function BookingSummary({
                 )}
               </Button>
               
-              {/* Security Note */}
               <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                 <AlertCircle className="w-3 h-3" />
-                <span>No se te cobrará hasta confirmar la cita en Stripe</span>
+                <span>No se te cobrará hasta confirmar en Stripe</span>
               </div>
             </div>
           </CardContent>
