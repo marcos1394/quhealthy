@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useBookingStore } from "@/hooks/useBookingStore"; 
 import { useAvailability } from "@/hooks/useAvailability";
+import { useBookingCheckout } from "@/hooks/useBookingCheckout"; // 🚀 Nuevo
 import { CalendarDay } from "@/components/booking/CalendarDay";
 import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
@@ -41,6 +42,9 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   
   const { cart, providerId, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
   const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
+  
+  // 🚀 Hook de Checkout integrado
+  const { processCheckout, isProcessing } = useBookingCheckout();
 
   // Estados del calendario
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -68,9 +72,16 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
   };
 
-  const handleCheckout = () => {
-    // Lógica de checkout
-    console.log('Ir a checkout');
+  // 🚀 Manejador de Checkout conectado al backend
+  const handleCheckout = async () => {
+    if (providerId && selectedDate && selectedTime) {
+      await processCheckout({
+        providerId,
+        selectedDate,
+        selectedTime,
+        cart
+      });
+    }
   };
 
   // Prevenimos renderizado si falta info
@@ -275,7 +286,8 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
           providerColor={safeColor}
           selectedDate={selectedDate}
           selectedTime={selectedTime}
-          onCheckout={handleCheckout}
+          isProcessing={isProcessing} // 🚀 Pasamos el estado de carga al botón
+          onCheckout={handleCheckout} // 🚀 Pasamos la función real
         />
       </div>
     </div>
