@@ -24,6 +24,14 @@ export const appointmentService = {
   },
 
   /**
+   * 🔍 NUEVO: Obtiene los detalles de una cita específica por su ID
+   */
+  getAppointmentById: async (id: string | number): Promise<Appointment> => {
+    const response = await axiosInstance.get<Appointment>(`${BASE_URL}/${id}`);
+    return response.data;
+  },
+
+  /**
    * Crea una nueva reserva
    * 🚀 CAMBIO: Apunta a /create
    */
@@ -59,7 +67,17 @@ export const appointmentService = {
   },
 
   /**
-   * 🚀 NUEVO: Obtiene las tasas de cambio del día
+   * 📄 NUEVO: Descarga el recibo de la cita en PDF (si el backend lo soporta)
+   */
+  downloadInvoice: async (id: string | number): Promise<Blob> => {
+    const response = await axiosInstance.get(`${BASE_URL}/${id}/invoice-pdf`, {
+      responseType: 'blob', // Crítico para manejar archivos
+    });
+    return response.data;
+  },
+
+  /**
+   * Obtiene las tasas de cambio del día
    * Retorna un mapa, ej: { "MXN": 1, "USD": 0.057, "EUR": 0.052 }
    */
   getExchangeRates: async (): Promise<Record<string, number>> => {
