@@ -14,25 +14,28 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Video, // 🚀 NUEVO
+  Building2, // 🚀 NUEVO
+  Globe, // 🚀 NUEVO
+  ShieldCheck, // 🚀 NUEVO
+  Tag as TagIcon // 🚀 NUEVO
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// 🚀 IMPORTAMOS EL HOOK Y EL TIPO
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
-import { useBookingStore } from "@/hooks/useBookingStore"; // 🚀 Importamos Zustand
+import { useBookingStore } from "@/hooks/useBookingStore"; 
 
 export default function PublicStorePage() {
-  const params = useParams(); // Hook nativo de Next.js
-  const router = useRouter(); // 🚀 Inicializamos el router
-  const slug = params?.slug as string; // Aseguramos que es un string
+  const params = useParams(); 
+  const router = useRouter(); 
+  const slug = params?.slug as string; 
   
   const [activeTab, setActiveTab] = useState<'servicios' | 'paquetes'>('servicios');
-  // 🚀 CONECTAMOS CON ZUSTAND (El estado ahora es global)
   const { cart, addToCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
 
@@ -40,7 +43,6 @@ export default function PublicStorePage() {
 
   useEffect(() => {
     if (store && slug) {
-      // 🚀 CORRECCIÓN: Usamos store.providerId tal cual lo define tu tipado
       setProvider(
         store.providerId, 
         slug, 
@@ -51,12 +53,11 @@ export default function PublicStorePage() {
   }, [store, slug, setProvider]);
 
   const handleBook = (item: StorefrontItem) => {
-    // 🚀 Pasamos el slug actual para que Zustand sepa de quién es la cita
     addToCart(item, slug);
   };
-  // Helper para convertir el HEX del doctor a RGB (para los glows)
+  
   const hexToRgb = (hex: string) => {
-    if (!hex) return '147, 51, 234'; // Default purple
+    if (!hex) return '147, 51, 234'; 
     const cleanHex = hex.replace('#', '');
     const r = parseInt(cleanHex.slice(0, 2), 16) || 147;
     const g = parseInt(cleanHex.slice(2, 4), 16) || 51;
@@ -74,7 +75,7 @@ export default function PublicStorePage() {
     );
   }
 
-  // --- ESTADO 2: ERROR O NO ENCONTRADO (404 / marketplace_visible=false) ---
+  // --- ESTADO 2: ERROR O NO ENCONTRADO ---
   if (isError || !store) {
     return (
       <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center text-white px-4 text-center">
@@ -100,12 +101,37 @@ export default function PublicStorePage() {
   const safePrimaryColor = store.primaryColor || '#9333ea';
   const primaryRgb = hexToRgb(safePrimaryColor);
 
+  // 🚀 Helper de UI para la Modalidad
+  const renderModalityBadge = (modality?: string) => {
+    if (modality === 'ONLINE') {
+      return (
+        <Badge className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1">
+          <Video className="w-3 h-3" /> En Línea
+        </Badge>
+      );
+    }
+    if (modality === 'IN_PERSON') {
+      return (
+        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1">
+          <Building2 className="w-3 h-3" /> Presencial
+        </Badge>
+      );
+    }
+    if (modality === 'HYBRID') {
+      return (
+        <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1">
+          <Globe className="w-3 h-3" /> Híbrido
+        </Badge>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] pb-32 font-sans selection:bg-purple-500/30 text-white">
       
       {/* --- HERO SECTION (Cinemático) --- */}
       <div className="relative pb-8">
-        {/* Banner */}
         <div className="h-64 sm:h-80 w-full relative overflow-hidden">
           {store.bannerUrl ? (
             <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover opacity-60" />
@@ -117,7 +143,6 @@ export default function PublicStorePage() {
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 relative -mt-32 z-10">
           
-          {/* Avatar Brillante */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
             <div className="relative">
               <div 
@@ -135,7 +160,6 @@ export default function PublicStorePage() {
               </div>
             </div>
 
-            {/* Info */}
             <div className="flex-1 pb-2 space-y-3">
               <h1 className="text-4xl font-black text-white tracking-tight">
                 {store.displayName}
@@ -146,10 +170,20 @@ export default function PublicStorePage() {
                   <Star className="w-4 h-4 text-amber-400 fill-amber-400 mr-1.5" />
                   {store.rating || '4.9'} ({store.reviewsCount || 'Nuevo'})
                 </Badge>
-                <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 backdrop-blur-md px-3 py-1.5">
+                
+                {/* 🚀 NUEVO: Dirección Real */}
+                <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 backdrop-blur-md px-3 py-1.5 flex items-center">
                   <MapPin className="w-4 h-4 mr-1.5 opacity-70" />
-                  Consultorio
+                  <span className="truncate max-w-[200px]">{store.city || store.address || 'Consultorio'}</span>
                 </Badge>
+
+                {/* 🚀 NUEVO: Idiomas */}
+                {store.languages && store.languages.length > 0 && (
+                  <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 backdrop-blur-md px-3 py-1.5 hidden sm:flex">
+                    <Globe className="w-4 h-4 mr-1.5 opacity-70" />
+                    {store.languages.join(", ")}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -158,7 +192,6 @@ export default function PublicStorePage() {
             {store.bio || "Bienvenido a nuestro consultorio digital. Estamos listos para atenderte."}
           </p>
 
-          {/* Social Dock */}
           <div className="mt-8 flex justify-center sm:justify-start gap-3">
             {store.whatsappEnabled && (
               <Button className="rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all">
@@ -167,7 +200,7 @@ export default function PublicStorePage() {
             )}
             {store.instagramUrl && (
               <Button 
-                onClick={() => window.open(store.instagramUrl, '_blank')}
+                onClick={() => window.open(store.instagramUrl || "", '_blank')}
                 className="rounded-full bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border border-pink-500/20 transition-all"
               >
                 <Instagram className="w-4 h-4 mr-2" /> Instagram
@@ -229,27 +262,62 @@ export default function PublicStorePage() {
                       style={{ background: `radial-gradient(circle at right top, ${safePrimaryColor}, transparent 50%)` }}
                     />
 
-                    <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3 mb-1">
+                    <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start">
+                      
+                      {/* Info Lado Izquierdo */}
+                      <div className="space-y-3 flex-1">
+                        
+                        {/* Fila de Badges */}
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           {service.category && (
                             <Badge className="bg-white/10 text-zinc-300 border-none px-2 py-0.5 text-[10px] uppercase tracking-wider">
                               {service.category}
                             </Badge>
                           )}
-                          <span className="flex items-center text-xs font-semibold text-zinc-500">
+                          
+                          {/* 🚀 NUEVO: Badge de Modalidad */}
+                          {renderModalityBadge(service.modality)}
+                          
+                          <span className="flex items-center text-xs font-semibold text-zinc-500 ml-1">
                             <Clock className="w-3.5 h-3.5 mr-1" /> {service.durationMinutes || 0} min
                           </span>
                         </div>
+
                         <h3 className="font-bold text-xl text-white group-hover:text-zinc-100 transition-colors">{service.name}</h3>
                         <p className="text-sm text-zinc-400 leading-relaxed max-w-md">{service.description}</p>
+                        
+                        {/* 🚀 NUEVO: Tags e Info Extra */}
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {service.searchTags && service.searchTags.map((tag, idx) => (
+                            <span key={idx} className="flex items-center text-[11px] text-zinc-500 font-medium">
+                              <TagIcon className="w-3 h-3 mr-1 opacity-50" /> {tag}
+                            </span>
+                          ))}
+                          
+                          {service.cancellationPolicy === 'flexible' && (
+                            <span className="flex items-center text-[11px] text-emerald-400/80 font-medium ml-2">
+                              <ShieldCheck className="w-3 h-3 mr-1" /> Cancelación Flexible
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center mt-4 sm:mt-0 gap-4 border-t border-white/5 sm:border-t-0 pt-4 sm:pt-0">
-                        <span className="text-2xl font-black text-white">${service.price}</span>
+                      {/* Precio y Botón Lado Derecho */}
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start mt-4 sm:mt-0 gap-3 border-t border-white/5 sm:border-t-0 pt-4 sm:pt-0 min-w-[120px]">
+                        
+                        <div className="flex flex-col items-start sm:items-end">
+                          {/* 🚀 NUEVO: Precio con Descuento */}
+                          {service.compareAtPrice && service.compareAtPrice > service.price && (
+                            <span className="text-xs font-bold text-zinc-500 line-through mb-0.5">
+                              ${service.compareAtPrice}
+                            </span>
+                          )}
+                          <span className="text-2xl font-black text-white leading-none">${service.price}</span>
+                        </div>
+
                         <Button 
                           onClick={() => handleBook(service)}
-                          className="rounded-xl px-6 font-bold text-white transition-all transform hover:scale-105 shadow-xl hover:brightness-110"
+                          className="rounded-xl px-6 w-full font-bold text-white transition-all transform hover:scale-105 shadow-xl hover:brightness-110"
                           style={{ 
                             backgroundColor: safePrimaryColor,
                             boxShadow: `0 8px 25px -5px rgba(${primaryRgb}, 0.5)`
@@ -269,7 +337,7 @@ export default function PublicStorePage() {
             </motion.div>
           )}
 
-          {/* VISTA: PAQUETES */}
+          {/* VISTA: PAQUETES (Permanece igual por ahora) */}
           {activeTab === 'paquetes' && (
             <motion.div
               key="paquetes"
@@ -297,7 +365,6 @@ export default function PublicStorePage() {
                         <h3 className="font-black text-2xl text-white">{pkg.name}</h3>
                         <p className="text-sm text-zinc-400 leading-relaxed max-w-md">{pkg.description}</p>
                         
-                        {/* Como en el DTO consolidado no tenemos el detalle individual, ponemos un genérico elegante */}
                         <ul className="space-y-2 mt-4">
                           <li className="flex items-center text-sm text-zinc-300 font-medium">
                             <CheckCircle2 className="w-4 h-4 mr-2" style={{ color: safePrimaryColor }} /> Incluye múltiples servicios
@@ -310,8 +377,13 @@ export default function PublicStorePage() {
 
                       <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-4 bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-white/5 sm:border-none">
                         <div className="text-left sm:text-right">
+                          {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
+                            <span className="text-xs font-bold text-zinc-500 line-through block mb-1">
+                              ${pkg.compareAtPrice}
+                            </span>
+                          )}
                           <span 
-                            className="text-3xl font-black bg-clip-text text-transparent"
+                            className="text-3xl font-black bg-clip-text text-transparent leading-none"
                             style={{ backgroundImage: `linear-gradient(to right, #fff, ${safePrimaryColor})` }}
                           >
                             ${pkg.price}
@@ -359,7 +431,7 @@ export default function PublicStorePage() {
                 </span>
               </div>
               <Button 
-                onClick={() => router.push(`/patient/booking/${slug}`)} // 🚀 REDIRECCIÓN MÁGICA
+                onClick={() => router.push(`/patient/booking/${slug}`)} 
                 className="rounded-full px-8 py-6 font-black text-base shadow-xl transition-transform hover:scale-105 hover:brightness-110"
                 style={{ backgroundColor: safePrimaryColor, color: '#fff' }}
               >

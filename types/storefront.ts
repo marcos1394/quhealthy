@@ -9,7 +9,13 @@ export interface StorefrontItem {
   price: number;
   durationMinutes?: number;
   imageUrl?: string;
-  // Agrega otros campos si los necesitas (ej: originalPrice para paquetes)
+  
+  // 🚀 NUEVOS CAMPOS AÑADIDOS DESDE EL BACKEND
+  compareAtPrice?: number | null;
+  modality?: 'IN_PERSON' | 'ONLINE' | 'HYBRID';
+  cancellationPolicy?: string;
+  followUpPeriodDays?: number;
+  searchTags?: string[];
 }
 
 export interface StorefrontData {
@@ -17,11 +23,21 @@ export interface StorefrontData {
   displayName: string;
   slug: string;
   bio: string;
-  logoUrl: string;
-  bannerUrl: string;
+  logoUrl: string | null;
+  bannerUrl: string | null;
+  previewVideoUrl?: string | null; // Agregado para el hover en la UI
   primaryColor: string;
   whatsappEnabled: boolean;
-  instagramUrl: string;
+  instagramUrl: string | null;
+  
+  // 🚀 NUEVOS CAMPOS DE UBICACIÓN Y TIENDA
+  address?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  languages?: string[];
+  cancellationPolicy?: string;
+
   rating: number;
   reviewsCount: number;
   services: StorefrontItem[];

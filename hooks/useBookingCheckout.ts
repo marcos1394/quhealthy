@@ -15,7 +15,7 @@ export const useBookingCheckout = () => {
     selectedDate, 
     selectedTime, 
     cart, 
-    consumerSymptoms // 🚀 Recibimos el texto desde el componente
+    consumerSymptoms // Recibimos el texto desde el componente
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -34,14 +34,27 @@ export const useBookingCheckout = () => {
       // 3. Mapeo al DTO de Java
       const mainItem = cart[0];
 
+      // 🚀 SOLUCIÓN TYPESCRIPT: Mapeo seguro de Modalidad de Servicio a Tipo de Cita
+      let finalAppointmentType: 'IN_PERSON' | 'ONLINE' = 'IN_PERSON'; // Default seguro
+      
+      if (mainItem.modality === 'ONLINE') {
+        finalAppointmentType = 'ONLINE';
+      } else if (mainItem.modality === 'IN_PERSON') {
+        finalAppointmentType = 'IN_PERSON';
+      }
+      // Nota: Si es 'HYBRID', se queda como 'IN_PERSON' por defecto hasta que 
+      // tengamos un selector en la UI para que el paciente elija.
+
       const payload: CreateAppointmentRequest = {
         providerId,
-        consumerId, // 🚀 ESCENARIO 2: Si el doctor agenda, aquí va el ID del paciente. Si no, va undefined.
+        consumerId, // Si el doctor agenda, aquí va el ID del paciente. Si no, va undefined.
         serviceId: mainItem.id, 
         startTime: startTimeIso,
-        appointmentType: 'ONLINE', 
+        
+        // Asignamos la variable segura que ya pasó la validación
+        appointmentType: finalAppointmentType, 
+        
         paymentMethod: 'CREDIT_CARD', 
-        // 🚀 NUEVO: Usamos el motivo ingresado por el paciente. Si viene vacío/undefined, aplicamos el texto por defecto.
         consumerSymptoms: consumerSymptoms || `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
       };
 
