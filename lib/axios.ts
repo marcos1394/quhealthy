@@ -17,7 +17,7 @@ interface ApiErrorResponse {
 // 1. Creación de la instancia
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org',
-  timeout: 15000, 
+  timeout: 45000, 
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
