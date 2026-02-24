@@ -77,6 +77,16 @@ export const appointmentService = {
   },
 
   /**
+   * 📱 NUEVO: Descarga el código QR para Check-in como una imagen
+   */
+  getQrCode: async (id: string | number): Promise<Blob> => {
+    const response = await axiosInstance.get(`${BASE_URL}/${id}/qr`, {
+      responseType: 'blob', // Retorna la imagen cruda
+    });
+    return response.data;
+  },
+
+  /**
    * Obtiene las tasas de cambio del día
    * Retorna un mapa, ej: { "MXN": 1, "USD": 0.057, "EUR": 0.052 }
    */

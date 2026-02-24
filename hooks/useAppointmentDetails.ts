@@ -1,6 +1,6 @@
 // hooks/useAppointmentDetails.ts
 import { useState, useEffect } from 'react';
-import { Appointment } from '@/types/appointments';
+import { Appointment } from '@/types/appointments'; // ⚠️ Ojo con el nombre del archivo
 import { appointmentService } from '@/services/appointment.service';
 import { toast } from 'react-toastify';
 
@@ -8,7 +8,10 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  
+  // Estados para archivos
   const [isDownloading, setIsDownloading] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // 📱 NUEVO
 
   useEffect(() => {
     if (!appointmentId) {
@@ -20,8 +23,21 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
       setIsLoading(true);
       setError(null);
       try {
+        // 1. Cargamos los datos de la cita
         const data = await appointmentService.getAppointmentById(appointmentId);
         setAppointment(data);
+        
+        // 2. 📱 Inmediatamente cargamos el código QR si la cita se obtuvo correctamente
+        try {
+          const qrBlob = await appointmentService.getQrCode(appointmentId);
+          // Convertimos los bytes crudos en una URL que una etiqueta <img> pueda leer
+          const qrObjectUrl = URL.createObjectURL(qrBlob);
+          setQrCodeUrl(qrObjectUrl);
+        } catch (qrErr) {
+          console.error("Error cargando el código QR:", qrErr);
+          // Opcional: No lanzamos toast error para no interrumpir al usuario si solo falla el QR
+        }
+        
       } catch (err: any) {
         console.error("Error fetching appointment details:", err);
         setError(err);
@@ -32,6 +48,14 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     };
 
     fetchDetails();
+
+    // Limpieza de memoria (importante al usar URL.createObjectURL)
+    return () => {
+      if (qrCodeUrl) {
+        URL.revokeObjectURL(qrCodeUrl);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointmentId]);
 
   const downloadInvoice = async () => {
@@ -63,6 +87,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     isLoading,
     error,
     isDownloading,
-    downloadInvoice
+    downloadInvoice,
+    qrCodeUrl // 📱 Exponemos el QR a la página
   };
 };

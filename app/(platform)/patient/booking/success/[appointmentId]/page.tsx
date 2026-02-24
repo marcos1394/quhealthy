@@ -32,7 +32,8 @@ import {
   Shield,
   Home,
   FileText,
-  CalendarCheck
+  CalendarCheck,
+  QrCode
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,8 @@ export default function BookingSuccessPage() {
     isLoading, 
     error, 
     isDownloading, 
-    downloadInvoice 
+    downloadInvoice,
+    qrCodeUrl // 📱 NUEVO: Extraemos el QR del Hook
   } = useAppointmentDetails(appointmentId);
 
   // Estados locales solo para efectos visuales
@@ -225,6 +227,34 @@ export default function BookingSuccessPage() {
                   </div>
                 )}
               </motion.div>
+            </CardContent>
+          </Card>
+
+          {/* 📱 NUEVO: Tarjeta de Pase de Abordar (Código QR) */}
+          <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 shadow-2xl mb-8">
+            <CardContent className="p-6 sm:p-8 flex flex-col items-center">
+              <h2 className="text-xl font-black text-white mb-2 flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-emerald-400" />
+                Pase de Abordar
+              </h2>
+              <p className="text-gray-400 text-sm mb-6 text-center max-w-sm">
+                Muestra este código en la recepción al llegar a tu cita para un check-in rápido.
+              </p>
+              
+              <div className="bg-white p-4 rounded-2xl w-48 h-48 flex items-center justify-center border-4 border-gray-800 shadow-inner">
+                {qrCodeUrl ? (
+                  <img 
+                    src={qrCodeUrl} 
+                    alt="Código QR de Check-in" 
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                    <span className="text-xs text-gray-500 font-semibold">Generando...</span>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
