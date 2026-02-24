@@ -56,5 +56,20 @@ export const appointmentService = {
   completeAppointment: async (id: number, notes: string): Promise<Appointment> => {
     const response = await axiosInstance.patch<Appointment>(`${BASE_URL}/${id}/complete`, { notes });
     return response.data;
+  },
+
+  /**
+   * 🚀 NUEVO: Obtiene las tasas de cambio del día
+   * Retorna un mapa, ej: { "MXN": 1, "USD": 0.057, "EUR": 0.052 }
+   */
+  getExchangeRates: async (): Promise<Record<string, number>> => {
+    try {
+      const response = await axiosInstance.get<Record<string, number>>(`${BASE_URL}/exchange-rates`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener tasas de cambio:', error);
+      // Fallback estático en caso de que la red falle para no romper la UI
+      return { MXN: 1, USD: 0.058, EUR: 0.054 }; 
+    }
   }
 };

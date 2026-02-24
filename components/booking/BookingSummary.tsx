@@ -1,14 +1,15 @@
 // components/booking/BookingSummary.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Clock, CreditCard, AlertCircle, ShoppingCart, Loader2, FileText } from "lucide-react";
+import { Sparkles, Clock, CreditCard, AlertCircle, ShoppingCart, Loader2, FileText, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { StorefrontItem } from "@/types/storefront";
+import { appointmentService } from "@/services/appointment.service"; // 🚀 Usando el servicio existente
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
@@ -17,7 +18,6 @@ interface BookingSummaryProps {
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
-  // 🚀 ACTUALIZADO: Ahora enviamos los síntomas al componente padre
   onCheckout: (symptoms: string) => void; 
 }
 
@@ -30,23 +30,38 @@ export function BookingSummary({
   isProcessing = false,
   onCheckout 
 }: BookingSummaryProps) {
-  // 🚀 ESTADO PARA EL MOTIVO DE LA CITA
   const [symptoms, setSymptoms] = useState("");
   
+  // 🚀 ESTADOS PARA EL SELECTOR DE MONEDA
+  const [rates, setRates] = useState<Record<string, number>>({ MXN: 1 });
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
+  const [isLoadingRates, setIsLoadingRates] = useState(true);
+
   const isReady = selectedDate && selectedTime;
 
-  // 🚀 SIMULACIÓN DE TASA DE CAMBIO (Esto luego vendrá de tu Cron Job en el backend)
-  const EXCHANGE_RATE_USD = 17.50; // 1 USD = 17.50 MXN (Ejemplo)
-  const estimatedUSD = (total / EXCHANGE_RATE_USD).toFixed(2);
+  // 🚀 CARGAR TASAS DE CAMBIO AL MONTAR
+  useEffect(() => {
+    const fetchRates = async () => {
+      setIsLoadingRates(true);
+      const data = await appointmentService.getExchangeRates();
+      setRates(data);
+      setIsLoadingRates(false);
+    };
+    fetchRates();
+  }, []);
 
   const handleCheckoutClick = () => {
-    // Si el usuario no escribió nada, enviamos un texto por defecto limpio
     const finalSymptoms = symptoms.trim() !== "" 
       ? symptoms.trim() 
       : "Consulta general agendada desde la tienda web.";
       
     onCheckout(finalSymptoms);
   };
+
+  // 🚀 CÁLCULOS DE MONEDA
+  const currentRate = rates[selectedCurrency] || 1;
+  const convertedTotal = (total * currentRate).toFixed(2);
+  const isForeignCurrency = selectedCurrency !== "MXN";
 
   return (
     <motion.div
@@ -72,6 +87,30 @@ export function BookingSummary({
               </Badge>
             </div>
 
+            {/* 🚀 SELECTOR DE MONEDA (Pills) */}
+            <div className="bg-gray-950/50 p-1 rounded-lg flex border border-gray-800">
+              {['MXN', 'USD', 'EUR'].map((cur) => (
+                <button
+                  key={cur}
+                  onClick={() => setSelectedCurrency(cur)}
+                  disabled={isLoadingRates}
+                  className={`
+                    flex-1 text-xs font-bold py-2 rounded-md transition-all
+                    ${selectedCurrency === cur 
+                      ? 'bg-gray-800 text-white shadow-sm' 
+                      : 'text-gray-500 hover:text-gray-300'
+                    }
+                  `}
+                >
+                  {isLoadingRates && selectedCurrency === cur ? (
+                    <Loader2 className="w-3 h-3 mx-auto animate-spin" />
+                  ) : (
+                    cur
+                  )}
+                </button>
+              ))}
+            </div>
+
             <Separator className="bg-gray-800" />
 
             {/* Cart Items */}
@@ -93,14 +132,15 @@ export function BookingSummary({
                       </Badge>
                     </div>
                   </div>
-                  <span className="font-black text-xl text-white">${item.price}</span>
+                  {/* El precio base siempre se muestra en MXN para no confundir al item individual */}
+                  <span className="font-bold text-md text-gray-400">${item.price} MXN</span>
                 </motion.div>
               ))}
             </div>
 
             <Separator className="bg-gray-800" />
 
-            {/* 🚀 NUEVO: Campo para el motivo de la cita */}
+            {/* Campo para el motivo de la cita */}
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-white font-bold">
                 <FileText className="w-4 h-4 text-gray-400" />
@@ -126,33 +166,36 @@ export function BookingSummary({
                   <span>Subtotal</span>
                   <span className="font-semibold">${total} MXN</span>
                 </div>
-                <div className="flex justify-between text-gray-400 text-sm">
-                  <span>Impuestos</span>
-                  <span className="font-semibold">$0.00 MXN</span>
-                </div>
                 
                 <Separator className="bg-gray-800" />
                 
+                {/* 🚀 LÓGICA DE VISUALIZACIÓN DE MONEDA */}
                 <div className="flex flex-col pt-2">
-                  <div className="flex justify-between items-end">
-                    <span className="font-bold text-white text-base mb-1">Total a pagar</span>
-                    <div className="text-right">
-                      {/* 🚀 PRECIO REAL A COBRAR EN STRIPE */}
-                      <span 
-                        className="text-3xl font-black text-white block leading-none"
-                        style={{ color: providerColor }}
-                      >
-                        ${total} <span className="text-lg font-bold">MXN</span>
-                      </span>
-                    </div>
-                  </div>
+                  <span className="font-bold text-white text-base mb-1">Total a pagar</span>
                   
-                  {/* 🚀 UX MAGIA: Estimación en USD para extranjeros */}
-                  <div className="flex justify-end mt-1">
-                    <span className="text-sm font-medium text-gray-500 bg-gray-800/50 px-2 py-1 rounded-md">
-                      ≈ ${estimatedUSD} USD (Aprox)
-                    </span>
-                  </div>
+                  {isForeignCurrency ? (
+                    <>
+                      {/* Vista Extranjera: Destaca su moneda, aclara que el cobro es en MXN */}
+                      <div className="text-right">
+                        <span className="text-3xl font-black text-white block leading-none" style={{ color: providerColor }}>
+                          ≈ ${convertedTotal} <span className="text-lg font-bold">{selectedCurrency}</span>
+                        </span>
+                        <p className="text-xs text-gray-500 mt-2 flex items-center justify-end gap-1">
+                          <Globe className="w-3 h-3" />
+                          Se te cobrarán exactamente ${total} MXN.
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Vista Local: Destaca MXN */}
+                      <div className="text-right">
+                        <span className="text-3xl font-black text-white block leading-none" style={{ color: providerColor }}>
+                          ${total} <span className="text-lg font-bold">MXN</span>
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -191,11 +234,6 @@ export function BookingSummary({
                   </>
                 )}
               </Button>
-              
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                <AlertCircle className="w-3 h-3" />
-                <span>No se te cobrará hasta confirmar en Stripe</span>
-              </div>
             </div>
           </CardContent>
         </Card>
