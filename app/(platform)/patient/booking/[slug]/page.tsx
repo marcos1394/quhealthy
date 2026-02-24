@@ -72,14 +72,15 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
     }
   };
 
-  // 🚀 Manejador de Checkout conectado al backend
-  const handleCheckout = async () => {
+ // ✅ COMO DEBE QUEDAR AHORA (Aceptando el texto del componente hijo):
+  const handleCheckout = async (symptomsText: string) => {
     if (providerId && selectedDate && selectedTime) {
       await processCheckout({
         providerId,
         selectedDate,
         selectedTime,
-        cart
+        cart,
+        consumerSymptoms: symptomsText // 🚀 NUEVO: Le pasamos el texto al Hook
       });
     }
   };

@@ -1,8 +1,9 @@
 // components/booking/BookingSummary.tsx
 "use client";
 
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Clock, CreditCard, AlertCircle, ShoppingCart, Loader2 } from "lucide-react";
+import { Sparkles, Clock, CreditCard, AlertCircle, ShoppingCart, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,8 @@ interface BookingSummaryProps {
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
-  onCheckout: () => void;
+  // 🚀 ACTUALIZADO: Ahora enviamos los síntomas al componente padre
+  onCheckout: (symptoms: string) => void; 
 }
 
 export function BookingSummary({ 
@@ -28,7 +30,23 @@ export function BookingSummary({
   isProcessing = false,
   onCheckout 
 }: BookingSummaryProps) {
+  // 🚀 ESTADO PARA EL MOTIVO DE LA CITA
+  const [symptoms, setSymptoms] = useState("");
+  
   const isReady = selectedDate && selectedTime;
+
+  // 🚀 SIMULACIÓN DE TASA DE CAMBIO (Esto luego vendrá de tu Cron Job en el backend)
+  const EXCHANGE_RATE_USD = 17.50; // 1 USD = 17.50 MXN (Ejemplo)
+  const estimatedUSD = (total / EXCHANGE_RATE_USD).toFixed(2);
+
+  const handleCheckoutClick = () => {
+    // Si el usuario no escribió nada, enviamos un texto por defecto limpio
+    const finalSymptoms = symptoms.trim() !== "" 
+      ? symptoms.trim() 
+      : "Consulta general agendada desde la tienda web.";
+      
+    onCheckout(finalSymptoms);
+  };
 
   return (
     <motion.div
@@ -57,7 +75,7 @@ export function BookingSummary({
             <Separator className="bg-gray-800" />
 
             {/* Cart Items */}
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 hide-scrollbar">
+            <div className="space-y-4 max-h-[200px] overflow-y-auto pr-2 hide-scrollbar">
               {cart.map((item, idx) => (
                 <motion.div 
                   key={item.id}
@@ -82,34 +100,65 @@ export function BookingSummary({
 
             <Separator className="bg-gray-800" />
 
+            {/* 🚀 NUEVO: Campo para el motivo de la cita */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white font-bold">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <h4>Motivo de la cita <span className="text-gray-500 font-normal text-sm">(Opcional)</span></h4>
+              </div>
+              <textarea 
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="Ej. Me duele la espalda baja desde hace 3 días..."
+                className="w-full bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all resize-none"
+                rows={2}
+                maxLength={200}
+                disabled={isProcessing}
+              />
+            </div>
+
+            <Separator className="bg-gray-800" />
+
             {/* Totals */}
             <div className="space-y-4">
               <div className="bg-gray-900/50 rounded-2xl p-5 border border-gray-800 space-y-3">
                 <div className="flex justify-between text-gray-400 text-sm">
                   <span>Subtotal</span>
-                  <span className="font-semibold">${total}</span>
+                  <span className="font-semibold">${total} MXN</span>
                 </div>
                 <div className="flex justify-between text-gray-400 text-sm">
                   <span>Impuestos</span>
-                  <span className="font-semibold">$0.00</span>
+                  <span className="font-semibold">$0.00 MXN</span>
                 </div>
                 
                 <Separator className="bg-gray-800" />
                 
-                <div className="flex justify-between items-center pt-2">
-                  <span className="font-bold text-white text-base">Total a pagar</span>
-                  <span 
-                    className="text-3xl font-black text-white"
-                    style={{ color: providerColor }}
-                  >
-                    ${total}
-                  </span>
+                <div className="flex flex-col pt-2">
+                  <div className="flex justify-between items-end">
+                    <span className="font-bold text-white text-base mb-1">Total a pagar</span>
+                    <div className="text-right">
+                      {/* 🚀 PRECIO REAL A COBRAR EN STRIPE */}
+                      <span 
+                        className="text-3xl font-black text-white block leading-none"
+                        style={{ color: providerColor }}
+                      >
+                        ${total} <span className="text-lg font-bold">MXN</span>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* 🚀 UX MAGIA: Estimación en USD para extranjeros */}
+                  <div className="flex justify-end mt-1">
+                    <span className="text-sm font-medium text-gray-500 bg-gray-800/50 px-2 py-1 rounded-md">
+                      ≈ ${estimatedUSD} USD (Aprox)
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Checkout Button */}
               <Button 
-                onClick={onCheckout}
+                onClick={handleCheckoutClick}
                 disabled={!isReady || isProcessing}
                 className={`
                   w-full h-16 rounded-2xl font-black text-lg shadow-2xl transition-all duration-300

@@ -7,6 +7,7 @@ export interface CheckoutParams {
   consumerId?: number; // 🚀 NUEVO: Opcional, solo si el doctor agenda
   selectedTime: string; // "HH:mm"
   cart: StorefrontItem[];
+  consumerSymptoms?: string; // 🚀 AGREGA ESTA LÍNEA
 }
 
 // types/booking.ts

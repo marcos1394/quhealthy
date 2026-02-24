@@ -9,7 +9,14 @@ import { toast } from 'react-toastify';
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const processCheckout = async ({ providerId, consumerId, selectedDate, selectedTime, cart }: CheckoutParams) => {
+  const processCheckout = async ({ 
+    providerId, 
+    consumerId, 
+    selectedDate, 
+    selectedTime, 
+    cart, 
+    consumerSymptoms // 🚀 Recibimos el texto desde el componente
+  }: CheckoutParams) => {
     setIsProcessing(true);
 
     try {
@@ -34,7 +41,8 @@ export const useBookingCheckout = () => {
         startTime: startTimeIso,
         appointmentType: 'ONLINE', 
         paymentMethod: 'CREDIT_CARD', 
-        consumerSymptoms: `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
+        // 🚀 NUEVO: Usamos el motivo ingresado por el paciente. Si viene vacío/undefined, aplicamos el texto por defecto.
+        consumerSymptoms: consumerSymptoms || `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
       };
 
       // 4. Crear la Cita (Estado inicial: PENDING_PAYMENT)
