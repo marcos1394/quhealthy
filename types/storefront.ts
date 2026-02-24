@@ -37,6 +37,7 @@ export interface StorefrontData {
   longitude?: number;
   languages?: string[];
   cancellationPolicy?: string;
+  tags?: string[]; // 🚀 AQUÍ ESTÁN NUESTROS TAGS DEL NEGOCIO
 
   rating: number;
   reviewsCount: number;

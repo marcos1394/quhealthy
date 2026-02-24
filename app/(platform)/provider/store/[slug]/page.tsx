@@ -191,6 +191,17 @@ export default function PublicStorePage() {
           <p className="mt-8 text-zinc-400 leading-relaxed text-[15px] sm:text-base text-center sm:text-left max-w-2xl">
             {store.bio || "Bienvenido a nuestro consultorio digital. Estamos listos para atenderte."}
           </p>
+          {/* 🚀 NUEVO: TAGS DEL NEGOCIO (Amenidades) */}
+          {store.tags && store.tags.length > 0 && (
+            <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-2 max-w-2xl">
+              {store.tags.map((tag, idx) => (
+                <span key={idx} className="bg-white/5 border border-white/10 text-zinc-300 text-xs px-3 py-1 rounded-full flex items-center">
+                  <CheckCircle2 className="w-3 h-3 mr-1.5 opacity-60" style={{ color: safePrimaryColor }} />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 flex justify-center sm:justify-start gap-3">
             {store.whatsappEnabled && (
