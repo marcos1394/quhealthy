@@ -56,6 +56,10 @@ export const useProfileOnboarding = () => {
     setIsSaving(true);
     try {
       
+      // 🚀 1. DETECCIÓN AUTOMÁTICA DE ZONA HORARIA DEL NAVEGADOR
+      // Si por alguna razón el navegador no la soporta (muy raro), usamos un fallback seguro.
+      const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Mexico_City";
+
       // 🛠️ CONSTRUCCIÓN DEL PAYLOAD (Alineado con Java @RequestBody)
       const payload: UpdateProfileRequest = {
         // Identidad e Industria
@@ -84,7 +88,10 @@ export const useProfileOnboarding = () => {
         // Tags (Mapeo seguro a array de IDs numéricos)
         tagIds: Array.isArray(formData.tagIds) 
           ? formData.tagIds.map((id: any) => Number(id)) 
-          : []
+          : [],
+
+        // 🚀 2. INYECTAMOS LA ZONA HORARIA EN EL PAYLOAD
+        timeZone: detectedTimeZone
       };
 
       // Envío al microservicio

@@ -38,6 +38,7 @@ export interface UpdateProfileRequest {
   businessName: string;
   parentCategoryId: number | null; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
   bio: string;
+  timeZone: string; // 🚀 Nueva propiedad obligatoria
   
   // Imagen (Opcional)
   profileImageUrl?: string | null; 
@@ -66,6 +67,7 @@ export interface ProfileResponse {
   parentCategoryId: number; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
   businessName: string;
   bio: string;
+  timeZone: string; // 🚀 Nueva propiedad para zona horaria
   profileImageUrl: string;
   slug: string;
   

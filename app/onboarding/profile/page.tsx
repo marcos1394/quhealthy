@@ -72,6 +72,7 @@ const [formData, setFormData] = useState<UpdateProfileRequest>({
     businessName: '',
     parentCategoryId: 0, // 🆕 Inicializado en 0 (indica que no ha elegido)
     bio: '',
+    timeZone: '', // 🚀 Nueva propiedad para zona horaria
     profileImageUrl: '',
     address: '',
     latitude: 0,
@@ -103,6 +104,7 @@ useEffect(() => {
       businessName: initialData.businessName || '',
       parentCategoryId: initialData.parentCategoryId || 0, // 🆕 Recuperamos industria
       bio: initialData.bio || '',
+      timeZone: initialData.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone, // 🚀 Detectamos zona horaria del navegador como fallback
       profileImageUrl: initialData.profileImageUrl || '',
       address: initialData.address || '',
       latitude: initialData.latitude || 0,
@@ -199,15 +201,6 @@ const filteredCategories = useMemo(() => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleLocationSelect = (location: any) => { // Ajustar tipo según tu componente
-    setFormData(prev => ({ 
-      ...prev, 
-      address: location.address, 
-      latitude: location.lat, 
-      longitude: location.lng,
-      placeId: location.placeId
-    }));
-  };
 
   useEffect(() => {
   // Si el usuario acaba de seleccionar un lugar, no buscamos
@@ -283,31 +276,6 @@ const selectPlace = async (prediction: any) => {
   }
 };
 
-const handleCategoryChange = async (categoryId: string) => {
-  const catId = Number(categoryId);
-  
-  // 1. Actualizamos el estado
-  setFormData(prev => ({ 
-    ...prev, 
-    categoryId: catId, 
-    subCategoryId: 0 // Reset de subcategoría al cambiar categoría
-  }));
-
-  // 2. Cargamos subcategorías desde el servicio
-  try {
-    const subs = await getSubCategories(catId);
-    setAvailableSubCategories(subs);
-
-    // 💡 UX Pro: Si solo hay una subcategoría (como las "General" que creamos), 
-    // la seleccionamos automáticamente.
-    if (subs.length === 1) {
-      setFormData(prev => ({ ...prev, subCategoryId: subs[0].id }));
-    }
-  } catch (err) {
-    console.error("Error al cargar subcategorías:", err);
-    setAvailableSubCategories([]);
-  }
-};
   
   // ✅ 6. Submit Real
  const handleFinish = async () => {
@@ -705,7 +673,44 @@ const handleCategoryChange = async (categoryId: string) => {
               className="w-full min-h-[120px] bg-gray-950 border border-gray-700 rounded-2xl p-4 text-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none resize-none"
             />
           </div>
+          {/* 3. Biografía Profesional */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-gray-300 font-semibold text-sm">Biografía / Descripción *</Label>
+              <span className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                formData.bio.length >= 20 ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-400"
+              )}>
+                {formData.bio.length} / 20 mín.
+              </span>
+            </div>
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleInputChange}
+              onFocus={() => setFocusedField('bio')}
+              onBlur={() => setFocusedField(null)}
+              placeholder="Describe tu trayectoria, especialidad y enfoque de atención..."
+              className="w-full min-h-[120px] bg-gray-950 border border-gray-700 rounded-2xl p-4 text-white text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none resize-none"
+            />
+          </div>
+
+          {/* 🚀 NUEVO: Píldora de Zona Horaria (Solo UI Informativa) */}
+          <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/20 p-3 rounded-xl mt-4">
+            <div className="p-1.5 bg-blue-500/20 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-blue-100">Zona horaria detectada automáticamente</p>
+              <p className="text-[10px] text-blue-300">
+                Tus citas se sincronizarán usando: <span className="font-bold">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+              </p>
+            </div>
+          </div>
         </motion.div>
+        
       )}
     </AnimatePresence>
   </motion.div>
