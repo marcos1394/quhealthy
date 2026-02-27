@@ -4,17 +4,32 @@ export interface StripeOnboardingResponse {
   url: string;
 }
 
-// Opcional pero recomendado: Tipar exactamente los estados que devuelve Java
 export type MerchantStatus = 'ACTIVE' | 'PENDING' | 'NOT_CREATED';
 
 export interface StripeAccountStatus {
   ready: boolean;
   status: MerchantStatus;
-  
-  // Estos vienen directo de Stripe/Base de datos cuando el status es PENDING o ACTIVE
   charges_enabled?: boolean;
   payouts_enabled?: boolean;
-  
-  // Por si tu backend manda un mensaje de error genérico
   message?: string;
+}
+
+// 🚀 NUEVO: Tipos para el historial de facturación
+export interface TransactionHistory {
+  id: string; // UUID
+  amount: number;
+  currency: string;
+  status: string; // 'SUCCEEDED', 'FAILED', 'REFUNDED'
+  type: string; // 'APPOINTMENT_PAYMENT', 'SUBSCRIPTION_CHARGE'
+  date: string; // ISO date
+  receiptUrl: string | null;
+  appointmentId: number | null;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }

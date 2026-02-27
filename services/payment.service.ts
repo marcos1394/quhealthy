@@ -1,13 +1,14 @@
 // services/payment.service.ts
 import axiosInstance from '@/lib/axios';
 import { StripeCheckoutResponse } from '@/types/booking';
+// 🚀 NUEVO: Importamos los tipos
+import { TransactionHistory, PageResponse } from '@/types/payment';
 
 const BASE_URL = '/api/payments';
 
 export const paymentService = {
   /**
    * Genera una sesión de Stripe Checkout para una cita específica.
-   * El backend debe recibir el appointmentId y devolver la URL de Stripe.
    */
   createCheckoutSession: async (appointmentId: number): Promise<string> => {
     const response = await axiosInstance.post<StripeCheckoutResponse>(
@@ -15,5 +16,13 @@ export const paymentService = {
       { appointmentId }
     );
     return response.data.url;
+  },
+
+  // 🚀 NUEVO: Obtener el historial de pagos (Ingresos del doctor)
+  getBillingHistory: async (page: number = 0, size: number = 20): Promise<PageResponse<TransactionHistory>> => {
+    const response = await axiosInstance.get<PageResponse<TransactionHistory>>(
+      `${BASE_URL}/billing/history?page=${page}&size=${size}`
+    );
+    return response.data;
   }
 };
