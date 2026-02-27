@@ -1,205 +1,168 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Loader2, ClipboardList } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, ClipboardList, History, TrendingUp, FileDown } from "lucide-react";
 import { parseISO, isAfter, isToday, startOfWeek, startOfMonth, startOfYear } from "date-fns";
+import { useTranslations } from "next-intl";
 
-// ShadCN UI
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-
-// Componentes Personalizados (Rutas Correctas)
 import { HistoryHeader } from "@/components/dashboard/history/HistoryHeader";
 import { HistoryFilters, FilterOptions } from "@/components/dashboard/history/HistoryFilters";
 import { HistoryTable, HistoryEntry } from "@/components/dashboard/history/HistoryTable";
 import { HistoryDetailModal } from "@/components/dashboard/history/HistoryDetailModal";
 
-// Tipos
 type UserRole = "paciente" | "proveedor";
 
-// Mock Data (Simulando API)
 const DUMMY_HISTORY: HistoryEntry[] = [
-    { 
-        id: 1, 
-        date: new Date().toISOString(), 
-        type: "Consulta General", 
-        status: "completed", 
-        duration: "30 min",
-        notes: "Paciente presentó síntomas leves de gripe. Se recetó descanso.", 
-        client: { name: "Ana López", history: "Paciente regular desde 2021" },
-        provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
-    },
-    { 
-        id: 2, 
-        date: new Date(Date.now() - 86400000 * 3).toISOString(), // Hace 3 días
-        type: "Fisioterapia", 
-        status: "completed", 
-        duration: "45 min",
-        notes: "Sesión de rehabilitación de hombro.", 
-        client: { name: "Carlos Rivera", history: "Post-operatorio" },
-        provider: { name: "Fisio María Gómez", specialty: "Fisioterapia" }
-    },
-    { 
-        id: 3, 
-        date: new Date(Date.now() - 86400000 * 10).toISOString(), // Hace 10 días
-        type: "Limpieza Dental", 
-        status: "cancelled", 
-        duration: "60 min",
-        notes: "Cancelada por el paciente con 24h de antelación.", 
-        client: { name: "Marta Sánchez", history: "Primera visita" },
-        provider: { name: "Dr. Luis Martínez", specialty: "Odontología" }
-    },
-    { 
-        id: 4, 
-        date: new Date(Date.now() + 86400000 * 2).toISOString(), // Futuro (Reprogramada)
-        type: "Seguimiento", 
-        status: "rescheduled", 
-        duration: "15 min",
-        notes: "Reprogramada por conflicto de horario.", 
-        client: { name: "Ana López", history: "Paciente regular" },
-        provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
-    }
+  {
+    id: 1, date: new Date().toISOString(), type: "Consulta General", status: "completed", duration: "30 min",
+    notes: "Paciente presentó síntomas leves de gripe. Se recetó descanso.",
+    client: { name: "Ana López" }, provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
+  },
+  {
+    id: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), type: "Fisioterapia", status: "completed", duration: "45 min",
+    notes: "Sesión de rehabilitación de hombro.",
+    client: { name: "Carlos Rivera" }, provider: { name: "Fisio María Gómez", specialty: "Fisioterapia" }
+  },
+  {
+    id: 3, date: new Date(Date.now() - 86400000 * 10).toISOString(), type: "Limpieza Dental", status: "cancelled", duration: "60 min",
+    notes: "Cancelada por el paciente con 24h de antelación.",
+    client: { name: "Marta Sánchez" }, provider: { name: "Dr. Luis Martínez", specialty: "Odontología" }
+  },
+  {
+    id: 4, date: new Date(Date.now() + 86400000 * 2).toISOString(), type: "Seguimiento", status: "rescheduled", duration: "15 min",
+    notes: "Reprogramada por conflicto de horario.",
+    client: { name: "Ana López" }, provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
+  }
 ];
 
 export default function ProviderHistoryPage() {
-  const role: UserRole = "proveedor"; // En esta página el rol es fijo
-  
-  // Estados
+  const role: UserRole = "proveedor";
+  const t = useTranslations("DashboardHistory");
+
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
-  
-  const [filters, setFilters] = useState<FilterOptions>({
-    dateRange: 'all', 
-    type: 'all', 
-    status: 'all'
-  });
+  const [filters, setFilters] = useState<FilterOptions>({ dateRange: "all", type: "all", status: "all" });
 
-  // Obtener tipos de servicio únicos para el filtro
-  const serviceTypes = useMemo(() => 
-    Array.from(new Set(DUMMY_HISTORY.map(item => item.type))), 
-  []);
+  const serviceTypes = useMemo(() => Array.from(new Set(DUMMY_HISTORY.map(item => item.type))), []);
 
-  // Carga inicial simulada
   useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
-      setHistory(DUMMY_HISTORY);
-      setLoading(false);
-    }, 800);
+    setTimeout(() => { setHistory(DUMMY_HISTORY); setLoading(false); }, 800);
   }, []);
 
-  // Lógica de Filtrado
   const filteredHistory = useMemo(() => {
     return history.filter(entry => {
-      // 1. Buscador (Texto)
       const lowerSearch = searchTerm.toLowerCase();
-      const matchesSearch = 
+      const matchesSearch =
         entry.type.toLowerCase().includes(lowerSearch) ||
         entry.client?.name.toLowerCase().includes(lowerSearch) ||
         entry.notes?.toLowerCase().includes(lowerSearch);
 
-      // 2. Filtro de Fecha
       const matchesDateRange = () => {
-        if (filters.dateRange === 'all') return true;
+        if (filters.dateRange === "all") return true;
         const entryDate = parseISO(entry.date);
         const now = new Date();
-        
-        if (filters.dateRange === 'today') return isToday(entryDate);
-        if (filters.dateRange === 'week') return isAfter(entryDate, startOfWeek(now));
-        if (filters.dateRange === 'month') return isAfter(entryDate, startOfMonth(now));
-        if (filters.dateRange === 'year') return isAfter(entryDate, startOfYear(now));
+        if (filters.dateRange === "today") return isToday(entryDate);
+        if (filters.dateRange === "week") return isAfter(entryDate, startOfWeek(now));
+        if (filters.dateRange === "month") return isAfter(entryDate, startOfMonth(now));
+        if (filters.dateRange === "year") return isAfter(entryDate, startOfYear(now));
         return true;
       };
 
-      // 3. Filtros Select
-      const matchesType = filters.type === 'all' || entry.type === filters.type;
-      const matchesStatus = filters.status === 'all' || entry.status === filters.status;
-
+      const matchesType = filters.type === "all" || entry.type === filters.type;
+      const matchesStatus = filters.status === "all" || entry.status === filters.status;
       return matchesSearch && matchesDateRange() && matchesType && matchesStatus;
     });
   }, [history, searchTerm, filters]);
 
   const handleExport = () => {
-    // Lógica simple de exportación CSV (mock)
-    const csvContent = "data:text/csv;charset=utf-8," 
-        + "ID,Fecha,Cliente,Servicio,Estado\n"
-        + filteredHistory.map(e => `${e.id},${e.date},${e.client?.name},${e.type},${e.status}`).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + "ID,Date,Client,Service,Status\n"
+      + filteredHistory.map(e => `${e.id},${e.date},${e.client?.name},${e.type},${e.status}`).join("\n");
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "historial_servicios.csv");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "service_history.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  // Stats
+  const completedCount = filteredHistory.filter(e => e.status === "completed").length;
+  const cancelledCount = filteredHistory.filter(e => e.status === "cancelled").length;
+  const rescheduledCount = filteredHistory.filter(e => e.status === "rescheduled").length;
+
   if (loading) {
     return (
-        <div className="flex flex-col justify-center items-center h-[80vh] bg-gray-950">
-            <Loader2 className="w-10 h-10 animate-spin text-purple-500 mb-4" />
-            <p className="text-gray-400">Cargando historial...</p>
-        </div>
+      <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
+        <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+        <p className="text-slate-500 dark:text-slate-400 font-light">{t("loading")}</p>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 md:p-8 font-sans selection:bg-purple-500/30">
-        
-        <div className="max-w-7xl mx-auto space-y-6">
-            
-            <Card className="bg-gray-900 border-gray-800 shadow-xl overflow-hidden">
-                <CardHeader className="border-b border-gray-800 p-0">
-                    
-                    {/* Header Component */}
-                    <div className="p-6 pb-4">
-                        <HistoryHeader 
-                            role={role} 
-                            entryCount={filteredHistory.length} 
-                            onExport={handleExport} 
-                        />
-                    </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors">
+      <div className="max-w-7xl mx-auto space-y-6">
 
-                    {/* Filters Component */}
-                    <div className="px-6 pb-6">
-                        <HistoryFilters 
-                            searchTerm={searchTerm} 
-                            filters={filters} 
-                            serviceTypes={serviceTypes}
-                            onSearchTermChange={setSearchTerm}
-                            onFiltersChange={setFilters}
-                        />
-                    </div>
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-200 dark:border-medical-500/20">
+              <History className="w-7 h-7 text-medical-600 dark:text-medical-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("subtitle")}</p>
+            </div>
+          </div>
+          <HistoryHeader role={role} entryCount={filteredHistory.length} onExport={handleExport} />
+        </motion.div>
 
-                </CardHeader>
-                
-                <CardContent className="p-0">
-                    {filteredHistory.length > 0 ? (
-                        <HistoryTable 
-                            entries={filteredHistory} 
-                            role={role} 
-                            onViewDetails={setSelectedEntry}
-                        />
-                    ) : (
-                        <div className="text-center py-20 text-gray-500">
-                            <ClipboardList className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                            <p className="text-lg font-medium">No se encontraron resultados</p>
-                            <p className="text-sm">Intenta ajustar tus filtros de búsqueda.</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+        {/* Stats Row */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: t("records"), value: filteredHistory.length, icon: ClipboardList, color: "text-medical-600 dark:text-medical-400", bg: "bg-medical-50 dark:bg-medical-500/10 border-medical-200 dark:border-medical-500/20" },
+            { label: t("status_completed"), value: completedCount, icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
+            { label: t("status_cancelled"), value: cancelledCount, icon: FileDown, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20" },
+            { label: t("status_rescheduled"), value: rescheduledCount, icon: FileDown, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
+          ].map((stat, i) => (
+            <div key={i} className={`p-4 rounded-xl border ${stat.bg} transition-colors`}>
+              <div className="flex items-center gap-2 mb-1">
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+            </div>
+          ))}
+        </motion.div>
 
-        </div>
-
-        {/* Modal Detalle */}
-        <HistoryDetailModal 
-            entry={selectedEntry}
-            role={role}
-            onOpenChange={(isOpen) => !isOpen && setSelectedEntry(null)}
+        {/* Filters */}
+        <HistoryFilters
+          searchTerm={searchTerm} filters={filters} serviceTypes={serviceTypes}
+          onSearchTermChange={setSearchTerm} onFiltersChange={setFilters} resultCount={filteredHistory.length}
         />
 
+        {/* Table / Empty */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors">
+          {filteredHistory.length > 0 ? (
+            <HistoryTable entries={filteredHistory} role={role} onViewDetails={setSelectedEntry} />
+          ) : (
+            <div className="text-center py-20">
+              <ClipboardList className="w-14 h-14 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
+              <p className="text-lg font-semibold text-slate-700 dark:text-slate-300">{t("no_results")}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("no_results_hint")}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Detail Modal */}
+      <HistoryDetailModal entry={selectedEntry} role={role} onOpenChange={(isOpen) => !isOpen && setSelectedEntry(null)} />
     </div>
   );
 }
