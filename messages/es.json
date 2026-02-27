@@ -1,0 +1,655 @@
+{
+    "Hero": {
+        "badge": "El futuro de tu bienestar",
+        "title_start": "Atención médica moderna, ",
+        "title_highlight": "diseñada para ti",
+        "title_end": ".",
+        "description": "Accede a especialistas de primer nivel, reservas sin fricción y cuidado personalizado. Todo tu historial de salud en un ecosistema seguro e intuitivo.",
+        "search_placeholder": "Busca por especialidad, síntoma o nombre del doctor",
+        "location_placeholder": "Tu ubicación",
+        "search_button": "Empezar",
+        "metrics": {
+            "m1": "+2.5k Especialistas",
+            "m2": "Atención Inmediata",
+            "m3": "Privacidad Total"
+        }
+    },
+    "Theme": {
+        "toggle": "Cambiar tema"
+    },
+    "Features": {
+        "badge": "Potenciado por IA",
+        "title_start": "Características ",
+        "title_highlight": "Potentes",
+        "description": "Herramientas diseñadas para optimizar tu tiempo y multiplicar tus resultados",
+        "explore": "Explorar característica",
+        "cta_text": "¿Quieres ver todas las funcionalidades en acción?",
+        "cta_button": "Ver documentación completa",
+        "items": [
+            {
+                "title": "Profesionales verificados",
+                "description": "Todos los profesionales pasan por un riguroso proceso de verificación para garantizar la máxima calidad."
+            },
+            {
+                "title": "Reservas en tiempo real",
+                "description": "Agenda citas con cualquier especialista en tiempo real y recibe confirmación instantánea."
+            },
+            {
+                "title": "Geolocalización inteligente",
+                "description": "Encuentra los mejores profesionales y servicios cerca de ti con un solo clic."
+            },
+            {
+                "title": "Búsqueda avanzada",
+                "description": "Filtros personalizados para encontrar exactamente lo que necesitas según tus preferencias."
+            },
+            {
+                "title": "Valoraciones verificadas",
+                "description": "Opiniones reales de usuarios que han utilizado los servicios para ayudarte a elegir."
+            },
+            {
+                "title": "Chat privado",
+                "description": "Comunícate directamente con los profesionales para resolver tus dudas antes de reservar."
+            }
+        ]
+    },
+    "Testimonials": {
+        "badge": "Historias Reales",
+        "title_start": "Lo que dicen ",
+        "title_highlight": "nuestros pacientes",
+        "description": "Descubre cómo profesionales como tú están transformando su práctica diaria",
+        "cta_text": "¿Quieres ser parte de estas historias de éxito?",
+        "cta_button": "Comenzar mi historia",
+        "items": {
+            "1": {
+                "name": "María López",
+                "role": "Paciente",
+                "text": "QuHealthy ha cambiado completamente mi experiencia con la atención médica. Encontré a un especialista excelente en minutos y pude reservar una cita para el mismo día."
+            },
+            "2": {
+                "name": "Dr. Carlos Mendoza",
+                "role": "Dermatólogo",
+                "text": "Como profesional, la plataforma me ha permitido gestionar mejor mi tiempo y conectar con pacientes que realmente necesitan mis servicios específicos."
+            },
+            "3": {
+                "name": "Laura Sánchez",
+                "role": "Directora",
+                "text": "Desde que integramos QuHealthy en nuestro centro, hemos aumentado las reservas en un 40% y mejorado significativamente la satisfacción de nuestros clientes."
+            }
+        }
+    },
+    "Pricing": {
+        "badge": "Planes y Precios",
+        "title_start": "Elige tu plan de ",
+        "title_highlight": "crecimiento",
+        "description": "Elige el plan que se adapte a tu etapa actual. Escala cuando lo necesites.",
+        "billing": {
+            "monthly": "Mensual",
+            "annual": "Anual",
+            "discount": "Ahorra 20%"
+        },
+        "price_frequency": "mes",
+        "billed_annually": "facturado anualmente",
+        "badges": {
+            "popular": "Más Popular"
+        },
+        "plans": {
+            "basic": {
+                "title": "Básico",
+                "description": "Ideal para usuarios ocasionales",
+                "features": [
+                    "Búsqueda de profesionales",
+                    "Reserva de citas",
+                    "Valoraciones limitadas",
+                    "Soporte por email"
+                ],
+                "button_text": "Comenzar gratis"
+            },
+            "premium": {
+                "title": "Premium",
+                "description": "Para usuarios frecuentes",
+                "features": [
+                    "Todo lo del plan Básico",
+                    "Chat ilimitado con profesionales",
+                    "Descuentos exclusivos",
+                    "Cancelación gratuita",
+                    "Prioridad en reservas"
+                ],
+                "button_text": "Prueba 7 días gratis"
+            },
+            "business": {
+                "title": "Business",
+                "description": "Para familias y pequeñas empresas",
+                "features": [
+                    "Todo lo del plan Premium",
+                    "Hasta 5 usuarios",
+                    "Historial médico compartido",
+                    "Consultas prioritarias",
+                    "Gestor personal",
+                    "Soporte 24/7"
+                ],
+                "button_text": "Contactar ventas"
+            }
+        },
+        "footer": "Todos los planes incluyen 14 días de prueba gratis • Sin tarjeta requerida • Cancela cuando quieras"
+    },
+    "Cta": {
+        "badge": "Únete a +2,500 profesionales",
+        "title_start": "Potencia tu Práctica",
+        "title_highlight": "Comienza Hoy Mismo",
+        "description": "Únete a miles de profesionales que ya están transformando su práctica. Prueba todas las funciones premium sin riesgos.",
+        "benefits": [
+            "14 días de prueba gratis",
+            "Todas las funciones premium",
+            "Sin tarjeta de crédito"
+        ],
+        "button_primary": "Comenzar Gratis",
+        "button_secondary": "Hablar con Ventas",
+        "trust_indicator": "🔒 No se requiere tarjeta de crédito • Cancela cuando quieras"
+    },
+    "Footer": {
+        "brand_description": "El sistema operativo integral para la salud y el bienestar. Conectamos pacientes con los mejores especialistas certificados en LATAM.",
+        "columns": {
+            "platform": {
+                "title": "Plataforma",
+                "links": {
+                    "discover": "Buscar Especialistas",
+                    "market": "QuMarket (Tienda)",
+                    "academy": "QuBlocks (Academia)",
+                    "doctors": "Para Doctores"
+                }
+            },
+            "company": {
+                "title": "Compañía",
+                "links": {
+                    "about": "Sobre Nosotros",
+                    "blog": "Blog",
+                    "careers": "Carreras",
+                    "contact": "Contacto"
+                }
+            },
+            "legal": {
+                "title": "Legal",
+                "links": {
+                    "terms": "Términos y Condiciones",
+                    "privacy": "Aviso de Privacidad",
+                    "cookies": "Política de Cookies"
+                }
+            }
+        },
+        "contact": {
+            "title": "Contacto",
+            "location": "CDMX, México"
+        },
+        "copyright": {
+            "rights": "© {year} QuHealthy Inc. Todos los derechos reservados.",
+            "made_with": "Hecho con",
+            "in": "en México",
+            "links": {
+                "privacy": "Privacidad",
+                "terms": "Términos",
+                "sitemap": "Mapa del sitio"
+            }
+        }
+    },
+    "Stats": {
+        "professionals": "Profesionales",
+        "cities": "Ciudades",
+        "appointments": "Citas/mes",
+        "satisfaction": "Satisfacción"
+    },
+    "TrustBadge": {
+        "text": "+2,500 profesionales verificados"
+    },
+    "Navbar": {
+        "links": {
+            "guest": {
+                "discover": "Descubrir",
+                "business": "Para Doctores",
+                "pricing": "Precios"
+            },
+            "consumer": {
+                "discover": "Buscar Doctores",
+                "appointments": "Mis Citas",
+                "favorites": "Favoritos"
+            },
+            "provider": {
+                "dashboard": "Dashboard",
+                "calendar": "Agenda",
+                "patients": "Pacientes",
+                "marketing": "Marketing"
+            },
+            "admin": {
+                "panel": "Panel Admin",
+                "users": "Usuarios"
+            }
+        },
+        "user_menu": {
+            "settings": "Ajustes",
+            "logout": "Cerrar Sesión"
+        },
+        "buttons": {
+            "login": "Ingresar",
+            "register": "Comenzar",
+            "create_account": "Crear Cuenta"
+        },
+        "toast": {
+            "logout": "Hasta pronto 👋"
+        }
+    },
+    "Suite": {
+        "badge": "Plataforma Integral",
+        "title": "La Suite Integral",
+        "description": "Una plataforma modular que evoluciona contigo. Activa solo lo que necesitas, cuando lo necesitas.",
+        "products": {
+            "quhealthy": {
+                "description": "Gestión integral para profesionales de la salud. Tu consultorio en la nube.",
+                "features": [
+                    "Agenda inteligente integrada",
+                    "Expedientes clínicos digitales",
+                    "Telemedicina en HD",
+                    "Pasarela de pagos automatizada",
+                    "Recordatorios vía WhatsApp"
+                ],
+                "explore": "Explorar QuHealthy"
+            },
+            "qumarket": {
+                "description": "El marketplace donde tus productos llegan a miles de pacientes verificados.",
+                "features": [
+                    "Tienda personalizada en minutos",
+                    "Catálogo global de salud",
+                    "Comisiones competitivas",
+                    "Logística de envíos resuelta",
+                    "Cross-selling inteligente"
+                ],
+                "explore": "Explorar QuMarket"
+            },
+            "qublocks": {
+                "description": "Academia y comunidad para la educación continua del sector wellness.",
+                "features": [
+                    "Cursos con certificación Blockchain",
+                    "Webinars exclusivos en vivo",
+                    "Networking profesional",
+                    "Validación de habilidades",
+                    "Biblioteca de recursos"
+                ],
+                "explore": "Explorar QuBlocks"
+            }
+        },
+        "footer": "💡 Cada módulo se integra perfectamente con los demás para una experiencia unificada"
+    },
+    "Auth": {
+        "title": "Bienvenido de nuevo",
+        "subtitle": "Accede a tu cuenta para continuar",
+        "consumer_tab": "Paciente",
+        "provider_tab": "Profesional",
+        "email_label": "Correo Electrónico",
+        "email_placeholder_consumer": "tu@email.com",
+        "email_placeholder_provider": "contacto@clinica.com",
+        "password_label": "Contraseña",
+        "password_placeholder": "••••••••",
+        "forgot_password": "¿Olvidaste tu contraseña?",
+        "remember_me": "Mantener sesión iniciada",
+        "submit_button": "Iniciar Sesión",
+        "loading": "Iniciando sesión...",
+        "no_account": "¿Aún no tienes una cuenta?",
+        "create_account": "Crear Cuenta",
+        "or_continue": "O continúa con email",
+        "secure_connection": "Conexión Segura",
+        "secure_desc": "Tus datos están protegidos con SSL",
+        "consumer_area": "Área de Pacientes",
+        "provider_area": "Área Profesional",
+        "consumer_benefits": [
+            "Agenda citas rápidamente",
+            "Revisa tu historial médico",
+            "Gestiona tus pagos"
+        ],
+        "provider_benefits": [
+            "Administra tu agenda",
+            "Gestiona tus pacientes",
+            "Revisa tus ingresos"
+        ]
+    },
+    "AuthSignupConsumer": {
+        "title": "Crea tu Cuenta",
+        "subtitle": "Únete a miles de usuarios satisfechos",
+        "name_label": "Nombre Completo",
+        "name_placeholder": "Ej: Juan Pérez López",
+        "email_label": "Correo Electrónico",
+        "email_placeholder": "tu@email.com",
+        "password_label": "Contraseña",
+        "password_placeholder": "Mínimo 8 caracteres",
+        "confirm_password_label": "Confirmar Contraseña",
+        "confirm_password_placeholder": "Repite tu contraseña",
+        "passwords_not_match": "Las contraseñas no coinciden",
+        "accept_privacy_start": "Al registrarte, aceptas nuestra ",
+        "privacy_policy": "Política de Privacidad",
+        "and": " y ",
+        "terms_of_service": "Términos de Servicio",
+        "accept_privacy": "Acepto la política de privacidad",
+        "submit_button": "Crear Cuenta Gratis",
+        "loading": "Creando cuenta...",
+        "has_account": "¿Ya tienes cuenta?",
+        "login_here": "Inicia sesión aquí",
+        "or_register": "O regístrate con email",
+        "area_title": "Tu Salud en un Click",
+        "benefits": [
+            "Agenda citas en segundos",
+            "Compara precios y reseñas",
+            "Recordatorios automáticos"
+        ],
+        "secure_connection": "100% Seguro",
+        "secure_desc": "Tus datos están protegidos"
+    },
+    "AuthSignupProvider": {
+        "title": "Únete a QuHealthy",
+        "subtitle": "Crea tu cuenta profesional y digitaliza tu práctica hoy mismo",
+        "name_label": "Nombre Completo",
+        "name_placeholder": "Ej: Dr. Alejandro Pérez",
+        "email_label": "Correo Electrónico",
+        "email_placeholder": "contacto@clinica.com",
+        "password_label": "Contraseña",
+        "password_placeholder": "••••••••",
+        "confirm_password_label": "Confirmar Contraseña",
+        "confirm_password_placeholder": "Repite tu contraseña",
+        "passwords_not_match": "Las contraseñas no coinciden",
+        "accept_terms": "Acepto los términos y condiciones",
+        "accept_terms_start": "Al registrarte, aceptas nuestros ",
+        "terms_of_service": "Términos de Servicio",
+        "and": " y ",
+        "privacy_policy": "Política de Privacidad",
+        "submit_button": "Crear Cuenta Profesional",
+        "loading": "Creando tu cuenta...",
+        "no_credit_card": "No te pediremos tarjeta de crédito para empezar.",
+        "has_account": "¿Ya tienes una cuenta?",
+        "login_here": "Inicia sesión aquí",
+        "or_register": "O continúa con email",
+        "area_title": "Impulsa tu Práctica",
+        "benefits": [
+            "Agenda online 24/7",
+            "Pagos automáticos seguros",
+            "Perfil público optimizado"
+        ],
+        "secure_connection": "100% Seguro",
+        "secure_desc": "Tus datos están encriptados y protegidos"
+    },
+    "AuthForgotPassword": {
+        "title": "Recuperar Cuenta",
+        "step_1_desc": "Elige cómo deseas recuperar tu acceso",
+        "step_2_desc": "Ingresa el código que te enviamos",
+        "step_3_desc": "Crea una nueva contraseña segura",
+        "step": "Paso",
+        "of": "de",
+        "method": "Método",
+        "code": "Código",
+        "password": "Contraseña",
+        "recovery_method_label": "Método de recuperación",
+        "select_method_placeholder": "Selecciona un método",
+        "email_method": "Correo Electrónico",
+        "sms_method": "Mensaje de Texto (SMS)",
+        "your_email_label": "Tu Correo Electrónico",
+        "your_phone_label": "Tu Número de Teléfono",
+        "email_placeholder": "ejemplo@correo.com",
+        "phone_placeholder": "+52 55 1234 5678",
+        "secure_info_title": "100% Seguro",
+        "secure_info_desc": "Te enviaremos un código de 6 dígitos para verificar tu identidad de forma segura.",
+        "send_code_button": "Enviar Código de Verificación",
+        "sending": "Enviando...",
+        "code_sent_title": "Código Enviado",
+        "check_email": "Revisa tu correo:",
+        "check_sms": "Revisa tus mensajes:",
+        "code_valid_for": "Código válido por:",
+        "verification_code_label": "Código de Verificación",
+        "code_placeholder": "000000",
+        "code_hint": "Ingresa el código de 6 dígitos",
+        "verify_code_button": "Verificar Código",
+        "verifying": "Verificando...",
+        "resend_code_button": "Reenviar Código",
+        "wait_to_resend": "¿No recibiste el código? Espera",
+        "change_method_button": "Cambiar Método",
+        "new_password_label": "Nueva Contraseña",
+        "new_password_placeholder": "Mínimo 8 caracteres",
+        "confirm_password_label": "Confirmar Contraseña",
+        "confirm_password_placeholder": "Repite tu contraseña",
+        "passwords_not_match": "Las contraseñas no coinciden",
+        "reset_password_button": "Restablecer Contraseña",
+        "updating": "Actualizando...",
+        "back_to_login": "Volver a Iniciar Sesión",
+        "area_title": "Recupera tu Acceso"
+    },
+    "AuthResetPassword": {
+        "title": "Restablecer Contraseña",
+        "desc": "Crea una nueva contraseña segura para tu cuenta",
+        "area_title": "Nueva Contraseña",
+        "checking_token": "Verificando enlace de seguridad...",
+        "checking_moment": "Esto solo tomará un momento",
+        "expired_title": "Enlace Expirado",
+        "invalid_title": "Enlace no válido",
+        "expired_desc": "Este enlace de recuperación ha expirado por seguridad. Por favor solicita uno nuevo.",
+        "invalid_desc": "Este enlace de recuperación no es válido o ya fue usado. Por favor solicita uno nuevo.",
+        "expiration_hint": "💡 Los enlaces de recuperación expiran después de 1 hora por tu seguridad.",
+        "request_new": "Solicitar Nuevo Enlace",
+        "back_to_login": "Volver al Login",
+        "success_title": "¡Contraseña Actualizada!",
+        "success_desc": "Tu contraseña ha sido cambiada exitosamente",
+        "redirect_hint": "Serás redirigido al inicio de sesión en unos segundos...",
+        "go_to_login": "Ir a Iniciar Sesión",
+        "secure_hint": "Crea una contraseña segura que no hayas usado antes en otros sitios.",
+        "new_password_label": "Nueva Contraseña",
+        "new_password_placeholder": "Mínimo 8 caracteres",
+        "confirm_password_label": "Confirmar Contraseña",
+        "confirm_password_placeholder": "Repite la contraseña",
+        "passwords_match": "Las contraseñas coinciden",
+        "passwords_not_match": "Las contraseñas no coinciden",
+        "submit_button": "Cambiar Contraseña",
+        "updating": "Actualizando contraseña...",
+        "secure_connection": "Conexión segura con cifrado SSL"
+    },
+    "AuthVerifyEmail": {
+        "title": "Verificando tu Email",
+        "desc": "Por favor espera mientras confirmamos tu cuenta",
+        "verifying": "Verificando",
+        "secure_info": "Estamos verificando tu identidad de forma segura para proteger tu cuenta.",
+        "success_title": "¡Email Verificado!",
+        "success_desc": "Tu cuenta ha sido verificada exitosamente",
+        "redirecting": "Redirigiendo en",
+        "seconds": "segundos...",
+        "start_button": "Comenzar Ahora",
+        "error_title": "Error de Verificación",
+        "error_causes": "Posibles causas:",
+        "cause_1": "El enlace ha expirado (24 horas de validez)",
+        "cause_2": "El enlace ya fue utilizado",
+        "cause_3": "El enlace está incompleto o dañado",
+        "go_to_login": "Ir a Iniciar Sesión",
+        "try_again": "Intentar de Nuevo",
+        "need_help": "¿Necesitas ayuda? Contacta a",
+        "secure_connection": "Verificación segura con cifrado SSL",
+        "welcome": "¡Bienvenido!",
+        "welcome_provider": "¡Bienvenido, Proveedor!",
+        "ready_patient": "Tu cuenta está lista para acceder a los servicios de salud.",
+        "ready_provider": "Tu cuenta de proveedor está lista para atender pacientes."
+    },
+    "AuthVerifyPhone": {
+        "title": "Verifica tu Teléfono",
+        "desc": "Ingresa el código de 6 dígitos que enviamos por SMS",
+        "area_title": "Seguridad de Cuenta",
+        "code_valid_for": "Código válido por:",
+        "code_label": "Código de Verificación",
+        "code_placeholder": "000000",
+        "digits_status": "dígitos",
+        "verify_button": "Verificar Código",
+        "verifying": "Verificando...",
+        "cant_resend_yet": "¿No recibiste el código? Espera",
+        "can_resend_in": "Podrás reenviar en",
+        "resend_button": "Reenviar Código",
+        "resending": "Reenviando...",
+        "info": "Revisa tus mensajes de texto. El código puede tardar hasta 1 minuto en llegar.",
+        "skip": "Verificar más tarde",
+        "success_title": "¡Teléfono Verificado!",
+        "success_desc": "Tu número ha sido confirmado exitosamente",
+        "success_status": "Verificación Completa",
+        "success_redirect": "Redirigiendo a tu panel...",
+        "continue": "Continuar",
+        "secure_connection": "Verificación segura por SMS"
+    },
+    "OnboardingChecklist": {
+        "badge": "Configuración Inicial",
+        "title": "Bienvenido a QuHealthy",
+        "desc": "Completa estos pasos para activar tu cuenta profesional y comenzar a recibir clientes",
+        "progress_title": "Tu Progreso de Onboarding",
+        "steps_of": "de",
+        "required_steps": "pasos obligatorios completados",
+        "complete": "¡Completo!",
+        "next_step": "Siguiente paso",
+        "in_progress": "En Progreso",
+        "optional": "Opcional",
+        "required": "Requerido",
+        "completed": "Completado",
+        "locked": "Bloqueado",
+        "continue": "Continuar",
+        "start": "Comenzar",
+        "no_pending": "¡No hay pasos pendientes!",
+        "no_pending_desc": "Todo está listo para comenzar tu experiencia",
+        "congrats": "¡Felicitaciones! 🎉",
+        "congrats_desc": "Has completado todos los pasos obligatorios. Tu cuenta está verificada y lista para comenzar.",
+        "go_dashboard": "Ir a mi Dashboard",
+        "syncing": "Sincronizando cuenta...",
+        "verified_account": "Cuenta Verificada",
+        "active_benefits": "Beneficios Activos",
+        "help_title": "¿Necesitas ayuda con el onboarding?",
+        "help_desc": "Si tienes dudas sobre algún paso o necesitas asistencia, nuestro equipo de soporte está disponible para ayudarte. Contáctanos en",
+        "loading": "Sincronizando tu perfil...",
+        "error_title": "Error de Carga",
+        "error_desc": "No pudimos cargar tu información",
+        "retry": "Reintentar Carga",
+        "step_profile": "Perfil",
+        "step_kyc": "Identidad",
+        "step_license": "Licencia",
+        "step_marketplace": "Marketplace"
+    },
+    "OnboardingProfile": {
+        "badge": "Paso 1 de 4",
+        "title": "Configura tu Perfil Profesional",
+        "desc": "Completa estos 3 pasos para que los pacientes puedan encontrarte y agendar contigo",
+        "progress_title": "Progreso General",
+        "sections_of": "de 3 secciones completadas",
+        "step1_title": "Información Básica",
+        "step1_desc": "Nombre y contacto",
+        "step2_title": "Especialidad",
+        "step2_desc": "Tus servicios",
+        "step3_title": "Ubicación",
+        "step3_desc": "Donde atiendes",
+        "configured": "Configurado",
+        "location_ready": "Ubicación Lista",
+        "welcome": "¡Bienvenido! Comencemos",
+        "sector_question": "¿En qué sector se desarrolla tu práctica profesional?",
+        "health_sector": "Sector Salud",
+        "health_desc": "Para médicos, dentistas, psicólogos, terapeutas y clínicas especializadas.",
+        "beauty_sector": "Sector Belleza",
+        "beauty_desc": "Para salones de belleza, barberías, spas, estética avanzada y bienestar.",
+        "business_identity": "Identidad de tu Negocio",
+        "business_sync": "Vinculemos tu perfil con Google para ahorrar tiempo",
+        "change_sector": "Cambiar Sector",
+        "business_name_label": "Nombre del Consultorio o Negocio *",
+        "business_name_hint": "(Auto-completa con Google)",
+        "business_placeholder_health": "Ej: Clínica Dental Central",
+        "business_placeholder_beauty": "Ej: Studio de Belleza Luxe",
+        "bio_label": "Biografía / Descripción *",
+        "bio_min": "mín.",
+        "timezone_title": "Zona horaria detectada automáticamente",
+        "timezone_desc": "Tus citas se sincronizarán usando:",
+        "specialty_title": "Especialidad y Características",
+        "specialty_desc": "Define tu servicio y tus diferenciadores",
+        "location_title": "Confirma tu Ubicación",
+        "location_desc": "Asegúrate de que el marcador esté en el lugar exacto",
+        "phone_label": "Teléfono *",
+        "finish": "Guardar y Continuar",
+        "saving": "Guardando...",
+        "imported_google": "Información importada de Google",
+        "linked_data": "DATOS VINCULADOS DE GOOGLE BUSINESS",
+        "change": "Cambiar",
+        "imported_ok": "Información importada correctamente.",
+        "loading": "Cargando perfil...",
+        "error_title": "Error de Carga",
+        "retry": "Reintentar",
+        "continue_btn": "Continuar"
+    },
+    "OnboardingLicense": {
+        "back": "Volver",
+        "optional_step": "Paso Opcional",
+        "health_title": "Cédula Profesional",
+        "beauty_title": "Licencia de Funcionamiento",
+        "health_desc": "Sube una foto clara de tu Cédula para habilitar tu perfil",
+        "beauty_desc": "Opcional: Sube tu licencia sanitaria o permiso de operación para generar mayor confianza",
+        "health_info": "Validamos tu cédula automáticamente contra el registro oficial para asegurar la calidad de los profesionales en QuHealthy.",
+        "beauty_info": "La licencia de funcionamiento es opcional pero ayuda a generar mayor confianza con tus clientes. Puedes completarla más tarde desde tu perfil.",
+        "health_button": "Validar Cédula",
+        "beauty_button": "Subir Licencia",
+        "health_success": "¡Cédula Verificada!",
+        "beauty_success": "¡Licencia Registrada!",
+        "file_label": "Archivo de Imagen *",
+        "click_upload": "Haz clic para subir imagen",
+        "file_hint": "JPG o PNG (Máx 10MB)",
+        "change_image": "Cambiar Imagen",
+        "skip": "Omitir por Ahora",
+        "analyzing": "Analizando con IA...",
+        "approved_desc": "Tu documentación ha sido verificada exitosamente",
+        "license_number": "Número de Licencia",
+        "specialty": "Especialidad",
+        "continue_onboarding": "Continuar con Onboarding",
+        "pending_title": "Documento en Revisión",
+        "pending_desc_health": "Estamos validando tu cédula manualmente. Te notificaremos cuando esté lista.",
+        "pending_desc_beauty": "Estamos validando tu licencia manualmente. Te notificaremos cuando esté lista.",
+        "back_onboarding": "Volver al Onboarding",
+        "rejected_title": "Verificación No Exitosa",
+        "rejected_desc": "El documento no es legible. Intenta con una foto más clara y sin reflejos.",
+        "security_footer": "Tus documentos están encriptados y protegidos",
+        "loading": "Cargando información..."
+    },
+    "OnboardingKyc": {
+        "badge": "Paso 2 de 4",
+        "ai_badge": "Verificación con IA",
+        "title": "Verificación de Identidad",
+        "desc": "Nuestra IA validará tus documentos en segundos. Asegúrate de que las fotos sean claras y sin reflejos.",
+        "progress": "Progreso",
+        "back": "Volver",
+        "id_title": "Identificación Oficial",
+        "id_desc": "Sube tu INE/IFE o Pasaporte vigente",
+        "ine_tab": "INE / IFE",
+        "passport_tab": "Pasaporte",
+        "ine_front": "Frente de INE",
+        "ine_front_desc": "Foto del lado frontal de tu credencial",
+        "ine_back": "Reverso de INE",
+        "ine_back_desc": "Foto del lado trasero de tu credencial",
+        "passport_label": "Página de Datos del Pasaporte",
+        "passport_desc": "Sube la página donde aparece tu foto y datos personales",
+        "selfie_title": "Prueba de Vida",
+        "selfie_desc": "Compararemos tu rostro con tu identificación",
+        "selfie_label": "Selfie en Vivo",
+        "selfie_hint": "Tómate una foto ahora mismo. Sin lentes, gorras ni accesorios.",
+        "upload_image": "Subir Imagen",
+        "file_hint": "PNG, JPG (Max 10MB)",
+        "camera": "Cámara",
+        "uploading": "Subiendo...",
+        "change_image": "Cambiar imagen",
+        "approved": "Aprobado",
+        "rejected": "Rechazado",
+        "verifying": "Verificando",
+        "pending": "Pendiente",
+        "rejection_reason": "Motivo del rechazo:",
+        "step_locked": "Paso bloqueado",
+        "step_locked_desc": "Completa y aprueba el paso 1 (Identificación Oficial) para desbloquear la prueba de vida.",
+        "camera_selfie_hint": "Centra tu rostro en el óvalo",
+        "camera_doc_hint": "Centra el documento en el marco",
+        "status_title": "Estado del Proceso",
+        "identification": "Identificación",
+        "proof_of_life": "Prueba de Vida",
+        "confirm_continue": "Confirmar y Continuar",
+        "complete_docs": "Completar documentos",
+        "complete_docs_hint": "Completa y aprueba todos los pasos requeridos para continuar con tu registro",
+        "data_protected_title": "Datos protegidos",
+        "data_protected_desc": "Tus documentos están encriptados y solo se usan para verificación. Nunca los compartimos con terceros.",
+        "loading": "Cargando verificación...",
+        "success_toast": "¡Identidad Verificada! Avanzando...",
+        "pending_toast": "Aún tienes documentos pendientes o rechazados."
+    }
+}

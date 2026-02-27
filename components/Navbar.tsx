@@ -4,12 +4,13 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Menu, X, LayoutDashboard, LogOut, User as UserIcon, 
-  Store, Calendar, Settings, Sparkles, Megaphone, 
+import {
+  Menu, X, LayoutDashboard, LogOut, User as UserIcon,
+  Store, Calendar, Settings, Sparkles, Megaphone,
   Search, Heart, LucideIcon // Importamos el tipo para los iconos
 } from "lucide-react";
 import { toast } from 'react-toastify';
+import { useTranslations } from "next-intl";
 
 // Imports de lógica
 import { useSessionStore } from '@/stores/SessionStore';
@@ -28,6 +29,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 
 // --- 1. DEFINICIÓN DE TIPOS PARA LOS LINKS ---
 interface NavItem {
@@ -40,24 +43,23 @@ interface NavItem {
 // Usamos Record para asegurar que cubrimos todos los casos o 'string' para ser flexibles
 const LINKS: Record<string, NavItem[]> = {
   GUEST: [
-    { name: "Descubrir", href: "/discover" },
-    { name: "Para Doctores", href: "/business" },
-    { name: "Precios", href: "/pricing" },
+    { name: "links.guest.discover", href: "/discover" },
+    { name: "links.guest.business", href: "/business" },
+    { name: "links.guest.pricing", href: "/pricing" },
   ],
   CONSUMER: [
-    { name: "Buscar Doctores", href: "/discover", icon: Search },
-    { name: "Mis Citas", href: "/appointments", icon: Calendar },
-    { name: "Favoritos", href: "/favorites", icon: Heart },
+    { name: "links.consumer.discover", href: "/discover", icon: Search },
+    { name: "links.consumer.appointments", href: "/appointments", icon: Calendar },
+    { name: "links.consumer.favorites", href: "/favorites", icon: Heart },
   ],
   PROVIDER: [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Agenda", href: "/dashboard/calendar", icon: Calendar },
-    { name: "Pacientes", href: "/dashboard/patients", icon: UserIcon },
+    { name: "links.provider.dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "links.provider.calendar", href: "/dashboard/calendar", icon: Calendar },
+    { name: "links.provider.patients", href: "/dashboard/patients", icon: UserIcon },
   ],
-  // ✅ AGREGAMOS ADMIN (Aunque sea vacío o igual a Provider por ahora para evitar el error de TS)
   ADMIN: [
-    { name: "Panel Admin", href: "/admin", icon: LayoutDashboard },
-    { name: "Usuarios", href: "/admin/users", icon: UserIcon },
+    { name: "links.admin.panel", href: "/admin", icon: LayoutDashboard },
+    { name: "links.admin.users", href: "/admin/users", icon: UserIcon },
   ]
 };
 
@@ -65,16 +67,18 @@ export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  
+
   // ✅ CORRECCIÓN 1: No extraemos fetchSession del store (ya no existe ahí)
   const { user, role, isAuthenticated, isLoading } = useSessionStore();
-  
+
   // ✅ CORRECCIÓN 2: Usamos checkSession del hook useAuth
-  const { logout, checkSession } = useAuth(); 
+  const { logout, checkSession } = useAuth();
+
+  const t = useTranslations('Navbar');
 
   // 1. Hydration: Validar sesión al montar
   useEffect(() => {
-    checkSession(); 
+    checkSession();
   }, []); // Array vacío para ejecutar solo al montar
 
   // 2. Efecto de Scroll
@@ -86,25 +90,26 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    toast.info('Hasta pronto 👋');
+    toast.info(t('toast.logout'));
     setMobileMenuOpen(false);
   };
 
   // ✅ CORRECCIÓN 3: Selección de links segura con tipos
   // Si el rol existe en LINKS, lo usamos. Si no, usamos GUEST.
-  const currentLinks: NavItem[] = (isAuthenticated && role && LINKS[role]) 
-    ? LINKS[role] 
+  const currentLinks: NavItem[] = (isAuthenticated && role && LINKS[role])
+    ? LINKS[role]
     : LINKS.GUEST;
 
   // --- COMPONENTES INTERNOS ---
 
   const UserAvatar = ({ className, size = "sm" }: { className?: string, size?: "sm" | "lg" }) => (
     <Avatar className={cn(
-      "border border-white/10 transition-all duration-300 group-hover:border-purple-500/50",
+      "border border-slate-200 dark:border-slate-800 transition-colors duration-300",
       size === "lg" ? "h-12 w-12" : "h-9 w-9",
+      className
     )}>
-      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "Usuario"} />
-      <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-bold text-xs">
+      <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "Usuario"} />
+      <AvatarFallback className="bg-medical-50 text-medical-700 dark:bg-medical-900/30 dark:text-medical-300 font-semibold text-xs">
         {user?.firstName ? user.firstName.substring(0, 2).toUpperCase() : <UserIcon size={14} />}
       </AvatarFallback>
     </Avatar>
@@ -118,10 +123,10 @@ export const Navbar: React.FC = () => {
           <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-gray-950" />
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        className="w-64 bg-gray-950/95 backdrop-blur-xl border-gray-800 shadow-2xl p-1 text-gray-200" 
-        align="end" 
+
+      <DropdownMenuContent
+        className="w-64 bg-gray-950/95 backdrop-blur-xl border-gray-800 shadow-2xl p-1 text-gray-200"
+        align="end"
         sideOffset={8}
       >
         <DropdownMenuLabel className="font-normal mb-1 p-2">
@@ -131,32 +136,32 @@ export const Navbar: React.FC = () => {
               <p className="text-sm font-semibold text-white truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-xs text-gray-400 truncate">{user?.email}</p>
-              <span className="inline-flex mt-1 items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 capitalize">
+              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+              <span className="inline-flex mt-1 items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-medical-500/10 text-medical-400 border border-medical-500/20 capitalize">
                 {role?.toLowerCase()}
               </span>
             </div>
           </div>
         </DropdownMenuLabel>
-        
+
         <DropdownMenuSeparator className="bg-gray-800" />
-        
+
         <div className="p-1 space-y-0.5">
           {role === 'PROVIDER' ? (
             <>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard" className="cursor-pointer flex items-center gap-2 text-sm">
-                  <LayoutDashboard size={16} className="text-purple-400" /> Dashboard
+                  <LayoutDashboard size={16} className="text-medical-400" /> {t('links.provider.dashboard')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/calendar" className="cursor-pointer flex items-center gap-2 text-sm">
-                  <Calendar size={16} className="text-blue-400" /> Mi Agenda
+                  <Calendar size={16} className="text-teal-400" /> {t('links.provider.calendar')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/marketing" className="cursor-pointer flex items-center gap-2 text-sm">
-                  <Megaphone size={16} className="text-pink-400" /> Marketing
+                  <Megaphone size={16} className="text-emerald-400" /> {t('links.provider.marketing')}
                 </Link>
               </DropdownMenuItem>
             </>
@@ -164,12 +169,12 @@ export const Navbar: React.FC = () => {
             <>
               <DropdownMenuItem asChild>
                 <Link href="/appointments" className="cursor-pointer flex items-center gap-2 text-sm">
-                  <Calendar size={16} className="text-purple-400" /> Mis Citas
+                  <Calendar size={16} className="text-medical-400" /> {t('links.consumer.appointments')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/favorites" className="cursor-pointer flex items-center gap-2 text-sm">
-                  <Heart size={16} className="text-red-400" /> Favoritos
+                  <Heart size={16} className="text-red-400" /> {t('links.consumer.favorites')}
                 </Link>
               </DropdownMenuItem>
             </>
@@ -177,84 +182,86 @@ export const Navbar: React.FC = () => {
 
           <DropdownMenuItem asChild>
             <Link href="/settings" className="cursor-pointer flex items-center gap-2 text-sm">
-              <Settings size={16} className="text-gray-400" /> Ajustes
+              <Settings size={16} className="text-gray-400" /> {t('user_menu.settings')}
             </Link>
           </DropdownMenuItem>
         </div>
-        
+
         <DropdownMenuSeparator className="bg-gray-800" />
-        
-        <DropdownMenuItem 
-          onClick={handleLogout} 
+
+        <DropdownMenuItem
+          onClick={handleLogout}
           className="text-red-400 focus:text-red-300 focus:bg-red-900/20 cursor-pointer p-2 m-1 rounded-md"
         >
-          <LogOut size={16} className="mr-2" /> Cerrar Sesión
+          <LogOut size={16} className="mr-2" /> {t('user_menu.logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 
   return (
-    <header 
+    <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-        isScrolled || mobileMenuOpen 
-          ? "bg-gray-950/80 backdrop-blur-md border-gray-800 shadow-lg py-3" 
-          : "bg-transparent border-transparent py-5"
+        isScrolled || mobileMenuOpen
+          ? "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 py-3 shadow-sm"
+          : "bg-white dark:bg-slate-950 border-transparent py-4 md:py-5"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        
-        {/* LOGO */}
-        <Link href="/" className="group flex items-center gap-2 relative z-50">
-          <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-300">
-            <Sparkles className="w-4 h-4 text-white" />
+
+        {/* LOGO - Minimalista */}
+        <Link href="/" className="flex items-center gap-2 relative z-50">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-medical-600">
+            <Heart className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 group-hover:to-white transition-all">
+          <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
             QuHealthy
           </span>
         </Link>
-        
-        {/* DESKTOP NAV */}
+
+        {/* DESKTOP NAV - Estilo plano */}
         {!isLoading && (
-          <nav className="hidden md:flex items-center gap-1 bg-white/5 backdrop-blur-sm px-1.5 py-1.5 rounded-full border border-white/10 absolute left-1/2 transform -translate-x-1/2">
-            {currentLinks.map((item: NavItem) => { // ✅ CORRECCIÓN 4: Tipamos 'item' explícitamente
+          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+            {currentLinks.map((item: NavItem) => {
               const isActive = pathname === item.href;
-              const Icon = item.icon; // TypeScript ya sabe que es LucideIcon | undefined
-              
+              const Icon = item.icon;
+
               return (
-                <Link 
-                  key={item.name} 
-                  href={item.href} 
+                <Link
+                  key={item.name}
+                  href={item.href}
                   className={cn(
-                    "px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-2",
-                    isActive 
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25" 
-                      : "text-gray-400 hover:text-white hover:bg-white/10"
+                    "text-sm font-medium transition-colors duration-200 flex items-center gap-2",
+                    isActive
+                      ? "text-medical-600 dark:text-medical-400"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                   )}
                 >
-                  {Icon && <Icon size={14} className={isActive ? "text-white" : "text-gray-500"} />}
-                  {item.name}
+                  {Icon && <Icon size={16} className={isActive ? "text-medical-600 dark:text-medical-400" : "text-slate-400"} />}
+                  {t(item.name)}
                 </Link>
               );
             })}
           </nav>
         )}
-        
+
         {/* ACTIONS */}
         <div className="hidden md:flex items-center gap-3">
-          
+
           {/* ✅ LÓGICA MEJORADA: 
              Solo mostramos el esqueleto si está cargando Y ADEMÁS creemos que hay sesión (token existe).
              Si está cargando pero no hay token, mostramos los botones de invitado directamente.
           */}
           {isLoading && useSessionStore.getState().token ? (
-             <div className="h-9 w-9 bg-gray-800 rounded-full animate-pulse" />
+            <div className="h-9 w-9 bg-gray-800 rounded-full animate-pulse" />
           ) : isAuthenticated ? (
             <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <LanguageToggle />
               {role === 'PROVIDER' && (
-                <Button variant="ghost" size="default" className="text-gray-400 hover:text-white">
-                   <Megaphone size={20} />
+                <Button variant="ghost" size="default" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                  <Megaphone size={20} />
                 </Button>
               )}
               <UserMenuDropdown />
@@ -262,14 +269,16 @@ export const Navbar: React.FC = () => {
           ) : (
             // ESTADO GUEST (Visitante)
             <>
+              <ThemeToggle />
+              <LanguageToggle />
               <Link href="/login">
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/5">
-                  Ingresar
+                <Button variant="ghost" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors h-9 px-4">
+                  {t('buttons.login')}
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-white text-black hover:bg-gray-200 font-semibold shadow-lg shadow-white/10 border-0">
-                  Comenzar
+                <Button className="bg-medical-600 text-white hover:bg-medical-700 font-medium h-9 px-5 rounded-md border-0 transition-colors">
+                  {t('buttons.register')}
                 </Button>
               </Link>
             </>
@@ -277,7 +286,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* MOBILE TOGGLE */}
-        <button 
+        <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden p-2 text-gray-300 hover:text-white transition-colors z-50 rounded-md hover:bg-white/10"
         >
@@ -288,55 +297,55 @@ export const Navbar: React.FC = () => {
       {/* MOBILE MENU */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20, height: 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: -10, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -20, height: 0 }}
-            className="md:hidden bg-gray-950 border-b border-gray-800 overflow-hidden shadow-2xl"
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            className="md:hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg"
           >
             <div className="p-4 flex flex-col gap-2">
               {isAuthenticated && (
                 <div className="flex items-center gap-3 p-3 mb-2 bg-white/5 rounded-xl border border-white/10">
-                   <UserAvatar size="lg" />
-                   <div>
-                     <p className="text-white font-medium">{user?.firstName}</p>
-                     <p className="text-xs text-gray-500">{user?.email}</p>
-                   </div>
+                  <UserAvatar size="lg" />
+                  <div>
+                    <p className="text-white font-medium">{user?.firstName}</p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
+                  </div>
                 </div>
               )}
 
               {currentLinks.map((item: NavItem) => { // ✅ Tipado aquí también
-                 const Icon = item.icon;
-                 return (
-                  <Link 
-                    key={item.name} 
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 p-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white font-medium transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
                   >
-                    {Icon && <Icon size={18} className="text-purple-400" />}
-                    {item.name}
+                    {Icon && <Icon size={18} className="text-medical-500 dark:text-medical-400" />}
+                    {t(item.name)}
                   </Link>
                 );
               })}
-              
+
               <div className="h-px bg-gray-800 my-2" />
-              
+
               {isAuthenticated ? (
-                <Button 
-                  variant="destructive" 
-                  onClick={handleLogout} 
-                  className="w-full justify-start bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20"
+                <Button
+                  variant="destructive"
+                  onClick={handleLogout}
+                  className="w-full justify-start bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-500/20 border border-red-500/20"
                 >
-                  <LogOut className="mr-2 h-4 w-4" /> Cerrar Sesión
+                  <LogOut className="mr-2 h-4 w-4" /> {t('user_menu.logout')}
                 </Button>
               ) : (
                 <div className="grid grid-cols-2 gap-3 mt-2">
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-gray-700 text-gray-300">Ingresar</Button>
+                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">{t('buttons.login')}</Button>
                   </Link>
                   <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-white text-black hover:bg-gray-200">Crear Cuenta</Button>
+                    <Button className="w-full bg-medical-600 text-white hover:bg-medical-700">{t('buttons.create_account')}</Button>
                   </Link>
                 </div>
               )}

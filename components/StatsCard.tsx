@@ -2,8 +2,9 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, MapPin, Calendar, TrendingUp } from "lucide-react";
+import { TrendingUp, Users, MapPin, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 /**
  * StatsCard Component
@@ -36,30 +37,31 @@ import { cn } from "@/lib/utils";
  */
 
 export const StatsCard: React.FC = () => {
+  const t = useTranslations('Stats');
   const stats = [
     {
       icon: Users,
       value: "2.5K+",
-      label: "Profesionales",
-      gradient: "from-purple-400 to-pink-400",
-      iconColor: "text-purple-400",
-      bgColor: "bg-purple-500/10",
+      label: t('professionals'),
+      gradient: "from-medical-400 to-teal-400",
+      iconColor: "text-medical-400",
+      bgColor: "bg-medical-500/10",
       delay: 0
     },
     {
       icon: MapPin,
       value: "28",
-      label: "Ciudades",
-      gradient: "from-blue-400 to-cyan-400",
-      iconColor: "text-blue-400",
-      bgColor: "bg-blue-500/10",
+      label: t('cities'),
+      gradient: "from-teal-400 to-emerald-400",
+      iconColor: "text-teal-400",
+      bgColor: "bg-teal-500/10",
       delay: 0.1
     },
     {
       icon: Calendar,
       value: "15K+",
-      label: "Citas/mes",
-      gradient: "from-emerald-400 to-teal-400",
+      label: t('appointments'),
+      gradient: "from-emerald-400 to-cyan-400",
       iconColor: "text-emerald-400",
       bgColor: "bg-emerald-500/10",
       delay: 0.2
@@ -67,7 +69,7 @@ export const StatsCard: React.FC = () => {
     {
       icon: TrendingUp,
       value: "98%",
-      label: "Satisfacción",
+      label: t('satisfaction'),
       gradient: "from-amber-400 to-orange-400",
       iconColor: "text-amber-400",
       bgColor: "bg-amber-500/10",
@@ -83,14 +85,14 @@ export const StatsCard: React.FC = () => {
       className="relative group"
     >
       {/* Glow effect externo - Principio de ATENCIÓN */}
-      <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-purple-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
+      <div className="absolute -inset-2 bg-gradient-to-r from-medical-600/20 via-teal-600/20 to-medical-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
       {/* Card principal - Glassmorphism para FIGURA/FONDO */}
-      <div className="relative bg-gray-900/95 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
-        
+      <div className="relative bg-slate-900/95 backdrop-blur-xl p-6 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+
         {/* Decorative corner accent - Profundidad visual */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-transparent rounded-tr-2xl pointer-events-none" />
-        
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-medical-500/20 to-transparent rounded-tr-2xl pointer-events-none" />
+
         {/* Grid de stats - Principio de PROXIMIDAD (Gestalt) */}
         <div className="grid grid-cols-2 gap-6 relative z-10">
           {stats.map((stat) => {
@@ -116,7 +118,7 @@ export const StatsCard: React.FC = () => {
                   )} />
                   <Icon className={cn("relative w-5 h-5", stat.iconColor)} />
                 </div>
-                
+
                 {/* Valor - JERARQUÍA TIPOGRÁFICA */}
                 <div className={cn(
                   "text-3xl font-black mb-1 tracking-tight",
@@ -125,7 +127,7 @@ export const StatsCard: React.FC = () => {
                 )}>
                   {stat.value}
                 </div>
-                
+
                 {/* Label - Texto secundario, CHUNKING del significado */}
                 <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
                   {stat.label}
@@ -145,7 +147,7 @@ export const StatsCard: React.FC = () => {
 
         {/* Microinteracción - Mantiene ATENCIÓN sin ser intrusivo */}
         <motion.div
-          className="absolute inset-0 rounded-2xl border-2 border-purple-500/0 group-hover:border-purple-500/20 transition-colors duration-500"
+          className="absolute inset-0 rounded-2xl border-2 border-medical-500/0 group-hover:border-medical-500/20 transition-colors duration-500"
           animate={{
             scale: [1, 1.01, 1],
           }}

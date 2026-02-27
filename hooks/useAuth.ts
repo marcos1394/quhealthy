@@ -9,12 +9,17 @@ import {
   LoginRequest,
   ResendVerificationRequest,
   ResetPasswordRequest,
+  SendRecoveryCodeRequest,
+  VerifyRecoveryCodeRequest,
+  RecoveryResetPasswordRequest,
+  ValidateResetTokenRequest,
+  ConfirmResetPasswordRequest,
   // Tipos de Response
   AuthResponse,
   ProviderRegistrationResponse,
   ConsumerRegistrationResponse,
   MessageResponse,
-  SocialLoginRequest // Usamos la interfaz correcta
+  SocialLoginRequest
 } from '@/types/auth';
 
 interface UseAuthReturn {
@@ -33,12 +38,23 @@ interface UseAuthReturn {
 
   // Verificación
   verifyEmail: (token: string) => Promise<MessageResponse>;
-  verifyPhone: (data: any) => Promise<MessageResponse>; // Ajusta 'any' a VerifyPhoneRequest si lo importas
+  verifyPhone: (data: any) => Promise<MessageResponse>;
+  verifyPhoneWithToken: (token: string) => Promise<MessageResponse>;
   resendVerification: (data: ResendVerificationRequest) => Promise<MessageResponse>;
+  resendPhoneCode: () => Promise<MessageResponse>;
 
   // Password
   forgotPassword: (data: any) => Promise<MessageResponse>;
   resetPassword: (data: ResetPasswordRequest) => Promise<MessageResponse>;
+
+  // Recovery Flow
+  sendRecoveryCode: (data: SendRecoveryCodeRequest) => Promise<MessageResponse>;
+  verifyRecoveryCode: (data: VerifyRecoveryCodeRequest) => Promise<MessageResponse>;
+  recoveryResetPassword: (data: RecoveryResetPasswordRequest) => Promise<MessageResponse>;
+
+  // Reset Password (token-based)
+  validateResetToken: (data: ValidateResetTokenRequest) => Promise<MessageResponse>;
+  confirmResetPassword: (data: ConfirmResetPasswordRequest) => Promise<MessageResponse>;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -48,10 +64,10 @@ export const useAuth = (): UseAuthReturn => {
 
   // Helper de errores (Mismo que tenías, está perfecto)
   const handleError = (err: any): never => {
-    const msg = err.response?.data?.message || 
-                err.response?.data?.error || 
-                err.message || 
-                'Ocurrió un error inesperado';
+    const msg = err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.message ||
+      'Ocurrió un error inesperado';
     setError(msg);
     // Lanzamos el error para que el componente (Formulario) también se entere si quiere
     throw new Error(msg);
@@ -115,10 +131,10 @@ export const useAuth = (): UseAuthReturn => {
     try {
       // authService.getSession() devuelve AuthResponse | null
       const res = await authService.getSession();
-      
+
       // Si res es null, no pasa nada, el componente lo manejará.
       // El store ya se actualizó dentro del servicio.
-      return res; 
+      return res;
     } catch (err) {
       // Si falló feo (ej: error de red), forzamos logout visual
       return null;
@@ -175,6 +191,65 @@ export const useAuth = (): UseAuthReturn => {
     finally { setLoading(false); }
   };
 
+  // --- Recovery Flow (forgot-password multi-step) ---
+  const sendRecoveryCode = async (data: SendRecoveryCodeRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.sendRecoveryCode(data);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const verifyRecoveryCode = async (data: VerifyRecoveryCodeRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.verifyRecoveryCode(data);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const recoveryResetPassword = async (data: RecoveryResetPasswordRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.recoveryResetPassword(data);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  // --- Reset Password (token-based) ---
+  const validateResetToken = async (data: ValidateResetTokenRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.validateResetToken(data);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const confirmResetPassword = async (data: ConfirmResetPasswordRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.confirmResetPassword(data);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  // --- Resend Phone & Verify with Token ---
+  const resendPhoneCode = async () => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.resendPhoneCode();
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const verifyPhoneWithToken = async (token: string) => {
+    setLoading(true); setError(null);
+    try {
+      return await authService.verifyPhoneWithToken(token);
+    } catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
   return {
     loading,
     error,
@@ -186,8 +261,15 @@ export const useAuth = (): UseAuthReturn => {
     logout,
     verifyEmail,
     verifyPhone,
+    verifyPhoneWithToken,
     resendVerification,
+    resendPhoneCode,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    sendRecoveryCode,
+    verifyRecoveryCode,
+    recoveryResetPassword,
+    validateResetToken,
+    confirmResetPassword
   };
 };

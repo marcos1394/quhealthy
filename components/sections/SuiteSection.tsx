@@ -4,205 +4,160 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, ShoppingBag, BookOpen, CheckCircle2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-/**
- * SuiteSection Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. CHUNKING
- *    - 3 productos (dentro del número mágico 7±2)
- *    - Cada producto es un chunk significativo
- * 
- * 2. REGIÓN COMÚN (Gestalt)
- *    - Border superior colorido agrupa features del producto
- *    - Card contenedor unifica información relacionada
- * 
- * 3. SIMILITUD (Gestalt)
- *    - Estructura idéntica en los 3 productos
- *    - Facilita comparación y comprensión
- * 
- * 4. JERARQUÍA VISUAL
- *    - Icono → Nombre → Descripción → Features
- *    - Colores únicos por producto para reconocimiento
- * 
- * 5. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Iconos distintivos por producto
- *    - Checkmarks verdes confirman features
- * 
- * 6. AFFORDANCE
- *    - Hover lift sugiere interactividad
- *    - "Explorar" con arrow indica acción
- * 
- * 7. MINIMIZAR CARGA COGNITIVA
- *    - Máximo 5 features por producto
- *    - Descripciones concisas
- */
+import { useTranslations } from "next-intl";
 
 const SuiteSection: React.FC = () => {
+  const t = useTranslations('Suite');
+
   const suiteProducts = [
     {
       name: "QuHealthy",
-      description: "Gestión integral para profesionales de la salud. Tu consultorio en la nube.",
+      description: t('products.quhealthy.description'),
       icon: Lightbulb,
-      colorClass: "border-purple-500/50 shadow-purple-900/20",
-      iconBg: "bg-purple-500/10 text-purple-400",
-      iconBorder: "border-purple-500/20",
+      themeColor: "text-teal-600 dark:text-teal-400",
+      bgClass: "bg-teal-50 dark:bg-teal-900/10",
       features: [
-        "Agenda inteligente integrada",
-        "Expedientes clínicos digitales",
-        "Telemedicina en HD",
-        "Pasarela de pagos automatizada",
-        "Recordatorios vía WhatsApp"
-      ]
+        t('products.quhealthy.features.0'),
+        t('products.quhealthy.features.1'),
+        t('products.quhealthy.features.2'),
+        t('products.quhealthy.features.3'),
+      ],
+      explore: t('products.quhealthy.explore'),
     },
     {
       name: "QuMarket",
-      description: "El marketplace donde tus productos llegan a miles de pacientes verificados.",
+      description: t('products.qumarket.description'),
       icon: ShoppingBag,
-      colorClass: "border-pink-500/50 shadow-pink-900/20",
-      iconBg: "bg-pink-500/10 text-pink-400",
-      iconBorder: "border-pink-500/20",
+      themeColor: "text-medical-600 dark:text-medical-400",
+      bgClass: "bg-medical-50 dark:bg-medical-900/10",
       features: [
-        "Tienda personalizada en minutos",
-        "Catálogo global de salud",
-        "Comisiones competitivas",
-        "Logística de envíos resuelta",
-        "Cross-selling inteligente"
-      ]
+        t('products.qumarket.features.0'),
+        t('products.qumarket.features.1'),
+        t('products.qumarket.features.2'),
+        t('products.qumarket.features.3'),
+      ],
+      explore: t('products.qumarket.explore'),
     },
     {
       name: "QuBlocks",
-      description: "Academia y comunidad para la educación continua del sector wellness.",
+      description: t('products.qublocks.description'),
       icon: BookOpen,
-      colorClass: "border-blue-500/50 shadow-blue-900/20",
-      iconBg: "bg-blue-500/10 text-blue-400",
-      iconBorder: "border-blue-500/20",
+      themeColor: "text-indigo-600 dark:text-indigo-400",
+      bgClass: "bg-indigo-50 dark:bg-indigo-900/10",
       features: [
-        "Cursos con certificación Blockchain",
-        "Webinars exclusivos en vivo",
-        "Networking profesional",
-        "Validación de habilidades",
-        "Biblioteca de recursos"
-      ]
+        t('products.qublocks.features.0'),
+        t('products.qublocks.features.1'),
+        t('products.qublocks.features.2'),
+        t('products.qublocks.features.3'),
+      ],
+      explore: t('products.qublocks.explore'),
     }
   ];
 
-  return (
-    <section id="suite" className="py-32 relative overflow-hidden bg-gray-950">
-      {/* Background sutil */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-gray-950 opacity-80" />
-      <div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(168, 85, 247, 0.3) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(168, 85, 247, 0.3) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}
-      />
-      
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header - PRIMING */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20 space-y-6"
-        >
-          <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-            La Suite Integral
-          </h2>
-          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Una plataforma modular que evoluciona contigo. 
-            Activa solo lo que necesitas, cuando lo necesitas.
-          </p>
-        </motion.div>
+  // Imágenes representativas para cada producto de la suite
+  const suiteImages = [
+    "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=1200&auto=format&fit=crop", // QuHealthy: Doctor / Clínica
+    "https://images.unsplash.com/photo-1576091160550-2173eff3e8fc?q=80&w=1200&auto=format&fit=crop", // QuMarket: Productos/Marketplace salud
+    "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop"  // QuBlocks: Educación/Academia
+  ];
 
-        {/* Grid de Productos - SIMILITUD (Gestalt) */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
-          {suiteProducts.map((product, index) => (
-            <motion.div
-              key={product.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="h-full"
-            >
-              <Card className={cn(
-                "h-full flex flex-col transition-all duration-300 border-t-4 bg-gray-900/50 backdrop-blur-sm",
-                "hover:-translate-y-2 hover:shadow-2xl hover:bg-gray-900/80",
-                product.colorClass
-              )}>
-                <CardHeader className="space-y-6">
-                  {/* Header con icono - REGIÓN COMÚN */}
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "p-4 rounded-2xl border transition-all duration-300 group-hover:scale-110",
-                      product.iconBg,
-                      product.iconBorder
-                    )}>
-                      <product.icon className="w-7 h-7" />
-                    </div>
-                    <CardTitle className="text-3xl font-black text-white">
-                      {product.name}
-                    </CardTitle>
-                  </div>
-                  
-                  {/* Descripción - CHUNKING */}
-                  <p className="text-gray-400 text-base leading-relaxed min-h-[48px]">
-                    {product.description}
-                  </p>
-                </CardHeader>
-                
-                <CardContent className="flex-1 flex flex-col space-y-6">
-                  <div className="h-px bg-gray-800" />
-                  
-                  {/* Features - RECONOCIMIENTO (checkmarks) */}
-                  <ul className="space-y-4 flex-1">
-                    {product.features.map((feature, i) => (
-                      <motion.li
-                        key={i}
-                        className="flex items-start gap-3 text-gray-300"
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3 + i * 0.1 }}
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm leading-relaxed">{feature}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                  
-                  {/* CTA sutil - AFFORDANCE */}
-                  <div className="pt-6 flex items-center justify-between group/cta cursor-pointer">
-                    <span className="text-sm font-bold text-gray-400 group-hover/cta:text-purple-400 transition-colors duration-200">
-                      Explorar {product.name}
-                    </span>
-                    <ArrowRight className="w-5 h-5 text-gray-600 group-hover/cta:text-purple-400 group-hover/cta:translate-x-1 transition-all duration-200" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+  return (
+    <section id="suite" className="py-24 md:py-32 bg-[#FAFAFA] dark:bg-[#0A0A0A] transition-colors duration-300">
+      <div className="container mx-auto px-6 md:px-12 xl:px-24">
+
+        {/* Header - Minimalist Editorial */}
+        <div className="text-center max-w-3xl mx-auto mb-20 md:mb-32">
+          <span className="inline-block border border-slate-200 dark:border-slate-800 px-4 py-1.5 rounded-full text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-widest uppercase mb-6">
+            {t('badge')}
+          </span>
+          <h2 className="text-4xl md:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight">
+            {t('title')}
+          </h2>
+          <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+            {t('description')}
+          </p>
         </div>
 
-        {/* Info adicional - MINIMIZAR CARGA COGNITIVA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-16"
-        >
-          <p className="text-gray-500 text-sm">
-            💡 Cada módulo se integra perfectamente con los demás para una experiencia unificada
+        <div className="space-y-32 md:space-y-40">
+          {suiteProducts.map((product, index) => {
+            const isEven = index % 2 === 0;
+
+            return (
+              <div key={product.name} className={cn("grid lg:grid-cols-2 gap-12 lg:gap-24 items-center", !isEven ? "lg:flex-row-reverse" : "")}>
+
+                {/* ====================
+                    TEXT CONTENT (Editorial)
+                    ==================== */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className={cn("space-y-8 lg:max-w-xl", !isEven ? "lg:col-start-2" : "")}
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className={cn("p-3 rounded-2xl", product.bgClass, product.themeColor)}>
+                      <product.icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-3xl lg:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
+                      {product.name}
+                    </h3>
+                  </div>
+
+                  <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                    {product.description}
+                  </p>
+
+                  <div className="h-px bg-slate-200 dark:bg-slate-800/60 w-full max-w-sm my-8" />
+
+                  <ul className="space-y-5">
+                    {product.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-4">
+                        <CheckCircle2 className={cn("w-5 h-5 flex-shrink-0 mt-0.5", product.themeColor)} />
+                        <span className="text-slate-700 dark:text-slate-300 font-medium text-base">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="pt-8">
+                    <a href="#" className="group inline-flex items-center gap-2 text-slate-900 dark:text-white font-semibold text-lg hover:opacity-80 transition-all">
+                      <span className="border-b-2 border-slate-900 dark:border-white pb-0.5">{product.explore}</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                    </a>
+                  </div>
+                </motion.div>
+
+                {/* ====================
+                    VISUAL CONTENT (Authentic Photography)
+                    ==================== */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className={cn("relative w-full aspect-[4/5] lg:aspect-square rounded-[2rem] overflow-hidden", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={suiteImages[index]}
+                    alt={`Ilustración de uso para ${product.name}`}
+                    className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-[2s] ease-out"
+                  />
+
+                  {/* Overlay gradiente muy sutil para asegurar contraste si se colocan elementos encima en el futuro */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent mix-blend-multiply" />
+                </motion.div>
+
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="text-center mt-32 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+            {t('footer')}
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -6,158 +6,71 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  Users,
-  CreditCard,
-  Settings,
-  LogOut,
-  ChevronRight,
-  HelpCircle,
-  Crown,
-  ChevronLeft,
-  BriefcaseMedical,
-  UserCircle,
-  Menu,
-  Sparkles
-} from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
-
-// Hook de Auth
 import { useAuth } from "@/hooks/useAuth";
 
-// MENÚS REALES DEL NEGOCIO
 const sidebarLinks = [
-  { label: "Resumen", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "Agenda", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: 'blue' } },
-  { label: "Pacientes", href: "/provider/dashboard/patients", icon: Users, badge: null },
-  { label: "Mis Servicios", href: "/provider/store", icon: BriefcaseMedical, badge: null },
-  { label: "Finanzas", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
+  { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
+  { label: "Calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: "blue" } },
+  { label: "Patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
+  { label: "Services", href: "/provider/store", icon: BriefcaseMedical, badge: null },
+  { label: "Billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
 ];
 
 const settingsLinks = [
-  { label: "Mi Perfil Público", href: "/provider/profile", icon: UserCircle, badge: null },
-  { label: "Configuración", href: "/provider/settings", icon: Settings, badge: null },
+  { label: "Public Profile", href: "/provider/profile", icon: UserCircle, badge: null },
+  { label: "Settings", href: "/provider/settings", icon: Settings, badge: null },
 ];
 
-// NavItem Component
-const NavItem = ({  
-  href, 
-  icon: Icon, 
-  label,
-  badge,
-  isCollapsed,
-  pathname
-}: { 
-  href: string; 
-  icon: any; 
-  label: string;
-  badge?: { count: number; color: string } | null;
-  isCollapsed: boolean;
-  pathname: string | null;
+const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
+  href: string; icon: any; label: string; badge?: { count: number; color: string } | null; isCollapsed: boolean; pathname: string | null;
 }) => {
   const isActive = pathname === href || (href !== "/provider/dashboard" && pathname?.startsWith(href));
 
   return (
-    <Link
-      href={href}
+    <Link href={href} title={isCollapsed ? label : ""}
       className={cn(
-        "relative flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group overflow-hidden",
+        "relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group overflow-hidden",
         isCollapsed ? "justify-center" : "",
         isActive
-          ? "bg-blue-600 text-white shadow-lg"
-          : "text-gray-400 hover:text-white hover:bg-gray-800/60"
-      )}
-      title={isCollapsed ? label : ""}
-    >
-      {/* Subtle glow effect on active */}
-      {isActive && (
-        <div className="absolute inset-0 bg-blue-500/20 blur-xl" />
-      )}
-
-      {/* Hover glow effect */}
-      {!isActive && (
-        <div className="absolute inset-0 bg-gray-700/0 group-hover:bg-gray-700/30 transition-all duration-300" />
-      )}
-
-      <div className={cn("relative z-10 flex items-center", isCollapsed ? "justify-center w-full" : "gap-4 flex-1")}>
-        <div className="relative">
-          <Icon 
-            className={cn(
-              "w-6 h-6 flex-shrink-0 transition-all duration-300",
-              isActive 
-                ? "text-white" 
-                : "text-gray-500 group-hover:text-white"
-            )} 
-          />
-        </div>
-        
+          ? "bg-medical-600 dark:bg-medical-500 text-white shadow-sm"
+          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+      )}>
+      <div className={cn("relative z-10 flex items-center", isCollapsed ? "justify-center w-full" : "gap-3 flex-1")}>
+        <Icon className={cn("w-5 h-5 flex-shrink-0 transition-colors", isActive ? "text-white" : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")} />
         <AnimatePresence mode="wait">
           {!isCollapsed && (
-            <motion.span
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className={cn(
-                "text-sm font-bold whitespace-nowrap",
-                isActive ? "text-white" : ""
-              )}
-            >
+            <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.15 }}
+              className={cn("text-sm font-medium whitespace-nowrap", isActive ? "text-white" : "")}>
               {label}
             </motion.span>
           )}
         </AnimatePresence>
-
-        {/* Badges de Notificación */}
         {badge && !isCollapsed && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="ml-auto"
-          >
-            <Badge 
-              variant="outline"
-              className={cn(
-                "text-xs px-2 min-w-[22px] h-6 border-none font-bold",
-                badge.color === 'blue' ? "bg-blue-500/90 text-white" : "",
-                badge.color === 'emerald' ? "bg-emerald-500/90 text-white" : ""
-              )}
-            >
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+            <Badge variant="outline" className={cn("text-xs px-2 min-w-[20px] h-5 border-none font-semibold",
+              badge.color === "blue" ? "bg-blue-500 text-white" : "", badge.color === "emerald" ? "bg-emerald-500 text-white" : "")}>
               {badge.count}
             </Badge>
           </motion.div>
         )}
-
-        {/* Badge collapsed */}
         {badge && isCollapsed && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1"
-          >
-            <div className={cn(
-              "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white",
-              badge.color === 'blue' ? "bg-blue-500" : "",
-              badge.color === 'emerald' ? "bg-emerald-500" : ""
-            )}>
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5">
+            <div className={cn("w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-semibold text-white",
+              badge.color === "blue" ? "bg-blue-500" : "", badge.color === "emerald" ? "bg-emerald-500" : "")}>
               {badge.count}
             </div>
           </motion.div>
         )}
       </div>
-
-      {/* Active indicator line */}
       {isActive && (
-        <motion.div
-          layoutId="activeIndicator"
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-blue-400 rounded-r-full"
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        />
+        <motion.div layoutId="activeIndicator"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 bg-white rounded-r-full"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }} />
       )}
     </Link>
   );
@@ -166,168 +79,102 @@ const NavItem = ({
 export const Sidebar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { logout } = useAuth(); 
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    toast.info("Sesión cerrada exitosamente", { autoClose: 2000 });
-    logout(); 
-  };
+  const handleLogout = () => { toast.info("Session closed successfully", { autoClose: 2000 }); logout(); };
 
   return (
-    <motion.aside 
-      animate={{ width: isCollapsed ? 88 : 300 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    <motion.aside animate={{ width: isCollapsed ? 80 : 280 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "flex flex-col h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900 border-r border-gray-800/50 z-50 overflow-hidden flex-shrink-0 shadow-2xl",      
+        "flex flex-col h-screen border-r transition-colors duration-300 z-50 overflow-hidden flex-shrink-0",
+        "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800",
         className
-      )}
-    >
-      {/* Header del Sidebar / Logo & Toggle */}
-      <div className="h-20 flex items-center justify-between px-5 border-b border-gray-800/50 flex-shrink-0 bg-gray-950/50 backdrop-blur-xl">
-        <Link href="/provider/dashboard" className={cn("flex items-center gap-3 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
-          <motion.div 
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-xl shadow-purple-900/50"
-          >
-            <span className="font-black text-white text-xl">Q</span>
+      )}>
+      {/* Header */}
+      <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white dark:bg-slate-950 transition-colors">
+        <Link href="/provider/dashboard" className={cn("flex items-center gap-2.5 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            className="w-9 h-9 rounded-xl bg-medical-600 dark:bg-medical-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span className="font-bold text-white text-lg">Q</span>
           </motion.div>
-          
           <AnimatePresence>
             {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="text-2xl font-black bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent whitespace-nowrap"
-              >
-                QuHealthy
-              </motion.span>
+              <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                className="text-xl font-semibold text-slate-900 dark:text-white whitespace-nowrap">QuHealthy</motion.span>
             )}
           </AnimatePresence>
         </Link>
-
-        {/* Toggle Button Expandido */}
         {!isCollapsed && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              variant="ghost"
-              size="default"
-              onClick={() => setIsCollapsed(true)}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl h-11 w-11 flex-shrink-0 transition-all shadow-lg hover:shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-          </motion.div>
+          <Button variant="ghost" size="default" onClick={() => setIsCollapsed(true)}
+            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-8 w-8 flex-shrink-0">
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
         )}
       </div>
-      
-      {/* Toggle Button Colapsado */}
+
+      {/* Toggle when collapsed */}
       {isCollapsed && (
-        <div className="flex justify-center mt-5 mb-3">
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Button
-              variant="ghost"
-              size="default"
-              onClick={() => setIsCollapsed(false)}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl h-12 w-12 transition-all"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </Button>
-          </motion.div>
+        <div className="flex justify-center mt-4 mb-2">
+          <Button variant="ghost" size="default" onClick={() => setIsCollapsed(false)}
+            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
+            <ChevronRight className="w-4 h-4" />
+          </Button>
         </div>
       )}
 
-      {/* Banner de Plan */}
+      {/* Plan Banner */}
       <AnimatePresence>
         {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mx-5 mt-5 p-4 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-pink-500/10 border border-purple-500/30 rounded-2xl overflow-hidden shadow-lg relative group cursor-pointer hover:shadow-xl hover:shadow-purple-500/20 transition-all"
-          >
-            {/* Sparkle effect */}
-            <div className="absolute top-1 right-1">
-              <Sparkles className="w-4 h-4 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-xl">
-                <Crown className="w-5 h-5 text-purple-400 flex-shrink-0" />
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+            className="mx-4 mt-4 p-3 bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-xl overflow-hidden relative group cursor-pointer hover:border-medical-500/50 transition-all">
+            <div className="absolute top-1 right-1"><Sparkles className="w-3 h-3 text-medical-400 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-medical-100 dark:bg-medical-500/10 rounded-lg">
+                <Crown className="w-4 h-4 text-medical-600 dark:text-medical-400 flex-shrink-0" />
               </div>
               <div>
-                <p className="text-sm font-black text-purple-400 whitespace-nowrap">Plan Básico</p>
-                <p className="text-[10px] text-purple-300/60 font-semibold">Actualiza tu plan</p>
+                <p className="text-xs font-semibold text-medical-600 dark:text-medical-400 whitespace-nowrap">Basic Plan</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-light">Upgrade your plan</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Contenido Scrolleable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden py-8 px-5 space-y-8 custom-scrollbar">
-        
-        {/* Plataforma */}
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-4 space-y-6 custom-scrollbar">
         <nav>
           <AnimatePresence>
             {!isCollapsed && (
-              <motion.h3
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4 px-2 overflow-hidden flex items-center gap-2"
-              >
-                <div className="w-1 h-1 rounded-full bg-purple-500" />
-                Plataforma
+              <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1.5">
+                Platform
               </motion.h3>
             )}
           </AnimatePresence>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {sidebarLinks.map((link, index) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+              <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
                 <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
             ))}
           </div>
         </nav>
 
-        <Separator className="bg-gray-800/50" />
+        <Separator className="bg-slate-200 dark:bg-slate-800" />
 
-        {/* Configuración */}
         <nav>
           <AnimatePresence>
             {!isCollapsed && (
-              <motion.h3
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4 px-2 overflow-hidden flex items-center gap-2"
-              >
-                <div className="w-1 h-1 rounded-full bg-pink-500" />
-                Configuración
+              <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1.5">
+                Settings
               </motion.h3>
             )}
           </AnimatePresence>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {settingsLinks.map((link, index) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+              <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
                 <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
             ))}
@@ -336,48 +183,27 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-5 border-t border-gray-800/50 space-y-2 flex-shrink-0 bg-gray-950/50 backdrop-blur-xl">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-1.5 flex-shrink-0 bg-white dark:bg-slate-950 transition-colors">
         <AnimatePresence>
           {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="overflow-hidden"
-            >
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-4 text-gray-400 hover:text-white hover:bg-gray-800/80 rounded-2xl h-12 transition-all group"
-              >
-                <HelpCircle className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold whitespace-nowrap">Soporte</span>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="overflow-hidden">
+              <Button variant="ghost" className="w-full justify-start gap-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 transition-all group">
+                <HelpCircle className="w-4 h-4 flex-shrink-0" /><span className="text-sm font-medium whitespace-nowrap">Support</span>
               </Button>
             </motion.div>
           )}
         </AnimatePresence>
-
-        <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogout}
+        <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={handleLogout}
           className={cn(
-            "flex items-center gap-4 w-full px-4 py-3.5 rounded-2xl transition-all group overflow-hidden shadow-lg",
-            "text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 border-2 border-transparent",
+            "flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl transition-all group overflow-hidden",
+            "text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10",
             isCollapsed ? "justify-center" : ""
-          )}
-          title={isCollapsed ? "Cerrar Sesión" : ""}
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          )} title={isCollapsed ? "Log Out" : ""}>
+          <LogOut className="w-4 h-4 flex-shrink-0" />
           <AnimatePresence>
             {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="text-sm font-bold whitespace-nowrap"
-              >
-                Cerrar Sesión
-              </motion.span>
+              <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
+                className="text-sm font-medium whitespace-nowrap">Log Out</motion.span>
             )}
           </AnimatePresence>
         </motion.button>

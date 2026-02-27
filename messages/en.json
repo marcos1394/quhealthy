@@ -1,0 +1,655 @@
+{
+    "Hero": {
+        "badge": "The future of your wellness",
+        "title_start": "Modern healthcare, ",
+        "title_highlight": "designed for you",
+        "title_end": ".",
+        "description": "Access top-tier specialists, seamless booking, and personalized care. Your entire health history in one secure, intuitive ecosystem.",
+        "search_placeholder": "Search by specialty, symptom, or doctor's name",
+        "location_placeholder": "Your location",
+        "search_button": "Get Started",
+        "metrics": {
+            "m1": "2.5k+ Specialists",
+            "m2": "Immediate Care",
+            "m3": "Total Privacy"
+        }
+    },
+    "Theme": {
+        "toggle": "Toggle theme"
+    },
+    "Features": {
+        "badge": "Powered by AI",
+        "title_start": "Powerful ",
+        "title_highlight": "Features",
+        "description": "Tools designed to optimize your time and multiply your results",
+        "explore": "Explore feature",
+        "cta_text": "Want to see all features in action?",
+        "cta_button": "View full documentation",
+        "items": [
+            {
+                "title": "Verified professionals",
+                "description": "All professionals go through a rigorous verification process to ensure maximum quality."
+            },
+            {
+                "title": "Real-time bookings",
+                "description": "Schedule appointments with any specialist in real time and receive instant confirmation."
+            },
+            {
+                "title": "Smart geolocation",
+                "description": "Find the best professionals and services near you with a single click."
+            },
+            {
+                "title": "Advanced search",
+                "description": "Personalized filters to find exactly what you need based on your preferences."
+            },
+            {
+                "title": "Verified reviews",
+                "description": "Real opinions from users who have used the services to help you choose."
+            },
+            {
+                "title": "Private chat",
+                "description": "Communicate directly with professionals to resolve your doubts before booking."
+            }
+        ]
+    },
+    "Testimonials": {
+        "badge": "Real Stories",
+        "title_start": "What ",
+        "title_highlight": "our patients say",
+        "description": "Discover how professionals like you are transforming their daily practice",
+        "cta_text": "Do you want to be part of these success stories?",
+        "cta_button": "Start my story",
+        "items": {
+            "1": {
+                "name": "Maria Lopez",
+                "role": "Patient",
+                "text": "QuHealthy has completely changed my healthcare experience. I found an excellent specialist in minutes and was able to book a same-day appointment."
+            },
+            "2": {
+                "name": "Dr. Carlos Mendoza",
+                "role": "Dermatologist",
+                "text": "As a professional, the platform has allowed me to better manage my time and connect with patients who truly need my specific services."
+            },
+            "3": {
+                "name": "Laura Sanchez",
+                "role": "Director",
+                "text": "Since integrating QuHealthy into our center, we have increased bookings by 40% and significantly improved patient satisfaction."
+            }
+        }
+    },
+    "Pricing": {
+        "badge": "Plans and Pricing",
+        "title_start": "Pick your ",
+        "title_highlight": "growth plan",
+        "description": "Choose the plan that fits your current stage. Scale up whenever you need to.",
+        "billing": {
+            "monthly": "Monthly",
+            "annual": "Annual",
+            "discount": "Save 20%"
+        },
+        "price_frequency": "mo",
+        "billed_annually": "billed annually",
+        "badges": {
+            "popular": "Most Popular"
+        },
+        "plans": {
+            "basic": {
+                "title": "Basic",
+                "description": "Ideal for casual users",
+                "features": [
+                    "Search for professionals",
+                    "Appointment booking",
+                    "Limited reviews",
+                    "Email support"
+                ],
+                "button_text": "Start for free"
+            },
+            "premium": {
+                "title": "Premium",
+                "description": "For frequent users",
+                "features": [
+                    "Everything in Basic",
+                    "Unlimited chat with pros",
+                    "Exclusive discounts",
+                    "Free cancellation",
+                    "Priority booking"
+                ],
+                "button_text": "Try 7 days free"
+            },
+            "business": {
+                "title": "Business",
+                "description": "For families and small businesses",
+                "features": [
+                    "Everything in Premium",
+                    "Up to 5 users",
+                    "Shared medical history",
+                    "Priority consultations",
+                    "Personal manager",
+                    "24/7 Support"
+                ],
+                "button_text": "Contact sales"
+            }
+        },
+        "footer": "All plans include a 14-day free trial • No credit card required • Cancel anytime"
+    },
+    "Cta": {
+        "badge": "Join +2,500 professionals",
+        "title_start": "Boost your Practice",
+        "title_highlight": "Start Today",
+        "description": "Join thousands of professionals who are already transforming their practice. Try all premium features risk-free.",
+        "benefits": [
+            "14-day free trial",
+            "All premium features",
+            "No credit card required"
+        ],
+        "button_primary": "Start for Free",
+        "button_secondary": "Talk to Sales",
+        "trust_indicator": "🔒 No credit card required • Cancel anytime"
+    },
+    "Footer": {
+        "brand_description": "The comprehensive operating system for health and wellness. We connect patients with the best certified specialists in LATAM.",
+        "columns": {
+            "platform": {
+                "title": "Platform",
+                "links": {
+                    "discover": "Find Specialists",
+                    "market": "QuMarket (Store)",
+                    "academy": "QuBlocks (Academy)",
+                    "doctors": "For Doctors"
+                }
+            },
+            "company": {
+                "title": "Company",
+                "links": {
+                    "about": "About Us",
+                    "blog": "Blog",
+                    "careers": "Careers",
+                    "contact": "Contact"
+                }
+            },
+            "legal": {
+                "title": "Legal",
+                "links": {
+                    "terms": "Terms & Conditions",
+                    "privacy": "Privacy Notice",
+                    "cookies": "Cookie Policy"
+                }
+            }
+        },
+        "contact": {
+            "title": "Contact",
+            "location": "Mexico City, Mexico"
+        },
+        "copyright": {
+            "rights": "© {year} QuHealthy Inc. All rights reserved.",
+            "made_with": "Made with",
+            "in": "in Mexico",
+            "links": {
+                "privacy": "Privacy",
+                "terms": "Terms",
+                "sitemap": "Sitemap"
+            }
+        }
+    },
+    "Stats": {
+        "professionals": "Professionals",
+        "cities": "Cities",
+        "appointments": "Appts/mo",
+        "satisfaction": "Satisfaction"
+    },
+    "TrustBadge": {
+        "text": "+2,500 verified professionals"
+    },
+    "Navbar": {
+        "links": {
+            "guest": {
+                "discover": "Discover",
+                "business": "For Doctors",
+                "pricing": "Pricing"
+            },
+            "consumer": {
+                "discover": "Find Doctors",
+                "appointments": "My Appointments",
+                "favorites": "Favorites"
+            },
+            "provider": {
+                "dashboard": "Dashboard",
+                "calendar": "Calendar",
+                "patients": "Patients",
+                "marketing": "Marketing"
+            },
+            "admin": {
+                "panel": "Admin Panel",
+                "users": "Users"
+            }
+        },
+        "user_menu": {
+            "settings": "Settings",
+            "logout": "Log Out"
+        },
+        "buttons": {
+            "login": "Log In",
+            "register": "Get Started",
+            "create_account": "Create Account"
+        },
+        "toast": {
+            "logout": "See you soon 👋"
+        }
+    },
+    "Suite": {
+        "badge": "Comprehensive Platform",
+        "title": "The Comprehensive Suite",
+        "description": "A modular platform that evolves with you. Activate only what you need, when you need it.",
+        "products": {
+            "quhealthy": {
+                "description": "Comprehensive management for health professionals. Your clinic in the cloud.",
+                "features": [
+                    "Integrated smart schedule",
+                    "Digital medical records",
+                    "HD Telemedicine",
+                    "Automated payment gateway",
+                    "WhatsApp reminders"
+                ],
+                "explore": "Explore QuHealthy"
+            },
+            "qumarket": {
+                "description": "The marketplace where your products reach thousands of verified patients.",
+                "features": [
+                    "Personalized store in minutes",
+                    "Global health catalog",
+                    "Competitive commissions",
+                    "Resolved shipping logistics",
+                    "Smart cross-selling"
+                ],
+                "explore": "Explore QuMarket"
+            },
+            "qublocks": {
+                "description": "Academy and community for continuous education in the wellness sector.",
+                "features": [
+                    "Blockchain certified courses",
+                    "Exclusive live webinars",
+                    "Professional networking",
+                    "Skills validation",
+                    "Resource library"
+                ],
+                "explore": "Explore QuBlocks"
+            }
+        },
+        "footer": "💡 Each module integrates perfectly with the others for a unified experience"
+    },
+    "Auth": {
+        "title": "Welcome back",
+        "subtitle": "Access your account to continue",
+        "consumer_tab": "Patient",
+        "provider_tab": "Professional",
+        "email_label": "Email Address",
+        "email_placeholder_consumer": "you@email.com",
+        "email_placeholder_provider": "contact@clinic.com",
+        "password_label": "Password",
+        "password_placeholder": "••••••••",
+        "forgot_password": "Forgot your password?",
+        "remember_me": "Keep me logged in",
+        "submit_button": "Log In",
+        "loading": "Logging in...",
+        "no_account": "Don't have an account yet?",
+        "create_account": "Create Account",
+        "or_continue": "Or continue with email",
+        "secure_connection": "Secure Connection",
+        "secure_desc": "Your data is protected with SSL",
+        "consumer_area": "Patient Area",
+        "provider_area": "Professional Area",
+        "consumer_benefits": [
+            "Book appointments quickly",
+            "Review your medical history",
+            "Manage your payments"
+        ],
+        "provider_benefits": [
+            "Manage your schedule",
+            "Manage your patients",
+            "Review your earnings"
+        ]
+    },
+    "AuthSignupConsumer": {
+        "title": "Create your Account",
+        "subtitle": "Join thousands of satisfied users",
+        "name_label": "Full Name",
+        "name_placeholder": "E.g. John Doe",
+        "email_label": "Email Address",
+        "email_placeholder": "you@email.com",
+        "password_label": "Password",
+        "password_placeholder": "Minimum 8 characters",
+        "confirm_password_label": "Confirm Password",
+        "confirm_password_placeholder": "Repeat your password",
+        "passwords_not_match": "Passwords do not match",
+        "accept_privacy_start": "By registering, you accept our ",
+        "privacy_policy": "Privacy Policy",
+        "and": " and ",
+        "terms_of_service": "Terms of Service",
+        "accept_privacy": "I accept the privacy policy",
+        "submit_button": "Create Free Account",
+        "loading": "Creating account...",
+        "has_account": "Already have an account?",
+        "login_here": "Log in here",
+        "or_register": "Or register with email",
+        "area_title": "Your Health in One Click",
+        "benefits": [
+            "Book appointments in seconds",
+            "Compare prices and reviews",
+            "Automatic reminders"
+        ],
+        "secure_connection": "100% Secure",
+        "secure_desc": "Your data is protected"
+    },
+    "AuthSignupProvider": {
+        "title": "Join QuHealthy",
+        "subtitle": "Create your professional account and digitize your practice today",
+        "name_label": "Full Name",
+        "name_placeholder": "E.g. Dr. Alexander Smith",
+        "email_label": "Email Address",
+        "email_placeholder": "contact@clinic.com",
+        "password_label": "Password",
+        "password_placeholder": "••••••••",
+        "confirm_password_label": "Confirm Password",
+        "confirm_password_placeholder": "Repeat your password",
+        "passwords_not_match": "Passwords do not match",
+        "accept_terms": "I accept the terms and conditions",
+        "accept_terms_start": "By registering, you accept our ",
+        "terms_of_service": "Terms of Service",
+        "and": " and ",
+        "privacy_policy": "Privacy Policy",
+        "submit_button": "Create Professional Account",
+        "loading": "Creating your account...",
+        "no_credit_card": "No credit card required to start.",
+        "has_account": "Already have an account?",
+        "login_here": "Log in here",
+        "or_register": "Or continue with email",
+        "area_title": "Boost your Practice",
+        "benefits": [
+            "Online scheduling 24/7",
+            "Secure automatic payments",
+            "Optimized public profile"
+        ],
+        "secure_connection": "100% Secure",
+        "secure_desc": "Your data is encrypted and protected"
+    },
+    "AuthForgotPassword": {
+        "title": "Account Recovery",
+        "step_1_desc": "Choose how you want to recover your access",
+        "step_2_desc": "Enter the code we sent you",
+        "step_3_desc": "Create a new secure password",
+        "step": "Step",
+        "of": "of",
+        "method": "Method",
+        "code": "Code",
+        "password": "Password",
+        "recovery_method_label": "Recovery Method",
+        "select_method_placeholder": "Select a method",
+        "email_method": "Email Address",
+        "sms_method": "Text Message (SMS)",
+        "your_email_label": "Your Email Address",
+        "your_phone_label": "Your Phone Number",
+        "email_placeholder": "example@email.com",
+        "phone_placeholder": "+1 555 123 4567",
+        "secure_info_title": "100% Secure",
+        "secure_info_desc": "We will send you a 6-digit code to securely verify your identity.",
+        "send_code_button": "Send Verification Code",
+        "sending": "Sending...",
+        "code_sent_title": "Code Sent",
+        "check_email": "Check your email:",
+        "check_sms": "Check your messages:",
+        "code_valid_for": "Code valid for:",
+        "verification_code_label": "Verification Code",
+        "code_placeholder": "000000",
+        "code_hint": "Enter the 6-digit code",
+        "verify_code_button": "Verify Code",
+        "verifying": "Verifying...",
+        "resend_code_button": "Resend Code",
+        "wait_to_resend": "Didn't receive the code? Wait",
+        "change_method_button": "Change Method",
+        "new_password_label": "New Password",
+        "new_password_placeholder": "Minimum 8 characters",
+        "confirm_password_label": "Confirm Password",
+        "confirm_password_placeholder": "Repeat your password",
+        "passwords_not_match": "Passwords do not match",
+        "reset_password_button": "Reset Password",
+        "updating": "Updating...",
+        "back_to_login": "Back to Login",
+        "area_title": "Recover Your Access"
+    },
+    "AuthResetPassword": {
+        "title": "Reset Password",
+        "desc": "Create a new secure password for your account",
+        "area_title": "New Password",
+        "checking_token": "Verifying security link...",
+        "checking_moment": "This will only take a moment",
+        "expired_title": "Link Expired",
+        "invalid_title": "Invalid Link",
+        "expired_desc": "This recovery link has expired for security. Please request a new one.",
+        "invalid_desc": "This recovery link is invalid or has already been used. Please request a new one.",
+        "expiration_hint": "💡 Recovery links expire after 1 hour for your security.",
+        "request_new": "Request New Link",
+        "back_to_login": "Back to Login",
+        "success_title": "Password Updated!",
+        "success_desc": "Your password has been changed successfully",
+        "redirect_hint": "You will be redirected to login in a few seconds...",
+        "go_to_login": "Go to Login",
+        "secure_hint": "Create a secure password you haven't used on other sites.",
+        "new_password_label": "New Password",
+        "new_password_placeholder": "Minimum 8 characters",
+        "confirm_password_label": "Confirm Password",
+        "confirm_password_placeholder": "Repeat password",
+        "passwords_match": "Passwords match",
+        "passwords_not_match": "Passwords do not match",
+        "submit_button": "Change Password",
+        "updating": "Updating password...",
+        "secure_connection": "Secure connection with SSL encryption"
+    },
+    "AuthVerifyEmail": {
+        "title": "Verifying your Email",
+        "desc": "Please wait while we confirm your account",
+        "verifying": "Verifying",
+        "secure_info": "We are securely verifying your identity to protect your account.",
+        "success_title": "Email Verified!",
+        "success_desc": "Your account has been successfully verified",
+        "redirecting": "Redirecting in",
+        "seconds": "seconds...",
+        "start_button": "Start Now",
+        "error_title": "Verification Error",
+        "error_causes": "Possible causes:",
+        "cause_1": "The link has expired (24-hour validity)",
+        "cause_2": "The link has already been used",
+        "cause_3": "The link is incomplete or damaged",
+        "go_to_login": "Go to Login",
+        "try_again": "Try Again",
+        "need_help": "Need help? Contact",
+        "secure_connection": "Secure verification with SSL encryption",
+        "welcome": "Welcome!",
+        "welcome_provider": "Welcome, Provider!",
+        "ready_patient": "Your account is ready to access health services.",
+        "ready_provider": "Your provider account is ready to attend patients."
+    },
+    "AuthVerifyPhone": {
+        "title": "Verify your Phone",
+        "desc": "Enter the 6-digit code we sent via SMS",
+        "area_title": "Account Security",
+        "code_valid_for": "Code valid for:",
+        "code_label": "Verification Code",
+        "code_placeholder": "000000",
+        "digits_status": "digits",
+        "verify_button": "Verify Code",
+        "verifying": "Verifying...",
+        "cant_resend_yet": "Didn't receive the code? Wait",
+        "can_resend_in": "You can resend in",
+        "resend_button": "Resend Code",
+        "resending": "Resending...",
+        "info": "Check your text messages. The code may take up to 1 minute to arrive.",
+        "skip": "Verify later",
+        "success_title": "Phone Verified!",
+        "success_desc": "Your number has been successfully confirmed",
+        "success_status": "Verification Complete",
+        "success_redirect": "Redirecting to your dashboard...",
+        "continue": "Continue",
+        "secure_connection": "Secure verification via SMS"
+    },
+    "OnboardingChecklist": {
+        "badge": "Initial Setup",
+        "title": "Welcome to QuHealthy",
+        "desc": "Complete these steps to activate your professional account and start receiving clients",
+        "progress_title": "Your Onboarding Progress",
+        "steps_of": "of",
+        "required_steps": "required steps completed",
+        "complete": "Complete!",
+        "next_step": "Next step",
+        "in_progress": "In Progress",
+        "optional": "Optional",
+        "required": "Required",
+        "completed": "Completed",
+        "locked": "Locked",
+        "continue": "Continue",
+        "start": "Start",
+        "no_pending": "No pending steps!",
+        "no_pending_desc": "Everything is ready to begin your experience",
+        "congrats": "Congratulations! 🎉",
+        "congrats_desc": "You have completed all required steps. Your account is verified and ready.",
+        "go_dashboard": "Go to my Dashboard",
+        "syncing": "Syncing account...",
+        "verified_account": "Verified Account",
+        "active_benefits": "Active Benefits",
+        "help_title": "Need help with onboarding?",
+        "help_desc": "If you have questions about any step or need assistance, our support team is available to help. Contact us at",
+        "loading": "Syncing your profile...",
+        "error_title": "Loading Error",
+        "error_desc": "We could not load your information",
+        "retry": "Retry",
+        "step_profile": "Profile",
+        "step_kyc": "Identity",
+        "step_license": "License",
+        "step_marketplace": "Marketplace"
+    },
+    "OnboardingProfile": {
+        "badge": "Step 1 of 4",
+        "title": "Set Up Your Professional Profile",
+        "desc": "Complete these 3 sections so patients can find you and book with you",
+        "progress_title": "Overall Progress",
+        "sections_of": "of 3 sections completed",
+        "step1_title": "Basic Information",
+        "step1_desc": "Name and contact",
+        "step2_title": "Specialty",
+        "step2_desc": "Your services",
+        "step3_title": "Location",
+        "step3_desc": "Where you practice",
+        "configured": "Configured",
+        "location_ready": "Location Set",
+        "welcome": "Welcome! Let's get started",
+        "sector_question": "In which sector is your professional practice?",
+        "health_sector": "Health Sector",
+        "health_desc": "For doctors, dentists, psychologists, therapists, and specialized clinics.",
+        "beauty_sector": "Beauty Sector",
+        "beauty_desc": "For beauty salons, barber shops, spas, advanced aesthetics, and wellness.",
+        "business_identity": "Your Business Identity",
+        "business_sync": "Let's link your profile with Google to save time",
+        "change_sector": "Change Sector",
+        "business_name_label": "Business or Practice Name *",
+        "business_name_hint": "(Auto-completes with Google)",
+        "business_placeholder_health": "E.g.: Central Dental Clinic",
+        "business_placeholder_beauty": "E.g.: Luxe Beauty Studio",
+        "bio_label": "Biography / Description *",
+        "bio_min": "min.",
+        "timezone_title": "Timezone detected automatically",
+        "timezone_desc": "Your appointments will sync using:",
+        "specialty_title": "Specialty & Characteristics",
+        "specialty_desc": "Define your service and differentiators",
+        "location_title": "Confirm Your Location",
+        "location_desc": "Make sure the marker is at the exact location",
+        "phone_label": "Phone *",
+        "finish": "Save and Continue",
+        "saving": "Saving...",
+        "imported_google": "Information imported from Google",
+        "linked_data": "DATA LINKED FROM GOOGLE BUSINESS",
+        "change": "Change",
+        "imported_ok": "Information imported successfully.",
+        "loading": "Loading profile...",
+        "error_title": "Loading Error",
+        "retry": "Retry",
+        "continue_btn": "Continue"
+    },
+    "OnboardingLicense": {
+        "back": "Back",
+        "optional_step": "Optional Step",
+        "health_title": "Professional License",
+        "beauty_title": "Operating License",
+        "health_desc": "Upload a clear photo of your license to enable your profile",
+        "beauty_desc": "Optional: Upload your sanitary license or operating permit to build greater trust",
+        "health_info": "We automatically validate your license against the official registry to ensure the quality of professionals on QuHealthy.",
+        "beauty_info": "The operating license is optional but helps build greater trust with your clients. You can complete it later from your profile.",
+        "health_button": "Validate License",
+        "beauty_button": "Upload License",
+        "health_success": "License Verified!",
+        "beauty_success": "License Registered!",
+        "file_label": "Image File *",
+        "click_upload": "Click to upload image",
+        "file_hint": "JPG or PNG (Max 10MB)",
+        "change_image": "Change Image",
+        "skip": "Skip for Now",
+        "analyzing": "Analyzing with AI...",
+        "approved_desc": "Your documentation has been successfully verified",
+        "license_number": "License Number",
+        "specialty": "Specialty",
+        "continue_onboarding": "Continue with Onboarding",
+        "pending_title": "Document Under Review",
+        "pending_desc_health": "We are manually validating your license. We will notify you when it's ready.",
+        "pending_desc_beauty": "We are manually validating your license. We will notify you when it's ready.",
+        "back_onboarding": "Back to Onboarding",
+        "rejected_title": "Verification Unsuccessful",
+        "rejected_desc": "The document is not legible. Try with a clearer photo without glare.",
+        "security_footer": "Your documents are encrypted and protected",
+        "loading": "Loading information..."
+    },
+    "OnboardingKyc": {
+        "badge": "Step 2 of 4",
+        "ai_badge": "AI Verification",
+        "title": "Identity Verification",
+        "desc": "Our AI will validate your documents in seconds. Make sure the photos are clear and glare-free.",
+        "progress": "Progress",
+        "back": "Back",
+        "id_title": "Official Identification",
+        "id_desc": "Upload your ID card or valid Passport",
+        "ine_tab": "ID Card",
+        "passport_tab": "Passport",
+        "ine_front": "Front of ID",
+        "ine_front_desc": "Photo of the front side of your ID",
+        "ine_back": "Back of ID",
+        "ine_back_desc": "Photo of the back side of your ID",
+        "passport_label": "Passport Data Page",
+        "passport_desc": "Upload the page with your photo and personal data",
+        "selfie_title": "Proof of Life",
+        "selfie_desc": "We will compare your face with your identification",
+        "selfie_label": "Live Selfie",
+        "selfie_hint": "Take a photo now. No glasses, hats, or accessories.",
+        "upload_image": "Upload Image",
+        "file_hint": "PNG, JPG (Max 10MB)",
+        "camera": "Camera",
+        "uploading": "Uploading...",
+        "change_image": "Change image",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "verifying": "Verifying",
+        "pending": "Pending",
+        "rejection_reason": "Rejection reason:",
+        "step_locked": "Step locked",
+        "step_locked_desc": "Complete and approve step 1 (Official ID) to unlock proof of life.",
+        "camera_selfie_hint": "Center your face in the oval",
+        "camera_doc_hint": "Center the document in the frame",
+        "status_title": "Process Status",
+        "identification": "Identification",
+        "proof_of_life": "Proof of Life",
+        "confirm_continue": "Confirm and Continue",
+        "complete_docs": "Complete documents",
+        "complete_docs_hint": "Complete and approve all required steps to continue with your registration",
+        "data_protected_title": "Protected data",
+        "data_protected_desc": "Your documents are encrypted and only used for verification. We never share them with third parties.",
+        "loading": "Loading verification...",
+        "success_toast": "Identity Verified! Proceeding...",
+        "pending_toast": "You still have pending or rejected documents."
+    }
+}

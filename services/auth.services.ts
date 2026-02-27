@@ -10,6 +10,11 @@ import {
   ResendVerificationRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  SendRecoveryCodeRequest,
+  VerifyRecoveryCodeRequest,
+  RecoveryResetPasswordRequest,
+  ValidateResetTokenRequest,
+  ConfirmResetPasswordRequest,
   // Responses
   AuthResponse,
   ProviderRegistrationResponse,
@@ -51,10 +56,10 @@ export const authService = {
       `${BASE_AUTH}/login`,
       data
     );
-    
+
     // ✅ ACTUALIZAMOS EL STORE GLOBAL AUTOMÁTICAMENTE
     useSessionStore.getState().setSession(response.data);
-    
+
     return response.data;
   },
 
@@ -63,27 +68,27 @@ export const authService = {
       `${BASE_AUTH}/social/google`,
       data
     );
-    
+
     // ✅ ACTUALIZAMOS EL STORE GLOBAL AUTOMÁTICAMENTE
     useSessionStore.getState().setSession(response.data);
-    
+
     return response.data;
   },
 
   // =================================================================
   // 🚨 AQUÍ ESTABA EL PROBLEMA (CORREGIDO)
   // =================================================================
-  
+
   getSession: async (): Promise<AuthResponse | null> => {
     const store = useSessionStore.getState();
     const token = store.token;
-    
+
     // 1. EL GUARDIA CORREGIDO
     if (!token) {
-        // 🚨 AQUÍ ESTABA EL DETALLE:
-        // Si no hay token, debemos apagar el loading manualmente.
-        store.setLoading(false); 
-        return null; 
+      // 🚨 AQUÍ ESTABA EL DETALLE:
+      // Si no hay token, debemos apagar el loading manualmente.
+      store.setLoading(false);
+      return null;
     }
 
     try {
@@ -100,7 +105,7 @@ export const authService = {
   logout: async (): Promise<void> => {
     // 1. Limpiamos el Store Global
     useSessionStore.getState().clearSession();
-    
+
     // 2. (Opcional) Llamada al backend si implementas lista negra de tokens
     // await axiosInstance.post(`${BASE_AUTH}/logout`);
   },
@@ -149,6 +154,77 @@ export const authService = {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/reset-password`,
       data
+    );
+    return response.data;
+  },
+
+  // =================================================================
+  // ✅ 5. RECOVERY FLOW (forgot-password multi-step)
+  // =================================================================
+
+  sendRecoveryCode: async (data: SendRecoveryCodeRequest): Promise<MessageResponse> => {
+    const endpoint = data.method === 'email'
+      ? `${BASE_AUTH}/recovery/send-email`
+      : `${BASE_AUTH}/recovery/send-sms`;
+    const response = await axiosInstance.post<MessageResponse>(endpoint, { contact: data.contact });
+    return response.data;
+  },
+
+  verifyRecoveryCode: async (data: VerifyRecoveryCodeRequest): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/recovery/verify-code`,
+      data
+    );
+    return response.data;
+  },
+
+  recoveryResetPassword: async (data: RecoveryResetPasswordRequest): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/recovery/reset-password`,
+      data
+    );
+    return response.data;
+  },
+
+  // =================================================================
+  // ✅ 6. RESET PASSWORD (token-based from email link)
+  // =================================================================
+
+  validateResetToken: async (data: ValidateResetTokenRequest): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/reset-password/validate`,
+      data
+    );
+    return response.data;
+  },
+
+  confirmResetPassword: async (data: ConfirmResetPasswordRequest): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/reset-password/confirm`,
+      data
+    );
+    return response.data;
+  },
+
+  // =================================================================
+  // ✅ 7. RESEND PHONE CODE
+  // =================================================================
+
+  resendPhoneCode: async (): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/resend-phone-code`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  // Verify phone with token (cookie-based auth)
+  verifyPhoneWithToken: async (token: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${BASE_AUTH}/verify-phone`,
+      { token },
+      { withCredentials: true }
     );
     return response.data;
   }

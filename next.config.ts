@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 import withPWAInit from "next-pwa";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
@@ -29,18 +32,18 @@ const nextConfig: NextConfig = {
     const cspHeader = `
       default-src 'self';
       
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com; 
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com; 
       
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; 
       
-      img-src 'self' data: blob: https://*.stripe.com https://files.stripe.com https://xqejlzevtuknggchvyfa.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://*.googleusercontent.com https://streetviewpixels-pa.googleapis.com https://www.google.com https://storage.googleapis.com;      
+      img-src * data: blob: 'unsafe-inline';      
       font-src 'self' data: https://fonts.gstatic.com;
 
       media-src 'self' https://storage.googleapis.com;
       
       frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com;
       
-      connect-src 'self' https://*.stripe.com https://api.qubits-lm.com wss://api.qubits-lm.com https://maps.googleapis.com https://places.googleapis.com https://xqejlzevtuknggchvyfa.supabase.co https://accounts.google.com https://api.quhealthy.org;
+      connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();
     // Nota: Agregué https://api.quhealthy.org en connect-src para permitir llamadas directas a tu API si Axios las hace.
 
@@ -73,6 +76,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https' as const,
         hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https' as const,
+        hostname: 'images.unsplash.com',
       }
     ],
   },
@@ -93,4 +100,4 @@ const withPWA = withPWAInit({
 
 // Exportación final
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default withBundleAnalyzer(withPWA(nextConfig as unknown as any) as any);
+export default withNextIntl(withBundleAnalyzer(withPWA(nextConfig as unknown as any) as any));
