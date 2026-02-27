@@ -651,5 +651,308 @@
         "loading": "Loading verification...",
         "success_toast": "Identity Verified! Proceeding...",
         "pending_toast": "You still have pending or rejected documents."
+    },
+    "DashboardAppointments": {
+        "title": "Appointments",
+        "subtitle": "Manage and track your patient appointments.",
+        "stats": {
+            "upcoming": "Upcoming",
+            "today": "Today",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "tabs": {
+            "all": "All",
+            "upcoming": "Upcoming",
+            "today": "Today",
+            "past": "Past"
+        },
+        "card": {
+            "patient": "Patient",
+            "time": "Time",
+            "modality": "Modality",
+            "online": "Video Call",
+            "in_person": "In Office",
+            "status": "Status",
+            "confirmed": "Confirmed",
+            "pending": "Pending",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "no_show": "No Show",
+            "payment": "Payment",
+            "paid": "Paid",
+            "payment_pending": "Pending",
+            "notes": "Notes"
+        },
+        "actions": {
+            "complete": "Complete",
+            "cancel": "Cancel",
+            "reschedule": "Reschedule",
+            "video_call": "Start Video Call",
+            "view_details": "View Details"
+        },
+        "empty": {
+            "title": "No appointments",
+            "description": "You don't have any appointments in this category."
+        },
+        "quick_actions": {
+            "title": "Quick Actions",
+            "block_time": "Block Time",
+            "operating_hours": "Operating Hours",
+            "new_appointment": "New Appointment"
+        },
+        "loading": "Loading appointments..."
+    },
+    "DashboardCompletionModal": {
+        "title": "Complete Appointment",
+        "subtitle": "Finalize this appointment and add notes",
+        "summary": "Summary",
+        "patient": "Patient",
+        "date": "Date",
+        "modality": "Modality",
+        "notes_label": "Clinical Notes",
+        "notes_placeholder": "Add notes about this appointment...",
+        "cancel": "Cancel",
+        "confirm": "Complete Appointment",
+        "processing": "Processing...",
+        "success_title": "Appointment Completed!",
+        "success_desc": "The appointment has been marked as completed."
+    },
+    "DashboardConfirmationModal": {
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "processing": "Processing..."
+    },
+    "DashboardBilling": {
+        "title": "Billing & Payments",
+        "subtitle": "Track your earnings and manage your payment settings.",
+        "stripe_section": "Payment Connection",
+        "transactions_title": "Transaction History",
+        "table": {
+            "date": "Date",
+            "patient": "Patient",
+            "service": "Service",
+            "amount": "Amount",
+            "status": "Status",
+            "settled": "Settled",
+            "pending": "Pending",
+            "failed": "Failed",
+            "refunded": "Refunded"
+        },
+        "pagination": {
+            "previous": "Previous",
+            "next": "Next",
+            "page_of": "Page {current} of {total}"
+        },
+        "empty": {
+            "title": "No transactions yet",
+            "description": "Your transaction history will appear here once you start receiving payments."
+        },
+        "loading": "Loading transactions..."
+    },
+    "DashboardStripeConnect": {
+        "title": "Payment Gateway",
+        "active_title": "Stripe Connect Active",
+        "active_desc": "Your payments are processed automatically and securely.",
+        "pending_title": "Verification Pending",
+        "pending_desc": "Complete your Stripe verification to start receiving payments.",
+        "not_configured_title": "Configure Payments",
+        "not_configured_desc": "Connect Stripe to receive secure payments from your patients.",
+        "badge_active": "Active",
+        "badge_pending": "Pending",
+        "badge_inactive": "Not Configured",
+        "manage": "Manage",
+        "complete_verification": "Complete Verification",
+        "connect_stripe": "Connect Stripe",
+        "security_footer": "Protected by Stripe with bank-grade encryption"
+    },
+    "DashboardCalendar": {
+        "title": "Virtual Calendar",
+        "subtitle": "Control your office hours, block personal time, and view upcoming patients.",
+        "operating_hours": "Operating Hours",
+        "block_time": "Block Time",
+        "sync_title": "Bidirectional Sync",
+        "sync_active": "ACTIVE",
+        "sync_recommended": "RECOMMENDED",
+        "sync_connected_desc": "Your personal events automatically block your medical calendar.",
+        "sync_disconnected_desc": "Connect your calendar to prevent patients from scheduling over your personal commitments.",
+        "connect_google": "Connect Google",
+        "settings": "Settings",
+        "metrics": {
+            "operating_hours": "Operating Hours",
+            "configured": "Configured",
+            "sync": "Sync",
+            "real_time": "Real-time",
+            "manual": "Manual",
+            "booking_engine": "Booking Engine",
+            "active": "Active"
+        },
+        "loading": "Preparing your smart calendar..."
+    },
+    "DashboardCalendarView": {
+        "confirmed": "Confirmed",
+        "pending": "Pending",
+        "cancelled": "Canceled",
+        "completed": "Completed",
+        "no_status": "No status",
+        "syncing": "Syncing calendar...",
+        "buttons": {
+            "today": "Today",
+            "month": "Month",
+            "week": "Week",
+            "day": "Day",
+            "list": "Agenda"
+        },
+        "event_detail": {
+            "booking_id": "Booking ID",
+            "patient": "Patient",
+            "new_patient": "New Patient",
+            "modality": "Modality",
+            "online": "Video Call",
+            "in_office": "In Office",
+            "payment": "Payment",
+            "paid": "Paid",
+            "payment_pending": "Pending",
+            "notes": "Patient Notes",
+            "cancel_appointment": "Cancel Appointment",
+            "close": "Close"
+        }
+    },
+    "DashboardOperatingHours": {
+        "title": "Operating Hours",
+        "subtitle": "Define your availability for consultations.",
+        "templates_label": "Quick Templates",
+        "template_standard": "Mon–Fri",
+        "template_standard_desc": "9:00 – 18:00",
+        "template_extended": "Mon–Sat Extended",
+        "template_extended_desc": "8:00 – 20:00",
+        "template_allweek": "Full Week",
+        "template_allweek_desc": "9:00 – 17:00",
+        "template_applied": "\"{name}\" applied",
+        "your_week": "Your Week",
+        "days": {
+            "monday": "Monday",
+            "tuesday": "Tuesday",
+            "wednesday": "Wednesday",
+            "thursday": "Thursday",
+            "friday": "Friday",
+            "saturday": "Saturday",
+            "sunday": "Sunday"
+        },
+        "closed": "Closed",
+        "to": "to",
+        "copy_all": "Copy all",
+        "copied_toast": "Schedule copied to all days",
+        "error_close_after_open": "Close must be after open",
+        "warning_no_days": "You must enable at least one day to receive appointments.",
+        "unsaved_changes": "Unsaved changes",
+        "cancel": "Cancel",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Saved!",
+        "save_success": "Hours saved!",
+        "save_error": "Fix errors before saving",
+        "loading": "Loading your schedule..."
+    },
+    "DashboardTimeBlock": {
+        "title": "Block Time",
+        "subtitle": "Reserve time for personal matters, meals or breaks",
+        "templates_label": "Quick Templates",
+        "template_lunch": "Lunch",
+        "template_break": "Break",
+        "template_vacation": "Vacation",
+        "template_morning": "Morning Routine",
+        "template_applied": "\"{name}\" template applied",
+        "event_title_label": "Event Title",
+        "event_title_placeholder": "E.g.: Lunch, Vacation...",
+        "start": "Start",
+        "end": "End",
+        "from": "From",
+        "until": "Until",
+        "validation_error": "Validation Error",
+        "end_after_start": "End time must be after start time",
+        "cancel": "Cancel",
+        "block_time": "Block Time",
+        "saving": "Saving...",
+        "created": "Created!",
+        "success_toast": "Time blocked!"
+    },
+    "DashboardDocuments": {
+        "title": "Document Manager",
+        "subtitle": "Upload and verify your professional credentials.",
+        "stats": {
+            "total": "Total Documents",
+            "verified": "Verified",
+            "pending": "Pending",
+            "active": "Active",
+            "in_review": "In review"
+        },
+        "upload": {
+            "title": "Upload New",
+            "subtitle": "Make sure documents are legible.",
+            "secure_connection": "Secure & encrypted connection",
+            "drag_here": "Drag your file here",
+            "click_browse": "click to browse",
+            "max_size": "Max size: {size}MB",
+            "drop_here": "Drop the file here",
+            "uploading": "Uploading...",
+            "dont_close": "Don't close this window",
+            "upload_button": "Upload",
+            "cancel": "Cancel",
+            "file_selected": "File selected successfully",
+            "uploaded_success": "Document uploaded successfully.",
+            "validation_error": "Validation Error",
+            "exceeds_size": "File exceeds {size}MB limit",
+            "unsupported_format": "Unsupported format. Use: {formats}",
+            "auto_verify": "Documents are verified automatically. You'll receive a notification when the process is complete."
+        },
+        "tabs": {
+            "all": "All",
+            "verified": "Verified",
+            "pending": "Pending",
+            "rejected": "Rejected"
+        },
+        "card": {
+            "verified": "Verified",
+            "in_review": "In Review",
+            "rejected": "Rejected",
+            "unknown": "Unknown"
+        },
+        "files_title": "My Files",
+        "empty": "No documents in this category.",
+        "deleted_toast": "Document deleted.",
+        "downloading": "Downloading {name}..."
+    },
+    "DashboardDocumentDetail": {
+        "uploaded_to": "Document uploaded to QuHealthy",
+        "preview_available": "Preview available",
+        "preview_unavailable": "Preview not available for this file type",
+        "open_new_tab": "Open in new tab",
+        "file_type": "File Type",
+        "upload_date": "Upload Date",
+        "size": "Size",
+        "verification_status": "Verification Status",
+        "status": {
+            "verified": "Verified by QuHealthy",
+            "verified_desc": "This document has been reviewed and approved",
+            "pending": "In Review",
+            "pending_desc": "We are verifying the authenticity of this document",
+            "rejected": "Rejected",
+            "rejected_desc": "This document does not meet requirements"
+        },
+        "copy_link": "Copy Link",
+        "link_copied": "Link copied",
+        "share": "Share",
+        "delete": "Delete",
+        "delete_confirm": "Confirm",
+        "delete_cancel": "Cancel",
+        "deleting": "Deleting...",
+        "deleted_toast": "Document deleted",
+        "delete_error": "Could not delete document",
+        "close": "Close",
+        "download": "Download",
+        "downloading": "Downloading...",
+        "download_started": "Download started",
+        "download_error": "Could not download document"
     }
 }

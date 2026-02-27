@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
 
 const daysOfWeek = [
-  { id: 1, name: "Monday", short: "Mon" }, { id: 2, name: "Tuesday", short: "Tue" }, { id: 3, name: "Wednesday", short: "Wed" },
-  { id: 4, name: "Thursday", short: "Thu" }, { id: 5, name: "Friday", short: "Fri" }, { id: 6, name: "Saturday", short: "Sat" }, { id: 0, name: "Sunday", short: "Sun" }
+  { id: 1, key: "monday", short: "Mon" }, { id: 2, key: "tuesday", short: "Tue" }, { id: 3, key: "wednesday", short: "Wed" },
+  { id: 4, key: "thursday", short: "Thu" }, { id: 5, key: "friday", short: "Fri" }, { id: 6, key: "saturday", short: "Sat" }, { id: 0, key: "sunday", short: "Sun" }
 ];
 
 const scheduleTemplates = [
@@ -44,6 +45,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   const [savingStep, setSavingStep] = useState<"idle" | "saving" | "success">("idle");
   const [validationErrors, setValidationErrors] = useState<Record<number, string>>({});
   const [copiedFromDay, setCopiedFromDay] = useState<number | null>(null);
+  const t = useTranslations('DashboardOperatingHours');
 
   useEffect(() => {
     if (isOpen) {
@@ -61,7 +63,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
     schedules.forEach(d => {
       if (d.isActive) {
         const [oh, om] = d.openTime.split(":").map(Number); const [ch, cm] = d.closeTime.split(":").map(Number);
-        if (ch * 60 + cm <= oh * 60 + om) errors[d.dayOfWeek] = "Close must be after open";
+        if (ch * 60 + cm <= oh * 60 + om) errors[d.dayOfWeek] = t('error_close_after_open');
       }
     });
     setValidationErrors(errors);
@@ -75,14 +77,14 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
     if (!src) return;
     setSchedules(c => c.map(d => d.dayOfWeek !== srcId ? { ...d, openTime: src.openTime, closeTime: src.closeTime, isActive: src.isActive } : d));
     setCopiedFromDay(srcId); setTimeout(() => setCopiedFromDay(null), 2000);
-    toast.success("Schedule copied to all days");
+    toast.success(t('copied_toast'));
   };
 
   const handleSave = async () => {
-    if (Object.keys(validationErrors).length > 0) { toast.error("Fix errors before saving"); return; }
+    if (Object.keys(validationErrors).length > 0) { toast.error(t('save_error')); return; }
     setSavingStep("saving");
     const success = await saveSchedules(schedules);
-    if (success) { setSavingStep("success"); toast.success("Hours saved!"); setTimeout(() => { onSaveSuccess(); onClose(); }, 1000); }
+    if (success) { setSavingStep("success"); toast.success(t('save_success')); setTimeout(() => { onSaveSuccess(); onClose(); }, 1000); }
     else setSavingStep("idle");
   };
 
@@ -101,8 +103,8 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                   <Clock className="w-5 h-5 text-medical-600 dark:text-medical-400" />
                 </div>
                 <div className="text-left">
-                  <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">Operating Hours</DialogTitle>
-                  <DialogDescription className="text-slate-500 dark:text-slate-400 font-light text-sm">Define your availability for consultations.</DialogDescription>
+                  <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">{t('title')}</DialogTitle>
+                  <DialogDescription className="text-slate-500 dark:text-slate-400 font-light text-sm">{t('subtitle')}</DialogDescription>
                 </div>
               </div>
               {!isSaving && !isLoading && (
@@ -117,7 +119,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
         {isLoading ? (
           <div className="h-[350px] flex flex-col items-center justify-center">
             <Loader2 className="w-7 h-7 text-medical-600 dark:text-medical-400 animate-spin mb-3" />
-            <p className="text-slate-500 dark:text-slate-400 font-light">Loading your schedule...</p>
+            <p className="text-slate-500 dark:text-slate-400 font-light">{t('loading')}</p>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -126,20 +128,20 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
               <div>
                 <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
                   <Settings className="w-3.5 h-3.5 text-slate-400" />
-                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Quick Templates</p>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{t('templates_label')}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {scheduleTemplates.map(t => {
-                    const Icon = t.icon;
+                  {scheduleTemplates.map(tmpl => {
+                    const Icon = tmpl.icon;
                     return (
-                      <button key={t.id} onClick={() => { setSchedules(t.apply(schedules)); toast.success(`"${t.name}" applied`); }}
-                        className={cn("flex items-center gap-2.5 p-2.5 rounded-xl border transition-all text-left group", t.bg)}>
+                      <button key={tmpl.id} onClick={() => { setSchedules(tmpl.apply(schedules)); toast.success(`"${tmpl.name}" ${t('template_applied', { name: '' }).includes('applied') ? 'applied' : t('template_applied', { name: tmpl.name })}`); }}
+                        className={cn("flex items-center gap-2.5 p-2.5 rounded-xl border transition-all text-left group", tmpl.bg)}>
                         <div className="p-1.5 bg-white dark:bg-slate-800 rounded-lg group-hover:scale-105 transition-transform border border-slate-200 dark:border-slate-700">
-                          <Icon className={cn("w-3.5 h-3.5", t.color)} />
+                          <Icon className={cn("w-3.5 h-3.5", tmpl.color)} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{t.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 font-light">{t.description}</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{tmpl.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-light">{tmpl.description}</p>
                         </div>
                       </button>
                     );
@@ -152,7 +154,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                 <div className="flex items-center justify-between mb-2.5 px-0.5">
                   <div className="flex items-center gap-1.5">
                     <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Your Week</p>
+                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{t('your_week')}</p>
                   </div>
                   <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 text-[10px]">
                     {Intl.DateTimeFormat().resolvedOptions().timeZone}
@@ -170,7 +172,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                         <div className="flex items-center gap-3 min-w-[120px]">
                           <Switch checked={day.isActive} onCheckedChange={v => handleChange(day.dayOfWeek, "isActive", v)}
                             className="data-[state=checked]:bg-medical-600 dark:data-[state=checked]:bg-medical-500" />
-                          <span className={cn("font-medium text-sm", day.isActive ? "text-slate-900 dark:text-white" : "text-slate-400")}>{info?.name}</span>
+                          <span className={cn("font-medium text-sm", day.isActive ? "text-slate-900 dark:text-white" : "text-slate-400")}>{t(`days.${info?.key}`)}</span>
                         </div>
                         <div className="flex flex-1 items-center justify-end gap-2">
                           {day.isActive ? (
@@ -179,19 +181,19 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                                 <Input type="time" value={day.openTime} onChange={e => handleChange(day.dayOfWeek, "openTime", e.target.value)}
                                   className="w-[100px] h-8 border-0 bg-transparent text-sm font-medium text-center focus-visible:ring-0 focus-visible:ring-offset-0" />
                               </div>
-                              <span className="text-slate-300 dark:text-slate-600 font-medium text-xs">to</span>
+                              <span className="text-slate-300 dark:text-slate-600 font-medium text-xs">{t('to')}</span>
                               <div className={cn("relative rounded-lg border transition-colors", hasError ? "border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/5" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900")}>
                                 <Input type="time" value={day.closeTime} onChange={e => handleChange(day.dayOfWeek, "closeTime", e.target.value)}
                                   className="w-[100px] h-8 border-0 bg-transparent text-sm font-medium text-center focus-visible:ring-0 focus-visible:ring-offset-0" />
                               </div>
                               <Button variant="ghost" size="sm" onClick={() => handleCopy(day.dayOfWeek)}
                                 className="h-8 px-2 text-xs text-medical-600 dark:text-medical-400 hover:text-medical-700 dark:hover:text-medical-300 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-lg hidden sm:flex items-center gap-1 border border-transparent hover:border-medical-200 dark:hover:border-medical-500/20">
-                                <Copy className="w-3 h-3" /><span className="hidden md:inline font-medium">Copy all</span>
+                                <Copy className="w-3 h-3" /><span className="hidden md:inline font-medium">{t('copy_all')}</span>
                               </Button>
                             </motion.div>
                           ) : (
                             <div className="flex items-center gap-1.5 text-slate-400 h-8 px-3">
-                              <Moon className="w-3.5 h-3.5" /><span className="text-sm font-light">Closed</span>
+                              <Moon className="w-3.5 h-3.5" /><span className="text-sm font-light">{t('closed')}</span>
                             </div>
                           )}
                         </div>
@@ -210,7 +212,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
             {!isLoading && activeCount === 0 && (
               <div className="px-5 py-2.5 bg-amber-50 dark:bg-amber-500/5 border-t border-amber-200 dark:border-amber-500/20 flex items-center justify-center gap-1.5">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">You must enable at least one day to receive appointments.</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">{t('warning_no_days')}</p>
               </div>
             )}
 
@@ -218,22 +220,22 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
               <div className="hidden sm:block">
                 {hasChanges && (
                   <span className="text-xs font-medium text-medical-600 dark:text-medical-400 flex items-center gap-1.5 animate-pulse">
-                    <div className="w-1.5 h-1.5 rounded-full bg-medical-600 dark:bg-medical-400" />Unsaved changes
+                    <div className="w-1.5 h-1.5 rounded-full bg-medical-600 dark:bg-medical-400" />{t('unsaved_changes')}
                   </span>
                 )}
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
                 <Button variant="ghost" onClick={onClose} disabled={isSaving || isLoading}
                   className="flex-1 sm:flex-none text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm">
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={isSaving || isLoading || Object.keys(validationErrors).length > 0 || !hasChanges}
                   className={cn("flex-1 sm:flex-none min-w-[120px] rounded-xl font-semibold shadow-none transition-all text-sm",
                     savingStep === "success" ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100")}>
                   <AnimatePresence mode="wait">
-                    {savingStep === "saving" && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" />Saving...</motion.div>}
-                    {savingStep === "success" && <motion.div key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5" />Saved!</motion.div>}
-                    {savingStep === "idle" && <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>Save Changes</motion.div>}
+                    {savingStep === "saving" && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" />{t('saving')}</motion.div>}
+                    {savingStep === "success" && <motion.div key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5" />{t('saved')}</motion.div>}
+                    {savingStep === "idle" && <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{t('save')}</motion.div>}
                   </AnimatePresence>
                 </Button>
               </div>

@@ -10,12 +10,14 @@ import { CalendarView } from "@/components/dashboard/CalendarView";
 import { OperatingHoursModal } from "@/components/dashboard/OperatingHours";
 import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
+import { useTranslations } from "next-intl";
 
 function CalendarLoading() {
+  const t = useTranslations('DashboardCalendar');
   return (
     <div className="min-h-[60vh] w-full flex flex-col items-center justify-center">
       <Loader2 className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin mb-3" />
-      <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">Preparing your smart calendar...</p>
+      <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t('loading')}</p>
     </div>
   );
 }
@@ -25,6 +27,7 @@ function CalendarContent() {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } = useCalendarIntegration();
+  const t = useTranslations('DashboardCalendar');
 
   return (
     <div className="space-y-6 pb-10">
@@ -37,20 +40,20 @@ function CalendarContent() {
               <div className="p-2.5 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-200 dark:border-medical-500/20">
                 <CalendarDays className="w-6 h-6 text-medical-600 dark:text-medical-400" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">Virtual Calendar</h1>
+              <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-base max-w-xl font-light ml-12">
-              Control your office hours, block personal time, and view upcoming patients.
+              {t('subtitle')}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
             <Button onClick={() => setIsHoursModalOpen(true)} variant="outline"
               className="h-9 px-4 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm">
-              <Clock className="w-3.5 h-3.5 mr-1.5 text-medical-600 dark:text-medical-400" />Operating Hours
+              <Clock className="w-3.5 h-3.5 mr-1.5 text-medical-600 dark:text-medical-400" />{t('operating_hours')}
             </Button>
             <Button onClick={() => setIsBlockModalOpen(true)}
               className="h-9 px-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl font-semibold text-sm shadow-none">
-              <Plus className="w-4 h-4 mr-1" />Block Time
+              <Plus className="w-4 h-4 mr-1" />{t('block_time')}
             </Button>
           </div>
         </div>
@@ -76,21 +79,21 @@ function CalendarContent() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-0.5">
-                  Bidirectional Sync
+                  {t('sync_title')}
                   {isGoogleConnected ? (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
-                      <CheckCircle className="w-2.5 h-2.5" />ACTIVE
+                      <CheckCircle className="w-2.5 h-2.5" />{t('sync_active')}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/20">
-                      <AlertCircle className="w-2.5 h-2.5" />RECOMMENDED
+                      <AlertCircle className="w-2.5 h-2.5" />{t('sync_recommended')}
                     </span>
                   )}
                 </h3>
                 <p className={cn("text-sm font-light", isGoogleConnected ? "text-slate-500 dark:text-slate-400" : "text-slate-600 dark:text-slate-400")}>
                   {isGoogleConnected
-                    ? "Your personal events automatically block your medical calendar."
-                    : "Connect your calendar to prevent patients from scheduling over your personal commitments."}
+                    ? t('sync_connected_desc')
+                    : t('sync_disconnected_desc')}
                 </p>
               </div>
             </div>
@@ -99,12 +102,12 @@ function CalendarContent() {
                 <div className="h-9 w-28 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
               ) : isGoogleConnected ? (
                 <Button variant="outline" className="w-full md:w-auto h-9 px-5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm">
-                  <Settings className="w-3.5 h-3.5 mr-1.5" />Settings
+                  <Settings className="w-3.5 h-3.5 mr-1.5" />{t('settings')}
                 </Button>
               ) : (
                 <Button onClick={handleGoogleConnect}
                   className="w-full md:w-auto h-9 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none text-sm">
-                  <LinkIcon className="w-3.5 h-3.5 mr-1.5" />Connect Google
+                  <LinkIcon className="w-3.5 h-3.5 mr-1.5" />{t('connect_google')}
                 </Button>
               )}
             </div>
@@ -123,9 +126,9 @@ function CalendarContent() {
         {/* Status Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: "Operating Hours", value: "Configured", icon: Clock, color: "text-medical-600 dark:text-medical-400", bg: "bg-medical-50 dark:bg-medical-500/10", border: "border-medical-200 dark:border-medical-500/20" },
-            { label: "Sync", value: isGoogleConnected ? "Real-time" : "Manual", icon: RefreshCcw, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10", border: "border-blue-200 dark:border-blue-500/20" },
-            { label: "Booking Engine", value: "Active", icon: Sparkles, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", border: "border-emerald-200 dark:border-emerald-500/20" },
+            { label: t('metrics.operating_hours'), value: t('metrics.configured'), icon: Clock, color: "text-medical-600 dark:text-medical-400", bg: "bg-medical-50 dark:bg-medical-500/10", border: "border-medical-200 dark:border-medical-500/20" },
+            { label: t('metrics.sync'), value: isGoogleConnected ? t('metrics.real_time') : t('metrics.manual'), icon: RefreshCcw, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10", border: "border-blue-200 dark:border-blue-500/20" },
+            { label: t('metrics.booking_engine'), value: t('metrics.active'), icon: Sparkles, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", border: "border-emerald-200 dark:border-emerald-500/20" },
           ].map((metric, i) => (
             <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex items-center gap-4 transition-colors">
               <div className={cn("p-2.5 rounded-xl border", metric.bg, metric.border)}>

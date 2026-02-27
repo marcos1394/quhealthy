@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export default function StripeConnectCard() {
   const { status, isLoadingStatus, isRedirecting, handleOnboarding } = useStripeConnect();
+  const t = useTranslations('DashboardStripeConnect');
 
   if (isLoadingStatus && !status) {
     return (
@@ -53,19 +55,19 @@ export default function StripeConnectCard() {
               </motion.div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2.5 mb-2">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Payments & Transfers</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t('title')}</h3>
                   {isReady ? (
-                    <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0"><CheckCircle2 className="w-2.5 h-2.5 mr-1" />Active</Badge>
+                    <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0"><CheckCircle2 className="w-2.5 h-2.5 mr-1" />{t('badge_active')}</Badge>
                   ) : isPending ? (
-                    <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0"><Sparkles className="w-2.5 h-2.5 mr-1" />Verification Pending</Badge>
+                    <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0"><Sparkles className="w-2.5 h-2.5 mr-1" />{t('badge_pending')}</Badge>
                   ) : (
-                    <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 border-0">Not Configured</Badge>
+                    <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 border-0">{t('badge_inactive')}</Badge>
                   )}
                 </div>
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl font-light">
                   {isReady
-                    ? "Your bank account is linked correctly. You're ready to receive payments from your consultations directly to your account."
-                    : "To charge for your services, you need to link a bank account and verify your identity securely."}
+                    ? t('active_desc')
+                    : t('not_configured_desc')}
                 </p>
                 {isPending && status && (
                   <div className="flex gap-2 mt-3">
@@ -91,8 +93,8 @@ export default function StripeConnectCard() {
                     : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100"
                 )}>
                 {isRedirecting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Processing...</>)
-                  : isReady ? (<>Manage in Stripe<ExternalLink className="ml-2 h-4 w-4 text-slate-400" /></>)
-                    : (<><CreditCard className="mr-2 h-4 w-4" />Link Bank Account</>)}
+                  : isReady ? (<>{t('manage')}<ExternalLink className="ml-2 h-4 w-4 text-slate-400" /></>)
+                    : (<><CreditCard className="mr-2 h-4 w-4" />{t('connect_stripe')}</>)}
               </Button>
             </div>
           </div>
@@ -102,7 +104,7 @@ export default function StripeConnectCard() {
             className="bg-slate-50 dark:bg-slate-800/30 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-center lg:justify-start gap-2">
               <div className="p-1 bg-medical-50 dark:bg-medical-500/10 rounded-md"><Shield className="h-3 w-3 text-medical-600 dark:text-medical-400" /></div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-light">Your data is protected and encrypted by Stripe Connect</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-light">{t('security_footer')}</p>
             </div>
           </motion.div>
         )}

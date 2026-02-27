@@ -1,363 +1,137 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { 
-  UploadCloud, 
-  FileText, 
-  X, 
-  CheckCircle2, 
-  AlertCircle,
-  Image as ImageIcon,
-  FileCheck,
-  Loader2,
-  Shield
-} from "lucide-react";
+import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Image as ImageIcon, FileCheck, Loader2, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from 'react-toastify';
-
-/**
- * DocumentUpload Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR COSTO DE INTERACCIÓN
- *    - Drag & Drop reduce fricción vs browse
- *    - Click en cualquier parte del área
- *    - Validación visual inmediata
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Estados visuales claros (empty, selected, uploading, success, error)
- *    - Progress bar con porcentaje
- *    - Animaciones de transición suaves
- * 
- * 3. AFFORDANCE VISUAL
- *    - Área de drop destacada en hover
- *    - Cursor pointer indica clickeable
- *    - Iconos sugieren acción
- * 
- * 4. MINIMIZAR ERRORES
- *    - Validación de tipo de archivo
- *    - Validación de tamaño
- *    - Mensajes de error claros
- * 
- * 5. CREDIBILIDAD Y CONFIANZA
- *    - Shield icon para seguridad
- *    - Formatos soportados visibles
- *    - Límite de tamaño claro
- * 
- * 6. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Iconos por tipo de archivo
- *    - Preview del archivo seleccionado
- *    - Tamaño legible
- */
+import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
 
 interface DocumentUploadProps {
-  selectedFile: File | null;
-  uploadProgress: number;
-  isUploading: boolean;
-  onFileSelect: (file: File | null) => void;
-  onFileUpload: () => void;
-  onClear: () => void;
-  maxSizeMB?: number;
-  acceptedFormats?: string[];
-  showPreview?: boolean;
+  selectedFile: File | null; uploadProgress: number; isUploading: boolean;
+  onFileSelect: (file: File | null) => void; onFileUpload: () => void; onClear: () => void;
+  maxSizeMB?: number; acceptedFormats?: string[]; showPreview?: boolean;
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({ 
-  selectedFile, 
-  uploadProgress, 
-  isUploading,
-  onFileSelect, 
-  onFileUpload,
-  onClear,
-  maxSizeMB = 10,
-  acceptedFormats = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'],
-  showPreview = true
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({
+  selectedFile, uploadProgress, isUploading, onFileSelect, onFileUpload, onClear,
+  maxSizeMB = 10, acceptedFormats = [".pdf", ".jpg", ".jpeg", ".png", ".webp"], showPreview = true
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const t = useTranslations('DashboardDocuments');
 
-  // Helper para validar archivo - MINIMIZAR ERRORES
-  const validateFile = (file: File): { isValid: boolean; error?: string } => {
-    // Validar tamaño
+  const validateFile = (file: File) => {
     const sizeMB = file.size / 1024 / 1024;
-    if (sizeMB > maxSizeMB) {
-      return { 
-        isValid: false, 
-        error: `El archivo excede el tamaño máximo de ${maxSizeMB}MB (${sizeMB.toFixed(2)}MB)` 
-      };
-    }
-
-    // Validar formato
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!acceptedFormats.includes(fileExtension)) {
-      return { 
-        isValid: false, 
-        error: `Formato no soportado. Usa: ${acceptedFormats.join(', ')}` 
-      };
-    }
-
+    if (sizeMB > maxSizeMB) return { isValid: false, error: t('upload.exceeds_size', { size: String(maxSizeMB) }) };
+    const ext = "." + file.name.split(".").pop()?.toLowerCase();
+    if (!acceptedFormats.includes(ext)) return { isValid: false, error: t('upload.unsupported_format', { formats: acceptedFormats.join(", ") }) };
     return { isValid: true };
   };
 
-  // Helper para generar preview - RECONOCIMIENTO
   const generatePreview = (file: File) => {
-    if (file.type.startsWith('image/')) {
+    if (file.type.startsWith("image/")) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
+      reader.onloadend = () => setPreviewUrl(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  // Helper para obtener icono por tipo - RECONOCIMIENTO VISUAL
   const getFileIcon = (file: File | null) => {
-    if (!file) return <UploadCloud className="w-10 h-10 text-purple-400" />;
-    
-    if (file.type.includes('pdf')) {
-      return <FileText className="w-10 h-10 text-red-400" />;
-    }
-    if (file.type.startsWith('image/')) {
-      return <ImageIcon className="w-10 h-10 text-blue-400" />;
-    }
-    return <FileCheck className="w-10 h-10 text-purple-400" />;
+    if (!file) return <UploadCloud className="w-8 h-8 text-medical-600 dark:text-medical-400" />;
+    if (file.type.includes("pdf")) return <FileText className="w-8 h-8 text-red-500" />;
+    if (file.type.startsWith("image/")) return <ImageIcon className="w-8 h-8 text-blue-500" />;
+    return <FileCheck className="w-8 h-8 text-medical-600 dark:text-medical-400" />;
   };
 
-  // Handlers - FEEDBACK INMEDIATO
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelection(e.dataTransfer.files[0]);
-    }
-  };
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
+  const handleDrop = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); if (e.dataTransfer.files?.[0]) handleFileSelection(e.dataTransfer.files[0]); };
 
   const handleFileSelection = (file: File) => {
-    const validation = validateFile(file);
-    
-    if (!validation.isValid) {
-      setValidationError(validation.error!);
-      toast.error(validation.error);
-      return;
-    }
-
-    setValidationError(null);
-    onFileSelect(file);
-    
-    if (showPreview) {
-      generatePreview(file);
-    }
-    
-    toast.success('Archivo seleccionado correctamente');
+    const v = validateFile(file);
+    if (!v.isValid) { setValidationError(v.error!); toast.error(v.error); return; }
+    setValidationError(null); onFileSelect(file);
+    if (showPreview) generatePreview(file);
+    toast.success(t('upload.file_selected'));
   };
 
-  const handleClear = () => {
-    setPreviewUrl(null);
-    setValidationError(null);
-    onClear();
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    const mb = bytes / 1024 / 1024;
-    if (mb < 1) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
-    return `${mb.toFixed(2)} MB`;
-  };
+  const formatFileSize = (bytes: number) => bytes / 1024 / 1024 < 1 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
   return (
-    <div className="w-full space-y-4">
-      
-      {/* Trust indicator - CREDIBILIDAD */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-center gap-2 text-sm text-gray-400"
-      >
-        <Shield className="w-4 h-4 text-emerald-500" />
-        <span>Conexión segura y encriptada</span>
+    <div className="w-full space-y-3">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <Shield className="w-3.5 h-3.5 text-emerald-500" /><span className="font-light">{t('upload.secure_connection')}</span>
       </motion.div>
 
-      {/* Upload Area - AFFORDANCE VISUAL */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
         className={cn(
-          "relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 group overflow-hidden",
-          isDragging ? "border-purple-500 bg-purple-500/10 scale-[1.02]" : "",
-          selectedFile && !isDragging ? "border-purple-500/50 bg-purple-500/5" : "",
-          !selectedFile && !isDragging ? "border-gray-700 hover:border-purple-500/30 hover:bg-gray-800/30 cursor-pointer" : "",
-          validationError ? "border-red-500/50 bg-red-500/5" : ""
-        )}
-      >
-        {/* Animated background gradient - PROFUNDIDAD */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        <input
-          ref={inputRef}
-          type="file"
-          onChange={(e) => e.target.files?.[0] && handleFileSelection(e.target.files[0])}
-          className="hidden"
-          id="file-upload"
-          accept={acceptedFormats.join(',')}
-        />
+          "relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 group overflow-hidden",
+          isDragging ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10 scale-[1.02]" : "",
+          selectedFile && !isDragging ? "border-medical-300 dark:border-medical-500/30 bg-medical-50/30 dark:bg-medical-500/5" : "",
+          !selectedFile && !isDragging ? "border-slate-200 dark:border-slate-700 hover:border-medical-200 dark:hover:border-medical-500/30 hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer" : "",
+          validationError ? "border-red-300 dark:border-red-500/30 bg-red-50 dark:bg-red-500/5" : ""
+        )}>
+        <input ref={inputRef} type="file" onChange={e => e.target.files?.[0] && handleFileSelection(e.target.files[0])} className="hidden" id="file-upload" accept={acceptedFormats.join(",")} />
 
         <AnimatePresence mode="wait">
           {!selectedFile ? (
-            // Empty State - AFFORDANCE
-            <motion.label
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              htmlFor="file-upload"
-              className="relative cursor-pointer flex flex-col items-center justify-center h-full min-h-[200px]"
-            >
-              <motion.div
-                className="p-5 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl mb-6 border border-gray-700 shadow-lg"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ duration: 0.2 }}
-              >
-                <UploadCloud className="w-12 h-12 text-purple-400" />
+            <motion.label key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              htmlFor="file-upload" className="relative cursor-pointer flex flex-col items-center justify-center min-h-[160px]">
+              <motion.div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl mb-4 border border-slate-200 dark:border-slate-700" whileHover={{ scale: 1.05 }}>
+                <UploadCloud className="w-8 h-8 text-medical-600 dark:text-medical-400" />
               </motion.div>
-              
-              <p className="text-xl font-bold text-white mb-2">
-                Arrastra tu archivo aquí
+              <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">{t('upload.drag_here')}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 font-light">
+                or <span className="text-medical-600 dark:text-medical-400 underline font-medium">{t('upload.click_browse')}</span>
               </p>
-              <p className="text-base text-gray-400 mb-6">
-                o{' '}
-                <span className="text-purple-400 underline font-semibold">
-                  haz clic para explorar
-                </span>
-              </p>
-              
-              {/* Supported formats - MINIMIZAR ERRORES */}
-              <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-500">
-                {acceptedFormats.map(format => (
-                  <span 
-                    key={format}
-                    className="px-2 py-1 bg-gray-800/50 rounded border border-gray-700"
-                  >
-                    {format.toUpperCase()}
-                  </span>
-                ))}
+              <div className="flex flex-wrap justify-center gap-1.5 text-[10px] text-slate-400">
+                {acceptedFormats.map(f => <span key={f} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">{f.toUpperCase()}</span>)}
               </div>
-              <p className="text-xs text-gray-600 mt-3">
-                Tamaño máximo: {maxSizeMB}MB
-              </p>
+              <p className="text-[10px] text-slate-400 mt-2 font-light">Max size: {maxSizeMB}MB</p>
             </motion.label>
           ) : (
-            // File Selected State - FEEDBACK VISUAL
-            <motion.div
-              key="selected"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative flex flex-col items-center space-y-6"
-            >
-              {/* Preview or Icon - RECONOCIMIENTO */}
-              {previewUrl && selectedFile.type.startsWith('image/') ? (
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl blur-xl" />
-                  <img 
-                    src={previewUrl} 
-                    alt="Preview" 
-                    className="relative w-32 h-32 object-cover rounded-2xl border-2 border-purple-500/50 shadow-xl"
-                  />
-                </div>
+            <motion.div key="selected" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              className="relative flex flex-col items-center space-y-4">
+              {previewUrl && selectedFile.type.startsWith("image/") ? (
+                <img src={previewUrl} alt="Preview" className="w-24 h-24 object-cover rounded-xl border-2 border-medical-200 dark:border-medical-500/30 shadow-sm" />
               ) : (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="p-5 bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl border border-purple-500/30 shadow-lg"
-                >
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}
+                  className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-200 dark:border-medical-500/20">
                   {getFileIcon(selectedFile)}
                 </motion.div>
               )}
-
-              {/* File info - JERARQUÍA VISUAL */}
-              <div className="text-center space-y-2">
-                <p className="text-lg font-bold text-white truncate max-w-xs px-4">
-                  {selectedFile.name}
-                </p>
-                <div className="flex items-center justify-center gap-3 text-sm text-gray-400">
-                  <span className="px-2 py-1 bg-gray-800/50 rounded border border-gray-700">
-                    {selectedFile.type.split('/')[1]?.toUpperCase() || 'FILE'}
-                  </span>
-                  <span>•</span>
-                  <span>{formatFileSize(selectedFile.size)}</span>
+              <div className="text-center space-y-1">
+                <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[200px]">{selectedFile.name}</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                  <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">{selectedFile.type.split("/")[1]?.toUpperCase() || "FILE"}</span>
+                  <span>•</span><span>{formatFileSize(selectedFile.size)}</span>
                 </div>
               </div>
-              
-              {/* Upload Progress - FEEDBACK INMEDIATO */}
               {isUploading ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="w-full max-w-sm space-y-3"
-                >
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2 text-purple-300">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="font-medium">Subiendo...</span>
-                    </div>
-                    <span className="text-purple-400 font-bold">{uploadProgress}%</span>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-xs space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-1.5 text-medical-600 dark:text-medical-400"><Loader2 className="w-3 h-3 animate-spin" /><span className="font-medium">Uploading...</span></div>
+                    <span className="text-medical-600 dark:text-medical-400 font-semibold">{uploadProgress}%</span>
                   </div>
-                  <Progress 
-                    value={uploadProgress} 
-                    className="h-2 bg-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 text-center">
-                    No cierres esta ventana
-                  </p>
+                  <Progress value={uploadProgress} className="h-1.5 bg-slate-200 dark:bg-slate-700" />
+                  <p className="text-[10px] text-slate-400 text-center font-light">Don't close this window</p>
                 </motion.div>
               ) : (
-                // Action Buttons - JERARQUÍA CLARA
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex gap-3"
-                >
-                  <Button 
-                    variant="outline" 
-                    onClick={handleClear}
-                    className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-200"
-                  >
-                    <X className="w-4 h-4 mr-2" /> 
-                    Cancelar
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex gap-2">
+                  <Button variant="outline" onClick={() => { setPreviewUrl(null); setValidationError(null); onClear(); }}
+                    className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs">
+                    <X className="w-3 h-3 mr-1" />Cancel
                   </Button>
-                  <Button 
-                    onClick={onFileUpload}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" /> 
-                    Subir Documento
+                  <Button onClick={onFileUpload}
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none text-xs">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />Upload
                   </Button>
                 </motion.div>
               )}
@@ -365,80 +139,37 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
           )}
         </AnimatePresence>
 
-        {/* Dragging Overlay - AFFORDANCE */}
         {isDragging && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-purple-500/20 backdrop-blur-sm flex items-center justify-center rounded-2xl border-2 border-purple-500"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-medical-500/10 dark:bg-medical-500/20 backdrop-blur-sm flex items-center justify-center rounded-xl border-2 border-medical-500">
             <div className="text-center">
-              <UploadCloud className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-bounce" />
-              <p className="text-xl font-bold text-white">Suelta el archivo aquí</p>
+              <UploadCloud className="w-10 h-10 text-medical-600 dark:text-medical-400 mx-auto mb-2 animate-bounce" />
+              <p className="text-sm font-medium text-slate-900 dark:text-white">Drop the file here</p>
             </div>
           </motion.div>
         )}
       </motion.div>
 
-      {/* Validation Error - FEEDBACK DE ERROR */}
       <AnimatePresence>
         {validationError && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -10, height: 0 }}
-            className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl"
-          >
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <motion.div initial={{ opacity: 0, y: -10, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -10, height: 0 }}
+            className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-xl">
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-red-400 mb-1">Error de validación</p>
-              <p className="text-xs text-red-300">{validationError}</p>
+              <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-0.5">Validation Error</p>
+              <p className="text-[10px] text-red-500 dark:text-red-300 font-light">{validationError}</p>
             </div>
-            <button
-              onClick={() => setValidationError(null)}
-              className="text-red-400 hover:text-red-300 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <button onClick={() => setValidationError(null)} className="text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"><X className="w-3 h-3" /></button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Help text - MINIMIZAR CARGA COGNITIVA */}
-     <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={cn(
-          "relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 group overflow-hidden",
-          isDragging ? "border-purple-500 bg-purple-500/10 scale-[1.02]" : "",
-          selectedFile && !isDragging ? "border-purple-500/50 bg-purple-500/5" : "",
-          !selectedFile && !isDragging ? "border-gray-700 hover:border-purple-500/30 hover:bg-gray-800/30 cursor-pointer" : "",
-          validationError ? "border-red-500/50 bg-red-500/5" : ""
-        )}
-      >
-        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-        <p>
-          Los documentos se verifican automáticamente. 
-          Recibirás una notificación cuando el proceso esté completo.
-        </p>
-      </motion.div>
+      <div className="flex items-start gap-1.5 text-[10px] text-slate-400 font-light">
+        <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5" />
+        <p>Documents are verified automatically. You'll receive a notification when the process is complete.</p>
+      </div>
     </div>
   );
 };
 
-/**
- * Variante compacta para espacios reducidos
- */
-export const DocumentUploadCompact: React.FC<Omit<DocumentUploadProps, 'showPreview'>> = (props) => {
-  return (
-    <DocumentUpload
-      {...props}
-      showPreview={false}
-    />
-  );
-};
+export const DocumentUploadCompact: React.FC<Omit<DocumentUploadProps, "showPreview">> = (props) => <DocumentUpload {...props} showPreview={false} />;

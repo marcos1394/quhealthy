@@ -14,10 +14,12 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
+import { useTranslations } from "next-intl";
 
 export default function ProviderAppointmentsPage() {
   const router = useRouter();
   const { appointments, setAppointments, isLoading, refetch } = useProviderAppointments();
+  const t = useTranslations('DashboardAppointments');
 
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<ProviderAppointment | null>(null);
@@ -61,12 +63,12 @@ export default function ProviderAppointmentsPage() {
 
   const getStatusText = (status: ProviderAppointment["status"]) => {
     switch (status) {
-      case "completed": return "Completed";
-      case "confirmed": return "Confirmed";
-      case "pending": return "Pending";
-      case "canceled_by_consumer": return "Canceled (Client)";
-      case "canceled_by_provider": return "Canceled (You)";
-      default: return status === "canceled_by_provider" ? "Canceled" : status;
+      case "completed": return t('card.completed');
+      case "confirmed": return t('card.confirmed');
+      case "pending": return t('card.pending');
+      case "canceled_by_consumer": return t('card.cancelled') + " (Client)";
+      case "canceled_by_provider": return t('card.cancelled') + " (You)";
+      default: return status;
     }
   };
 
@@ -82,7 +84,7 @@ export default function ProviderAppointmentsPage() {
     return (
       <div className="min-h-[60vh] flex flex-col justify-center items-center">
         <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
-        <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">Syncing your calendar...</p>
+        <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t('loading')}</p>
       </div>
     );
   }
@@ -93,12 +95,12 @@ export default function ProviderAppointmentsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <Calendar className="w-6 h-6 text-medical-600 dark:text-medical-400" />My Appointments
+            <Calendar className="w-6 h-6 text-medical-600 dark:text-medical-400" />{t('title')}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-light">Manage your calendar and patients in real time.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 font-light">{t('subtitle')}</p>
         </div>
         <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none">
-          <Zap className="w-4 h-4 mr-2" />New Manual Appointment
+          <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
         </Button>
       </div>
 
@@ -106,10 +108,10 @@ export default function ProviderAppointmentsPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
           { label: "Total", value: stats.total, color: "text-slate-900 dark:text-white", icon: Activity, bg: "bg-slate-100 dark:bg-slate-800", border: "border-slate-200 dark:border-slate-700" },
-          { label: "Pending", value: stats.pending, color: "text-amber-600 dark:text-amber-400", icon: Timer, bg: "bg-amber-50 dark:bg-amber-500/5", border: "border-amber-200 dark:border-amber-500/20" },
-          { label: "Confirmed", value: stats.confirmed, color: "text-blue-600 dark:text-blue-400", icon: CheckCircle2, bg: "bg-blue-50 dark:bg-blue-500/5", border: "border-blue-200 dark:border-blue-500/20" },
-          { label: "Completed", value: stats.completed, color: "text-emerald-600 dark:text-emerald-400", icon: Award, bg: "bg-emerald-50 dark:bg-emerald-500/5", border: "border-emerald-200 dark:border-emerald-500/20" },
-          { label: "Canceled", value: stats.canceled, color: "text-red-600 dark:text-red-400", icon: XCircle, bg: "bg-red-50 dark:bg-red-500/5", border: "border-red-200 dark:border-red-500/20" },
+          { label: t('card.pending'), value: stats.pending, color: "text-amber-600 dark:text-amber-400", icon: Timer, bg: "bg-amber-50 dark:bg-amber-500/5", border: "border-amber-200 dark:border-amber-500/20" },
+          { label: t('card.confirmed'), value: stats.confirmed, color: "text-blue-600 dark:text-blue-400", icon: CheckCircle2, bg: "bg-blue-50 dark:bg-blue-500/5", border: "border-blue-200 dark:border-blue-500/20" },
+          { label: t('card.completed'), value: stats.completed, color: "text-emerald-600 dark:text-emerald-400", icon: Award, bg: "bg-emerald-50 dark:bg-emerald-500/5", border: "border-emerald-200 dark:border-emerald-500/20" },
+          { label: t('card.cancelled'), value: stats.canceled, color: "text-red-600 dark:text-red-400", icon: XCircle, bg: "bg-red-50 dark:bg-red-500/5", border: "border-red-200 dark:border-red-500/20" },
         ].map((stat, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
             className={`${stat.bg} border ${stat.border} rounded-xl p-3.5 flex flex-col items-center justify-center text-center transition-colors`}>

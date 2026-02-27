@@ -651,5 +651,308 @@
         "loading": "Cargando verificación...",
         "success_toast": "¡Identidad Verificada! Avanzando...",
         "pending_toast": "Aún tienes documentos pendientes o rechazados."
+    },
+    "DashboardAppointments": {
+        "title": "Citas",
+        "subtitle": "Gestiona y da seguimiento a las citas de tus pacientes.",
+        "stats": {
+            "upcoming": "Próximas",
+            "today": "Hoy",
+            "completed": "Completadas",
+            "cancelled": "Canceladas"
+        },
+        "tabs": {
+            "all": "Todas",
+            "upcoming": "Próximas",
+            "today": "Hoy",
+            "past": "Anteriores"
+        },
+        "card": {
+            "patient": "Paciente",
+            "time": "Hora",
+            "modality": "Modalidad",
+            "online": "Videollamada",
+            "in_person": "Presencial",
+            "status": "Estado",
+            "confirmed": "Confirmada",
+            "pending": "Pendiente",
+            "completed": "Completada",
+            "cancelled": "Cancelada",
+            "no_show": "No asistió",
+            "payment": "Pago",
+            "paid": "Pagado",
+            "payment_pending": "Pendiente",
+            "notes": "Notas"
+        },
+        "actions": {
+            "complete": "Completar",
+            "cancel": "Cancelar",
+            "reschedule": "Reagendar",
+            "video_call": "Iniciar Videollamada",
+            "view_details": "Ver Detalles"
+        },
+        "empty": {
+            "title": "Sin citas",
+            "description": "No tienes citas en esta categoría."
+        },
+        "quick_actions": {
+            "title": "Acciones Rápidas",
+            "block_time": "Bloquear Tiempo",
+            "operating_hours": "Horario de Atención",
+            "new_appointment": "Nueva Cita"
+        },
+        "loading": "Cargando citas..."
+    },
+    "DashboardCompletionModal": {
+        "title": "Completar Cita",
+        "subtitle": "Finaliza esta cita y agrega notas clínicas",
+        "summary": "Resumen",
+        "patient": "Paciente",
+        "date": "Fecha",
+        "modality": "Modalidad",
+        "notes_label": "Notas Clínicas",
+        "notes_placeholder": "Agrega notas sobre esta cita...",
+        "cancel": "Cancelar",
+        "confirm": "Completar Cita",
+        "processing": "Procesando...",
+        "success_title": "¡Cita Completada!",
+        "success_desc": "La cita ha sido marcada como completada."
+    },
+    "DashboardConfirmationModal": {
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "processing": "Procesando..."
+    },
+    "DashboardBilling": {
+        "title": "Facturación y Pagos",
+        "subtitle": "Revisa tus ingresos y administra tu configuración de pagos.",
+        "stripe_section": "Conexión de Pagos",
+        "transactions_title": "Historial de Transacciones",
+        "table": {
+            "date": "Fecha",
+            "patient": "Paciente",
+            "service": "Servicio",
+            "amount": "Monto",
+            "status": "Estado",
+            "settled": "Liquidado",
+            "pending": "Pendiente",
+            "failed": "Fallido",
+            "refunded": "Reembolsado"
+        },
+        "pagination": {
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page_of": "Página {current} de {total}"
+        },
+        "empty": {
+            "title": "Sin transacciones aún",
+            "description": "Tu historial de transacciones aparecerá aquí cuando comiences a recibir pagos."
+        },
+        "loading": "Cargando transacciones..."
+    },
+    "DashboardStripeConnect": {
+        "title": "Pasarela de Pagos",
+        "active_title": "Stripe Connect Activo",
+        "active_desc": "Tus pagos se procesan de forma automática y segura.",
+        "pending_title": "Verificación Pendiente",
+        "pending_desc": "Completa tu verificación de Stripe para comenzar a recibir pagos.",
+        "not_configured_title": "Configurar Pagos",
+        "not_configured_desc": "Conecta Stripe para recibir pagos seguros de tus pacientes.",
+        "badge_active": "Activo",
+        "badge_pending": "Pendiente",
+        "badge_inactive": "No Configurado",
+        "manage": "Administrar",
+        "complete_verification": "Completar Verificación",
+        "connect_stripe": "Conectar Stripe",
+        "security_footer": "Protegido por Stripe con cifrado bancario"
+    },
+    "DashboardCalendar": {
+        "title": "Calendario Virtual",
+        "subtitle": "Controla tu horario de atención, bloquea tiempo personal y revisa tus próximos pacientes.",
+        "operating_hours": "Horario de Atención",
+        "block_time": "Bloquear Tiempo",
+        "sync_title": "Sincronización Bidireccional",
+        "sync_active": "ACTIVO",
+        "sync_recommended": "RECOMENDADO",
+        "sync_connected_desc": "Tus eventos personales bloquean automáticamente tu calendario médico.",
+        "sync_disconnected_desc": "Conecta tu calendario para evitar que los pacientes agenden sobre tus compromisos personales.",
+        "connect_google": "Conectar Google",
+        "settings": "Ajustes",
+        "metrics": {
+            "operating_hours": "Horario de Atención",
+            "configured": "Configurado",
+            "sync": "Sincronización",
+            "real_time": "Tiempo real",
+            "manual": "Manual",
+            "booking_engine": "Motor de Reservas",
+            "active": "Activo"
+        },
+        "loading": "Preparando tu calendario inteligente..."
+    },
+    "DashboardCalendarView": {
+        "confirmed": "Confirmada",
+        "pending": "Pendiente",
+        "cancelled": "Cancelada",
+        "completed": "Completada",
+        "no_status": "Sin estado",
+        "syncing": "Sincronizando calendario...",
+        "buttons": {
+            "today": "Hoy",
+            "month": "Mes",
+            "week": "Semana",
+            "day": "Día",
+            "list": "Agenda"
+        },
+        "event_detail": {
+            "booking_id": "ID de Reserva",
+            "patient": "Paciente",
+            "new_patient": "Nuevo Paciente",
+            "modality": "Modalidad",
+            "online": "Videollamada",
+            "in_office": "Presencial",
+            "payment": "Pago",
+            "paid": "Pagado",
+            "payment_pending": "Pendiente",
+            "notes": "Notas del Paciente",
+            "cancel_appointment": "Cancelar Cita",
+            "close": "Cerrar"
+        }
+    },
+    "DashboardOperatingHours": {
+        "title": "Horario de Atención",
+        "subtitle": "Define tu disponibilidad para consultas.",
+        "templates_label": "Plantillas Rápidas",
+        "template_standard": "Lun–Vie",
+        "template_standard_desc": "9:00 – 18:00",
+        "template_extended": "Lun–Sáb Extendido",
+        "template_extended_desc": "8:00 – 20:00",
+        "template_allweek": "Semana Completa",
+        "template_allweek_desc": "9:00 – 17:00",
+        "template_applied": "\"{name}\" aplicado",
+        "your_week": "Tu Semana",
+        "days": {
+            "monday": "Lunes",
+            "tuesday": "Martes",
+            "wednesday": "Miércoles",
+            "thursday": "Jueves",
+            "friday": "Viernes",
+            "saturday": "Sábado",
+            "sunday": "Domingo"
+        },
+        "closed": "Cerrado",
+        "to": "a",
+        "copy_all": "Copiar a todos",
+        "copied_toast": "Horario copiado a todos los días",
+        "error_close_after_open": "La hora de cierre debe ser posterior a la apertura",
+        "warning_no_days": "Debes habilitar al menos un día para recibir citas.",
+        "unsaved_changes": "Cambios sin guardar",
+        "cancel": "Cancelar",
+        "save": "Guardar Cambios",
+        "saving": "Guardando...",
+        "saved": "¡Guardado!",
+        "save_success": "¡Horario guardado!",
+        "save_error": "Corrige los errores antes de guardar",
+        "loading": "Cargando tu horario..."
+    },
+    "DashboardTimeBlock": {
+        "title": "Bloquear Tiempo",
+        "subtitle": "Reserva tiempo para asuntos personales, comidas o descansos",
+        "templates_label": "Plantillas Rápidas",
+        "template_lunch": "Comida",
+        "template_break": "Descanso",
+        "template_vacation": "Vacaciones",
+        "template_morning": "Rutina Matutina",
+        "template_applied": "Plantilla \"{name}\" aplicada",
+        "event_title_label": "Título del Evento",
+        "event_title_placeholder": "Ej: Comida, Vacaciones...",
+        "start": "Inicio",
+        "end": "Fin",
+        "from": "Desde",
+        "until": "Hasta",
+        "validation_error": "Error de Validación",
+        "end_after_start": "La hora de fin debe ser posterior a la de inicio",
+        "cancel": "Cancelar",
+        "block_time": "Bloquear Tiempo",
+        "saving": "Guardando...",
+        "created": "¡Creado!",
+        "success_toast": "¡Tiempo bloqueado!"
+    },
+    "DashboardDocuments": {
+        "title": "Gestor de Documentos",
+        "subtitle": "Sube y verifica tus credenciales profesionales.",
+        "stats": {
+            "total": "Total Documentos",
+            "verified": "Verificados",
+            "pending": "Pendientes",
+            "active": "Activos",
+            "in_review": "En revisión"
+        },
+        "upload": {
+            "title": "Subir Nuevo",
+            "subtitle": "Asegúrate de que sean legibles.",
+            "secure_connection": "Conexión segura y encriptada",
+            "drag_here": "Arrastra tu archivo aquí",
+            "click_browse": "haz clic para explorar",
+            "max_size": "Tamaño máximo: {size}MB",
+            "drop_here": "Suelta el archivo aquí",
+            "uploading": "Subiendo...",
+            "dont_close": "No cierres esta ventana",
+            "upload_button": "Subir",
+            "cancel": "Cancelar",
+            "file_selected": "Archivo seleccionado correctamente",
+            "uploaded_success": "Documento subido correctamente.",
+            "validation_error": "Error de validación",
+            "exceeds_size": "El archivo excede el límite de {size}MB",
+            "unsupported_format": "Formato no soportado. Usa: {formats}",
+            "auto_verify": "Los documentos se verifican automáticamente. Recibirás una notificación cuando el proceso esté completo."
+        },
+        "tabs": {
+            "all": "Todos",
+            "verified": "Verificados",
+            "pending": "Pendientes",
+            "rejected": "Rechazados"
+        },
+        "card": {
+            "verified": "Verificado",
+            "in_review": "En revisión",
+            "rejected": "Rechazado",
+            "unknown": "Desconocido"
+        },
+        "files_title": "Mis Archivos",
+        "empty": "No hay documentos en esta categoría.",
+        "deleted_toast": "Documento eliminado.",
+        "downloading": "Descargando {name}..."
+    },
+    "DashboardDocumentDetail": {
+        "uploaded_to": "Documento subido a QuHealthy",
+        "preview_available": "Vista previa disponible",
+        "preview_unavailable": "Vista previa no disponible para este tipo de archivo",
+        "open_new_tab": "Abrir en nueva pestaña",
+        "file_type": "Tipo de archivo",
+        "upload_date": "Fecha de carga",
+        "size": "Tamaño",
+        "verification_status": "Estado de verificación",
+        "status": {
+            "verified": "Verificado por QuHealthy",
+            "verified_desc": "Este documento ha sido revisado y aprobado",
+            "pending": "En revisión",
+            "pending_desc": "Estamos verificando la autenticidad de este documento",
+            "rejected": "Rechazado",
+            "rejected_desc": "Este documento no cumple con los requisitos"
+        },
+        "copy_link": "Copiar enlace",
+        "link_copied": "Enlace copiado",
+        "share": "Compartir",
+        "delete": "Eliminar",
+        "delete_confirm": "Confirmar",
+        "delete_cancel": "Cancelar",
+        "deleting": "Eliminando...",
+        "deleted_toast": "Documento eliminado",
+        "delete_error": "No se pudo eliminar el documento",
+        "close": "Cerrar",
+        "download": "Descargar",
+        "downloading": "Descargando...",
+        "download_started": "Descarga iniciada",
+        "download_error": "No se pudo descargar el documento"
     }
 }
