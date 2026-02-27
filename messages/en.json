@@ -1082,5 +1082,39 @@
         "status_confirmed": "Confirmed",
         "status_pending": "Pending",
         "status_cancelled": "Cancelled"
+    },
+    "DashboardReferrals": {
+        "title": "Invite & Earn",
+        "subtitle": "Share QuHealthy with your colleagues. You earn <purple>${reward} MXN</purple> for each professional who activates, and they receive 1 free month.",
+        "link_card_title": "Your Unique Link",
+        "link_card_desc": "Share this link to track your referrals.",
+        "earnings_card_title": "Total Earnings",
+        "currency": "MXN",
+        "available_withdrawal": "Available for withdrawal",
+        "history_title": "Referral History",
+        "status_completed": "Completed",
+        "status_pending": "Pending",
+        "registered_on": "Registered on {date}",
+        "empty_title": "You don't have referrals yet",
+        "empty_desc": "Share your link on social media or by email to start generating extra income.",
+        "loading": "Loading referral program...",
+        "copy_success": "Link copied to clipboard",
+        "error_loading": "Could not load referral data."
+    },
+    "DashboardReviews": {
+        "title": "Review Management",
+        "subtitle": "Manage your reputation and respond to your patients.",
+        "avg_rating": "Average Rating",
+        "total_reviews": "Total Reviews",
+        "your_response": "Your Response",
+        "response_placeholder": "Write a response thanking or clarifying...",
+        "publish_response": "Publish Response",
+        "loading": "Loading reviews...",
+        "error_loading": "Error loading reviews.",
+        "warn_empty": "Write a response first.",
+        "publish_success": "Response published.",
+        "error_publish": "Could not send the response.",
+        "empty_title": "No reviews yet",
+        "empty_desc": "Invite your patients to rate your service after their appointment."
     }
 }

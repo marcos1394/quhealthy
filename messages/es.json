@@ -1082,5 +1082,39 @@
         "status_confirmed": "Confirmada",
         "status_pending": "Pendiente",
         "status_cancelled": "Cancelada"
+    },
+    "DashboardReferrals": {
+        "title": "Invita y Gana",
+        "subtitle": "Comparte QuHealthy con tus colegas. Tú ganas <purple>${reward} MXN</purple> por cada profesional que se active, y ellos reciben 1 mes gratis.",
+        "link_card_title": "Tu Enlace Único",
+        "link_card_desc": "Comparte este enlace para rastrear tus referidos.",
+        "earnings_card_title": "Ganancias Totales",
+        "currency": "MXN",
+        "available_withdrawal": "Disponible para retiro",
+        "history_title": "Historial de Referidos",
+        "status_completed": "Completado",
+        "status_pending": "Pendiente",
+        "registered_on": "Registrado el {date}",
+        "empty_title": "Aún no tienes referidos",
+        "empty_desc": "Comparte tu enlace en redes sociales o por correo para empezar a generar ingresos extra.",
+        "loading": "Cargando programa de referidos...",
+        "copy_success": "Enlace copiado al portapapeles",
+        "error_loading": "Error al cargar datos de referidos."
+    },
+    "DashboardReviews": {
+        "title": "Gestión de Reseñas",
+        "subtitle": "Gestiona tu reputación y responde a tus pacientes.",
+        "avg_rating": "Calificación Promedio",
+        "total_reviews": "Total Reseñas",
+        "your_response": "Tu Respuesta",
+        "response_placeholder": "Escribe una respuesta agradeciendo o aclarando...",
+        "publish_response": "Publicar Respuesta",
+        "loading": "Cargando opiniones...",
+        "error_loading": "Error al cargar reseñas.",
+        "warn_empty": "Escribe una respuesta primero.",
+        "publish_success": "Respuesta publicada.",
+        "error_publish": "No se pudo enviar la respuesta.",
+        "empty_title": "Aún no hay reseñas",
+        "empty_desc": "Invita a tus pacientes a calificar tu servicio después de su cita."
     }
 }
