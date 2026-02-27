@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { 
   AlertCircle, 
   BarChart2, 
@@ -14,12 +16,15 @@ import {
   Clock,
   Store,
   ArrowRight,
-  CalendarDays
+  CalendarDays,
+  Video,
+  MapPin,
+  Check
 } from 'lucide-react';
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 // Components
@@ -28,7 +33,6 @@ import { SummaryCard } from '@/components/dashboard/SummaryCard';
 // Hook
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
-
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -73,6 +77,16 @@ export default function DashboardPage() {
   }
 
   const { plan, hasConfiguredStore, analytics, upcomingAppointments } = data;
+
+  // Helpers para pintar los estados
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'SCHEDULED': return <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Confirmada</Badge>;
+      case 'PENDING_PAYMENT': return <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20">Pago Pendiente</Badge>;
+      case 'IN_PROGRESS': return <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse">En Progreso</Badge>;
+      default: return <Badge className="bg-gray-800 text-gray-400">{status}</Badge>;
+    }
+  };
 
   return (
     <motion.div 
@@ -122,7 +136,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 🚀 2. CALL TO ACTION: CONFIGURAR TIENDA (Solo si no la ha configurado) */}
+      {/* 🚀 2. CALL TO ACTION: CONFIGURAR TIENDA */}
       <AnimatePresence>
         {!hasConfiguredStore && (
           <motion.div
@@ -132,9 +146,7 @@ export default function DashboardPage() {
             className="mb-8"
           >
             <Card className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-purple-500/30 shadow-2xl overflow-hidden relative group">
-              {/* Efecto de luz */}
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl" />
-              
               <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 <div className="flex items-center gap-5">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
@@ -161,7 +173,7 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* 🚀 3. MÉTRICAS CLAVE (En ceros para usuarios nuevos) */}
+      {/* 🚀 3. MÉTRICAS CLAVE */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <SummaryCard 
           title="Ingresos (Este mes)" 
@@ -189,29 +201,93 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* 🚀 4. CONTENIDO PRINCIPAL: ESTADOS VACÍOS ELEGANTES */}
+      {/* 🚀 4. CONTENIDO PRINCIPAL: GRÁFICAS Y CITAS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         
-        {/* Gráfica Vacía */}
+        {/* Columna 1: Gráfica (Placeholder por ahora) */}
         <Card className="bg-gray-900/50 border-gray-800 min-h-[300px] flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5" />
           <BarChart2 className="w-16 h-16 text-gray-700 mb-4" />
-          <h4 className="text-xl font-bold text-gray-300 mb-2">Sin datos financieros</h4>
+          <h4 className="text-xl font-bold text-gray-300 mb-2">Métricas Financieras</h4>
           <p className="text-gray-500 max-w-sm">
-            Tus gráficas de ingresos aparecerán aquí en cuanto comiences a recibir pagos y completar citas.
+            Tus gráficas detalladas de ingresos aparecerán aquí pronto.
           </p>
         </Card>
 
-        {/* Citas Vacías */}
-        <Card className="bg-gray-900/50 border-gray-800 min-h-[300px] flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
-          <CalendarDays className="w-16 h-16 text-gray-700 mb-4" />
-          <h4 className="text-xl font-bold text-gray-300 mb-2">No hay citas próximas</h4>
-          <p className="text-gray-500 max-w-sm mb-6">
-            Aún no tienes reservaciones para los próximos días. Comparte tu perfil para empezar a recibir pacientes.
-          </p>
-          <Button variant="outline" className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800">
-            Ver Mi Agenda
-          </Button>
+        {/* Columna 2: PRÓXIMAS CITAS DINÁMICAS */}
+        <Card className="bg-gray-900/80 border-gray-800 shadow-xl overflow-hidden flex flex-col">
+          <CardHeader className="border-b border-gray-800 bg-gray-900/50 pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-purple-400" />
+                Tus Próximas Citas
+              </CardTitle>
+              {upcomingAppointments.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => router.push('/provider/appointments')} className="text-purple-400 hover:text-purple-300">
+                  Ver todas
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          
+          <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
+            {upcomingAppointments.length === 0 ? (
+              // Estado Vacío
+              <div className="h-full flex flex-col items-center justify-center p-8 text-center min-h-[250px]">
+                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                  <CalendarDays className="w-8 h-8 text-gray-600" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-300 mb-1">No hay citas próximas</h4>
+                <p className="text-sm text-gray-500 max-w-xs mx-auto">
+                  Aún no tienes reservaciones para los próximos días. Comparte tu perfil para recibir pacientes.
+                </p>
+              </div>
+            ) : (
+              // Lista de Citas
+              <div className="divide-y divide-gray-800">
+                {upcomingAppointments.map((appt) => {
+                  const dateObj = parseISO(appt.startTime);
+                  const formattedDate = format(dateObj, "EEE d 'de' MMM", { locale: es });
+                  const formattedTime = format(dateObj, "h:mm a");
+
+                  return (
+                    <div key={appt.id} className="p-5 hover:bg-gray-800/50 transition-colors group">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="font-bold text-white text-lg">{appt.consumerName}</p>
+                          <p className="text-sm text-gray-400 font-medium">{appt.serviceName}</p>
+                        </div>
+                        {getStatusBadge(appt.status)}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <div className="flex items-center gap-1.5 bg-gray-950 px-2 py-1 rounded-md border border-gray-800">
+                            <Clock className="w-3.5 h-3.5 text-purple-400" />
+                            <span className="font-semibold text-gray-300 capitalize">{formattedDate} • {formattedTime}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {appt.modality === 'ONLINE' ? <Video className="w-4 h-4 text-blue-400" /> : <MapPin className="w-4 h-4 text-emerald-400" />}
+                            <span>{appt.modality === 'ONLINE' ? 'Videollamada' : 'En Clínica'}</span>
+                          </div>
+                        </div>
+
+                        {/* 🚀 BOTÓN PARA COMPLETAR CITA */}
+                        <Button 
+                          size="sm"
+                          onClick={() => router.push(`/provider/appointments/${appt.id}`)}
+                          className="bg-purple-600 hover:bg-purple-500 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Check className="w-4 h-4 mr-1.5" />
+                          Gestionar
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
         </Card>
 
       </div>

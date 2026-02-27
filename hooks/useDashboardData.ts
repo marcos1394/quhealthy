@@ -1,52 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { DashboardData } from '@/types/dashboard';
-import { toast } from 'react-toastify';
+// hooks/useDashboardData.ts
 
-export const useDashboardData = (dateRange: string) => {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+import { useState, useEffect, useCallback } from 'react';
+import { dashboardService } from '@/services/dashboard.service';
+import { ProviderDashboardResponse } from '@/types/dashboard';
+
+export const useDashboardData = (dateRange: string = 'this_month') => {
+  const [data, setData] = useState<ProviderDashboardResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboard = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-
+    
     try {
-      // 🚧 TODO: Reemplazar con llamada real axiosInstance.get('/api/dashboard')
-      // Simulamos la latencia de red
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Simulamos un usuario NUEVO
-      setData({
-        plan: {
-          id: 'trial_basic',
-          name: 'Plan Profesional (Prueba)',
-          status: 'TRIAL',
-          daysLeft: 14,
-          renewalDate: '2026-03-05'
-        },
-        hasConfiguredStore: false, // 👈 Disparará el aviso en la UI
-        verificationStatus: 'COMPLETED',
-        analytics: {
-          monthlyRevenue: 0,
-          completedAppointments: 0,
-          newClients: 0
-        },
-        upcomingAppointments: [] // Sin citas aún
-      });
-
+      // 🚀 Hacemos la llamada al backend. 
+      // Nota: Por ahora el backend calcula automáticamente el "mes actual" 
+      // usando la zona horaria del doctor. Si luego le añades filtros por fecha
+      // al backend, aquí le pasarías el parámetro `dateRange`.
+      const response = await dashboardService.getSummary();
+      setData(response);
     } catch (err: any) {
-      console.error("Error cargando dashboard:", err);
-      setError("No pudimos sincronizar tus métricas.");
-      toast.error("Error al cargar el dashboard");
+      console.error("❌ Error cargando el dashboard:", err);
+      // Extraemos el mensaje de error de forma segura
+      const errorMessage = err.response?.data?.message || "Ocurrió un error al sincronizar la información.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [dateRange]); // Se recarga si cambian las fechas
+  }, [dateRange]); // Se re-ejecuta si el usuario cambia el filtro en la UI
 
+  // Ejecutar al montar el componente
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    fetchData();
+  }, [fetchData]);
 
-  return { data, isLoading, error, refetch: fetchDashboard };
+  return { 
+    data, 
+    isLoading, 
+    error, 
+    refetch: fetchData // 🔄 Exportamos refetch para el botón de "Reintentar"
+  };
 };
