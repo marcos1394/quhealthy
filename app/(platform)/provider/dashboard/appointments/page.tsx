@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -19,80 +18,47 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 // --- COMPONENTES IMPORTADOS ---
-// Asegúrate de que estas rutas coincidan con donde guardaste los archivos
 import { CompletionModal } from '@/components/dashboard/CompletionModal';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
-// --- TIPOS ---
-interface Appointment {
-  id: number;
-  status: 'pending' | 'confirmed' | 'completed' | 'canceled_by_provider' | 'canceled_by_consumer';
-  startTime: string;
-  endTime: string;
-  provider: { name: string };
-  consumer: { name: string };
-  service: { 
-    name: string;
-    serviceDeliveryType: 'in_person' | 'video_call'; 
-  };
-}
+// --- HOOKS Y SERVICIOS (CLEAN ARCHITECTURE) ---
+import { useProviderAppointments } from '@/hooks/useProviderAppointments';
+import { appointmentService } from '@/services/appointment.service';
+import { ProviderAppointment } from '@/types/appointments';
 
 export default function ProviderAppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  
+  // 🚀 1. Magia limpia: Toda la carga de datos viene del Hook
+  const { appointments, setAppointments, isLoading, refetch } = useProviderAppointments();
 
   // --- ESTADOS PARA MODALES ---
   // Modal de Completar Cita
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<ProviderAppointment | null>(null);
 
   // Modal de Cancelar Cita
-  const [cancelModalState, setCancelModalState] = useState<{isOpen: boolean, appointment: Appointment | null}>({
+  const [cancelModalState, setCancelModalState] = useState<{isOpen: boolean, appointment: ProviderAppointment | null}>({
     isOpen: false, 
     appointment: null
   });
   const [isCanceling, setIsCanceling] = useState(false);
 
-  // --- CARGA DE DATOS (BACKEND REAL) ---
-  const fetchAppointments = useCallback(async () => {
-    // Solo mostramos loader full-screen si no tenemos datos previos
-    if (appointments.length === 0) setIsLoading(true); 
-    
-    try {
-      const { data } = await axios.get('/api/appointments/provider', { withCredentials: true });
-      setAppointments(data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al sincronizar la agenda.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [appointments.length]);
-
-  // Cargar al montar el componente
-  useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
-
   // --- HANDLERS (ACCIONES) ---
 
   // 1. Abrir Modal de Cancelación
-  const handleOpenCancelModal = (appointment: Appointment) => {
+  const handleOpenCancelModal = (appointment: ProviderAppointment) => {
     setCancelModalState({ isOpen: true, appointment });
   };
 
-  // 2. Confirmar Cancelación (Llamada a API)
+  // 2. Confirmar Cancelación (Llamada a API vía Service)
   const handleConfirmCancel = async () => {
     if (!cancelModalState.appointment) return;
     
     setIsCanceling(true);
     try {
-      await axios.put(
-        `/api/appointments/${cancelModalState.appointment.id}/cancel`, 
-        {}, // Body vacío si no requieres motivo obligatorio
-        { withCredentials: true }
-      );
+      // Usamos el servicio centralizado en lugar de axios directo
+      await appointmentService.cancelAppointment(cancelModalState.appointment.id, "Cancelada por el doctor desde la agenda");
       
       toast.success("Cita cancelada correctamente.");
       
@@ -105,9 +71,6 @@ export default function ProviderAppointmentsPage() {
       
       // Cerramos modal
       setCancelModalState({ isOpen: false, appointment: null });
-      
-      // Opcional: Recargar datos reales para asegurar consistencia
-      fetchAppointments();
 
     } catch (error) {
       console.error(error);
@@ -118,13 +81,13 @@ export default function ProviderAppointmentsPage() {
   };
 
   // 3. Abrir Modal de Completar
-  const handleOpenCompletionModal = (appointment: Appointment) => {
+  const handleOpenCompletionModal = (appointment: ProviderAppointment) => {
     setSelectedAppointment(appointment);
     setIsCompleteModalOpen(true);
   };
 
   // --- HELPERS VISUALES ---
-  const getStatusBadgeStyle = (status: Appointment['status']) => {
+  const getStatusBadgeStyle = (status: ProviderAppointment['status']) => {
     switch (status) {
       case 'completed': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'confirmed': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
@@ -134,7 +97,7 @@ export default function ProviderAppointmentsPage() {
     }
   };
 
-  const getStatusIcon = (status: Appointment['status']) => {
+  const getStatusIcon = (status: ProviderAppointment['status']) => {
     switch (status) {
       case 'completed': return <CheckCircle2 className="w-4 h-4" />;
       case 'confirmed': return <Check className="w-4 h-4" />;
@@ -143,7 +106,7 @@ export default function ProviderAppointmentsPage() {
     }
   };
 
-  const getStatusText = (status: Appointment['status']) => {
+  const getStatusText = (status: ProviderAppointment['status']) => {
     switch (status) {
       case 'completed': return 'Completada';
       case 'confirmed': return 'Confirmada';
@@ -224,8 +187,9 @@ export default function ProviderAppointmentsPage() {
                 appointments.map((appt, index) => {
                     const appointmentDate = new Date(appt.startTime);
                     const isToday = appointmentDate.toDateString() === new Date().toDateString();
-                    // Lógica de negocio: ¿Se puede completar? Solo si ya pasó la hora de fin O si estamos muy cerca.
-                    // Ajusta esta lógica según tus reglas de negocio.
+                    
+                    // Lógica de negocio: ¿Se puede completar? 
+                    // Verificamos si la cita ya comenzó
                     const isCompletable = new Date() >= new Date(appt.startTime); 
                     const isPast = new Date() > new Date(appt.endTime);
 
@@ -318,7 +282,7 @@ export default function ProviderAppointmentsPage() {
                                 </div>
                             </div>
 
-                            {/* Footer de Acciones Rápidas (Solo visibles si no está cancelada/completada) */}
+                            {/* Footer de Acciones Rápidas */}
                             {['confirmed', 'pending'].includes(appt.status) && (
                                 <div className="mt-4 pt-4 border-t border-gray-800 flex gap-6 text-xs font-medium text-gray-500">
                                     <button className="hover:text-purple-400 flex items-center gap-1.5 transition-colors">
@@ -365,7 +329,8 @@ export default function ProviderAppointmentsPage() {
         onClose={() => setIsCompleteModalOpen(false)}
         appointment={selectedAppointment}
         onComplete={() => {
-            fetchAppointments(); // Recargar datos del backend
+            // 🚀 Llamamos a la función refetch exportada por nuestro hook
+            refetch(); 
             setIsCompleteModalOpen(false);
         }}
       />

@@ -1,6 +1,6 @@
 // services/appointment.service.ts
 import axiosInstance from '@/lib/axios';
-import { Appointment, ReschedulePayload } from '@/types/appointments';
+import { Appointment, ProviderAppointment, ReschedulePayload } from '@/types/appointments';
 
 const BASE_URL = '/api/appointments';
 
@@ -73,6 +73,14 @@ export const appointmentService = {
     const response = await axiosInstance.get(`${BASE_URL}/${id}/invoice-pdf`, {
       responseType: 'blob', // Crítico para manejar archivos
     });
+    return response.data;
+  },
+
+  /**
+   * 🩺 Obtiene la lista formateada de citas para la agenda del Doctor
+   */
+  getProviderAppointments: async (): Promise<ProviderAppointment[]> => {
+    const response = await axiosInstance.get<ProviderAppointment[]>(`${BASE_URL}/provider`);
     return response.data;
   },
 

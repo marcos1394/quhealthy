@@ -86,6 +86,25 @@ export interface ReschedulePayload {
   newStartTime: string; // ISO 8601
 }
 
+// types/appointments.ts
+
+export interface ProviderAppointment {
+  id: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'canceled_by_provider' | 'canceled_by_consumer';
+  startTime: string; // ISO String
+  endTime: string;   // ISO String
+  provider: { 
+    name: string; 
+  };
+  consumer: { 
+    name: string; 
+  };
+  service: { 
+    name: string;
+    serviceDeliveryType: 'in_person' | 'video_call'; 
+  };
+}
+
 // ==========================================
 // INTERFAZ PARA LA UI DEL CALENDARIO
 // ==========================================
