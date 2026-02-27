@@ -1,30 +1,39 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'react-toastify';
 import { 
-  Calendar as CalendarIcon, Clock, Plus, Loader2, Settings, 
-  Link as LinkIcon, CheckCircle, RefreshCcw,
-  Badge,
+  Clock, 
+  Plus, 
+  Loader2, 
+  Settings, 
+  Link as LinkIcon, 
+  CheckCircle, 
+  RefreshCcw,
   CalendarDays,
   Sparkles,
   AlertCircle
 } from 'lucide-react';
 
-// 🚀 IMPORTAMOS TU INSTANCIA DE AXIOS
-import axiosInstance from '@/lib/axios';
-
-// ShadCN UI
+// --- SHADCN UI & UTILS ---
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-// Tus Componentes Inteligentes
+// --- COMPONENTES INTELIGENTES ---
 import { CalendarView } from '@/components/dashboard/CalendarView';
 import { OperatingHoursModal } from '@/components/dashboard/OperatingHours';
 import { TimeBlockModal } from '@/components/dashboard/TimeBlockModal';
-import { cn } from '@/lib/utils';
+
+// 🚀 NUESTRO HOOK ARQUITECTÓNICO (CLEAN ARCHITECTURE)
+import { useCalendarIntegration } from '@/hooks/useCalendarIntegration';
+
+/* ⚠️ ATENCIÓN: Mueve esto a tu app/provider/dashboard/calendar/layout.tsx 
+  export const metadata = {
+    title: "Agenda Virtual | QuHealthy",
+    description: "Gestiona tu disponibilidad y sincroniza tu calendario.",
+  };
+*/
 
 // --- COMPONENTE DE CARGA (FALLBACK) ---
 function CalendarLoading() {
@@ -41,58 +50,15 @@ function CalendarLoading() {
 
 // --- CONTENIDO PRINCIPAL ---
 function CalendarContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams(); 
-
-  // Estados de Modales
+  // Estados de Modales Propios
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   
-  // Estado para Sincronizar Componentes
+  // Estado para forzar la recarga del calendario al guardar un bloqueo/horario
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Estado de Google Calendar
-  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
-  const [isCheckingGoogle, setIsCheckingGoogle] = useState(true);
-
-  // 1. VERIFICAR ESTADO DE GOOGLE CALENDAR
-  useEffect(() => {
-    const checkGoogleStatus = async () => {
-      try {
-        const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/status');
-        setIsGoogleConnected(data.connected);
-      } catch (error) {
-        console.error("Error verificando estado de Google Calendar", error);
-      } finally {
-        setIsCheckingGoogle(false);
-      }
-    };
-
-    checkGoogleStatus();
-  }, []);
-
-  // 2. MANEJAR CALLBACK OAUTH DE GOOGLE
-  useEffect(() => {
-    const syncStatus = searchParams.get('calendar_status');
-    if (syncStatus === 'success') {
-      toast.success("¡Google Calendar conectado exitosamente! 🎉", { theme: "dark" });
-      setIsGoogleConnected(true);
-      router.replace('/provider/dashboard/calendar');
-    } else if (syncStatus === 'error') {
-      toast.error("Error al conectar con Google.", { theme: "dark" });
-      router.replace('/provider/dashboard/calendar');
-    }
-  }, [searchParams, router]);
-
-  // 3. INICIAR CONEXIÓN CON GOOGLE
-  const handleGoogleConnect = async () => {
-    try {
-      const { data } = await axiosInstance.get('/api/appointments/integrations/calendar/connect/GOOGLE_CALENDAR');
-      window.location.href = data; 
-    } catch (error) {
-      toast.error("No se pudo iniciar la conexión con Google.", { theme: "dark" });
-    }
-  };
+  // 🚀 MAGIA LIMPIA: Traemos toda la lógica de integración desde el Hook
+  const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } = useCalendarIntegration();
 
   return (
     <div className="min-h-screen bg-gray-950 p-4 sm:p-6 lg:p-8 font-sans selection:bg-purple-500/30">
@@ -211,7 +177,7 @@ function CalendarContent() {
         {/* --- 🚀 ÁREA DEL CALENDARIO (EL CORAZÓN) --- */}
         <Card className="bg-gray-900/80 border-gray-800 shadow-2xl overflow-hidden rounded-3xl">
           <CardContent className="p-0">
-            {/* Contenedor del Calendario (El componente CalendarView debe tener su propio scroll interno si crece mucho) */}
+            {/* El componente CalendarView se recargará si refreshKey cambia */}
             <div className="h-[70vh] min-h-[650px] w-full relative">
               <CalendarView key={refreshKey} />
             </div>
@@ -269,7 +235,8 @@ function CalendarContent() {
   );
 }
 
-// --- EXPORT DEFAULT CON SUSPENSE ---
+// --- EXPORT DEFAULT CON SUSPENSE OBLIGATORIO ---
+// Next.js requiere Suspense para componentes cliente que leen parámetros de la URL.
 export default function CalendarPage() {
   return (
     <Suspense fallback={<CalendarLoading />}>

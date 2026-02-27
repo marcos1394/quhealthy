@@ -113,13 +113,21 @@ export interface CalendarEvent {
   title: string;
   start: Date | string;
   end: Date | string;
+  
+  // 🎨 Estilos inyectados por la vista
   backgroundColor?: string;
   borderColor?: string;
+  textColor?: string; // 🚀 Añadido para el contraste del texto en las "píldoras"
+  className?: string; // 🚀 Añadido para inyectar clases CSS personalizadas ('apple-calendar-event')
+  
+  // 📦 Datos de negocio (La carga útil)
   extendedProps?: {
-    status?: string;
+    status?: 'confirmed' | 'pending' | 'completed' | 'cancelled' | string;
     clientName?: string;
     providerName?: string;
-    type?: string;
+    type?: string; // ej. 'APPOINTMENT' o 'TIME_BLOCK'
     notes?: string;
+    modality?: 'ONLINE' | 'IN_PERSON' | string; // 🚀 Para el ícono de Videollamada vs Clínica
+    paymentStatus?: 'SETTLED' | 'PENDING_PAYMENT' | string; // 🚀 Para el estado de facturación en el Modal
   };
 }
