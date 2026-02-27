@@ -228,10 +228,10 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
             <p className="text-gray-400 font-medium">Cargando tu configuración...</p>
           </div>
         ) : (
-          <div className="bg-transparent flex flex-col max-h-[70vh]">
+          <div className="bg-transparent flex flex-col">
             
-            <ScrollArea className="flex-1 px-6 py-6 custom-scrollbar">
-              
+            <div className="px-6 py-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+
               {/* 🚀 PLANTILLAS RÁPIDAS */}
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3 px-1">
@@ -333,16 +333,16 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
                                 />
                               </div>
 
-                              {/* Botón Copiar Sutil */}
+                              {/* Botón Copiar Explícito */}
                               <Button 
                                 variant="ghost" 
-                                size="default" 
+                                size="sm" 
                                 onClick={() => handleCopyToOtherDays(day.dayOfWeek)} 
-                                className="h-9 w-9 text-gray-500 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl hidden sm:flex" 
-                                title="Copiar este horario a todos los días"
+                                className="h-9 px-2.5 text-xs text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded-xl hidden sm:flex items-center gap-1.5 transition-colors border border-transparent hover:border-purple-500/30" 
                               >
-                                <Copy className="w-4 h-4" />
-                              </Button>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span className="hidden md:inline font-semibold">Aplicar a todos</span>
+                              </Button>                           
                             </motion.div>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-600 h-9 px-4">
@@ -363,7 +363,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
                   })}
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
             {/* Warning if no days active */}
             {!isLoading && activeSchedulesCount === 0 && (
