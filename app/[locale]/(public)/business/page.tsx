@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Globe, LayoutTemplate, HandCoins, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
 
 export default function BusinessPage() {
     const t = useTranslations('Platform.Business');
@@ -18,7 +19,7 @@ export default function BusinessPage() {
 
             {/* Hero */}
             <div className="py-24 lg:py-32 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <span className="inline-block px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold rounded-full text-sm uppercase tracking-widest mb-6">
                         Para Proveedores Médicos
                     </span>
@@ -37,20 +38,20 @@ export default function BusinessPage() {
                             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
-                </div>
+                </FadeIn>
             </div>
 
             {/* Stats */}
             <div className="py-16 bg-medical-900 dark:bg-medical-950 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-medical-700/50">
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-medical-700/50">
                         {stats.map((stat) => (
-                            <div key={stat} className="py-8 md:py-0 flex flex-col items-center justify-center">
+                            <StaggerItem key={stat} className="py-8 md:py-0 flex flex-col items-center justify-center">
                                 <div className="text-5xl lg:text-6xl font-extrabold mb-2">{t(`stats.${stat}`)}</div>
                                 <div className="text-medical-200 font-semibold uppercase tracking-wider text-sm">{t(`stats.${stat}_label`)}</div>
-                            </div>
+                            </StaggerItem>
                         ))}
-                    </div>
+                    </StaggerContainer>
                 </div>
             </div>
 
@@ -61,9 +62,9 @@ export default function BusinessPage() {
                         <h2 className="text-4xl font-bold text-slate-900 dark:text-white">{t('benefits_title')}</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         {benefits.map((ben) => (
-                            <div key={ben.id} className="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 hover:-translate-y-2 transition-transform duration-300">
+                            <StaggerItem key={ben.id} className="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 hover:-translate-y-2 transition-transform duration-300">
                                 <div className="h-16 w-16 bg-medical-50 dark:bg-medical-900/20 rounded-2xl flex items-center justify-center mb-8">
                                     {ben.icon}
                                 </div>
@@ -73,9 +74,9 @@ export default function BusinessPage() {
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                                     {t(`benefits.${ben.id}_desc`)}
                                 </p>
-                            </div>
+                            </StaggerItem>
                         ))}
-                    </div>
+                    </StaggerContainer>
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Briefcase, Globe, HeartPulse, GraduationCap } from 'lucide-react';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
 
 export default function CareersPage() {
     const t = useTranslations('Company.Careers');
@@ -17,14 +18,14 @@ export default function CareersPage() {
             {/* Hero */}
             <div className="py-24 lg:py-32 bg-medical-900 dark:bg-medical-950 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
                         {t('title')}
                     </h1>
                     <p className="text-xl md:text-2xl text-medical-200 max-w-2xl mx-auto">
                         {t('subtitle')}
                     </p>
-                </div>
+                </FadeIn>
             </div>
 
             {/* Benefits */}
@@ -34,24 +35,24 @@ export default function CareersPage() {
                         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">{t('why_join')}</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {benefits.map((b) => (
-                            <div key={b.idx} className="flex flex-col items-center text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                            <StaggerItem key={b.idx} className="flex flex-col items-center text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
                                 <div className="h-14 w-14 bg-medical-100 dark:bg-medical-900 text-medical-600 dark:text-medical-400 rounded-full flex items-center justify-center mb-6">
                                     {b.icon}
                                 </div>
                                 <h3 className="font-semibold text-slate-900 dark:text-white text-lg">
                                     {t(`benefits.${b.idx}`)}
                                 </h3>
-                            </div>
+                            </StaggerItem>
                         ))}
-                    </div>
+                    </StaggerContainer>
                 </div>
             </div>
 
             {/* Open Positions Placeholder */}
             <div className="py-24">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <FadeIn className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-10">{t('open_positions')}</h2>
 
                     <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -68,7 +69,7 @@ export default function CareersPage() {
                             {t('apply')}
                         </a>
                     </div>
-                </div>
+                </FadeIn>
             </div>
 
         </div>

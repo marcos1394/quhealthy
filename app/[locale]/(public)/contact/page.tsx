@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Mail, MapPin, Phone } from 'lucide-react';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
 
 export default function ContactPage() {
     const t = useTranslations('Company.Contact');
@@ -11,22 +12,22 @@ export default function ContactPage() {
 
             {/* Header */}
             <div className="py-24 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-balance">
+                <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-balance">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
                         {t('title')}
                     </h1>
                     <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                         {t('subtitle')}
                     </p>
-                </div>
+                </FadeIn>
             </div>
 
             <div className="py-20 lg:py-24">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+                    <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
 
                         {/* Contact Form */}
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 md:p-12">
+                        <StaggerItem className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 md:p-12">
                             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -75,10 +76,10 @@ export default function ContactPage() {
                                     {t('form.submit')}
                                 </button>
                             </form>
-                        </div>
+                        </StaggerItem>
 
                         {/* Support Info */}
-                        <div className="flex flex-col space-y-12">
+                        <StaggerItem className="flex flex-col space-y-12">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0">
                                     <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-medical-100 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400">
@@ -114,9 +115,9 @@ export default function ContactPage() {
                                     <p className="text-lg text-slate-600 dark:text-slate-400">{t('info.phone')}</p>
                                 </div>
                             </div>
-                        </div>
+                        </StaggerItem>
 
-                    </div>
+                    </StaggerContainer>
                 </div>
             </div>
 

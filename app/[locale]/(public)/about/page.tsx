@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Target, Eye, Shield, Heart } from 'lucide-react';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
 
 export default function AboutPage() {
     const t = useTranslations('Company.About');
@@ -33,21 +34,21 @@ export default function AboutPage() {
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-medical-500/10 to-teal-500/10 dark:from-medical-500/5 dark:to-teal-500/5" />
                 </div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6">
                         {t('title')}
                     </h1>
                     <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto font-medium">
                         {t('subtitle')}
                     </p>
-                </div>
+                </FadeIn>
             </div>
 
             {/* Mission & Vision Section */}
             <div className="py-24 bg-white dark:bg-slate-900 transition-colors duration-300 border-y border-slate-200 dark:border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                        <div className="bg-slate-50 dark:bg-slate-950 p-10 md:p-14 rounded-3xl border border-slate-200 dark:border-slate-800">
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                        <StaggerItem className="bg-slate-50 dark:bg-slate-950 p-10 md:p-14 rounded-3xl border border-slate-200 dark:border-slate-800">
                             <div className="h-14 w-14 bg-medical-100 dark:bg-medical-900/30 rounded-2xl flex items-center justify-center mb-8">
                                 <Target className="h-7 w-7 text-medical-600 dark:text-medical-400" />
                             </div>
@@ -55,8 +56,8 @@ export default function AboutPage() {
                             <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                                 {t('mission_desc')}
                             </p>
-                        </div>
-                        <div className="bg-slate-50 dark:bg-slate-950 p-10 md:p-14 rounded-3xl border border-slate-200 dark:border-slate-800">
+                        </StaggerItem>
+                        <StaggerItem className="bg-slate-50 dark:bg-slate-950 p-10 md:p-14 rounded-3xl border border-slate-200 dark:border-slate-800">
                             <div className="h-14 w-14 bg-teal-100 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center mb-8">
                                 <Eye className="h-7 w-7 text-teal-600 dark:text-teal-400" />
                             </div>
@@ -64,8 +65,8 @@ export default function AboutPage() {
                             <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                                 {t('vision_desc')}
                             </p>
-                        </div>
-                    </div>
+                        </StaggerItem>
+                    </StaggerContainer>
                 </div>
             </div>
 
@@ -77,9 +78,9 @@ export default function AboutPage() {
                         <div className="h-1.5 w-24 bg-medical-500 rounded-full mx-auto"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-10">
                         {values.map((val) => (
-                            <div key={val.id} className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+                            <StaggerItem key={val.id} className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
                                 <div className="h-12 w-12 bg-medical-50 dark:bg-medical-900/20 rounded-xl flex items-center justify-center mb-6">
                                     {val.icon}
                                 </div>
@@ -87,9 +88,9 @@ export default function AboutPage() {
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                                     {val.desc}
                                 </p>
-                            </div>
+                            </StaggerItem>
                         ))}
-                    </div>
+                    </StaggerContainer>
                 </div>
             </div>
 
