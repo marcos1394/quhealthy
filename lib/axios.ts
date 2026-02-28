@@ -1,12 +1,12 @@
-import axios, { 
-  AxiosInstance, 
-  InternalAxiosRequestConfig, 
-  AxiosError, 
-  AxiosResponse 
+import axios, {
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+  AxiosError,
+  AxiosResponse
 } from 'axios';
-import { useSessionStore } from '@/stores/SessionStore'; // ✅ Importamos el Store
+import { useSessionStore } from '@/stores/SessionStore';
 
-// Definimos la estructura de error que suele devolver Spring Boot
+// Estructura de error esperada desde Spring Boot
 interface ApiErrorResponse {
   message?: string;
   error?: string;
@@ -17,23 +17,42 @@ interface ApiErrorResponse {
 // 1. Creación de la instancia
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org',
-  timeout: 45000, 
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
+  withCredentials: true, // Importante para enviar automáticamente el refreshToken (httpOnly cookie) al backend
 });
+
+// Variables para manejar la cola de requests rotos (Token Refresh Auto)
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: AxiosError | null, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 // 2. Interceptor de Solicitud (Request)
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // ✅ LEEMOS EL TOKEN DESDE ZUSTAND (Más seguro y reactivo)
+    // Leer el token directamente desde memoria (Zustand)
     const token = useSessionStore.getState().token;
-    
+
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
   (error: AxiosError) => {
@@ -46,42 +65,101 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error: AxiosError<ApiErrorResponse>) => {
-    
-    // Si es 404 (Recurso no encontrado), lo dejamos pasar para manejo local
+  async (error: AxiosError<ApiErrorResponse>) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    // Si es 404, lo dejamos pasar
     if (error.response && error.response.status === 404) {
       return Promise.reject(error);
     }
 
+    // =========================================================================
+    //  INTERCEPTOR 401: AUTO-REFRESH TOKEN (Implementado según requerimiento)
+    // =========================================================================
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+
+      // Prevenir bucle infinito si falla el propio endpoint de login o refresh
+      if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/refresh-token')) {
+        return Promise.reject(error);
+      }
+
+      // Si ya hay alguien haciendo refresh, encolar el request actual
+      if (isRefreshing) {
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          return axiosInstance(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Ejecutamos el refresh-token (el backend extraerá la httpOnly cookie)
+        const refreshRes = await axios.post('/api/auth/refresh-token', {}, {
+          baseURL: axiosInstance.defaults.baseURL,
+          withCredentials: true
+        });
+
+        const newToken = refreshRes.data.token;
+
+        // Actualizar token en Zustand (memoria)
+        useSessionStore.getState().updateToken({
+          token: newToken,
+          role: refreshRes.data.role,
+          user: refreshRes.data.user,
+          status: refreshRes.data.status,
+          expiresIn: refreshRes.data.expiresIn
+        });
+
+        // Procesar todos los pendientes con el nuevo token
+        processQueue(null, newToken);
+
+        // Reintentamos el request original que disparó este 401
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
+
+        return axiosInstance(originalRequest);
+
+      } catch (refreshError) {
+        // Falló el refresh (expiro o cookie inválida), limpiar y desloguear
+        processQueue(refreshError as AxiosError, null);
+
+        useSessionStore.getState().clearSession();
+
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          window.location.href = '/login?expired=true';
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // =========================================================================
+    //  MANEJO GENÉRICO DE ERRORES HTTP
+    // =========================================================================
     let errorMessage = 'Ocurrió un error inesperado. Intenta nuevamente.';
 
     if (error.response) {
-      // Prioridad 1: Mensaje del Backend
       if (error.response.data?.message) {
         errorMessage = error.response.data.message;
-      } 
-      else if (error.response.data?.error) {
+      } else if (error.response.data?.error) {
         errorMessage = error.response.data.error;
       }
 
-      // Manejo específico de códigos HTTP
       switch (error.response.status) {
-        case 401: // Unauthorized (Token vencido o inválido)
-          errorMessage = 'Tu sesión ha expirado.';
-          
-          // ✅ LIMPIEZA AUTOMÁTICA DE SESIÓN
-          useSessionStore.getState().clearSession();
-          
-          // Redirección forzada al login si no estamos ya ahí
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-             window.location.href = '/login?expired=true';
-          }
-          break;
-          
         case 403:
           errorMessage = 'No tienes permisos para realizar esta acción.';
           break;
-          
         case 500:
           errorMessage = 'Error interno del servidor.';
           break;
@@ -90,10 +168,9 @@ axiosInstance.interceptors.response.use(
       errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
     }
 
-    // Creamos un error limpio
     const customError = new Error(errorMessage);
     (customError as any).status = error.response?.status;
-    (customError as any).originalError = error.response?.data; // Guardamos la data original por si acaso
+    (customError as any).originalError = error.response?.data;
 
     return Promise.reject(customError);
   }

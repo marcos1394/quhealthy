@@ -111,7 +111,7 @@ export default function ConsumerSignupPage() {
     try {
       const nameParts = formData.name.trim().split(' ');
       const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || 'Pendiente';
+      const lastName = nameParts.slice(1).join(' ') || '';
 
       const signupData: RegisterConsumerRequest = {
         firstName: firstName,
@@ -119,19 +119,19 @@ export default function ConsumerSignupPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         phone: formData.phone ? formData.phone.trim() : undefined,
-        termsAccepted: formData.acceptTerms,
+        termsAccepted: formData.acceptTerms as true,
         utmSource: "web_direct",
         utmMedium: "organic"
       };
 
       const response = await registerConsumer(signupData);
 
-      toast.success(response.message || "¡Bienvenido a QuHealthy!", {
+      toast.success(response.message || "¡Registro exitoso! Por favor, revisa tu correo.", {
         position: "top-center",
       });
 
       setTimeout(() => {
-        router.push('/login');
+        router.push(`/verify-email?email=${encodeURIComponent(response.email)}`);
       }, 1500);
 
     } catch (err: any) {

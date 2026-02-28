@@ -123,14 +123,14 @@ export default function ProviderSignupPage() {
         lastName: nameParts.slice(1).join(' ') || '',
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        termsAccepted: formData.acceptTerms
+        termsAccepted: formData.acceptTerms as true
       };
 
       const res = await registerProvider(signupData);
 
-      if (res && res.status) {
-        toast.success("¡Cuenta creada correctamente!");
-        router.push(res.status.onboardingComplete ? "/provider/dashboard" : "/onboarding");
+      if (res && res.id) {
+        toast.success("¡Cuenta creada correctamente! Por favor, revisa tu correo.");
+        router.push(`/verify-email?email=${encodeURIComponent(res.email)}`);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }

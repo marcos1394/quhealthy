@@ -104,7 +104,10 @@ export default function AccountRecoveryPage() {
     setError("");
 
     try {
-      await sendRecoveryCode({ contact, method });
+      await sendRecoveryCode({
+        contact,
+        method: method === "email" ? "EMAIL" : "SMS"
+      });
       toast.success(t('code_sent_title'));
       setStep(2);
       setCodeTimer(300);
@@ -122,7 +125,10 @@ export default function AccountRecoveryPage() {
     setCodeTimer(300);
     setLoading(true);
     try {
-      await sendRecoveryCode({ contact, method });
+      await sendRecoveryCode({
+        contact,
+        method: method === "email" ? "EMAIL" : "SMS"
+      });
       toast.success(t('code_sent_title'));
     } catch (err: any) {
       setError(err.message);

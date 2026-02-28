@@ -27,9 +27,7 @@ function ResetPasswordForm() {
   const t = useTranslations("AuthResetPassword");
   const { validateResetToken, confirmResetPassword } = useAuth();
 
-  const selector = searchParams.get("selector");
-  const verifier = searchParams.get("verifier");
-  const simpleToken = searchParams.get("token");
+  const token = searchParams.get("token");
 
   const [tokenState, setTokenState] = useState<"checking" | "valid" | "invalid" | "expired">("checking");
   const [password, setPassword] = useState("");
@@ -44,12 +42,12 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     const validate = async () => {
-      if (!simpleToken && (!selector || !verifier)) { setTokenState("invalid"); return; }
-      try { await validateResetToken({ selector, verifier, token: simpleToken }); setTokenState("valid"); }
+      if (!token) { setTokenState("invalid"); return; }
+      try { await validateResetToken({ token }); setTokenState("valid"); }
       catch (err: any) { setTokenState(err.message?.includes("expired") ? "expired" : "invalid"); }
     };
     validate();
-  }, [selector, verifier, simpleToken]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setPwdRules(passwordRulesConfig.map(r => ({ ...r, valid: r.regex.test(password) }))); }, [password]);
 
@@ -57,10 +55,10 @@ function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid()) return;
+    if (!isValid() || !token) return;
     setLoading(true); setError("");
     try {
-      await confirmResetPassword({ selector, verifier, token: simpleToken, password });
+      await confirmResetPassword({ token, newPassword: password });
       setSuccess(true); toast.success(t("success_title"), { position: "top-center" });
       setTimeout(() => router.push("/login"), 3000);
     } catch (err: any) { setError(err.message || "Error"); toast.error(err.message); }

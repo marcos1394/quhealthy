@@ -1,37 +1,79 @@
 // ================================
 // ENUMS & TYPES
 // ================================
-export type UserRole = 'PROVIDER' | 'CONSUMER' | 'ADMIN';
-export type ServiceType = 'HEALTH' | 'WELLNESS'; // Debe coincidir con tu Enum de Java
+export type UserRole = 'CONSUMER' | 'PROVIDER' | 'ADMIN';
+export type ServiceType = 'HEALTH' | 'WELLNESS'; // Mantener si se usaba
 
 // ================================
-// REGISTRO (REQUESTS)
+// REGISTRO (REQUESTS & RESPONSES)
 // ================================
 
 export interface RegisterConsumerRequest {
-  firstName: string;      // 👈 Cambiado de 'name'
-  lastName: string;       // 👈 Nuevo campo
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-  phone?: string;         // 👈 Opcional según tu @Pattern en Java
-  termsAccepted: boolean; // 👈 Alineado con el nombre en Java
+  phone?: string;
+  termsAccepted: true;
   referralCode?: string;
   utmSource?: string;
   utmMedium?: string;
 }
 
+export interface ConsumerRegistrationResponse {
+  id: number;
+  email: string;
+  firstName: string;
+  message: string;
+  createdAt: string; // ISO 8601
+}
+
 export interface RegisterProviderRequest {
-  // Datos de identidad
   firstName: string;
   lastName: string;
-
-  // Credenciales
   email: string;
   password: string;
-
-  // Legal
-  termsAccepted: boolean;
+  termsAccepted: true;
 }
+
+export interface ProviderRegistrationResponse {
+  id: number;
+  email: string;
+  firstName: string;
+  message: string;
+  createdAt: string; // ISO 8601
+}
+
+// ================================
+// AUTENTICACIÓN CENTRALIZADA (RESPONSE)
+// ================================
+
+export interface AuthUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profileImageUrl: string | null;
+}
+
+export interface AuthStatus {
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  onboardingComplete: boolean;
+  hasActivePlan: boolean;
+}
+
+export interface AuthResponse {
+  token: string;
+  type: 'Bearer';
+  refreshToken: string;
+  expiresIn: number;        // segundos hasta expiración del access token
+  role: UserRole;
+  message: string;
+  user: AuthUser;
+  status: AuthStatus;
+}
+
 // ================================
 // LOGIN (REQUESTS)
 // ================================
@@ -42,159 +84,94 @@ export interface LoginRequest {
 }
 
 export interface SocialLoginRequest {
-  token: string; // Token de Google/Firebase
-  role: UserRole;
+  token: string;      // id_token de Google o Apple
+  provider: 'GOOGLE' | 'APPLE';
+  role: 'CONSUMER' | 'PROVIDER';  // ADMIN nunca desde este flujo
 }
 
 // ================================
-// 👤 USER DTO (NUEVO - ALINEADO CON BACKEND)
+// RECUPERACIÓN DE CONTRASEÑA (FORGOT PASSWORD)
 // ================================
-export interface UserDTO {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  profileImageUrl?: string; // Puede venir null
-}
-
-// ================================
-// 🚦 ESTADO DE CUENTA
-// ================================
-export interface AuthStatus {
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  onboardingComplete: boolean;
-  hasActivePlan: boolean;
-}
-
-// ================================
-// 🔐 RESPUESTA DE AUTENTICACIÓN
-// ================================
-export interface AuthResponse {
-  token: string;
-  type: string;
-  refreshToken: string | null;
-  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN';
-  message: string;
-
-  // ✅ ESTOS SON LOS CAMBIOS CLAVE:
-  user: UserDTO;      // Objeto completo del usuario
-  status: AuthStatus; // Estado de la cuenta
-}
-
-
-// ================================
-// RESPUESTAS (RESPONSES)
-// ================================
-
-
-
-/**
- * Respuesta al REGISTRAR un CONSUMER (201 Created)
- */
-export interface ConsumerRegistrationResponse {
-  message: string;
-  consumerId: number; // o string, según tu Long en Java
-  email: string;
-}
-
-/**
- * Respuesta al REGISTRAR un PROVIDER (201 Created)
- */
-/**
- * Respuesta al REGISTRAR un PROVIDER (201 Created)
- * Alineada con el flujo de "Auto-Login" y "Baja Fricción"
- */
-export interface ProviderRegistrationResponse {
-  message: string;
-  token: string;
-  type: string;
-  refreshToken: string | null;
-  role: 'PROVIDER' | 'CONSUMER';
-
-  // Datos del usuario creado
-  user: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    profileImageUrl: string | null;
-  };
-
-  // 🚩 VITAL: Semáforos de estado para navegación
-  status: {
-    onboardingComplete: boolean;
-    hasActivePlan: boolean;
-    emailVerified: boolean;
-    phoneVerified: boolean;
-  };
-}
-
-// ================================
-// VERIFICACIÓN & RECUPERACIÓN
-// ================================
-
-export interface VerifyEmailRequest {
-  token: string;
-}
-
-export interface VerifyPhoneRequest {
-  phone: string;
-  code: string;
-}
-
-export interface ResendVerificationRequest {
-  email?: string; // Puede ser email o phone, según el caso
-  phone?: string;
-}
 
 export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  selector: string; // Token de seguridad parte 1
-  verifier: string; // Token de seguridad parte 2
-  newPassword: string;
-}
-
-// --- Recovery Flow (forgot-password page) ---
-export interface SendRecoveryCodeRequest {
-  contact: string;
-  method: 'email' | 'phone';
+  contact: string;            // email o número de teléfono
+  method: 'EMAIL' | 'SMS';
 }
 
 export interface VerifyRecoveryCodeRequest {
   contact: string;
-  code: string;
+  code: string;               // 6 dígitos
 }
 
 export interface RecoveryResetPasswordRequest {
   contact: string;
-  code: string;
+  code: string;               // mismo PIN verificado
   newPassword: string;
 }
 
-// --- Reset Password (reset-password page, token-based from email link) ---
+// ================================
+// RESET PASSWORD (VÍA LINK)
+// ================================
+
 export interface ValidateResetTokenRequest {
-  selector?: string | null;
-  verifier?: string | null;
-  token?: string | null;
+  token: string;              // viene del query param de la URL
 }
 
 export interface ConfirmResetPasswordRequest {
-  selector?: string | null;
-  verifier?: string | null;
-  token?: string | null;
-  password: string;
+  token: string;
+  newPassword: string;
 }
 
-// --- Resend phone verification ---
-export interface ResendPhoneCodeRequest {
-  // Empty body—auth is handled by cookie/token
+// ================================
+// VERIFICACIÓN DE IDENTIDAD (EMAIL & PHONE)
+// ================================
+
+// Verify Email: GET con query param, no necesita interface de request
+export interface VerifyEmailResponse {
+  message: string;
 }
 
-// Respuesta genérica para operaciones simples (ej: "Email enviado")
+export interface VerifyPhoneRequest {
+  code: string;        // 6 dígitos
+  identifier: string;  // email o teléfono del usuario
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+  type: 'EMAIL' | 'SMS';
+}
+
+// ================================
+// REFRESH TOKEN & LOGOUT
+// ================================
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  token: string;
+  type: 'Bearer';
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface LogoutRequest {
+  refreshToken: string;  // para invalidar el refresh token en el backend
+}
+
+// ================================
+// DEVICE TOKENS (FCM)
+// ================================
+
+export interface RegisterDeviceTokenRequest {
+  fcmToken: string;
+}
+
+// ================================
+// RESPUESTAS GENÉRICAS
+// ================================
+
 export interface MessageResponse {
   message: string;
 }

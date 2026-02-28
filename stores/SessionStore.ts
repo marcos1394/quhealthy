@@ -1,12 +1,12 @@
 // src/stores/SessionStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { AuthResponse, UserDTO, AuthStatus } from '@/types/auth'; // Importamos las interfaces nuevas
+import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth'; // Nuevas interfaces
 
 interface SessionState {
   // Estado
   token: string | null;
-  user: UserDTO | null;
+  expiresAt: number | null; // Seguimiento de expiración sugerido en el plan 4.2
+  user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
   status: AuthStatus | null;
   isAuthenticated: boolean;
@@ -14,60 +14,57 @@ interface SessionState {
 
   // Acciones
   setSession: (authResponse: AuthResponse) => void;
+  updateToken: (payload: Partial<AuthResponse>) => void; // Para interceptor
   clearSession: () => void;
   setLoading: (loading: boolean) => void;
 }
 
-export const useSessionStore = create<SessionState>()(
-  persist(
-    (set) => ({
-      // Estado Inicial
+export const useSessionStore = create<SessionState>((set) => ({
+  // Estado Inicial
+  token: null,
+  expiresAt: null,
+  user: null,
+  role: null,
+  status: null,
+  isAuthenticated: false,
+  isLoading: true, // Empieza cargando para que la app valide vía GET /session primero si es necesario
+
+  // Acción: Guardar Sesión (Login Exitoso o Refresco Maestro)
+  setSession: (response) => {
+    set({
+      token: response.token,
+      expiresAt: response.expiresIn ? Date.now() + response.expiresIn * 1000 : null,
+      user: response.user,
+      role: response.role,
+      status: response.status,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  },
+
+  updateToken: (payload) => {
+    set((state) => ({
+      token: payload.token !== undefined ? payload.token : state.token,
+      expiresAt: payload.expiresIn ? Date.now() + payload.expiresIn * 1000 : state.expiresAt,
+      role: payload.role !== undefined ? payload.role : state.role,
+      user: payload.user !== undefined ? payload.user : state.user,
+      status: payload.status !== undefined ? payload.status : state.status,
+      isAuthenticated: !!(payload.token || state.token),
+    }));
+  },
+
+  // Acción: Cerrar Sesión (No hay persistencia en origin así que basta setear memory a null)
+  clearSession: () => {
+    set({
       token: null,
+      expiresAt: null,
       user: null,
       role: null,
       status: null,
       isAuthenticated: false,
-      isLoading: true, // Empieza cargando para que el layout valide
+      isLoading: false, // Dejar en false para renderizar el fallback (login)
+    });
+  },
 
-      // Acción: Guardar Sesión (Login Exitoso)
-      setSession: (response) => {
-        set({
-          token: response.token,
-          user: response.user,     // ✅ Guardamos el objeto UserDTO directo
-          role: response.role,
-          status: response.status,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      },
-
-      // Acción: Cerrar Sesión
-      clearSession: () => {
-        set({
-          token: null,
-          user: null,
-          role: null,
-          status: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-        // Opcional: Limpieza forzada de cookies/storage si es necesario
-        localStorage.removeItem('quhealthy-session'); 
-      },
-      
-      setLoading: (loading) => set({ isLoading: loading }),
-    }),
-    {
-      name: 'quhealthy-session', // Nombre de la key en localStorage
-      storage: createJSONStorage(() => localStorage), // Persistencia automática
-      partialize: (state) => ({ 
-        // Solo persistimos estos campos (No persistimos isLoading para evitar bugs visuales)
-        token: state.token,
-        user: state.user,
-        role: state.role,
-        status: state.status,
-        isAuthenticated: state.isAuthenticated
-      }),
-    }
-  )
-);
+  setLoading: (loading) => set({ isLoading: loading }),
+}));

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 export default function VerifyPhonePage() {
   const t = useTranslations("AuthVerifyPhone");
-  const { verifyPhoneWithToken, resendPhoneCode } = useAuth();
+  const { verifyPhone, resendVerification } = useAuth();
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -28,15 +28,15 @@ export default function VerifyPhonePage() {
   const [canResend, setCanResend] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const router = useRouter();
-  const { role } = useSessionStore();
+  const { role, user } = useSessionStore();
 
   useEffect(() => {
-    if (codeTimer > 0) { const t = setTimeout(() => setCodeTimer(p => p - 1), 1000); return () => clearTimeout(t); }
+    if (codeTimer > 0) { const tm = setTimeout(() => setCodeTimer(p => p - 1), 1000); return () => clearTimeout(tm); }
     else setCanResend(true);
   }, [codeTimer]);
 
   useEffect(() => {
-    if (resendCooldown > 0) { const t = setTimeout(() => setResendCooldown(p => p - 1), 1000); return () => clearTimeout(t); }
+    if (resendCooldown > 0) { const tm = setTimeout(() => setResendCooldown(p => p - 1), 1000); return () => clearTimeout(tm); }
   }, [resendCooldown]);
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
@@ -50,9 +50,13 @@ export default function VerifyPhonePage() {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (code.length !== 6) return;
+    if (!user?.email) {
+      toast.error(t("user_not_identified") || "Usuario no identificado.");
+      return;
+    }
     setIsLoading(true); setError("");
     try {
-      await verifyPhoneWithToken(code);
+      await verifyPhone({ code, identifier: user.email });
       setSuccess(true);
       toast.success(t("success_title"), { position: "top-center" });
       setTimeout(() => {
@@ -66,9 +70,13 @@ export default function VerifyPhonePage() {
   };
 
   const handleResendCode = async () => {
+    if (!user?.email) {
+      toast.error(t("user_not_identified") || "Usuario no identificado.");
+      return;
+    }
     setIsResending(true); setError("");
     try {
-      await resendPhoneCode();
+      await resendVerification({ email: user.email, type: 'SMS' });
       toast.success(t("resend_button"));
       setCodeTimer(300); setCanResend(false); setResendCooldown(60);
     } catch (err: any) { setError(err.message); toast.error(err.message); }
