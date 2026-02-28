@@ -1950,6 +1950,67 @@
             }
         }
     },
+    "Platform": {
+        "Market": {
+            "title": "QuHealthy Market",
+            "subtitle": "Tu destino principal para productos de salud y bienestar, evaluados por profesionales médicos.",
+            "hero_desc": "Desde medicamentos recetados hasta suplementos de bienestar y equipo médico, todo lo que necesitas para tu salud entregado en tu puerta.",
+            "categories_title": "Comprar por Categoría",
+            "categories": {
+                "pharmacy": "Farmacia y Recetas",
+                "wellness": "Vitaminas y Suplementos",
+                "equipment": "Equipo Médico",
+                "skincare": "Dermatología y Cuidado de la Piel"
+            },
+            "features": {
+                "delivery": "Entrega Rápida",
+                "delivery_desc": "Entrega el mismo día disponible en las principales ciudades.",
+                "verified": "Verificado Médicamente",
+                "verified_desc": "Todos los productos son evaluados por nuestra red de profesionales de la salud.",
+                "secure": "Pagos Seguros",
+                "secure_desc": "Transacciones encriptadas para tu total tranquilidad."
+            },
+            "cta_title": "Comienza a Comprar Hoy",
+            "cta_button": "Explorar Catálogo"
+        },
+        "Academy": {
+            "title": "QuHealthy Academy",
+            "subtitle": "Empoderando a pacientes y profesionales con educación en salud de clase mundial.",
+            "about_title": "El Conocimiento es Salud",
+            "about_desc": "Accede a una biblioteca curada de cursos, webinarios y artículos creados por destacados expertos médicos. Ya seas un paciente buscando entender una condición o un doctor en busca de educación continua, tenemos recursos para ti.",
+            "tracks_title": "Rutas de Aprendizaje",
+            "tracks": {
+                "patients": "Para Pacientes",
+                "patients_desc": "Entiende tu salud, nutrición y bienestar a través de cursos fáciles de digerir.",
+                "professionals": "Para Profesionales",
+                "professionals_desc": "Cursos clínicos avanzados, gestión de consultorios y mejores prácticas de telemedicina."
+            },
+            "cta_title": "Nunca Dejes de Aprender",
+            "cta_button": "Ver Cursos"
+        },
+        "Business": {
+            "title": "QuHealthy para Doctores",
+            "subtitle": "El sistema operativo definitivo para tu práctica médica.",
+            "hero_desc": "Únete a miles de doctores que han modernizado su consultorio, incrementado sus ingresos y mejorado los resultados de sus pacientes con nuestra plataforma todo en uno.",
+            "benefits_title": "¿Por qué unirte a nuestra red?",
+            "benefits": {
+                "reach": "Expande tu Alcance",
+                "reach_desc": "Conecta con nuevos pacientes que buscan tu especialidad en todo el país.",
+                "tools": "Herramientas Digitales",
+                "tools_desc": "Expedientes clínicos electrónicos integrados, agenda y videoconsultas seguras.",
+                "payments": "Facturación Automatizada",
+                "payments_desc": "Despídete de los dolores de cabeza administrativos con nuestro procesamiento de pagos integrado."
+            },
+            "stats": {
+                "patients": "1M+",
+                "patients_label": "Pacientes Activos",
+                "consultations": "500k+",
+                "consultations_label": "Consultas Mensuales"
+            },
+            "cta_title": "¿Listo para digitalizar tu consultorio?",
+            "cta_button": "Unirse como Proveedor"
+        }
+    },
     "Company": {
         "About": {
             "title": "Sobre Nosotros",

@@ -1950,6 +1950,67 @@
             }
         }
     },
+    "Platform": {
+        "Market": {
+            "title": "QuHealthy Market",
+            "subtitle": "Your premier destination for health and wellness products, vetted by medical professionals.",
+            "hero_desc": "From prescribed medications to wellness supplements and medical equipment, everything you need for your health journey delivered to your door.",
+            "categories_title": "Shop by Category",
+            "categories": {
+                "pharmacy": "Pharmacy & Prescriptions",
+                "wellness": "Vitamins & Supplements",
+                "equipment": "Medical Equipment",
+                "skincare": "Dermatology & Skincare"
+            },
+            "features": {
+                "delivery": "Fast Delivery",
+                "delivery_desc": "Same-day delivery available in major cities.",
+                "verified": "Medically Verified",
+                "verified_desc": "All products are vetted by our network of healthcare professionals.",
+                "secure": "Secure Payments",
+                "secure_desc": "Encrypted transactions for your peace of mind."
+            },
+            "cta_title": "Start Shopping Today",
+            "cta_button": "Explore Catalog"
+        },
+        "Academy": {
+            "title": "QuHealthy Academy",
+            "subtitle": "Empowering patients and professionals with world-class healthcare education.",
+            "about_title": "Knowledge is Health",
+            "about_desc": "Access a curated library of courses, webinars, and articles created by leading medical experts. Whether you are a patient looking to understand a condition or a doctor seeking continuing education, we have resources for you.",
+            "tracks_title": "Learning Tracks",
+            "tracks": {
+                "patients": "For Patients",
+                "patients_desc": "Understand your health, nutrition, and wellness through easy-to-digest courses.",
+                "professionals": "For Professionals",
+                "professionals_desc": "Advanced clinical courses, practice management, and telehealth best practices."
+            },
+            "cta_title": "Never Stop Learning",
+            "cta_button": "View Courses"
+        },
+        "Business": {
+            "title": "QuHealthy for Business",
+            "subtitle": "The ultimate operating system for your medical practice.",
+            "hero_desc": "Join thousands of doctors who have modernized their practice, increased their revenue, and improved patient outcomes with our all-in-one platform.",
+            "benefits_title": "Why Join Our Network?",
+            "benefits": {
+                "reach": "Expand Your Reach",
+                "reach_desc": "Connect with new patients searching for your specialty across the country.",
+                "tools": "Digital Tools",
+                "tools_desc": "Integrated electronic health records, scheduling, and secure video consultations.",
+                "payments": "Automated Billing",
+                "payments_desc": "Say goodbye to administrative headaches with our seamless payment processing."
+            },
+            "stats": {
+                "patients": "1M+",
+                "patients_label": "Active Patients",
+                "consultations": "500k+",
+                "consultations_label": "Monthly Consultations"
+            },
+            "cta_title": "Ready to digitize your practice?",
+            "cta_button": "Join as a Provider"
+        }
+    },
     "Company": {
         "About": {
             "title": "About Us",
