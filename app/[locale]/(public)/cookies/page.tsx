@@ -1,40 +1,74 @@
 import { useTranslations } from 'next-intl';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
+import { Cookie, Printer } from 'lucide-react';
 
 export default function CookiesPage() {
     const t = useTranslations('Legal.Cookies');
-
     const sections = [0, 1, 2];
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-24 transition-colors duration-300">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <FadeIn className="text-center mb-16 max-w-3xl mx-auto">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
                         {t('title')}
                     </h1>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                         {t('last_updated')}
                     </p>
-                </div>
+                </FadeIn>
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 md:p-12 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors duration-300">
-                    <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-10">
-                        {t('intro')}
-                    </p>
-
-                    <div className="space-y-12">
-                        {sections.map((index) => (
-                            <section key={index} className="space-y-4">
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    {t(`sections.${index}.title`)}
-                                </h2>
-                                <div className="h-1 w-12 bg-indigo-500 dark:bg-indigo-400 rounded-full mb-4"></div>
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {t(`sections.${index}.content`)}
-                                </p>
-                            </section>
-                        ))}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
+                    {/* Sticky Sidebar */}
+                    <div className="hidden lg:block sticky top-32 space-y-8">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tabla de Contenidos</h3>
+                            <nav className="space-y-3">
+                                {sections.map(idx => (
+                                    <a key={idx} href={`#section-${idx}`} className="block text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                        {t(`sections.${idx}.title`)}
+                                    </a>
+                                ))}
+                            </nav>
+                        </div>
+                        <button onClick={() => window.print()} className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                            <Printer className="h-4 w-4" />
+                            <span>Imprimir / Guardar PDF</span>
+                        </button>
                     </div>
+
+                    {/* Main Content */}
+                    <StaggerContainer className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-3xl p-8 md:p-12 shadow-sm border border-slate-200 dark:border-slate-800 transition-colors duration-300">
+
+                        {/* In Plain English Banner */}
+                        <div className="mb-10 p-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl flex items-start space-x-4">
+                            <Cookie className="h-6 w-6 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-1" />
+                            <div>
+                                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2">En pocas palabras (In Plain English)</h4>
+                                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                                    Usamos cookies para que la plataforma funcione (ej. mantener tu sesión abierta) y algunas para entender de forma anónima cómo usas el sitio, con el objetivo de mejorarlo. Tienes el control total para desactivar las no esenciales en cualquier momento.
+                                </p>
+                            </div>
+                        </div>
+
+                        <StaggerItem className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
+                            <p>{t('intro')}</p>
+                        </StaggerItem>
+
+                        <div className="space-y-16">
+                            {sections.map((index) => (
+                                <StaggerItem key={index} id={`section-${index}`} className="space-y-6 scroll-mt-32">
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                        {t(`sections.${index}.title`)}
+                                    </h2>
+                                    <div className="h-1 w-12 bg-indigo-500 dark:bg-indigo-400 rounded-full"></div>
+                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
+                                        {t(`sections.${index}.content`)}
+                                    </p>
+                                </StaggerItem>
+                            ))}
+                        </div>
+                    </StaggerContainer>
                 </div>
             </div>
         </div>

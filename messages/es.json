@@ -1971,7 +1971,52 @@
                 "secure_desc": "Transacciones encriptadas para tu total tranquilidad."
             },
             "cta_title": "Comienza a Comprar Hoy",
-            "cta_button": "Explorar Catálogo"
+            "cta_button": "Explorar Catálogo",
+            "products_title": "Productos en Tendencia",
+            "filter_all": "Todos los Productos",
+            "add_to_cart": "Agregar al Carrito",
+            "products": [
+                {
+                    "id": 0,
+                    "name": "Multivitamínico Premium",
+                    "category": "wellness",
+                    "price": "$599.00",
+                    "badge": "Más Vendido"
+                },
+                {
+                    "id": 1,
+                    "name": "Baumanómetro Digital",
+                    "category": "equipment",
+                    "price": "$999.00",
+                    "badge": "Nuevo"
+                },
+                {
+                    "id": 2,
+                    "name": "Protector Solar FPS 50 Hidratante",
+                    "category": "skincare",
+                    "price": "$499.00",
+                    "badge": "Recomendado"
+                },
+                {
+                    "id": 3,
+                    "name": "Omega-3 Aceite de Pescado",
+                    "category": "wellness",
+                    "price": "$399.00"
+                },
+                {
+                    "id": 4,
+                    "name": "Alivio de Alergias (Loratadina)",
+                    "category": "pharmacy",
+                    "price": "$299.00",
+                    "badge": "Receta"
+                },
+                {
+                    "id": 5,
+                    "name": "Oxímetro de Pulso",
+                    "category": "equipment",
+                    "price": "$699.00"
+                }
+            ]
         },
         "Academy": {
             "title": "QuHealthy Academy",
@@ -1986,7 +2031,43 @@
                 "professionals_desc": "Cursos clínicos avanzados, gestión de consultorios y mejores prácticas de telemedicina."
             },
             "cta_title": "Nunca Dejes de Aprender",
-            "cta_button": "Ver Cursos"
+            "cta_button": "Ver Cursos",
+            "tab_patients": "Pacientes",
+            "tab_professionals": "Profesionales",
+            "continue_learning": "Continuar Aprendiendo",
+            "progress": "Completado",
+            "mock_courses": [
+                {
+                    "id": 0,
+                    "title": "Nutrición para la Diabetes Tipo 2",
+                    "track": "patients",
+                    "progress": 65,
+                    "lessons": "4/6"
+                },
+                {
+                    "id": 1,
+                    "title": "Gestión de Estrés y Mindfulness",
+                    "track": "patients",
+                    "progress": 100,
+                    "lessons": "8/8"
+                },
+                {
+                    "id": 2,
+                    "title": "Telemedicina: Mejores Prácticas Legales",
+                    "track": "professionals",
+                    "progress": 30,
+                    "lessons": "2/7"
+                },
+                {
+                    "id": 3,
+                    "title": "Interpretación Avanzada de ECG",
+                    "track": "professionals",
+                    "progress": 0,
+                    "lessons": "0/12"
+                }
+            ],
+            "video_mockup_title": "Clase en Vivo: Futuro de la IA Médica",
+            "video_mockup_instructor": "Dra. Elena Medina"
         },
         "Business": {
             "title": "QuHealthy para Doctores",
@@ -2008,7 +2089,28 @@
                 "consultations_label": "Consultas Mensuales"
             },
             "cta_title": "¿Listo para digitalizar tu consultorio?",
-            "cta_button": "Unirse como Proveedor"
+            "cta_button": "Unirse como Proveedor",
+            "roi_title": "Calculadora de ROI",
+            "roi_subtitle": "Descubre cuánto podrías aumentar tus ingresos mensuales.",
+            "roi_consultations": "Consultas adicionales por semana",
+            "roi_fee": "Tarifa promedio por consulta",
+            "roi_monthly": "Ingreso Mensual Proyectado",
+            "roi_yearly": "Ingreso Anual Estimado",
+            "dashboard_mockup_title": "Todo en un solo lugar",
+            "dashboard_mockup_desc": "Gestiona pacientes, agenda y finanzas desde un panel intuitivo.",
+            "testimonials_title": "Lo que dicen nuestros especialistas",
+            "testimonials": [
+                {
+                    "quote": "Mi práctica creció un 40% en los primeros 3 meses. La agenda se llena sola.",
+                    "author": "Dr. Carlos M.",
+                    "specialty": "Cardiólogo"
+                },
+                {
+                    "quote": "La facilidad para realizar videoconsultas y el expediente integrado es invaluable.",
+                    "author": "Dra. Sofía R.",
+                    "specialty": "Dermatóloga"
+                }
+            ]
         }
     },
     "Company": {
@@ -2027,12 +2129,67 @@
                 "empathy_desc": "Cada función que construimos está diseñada pensando en el bienestar del paciente.",
                 "security": "Seguridad Inquebrantable",
                 "security_desc": "Tus datos de salud son sagrados. Los protegemos con seguridad de grado bancario."
-            }
+            },
+            "timeline_title": "Nuestra Historia",
+            "timeline": [
+                {
+                    "year": "2021",
+                    "title": "La Idea",
+                    "desc": "QuHealthy nació con la visión de acercar a pacientes con especialistas a través de la tecnología."
+                },
+                {
+                    "year": "2022",
+                    "title": "Lanzamiento Beta",
+                    "desc": "Primeros 1,000 profesionales unidos a la red de confianza."
+                },
+                {
+                    "year": "2023",
+                    "title": "Expansión Nacional",
+                    "desc": "Llegada a todo México, conectando ciudades y comunidades rurales."
+                },
+                {
+                    "year": "2024",
+                    "title": "Ecosistema Integral",
+                    "desc": "Lanzamiento de nuevas herramientas como QuBlocks y Marketplace."
+                }
+            ],
+            "team_title": "Nuestro Liderazgo",
+            "team_subtitle": "Las mentes detrás de la revolución en salud digital.",
+            "team": [
+                {
+                    "name": "Dr. Fernando Gómez",
+                    "role": "Chief Executive Officer",
+                    "image": "fg"
+                },
+                {
+                    "name": "Silvia Muñoz",
+                    "role": "Chief Product Officer",
+                    "image": "sm"
+                },
+                {
+                    "name": "Andrés Ceballos",
+                    "role": "Chief Technology Officer",
+                    "image": "ac"
+                },
+                {
+                    "name": "Dra. Laura Reyes",
+                    "role": "Chief Medical Officer",
+                    "image": "lr"
+                }
+            ],
+            "press_title": "Lo que dicen de nosotros"
         },
         "Blog": {
             "title": "Blog de QuHealthy",
             "subtitle": "Perspectivas, noticias y recursos para profesionales de la salud y pacientes modernos.",
             "featured": "Artículos Destacados",
+            "search_placeholder": "Buscar artículos...",
+            "all_categories": "Todos",
+            "newsletter_title": "Suscríbete a nuestro Boletín",
+            "newsletter_desc": "Recibe los mejores consejos de salud y noticias de tecnología directo en tu correo.",
+            "newsletter_placeholder": "Tu correo electrónico",
+            "newsletter_button": "Suscribirme",
+            "min_read": "min de lectura",
             "categories": {
                 "health": "Consejos de Salud",
                 "tech": "HealthTech",
@@ -2071,7 +2228,50 @@
                 "sales": "Ventas y Marketing"
             },
             "no_openings": "No hay vacantes abiertas por el momento, ¡pero siempre buscamos talento! Envía tu CV a careers@quhealthy.com",
-            "apply": "Aplicar Ahora"
+            "apply": "Aplicar Ahora",
+            "testimonials_title": "Trabajando en QuHealthy",
+            "testimonials": [
+                {
+                    "quote": "La cultura de autonomía me permite hacer el mejor trabajo de mi carrera.",
+                    "author": "María G.",
+                    "role": "Senior Engineer"
+                },
+                {
+                    "quote": "Ver el impacto real en la salud de miles de personas no tiene precio.",
+                    "author": "Diego T.",
+                    "role": "Product Manager"
+                },
+                {
+                    "quote": "El equipo se preocupa genuinamente por el crecimiento personal.",
+                    "author": "Ana S.",
+                    "role": "Sales Lead"
+                }
+            ],
+            "mock_jobs": [
+                {
+                    "id": 0,
+                    "title": "Senior Full-Stack Engineer",
+                    "dept": "engineering",
+                    "location": "Remoto (Latam)",
+                    "type": "Tiempo Completo"
+                },
+                {
+                    "id": 1,
+                    "title": "Product Designer (UI/UX)",
+                    "dept": "product",
+                    "location": "Remoto (México)",
+                    "type": "Tiempo Completo"
+                },
+                {
+                    "id": 2,
+                    "title": "Growth Marketing Manager",
+                    "dept": "sales",
+                    "location": "CDMX / Híbrido",
+                    "type": "Tiempo Completo"
+                }
+            ],
+            "view_job": "Ver Oferta",
+            "all_departments": "Todos"
         },
         "Contact": {
             "title": "Contacto",

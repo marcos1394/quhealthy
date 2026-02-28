@@ -58,13 +58,15 @@ export function StaggerContainer({
     delayChildren = 0.1,
     staggerChildren = 0.1,
     className = "",
-    viewportMargin = "-50px"
+    viewportMargin = "-50px",
+    id
 }: {
     children: ReactNode;
     delayChildren?: number;
     staggerChildren?: number;
     className?: string;
     viewportMargin?: string;
+    id?: string;
 }) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: viewportMargin as any });
@@ -87,6 +89,7 @@ export function StaggerContainer({
             initial="hidden"
             animate={isInView ? "show" : "hidden"}
             className={className}
+            id={id}
         >
             {children}
         </motion.div>
@@ -96,11 +99,13 @@ export function StaggerContainer({
 export function StaggerItem({
     children,
     className = "",
-    direction = "up"
+    direction = "up",
+    id
 }: {
     children: ReactNode;
     className?: string;
     direction?: "up" | "down" | "left" | "right" | "none";
+    id?: string;
 }) {
     const getInitialOffset = () => {
         switch (direction) {
@@ -128,7 +133,7 @@ export function StaggerItem({
     };
 
     return (
-        <motion.div variants={itemVariants} className={className}>
+        <motion.div variants={itemVariants} className={className} id={id}>
             {children}
         </motion.div>
     );

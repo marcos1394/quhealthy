@@ -1971,7 +1971,52 @@
                 "secure_desc": "Encrypted transactions for your peace of mind."
             },
             "cta_title": "Start Shopping Today",
-            "cta_button": "Explore Catalog"
+            "cta_button": "Explore Catalog",
+            "products_title": "Trending Products",
+            "filter_all": "All Products",
+            "add_to_cart": "Add to Cart",
+            "products": [
+                {
+                    "id": 0,
+                    "name": "Premium Multivitamin",
+                    "category": "wellness",
+                    "price": "$29.99",
+                    "badge": "Bestseller"
+                },
+                {
+                    "id": 1,
+                    "name": "Digital Blood Pressure Monitor",
+                    "category": "equipment",
+                    "price": "$49.99",
+                    "badge": "New"
+                },
+                {
+                    "id": 2,
+                    "name": "Hydrating SPF 50 Sunscreen",
+                    "category": "skincare",
+                    "price": "$24.99",
+                    "badge": "Recommended"
+                },
+                {
+                    "id": 3,
+                    "name": "Omega-3 Fish Oil",
+                    "category": "wellness",
+                    "price": "$19.99"
+                },
+                {
+                    "id": 4,
+                    "name": "Allergy Relief (Loratadine)",
+                    "category": "pharmacy",
+                    "price": "$14.99",
+                    "badge": "Prescription"
+                },
+                {
+                    "id": 5,
+                    "name": "Pulse Oximeter",
+                    "category": "equipment",
+                    "price": "$34.99"
+                }
+            ]
         },
         "Academy": {
             "title": "QuHealthy Academy",
@@ -1986,7 +2031,43 @@
                 "professionals_desc": "Advanced clinical courses, practice management, and telehealth best practices."
             },
             "cta_title": "Never Stop Learning",
-            "cta_button": "View Courses"
+            "cta_button": "View Courses",
+            "tab_patients": "Patients",
+            "tab_professionals": "Professionals",
+            "continue_learning": "Continue Learning",
+            "progress": "Completed",
+            "mock_courses": [
+                {
+                    "id": 0,
+                    "title": "Nutrition for Type 2 Diabetes",
+                    "track": "patients",
+                    "progress": 65,
+                    "lessons": "4/6"
+                },
+                {
+                    "id": 1,
+                    "title": "Stress Management and Mindfulness",
+                    "track": "patients",
+                    "progress": 100,
+                    "lessons": "8/8"
+                },
+                {
+                    "id": 2,
+                    "title": "Telehealth: Legal Best Practices",
+                    "track": "professionals",
+                    "progress": 30,
+                    "lessons": "2/7"
+                },
+                {
+                    "id": 3,
+                    "title": "Advanced ECG Interpretation",
+                    "track": "professionals",
+                    "progress": 0,
+                    "lessons": "0/12"
+                }
+            ],
+            "video_mockup_title": "Live Masterclass: Future of Medical AI",
+            "video_mockup_instructor": "Dr. Elena Medina"
         },
         "Business": {
             "title": "QuHealthy for Business",
@@ -2008,7 +2089,28 @@
                 "consultations_label": "Monthly Consultations"
             },
             "cta_title": "Ready to digitize your practice?",
-            "cta_button": "Join as a Provider"
+            "cta_button": "Join as a Provider",
+            "roi_title": "ROI Calculator",
+            "roi_subtitle": "Discover how much you could increase your monthly revenue.",
+            "roi_consultations": "Additional consultations per week",
+            "roi_fee": "Average fee per consultation",
+            "roi_monthly": "Projected Monthly Revenue",
+            "roi_yearly": "Estimated Yearly Revenue",
+            "dashboard_mockup_title": "Everything in one place",
+            "dashboard_mockup_desc": "Manage patients, scheduling, and finances from an intuitive dashboard.",
+            "testimonials_title": "What our specialists say",
+            "testimonials": [
+                {
+                    "quote": "My practice grew by 40% in the first 3 months. The schedule fills itself.",
+                    "author": "Dr. Carlos M.",
+                    "specialty": "Cardiologist"
+                },
+                {
+                    "quote": "The ease of video consultations and the integrated EHR are invaluable.",
+                    "author": "Dr. Sofia R.",
+                    "specialty": "Dermatologist"
+                }
+            ]
         }
     },
     "Company": {
@@ -2027,12 +2129,67 @@
                 "empathy_desc": "Every feature we build is designed with the patient's well-being in mind.",
                 "security": "Uncompromising Security",
                 "security_desc": "Your health data is sacred. We protect it with banking-grade security."
-            }
+            },
+            "timeline_title": "Our Journey",
+            "timeline": [
+                {
+                    "year": "2021",
+                    "title": "The Spark",
+                    "desc": "QuHealthy was founded with the vision of bridging the gap between patients and specialists."
+                },
+                {
+                    "year": "2022",
+                    "title": "Beta Launch",
+                    "desc": "The first 1,000 professionals joined the trusted digital network."
+                },
+                {
+                    "year": "2023",
+                    "title": "National Expansion",
+                    "desc": "Reached all states across the country, serving even remote communities."
+                },
+                {
+                    "year": "2024",
+                    "title": "Comprehensive Ecosystem",
+                    "desc": "Launch of new powerful tools like QuBlocks and the Marketplace."
+                }
+            ],
+            "team_title": "Our Leadership",
+            "team_subtitle": "The minds behind the digital health revolution.",
+            "team": [
+                {
+                    "name": "Dr. Fernando Gómez",
+                    "role": "Chief Executive Officer",
+                    "image": "fg"
+                },
+                {
+                    "name": "Silvia Muñoz",
+                    "role": "Chief Product Officer",
+                    "image": "sm"
+                },
+                {
+                    "name": "Andrés Ceballos",
+                    "role": "Chief Technology Officer",
+                    "image": "ac"
+                },
+                {
+                    "name": "Dr. Laura Reyes",
+                    "role": "Chief Medical Officer",
+                    "image": "lr"
+                }
+            ],
+            "press_title": "Featured In"
         },
         "Blog": {
             "title": "QuHealthy Blog",
             "subtitle": "Insights, news, and resources for modern healthcare professionals and patients.",
             "featured": "Featured Articles",
+            "search_placeholder": "Search articles...",
+            "all_categories": "All",
+            "newsletter_title": "Subscribe to our Newsletter",
+            "newsletter_desc": "Get the best health tips and tech news delivered straight to your inbox.",
+            "newsletter_placeholder": "Your email address",
+            "newsletter_button": "Subscribe",
+            "min_read": "min read",
             "categories": {
                 "health": "Health Tips",
                 "tech": "HealthTech",
@@ -2071,7 +2228,50 @@
                 "sales": "Sales & Marketing"
             },
             "no_openings": "No open positions at the moment, but we are always looking for talent! Send your CV to careers@quhealthy.com",
-            "apply": "Apply Now"
+            "apply": "Apply Now",
+            "testimonials_title": "Working at QuHealthy",
+            "testimonials": [
+                {
+                    "quote": "The culture of autonomy allows me to do the best work of my career.",
+                    "author": "María G.",
+                    "role": "Senior Engineer"
+                },
+                {
+                    "quote": "Seeing the real impact on people's health is priceless.",
+                    "author": "Diego T.",
+                    "role": "Product Manager"
+                },
+                {
+                    "quote": "The team genuinely cares about personal growth.",
+                    "author": "Ana S.",
+                    "role": "Sales Lead"
+                }
+            ],
+            "mock_jobs": [
+                {
+                    "id": 0,
+                    "title": "Senior Full-Stack Engineer",
+                    "dept": "engineering",
+                    "location": "Remote (Latam)",
+                    "type": "Full-Time"
+                },
+                {
+                    "id": 1,
+                    "title": "Product Designer (UI/UX)",
+                    "dept": "product",
+                    "location": "Remote (Mexico)",
+                    "type": "Full-Time"
+                },
+                {
+                    "id": 2,
+                    "title": "Growth Marketing Manager",
+                    "dept": "sales",
+                    "location": "CDMX / Hybrid",
+                    "type": "Full-Time"
+                }
+            ],
+            "view_job": "View Job",
+            "all_departments": "All"
         },
         "Contact": {
             "title": "Contact Us",
