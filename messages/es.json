@@ -1949,5 +1949,89 @@
                 "legal": "Legal"
             }
         }
+    },
+    "Company": {
+        "About": {
+            "title": "Sobre Nosotros",
+            "subtitle": "Transformando la salud a través de la tecnología",
+            "mission_title": "Nuestra Misión",
+            "mission_desc": "Democratizar el acceso a atención médica de calidad construyendo el ecosistema de salud digital más intuitivo y completo de Latinoamérica.",
+            "vision_title": "Nuestra Visión",
+            "vision_desc": "Un futuro donde la gestión de la salud sea fluida, preventiva y centrada en el paciente, empoderando tanto a profesionales como a individuos.",
+            "values_title": "Valores Fundamentales",
+            "values": {
+                "innovation": "Innovación Primero",
+                "innovation_desc": "Empujamos constantemente los límites para construir mejores soluciones de salud.",
+                "empathy": "Empatía con el Paciente",
+                "empathy_desc": "Cada función que construimos está diseñada pensando en el bienestar del paciente.",
+                "security": "Seguridad Inquebrantable",
+                "security_desc": "Tus datos de salud son sagrados. Los protegemos con seguridad de grado bancario."
+            }
+        },
+        "Blog": {
+            "title": "Blog de QuHealthy",
+            "subtitle": "Perspectivas, noticias y recursos para profesionales de la salud y pacientes modernos.",
+            "featured": "Artículos Destacados",
+            "categories": {
+                "health": "Consejos de Salud",
+                "tech": "HealthTech",
+                "news": "Noticias de la Empresa"
+            },
+            "read_more": "Leer más",
+            "placeholder_articles": [
+                {
+                    "title": "El Futuro de la Telemedicina en Latinoamérica",
+                    "excerpt": "Cómo las herramientas digitales están transformando la práctica diaria de miles de doctores."
+                },
+                {
+                    "title": "5 Consejos para un Estilo de Vida más Saludable",
+                    "excerpt": "Pequeños hábitos diarios que pueden mejorar significativamente tu bienestar a largo plazo."
+                },
+                {
+                    "title": "Anuncio de la Ronda Serie A de QuHealthy",
+                    "excerpt": "Estamos acelerando nuestra misión de digitalizar la salud en toda la región."
+                }
+            ]
+        },
+        "Careers": {
+            "title": "Únete a Nuestro Equipo",
+            "subtitle": "Ayúdanos a construir el sistema operativo para la salud.",
+            "why_join": "¿Por qué trabajar en QuHealthy?",
+            "benefits": [
+                "Cultura Remota Primero",
+                "Seguro de Gastos Médicos Mayores",
+                "Presupuesto de Educación Continua",
+                "Opciones sobre Acciones (Equity)"
+            ],
+            "open_positions": "Vacantes Disponibles",
+            "departments": {
+                "engineering": "Ingeniería",
+                "product": "Producto",
+                "sales": "Ventas y Marketing"
+            },
+            "no_openings": "No hay vacantes abiertas por el momento, ¡pero siempre buscamos talento! Envía tu CV a careers@quhealthy.com",
+            "apply": "Aplicar Ahora"
+        },
+        "Contact": {
+            "title": "Contacto",
+            "subtitle": "Estamos aquí para ayudarte. Comunícate con nuestro equipo para soporte o consultas.",
+            "form": {
+                "name": "Nombre Completo",
+                "email": "Correo Electrónico",
+                "subject": "Asunto",
+                "message": "Mensaje",
+                "submit": "Enviar Mensaje",
+                "success": "¡Mensaje enviado exitosamente! Nos pondremos en contacto pronto.",
+                "error": "Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo."
+            },
+            "info": {
+                "headquarters": "Oficinas Centrales",
+                "address": "Ciudad de México, México",
+                "support": "Soporte General",
+                "email": "hola@quhealthy.com",
+                "phone_title": "Teléfono",
+                "phone": "+52 (55) 1234 5678"
+            }
+        }
     }
 }

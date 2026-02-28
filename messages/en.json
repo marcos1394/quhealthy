@@ -1949,5 +1949,89 @@
                 "legal": "Legal"
             }
         }
+    },
+    "Company": {
+        "About": {
+            "title": "About Us",
+            "subtitle": "Transforming healthcare through technology",
+            "mission_title": "Our Mission",
+            "mission_desc": "To democratize access to quality healthcare by building the most intuitive and comprehensive digital health ecosystem in Latin America.",
+            "vision_title": "Our Vision",
+            "vision_desc": "A future where health management is seamless, preventive, and patient-centric, empowering both professionals and individuals.",
+            "values_title": "Core Values",
+            "values": {
+                "innovation": "Innovation First",
+                "innovation_desc": "We constantly push boundaries to build better healthcare solutions.",
+                "empathy": "Patient Empathy",
+                "empathy_desc": "Every feature we build is designed with the patient's well-being in mind.",
+                "security": "Uncompromising Security",
+                "security_desc": "Your health data is sacred. We protect it with banking-grade security."
+            }
+        },
+        "Blog": {
+            "title": "QuHealthy Blog",
+            "subtitle": "Insights, news, and resources for modern healthcare professionals and patients.",
+            "featured": "Featured Articles",
+            "categories": {
+                "health": "Health Tips",
+                "tech": "HealthTech",
+                "news": "Company News"
+            },
+            "read_more": "Read more",
+            "placeholder_articles": [
+                {
+                    "title": "The Future of Telemedicine in Latin America",
+                    "excerpt": "How digital tools are transforming the daily practice of thousands of doctors."
+                },
+                {
+                    "title": "5 Tips for a Healthier Lifestyle",
+                    "excerpt": "Small daily habits that can significantly improve your long-term well-being."
+                },
+                {
+                    "title": "QuHealthy Series A Funding Announcement",
+                    "excerpt": "We are accelerating our mission to digitize healthcare across the region."
+                }
+            ]
+        },
+        "Careers": {
+            "title": "Join Our Team",
+            "subtitle": "Help us build the operating system for healthcare.",
+            "why_join": "Why work at QuHealthy?",
+            "benefits": [
+                "Remote First Culture",
+                "Comprehensive Health Coverage",
+                "Continuous Learning Budget",
+                "Equity Options"
+            ],
+            "open_positions": "Open Positions",
+            "departments": {
+                "engineering": "Engineering",
+                "product": "Product",
+                "sales": "Sales & Marketing"
+            },
+            "no_openings": "No open positions at the moment, but we are always looking for talent! Send your CV to careers@quhealthy.com",
+            "apply": "Apply Now"
+        },
+        "Contact": {
+            "title": "Contact Us",
+            "subtitle": "We're here to help. Reach out to our team for support or inquiries.",
+            "form": {
+                "name": "Full Name",
+                "email": "Email Address",
+                "subject": "Subject",
+                "message": "Message",
+                "submit": "Send Message",
+                "success": "Message sent successfully! We'll be in touch soon.",
+                "error": "There was an error sending your message. Please try again."
+            },
+            "info": {
+                "headquarters": "Headquarters",
+                "address": "Mexico City, Mexico",
+                "support": "General Support",
+                "email": "hola@quhealthy.com",
+                "phone_title": "Phone",
+                "phone": "+52 (55) 1234 5678"
+            }
+        }
     }
 }
