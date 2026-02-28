@@ -2,37 +2,27 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import io from 'socket.io-client';
-import { 
-  Loader2, 
-  Send, 
-  MessageSquare, 
-  Search, 
-  Phone, 
-  Video, 
-  MoreVertical,
-  Clock,
+import {
+  Loader2,
+  Send,
+  Search,
+  MessageCircle,
+  Phone,
+  Video,
+  Star,
   Check,
   CheckCheck,
-  Paperclip,
-  Smile,
-  X,
-  ArrowLeft,
-  Circle,
-  Sparkles,
-  Star,
-  AlertCircle
+  Clock
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { toast } from 'react-toastify';
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -40,55 +30,13 @@ import { Separator } from '@/components/ui/separator';
 import { useSessionStore } from '@/stores/SessionStore';
 import { cn } from '@/lib/utils';
 
-/**
- * PatientMessagesPage Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Visual conversation list
- *    - Provider avatars
- *    - Last message preview
- *    - Online status indicators
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Typing indicators
- *    - Message delivery status
- *    - Real-time updates
- *    - Send confirmation
- * 
- * 3. MINIMIZAR ANSIEDAD
- *    - Clear online status
- *    - Read receipts
- *    - Timestamp visible
- *    - Conversation saved
- * 
- * 4. SATISFICING
- *    - Quick emoji access
- *    - Voice/video call buttons
- *    - Easy attachment
- *    - Search conversations
- * 
- * 5. JERARQUÍA VISUAL
- *    - Unread count badges
- *    - Active conversation highlighted
- *    - Provider specialty visible
- *    - Color-coded messages
- * 
- * 6. CREDIBILIDAD
- *    - Professional design
- *    - Provider credentials
- *    - Secure messaging
- *    - Trust indicators
- */
-
 // Types
 interface Conversation {
   id: number;
-  provider: { 
-    id: number; 
-    name: string; 
-    image?: string; 
+  provider: {
+    id: number;
+    name: string;
+    image?: string;
     specialty?: string;
     online?: boolean;
     rating?: number;
@@ -112,79 +60,63 @@ interface Message {
 const mockConversations: Conversation[] = [
   {
     id: 1,
-    provider: { 
-      id: 101, 
-      name: "Dr. Roberto Casas", 
-      specialty: "Odontología", 
+    provider: {
+      id: 101,
+      name: "Dr. Roberto Casas",
+      specialty: "Odontología",
       online: true,
       rating: 4.8
     },
     consumer: { id: 1, name: "Yo" },
-    lastMessage: { 
-      content: "Recuerda traer tu radiografía.", 
-      createdAt: new Date().toISOString() 
+    lastMessage: {
+      content: "Recuerda traer tu radiografía mañana",
+      createdAt: new Date(Date.now() - 300000).toISOString()
     },
     unreadCount: 2
   },
   {
     id: 2,
-    provider: { 
-      id: 102, 
-      name: "Dra. Elena Gómez", 
-      specialty: "Nutriología", 
+    provider: {
+      id: 102,
+      name: "Dra. Elena Gómez",
+      specialty: "Nutrición",
       online: false,
       rating: 4.9
     },
     consumer: { id: 1, name: "Yo" },
-    lastMessage: { 
-      content: "¡Gracias doctora!", 
-      createdAt: new Date(Date.now() - 86400000).toISOString() 
-    },
-    unreadCount: 0
-  },
-  {
-    id: 3,
-    provider: { 
-      id: 103, 
-      name: "Dr. Carlos Méndez", 
-      specialty: "Medicina General", 
-      online: true,
-      rating: 4.7
-    },
-    consumer: { id: 1, name: "Yo" },
-    lastMessage: { 
-      content: "Nos vemos el viernes", 
-      createdAt: new Date(Date.now() - 172800000).toISOString() 
+    lastMessage: {
+      content: "Nos vemos el viernes",
+      createdAt: new Date(Date.now() - 172800000).toISOString()
     },
     unreadCount: 0
   }
 ];
 
 const mockMessages: Message[] = [
-  { 
-    id: 1, 
-    conversationId: 1, 
-    senderId: 101, 
-    senderRole: 'provider', 
-    content: "Hola, ¿cómo sigues del dolor?", 
+  {
+    id: 1,
+    conversationId: 1,
+    senderId: 101,
+    senderRole: 'provider',
+    content: "Hola, ¿cómo sigues del dolor?",
     createdAt: new Date(Date.now() - 3600000).toISOString(),
     status: 'read'
   },
-  { 
-    id: 2, 
-    conversationId: 1, 
-    senderId: 1, 
-    senderRole: 'consumer', 
-    content: "Mucho mejor, gracias Dr. Ya casi no me duele.", 
-    createdAt: new Date(Date.now() - 3500000).toISOString(),
+  {
+    id: 2,
+    conversationId: 1,
+    senderId: 1,
+    senderRole: 'consumer',
+    content: "Mucho mejor, gracias doctor! Ya casi no siento molestia.",
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
     status: 'read'
   },
-  { 
-    id: 3, 
-    conversationId: 1, 
-    senderId: 101, 
-    senderRole: 'provider', 
-    content: "Excelente! Recuerda traer tu radiografía mañana para revisarla.", 
+  {
+    id: 3,
+    conversationId: 1,
+    senderId: 101,
+    senderRole: 'provider',
+    content: "Excelente! Recuerda traer tu radiografía mañana para revisarla.",
     createdAt: new Date(Date.now() - 300000).toISOString(),
     status: 'delivered'
   }
@@ -194,22 +126,18 @@ const mockMessages: Message[] = [
 let socket: any;
 
 export default function PatientMessagesPage() {
+  const t = useTranslations('PatientMessages');
   const { user } = useSessionStore();
-  
-  // States
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showMobileChat, setShowMobileChat] = useState(false);
-  
+  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-  // Load conversations
   useEffect(() => {
     setTimeout(() => {
       setConversations(mockConversations);
@@ -217,510 +145,322 @@ export default function PatientMessagesPage() {
     }, 800);
   }, []);
 
-  // Socket connection
-  useEffect(() => {
-    if (!user || !process.env.NEXT_PUBLIC_API_URL) return;
-
-    socket = io(process.env.NEXT_PUBLIC_API_URL);
-    socket.emit('join_room', user.id);
-
-    socket.on('receive_message', (message: Message) => {
-      if (message.conversationId === activeConversation?.id) {
-        setMessages(prev => [...prev, message]);
-      }
-      // Update conversation list
-      setConversations(prev => prev.map(c => 
-        c.id === message.conversationId 
-          ? { ...c, lastMessage: { content: message.content, createdAt: message.createdAt } }
-          : c
-      ));
-    });
-
-    socket.on('typing', (data: { conversationId: number; isTyping: boolean }) => {
-      if (data.conversationId === activeConversation?.id) {
-        setIsTyping(data.isTyping);
-      }
-    });
-
-    return () => {
-      socket.off('receive_message');
-      socket.off('typing');
-      socket.disconnect();
-    };
-  }, [user, activeConversation]);
-
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   // Handlers
-  const handleSelectConversation = async (convo: Conversation) => {
-    setActiveConversation(convo);
-    setShowMobileChat(true);
-    
-    // Load messages
-    const chatMessages = mockMessages.filter(m => m.conversationId === convo.id);
-    setMessages(chatMessages);
-    
-    // Mark as read
-    setConversations(prev => prev.map(c => 
+  const handleSelectConversation = (convo: Conversation) => {
+    setSelectedConversation(convo);
+    const convoMessages = mockMessages.filter(m => m.conversationId === convo.id);
+    setMessages(convoMessages);
+
+    setConversations(prev => prev.map(c =>
       c.id === convo.id ? { ...c, unreadCount: 0 } : c
     ));
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !activeConversation || !user) return;
+    if (!newMessage.trim() || !selectedConversation) return;
 
     const optimisticMessage: Message = {
       id: Date.now(),
-      conversationId: activeConversation.id,
-      content: newMessage,
-      senderId: Number(user.id),
+      conversationId: selectedConversation.id,
+      senderId: user?.id || 1,
       senderRole: 'consumer',
+      content: newMessage.trim(),
       createdAt: new Date().toISOString(),
       status: 'sending'
     };
 
     setMessages(prev => [...prev, optimisticMessage]);
-    
-    // Emit socket
-    if (socket) {
-      socket.emit('send_message', { 
-        ...optimisticMessage, 
-        recipientId: activeConversation.provider.id 
-      });
-      
-      // Update message status
-      setTimeout(() => {
-        setMessages(prev => prev.map(m => 
-          m.id === optimisticMessage.id ? { ...m, status: 'sent' } : m
-        ));
-      }, 500);
-    }
-
-    // Update conversation list
-    setConversations(prev => prev.map(c => 
-      c.id === activeConversation.id 
-        ? { ...c, lastMessage: { content: newMessage, createdAt: new Date().toISOString() } }
-        : c
-    ));
-
     setNewMessage('');
+
+    setTimeout(() => {
+      setMessages(prev => prev.map(m =>
+        m.id === optimisticMessage.id ? { ...m, status: 'sent' } : m
+      ));
+    }, 500);
+
+    setTimeout(() => {
+      setMessages(prev => prev.map(m =>
+        m.id === optimisticMessage.id ? { ...m, status: 'delivered' } : m
+      ));
+    }, 1500);
   };
 
   const handleTyping = () => {
-    if (socket && activeConversation) {
-      socket.emit('typing', { 
-        conversationId: activeConversation.id, 
-        isTyping: true 
-      });
-      
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      
-      typingTimeoutRef.current = setTimeout(() => {
-        socket.emit('typing', { 
-          conversationId: activeConversation.id, 
-          isTyping: false 
-        });
-      }, 1000);
-    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    setIsTyping(true);
+    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 2000);
   };
 
   const handleVoiceCall = () => {
-    toast.info("Llamada de voz próximamente disponible");
+    toast.info(t('toast_voice'));
   };
 
   const handleVideoCall = () => {
-    toast.info("Videollamada próximamente disponible");
+    toast.info(t('toast_video'));
   };
-
-  const filteredConversations = conversations.filter(c => 
-    c.provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.provider.specialty?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   // Message status icon
   const getStatusIcon = (status?: Message['status']) => {
     switch (status) {
-      case 'sending':
-        return <Clock className="w-3 h-3 text-gray-400" />;
-      case 'sent':
-        return <Check className="w-3 h-3 text-gray-400" />;
-      case 'delivered':
-        return <CheckCheck className="w-3 h-3 text-gray-400" />;
-      case 'read':
-        return <CheckCheck className="w-3 h-3 text-blue-400" />;
-      default:
-        return null;
+      case 'sending': return <Clock className="w-3 h-3 text-slate-400" />;
+      case 'sent': return <Check className="w-3 h-3 text-slate-400" />;
+      case 'delivered': return <CheckCheck className="w-3 h-3 text-slate-400" />;
+      case 'read': return <CheckCheck className="w-3 h-3 text-medical-500" />;
+      default: return null;
     }
+  };
+
+  const filteredConversations = conversations.filter(c =>
+    c.provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.provider.specialty?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const formatRelativeTime = (dateString: string) => {
+    const diff = Date.now() - new Date(dateString).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Ahora';
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    return `${Math.floor(hours / 24)}d`;
   };
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-[calc(100vh-6rem)] justify-center items-center space-y-4">
-        <Loader2 className="w-12 h-12 animate-spin text-purple-500" />
-        <p className="text-gray-400">Cargando conversaciones...</p>
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
+        <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
+        <p className="text-slate-500 dark:text-slate-400">{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] bg-gray-950 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl max-w-7xl mx-auto my-4">
-      
-      {/* Sidebar - Conversations List */}
-      <aside className={cn(
-        "w-full md:w-96 border-r border-gray-800 flex flex-col bg-gray-900/50 transition-all",
-        showMobileChat ? "hidden md:flex" : ""
-      )}>
-        
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+
         {/* Header */}
-        <div className="p-6 border-b border-gray-800 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                <MessageSquare className="w-6 h-6 text-purple-400" />
-                Mensajes
-              </h2>
-              <p className="text-xs text-gray-400 mt-1">
-                {filteredConversations.length} conversaciones
-              </p>
-            </div>
-            <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Activo
-            </Badge>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
+            <MessageCircle className="w-8 h-8 text-medical-600 dark:text-medical-400" />
           </div>
-          
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Buscar doctor o especialidad..." 
-              className="pl-10 bg-gray-900 border-gray-700 h-11 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {t('title')}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
           </div>
         </div>
 
-        {/* Conversations */}
-        <ScrollArea className="flex-1">
-          <AnimatePresence mode="popLayout">
-            {filteredConversations.length > 0 ? (
-              <div className="flex flex-col">
-                {filteredConversations.map((convo, index) => (
-                  <motion.button 
-                    key={convo.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => handleSelectConversation(convo)}
-                    className={cn(
-                      "flex items-center gap-4 p-4 text-left transition-all border-b border-gray-800/50 group",
-                      activeConversation?.id === convo.id 
-                        ? "bg-purple-900/20 border-l-4 border-l-purple-500" 
-                        : "hover:bg-gray-800/50 border-l-4 border-l-transparent"
-                    )}
-                  >
-                    {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <Avatar className="h-12 w-12 border-2 border-purple-500/20">
-                        <AvatarImage src={convo.provider.image} />
-                        <AvatarFallback className="bg-purple-800 text-white font-bold text-lg">
-                          {convo.provider.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {convo.provider.online ? (
-                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-gray-900 rounded-full" />
-                      ) : (
-                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-gray-600 border-2 border-gray-900 rounded-full" />
-                      )}
-                    </div>
-                    
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline mb-1">
-                        <span className={cn(
-                          "font-bold truncate",
-                          activeConversation?.id === convo.id ? "text-white" : "text-gray-200"
-                        )}>
-                          {convo.provider.name}
-                        </span>
-                        <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                          {formatDistanceToNow(new Date(convo.lastMessage.createdAt), { 
-                            addSuffix: false, 
-                            locale: es 
-                          })}
-                        </span>
-                      </div>
-                      
-                      {/* Specialty & Rating */}
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-xs text-purple-400">
-                          {convo.provider.specialty}
-                        </p>
-                        {convo.provider.rating && (
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                            <span className="text-xs text-gray-500">{convo.provider.rating}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Last Message */}
-                      <div className="flex justify-between items-center">
-                        <p className={cn(
-                          "text-sm truncate max-w-[180px]",
-                          convo.unreadCount ? "text-white font-semibold" : "text-gray-500"
-                        )}>
-                          {convo.lastMessage.content}
-                        </p>
-                        {convo.unreadCount ? (
-                          <Badge className="bg-purple-600 h-5 min-w-5 flex items-center justify-center px-1.5 text-xs font-bold">
-                            {convo.unreadCount}
-                          </Badge>
-                        ) : null}
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                <Search className="w-12 h-12 mb-3 opacity-20" />
-                <p className="text-sm">No se encontraron conversaciones</p>
-              </div>
-            )}
-          </AnimatePresence>
-        </ScrollArea>
-      </aside>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" style={{ height: 'calc(100vh - 220px)' }}>
+          <div className="flex h-full">
 
-      {/* Chat Area */}
-      <main className={cn(
-        "flex-1 flex flex-col bg-gray-950",
-        !showMobileChat ? "hidden md:flex" : ""
-      )}>
-        {activeConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-800 flex items-center justify-between bg-gradient-to-r from-gray-900/30 to-purple-900/10 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                {/* Back button (mobile) */}
-                <Button
-                  variant="ghost"
-                  size="default"
-                  onClick={() => setShowMobileChat(false)}
-                  className="md:hidden text-gray-400 hover:text-white"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                
-                <Avatar className="h-11 w-11 border-2 border-purple-500/20">
-                  <AvatarImage src={activeConversation.provider.image} />
-                  <AvatarFallback className="bg-purple-600 text-white font-bold">
-                    {activeConversation.provider.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div>
-                  <h3 className="font-bold text-white flex items-center gap-2">
-                    {activeConversation.provider.name}
-                    {activeConversation.provider.online && (
-                      <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500" />
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-400">
-                    {activeConversation.provider.online ? 'En línea' : 'Desconectado'} • {activeConversation.provider.specialty}
-                  </p>
+            {/* Conversations List */}
+            <div className={cn(
+              "w-full md:w-80 lg:w-96 border-r border-slate-100 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900",
+              selectedConversation ? "hidden md:flex" : "flex"
+            )}>
+              {/* Search */}
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t('search_placeholder')}
+                    className="pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  />
                 </div>
               </div>
-              
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="default"
-                  onClick={handleVoiceCall}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800"
-                >
-                  <Phone className="w-5 h-5" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="default"
-                  onClick={handleVideoCall}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800"
-                >
-                  <Video className="w-5 h-5" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="default"
-                  className="text-gray-400 hover:text-white hover:bg-gray-800"
-                >
-                  <MoreVertical className="w-5 h-5" />
-                </Button>
+
+              {/* Conversations */}
+              <div className="flex-1 overflow-y-auto">
+                {filteredConversations.length > 0 ? (
+                  filteredConversations.map(convo => (
+                    <div
+                      key={convo.id}
+                      onClick={() => handleSelectConversation(convo)}
+                      className={cn(
+                        "flex items-center gap-3 p-4 cursor-pointer transition-colors border-b border-slate-50 dark:border-slate-800",
+                        selectedConversation?.id === convo.id
+                          ? "bg-medical-50 dark:bg-medical-500/10 border-l-4 border-l-medical-500"
+                          : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                      )}
+                    >
+                      <div className="relative">
+                        <Avatar className="h-12 w-12 border-2 border-medical-200 dark:border-medical-500/20">
+                          <AvatarImage src={convo.provider.image} />
+                          <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 font-bold">
+                            {convo.provider.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {convo.provider.online && (
+                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white dark:border-slate-900 rounded-full" />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{convo.provider.name}</p>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0 ml-2">
+                            {formatRelativeTime(convo.lastMessage.createdAt)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{convo.provider.specialty}</p>
+                          {convo.provider.rating && (
+                            <>
+                              <span className="text-slate-300">•</span>
+                              <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">{convo.provider.rating}</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 truncate mt-1">
+                          {convo.lastMessage.content}
+                        </p>
+                      </div>
+
+                      {convo.unreadCount && convo.unreadCount > 0 && (
+                        <Badge className="bg-medical-500 text-white border-none min-w-[20px] h-5 flex items-center justify-center text-[10px] font-bold">
+                          {convo.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                    <MessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mb-3" />
+                    <p className="font-bold text-slate-900 dark:text-white">{t('no_conversations')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('no_conversations_desc')}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Messages */}
-            <ScrollArea className="flex-1 p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/5 via-gray-950 to-gray-950">
-              <div className="space-y-4 max-w-4xl mx-auto">
-                <AnimatePresence mode="popLayout">
-                  {messages.map((msg, i) => {
-                    const isOwn = msg.senderRole === 'consumer';
-                    return (
-                      <motion.div 
-                        key={msg.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ delay: i * 0.05 }}
-                        className={cn("flex", isOwn ? "justify-end" : "justify-start")}
+            {/* Chat Area */}
+            <div className={cn(
+              "flex-1 flex flex-col bg-slate-50 dark:bg-slate-950",
+              !selectedConversation ? "hidden md:flex" : "flex"
+            )}>
+              {selectedConversation ? (
+                <>
+                  {/* Chat Header */}
+                  <div className="p-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="md:hidden"
+                        onClick={() => setSelectedConversation(null)}
                       >
-                        <div className={cn(
-                          "max-w-[75%] md:max-w-[60%] flex flex-col gap-1",
-                          isOwn ? "items-end" : "items-start"
-                        )}>
-                          <div className={cn(
-                            "px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-lg",
-                            isOwn 
-                              ? "bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-tr-none" 
-                              : "bg-gray-800 text-gray-100 rounded-tl-none border border-gray-700"
-                          )}>
-                            {msg.content}
-                          </div>
-                          <div className="flex items-center gap-1 px-2">
-                            <span className="text-xs text-gray-500">
-                              {formatDistanceToNow(new Date(msg.createdAt), { 
-                                addSuffix: true, 
-                                locale: es 
-                              })}
-                            </span>
-                            {isOwn && getStatusIcon(msg.status)}
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-                
-                {/* Typing Indicator */}
-                <AnimatePresence>
-                  {isTyping && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex justify-start"
-                    >
-                      <div className="bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-2">
-                        <div className="flex gap-1">
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                            className="w-2 h-2 bg-gray-500 rounded-full"
-                          />
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                            className="w-2 h-2 bg-gray-500 rounded-full"
-                          />
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                            className="w-2 h-2 bg-gray-500 rounded-full"
-                          />
-                        </div>
+                        ←
+                      </Button>
+                      <Avatar className="h-10 w-10 border-2 border-medical-200 dark:border-medical-500/20">
+                        <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 font-bold text-sm">
+                          {selectedConversation.provider.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-bold text-sm text-slate-900 dark:text-white">{selectedConversation.provider.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {selectedConversation.provider.online
+                            ? <span className="text-emerald-500 font-semibold">{t('online')}</span>
+                            : t('offline')}
+                        </p>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" onClick={handleVoiceCall} className="text-slate-500 hover:text-medical-500">
+                        <Phone className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={handleVideoCall} className="text-slate-500 hover:text-medical-500">
+                        <Video className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-            {/* Input */}
-            <form 
-              onSubmit={handleSendMessage} 
-              className="p-4 bg-gray-900 border-t border-gray-800 flex gap-3 items-center"
-            >
-              <Button 
-                type="button"
-                variant="ghost" 
-                size="default"
-                className="text-gray-400 hover:text-white hover:bg-gray-800"
-              >
-                <Paperclip className="w-5 h-5" />
-              </Button>
-              
-              <Input 
-                value={newMessage} 
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  handleTyping();
-                }}
-                placeholder="Escribe un mensaje..." 
-                className="flex-1 bg-gray-800 border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-white h-11"
-              />
-              
-              <Button 
-                type="button"
-                variant="ghost" 
-                size="default"
-                className="text-gray-400 hover:text-white hover:bg-gray-800"
-              >
-                <Smile className="w-5 h-5" />
-              </Button>
-              
-              <Button 
-                type="submit"
-                disabled={!newMessage.trim()}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 h-11 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send className="w-5 h-5" />
-              </Button>
-            </form>
-          </>
-        ) : (
-          /* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/5 via-gray-950 to-gray-950">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="p-8 bg-gray-900/50 rounded-2xl border border-gray-800 max-w-md"
-            >
-              <div className="p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full mb-6 inline-flex border border-purple-500/20">
-                <MessageSquare className="w-16 h-16 text-purple-400" />
-              </div>
-              <h3 className="text-2xl font-black text-white mb-3">
-                Comunicación Directa
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Selecciona un doctor de la lista para iniciar una conversación segura y privada
-              </p>
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                <AlertCircle className="w-4 h-4" />
-                <span>Cifrado de extremo a extremo</span>
-              </div>
-            </motion.div>
+                  {/* Messages */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    {messages.map((msg) => {
+                      const isOwn = msg.senderRole === 'consumer';
+                      return (
+                        <div key={msg.id} className={cn("flex gap-2", isOwn ? "justify-end" : "justify-start")}>
+                          {!isOwn && (
+                            <Avatar className="h-8 w-8 border border-medical-200 dark:border-medical-500/20 shrink-0 mt-auto">
+                              <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 text-xs font-bold">
+                                {selectedConversation.provider.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          <div className={cn(
+                            "max-w-[75%] rounded-2xl px-4 py-3 relative",
+                            isOwn
+                              ? "bg-medical-600 text-white rounded-br-md"
+                              : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-md"
+                          )}>
+                            <p className="text-sm leading-relaxed">{msg.content}</p>
+                            <div className={cn(
+                              "flex items-center justify-end gap-1 mt-1",
+                              isOwn ? "text-white/60" : "text-slate-400 dark:text-slate-500"
+                            )}>
+                              <span className="text-[10px]">{formatRelativeTime(msg.createdAt)}</span>
+                              {isOwn && getStatusIcon(msg.status)}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {isTyping && (
+                      <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                        <div className="flex space-x-1">
+                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                        {t('typing')}
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  {/* Input */}
+                  <form onSubmit={handleSendMessage} className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-3">
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
+                        placeholder={t('input_placeholder')}
+                        className="flex-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl"
+                      />
+                      <Button
+                        type="submit"
+                        disabled={!newMessage.trim()}
+                        className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl px-4"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                  <div className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-full mb-4">
+                    <MessageCircle className="w-12 h-12 text-medical-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('select_conversation')}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">{t('select_conversation_desc')}</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </main>
+        </div>
+      </div>
     </div>
   );
 }

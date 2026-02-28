@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { Loader2, Package, PackageSearch, Tag, User } from 'lucide-react';
@@ -33,31 +34,31 @@ interface ConsumerPackage {
   purchaseDate: string;
 }
 
-// Mock Data (Para visualizar el diseño)
+// Mock Data
 const mockPackages: ConsumerPackage[] = [
   {
     id: 1,
     provider: { name: "Clínica Dental Sonrisas", specialty: "Odontología" },
-    ServicePackage: { 
-        name: "Pack Limpieza Anual", 
-        description: "Incluye limpiezas profundas y revisiones semestrales para mantener tu salud bucal." 
+    ServicePackage: {
+      name: "Pack Limpieza Anual",
+      description: "Incluye limpiezas profundas y revisiones semestrales para mantener tu salud bucal."
     },
     purchaseDate: new Date().toISOString(),
     creditsRemaining: [
-        { serviceId: 101, serviceName: "Limpieza Profunda", quantity: 2 },
-        { serviceId: 102, serviceName: "Revisión General", quantity: 1 }
+      { serviceId: 101, serviceName: "Limpieza Profunda", quantity: 2 },
+      { serviceId: 102, serviceName: "Revisión General", quantity: 1 }
     ]
   },
   {
     id: 2,
     provider: { name: "NutriLife", specialty: "Nutrición" },
-    ServicePackage: { 
-        name: "Reto 90 Días", 
-        description: "Seguimiento completo de tu plan alimenticio con ajustes mensuales." 
+    ServicePackage: {
+      name: "Reto 90 Días",
+      description: "Seguimiento completo de tu plan alimenticio con ajustes mensuales."
     },
     purchaseDate: new Date(Date.now() - 86400000 * 10).toISOString(),
     creditsRemaining: [
-        { serviceId: 201, serviceName: "Consulta de Seguimiento", quantity: 5 }
+      { serviceId: 201, serviceName: "Consulta de Seguimiento", quantity: 5 }
     ]
   }
 ];
@@ -66,25 +67,20 @@ export default function ConsumerPackagesPage() {
   const [packages, setPackages] = useState<ConsumerPackage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const t = useTranslations('PatientPackages');
 
   const fetchPackages = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Intentar fetch real
-      // const { data } = await axios.get('/api/consumer/packages', { withCredentials: true });
-      // setPackages(data);
-
-      // Fallback a Mock Data
       await new Promise(r => setTimeout(r, 600));
       setPackages(mockPackages);
-
     } catch (error) {
       console.error(error);
-      toast.error("Error al cargar paquetes.");
+      toast.error(t('toast_error'));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchPackages();
@@ -92,103 +88,109 @@ export default function ConsumerPackagesPage() {
 
   if (isLoading) {
     return (
-        <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
-            <p className="text-gray-400">Cargando tus paquetes...</p>
-        </div>
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
+        <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
+        <p className="text-slate-500 dark:text-slate-400">{t('loading')}</p>
+      </div>
     );
   }
 
   return (
-    <motion.div 
-        initial={{ opacity: 0, y: 10 }} 
-        animate={{ opacity: 1, y: 0 }} 
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
         className="space-y-8 max-w-6xl mx-auto px-4 py-8"
-    >
-      
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <Package className="w-8 h-8 text-purple-500" />
-            Mis Paquetes Activos
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">
-            Gestiona tus sesiones prepagadas y canjéalas por citas.
-        </p>
-      </div>
-      
-      {packages.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.map(pkg => (
-            <Card key={pkg.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              
-              {/* Header de la Tarjeta */}
-              <div className="bg-purple-50 dark:bg-purple-900/10 p-4 border-b border-purple-100 dark:border-purple-900/20">
+      >
+
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
+            <Package className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+              {t('title')}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              {t('subtitle')}
+            </p>
+          </div>
+        </div>
+
+        {packages.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map(pkg => (
+              <Card key={pkg.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+
+                {/* Header de la Tarjeta */}
+                <div className="bg-medical-50 dark:bg-medical-500/10 p-4 border-b border-medical-100 dark:border-medical-500/20">
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 hover:bg-purple-200">
-                        Activo
+                    <Badge variant="secondary" className="bg-medical-100 dark:bg-medical-500/20 text-medical-700 dark:text-medical-300 hover:bg-medical-200">
+                      {t('badge_active')}
                     </Badge>
-                    <Package className="w-5 h-5 text-purple-400" />
+                    <Package className="w-5 h-5 text-medical-400" />
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1">{pkg.ServicePackage.name}</h3>
-                  <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-1">{pkg.ServicePackage.name}</h3>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-slate-500 dark:text-slate-400">
                     <User className="w-3.5 h-3.5" />
                     <span className="truncate">{pkg.provider.name}</span>
                   </div>
-              </div>
-
-              <CardContent className="flex-grow pt-6">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 line-clamp-2 h-10">
-                    {pkg.ServicePackage.description}
-                </p>
-                
-                <Separator className="mb-4" />
-                
-                <div className="space-y-3">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Créditos Disponibles</p>
-                    {pkg.creditsRemaining.map((credit, idx) => (
-                        <div key={`${pkg.id}-${credit.serviceId}-${idx}`} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
-                            <div className="flex items-center gap-2 overflow-hidden">
-                                <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-md text-green-600 dark:text-green-400 shrink-0">
-                                    <Tag className="w-3.5 h-3.5" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
-                                    {credit.serviceName}
-                                </span>
-                            </div>
-                            <Badge className="ml-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700">
-                                x{credit.quantity}
-                            </Badge>
-                        </div>
-                    ))}
                 </div>
-              </CardContent>
 
-              <CardFooter className="bg-gray-50 dark:bg-gray-950/30 border-t border-gray-100 dark:border-gray-800 p-4">
-                <Button 
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                <CardContent className="flex-grow pt-6">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-6 line-clamp-2 h-10">
+                    {pkg.ServicePackage.description}
+                  </p>
+
+                  <Separator className="mb-4 bg-slate-100 dark:bg-slate-800" />
+
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('label_credits')}</p>
+                    {pkg.creditsRemaining.map((credit, idx) => (
+                      <div key={`${pkg.id}-${credit.serviceId}-${idx}`} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <div className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-md text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <Tag className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">
+                            {credit.serviceName}
+                          </span>
+                        </div>
+                        <Badge className="ml-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-700">
+                          x{credit.quantity}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+
+                <CardFooter className="bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 p-4">
+                  <Button
+                    className="w-full bg-medical-600 hover:bg-medical-700 text-white"
                     onClick={() => router.push(`/search?provider=${encodeURIComponent(pkg.provider.name)}`)}
-                >
-                    Usar Créditos
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/30 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-          <div className="bg-white dark:bg-gray-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
-            <PackageSearch className="w-10 h-10 text-gray-400" />
+                  >
+                    {t('btn_use')}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">No tienes paquetes</h3>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6 max-w-sm mx-auto">
-            Ahorra dinero comprando sesiones por adelantado. Busca profesionales que ofrezcan paquetes.
-          </p>
-          <Button onClick={() => router.push('/search')} size="lg" className="bg-purple-600 hover:bg-purple-700">
-            Explorar Ofertas
-          </Button>
-        </div>
-      )}
-    </motion.div>
+        ) : (
+          <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="bg-slate-50 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-slate-700">
+              <PackageSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('empty_title')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 mb-6 max-w-sm mx-auto">
+              {t('empty_desc')}
+            </p>
+            <Button onClick={() => router.push('/search')} size="lg" className="bg-medical-600 hover:bg-medical-700">
+              {t('btn_explore')}
+            </Button>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }

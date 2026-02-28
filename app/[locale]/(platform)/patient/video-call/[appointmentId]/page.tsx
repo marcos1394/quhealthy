@@ -3,76 +3,65 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useSessionStore } from '@/stores/SessionStore';
 import Video from 'twilio-video';
 import axios from 'axios';
 import { Loader2, Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function VideoCallPage() {
   const params = useParams();
+  const t = useTranslations('PatientVideoCall');
   const appointmentId = params.appointmentId as string;
   const { user } = useSessionStore();
-  
+
   const [room, setRoom] = useState<Video.Room | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const localVideoRef = useRef<HTMLDivElement>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
-    const [isConnecting, setIsConnecting] = useState(true);
-
+  const [isConnecting, setIsConnecting] = useState(true);
 
   useEffect(() => {
     if (!appointmentId || !user) return;
 
-   const connectToRoom = async () => {
+    const connectToRoom = async () => {
       try {
-        // 1. Obtenemos el token de acceso desde nuestro backend
         const { data } = await axios.get(`/api/twilio/video/token/${appointmentId}`, {
           withCredentials: true
         });
-        
-        // 2. Nos conectamos a la sala de Twilio con el token
+
         const videoRoom = await Video.connect(data.token, {
           name: data.roomName,
           audio: true,
           video: { width: 640 }
         });
-        
+
         setRoom(videoRoom);
         setIsConnecting(false);
 
-        // 3. Mostramos nuestro propio video
         if (localVideoRef.current && videoRoom.localParticipant.videoTracks.size > 0) {
           const localTrackPublication = Array.from(videoRoom.localParticipant.videoTracks.values())[0];
           if (localTrackPublication.track) {
-            localVideoRef.current.appendChild(localTrackPublication.track.attach());
+            localVideoRef.current.appendChild(localTrackPublication.track.attach() as HTMLElement);
           }
         }
-        
-        // --- INICIO DE LA LÓGICA CORREGIDA ---
 
-        // 4. Función reutilizable para manejar a un participante (nuevo o existente)
         const handleParticipant = (participant: Video.RemoteParticipant) => {
           participant.on('trackSubscribed', (track: Video.RemoteTrack) => {
-            // Verificamos que sea un track de video o audio antes de adjuntarlo
             if (track.kind === 'video' || track.kind === 'audio') {
               if (remoteVideoRef.current) {
-                // Limpiamos el contenedor antes de añadir el nuevo video para evitar duplicados
-                remoteVideoRef.current.innerHTML = ''; 
-                remoteVideoRef.current.appendChild(track.attach());
+                remoteVideoRef.current.innerHTML = '';
+                remoteVideoRef.current.appendChild(track.attach() as HTMLElement);
               }
             }
           });
         };
 
-        // 5. Manejamos a los participantes que YA ESTÁN en la sala
         videoRoom.participants.forEach(handleParticipant);
-        
-        // 6. Manejamos a los NUEVOS participantes que se conecten
         videoRoom.on('participantConnected', handleParticipant);
-
-        // --- FIN DE LA LÓGICA CORREGIDA ---
 
       } catch (error) {
         console.error("Error connecting to Twilio room:", error);
@@ -83,7 +72,6 @@ export default function VideoCallPage() {
     connectToRoom();
 
     return () => {
-      // Desconectarse de la sala al salir del componente
       if (room) {
         room.disconnect();
       }
@@ -92,31 +80,57 @@ export default function VideoCallPage() {
 
   const handleHangUp = () => {
     if (room) room.disconnect();
-    window.history.back(); // Vuelve a la página anterior
+    window.history.back();
   };
 
   if (!room) {
-    return <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white"><Loader2 className="w-8 h-8 animate-spin mb-4"/>Conectando a la videollamada...</div>;
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white font-sans">
+        <Loader2 className="w-10 h-10 animate-spin text-medical-400 mb-4" />
+        <p className="text-slate-400 font-medium">{t('connecting')}</p>
+      </div>
+    );
   }
-  
-  return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 relative">
-      {/* Video del otro participante (ocupa el fondo) */}
-      <div ref={remoteVideoRef} className="absolute inset-0 w-full h-full" />
-      
-      {/* Nuestro video (en una esquina) */}
-      <div ref={localVideoRef} className="absolute top-4 right-4 w-48 h-36 border-2 border-purple-500 rounded-lg overflow-hidden z-10" />
 
-      {/* Controles */}
-      <div className="absolute bottom-8 flex gap-4 z-10 bg-black/50 backdrop-blur-sm p-4 rounded-full">
-        <Button variant="outline" size="default" className="w-12 h-12 rounded-full" onClick={() => setIsMuted(!isMuted)}>
-          {isMuted ? <MicOff/> : <Mic/>}
+  return (
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 relative font-sans">
+      {/* Remote video */}
+      <div ref={remoteVideoRef} className="absolute inset-0 w-full h-full" />
+
+      {/* Local video */}
+      <div ref={localVideoRef} className="absolute top-4 right-4 w-48 h-36 border-2 border-medical-500 rounded-xl overflow-hidden z-10 shadow-2xl" />
+
+      {/* Controls */}
+      <div className="absolute bottom-8 flex gap-3 z-10 bg-slate-900/80 backdrop-blur-xl p-3 rounded-2xl border border-slate-700/50 shadow-2xl">
+        <Button
+          variant="outline"
+          size="default"
+          className={cn(
+            "w-12 h-12 rounded-full border-slate-600 hover:bg-slate-800 transition-all",
+            isMuted ? "bg-rose-500/20 border-rose-500 text-rose-400 hover:bg-rose-500/30" : ""
+          )}
+          onClick={() => setIsMuted(!isMuted)}
+        >
+          {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
         </Button>
-        <Button variant="outline" size="default" className="w-12 h-12 rounded-full" onClick={() => setVideoEnabled(!videoEnabled)}>
-            {videoEnabled ? <VideoIcon/> : <VideoOff/>}
+        <Button
+          variant="outline"
+          size="default"
+          className={cn(
+            "w-12 h-12 rounded-full border-slate-600 hover:bg-slate-800 transition-all",
+            !videoEnabled ? "bg-rose-500/20 border-rose-500 text-rose-400 hover:bg-rose-500/30" : ""
+          )}
+          onClick={() => setVideoEnabled(!videoEnabled)}
+        >
+          {videoEnabled ? <VideoIcon className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
         </Button>
-        <Button variant="destructive" size="default" className="w-16 h-12 rounded-full" onClick={handleHangUp}>
-          <PhoneOff/>
+        <Button
+          variant="destructive"
+          size="default"
+          className="w-16 h-12 rounded-full bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/30"
+          onClick={handleHangUp}
+        >
+          <PhoneOff className="w-5 h-5" />
         </Button>
       </div>
     </div>
