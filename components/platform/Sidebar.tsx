@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
+import { useSessionStore } from "@/stores/SessionStore";
 
-const sidebarLinks = [
+const providerLinks = [
   { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
   { label: "Calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: "blue" } },
   { label: "Patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
@@ -21,9 +22,20 @@ const sidebarLinks = [
   { label: "Billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
 ];
 
-const settingsLinks = [
+const providerSettingsLinks = [
   { label: "Public Profile", href: "/provider/profile", icon: UserCircle, badge: null },
   { label: "Settings", href: "/provider/settings", icon: Settings, badge: null },
+];
+
+const patientLinks = [
+  { label: "Overview", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
+  { label: "Appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
+  { label: "Discover", href: "/patient/discover", icon: Sparkles, badge: null },
+];
+
+const patientSettingsLinks = [
+  { label: "Profile", href: "/patient/profile", icon: UserCircle, badge: null },
+  { label: "Settings", href: "/patient/settings", icon: Settings, badge: null },
 ];
 
 const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
@@ -80,6 +92,12 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout } = useAuth();
+  const { role } = useSessionStore();
+
+  const isConsumer = role === 'CONSUMER';
+  const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
+  const currentLinks = isConsumer ? patientLinks : providerLinks;
+  const currentSettingsLinks = isConsumer ? patientSettingsLinks : providerSettingsLinks;
 
   const handleLogout = () => { toast.info("Session closed successfully", { autoClose: 2000 }); logout(); };
 
@@ -92,7 +110,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
       )}>
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white dark:bg-slate-950 transition-colors">
-        <Link href="/provider/dashboard" className={cn("flex items-center gap-2.5 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
+        <Link href={homeLink} className={cn("flex items-center gap-2.5 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             className="w-9 h-9 rounded-xl bg-medical-600 dark:bg-medical-500 flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="font-bold text-white text-lg">Q</span>
@@ -122,9 +140,9 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
         </div>
       )}
 
-      {/* Plan Banner */}
+      {/* Plan Banner (Only for Provider) */}
       <AnimatePresence>
-        {!isCollapsed && (
+        {!isCollapsed && !isConsumer && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             className="mx-4 mt-4 p-3 bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-xl overflow-hidden relative group cursor-pointer hover:border-medical-500/50 transition-all">
             <div className="absolute top-1 right-1"><Sparkles className="w-3 h-3 text-medical-400 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
@@ -153,7 +171,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             )}
           </AnimatePresence>
           <div className="space-y-1">
-            {sidebarLinks.map((link, index) => (
+            {currentLinks.map((link, index) => (
               <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
                 <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
@@ -173,7 +191,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             )}
           </AnimatePresence>
           <div className="space-y-1">
-            {settingsLinks.map((link, index) => (
+            {currentSettingsLinks.map((link, index) => (
               <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
                 <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
