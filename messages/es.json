@@ -1856,63 +1856,87 @@
     },
     "Legal": {
         "Terms": {
-            "title": "Términos y Condiciones",
+            "title": "Términos y Condiciones de Uso",
             "last_updated": "Última actualización: Febrero 2026",
-            "intro": "Bienvenido a QuHealthy. Estos Términos y Condiciones rigen tu uso de nuestra plataforma y servicios.",
+            "intro": "Bienvenido a QuHealthy. Los presentes Términos y Condiciones rigen el acceso y uso de la plataforma web y móvil de QuHealthy, una empresa constituida conforme a las leyes de los Estados Unidos Mexicanos.",
             "sections": [
                 {
                     "title": "1. Aceptación de los Términos",
-                    "content": "Al acceder o utilizar QuHealthy, aceptas estar sujeto a estos Términos. Si no estás de acuerdo con alguna parte, no podrás usar nuestros servicios."
+                    "content": "Al acceder, registrarse o utilizar QuHealthy (la 'Plataforma'), ya sea como Paciente ('Usuario') o Proveedor de Salud ('Profesional'), usted acepta expresamente estar sujeto a estos Términos y Condiciones, así como a nuestro Aviso de Privacidad. Si no está de acuerdo con alguna disposición, deberá abstenerse de utilizar la Plataforma."
                 },
                 {
-                    "title": "2. Cuentas de Usuario",
-                    "content": "Eres responsable de mantener la confidencialidad de tus credenciales de acceso. Cualquier actividad bajo tu cuenta es tu responsabilidad."
+                    "title": "2. Naturaleza del Servicio y Exclusión de Responsabilidad Médica",
+                    "content": "QuHealthy actúa exclusivamente como un intermediario tecnológico que facilita la conexión entre los Usuarios y los Profesionales de la salud. QUHEALTHY NO PROVEE SERVICIOS MÉDICOS, DIAGNÓSTICOS, TRATAMIENTOS NI ASESORAMIENTO DE SALUD. Cualquier relación médico-paciente se establece directa y exclusivamente entre el Usuario y el Profesional. QuHealthy no asume responsabilidad alguna por la negligencia, mala praxis, diagnósticos erróneos, o cualquier daño resultante de los servicios prestados por los Profesionales registrados en la Plataforma."
                 },
                 {
-                    "title": "3. Reservas y Cancelaciones",
-                    "content": "Las citas pueden ser reservadas en tiempo real. Las cancelaciones deben hacerse al menos con 24 horas de anticipación para evitar una tarifa de penalidad."
+                    "title": "3. Cuentas de Usuario y Seguridad",
+                    "content": "Para acceder a ciertas funciones, los Usuarios y Profesionales deben crear una cuenta proporcionando información veraz, precisa y actualizada. Usted es el único responsable de mantener la confidencialidad de sus credenciales y de todas las actividades que ocurran bajo su cuenta. QuHealthy se reserva el derecho de suspender o cancelar cuentas que violen estos Términos, incluyendo la provisión de información falsa o suplantación de identidad."
                 },
                 {
-                    "title": "4. Descargo de Responsabilidad Médica",
-                    "content": "QuHealthy proporciona una plataforma para conectar con profesionales de salud. No brindamos consejo médico. Siempre busca el consejo de un proveedor de salud calificado."
+                    "title": "4. Reservas, Pagos, Cancelaciones y Reembolsos",
+                    "content": "4.1 Tarifas y Pagos: Al agendar una cita o adquirir un servicio, el Usuario acepta pagar las tarifas indicadas a través de nuestra pasarela de pagos autorizada (ej. Stripe). 4.2 Políticas de Cancelación (Pacientes): El Usuario podrá cancelar o reprogramar una cita sin penalización con al menos 24 horas de anticipación a la hora programada. Cancelaciones con menor tiempo de anticipación, o la inasistencia (no-show), podrán resultar en el cobro del 100% de la tarifa pactada, según los criterios del Profesional. 4.3 Cancelaciones (Profesionales): Si un Profesional cancela la cita confirmada, procesaremos el reembolso íntegro al Usuario."
+                },
+                {
+                    "title": "5. Obligaciones y Declaraciones del Profesional",
+                    "content": "Los Profesionales de la salud garantizan contar con las cédulas profesionales, certificaciones, especialidades médicas y permisos sanitarios vigentes emitidos por las autoridades correspondientes en México (ej. SEP, COFEPRIS) o la jurisdicción aplicable. QuHealthy realiza una verificación de identidad (KYC), pero el Profesional asume total responsabilidad civil, penal y administrativa derivada de su práctica."
+                },
+                {
+                    "title": "6. Propiedad Intelectual",
+                    "content": "Todos los derechos de propiedad intelectual sobre el contenido, diseño, marca, logotipos, software y códigos de la Plataforma son propiedad exclusiva de QuHealthy, protegidos por la Ley Federal del Derecho de Autor y la Ley Federal de Protección a la Propiedad Industrial de México. Queda estrictamente prohibida su reproducción, distribución o modificación sin autorización expresa y por escrito."
+                },
+                {
+                    "title": "7. Legislación Aplicable y Jurisdicción",
+                    "content": "Para la interpretación, cumplimiento y ejecución de los presentes Términos y Condiciones, las partes se someten expresamente a las leyes federales de los Estados Unidos Mexicanos, y a la jurisdicción de los tribunales competentes en la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles por razón de sus domicilios presentes o futuros."
                 }
             ]
         },
         "Privacy": {
             "title": "Aviso de Privacidad",
             "last_updated": "Última actualización: Febrero 2026",
-            "intro": "Tu privacidad es importante para nosotros. Esta política explica cómo recopilamos, usamos y protegemos tus datos personales.",
+            "intro": "En estricto cumplimiento a lo dispuesto en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares ('LFPDPPP'), su Reglamento y los Lineamientos del Aviso de Privacidad, QuHealthy pone a su disposición el presente Aviso de Privacidad Integral.",
             "sections": [
                 {
-                    "title": "1. Información que Recopilamos",
-                    "content": "Recopilamos información personal como tu nombre, correo electrónico, detalles de pago y preferencias de salud cuando te registras o utilizas nuestros servicios."
+                    "title": "1. Identidad y Domicilio del Responsable",
+                    "content": "QuHealthy (en adelante, el 'Responsable'), con dirección y operaciones en la Ciudad de México, México, es el responsable del tratamiento y protección de sus datos personales y sensibles."
                 },
                 {
-                    "title": "2. Cómo Usamos tu Información",
-                    "content": "Tus datos se utilizan para facilitar reservaciones, mejorar nuestra plataforma y comunicarnos contigo acerca de tus citas."
+                    "title": "2. Datos Personales Recabados",
+                    "content": "Para llevar a cabo las finalidades descritas, solicitaremos los siguientes datos: Datos de identificación (nombre, identificación oficial), Datos de contacto (teléfono, domicilio, correo electrónico), Datos de facturación, Datos de geolocalización, y en su caso, Datos de credenciales y constancias (para profesionales). Adicionalmente, el Responsable recabará Datos Sensibles referentes al estado de salud pasado, presente o futuro (historial clínico, síntomas, especialidad médica requerida)."
                 },
                 {
-                    "title": "3. Seguridad de Datos",
-                    "content": "Utilizamos encriptación estándar de la industria para proteger tus datos. TUS expedientes de salud son estrictamente confidenciales."
+                    "title": "3. Finalidades del Tratamiento",
+                    "content": "Finalidades Primarias (necesarias para el servicio): Creación de su cuenta, agendamiento de citas, conexión entre paciente y profesional de la salud, procesamiento de pagos, telemedicina mediante plataformas seguras (si aplica) y facturación. Finalidades Secundarias (no esenciales): Envío de promociones, encuestas de calidad, marketing e investigación analítica interna. Usted puede oponerse al uso de sus datos para finalidades secundarias enviando un correo a privacidad@quhealthy.com."
+                },
+                {
+                    "title": "4. Transferencia de Datos",
+                    "content": "QuHealthy compartirá sus datos personales (incluyendo los sensibles) ÚNICAMENTE con el Profesional de la Salud con el que usted decidió agendar y llevar a cabo su consulta. Asimismo, para el procesamiento de pagos, los datos financieros serán trasferidos a pasarelas de pago certificadas (ej. Stripe). QuHealthy no vende ni transfiere sus datos a terceros con fines de lucro sin su consentimiento expreso."
+                },
+                {
+                    "title": "5. Derechos ARCO y Revocación del Consentimiento",
+                    "content": "Usted tiene derecho a conocer qué datos personales tenemos (Acceso), solicitar la corrección de su información (Rectificación), que la eliminemos de nuestras bases (Cancelación) oponerse al uso de sus datos para fines específicos (Oposición). Para ejercer sus derechos ARCO o revocar su consentimiento, deberá enviar una solicitud por escrito a privacidad@quhealthy.com, la cual atenderemos en un plazo máximo de 20 días hábiles conforme a la LFPDPPP."
+                },
+                {
+                    "title": "6. Medidas de Seguridad",
+                    "content": "Sus datos personales, en particular los datos médicos y de salud, se guardan en servidores con encriptación avanzada, respaldados por la infraestructura tecnológica adecuada que previene accesos no autorizados, pérdida o alteración de la información."
                 }
             ]
         },
         "Cookies": {
             "title": "Política de Cookies",
             "last_updated": "Última actualización: Febrero 2026",
-            "intro": "Esta Política de Cookies explica cómo usamos cookies y tecnologías similares en nuestra plataforma.",
+            "intro": "QuHealthy utiliza cookies y tecnologías similares para mejorar la navegación y los servicios de nuestra plataforma.",
             "sections": [
                 {
                     "title": "1. ¿Qué son las Cookies?",
-                    "content": "Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo y nos ayudan a mejorar tu experiencia en QuHealthy."
+                    "content": "Las cookies son pequeños archivos de texto que se descargan y almacenan en el dispositivo (ordenador, smartphone, tablet) del usuario al acceder a ciertas páginas web. Permiten a la plataforma recordar información sobre su visita, como su idioma preferido, sesión iniciada y otras opciones."
                 },
                 {
-                    "title": "2. Tipos de Cookies que Usamos",
-                    "content": "Usamos cookies esenciales para la autenticación y cookies de analíticas para entender cómo nuestros usuarios interactúan con la plataforma."
+                    "title": "2. Tipos de Cookies que Utiliza QuHealthy",
+                    "content": "a) Cookies Estrictamente Necesarias: Indispensables para el funcionamiento de la plataforma (ej. inicio de sesión, balanceador de carga, seguridad). b) Cookies de Rendimiento y Análisis: Nos ayudan a comprender cómo interactúan los visitantes con el sitio web, recopilando información métrica y técnica (como Google Analytics). c) Cookies de Personalización: Recuerdan configuraciones de la interfaz del usuario, como el modo oscuro o región. d) Cookies de Publicidad: Permiten mostrar publicidad relevante basada en sus intereses (si aplicara en el futuro)."
                 },
                 {
-                    "title": "3. Gestión de Cookies",
-                    "content": "Puedes gestionar tus preferencias de cookies a través de la configuración de tu navegador. Sin embargo, deshabilitar ciertas cookies podría afectar la funcionalidad del sitio."
+                    "title": "3. Administración y Eliminación de Cookies",
+                    "content": "Usted puede permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado. Tenga en cuenta que, si desactiva las cookies estrictamente necesarias, es posible que algunas funciones esenciales de la plataforma (como las reservas) no operen correctamente."
                 }
             ]
         },

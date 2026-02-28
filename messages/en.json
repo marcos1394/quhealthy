@@ -1856,63 +1856,87 @@
     },
     "Legal": {
         "Terms": {
-            "title": "Terms and Conditions",
+            "title": "Terms and Conditions of Use",
             "last_updated": "Last updated: February 2026",
-            "intro": "Welcome to QuHealthy. These Terms and Conditions govern your use of our platform and services.",
+            "intro": "Welcome to QuHealthy. These Terms and Conditions govern the access and use of the QuHealthy web and mobile platform, a company incorporated under the laws of the United Mexican States.",
             "sections": [
                 {
                     "title": "1. Acceptance of Terms",
-                    "content": "By accessing or using QuHealthy, you agree to be bound by these Terms. If you do not agree with any part, you may not use our services."
+                    "content": "By accessing, registering, or using QuHealthy (the 'Platform'), either as a Patient ('User') or a Healthcare Provider ('Professional'), you expressly agree to be bound by these Terms and Conditions, as well as our Privacy Notice. If you do not agree with any provision, you must refrain from using the Platform."
                 },
                 {
-                    "title": "2. User Accounts",
-                    "content": "You are responsible for maintaining the confidentiality of your account credentials. Any activity under your account is your responsibility."
+                    "title": "2. Nature of the Service and Medical Disclaimer",
+                    "content": "QuHealthy acts exclusively as a technological intermediary that facilitates the connection between Users and Healthcare Professionals. QUHEALTHY DOES NOT PROVIDE MEDICAL SERVICES, DIAGNOSES, TREATMENTS, OR HEALTH ADVICE. Any doctor-patient relationship is established directly and exclusively between the User and the Professional. QuHealthy assumes no liability for negligence, malpractice, misdiagnosis, or any damage resulting from the services provided by Professionals registered on the Platform."
                 },
                 {
-                    "title": "3. Booking and Cancellations",
-                    "content": "Appointments can be booked in real time. Cancellations must be made at least 24 hours in advance to avoid a penalty fee."
+                    "title": "3. User Accounts and Security",
+                    "content": "To access certain functions, Users and Professionals must create an account providing truthful, accurate, and updated information. You are solely responsible for maintaining the confidentiality of your credentials and for all activities that occur under your account. QuHealthy reserves the right to suspend or terminate accounts that violate these Terms, including providing false information or impersonation."
                 },
                 {
-                    "title": "4. Medical Disclaimer",
-                    "content": "QuHealthy provides a platform to connect with professionals. We do not provide medical advice. Always seek the advice of a qualified health provider."
+                    "title": "4. Bookings, Payments, Cancellations, and Refunds",
+                    "content": "4.1 Fees and Payments: By booking an appointment or acquiring a service, the User agrees to pay the indicated fees through our authorized payment gateway (e.g., Stripe). 4.2 Cancellation Policies (Patients): The User may cancel or reschedule an appointment without penalty at least 24 hours in advance of the scheduled time. Cancellations with less notice, or no-shows, may result in a charge of 100% of the agreed fee, according to the Professional's criteria. 4.3 Cancellations (Professionals): If a Professional cancels a confirmed appointment, we will process a full refund to the User."
+                },
+                {
+                    "title": "5. Professional Obligations and Representations",
+                    "content": "Healthcare Professionals guarantee that they hold valid professional licenses (cédulas profesionales), certifications, medical specialties, and sanitary permits issued by the corresponding authorities in Mexico (e.g., SEP, COFEPRIS) or the applicable jurisdiction. QuHealthy performs identity verification (KYC), but the Professional assumes full civil, criminal, and administrative responsibility derived from their practice."
+                },
+                {
+                    "title": "6. Intellectual Property",
+                    "content": "All intellectual property rights over the content, design, brand, logos, software, and codes of the Platform are the exclusive property of QuHealthy, protected by the Federal Copyright Law and the Federal Law for the Protection of Industrial Property of Mexico. Reproduction, distribution, or modification without express written authorization is strictly prohibited."
+                },
+                {
+                    "title": "7. Applicable Law and Jurisdiction",
+                    "content": "For the interpretation, compliance, and execution of these Terms and Conditions, the parties expressly submit to the federal laws of the United Mexican States, and to the jurisdiction of the competent courts in Mexico City, waiving any other jurisdiction that may correspond to them by reason of their present or future domiciles."
                 }
             ]
         },
         "Privacy": {
-            "title": "Privacy Policy",
+            "title": "Privacy Notice",
             "last_updated": "Last updated: February 2026",
-            "intro": "Your privacy is important to us. This policy explains how we collect, use, and protect your personal data.",
+            "intro": "In strict compliance with the provisions of the Federal Law on the Protection of Personal Data Held by Private Parties ('LFPDPPP'), its Regulations, and the Privacy Notice Guidelines, QuHealthy makes this Comprehensive Privacy Notice available to you.",
             "sections": [
                 {
-                    "title": "1. Information We Collect",
-                    "content": "We collect personal information such as your name, email, payment details, and health preferences when you register or use our services."
+                    "title": "1. Identity and Domicile of the Controller",
+                    "content": "QuHealthy (hereinafter 'the Controller'), with headquarters and operations in Mexico City, Mexico, is responsible for the processing and protection of your personal and sensitive data."
                 },
                 {
-                    "title": "2. How We Use Your Information",
-                    "content": "Your data is used to facilitate bookings, improve our platform, and communicate with you regarding your appointments."
+                    "title": "2. Personal Data Collected",
+                    "content": "To carry out the described purposes, we will request the following data: Identification data (name, official ID), Contact data (phone, address, email), Billing data, Geolocation data, and where applicable, Credential and certification data (for professionals). Additionally, the Controller will collect Sensitive Data regarding past, present, or future health status (clinical history, symptoms, required medical specialty)."
                 },
                 {
-                    "title": "3. Data Security",
-                    "content": "We use industry-standard encryption to protect your data. Your health records are strictly confidential."
+                    "title": "3. Purposes of Processing",
+                    "content": "Primary Purposes (necessary for the service): Account creation, appointment scheduling, connection between patient and healthcare professional, payment processing, telemedicine via secure platforms (if applicable), and billing. Secondary Purposes (non-essential): Sending promotions, quality surveys, marketing, and internal analytical research. You may object to the use of your data for secondary purposes by sending an email to privacy@quhealthy.com."
+                },
+                {
+                    "title": "4. Data Transfer",
+                    "content": "QuHealthy will share your personal data (including sensitive data) ONLY with the Healthcare Professional with whom you decided to schedule and carry out your consultation. Likewise, for payment processing, financial data will be transferred to certified payment gateways (e.g., Stripe). QuHealthy does not sell or transfer your data to third parties for commercial purposes without your express consent."
+                },
+                {
+                    "title": "5. ARCO Rights and Revocation of Consent",
+                    "content": "You have the right to know what personal data we have (Access), request the correction of your information (Rectification), have us delete it from our databases (Cancellation), and oppose the use of your data for specific purposes (Opposition). To exercise your ARCO rights or revoke your consent, you must send a written request to privacy@quhealthy.com, which we will address within a maximum period of 20 business days in accordance with the LFPDPPP."
+                },
+                {
+                    "title": "6. Security Measures",
+                    "content": "Your personal data, particularly medical and health data, is stored on servers with advanced encryption, backed by appropriate technological infrastructure that prevents unauthorized access, loss, or alteration of the information."
                 }
             ]
         },
         "Cookies": {
             "title": "Cookie Policy",
             "last_updated": "Last updated: February 2026",
-            "intro": "This Cookie Policy explains how we use cookies and similar technologies on our platform.",
+            "intro": "QuHealthy uses cookies and similar technologies to improve navigation and the services of our platform.",
             "sections": [
                 {
                     "title": "1. What are Cookies?",
-                    "content": "Cookies are small text files stored on your device that help us improve your experience on QuHealthy."
+                    "content": "Cookies are small text files that are downloaded and stored on the user's device (computer, smartphone, tablet) when accessing certain web pages. They allow the platform to remember information about your visit, such as your preferred language, logged-in session, and other options."
                 },
                 {
-                    "title": "2. Types of Cookies We Use",
-                    "content": "We use essential cookies for authentication and analytics cookies to understand how our users interact with the platform."
+                    "title": "2. Types of Cookies used by QuHealthy",
+                    "content": "a) Strictly Necessary Cookies: Essential for the operation of the platform (e.g., login, load balancer, security). b) Performance and Analytics Cookies: Help us understand how visitors interact with the website, collecting metric and technical information (such as Google Analytics). c) Customization Cookies: Remember user interface settings, such as dark mode or region. d) Advertising Cookies: Allow showing relevant advertising based on your interests (if applicable in the future)."
                 },
                 {
-                    "title": "3. Managing Cookies",
-                    "content": "You can manage your cookie preferences through your browser settings. However, disabling certain cookies may affect site functionality."
+                    "title": "3. Managing and Deleting Cookies",
+                    "content": "You can allow, block, or delete cookies installed on your device by configuring your browser options. Please note that if you disable strictly necessary cookies, some essential functions of the platform (such as bookings) may not operate correctly."
                 }
             ]
         },
