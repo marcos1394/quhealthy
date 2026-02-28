@@ -12,6 +12,7 @@ import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard';
 
 // Store
 import { useSessionStore } from '@/stores/SessionStore';
@@ -92,83 +93,89 @@ export default function ConsumerDashboardPage() {
                     </p>
                 </div>
 
-                {/* Tarjeta de Próxima Cita (Destacada) */}
-                {nextAppointment ? (
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-medical-700 to-medical-900 dark:from-medical-800 dark:to-medical-950 p-8 shadow-xl border border-medical-500/30">
+                {/* Contenedor Principal: Cita Destacada + Health Score */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Tarjeta de Próxima Cita (Destacada) */}
+                    <div className="lg:col-span-2 relative overflow-hidden h-full rounded-2xl bg-gradient-to-br from-medical-700 to-medical-900 dark:from-medical-800 dark:to-medical-950 p-8 shadow-xl border border-medical-500/30 flex flex-col justify-center">
                         {/* Decoración de fondo */}
                         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-medical-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-medical-100 text-xs font-semibold uppercase tracking-wider">
-                                    <Calendar className="w-3 h-3" /> {t('next_badge')}
+                        {nextAppointment ? (
+                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-medical-100 text-xs font-semibold uppercase tracking-wider">
+                                        <Calendar className="w-3 h-3" /> {t('next_badge')}
+                                    </div>
+
+                                    <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">
+                                        {nextAppointment.service.name}
+                                    </h2>
+
+                                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-medical-100">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-10 w-10 border-2 border-white/30">
+                                                <AvatarFallback className="bg-white/10 text-white font-bold">
+                                                    {nextAppointment.provider.name.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <p className="font-semibold text-white">{nextAppointment.provider.name}</p>
+                                                <p className="text-xs text-medical-200">{nextAppointment.provider.specialty}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="h-10 w-[1px] bg-white/20 hidden sm:block"></div>
+
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4 text-medical-200" />
+                                                <span className="font-medium">
+                                                    {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "EEEE d 'de' MMMM", { locale: es })}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="w-4 h-4 text-medical-200" />
+                                                <span>
+                                                    {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "h:mm a", { locale: es })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-                                    {nextAppointment.service.name}
-                                </h2>
-
-                                <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-medical-100">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-10 w-10 border-2 border-white/30">
-                                            <AvatarFallback className="bg-white/10 text-white font-bold">
-                                                {nextAppointment.provider.name.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="font-semibold text-white">{nextAppointment.provider.name}</p>
-                                            <p className="text-xs text-medical-200">{nextAppointment.provider.specialty}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="h-10 w-[1px] bg-white/20 hidden sm:block"></div>
-
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-medical-200" />
-                                            <span className="font-medium">
-                                                {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "EEEE d 'de' MMMM", { locale: es })}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="w-4 h-4 text-medical-200" />
-                                            <span>
-                                                {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "h:mm a", { locale: es })}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div className="w-full md:w-auto mt-4 md:mt-0">
+                                    <Button
+                                        onClick={() => router.push(`/patient/appointments/${nextAppointment.id}`)}
+                                        className="w-full md:w-auto bg-white text-medical-900 hover:bg-medical-50 font-bold py-6 px-8 rounded-xl shadow-lg transition-all hover:scale-105"
+                                    >
+                                        {t('btn_details')}
+                                    </Button>
                                 </div>
                             </div>
-
-                            <div className="w-full md:w-auto">
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-center space-y-4 relative z-10 w-full h-full text-white">
+                                <div className="p-4 bg-white/10 rounded-full border border-white/20">
+                                    <Search className="w-8 h-8 text-medical-200" />
+                                </div>
+                                <h3 className="text-xl font-bold">{t('empty_title')}</h3>
+                                <p className="text-medical-100 max-w-sm font-light">
+                                    {t('empty_desc')}
+                                </p>
                                 <Button
-                                    onClick={() => router.push(`/patient/appointments/${nextAppointment.id}`)}
-                                    className="w-full md:w-auto bg-white text-medical-900 hover:bg-medical-50 font-bold py-6 px-8 rounded-xl shadow-lg transition-all hover:scale-105"
+                                    onClick={() => router.push('/search')}
+                                    className="bg-white text-medical-900 hover:bg-medical-50 mt-4 rounded-xl font-bold px-8 shadow-md"
                                 >
-                                    {t('btn_details')}
+                                    {t('btn_search')}
                                 </Button>
                             </div>
-                        </div>
+                        )}
                     </div>
-                ) : (
-                    <Card className="bg-white dark:bg-slate-900 border-dashed border-2 border-slate-200 dark:border-slate-700 shadow-sm">
-                        <CardContent className="flex flex-col items-center justify-center py-16 text-center space-y-4">
-                            <div className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-full">
-                                <Search className="w-8 h-8 text-medical-600 dark:text-medical-400" />
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t('empty_title')}</h3>
-                            <p className="text-slate-500 dark:text-slate-400 max-w-sm">
-                                {t('empty_desc')}
-                            </p>
-                            <Button
-                                onClick={() => router.push('/search')}
-                                className="bg-medical-600 hover:bg-medical-700 text-white mt-4"
-                            >
-                                {t('btn_search')}
-                            </Button>
-                        </CardContent>
-                    </Card>
-                )}
+
+                    {/* Health Score / Profile Arc Card */}
+                    <div className="h-full">
+                        <HealthScoreCard score={88} title="Health Index" subtitle="Based on your recent tests and activity" />
+                    </div>
+                </div>
 
                 {/* Grid de Accesos Rápidos */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

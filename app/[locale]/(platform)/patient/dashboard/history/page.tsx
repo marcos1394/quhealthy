@@ -18,7 +18,12 @@ import {
   XCircle,
   Clock,
   Star as StarIcon,
-  DollarSign
+  DollarSign,
+  Lock,
+  File as FileIcon,
+  Eye,
+  ShieldCheck,
+  MoreVertical
 } from "lucide-react";
 import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
@@ -36,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Components
 import { HistoryDetailModal } from "@/components/dashboard/history/HistoryDetailModal";
@@ -359,101 +365,178 @@ export default function PatientHistoryPage() {
           </CardContent>
         </Card>
 
-        {/* Entries List */}
-        <AnimatePresence mode="popLayout">
-          {filteredEntries.length > 0 ? (
-            <div className="space-y-3">
-              {filteredEntries.map((entry, index) => {
-                const statusConfig = getStatusConfig(entry.status);
-                const StatusIcon = statusConfig.icon;
+        <Tabs defaultValue="timeline" className="w-full mt-6">
+          <div className="flex justify-center mb-8">
+            <TabsList className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 p-1.5 rounded-2xl shadow-sm h-auto inline-flex">
+              <TabsTrigger value="timeline" className="rounded-xl px-6 py-2.5 font-semibold text-sm transition-all data-[state=active]:bg-medical-50 data-[state=active]:text-medical-600 dark:data-[state=active]:bg-medical-500/10 dark:data-[state=active]:text-medical-400">
+                <Calendar className="w-4 h-4 mr-2" />
+                {t('timeline_tab') || "Past Visits"}
+              </TabsTrigger>
+              <TabsTrigger value="vault" className="rounded-xl px-6 py-2.5 font-semibold text-sm transition-all data-[state=active]:bg-slate-900 data-[state=active]:text-white dark:data-[state=active]:bg-slate-800">
+                <Lock className="w-4 h-4 mr-2" />
+                {t('vault_tab') || "Secure File Vault"}
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-                return (
-                  <motion.div
-                    key={entry.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.03 }}
-                    layout
-                  >
-                    <Card
-                      className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                      onClick={() => { setSelectedEntry(entry); setIsDetailOpen(true); }}
-                    >
-                      <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                        {/* Date */}
-                        <div className="text-center sm:text-left min-w-[70px]">
-                          <p className="text-xl font-bold text-slate-900 dark:text-white">
-                            {formatInTimeZone(new Date(entry.date), 'UTC', "d", { locale: es })}
-                          </p>
-                          <p className="text-xs font-semibold text-medical-600 dark:text-medical-400 uppercase">
-                            {formatInTimeZone(new Date(entry.date), 'UTC', "MMM yyyy", { locale: es })}
-                          </p>
-                        </div>
+          <TabsContent value="timeline" className="mt-0 focus-visible:ring-0">
+            {/* Entries List - Elegant Timeline */}
+            <div className="relative pt-4 pb-8 pl-4 sm:pl-8">
+              {/* Vertical Line */}
+              {filteredEntries.length > 0 && (
+                <div className="absolute top-8 bottom-12 left-[31px] sm:left-[47px] w-0.5 bg-gradient-to-b from-medical-500/50 via-slate-200 dark:via-slate-800 to-transparent rounded-full" />
+              )}
 
-                        {/* Divider */}
-                        <div className="hidden sm:block h-12 w-px bg-slate-200 dark:bg-slate-700" />
+              <AnimatePresence mode="popLayout">
+                {filteredEntries.length > 0 ? (
+                  <div className="space-y-3">
+                    {filteredEntries.map((entry, index) => {
+                      const statusConfig = getStatusConfig(entry.status);
+                      const StatusIcon = statusConfig.icon;
 
-                        {/* Provider & Service */}
-                        <div className="flex items-center gap-3 flex-1">
-                          <Avatar className="h-10 w-10 border-2 border-medical-200 dark:border-medical-500/20">
-                            <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 font-bold text-sm">
-                              {entry.provider.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                              {entry.type}
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                              {entry.provider.name} • {entry.provider.specialty}
-                            </p>
-                          </div>
-                        </div>
+                      return (
+                        <motion.div
+                          key={entry.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ delay: index * 0.05, type: "spring", stiffness: 200, damping: 20 }}
+                          layout
+                          className="relative pl-8 sm:pl-12"
+                        >
+                          {/* Timeline Dot */}
+                          <div className="absolute left-[-6px] sm:left-[0px] top-6 w-5 h-5 rounded-full bg-medical-500 border-4 border-slate-50 dark:border-slate-950 z-10 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-transform group-hover:scale-125" />
 
-                        {/* Rating */}
-                        {entry.rating && (
-                          <div className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <StarIcon
-                                key={i}
-                                className={cn(
-                                  "w-3.5 h-3.5",
-                                  i < (entry.rating || 0)
-                                    ? "text-amber-400 fill-amber-400"
-                                    : "text-slate-200 dark:text-slate-700"
-                                )}
-                              />
-                            ))}
-                          </div>
-                        )}
+                          <Card
+                            className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+                            onClick={() => { setSelectedEntry(entry); setIsDetailOpen(true); }}
+                          >
+                            <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 relative overflow-hidden">
+                              {/* Status Accent Line */}
+                              <div className={cn("absolute left-0 top-0 bottom-0 w-1", statusConfig.className.split(" ")[0])} />
 
-                        {/* Status Badge */}
-                        <Badge variant="outline" className={cn("border shrink-0", statusConfig.className)}>
-                          <StatusIcon className="w-3 h-3 mr-1" />
-                          {statusConfig.label}
-                        </Badge>
+                              {/* Date */}
+                              <div className="text-center sm:text-left min-w-[70px] pl-2">
+                                <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                  {formatInTimeZone(new Date(entry.date), 'UTC', "d", { locale: es })}
+                                </p>
+                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
+                                  {formatInTimeZone(new Date(entry.date), 'UTC', "MMM yyyy", { locale: es })}
+                                </p>
+                              </div>
 
-                        {/* Price */}
-                        {entry.cost && (
-                          <div className="text-right min-w-[70px]">
-                            <p className="font-bold text-slate-900 dark:text-white">${entry.cost}</p>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                              {/* Divider */}
+                              <div className="hidden sm:block h-10 w-px bg-slate-100 dark:bg-slate-800" />
+
+                              {/* Provider & Service */}
+                              <div className="flex items-center gap-4 flex-1">
+                                <Avatar className="h-12 w-12 border-2 border-slate-100 dark:border-slate-800 shadow-sm">
+                                  <AvatarFallback className="bg-gradient-to-br from-medical-500 to-emerald-500 text-white font-bold text-lg">
+                                    {entry.provider.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors text-base">
+                                    {entry.type}
+                                  </h3>
+                                  <p className="text-sm text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5 mt-0.5 font-medium">
+                                    {entry.provider.name} <span className="text-slate-300 dark:text-slate-700">•</span> {entry.provider.specialty}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Rating */}
+                              {entry.rating && (
+                                <div className="flex items-center gap-0.5 bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-500/20">
+                                  {[...Array(5)].map((_, i) => (
+                                    <StarIcon
+                                      key={i}
+                                      className={cn(
+                                        "w-3 h-3",
+                                        i < (entry.rating || 0)
+                                          ? "text-amber-500 fill-amber-500"
+                                          : "text-amber-200 dark:text-amber-900"
+                                      )}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Status Badge */}
+                              <Badge variant="outline" className={cn("border shrink-0 text-xs font-semibold py-1", statusConfig.className)}>
+                                <StatusIcon className="w-3.5 h-3.5 mr-1.5" />
+                                {statusConfig.label}
+                              </Badge>
+
+                              {/* Price */}
+                              {entry.cost && (
+                                <div className="text-right min-w-[80px]">
+                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider mb-0.5">Total</p>
+                                  <p className="font-bold text-slate-900 dark:text-white">${entry.cost}</p>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
+                    <ClipboardList className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('empty_title')}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">{t('empty_desc')}</p>
                   </motion.div>
-                );
-              })}
+                )}
+              </AnimatePresence>
             </div>
-          ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
-              <ClipboardList className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('empty_title')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">{t('empty_desc')}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </TabsContent>
+
+          <TabsContent value="vault" className="mt-0 focus-visible:ring-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+              {[
+                { name: "Resultados de Sangre (Hemograma)", date: "15 Oct 2023", size: "1.2 MB" },
+                { name: "Radiografía Dental Panorámica", date: "22 Sep 2023", size: "4.5 MB" },
+                { name: "Análisis de Perfil Lipídico", date: "10 Ago 2023", size: "850 KB" }
+              ].map((file, i) => (
+                <Card key={i} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-medical-500/50 transition-all cursor-pointer group">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl">
+                        <FileIcon className="w-7 h-7 text-medical-600 dark:text-medical-400" />
+                      </div>
+                      <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-medium">
+                        PDF
+                      </Badge>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors line-clamp-2 min-h-[48px]">{file.name}</h3>
+                      <div className="flex items-center gap-2 mt-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        <span>{file.date}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                        <span>{file.size}</span>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex gap-2">
+                      <Button variant="outline" className="flex-1 hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 transition-colors h-10">
+                        <Eye className="w-4 h-4 mr-2" /> View
+                      </Button>
+                      <Button variant="outline" className="flex-1 hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 transition-colors h-10">
+                        <Download className="w-4 h-4 mr-2" /> Download
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 bg-slate-50/50 dark:bg-slate-900/50">
+                <ShieldCheck className="w-10 h-10 text-emerald-500/60 mb-3" />
+                <p className="text-sm font-semibold text-slate-900 dark:text-white text-center">Your files are secure</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-1">End-to-end encrypted storage.</p>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Detail Modal */}
         {selectedEntry && (

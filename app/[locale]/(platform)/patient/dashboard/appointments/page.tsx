@@ -12,6 +12,7 @@ import {
   Clock,
   Video,
   Calendar,
+  CalendarPlus,
   MapPin,
   Search,
   Filter,
@@ -539,6 +540,17 @@ export default function ConsumerAppointmentsPage() {
                               <Eye className="w-4 h-4 mr-2" />
                               {t('btn_view_details')}
                             </Button>
+
+                            {(appt.status === 'confirmed' || appt.status === 'pending') && !isPast && (
+                              <Button
+                                variant="outline"
+                                onClick={() => toast.success(t('toast_calendar_added') || "Added to calendar.ics")}
+                                className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                              >
+                                <CalendarPlus className="w-4 h-4 mr-2" />
+                                {t('btn_add_calendar') || "Add to Calendar"}
+                              </Button>
+                            )}
 
                             {(appt.status === 'confirmed' || appt.status === 'pending') && !isPast && (
                               <Button

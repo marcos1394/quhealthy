@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { RevenueChart } from "@/components/dashboard/RevenueChart";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { cn } from "@/lib/utils";
 
@@ -125,20 +127,32 @@ export default function DashboardPage() {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SummaryCard title="Revenue (This month)" value={analytics.monthlyRevenue.toLocaleString("es-MX", { style: "currency", currency: "MXN" })}
-          icon={BarChart2} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" borderColor="border-slate-200 dark:border-slate-800" />
+          icon={BarChart2} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" borderColor="border-slate-200 dark:border-slate-800"
+          trend={{ value: 12.5, isPositive: true, period: "last month" }} />
         <SummaryCard title="Completed Appointments" value={analytics.completedAppointments.toString()}
-          icon={CheckCircle} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" borderColor="border-slate-200 dark:border-slate-800" />
+          icon={CheckCircle} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" borderColor="border-slate-200 dark:border-slate-800"
+          trend={{ value: 8.2, isPositive: true, period: "last month" }} />
         <SummaryCard title="New Patients" value={analytics.newClients.toString()}
-          icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800" />
+          icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800"
+          trend={{ value: 2.1, isPositive: false, period: "last month" }} />
       </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
-        {/* Chart Placeholder */}
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[280px] flex flex-col items-center justify-center p-7 text-center relative overflow-hidden shadow-sm">
-          <BarChart2 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-          <h4 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-1.5">Financial Metrics</h4>
-          <p className="text-slate-500 dark:text-slate-400 max-w-sm font-light text-sm">Your detailed revenue charts will appear here soon.</p>
+        {/* Revenue Chart */}
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[350px] flex flex-col p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h4 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                <BarChart2 className="w-4 h-4 text-medical-600 dark:text-medical-400" /> Financial Overview
+              </h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">Revenue growth over the last 6 months</p>
+            </div>
+            <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 text-xs font-semibold">
+              +15% Top
+            </Badge>
+          </div>
+          <RevenueChart />
         </Card>
 
         {/* Upcoming Appointments */}
@@ -206,6 +220,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Floating Quick Actions */}
+      <QuickActions />
     </motion.div>
   );
 }

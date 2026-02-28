@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, MessageSquare, Sparkles, Search, MoreVertical, Phone, Video } from "lucide-react";
+import { Send, MessageSquare, Sparkles, Search, MoreVertical, Phone, Video, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,6 +29,7 @@ interface Message {
   senderRole: "provider" | "consumer";
   content: string;
   createdAt: string;
+  status?: "sent" | "delivered" | "read";
 }
 
 const mockConversations: Conversation[] = [
@@ -43,9 +44,9 @@ const mockConversations: Conversation[] = [
 ];
 
 const mockMessages: Message[] = [
-  { id: 1, conversationId: 1, senderId: 101, senderRole: "consumer", content: "Hola Doctor, tengo una duda.", createdAt: new Date(Date.now() - 3600000).toISOString() },
-  { id: 2, conversationId: 1, senderId: 1, senderRole: "provider", content: "Hola Ana, dime en qué puedo ayudarte.", createdAt: new Date(Date.now() - 3500000).toISOString() },
-  { id: 3, conversationId: 1, senderId: 101, senderRole: "consumer", content: "¿A qué hora es mi cita mañana?", createdAt: new Date().toISOString() }
+  { id: 1, conversationId: 1, senderId: 101, senderRole: "consumer", content: "Hola Doctor, tengo una duda.", createdAt: new Date(Date.now() - 3600000).toISOString(), status: "read" },
+  { id: 2, conversationId: 1, senderId: 1, senderRole: "provider", content: "Hola Ana, dime en qué puedo ayudarte.", createdAt: new Date(Date.now() - 3500000).toISOString(), status: "read" },
+  { id: 3, conversationId: 1, senderId: 101, senderRole: "consumer", content: "¿A qué hora es mi cita mañana?", createdAt: new Date().toISOString(), status: "read" }
 ];
 
 let socket: any;
@@ -111,7 +112,7 @@ export default function ProviderMessagesPage() {
     if (!newMessage.trim() || !activeConversation || !user) return;
     const optimisticMessage: Message = {
       id: Date.now(), conversationId: activeConversation.id, senderId: Number(user.id),
-      senderRole: "provider", content: newMessage, createdAt: new Date().toISOString(),
+      senderRole: "provider", content: newMessage, createdAt: new Date().toISOString(), status: "read"
     };
     setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage("");
@@ -222,13 +223,29 @@ export default function ProviderMessagesPage() {
               <div className="space-y-6">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.senderRole === "provider" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[70%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.senderRole === "provider"
+                    <div className={`flex flex-col max-w-[70%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.senderRole === "provider"
                       ? "bg-medical-600 text-white rounded-tr-sm"
                       : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-tl-sm border border-slate-200 dark:border-slate-700"}`}>
-                      {msg.content}
+                      <span>{msg.content}</span>
+                      {msg.senderRole === "provider" && (
+                        <div className="flex justify-end mt-1 text-emerald-200">
+                          <CheckCheck className="w-3.5 h-3.5" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
+
+                {isSuggesting && (
+                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                    <div className="flex space-x-1">
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    {t("typing") || "Escribiendo..."}
+                  </div>
+                )}
                 <div ref={messagesEndRef} className="h-4" />
               </div>
             </ScrollArea>

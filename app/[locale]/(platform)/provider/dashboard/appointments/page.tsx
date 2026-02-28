@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CompletionModal } from "@/components/dashboard/CompletionModal";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarView } from "@/components/dashboard/CalendarView";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
@@ -99,9 +101,11 @@ export default function ProviderAppointmentsPage() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1 font-light">{t('subtitle')}</p>
         </div>
-        <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none">
-          <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none">
+            <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
+          </Button>
+        </div>
       </div>
 
       {/* Stats Bar */}
@@ -122,99 +126,116 @@ export default function ProviderAppointmentsPage() {
         ))}
       </div>
 
-      {/* Appointments List */}
-      <div className="space-y-3">
-        <AnimatePresence mode="popLayout">
-          {appointments.length > 0 ? (
-            appointments.map((appt, index) => {
-              const appointmentDate = new Date(appt.startTime);
-              const isToday = appointmentDate.toDateString() === new Date().toDateString();
-              const isCompletable = new Date() >= new Date(appt.startTime);
-              const isPast = new Date() > new Date(appt.endTime);
+      <Tabs defaultValue="list" className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Your Views</h2>
+          <TabsList className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <TabsTrigger value="list" className="rounded-lg text-sm px-4 py-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-medical-600 dark:data-[state=active]:text-medical-400 data-[state=active]:shadow-sm transition-all">
+              List View
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="rounded-lg text-sm px-4 py-1.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-medical-600 dark:data-[state=active]:text-medical-400 data-[state=active]:shadow-sm transition-all">
+              Calendar
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-              return (
-                <motion.div key={appt.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ delay: index * 0.03 }}
-                  className={`group relative bg-white dark:bg-slate-900 border rounded-xl p-5 transition-all ${isToday ? "border-medical-200 dark:border-medical-500/30 bg-medical-50/30 dark:bg-medical-500/5" : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                    }`}>
-                  {isToday && (
-                    <div className="absolute top-0 right-0 bg-medical-600 dark:bg-medical-500 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-bl-xl rounded-tr-xl flex items-center gap-1 z-10">
-                      <Sparkles className="w-2.5 h-2.5" />TODAY
-                    </div>
-                  )}
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-0">
-                    <div className="flex items-start gap-3.5 w-full md:w-auto">
-                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0">
-                        <User className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+        <TabsContent value="list" className="space-y-3 m-0">
+          <AnimatePresence mode="popLayout">
+            {appointments.length > 0 ? (
+              appointments.map((appt, index) => {
+                const appointmentDate = new Date(appt.startTime);
+                const isToday = appointmentDate.toDateString() === new Date().toDateString();
+                const isCompletable = new Date() >= new Date(appt.startTime);
+                const isPast = new Date() > new Date(appt.endTime);
+
+                return (
+                  <motion.div key={appt.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ delay: index * 0.03 }}
+                    className={`group relative bg-white dark:bg-slate-900 border rounded-xl p-5 transition-all ${isToday ? "border-medical-200 dark:border-medical-500/30 bg-medical-50/30 dark:bg-medical-500/5" : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                      }`}>
+                    {isToday && (
+                      <div className="absolute top-0 right-0 bg-medical-600 dark:bg-medical-500 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-bl-xl rounded-tr-xl flex items-center gap-1 z-10">
+                        <Sparkles className="w-2.5 h-2.5" />TODAY
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="text-base font-semibold text-slate-900 dark:text-white group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors truncate">
-                          {appt.service.name}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-                          <span className="text-slate-900 dark:text-white font-medium">{appt.consumer.name}</span>
-                          <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
-                          <span className="flex items-center gap-1 text-medical-600 dark:text-medical-400">
-                            <Clock className="w-3 h-3" />
-                            {formatInTimeZone(new Date(appt.startTime), "UTC", "d MMM, HH:mm", { locale: es })}
-                          </span>
+                    )}
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-0">
+                      <div className="flex items-start gap-3.5 w-full md:w-auto">
+                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0">
+                          <User className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-base font-semibold text-slate-900 dark:text-white group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors truncate">
+                            {appt.service.name}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                            <span className="text-slate-900 dark:text-white font-medium">{appt.consumer.name}</span>
+                            <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
+                            <span className="flex items-center gap-1 text-medical-600 dark:text-medical-400">
+                              <Clock className="w-3 h-3" />
+                              {formatInTimeZone(new Date(appt.startTime), "UTC", "d MMM, HH:mm", { locale: es })}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+                        <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1 h-7`}>
+                          <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
+                        </Badge>
+                        {appt.service.serviceDeliveryType === "video_call" && (appt.status === "confirmed" || appt.status === "pending") && (
+                          <Button size="sm" onClick={() => router.push(`/video-call/${appt.id}`)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-none text-xs h-7">
+                            <Video className="w-3.5 h-3.5 mr-1.5" />Join
+                          </Button>
+                        )}
+                        {appt.status === "confirmed" && !isPast && (
+                          <Button size="sm" variant="ghost" onClick={() => handleOpenCancelModal(appt)}
+                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-xs h-7">
+                            <X className="w-3.5 h-3.5" /><span className="hidden sm:inline ml-1">Cancel</span>
+                          </Button>
+                        )}
+                        {appt.status === "confirmed" && (
+                          <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} disabled={!isCompletable}
+                            className={`rounded-lg shadow-none text-xs h-7 ${isCompletable ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700"
+                              }`}
+                            title={!isCompletable ? "You can complete when the appointment time arrives" : "Finish service"}>
+                            <Check className="w-3.5 h-3.5 mr-1" />Complete
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-                      <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1 h-7`}>
-                        <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
-                      </Badge>
-                      {appt.service.serviceDeliveryType === "video_call" && (appt.status === "confirmed" || appt.status === "pending") && (
-                        <Button size="sm" onClick={() => router.push(`/video-call/${appt.id}`)}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-none text-xs h-7">
-                          <Video className="w-3.5 h-3.5 mr-1.5" />Join
-                        </Button>
-                      )}
-                      {appt.status === "confirmed" && !isPast && (
-                        <Button size="sm" variant="ghost" onClick={() => handleOpenCancelModal(appt)}
-                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-xs h-7">
-                          <X className="w-3.5 h-3.5" /><span className="hidden sm:inline ml-1">Cancel</span>
-                        </Button>
-                      )}
-                      {appt.status === "confirmed" && (
-                        <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} disabled={!isCompletable}
-                          className={`rounded-lg shadow-none text-xs h-7 ${isCompletable ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700"
-                            }`}
-                          title={!isCompletable ? "You can complete when the appointment time arrives" : "Finish service"}>
-                          <Check className="w-3.5 h-3.5 mr-1" />Complete
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  {["confirmed", "pending"].includes(appt.status) && (
-                    <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                      <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
-                        <Phone className="w-3 h-3" />Call
-                      </button>
-                      <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
-                        <MessageSquare className="w-3 h-3" />WhatsApp
-                      </button>
-                      <button className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 transition-colors">
-                        <Star className="w-3 h-3" />View History
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })
-          ) : (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-14 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30">
-              <div className="bg-slate-100 dark:bg-slate-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Heart className="w-7 h-7 text-slate-400 dark:text-slate-600" />
-              </div>
-              <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1.5">No scheduled appointments</h3>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto text-sm font-light">Your calendar is free. Share your profile to start receiving patients.</p>
-              <Button variant="link" className="mt-3 text-medical-600 dark:text-medical-400 text-sm">Copy profile link</Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                    {["confirmed", "pending"].includes(appt.status) && (
+                      <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
+                          <Phone className="w-3 h-3" />Call
+                        </button>
+                        <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
+                          <MessageSquare className="w-3 h-3" />WhatsApp
+                        </button>
+                        <button className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 transition-colors">
+                          <Star className="w-3 h-3" />View History
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })
+            ) : (
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-14 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/30">
+                <div className="bg-slate-100 dark:bg-slate-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Heart className="w-7 h-7 text-slate-400 dark:text-slate-600" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1.5">No scheduled appointments</h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto text-sm font-light">Your calendar is free. Share your profile to start receiving patients.</p>
+                <Button variant="link" className="mt-3 text-medical-600 dark:text-medical-400 text-sm">Copy profile link</Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </TabsContent>
+
+        <TabsContent value="calendar" className="m-0 h-[600px]">
+          <CalendarView />
+        </TabsContent>
+      </Tabs>
 
       {/* Modals */}
       <CompletionModal isOpen={isCompleteModalOpen} onClose={() => setIsCompleteModalOpen(false)} appointment={selectedAppointment}

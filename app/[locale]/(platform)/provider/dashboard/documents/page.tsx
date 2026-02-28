@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
-import { FileText, CheckCircle, Clock, ShieldAlert } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { FileText, CheckCircle, Clock, ShieldAlert, LayoutGrid, List } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { StatBlock } from "@/components/dashboard/documents/StatBlock";
 import { DocumentUpload } from "@/components/dashboard/documents/DocumentUpload";
-import { DocumentCard, Document } from "@/components/dashboard/documents/DocumentCard";
+import { DocumentCard, Document, DocumentGrid, DocumentList } from "@/components/dashboard/documents/DocumentCard";
 import { DocumentDetailModal } from "@/components/dashboard/documents/DocumentDetailModal";
 import { useTranslations } from "next-intl";
 
@@ -25,6 +27,7 @@ export default function DocumentsManagerPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const t = useTranslations('DashboardDocuments');
 
@@ -97,6 +100,14 @@ export default function DocumentsManagerPage() {
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <div className="flex justify-between items-center mb-3">
                     <CardTitle className="text-slate-900 dark:text-white text-base font-semibold">{t('files_title')}</CardTitle>
+                    <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
+                      <Button variant="ghost" size="sm" className={cn("px-2 py-1 h-7 rounded-md", viewMode === 'grid' ? "bg-white dark:bg-slate-900 shadow-sm text-medical-600 dark:text-medical-400" : "text-slate-500")} onClick={() => setViewMode('grid')}>
+                        <LayoutGrid className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className={cn("px-2 py-1 h-7 rounded-md", viewMode === 'list' ? "bg-white dark:bg-slate-900 shadow-sm text-medical-600 dark:text-medical-400" : "text-slate-500")} onClick={() => setViewMode('list')}>
+                        <List className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                   <TabsList className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-full justify-start overflow-x-auto">
                     <TabsTrigger value="all" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white text-sm">{t('tabs.all')}</TabsTrigger>
@@ -107,15 +118,19 @@ export default function DocumentsManagerPage() {
                 </Tabs>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <AnimatePresence mode="popLayout">
+                <div className="min-h-[400px]">
+                  <AnimatePresence mode="wait">
                     {filteredDocuments.length > 0 ? (
-                      filteredDocuments.map(doc => <DocumentCard key={doc.id} doc={doc} onSelect={setSelectedDoc} />)
+                      viewMode === 'grid' ? (
+                        <DocumentGrid key="grid" documents={filteredDocuments} onSelect={setSelectedDoc} onDownload={handleDownload} onPreview={setSelectedDoc} />
+                      ) : (
+                        <DocumentList key="list" documents={filteredDocuments} onSelect={setSelectedDoc} />
+                      )
                     ) : (
-                      <div className="col-span-full py-10 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                        <ShieldAlert className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                        <p className="text-sm font-light">{t('empty')}</p>
-                      </div>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="col-span-full py-20 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+                        <ShieldAlert className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                        <p className="text-sm font-medium text-slate-500">{t('empty') || "No documents found."}</p>
+                      </motion.div>
                     )}
                   </AnimatePresence>
                 </div>

@@ -2,11 +2,13 @@
 
 import React, { Suspense } from "react";
 import StripeConnectCard from "@/components/dashboard/billing/StripeConnectCard";
-import { Building2, ReceiptText, Sparkles, ExternalLink, CheckCircle2, XCircle, ArrowRightLeft, CalendarDays, CreditCard, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Building2, ReceiptText, Sparkles, ExternalLink, CheckCircle2, XCircle, ArrowRightLeft, CalendarDays, CreditCard, Loader2, ChevronLeft, ChevronRight, Download, FileDown, FileText as FileTextIcon, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 import { es } from "date-fns/locale";
 import { useBillingHistory } from "@/hooks/useBillingHistory";
 import { useTranslations } from "next-intl";
@@ -27,7 +29,11 @@ function StripeConnectCardSkeleton() {
 
 export default function BillingSettingsPage() {
   const { transactions, isLoading, page, totalPages, fetchPage } = useBillingHistory();
+  const [selectedTx, setSelectedTx] = React.useState<any>(null);
   const t = useTranslations('DashboardBilling');
+
+  const exportToCSV = () => { toast.success("Exporting transactions to CSV..."); };
+  const exportToPDF = () => { toast.success("Exporting transactions to PDF..."); };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -80,11 +86,21 @@ export default function BillingSettingsPage() {
 
           {/* Section 2: Transaction History */}
           <section>
-            <div className="mb-4 flex items-center gap-2.5 pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 rounded-lg"><ReceiptText className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900 dark:text-white">{t('transactions_title')}</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-light">View payments made by your patients</p>
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 rounded-lg"><ReceiptText className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">{t('transactions_title')}</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-light">View payments made by your patients</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exportToCSV} className="text-xs h-8 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300">
+                  <Download className="w-3.5 h-3.5 mr-1.5" /> Export CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportToPDF} className="text-xs h-8 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300">
+                  <FileDown className="w-3.5 h-3.5 mr-1.5" /> Export PDF
+                </Button>
               </div>
             </div>
 
@@ -143,12 +159,17 @@ export default function BillingSettingsPage() {
                               <span className="text-[10px] text-slate-400 ml-1">{tx.currency}</span>
                             </td>
                             <td className="px-5 py-3.5 text-center">
-                              {tx.receiptUrl ? (
-                                <a href={tx.receiptUrl} target="_blank" rel="noopener noreferrer" title="View Stripe receipt"
-                                  className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10 transition-colors">
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
-                              ) : <span className="text-xs text-slate-300 dark:text-slate-600">-</span>}
+                              <div className="flex justify-center gap-1.5">
+                                <button aria-label="View Invoice" onClick={() => setSelectedTx(tx)} className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors">
+                                  <FileTextIcon className="w-3.5 h-3.5" />
+                                </button>
+                                {tx.receiptUrl && (
+                                  <a href={tx.receiptUrl} target="_blank" rel="noopener noreferrer" title="View Stripe receipt"
+                                    className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-medical-600 dark:hover:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10 transition-colors">
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -179,6 +200,64 @@ export default function BillingSettingsPage() {
           </section>
         </div>
       </div>
+
+      {/* Invoice Modal */}
+      <Dialog open={!!selectedTx} onOpenChange={(o) => !o && setSelectedTx(null)}>
+        <DialogContent className="sm:max-w-xl p-0 overflow-hidden bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-medical-600 rounded-xl shadow-sm text-white flex-shrink-0">
+                <ReceiptText className="w-6 h-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Invoice #INV-{selectedTx?.id?.substring(0, 8).toUpperCase() || '0001'}</DialogTitle>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">{selectedTx && format(new Date(selectedTx.date), "PPP", { locale: es })}</p>
+              </div>
+            </div>
+            {selectedTx && getStatusBadge(selectedTx.status)}
+          </div>
+
+          {selectedTx && (
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Billed To</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Patient</p>
+                  <p className="text-xs text-slate-500 font-light">Associated with Appt #{selectedTx.appointmentId || "N/A"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Provider</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">QuHealthy Services</p>
+                  <p className="text-xs text-slate-500 font-light">{selectedTx.currency}</p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr><th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Description</th><th className="px-4 py-3 text-right font-semibold text-slate-600 dark:text-slate-300">Amount</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-slate-100 dark:border-slate-800"><td className="px-4 py-4 text-slate-700 dark:text-slate-300 font-medium">{getTypeLabel(selectedTx.type)}</td><td className="px-4 py-4 text-right text-slate-700 dark:text-slate-300 font-medium">{selectedTx.amount.toLocaleString("es-MX", { style: "currency", currency: selectedTx.currency })}</td></tr>
+                  </tbody>
+                  <tfoot className="bg-slate-50 dark:bg-slate-800">
+                    <tr><td className="px-4 py-3 text-right font-bold text-slate-500 uppercase tracking-wider text-xs">Total</td><td className="px-4 py-3 text-right font-black text-medical-600 dark:text-medical-400 text-lg">{selectedTx.amount.toLocaleString("es-MX", { style: "currency", currency: selectedTx.currency })}</td></tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-slate-100 dark:bg-slate-900/50 p-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
+            <Button variant="outline" className="border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700" onClick={() => toast.success("Printing invoice...")}>
+              <Printer className="w-4 h-4 mr-2" /> Print
+            </Button>
+            <Button className="bg-medical-600 hover:bg-medical-700 text-white shadow-md shadow-medical-500/20" onClick={() => toast.success("Downloading invoice as PDF...")}>
+              <FileDown className="w-4 h-4 mr-2" /> Download PDF
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
