@@ -111,7 +111,7 @@ const HeroSection: React.FC = () => {
             <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/hero_medical_lifestyle.png"
+                src="/assets/3d/hero-doctor.png"
                 alt="Médica empática en consultorio, transmitiendo confianza y modernidad"
                 className="w-full h-full object-cover object-center"
               />

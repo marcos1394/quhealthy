@@ -71,8 +71,8 @@ export default function MarketPage() {
                                 <button
                                     onClick={() => setActiveFilter('all')}
                                     className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${activeFilter === 'all'
-                                            ? 'bg-medical-600 text-white shadow-md'
-                                            : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                        ? 'bg-medical-600 text-white shadow-md'
+                                        : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                 >
                                     <Star className="w-5 h-5 md:w-6 md:h-6 mr-3" />
@@ -83,8 +83,8 @@ export default function MarketPage() {
                                         key={cat.id}
                                         onClick={() => setActiveFilter(cat.id)}
                                         className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 ${activeFilter === cat.id
-                                                ? 'bg-medical-600 text-white shadow-md'
-                                                : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                            ? 'bg-medical-600 text-white shadow-md'
+                                            : 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                                             }`}
                                     >
                                         <div className="mr-3">{cat.icon}</div>

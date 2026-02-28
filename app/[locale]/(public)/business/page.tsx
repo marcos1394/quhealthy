@@ -152,47 +152,13 @@ export default function BusinessPage() {
                     </div>
 
                     <FadeIn className="relative mx-auto max-w-5xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 bg-slate-100/50 dark:bg-slate-800/50 p-2 sm:p-4 backdrop-blur-3xl shadow-2xl">
-                        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm flex flex-col md:flex-row h-[600px]">
-                            {/* Mock Sidebar */}
-                            <div className="w-full md:w-64 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4">
-                                <div className="h-8 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-8"></div>
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${i === 1 ? 'bg-medical-100 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400' : 'text-slate-500 dark:text-slate-400'}`}>
-                                        <div className="h-5 w-5 bg-current rounded-sm opacity-50"></div>
-                                        <div className="h-4 w-24 bg-current rounded-sm opacity-50"></div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Mock Main Content */}
-                            <div className="flex-1 p-8 flex flex-col gap-6 overflow-hidden">
-                                <div className="flex justify-between items-center mb-4">
-                                    <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                                    <div className="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
-                                </div>
-                                <div className="grid grid-cols-3 gap-6">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800">
-                                            <div className="h-4 w-20 bg-slate-300 dark:bg-slate-700 rounded mb-4"></div>
-                                            <div className="h-8 w-32 bg-medical-500/20 dark:bg-medical-500/40 rounded"></div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-6 mt-4">
-                                    <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-8"></div>
-                                    <div className="space-y-4">
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
-                                                    <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                                                </div>
-                                                <div className="h-8 w-24 bg-medical-100 dark:bg-medical-900/30 rounded-full"></div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm flex flex-col md:flex-row h-[600px] relative">
+                            {/* Full Image Mockup instead of HTML placeholders */}
+                            <img
+                                src="/assets/3d/patient-dashboard.png"
+                                alt="QuHealthy Dashboard Mockup"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     </FadeIn>
                 </div>
