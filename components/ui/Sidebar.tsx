@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   LayoutDashboard, Store, Calendar, Users, BarChart3, Settings,
   HeartPulse, ChevronLeft, LogOut, Sparkles,
   ClipboardList,
@@ -18,7 +18,7 @@ import { Button } from './button';
 
 // Configuración de los elementos de navegación
 const navItems = [
-   { name: 'Dashboard', href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
   { name: 'Mi Tienda', href: '/quhealthy/provider/onboarding/marketplace', icon: Store },
   { name: 'Agenda', href: '/quhealthy/provider/dashboard/calendar', icon: Calendar },
   { name: 'Mis Citas', href: '/quhealthy/provider/dashboard/appointments', icon: ClipboardList },
@@ -76,7 +76,7 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
   }
 
   // Si no hay sesión o el rol no es de proveedor, no se muestra el sidebar
-  if (!user || user.role !== 'provider') {
+  if (!user || user.role !== 'PROVIDER') {
     return null;
   }
 
@@ -157,13 +157,19 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
             >
               <div className="flex items-center space-x-3 p-2 rounded-xl bg-gray-800/50">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center font-semibold text-white">
-                    {user.name?.charAt(0).toUpperCase()}
+                  <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 overflow-hidden">
+                    {user.profileImageUrl ? (
+                      <img src={user.profileImageUrl} alt={user.firstName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-white text-xs font-semibold">
+                        {user.firstName?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-800" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white text-sm truncate">{user.name}</p>
+                <div className="flex-1 min-w-0 transition-opacity duration-300">
+                  <p className="font-medium text-white text-sm truncate">{user.firstName} {user.lastName}</p>
                   <p className="text-xs text-gray-400 truncate">{user.email}</p>
                 </div>
               </div>

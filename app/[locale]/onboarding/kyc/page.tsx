@@ -13,19 +13,19 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useKycOnboarding } from "@/hooks/useKycOnboarding";
-import { DocumentType, VerificationStatus } from "@/types/onboarding";
+import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
 import { useTranslations } from "next-intl";
 
-type UiDocType = "ine" | "passport";
+type UiDocType = "ine" | "passport" | "acta";
 
 export default function KycPage() {
   const router = useRouter();
   const t = useTranslations("OnboardingKyc");
-  const { documents, uploadingState, uploadDocument, isKycComplete, isLoading: isInitialLoading } = useKycOnboarding();
+  const { documents, uploadingState, uploadDocument, isKycComplete, isLoading: isInitialLoading, personType } = useKycOnboarding();
 
   const [activeTab, setActiveTab] = useState<UiDocType>("ine");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [activeCaptureType, setActiveCaptureType] = useState<DocumentType | null>(null);
+  const [activeCaptureType, setActiveCaptureType] = useState<KycDocumentType | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,8 +34,9 @@ export default function KycPage() {
   const ineBackInput = useRef<HTMLInputElement>(null);
   const passportInput = useRef<HTMLInputElement>(null);
   const selfieInput = useRef<HTMLInputElement>(null);
+  const actaInput = useRef<HTMLInputElement>(null);
 
-  const startCamera = async (docType: DocumentType) => {
+  const startCamera = async (docType: KycDocumentType) => {
     setActiveCaptureType(docType); setIsCameraOpen(true);
     try {
       const isSelfie = docType === "SELFIE";
@@ -59,10 +60,10 @@ export default function KycPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: DocumentType) => { const f = e.target.files?.[0]; if (f) handleUpload(f, type); };
-  const handleUpload = async (file: File, type: DocumentType) => { if (file.size > 10 * 1024 * 1024) { toast.warning("Max 10MB."); return; } await uploadDocument(file, type); };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: KycDocumentType) => { const f = e.target.files?.[0]; if (f) handleUpload(f, type); };
+  const handleUpload = async (file: File, type: KycDocumentType) => { if (file.size > 10 * 1024 * 1024) { toast.warning("Max 10MB."); return; } await uploadDocument(file, type); };
 
-  const getStatusBadge = (status?: VerificationStatus) => {
+  const getStatusBadge = (status?: KycVerificationStatus) => {
     switch (status) {
       case "APPROVED": return <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 font-medium"><CheckCircle2 className="w-3 h-3 mr-1" />{t("approved")}</Badge>;
       case "REJECTED": return <Badge className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-0 font-medium"><AlertCircle className="w-3 h-3 mr-1" />{t("rejected")}</Badge>;
@@ -71,7 +72,7 @@ export default function KycPage() {
     }
   };
 
-  const UploadZone = ({ type, label, description, inputRef }: { type: DocumentType; label: string; description?: string; inputRef: React.RefObject<HTMLInputElement | null> }) => {
+  const UploadZone = ({ type, label, description, inputRef }: { type: KycDocumentType; label: string; description?: string; inputRef: React.RefObject<HTMLInputElement | null> }) => {
     const docData = documents[type];
     const isUp = uploadingState[type];
     const isApproved = docData?.verificationStatus === "APPROVED";
@@ -134,10 +135,12 @@ export default function KycPage() {
 
   const calculateProgress = () => {
     let completed = 0;
+    let total = personType === 'MORAL' ? 3 : 2;
     const isIdApproved = (documents["INE_FRONT"]?.verificationStatus === "APPROVED" && documents["INE_BACK"]?.verificationStatus === "APPROVED") || documents["PASSPORT"]?.verificationStatus === "APPROVED";
     if (isIdApproved) completed++;
     if (documents["SELFIE"]?.verificationStatus === "APPROVED") completed++;
-    return (completed / 2) * 100;
+    if (personType === 'MORAL' && documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED") completed++;
+    return (completed / total) * 100;
   };
 
   if (isInitialLoading) return (
@@ -214,9 +217,12 @@ export default function KycPage() {
                 </CardHeader>
                 <CardContent className="pt-5 space-y-5">
                   <Tabs value={activeTab} onValueChange={v => setActiveTab(v as UiDocType)} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-11 p-1 rounded-lg">
+                    <TabsList className={cn("grid w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-11 p-1 rounded-lg", personType === 'MORAL' ? "grid-cols-3" : "grid-cols-2")}>
                       <TabsTrigger value="ine" disabled={isIdentityApproved} className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">{t("ine_tab")}</TabsTrigger>
                       <TabsTrigger value="passport" disabled={isIdentityApproved} className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">{t("passport_tab")}</TabsTrigger>
+                      {personType === 'MORAL' && (
+                        <TabsTrigger value="acta" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">Acta Const.</TabsTrigger>
+                      )}
                     </TabsList>
                   </Tabs>
                   {activeTab === "ine" && (
@@ -226,6 +232,9 @@ export default function KycPage() {
                     </div>
                   )}
                   {activeTab === "passport" && <UploadZone type="PASSPORT" label={t("passport_label")} description={t("passport_desc")} inputRef={passportInput} />}
+                  {activeTab === "acta" && personType === 'MORAL' && (
+                    <UploadZone type="ACTA_CONSTITUTIVA" label="Acta Constitutiva" description="Documento constitutivo de la empresa" inputRef={actaInput} />
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -265,7 +274,7 @@ export default function KycPage() {
               </CardHeader>
               <CardContent className="pt-5 space-y-5">
                 <div className="space-y-3">
-                  {[{ done: isIdentityApproved, icon: ShieldCheck, label: t("identification") }, { done: documents["SELFIE"]?.verificationStatus === "APPROVED", icon: ScanFace, label: t("proof_of_life") }].map((item, i) => (
+                  {[{ done: isIdentityApproved, icon: ShieldCheck, label: t("identification") }, { done: documents["SELFIE"]?.verificationStatus === "APPROVED", icon: ScanFace, label: t("proof_of_life") }, ...(personType === 'MORAL' ? [{ done: documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED", icon: FileCheck, label: "Acta Constitutiva" }] : [])].map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
                       <div className="flex items-center gap-2.5">
                         <div className={cn("w-8 h-8 rounded-full flex items-center justify-center border", item.done ? "bg-medical-600 dark:bg-medical-500 border-medical-500 dark:border-medical-400" : "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700")}>

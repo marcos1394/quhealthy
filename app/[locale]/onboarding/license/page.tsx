@@ -19,21 +19,20 @@ import { useTranslations } from "next-intl";
 export default function LicensePage() {
   const router = useRouter();
   const t = useTranslations("OnboardingLicense");
-  const { license, isLoading: pageLoading, isUploading, uploadLicense } = useLicenseOnboarding();
-  const { userSector } = useOnboardingChecklist();
+  const { license, sector, isLoading: pageLoading, isUploading, uploadLicense } = useLicenseOnboarding();
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const config = {
-    isSalud: userSector === 1,
-    title: userSector === 1 ? t("health_title") : t("beauty_title"),
-    icon: userSector === 1 ? GraduationCap : Store,
-    description: userSector === 1 ? t("health_desc") : t("beauty_desc"),
-    infoText: userSector === 1 ? t("health_info") : t("beauty_info"),
-    buttonText: userSector === 1 ? t("health_button") : t("beauty_button"),
-    successTitle: userSector === 1 ? t("health_success") : t("beauty_success"),
+    isSalud: sector === 'HEALTH',
+    title: sector === 'HEALTH' ? t("health_title") : t("beauty_title"),
+    icon: sector === 'HEALTH' ? GraduationCap : Store,
+    description: sector === 'HEALTH' ? t("health_desc") : t("beauty_desc"),
+    infoText: sector === 'HEALTH' ? t("health_info") : t("beauty_info"),
+    buttonText: sector === 'HEALTH' ? t("health_button") : t("beauty_button"),
+    successTitle: sector === 'HEALTH' ? t("health_success") : t("beauty_success"),
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +75,7 @@ export default function LicensePage() {
               </div>
               <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-5 text-left border border-slate-200 dark:border-slate-700 space-y-3">
                 <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("license_number")}</p><p className="text-slate-900 dark:text-white font-semibold text-lg">{license.licenseNumber}</p></div>
-                {license.careerName && <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("specialty")}</p><p className="text-slate-900 dark:text-white font-medium">{license.careerName}</p></div>}
+                {('careerName' in license && license.careerName) && <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("specialty")}</p><p className="text-slate-900 dark:text-white font-medium">{license.careerName}</p></div>}
               </div>
               <Button onClick={() => router.push("/onboarding")} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
                 <CheckCircle2 className="w-5 h-5 mr-2" />{t("continue_onboarding")}

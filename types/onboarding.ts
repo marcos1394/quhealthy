@@ -1,99 +1,171 @@
-// Enum de estados posibles (debe coincidir con Java)
-export type OnboardingStepStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+export type StepStatus =
+  | 'PENDING'               // No iniciado
+  | 'IN_PROGRESS'           // Guardado parcialmente
+  | 'APPROVED'              // Aprobado
+  | 'REJECTED'              // Rechazado, requiere corrección
+  | 'UNDER_REVIEW'          // En revisión manual por equipo
+  | 'NOT_APPLICABLE';       // Paso que no aplica según el sector
 
-// ✅ La respuesta cruda que viene del Backend (OnboardingStatusResponse.java)
+export type ProviderSector = 'HEALTH' | 'BEAUTY';
+
+export type PersonType = 'FISICA' | 'MORAL';
+
+export type ConsultationType = 'IN_PERSON' | 'VIRTUAL' | 'HOME_VISIT';
+
 export interface OnboardingStatusResponse {
   providerId: number;
-  
-  // Estados de cada módulo
-  profileStatus: OnboardingStepStatus;
-  kycStatus: OnboardingStepStatus;
-  licenseStatus: OnboardingStepStatus;
-  fiscalStatus: OnboardingStepStatus;
-  marketplaceStatus: OnboardingStepStatus;
-  parentCategoryId: number; // 1=Salud, 2=Belleza (para lógica de pasos)
-  // Mapa de rechazos (clave: módulo, valor: motivo)
-  rejectionReasons?: Record<string, string>;
-  
-  // Porcentaje general (0-100)
+  email: string;
+  firstName: string;
+  sector: ProviderSector;
+  personType: PersonType;
+
+  profileStatus: StepStatus;
+  kycStatus: StepStatus;
+  licenseStatus: StepStatus;
+  fiscalStatus: StepStatus;
+  globalStatus: StepStatus;
+
   completionPercentage: number;
+
+  businessName: string | null;
+  slug: string | null;
+  profileImageUrl: string | null;
+  parentCategoryId: number | null;
+  categoryId: number | null;
+  subCategoryId: number | null;
+
+  rejectionReasons: {
+    profile?: string;
+    kyc?: string;
+    license?: string;
+    fiscal?: string;
+  } | null;
 }
 
-// ✅ La estructura visual para tu Checklist en el Frontend
-export interface OnboardingStepUI {
-  id: 'profile' | 'kyc' | 'license' | 'plan'; 
-  title: string;
-  description: string;
-  status: OnboardingStepStatus; // Estado real
-  statusText: string;
-  isRequired: boolean;          // Si es obligatorio (para cálculo de porcentaje)
-  isComplete: boolean;          // Helper para UI
-  isLocked: boolean;            // Si está bloqueado (secuencial)
-  actionPath: string;           // Ruta de navegación (/onboarding/profile)
-  rejectionReason?: string;     // Mensaje de error si fue rechazado
+export interface ProfileResponse {
+  providerId: number;
+  sector: ProviderSector;
+  personType: PersonType;
+  businessName: string;
+  bio: string;
+  timeZone: string;
+  profileImageUrl: string | null;
+  slug: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  googlePlaceId: string | null;
+  websiteUrl: string | null;
+  contactPhone: string | null;
+  contactEmail: string;
+  categoryId: number;
+  subCategoryId: number;
+  tagIds: number[];
+  profileStatus: StepStatus;
 }
 
 export interface UpdateProfileRequest {
-  // Identidad e Industria
   businessName: string;
-  parentCategoryId: number | null; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
   bio: string;
-  timeZone: string; // 🚀 Nueva propiedad obligatoria
-  
-  // Imagen (Opcional)
-  profileImageUrl?: string | null; 
-
-  // Ubicación (Google Places)
+  sector: ProviderSector;
+  personType: PersonType;
+  parentCategoryId: number;
+  categoryId: number;
+  subCategoryId: number;
+  timeZone: string;
   address: string;
   latitude: number;
   longitude: number;
   placeId?: string | null;
-
-  // Contacto
   contactEmail: string;
-  contactPhone?: string; 
+  contactPhone?: string | null;
   websiteUrl?: string | null;
-
-  // Especialización (Componente CategorySelector)
-  categoryId: number;    // Especialidad (Ej: Dentista)
-  subCategoryId: number; // Sub-especialidad (Ej: Ortodoncista)
-  tagIds: number[];      // Tags (Ej: Bilingüe, Urgencias)
+  profileImageUrl?: string | null;
+  tagIds?: number[];
 }
 
-// ✅ RESPONSE: Lo que recibimos al consultar (ProfileResponse.java)
-export interface ProfileResponse {
-  tagIds: never[];
-  providerId: number;
-  parentCategoryId: number; // 🆕 NUEVO: 1 para Salud, 2 para Belleza
-  businessName: string;
-  bio: string;
-  timeZone: string; // 🚀 Nueva propiedad para zona horaria
-  profileImageUrl: string;
-  slug: string;
-  
-  address: string;
-  latitude: number;
-  longitude: number;
-  googlePlaceId?: string;
-  
-  websiteUrl?: string;
-  contactPhone?: string;
-  contactEmail?: string;
-  
-  categoryId: number;
-  subCategoryId: number;
-  
-  profileStatus: string; // 'PENDING', 'COMPLETED', etc.
+export type KycDocumentType =
+  | 'INE_FRONT'
+  | 'INE_BACK'
+  | 'PASSPORT'
+  | 'SELFIE'
+  | 'ACTA_CONSTITUTIVA';
+
+export type KycVerificationStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'MANUAL_REVIEW_NEEDED';
+
+export interface KycDocumentResponse {
+  documentType: KycDocumentType;
+  verificationStatus: KycVerificationStatus;
+  rejectionReason: string | null;
+  fileUrl: string;
+  extractedData: Record<string, any> | null;
+  lastUpdated: string;
 }
 
+export interface ProfessionalLicenseResponse {
+  licenseNumber: string;
+  careerName: string;
+  institutionName: string;
+  graduationYear: number | null;
+  renamedccValidated: boolean;
+  documentUrl: string | null;
+  status: StepStatus;
+  rejectionReason: string | null;
+}
+
+export interface BusinessLicenseResponse {
+  licenseNumber: string;
+  issuingAuthority: string;
+  expirationDate: string;
+  documentUrl: string | null;
+  status: StepStatus;
+  rejectionReason: string | null;
+}
+
+export type LicenseResponse = ProfessionalLicenseResponse | BusinessLicenseResponse;
+
+export interface FiscalDataFisicaRequest {
+  personType: 'FISICA';
+  rfc: string;
+  fiscalRegime: string;
+  legalName: string;
+  taxCertificateUrl?: string | null;
+}
+
+export interface FiscalDataMoralRequest {
+  personType: 'MORAL';
+  rfc: string;
+  fiscalRegime: string;
+  legalName: string;
+  taxCertificateUrl?: string | null;
+  actaConstitutivaUrl?: string | null;
+}
+
+export type FiscalDataRequest = FiscalDataFisicaRequest | FiscalDataMoralRequest;
+
+export interface FiscalDataResponse {
+  personType: PersonType;
+  rfc: string;
+  fiscalRegime: string;
+  legalName: string;
+  taxCertificateUrl: string | null;
+  actaConstitutivaUrl: string | null;  // null si persona física
+  status: StepStatus;
+  rejectionReason: string | null;
+}
 
 export interface CategoryResponse {
   id: number;
   name: string;
   slug: string;
-  iconUrl?: string;
-  parentCategoryId: number; // 👈 CRÍTICO: Para el filtrado inteligente
-  description?: string;
+  iconUrl: string | null;
+  description: string | null;
+  parentCategoryId: number;
 }
 
 export interface SubCategoryResponse {
@@ -107,36 +179,29 @@ export interface TagResponse {
   id: number;
   name: string;
   slug: string;
-  color?: string;
+  color: string | null;
 }
 
-export type DocumentType = 
-  | 'INE_FRONT' 
-  | 'INE_BACK' 
-  | 'PASSPORT' 
-  | 'SELFIE' 
-  | 'PROFESSIONAL_LICENSE' 
-  | 'TAX_CERTIFICATE' 
-  | 'PROOF_OF_ADDRESS';
-
-// Estado de Verificación (Igual a tu Java)
-export type VerificationStatus = 'PENDING' | 'PROCESSING' | 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW_NEEDED';
-
-// Respuesta del Backend (KycDocumentResponse)
-export interface KycDocumentResponse {
-  documentType: DocumentType;
-  verificationStatus: VerificationStatus;
-  rejectionReason?: string; // Mensaje de Gemini ("Foto borrosa")
-  fileUrl: string; // URL firmada para previsualizar
-  extractedData?: Record<string, any>; // Datos OCR (Nombre, CURP)
-  lastUpdated: string;
+export interface FiscalRegimeOption {
+  key: string;
+  label: string;
+  satCode: string;
+  applicableTo: PersonType[];
 }
 
-export interface LicenseResponse {
-  licenseNumber: string;
-  careerName: string;
-  institutionName: string;
-  status: 'APPROVED' | 'REJECTED' | 'PENDING' | 'NOT_UPLOADED';
+export interface MessageResponse {
+  message: string;
+}
+
+export interface OnboardingStepUI {
+  id: string; // 'profile' | 'kyc' | 'license' | 'fiscal'
+  title: string;
+  description: string;
+  status: StepStatus;
+  statusText: string;
+  isRequired: boolean;
+  isComplete: boolean;
+  isLocked: boolean;
+  actionPath: string;
   rejectionReason?: string;
-  documentUrl?: string; // URL firmada para previsualizar
 }

@@ -31,10 +31,11 @@ export default function OnboardingProfilePage() {
 
   const { initialData, isLoading: pageLoading, isSaving, saveProfile, error: pageError, refetch, categories, tags, getSubCategories } = useProfileOnboarding();
 
-  const [formData, setFormData] = useState<UpdateProfileRequest>({
+  const [formData, setFormData] = useState<any>({
     businessName: "", parentCategoryId: 0, bio: "", timeZone: "", profileImageUrl: "",
     address: "", latitude: 0, longitude: 0, placeId: "", contactEmail: "",
-    contactPhone: "", websiteUrl: "", categoryId: 0, subCategoryId: 0, tagIds: []
+    contactPhone: "", websiteUrl: "", categoryId: 0, subCategoryId: 0, tagIds: [],
+    personType: "" // Start empty to force selection
   });
 
   const [loading, setLoading] = useState(false);
@@ -46,19 +47,20 @@ export default function OnboardingProfilePage() {
   const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null);
   const [isPlaceSelected, setIsPlaceSelected] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(1);
-  const [availableSubCategories, setAvailableSubCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        businessName: initialData.businessName || "", parentCategoryId: initialData.parentCategoryId || 0,
+        businessName: initialData.businessName || "",
+        parentCategoryId: initialData.sector === 'HEALTH' ? 1 : initialData.sector === 'BEAUTY' ? 2 : 0,
         bio: initialData.bio || "", timeZone: initialData.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         profileImageUrl: initialData.profileImageUrl || "", address: initialData.address || "",
         latitude: initialData.latitude || 0, longitude: initialData.longitude || 0,
         placeId: initialData.googlePlaceId || "", contactEmail: initialData.contactEmail || "",
         contactPhone: initialData.contactPhone || "", websiteUrl: initialData.websiteUrl || "",
         categoryId: initialData.categoryId || 0, subCategoryId: initialData.subCategoryId || 0,
-        tagIds: initialData.tagIds || []
+        tagIds: initialData.tagIds || [],
+        personType: initialData.personType || ""
       });
     }
   }, [initialData]);
@@ -91,7 +93,7 @@ export default function OnboardingProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
   useEffect(() => {
@@ -110,17 +112,17 @@ export default function OnboardingProfilePage() {
 
   const handleBusinessNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsPlaceSelected(false); if (selectedPlaceInfo) setSelectedPlaceInfo(null);
-    setFormData(prev => ({ ...prev, businessName: e.target.value }));
+    setFormData((prev: any) => ({ ...prev, businessName: e.target.value }));
   };
 
   const selectPlace = async (prediction: any) => {
     setIsPlaceSelected(true); setPredictions([]);
     const displayName = prediction.structuredFormatting?.mainText || prediction.description;
-    setFormData(prev => ({ ...prev, businessName: displayName }));
+    setFormData((prev: any) => ({ ...prev, businessName: displayName }));
     try {
       const detailsRaw = await googleService.getDetails(prediction.placeId);
       const details = typeof detailsRaw === "string" ? JSON.parse(detailsRaw) : detailsRaw;
-      setFormData(prev => ({
+      setFormData((prev: any) => ({
         ...prev, businessName: details.name || displayName,
         contactPhone: (details.internationalPhoneNumber || details.formattedPhoneNumber || prev.contactPhone || "").replace(/\s+/g, ""),
         websiteUrl: details.website || prev.websiteUrl, address: details.formattedAddress || prev.address,
@@ -228,30 +230,60 @@ export default function OnboardingProfilePage() {
                 {activeStep === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                     <AnimatePresence mode="wait">
-                      {!formData.parentCategoryId ? (
-                        <motion.div key="industry-choice" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-                          <div className="text-center space-y-2">
-                            <h3 className="text-xl font-medium text-slate-900 dark:text-white">{t("welcome")}</h3>
-                            <p className="text-slate-500 dark:text-slate-400 font-light">{t("sector_question")}</p>
+                      {!formData.personType || !formData.parentCategoryId ? (
+                        <motion.div key="config-choice" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+                          {/* Person Type */}
+                          <div className="space-y-4">
+                            <div className="text-center space-y-2">
+                              <h3 className="text-xl font-medium text-slate-900 dark:text-white">¿Qué tipo de perfil deseas crear?</h3>
+                              <p className="text-slate-500 dark:text-slate-400 font-light">Esto determinará los siguientes pasos del registro.</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <button onClick={() => setFormData((prev: any) => ({ ...prev, personType: 'FISICA' }))}
+                                className={cn("relative p-6 rounded-xl border border-slate-200 dark:border-slate-800 transition-all text-left", formData.personType === 'FISICA' ? "ring-2 ring-medical-500 bg-medical-50/50 dark:bg-medical-500/10" : "bg-white dark:bg-slate-900 hover:border-medical-300")}>
+                                <div className="p-3 bg-medical-100 dark:bg-medical-500/20 rounded-xl w-fit mb-3">
+                                  <User className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+                                </div>
+                                <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">Profesional Independiente</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Persona Física. Ofrezco mis servicios de manera individual.</p>
+                              </button>
+                              <button onClick={() => setFormData((prev: any) => ({ ...prev, personType: 'MORAL' }))}
+                                className={cn("relative p-6 rounded-xl border border-slate-200 dark:border-slate-800 transition-all text-left", formData.personType === 'MORAL' ? "ring-2 ring-medical-500 bg-medical-50/50 dark:bg-medical-500/10" : "bg-white dark:bg-slate-900 hover:border-medical-300")}>
+                                <div className="p-3 bg-medical-100 dark:bg-medical-500/20 rounded-xl w-fit mb-3">
+                                  <Building2 className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+                                </div>
+                                <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">Clínica / Empresa</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Persona Moral. Represento a una clínica, consultorio o equipo médico.</p>
+                              </button>
+                            </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: 1 }))}
-                              className="relative p-7 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/50 dark:hover:bg-medical-500/5 transition-all duration-300 text-left group">
-                              <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl w-fit mb-3 group-hover:scale-105 transition-transform">
-                                <Stethoscope className="w-7 h-7 text-medical-600 dark:text-medical-400" />
+
+                          {/* Sector */}
+                          {formData.personType && (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                              <div className="text-center space-y-2">
+                                <h3 className="text-xl font-medium text-slate-900 dark:text-white">¿A qué industria perteneces?</h3>
                               </div>
-                              <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t("health_sector")}</p>
-                              <p className="text-sm text-slate-500 dark:text-slate-400 font-light leading-relaxed">{t("health_desc")}</p>
-                            </button>
-                            <button onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: 2 }))}
-                              className="relative p-7 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-pink-500 dark:hover:border-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/5 transition-all duration-300 text-left group">
-                              <div className="p-3 bg-pink-50 dark:bg-pink-500/10 rounded-xl w-fit mb-3 group-hover:scale-105 transition-transform">
-                                <Scissors className="w-7 h-7 text-pink-600 dark:text-pink-400" />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button onClick={() => setFormData((prev: any) => ({ ...prev, parentCategoryId: 1 }))}
+                                  className={cn("relative p-6 rounded-xl border border-slate-200 dark:border-slate-800 transition-all text-left", formData.parentCategoryId === 1 ? "ring-2 ring-medical-500 bg-medical-50/50 dark:bg-medical-500/10" : "bg-white dark:bg-slate-900 hover:border-medical-300")}>
+                                  <div className="p-3 bg-medical-100 dark:bg-medical-500/20 rounded-xl w-fit mb-3">
+                                    <Stethoscope className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+                                  </div>
+                                  <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t("health_sector")}</p>
+                                  <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("health_desc")}</p>
+                                </button>
+                                <button onClick={() => setFormData((prev: any) => ({ ...prev, parentCategoryId: 2 }))}
+                                  className={cn("relative p-6 rounded-xl border border-slate-200 dark:border-slate-800 transition-all text-left", formData.parentCategoryId === 2 ? "ring-2 ring-pink-500 bg-pink-50/50 dark:bg-pink-500/10" : "bg-white dark:bg-slate-900 hover:border-pink-300")}>
+                                  <div className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-xl w-fit mb-3">
+                                    <Scissors className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                                  </div>
+                                  <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t("beauty_sector")}</p>
+                                  <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("beauty_desc")}</p>
+                                </button>
                               </div>
-                              <p className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t("beauty_sector")}</p>
-                              <p className="text-sm text-slate-500 dark:text-slate-400 font-light leading-relaxed">{t("beauty_desc")}</p>
-                            </button>
-                          </div>
+                            </motion.div>
+                          )}
                         </motion.div>
                       ) : (
                         <motion.div key="business-info" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
@@ -267,7 +299,7 @@ export default function OnboardingProfilePage() {
                               </div>
                             </div>
                             <Button variant="ghost" size="sm" className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                              onClick={() => setFormData(prev => ({ ...prev, parentCategoryId: null }))}>
+                              onClick={() => setFormData((prev: any) => ({ ...prev, parentCategoryId: null, personType: null }))}>
                               {t("change_sector")}
                             </Button>
                           </div>
@@ -395,7 +427,7 @@ export default function OnboardingProfilePage() {
                     <div className="bg-slate-50 dark:bg-slate-800/30 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                       <CategorySelector tags={tags} categories={filteredCategories} onGetSubCategories={getSubCategories}
                         selectedCategoryId={formData.categoryId} selectedSubCategoryId={formData.subCategoryId} selectedTagIds={formData.tagIds}
-                        onSelectionChange={(catId, subId, tagIds) => setFormData(prev => ({ ...prev, categoryId: catId, subCategoryId: subId, tagIds }))} />
+                        onSelectionChange={(catId, subId, tagIds) => setFormData((prev: any) => ({ ...prev, categoryId: catId, subCategoryId: subId, tagIds }))} />
                     </div>
                   </motion.div>
                 )}
@@ -430,7 +462,7 @@ export default function OnboardingProfilePage() {
                     <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 h-[320px] shadow-sm relative">
                       <LocationPicker className="w-full h-full"
                         initialLocation={{ address: formData.address || "", lat: formData.latitude || 19.4326, lng: formData.longitude || -99.1332 }}
-                        onLocationSelect={(data) => { setFormData(prev => ({ ...prev, address: data.address, latitude: data.lat, longitude: data.lng, placeId: data.placeId || prev.placeId })); setCompletedSteps(prev => new Set(prev).add(3)); }} />
+                        onLocationSelect={(data) => { setFormData((prev: any) => ({ ...prev, address: data.address, latitude: data.lat, longitude: data.lng, placeId: data.placeId || prev.placeId })); setCompletedSteps((prev) => new Set(prev).add(3)); }} />
                     </div>
                     <div className="flex items-center gap-2 px-1">
                       <Info className="w-3.5 h-3.5 text-slate-400" />

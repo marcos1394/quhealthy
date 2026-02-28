@@ -1,29 +1,32 @@
 import axiosInstance from '@/lib/axios';
-import { CategoryResponse, 
-    KycDocumentResponse, 
-    OnboardingStatusResponse, 
-    ProfileResponse, 
-    SubCategoryResponse, 
-    TagResponse, 
-    UpdateProfileRequest,
-    LicenseResponse 
+import {
+  CategoryResponse,
+  KycDocumentResponse,
+  OnboardingStatusResponse,
+  ProfileResponse,
+  SubCategoryResponse,
+  TagResponse,
+  UpdateProfileRequest,
+  LicenseResponse,
+  MessageResponse,
+  KycDocumentType,
+  ProviderSector,
+  FiscalDataResponse,
+  FiscalDataRequest,
+  FiscalRegimeOption
 } from '@/types/onboarding';
 
-const BASE_URL = '/api/onboarding';
-const BASE_PROFILE = '/api/onboarding/profile'; // ✅ Nueva Base URL
-const BASE_CATALOGS = '/api/onboarding/catalogs';
-const BASE_LICENSE = '/api/onboarding/license';
-
 export const onboardingService = {
-  /**
-   * Obtiene el estado actual.
-   * NO enviamos X-User-Id. El backend lo saca del Token JWT (Authorization header).
-   */
-  getStatus: async (): Promise<OnboardingStatusResponse> => {
-    // axiosInstance ya envía 'Authorization: Bearer ...' automáticamente
-    const response = await axiosInstance.get<OnboardingStatusResponse>(
-      `${BASE_URL}/status`
-    );
+
+  async getOnboardingStatus(): Promise<OnboardingStatusResponse> {
+    const response = await axiosInstance.get('/api/onboarding/status');
+    return response.data;
+  },
+
+  async finalizeOnboarding(): Promise<MessageResponse> {
+    const response = await axiosInstance.post('/api/onboarding/finalize', null, {
+      headers: { 'Accept': 'application/json' }
+    });
     return response.data;
   },
 
@@ -31,116 +34,191 @@ export const onboardingService = {
   // 👤 PERFIL PROFESIONAL (Paso 1)
   // =================================================================
 
-  /**
-   * Obtiene la información actual del perfil del doctor logueado.
-   */
-  getProfile: async (): Promise<ProfileResponse> => {
-    const response = await axiosInstance.get<ProfileResponse>(
-      `${BASE_PROFILE}`
-    );
-    return response.data;
+  async getProfile(): Promise<ProfileResponse | null> {
+    try {
+      const response = await axiosInstance.get('/api/onboarding/profile');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
   },
 
-  /**
-   * Actualiza o Crea el perfil.
-   */
-  updateProfile: async (data: UpdateProfileRequest): Promise<void> => {
-    await axiosInstance.put(
-      `${BASE_PROFILE}`,
-      data
-    );
-  },
-
-  /**
-   * Obtiene un perfil público (Para vista previa o compartir).
-   */
-  getPublicProfile: async (providerId: number): Promise<ProfileResponse> => {
-    const response = await axiosInstance.get<ProfileResponse>(
-      `${BASE_PROFILE}/${providerId}`
-    );
-    return response.data;
+  async updateProfile(data: UpdateProfileRequest): Promise<void> {
+    await axiosInstance.put('/api/onboarding/profile', data);
   },
 
   // =================================================================
-  // 📚 CATÁLOGOS (Públicos)
+  // 📸 KYC E IDENTIDAD (Paso 2)
   // =================================================================
 
-  getCategories: async (): Promise<CategoryResponse[]> => {
-    const response = await axiosInstance.get<CategoryResponse[]>(`${BASE_CATALOGS}/categories`);
-    return response.data;
-  },
-
-  getSubCategories: async (categoryId: number): Promise<SubCategoryResponse[]> => {
-    const response = await axiosInstance.get<SubCategoryResponse[]>(
-      `${BASE_CATALOGS}/categories/${categoryId}/subcategories`
-    );
-    return response.data;
-  },
-
-  getTags: async (): Promise<TagResponse[]> => {
-    const response = await axiosInstance.get<TagResponse[]>(`${BASE_CATALOGS}/tags`);
-    return response.data;
-  },
-
-  uploadKycDocument: async (file: File, type: DocumentType): Promise<KycDocumentResponse> => {
+  async uploadKycDocument(file: File, type: KycDocumentType): Promise<KycDocumentResponse> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', type);
 
-    // POST /api/onboarding/kyc/upload?type=INE_FRONT
-    const response = await axiosInstance.post<KycDocumentResponse>(
-      `/api/onboarding/kyc/upload?type=${type}`, 
+    const response = await axiosInstance.post(
+      '/api/onboarding/kyc/upload',
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 30000 // Gemini puede tardar unos segundos en analizar
+        timeout: 60000,
       }
     );
     return response.data;
   },
 
-  getKycDocuments: async (): Promise<KycDocumentResponse[]> => {
-    // Necesitas crear este endpoint GET en tu KycController si no existe,
-    // para recuperar el estado al recargar la página.
-    const response = await axiosInstance.get<KycDocumentResponse[]>('/api/onboarding/kyc/documents');
+  async getKycDocuments(): Promise<KycDocumentResponse[]> {
+    const response = await axiosInstance.get('/api/onboarding/kyc/documents');
     return response.data;
   },
 
- finalizeOnboarding: async (): Promise<void> => {
-    // ✅ Usamos la constante BASE_URL (/api/onboarding)
-    await axiosInstance.post(`${BASE_URL}/finalize`);
+  async pollKycDocumentStatus(
+    type: KycDocumentType,
+    intervalMs: number = 5000,
+    maxAttempts: number = 24
+  ): Promise<KycDocumentResponse> {
+    let attempts = 0;
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(async () => {
+        attempts++;
+        try {
+          // Use 'this' gently or call directly the exported method
+          const documents = await onboardingService.getKycDocuments();
+          const doc = documents.find(d => d.documentType === type);
+          if (doc && doc.verificationStatus !== 'PROCESSING') {
+            clearInterval(interval);
+            resolve(doc);
+          }
+          if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            reject(new Error('KYC polling timeout — análisis de IA tardó demasiado'));
+          }
+        } catch (err) {
+          clearInterval(interval);
+          reject(err);
+        }
+      }, intervalMs);
+    });
   },
 
   // =================================================================
-  // 🎓 CÉDULA PROFESIONAL (NUEVO)
+  // 🎓 CÉDULA / LICENCIA COMERCIAL (Paso 3)
   // =================================================================
 
-  /**
-   * Sube la cédula para extracción OCR con Gemini.
-   */
-  uploadLicense: async (file: File): Promise<LicenseResponse> => {
+  async getLicense(sector: ProviderSector): Promise<LicenseResponse | null> {
+    try {
+      const endpoint = sector === 'HEALTH'
+        ? '/api/onboarding/license/professional'
+        : '/api/onboarding/license/business';
+      const response = await axiosInstance.get(endpoint);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  async uploadLicense(file: File, sector: ProviderSector): Promise<LicenseResponse> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('sector', sector);
 
-    // El backend NO pide ?type=... porque es un endpoint dedicado
-    const response = await axiosInstance.post<LicenseResponse>(
-      `${BASE_LICENSE}/upload`, 
+    const response = await axiosInstance.post(
+      '/api/onboarding/license/upload',
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000 // ⚠️ Damos más tiempo (60s) porque Gemini lee mucho texto en cédulas
+        timeout: 60000,
       }
     );
     return response.data;
   },
 
-  /**
-   * Obtiene el estado actual de la licencia.
-   */
-  getLicense: async (): Promise<LicenseResponse> => {
-    const response = await axiosInstance.get<LicenseResponse>(`${BASE_LICENSE}`);
+  async validateProfessionalLicense(licenseNumber: string): Promise<{
+    isValid: boolean;
+    holderName: string | null;
+    career: string | null;
+    institution: string | null;
+    graduationYear: number | null;
+  }> {
+    const response = await axiosInstance.post(
+      '/api/onboarding/license/validate-renamecc',
+      { licenseNumber }
+    );
+    return response.data;
+  },
+
+  // =================================================================
+  // 🏛️ FISCAL (Paso 4)
+  // =================================================================
+
+  async getFiscalData(): Promise<FiscalDataResponse | null> {
+    try {
+      const response = await axiosInstance.get('/api/onboarding/fiscal');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  async saveFiscalData(data: FiscalDataRequest): Promise<void> {
+    await axiosInstance.put('/api/onboarding/fiscal', data);
+  },
+
+  async uploadFiscalDocument(
+    file: File,
+    docType: 'TAX_CERTIFICATE' | 'ACTA_CONSTITUTIVA'
+  ): Promise<{
+    fileUrl: string;
+    extractedRfc: string | null;
+    extractedLegalName: string | null;
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('docType', docType);
+
+    const response = await axiosInstance.post(
+      '/api/onboarding/fiscal/upload',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000,
+      }
+    );
+    return response.data;
+  },
+
+  // =================================================================
+  // 📚 CATÁLOGOS
+  // =================================================================
+
+  async getCategories(): Promise<CategoryResponse[]> {
+    const response = await axiosInstance.get('/api/onboarding/catalogs/categories');
+    return response.data;
+  },
+
+  async getSubcategories(categoryId: number): Promise<SubCategoryResponse[]> {
+    const response = await axiosInstance.get(
+      `/api/onboarding/catalogs/categories/${categoryId}/subcategories`
+    );
+    return response.data;
+  },
+
+  async getTags(): Promise<TagResponse[]> {
+    const response = await axiosInstance.get('/api/onboarding/catalogs/tags');
+    return response.data;
+  },
+
+  async getFiscalRegimes(): Promise<FiscalRegimeOption[]> {
+    const response = await axiosInstance.get('/api/onboarding/catalogs/fiscal-regimes');
     return response.data;
   }
-
 };
-
-

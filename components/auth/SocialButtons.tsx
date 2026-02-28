@@ -10,47 +10,48 @@ import { cn } from '@/lib/utils';
 
 // ✅ Importamos nuestro Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
-import { UserRole, AuthResponse } from '@/types/auth'; 
+import { UserRole, AuthResponse } from '@/types/auth';
 
 interface SocialAuthButtonsProps {
   role?: UserRole; // 'PROVIDER' | 'CONSUMER'
   // ✅ Callback clave: Recibe la respuesta del backend para que el padre (LoginPage) redirija
-  onSuccess?: (response: AuthResponse) => void; 
+  onSuccess?: (response: AuthResponse) => void;
 }
 
-export default function SocialAuthButtons({ 
+export default function SocialAuthButtons({
   role = 'PROVIDER',
-  onSuccess 
+  onSuccess
 }: SocialAuthButtonsProps) {
-  
+
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
-  
+
   // 1. Instanciamos nuestro hook que ya maneja el Store Global
   const { loginWithGoogle } = useAuth();
 
   // 2. Configuración de Google Login
   const googleLogin = useGoogleLogin({
     // Pedimos solo lo básico para evitar bloqueos de permisos
-    scope: 'openid email profile', 
-    
+    scope: 'openid email profile',
+
     onSuccess: async (tokenResponse) => {
       try {
         setLoadingProvider('google');
-        
+
         // A. Llamamos al Backend a través del Hook
         // El hook se encarga de guardar el token y el usuario en el SessionStore
-        const response = await loginWithGoogle({ 
-            token: tokenResponse.access_token, 
-            role: role 
+        const response = await loginWithGoogle({
+          provider: "GOOGLE",
+          token: tokenResponse.access_token,
+          role: role as "CONSUMER" | "PROVIDER"
         });
-        
+
         toast.success(`¡Bienvenido! Sesión iniciada.`);
-        
+
         // B. Pasamos la respuesta al componente padre (LoginPage) para que haga la redirección
         if (onSuccess) {
-            onSuccess(response);
+          onSuccess(response);
         }
-        
+
       } catch (error: any) {
         // El hook useAuth ya procesa el mensaje de error del backend
         const msg = error.message || 'Error al iniciar sesión con Google';
@@ -66,7 +67,7 @@ export default function SocialAuthButtons({
   });
 
   // --- Placeholders para Apple y Facebook ---
-  
+
   const handleAppleSignIn = async () => {
     // setLoadingProvider('apple');
     toast.info('Inicio de sesión con Apple próximamente');
@@ -137,7 +138,7 @@ export default function SocialAuthButtons({
               "w-full h-11 relative flex items-center justify-center gap-3 transition-all duration-200 shadow-sm border",
               provider.bgColor,
               // Estilo disabled
-              loadingProvider !== null && loadingProvider !== provider.id ? "opacity-50 cursor-not-allowed" :"",
+              loadingProvider !== null && loadingProvider !== provider.id ? "opacity-50 cursor-not-allowed" : "",
               "hover:shadow-md"
             )}
           >

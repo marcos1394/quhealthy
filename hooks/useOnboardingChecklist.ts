@@ -1,19 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { onboardingService } from '@/services/onboarding.service';
-import { OnboardingStepUI, OnboardingStatusResponse, OnboardingStepStatus } from '@/types/onboarding';
+import { OnboardingStepUI, OnboardingStatusResponse, StepStatus, ProviderSector, PersonType } from '@/types/onboarding';
 import { toast } from 'react-toastify';
-
-/**
- * useOnboardingChecklist Hook
- * 
- * LÓGICA INTELIGENTE POR SECTOR:
- * - Sector SALUD (parentCategoryId === 1): License es OBLIGATORIO
- * - Sector BELLEZA (parentCategoryId === 2): License es OPCIONAL
- * 
- * El porcentaje se calcula solo con pasos obligatorios:
- * - Salud: 100% = Profile + KYC + License
- * - Belleza: 100% = Profile + KYC (License opcional, no cuenta para %)
- */
 
 export const useOnboardingChecklist = () => {
   const [steps, setSteps] = useState<OnboardingStepUI[]>([]);
@@ -21,28 +9,28 @@ export const useOnboardingChecklist = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFinalizing, setIsFinalizing] = useState(false);
-  const [userSector, setUserSector] = useState<number>(1); // 1=Salud, 2=Belleza
+  const [userSector, setUserSector] = useState<ProviderSector>('HEALTH');
+  const [userPersonType, setUserPersonType] = useState<PersonType>('FISICA');
 
-  // Helper para textos amigables
-  const getStatusText = (status: OnboardingStepStatus) => {
+  const getStatusText = (status: StepStatus) => {
     switch (status) {
-      case 'COMPLETED': return 'Completado';
+      case 'APPROVED': return 'Aprobado';
       case 'IN_PROGRESS': return 'En Progreso';
       case 'REJECTED': return 'Requiere Cambios';
+      case 'UNDER_REVIEW': return 'En Revisión Manual';
       default: return 'Pendiente';
     }
   };
 
-  // 2. Agrega esta función antes del return
   const handleFinalize = async () => {
     setIsFinalizing(true);
     try {
       await onboardingService.finalizeOnboarding();
-      return true; // Éxito
-    } catch (err) {
+      return true;
+    } catch (err: any) {
       console.error("Error al finalizar:", err);
-      toast.error("Hubo un problema al sincronizar tu cuenta.");
-      return false; // Fallo
+      toast.error(err.response?.data?.message || "Hubo un problema al finalizar tu registro.");
+      return false;
     } finally {
       setIsFinalizing(false);
     }
@@ -53,11 +41,12 @@ export const useOnboardingChecklist = () => {
     setError(null);
 
     try {
-      const data = await onboardingService.getStatus();
-      
-      // Obtener el sector del usuario desde el backend
-      const sector = data.parentCategoryId || 1; // Default Salud si no viene
+      const data = await onboardingService.getOnboardingStatus();
+
+      const sector = data.sector || 'HEALTH';
+      const personType = data.personType || 'FISICA';
       setUserSector(sector);
+      setUserPersonType(personType);
 
       // --- PASO 1: PERFIL ---
       const profileStep: OnboardingStepUI = {
@@ -66,11 +55,11 @@ export const useOnboardingChecklist = () => {
         description: 'Información básica, especialidad y ubicación',
         status: data.profileStatus,
         statusText: getStatusText(data.profileStatus),
-        isComplete: data.profileStatus === 'COMPLETED',
-        isLocked: false, // Siempre disponible
-        isRequired: true, // SIEMPRE obligatorio
+        isComplete: data.profileStatus === 'APPROVED',
+        isLocked: false,
+        isRequired: true,
         actionPath: '/onboarding/profile',
-        rejectionReason: data.rejectionReasons?.['PROFILE']
+        rejectionReason: data.rejectionReasons?.profile
       };
 
       // --- PASO 2: KYC (IDENTIDAD) ---
@@ -80,47 +69,49 @@ export const useOnboardingChecklist = () => {
         description: 'Identificación oficial y Prueba de Vida',
         status: data.kycStatus,
         statusText: getStatusText(data.kycStatus),
-        isComplete: data.kycStatus === 'COMPLETED',
-        isLocked: data.profileStatus !== 'COMPLETED', // Se desbloquea al completar perfil
-        isRequired: true, // SIEMPRE obligatorio
+        isComplete: data.kycStatus === 'APPROVED',
+        isLocked: data.profileStatus !== 'APPROVED',
+        isRequired: true,
         actionPath: '/onboarding/kyc',
-        rejectionReason: data.rejectionReasons?.['KYC']
+        rejectionReason: data.rejectionReasons?.kyc
       };
 
       // --- PASO 3: LICENSE (CÉDULA/LICENCIA) ---
-      // 🔥 LÓGICA INTELIGENTE SEGÚN SECTOR
-      const isLicenseRequired = sector === 1; // Solo obligatorio en Salud
+      const isLicenseRequired = true; // Ambos requieren según plan: Salud=Cedula, Belleza=Permiso Negocio. 
 
       const licenseStep: OnboardingStepUI = {
         id: 'license',
-        title: sector === 1 
-          ? 'Validación de Cédula Profesional' 
-          : 'Licencia de Funcionamiento (Opcional)',
-        description: sector === 1
+        title: sector === 'HEALTH' ? 'Cédula Profesional' : 'Licencia de Negocio',
+        description: sector === 'HEALTH'
           ? 'Cédula profesional para ejercer'
           : 'Licencia sanitaria o permiso de operación',
         status: data.licenseStatus,
         statusText: getStatusText(data.licenseStatus),
-        isComplete: data.licenseStatus === 'COMPLETED',
-        isLocked: data.kycStatus !== 'COMPLETED', // Se desbloquea al completar KYC
-        isRequired: isLicenseRequired, // 🆕 NUEVA PROPIEDAD
+        isComplete: data.licenseStatus === 'APPROVED',
+        isLocked: data.kycStatus !== 'APPROVED',
+        isRequired: isLicenseRequired,
         actionPath: '/onboarding/license',
-        rejectionReason: data.rejectionReasons?.['LICENSE']
+        rejectionReason: data.rejectionReasons?.license
       };
 
-      const generatedSteps = [profileStep, kycStep, licenseStep];
+      // --- PASO 4: FISCAL ---
+      const fiscalStep: OnboardingStepUI = {
+        id: 'fiscal', // Se mapeará a 'plan' provisoriamente en OnboardingStepUI si no editaste el tipo UI, pero usemos 'fiscal' si se permite
+        title: 'Datos Fiscales',
+        description: 'RFC, Constancia de Situación Fiscal y Régimen',
+        status: data.fiscalStatus,
+        statusText: getStatusText(data.fiscalStatus),
+        isComplete: data.fiscalStatus === 'APPROVED',
+        isLocked: data.licenseStatus !== 'APPROVED', // Se desbloquea al aprobar la licencia/cédula
+        isRequired: true, // Asumimos obligatorio para emitir facturas
+        actionPath: '/onboarding/fiscal',
+        rejectionReason: data.rejectionReasons?.fiscal
+      };
 
-      // 🚀 CÁLCULO DE PORCENTAJE INTELIGENTE
-      // Solo cuenta los pasos OBLIGATORIOS (isRequired === true)
-      const requiredSteps = generatedSteps.filter(step => step.isRequired);
-      const completedRequiredSteps = requiredSteps.filter(step => step.isComplete);
-      const calculatedPercentage = Math.round(
-        (completedRequiredSteps.length / requiredSteps.length) * 100
-      );
+      const generatedSteps = [profileStep, kycStep, licenseStep, fiscalStep];
 
-      // Actualizar estados
       setSteps(generatedSteps);
-      setPercentage(calculatedPercentage);
+      setPercentage(data.completionPercentage || 0);
 
     } catch (err: any) {
       console.error("Error onboarding status:", err);
@@ -135,14 +126,15 @@ export const useOnboardingChecklist = () => {
     fetchChecklist();
   }, [fetchChecklist]);
 
-  return { 
-    steps, 
-    percentage, 
-    isLoading, 
-    error, 
-    finalize: handleFinalize, // Exponemos la función de finalización
-    isFinalizing, // Estado de finalización para mostrar loader en el botón
-    userSector, // 🆕 Exportamos el sector para uso en otros componentes
-    refetch: fetchChecklist 
+  return {
+    steps,
+    percentage,
+    isLoading,
+    error,
+    finalize: handleFinalize,
+    isFinalizing,
+    userSector,
+    userPersonType,
+    refetch: fetchChecklist
   };
 };

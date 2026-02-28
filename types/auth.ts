@@ -54,6 +54,9 @@ export interface AuthUser {
   lastName: string;
   email: string;
   profileImageUrl: string | null;
+  role?: 'CONSUMER' | 'PROVIDER' | 'ADMIN';
+  planStatus?: string;
+  trialExpiresAt?: string;
 }
 
 export interface AuthStatus {

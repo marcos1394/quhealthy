@@ -1,24 +1,30 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { onboardingService } from '@/services/onboarding.service';
-import { LicenseResponse } from '@/types/onboarding';
+import { LicenseResponse, ProviderSector } from '@/types/onboarding';
 
 export const useLicenseOnboarding = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
-  
-  // Estado local de la licencia
+
+  const [sector, setSector] = useState<ProviderSector>('HEALTH');
   const [license, setLicense] = useState<LicenseResponse | null>(null);
 
-  // 1. Cargar estado inicial
   const loadLicense = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await onboardingService.getLicense();
-      setLicense(data);
+      const status = await onboardingService.getOnboardingStatus();
+      if (status.sector) {
+        setSector(status.sector);
+        try {
+          const data = await onboardingService.getLicense(status.sector);
+          setLicense(data);
+        } catch (err) {
+          console.error("No license found yet");
+        }
+      }
     } catch (error) {
-      console.error("Error cargando licencia", error);
-      // No mostramos toast de error aquí para no molestar al cargar la página
+      console.error("Error cargando status", error);
     } finally {
       setIsLoading(false);
     }
@@ -28,43 +34,47 @@ export const useLicenseOnboarding = () => {
     loadLicense();
   }, [loadLicense]);
 
-  // 2. Función de subida
   const uploadLicense = async (file: File) => {
     setIsUploading(true);
-    const toastId = toast.loading("Analizando tu cédula con IA... esto puede tardar unos segundos.");
+    const toastId = toast.loading("Analizando tu documento con IA... esto puede tardar unos segundos.");
 
     try {
-      const response = await onboardingService.uploadLicense(file);
-      
+      const response = await onboardingService.uploadLicense(file, sector);
       setLicense(response);
 
-      // Feedback basado en la respuesta de la IA
       if (response.status === 'APPROVED') {
+        if (sector === 'HEALTH' && response.licenseNumber) {
+          toast.update(toastId, { render: "Validando cédula con RENAMECC...", type: "info" });
+          try {
+            const validation = await onboardingService.validateProfessionalLicense(response.licenseNumber);
+            if (!validation.isValid) {
+              toast.update(toastId, {
+                render: "❌ La cédula no fue encontrada o es inválida en RENAMECC",
+                type: "error", isLoading: false, autoClose: 5000
+              });
+              return;
+            }
+          } catch (authError) {
+            console.warn("RENAMECC validation error", authError);
+          }
+        }
+
         toast.update(toastId, {
-            render: `✅ Cédula verificada: ${response.careerName}`,
-            type: "success",
-            isLoading: false,
-            autoClose: 5000
+          render: `✅ Documento verificado${('careerName' in response && response.careerName) ? `: ${response.careerName}` : ''}`,
+          type: "success", isLoading: false, autoClose: 5000
         });
       } else {
-        // Si fue rechazada, mostramos la razón que viene del Backend
         toast.update(toastId, {
-            render: `❌ No aprobada: ${response.rejectionReason || "Documento no válido"}`,
-            type: "error",
-            isLoading: false,
-            autoClose: 5000
+          render: `❌ No aprobada: ${response.rejectionReason || "Documento no válido"}`,
+          type: "error", isLoading: false, autoClose: 5000
         });
       }
-
     } catch (error: any) {
       console.error("Error subiendo licencia:", error);
       const msg = error.response?.data?.message || "Error al procesar la imagen.";
-      
       toast.update(toastId, {
-          render: `Error: ${msg}`,
-          type: "error",
-          isLoading: false,
-          autoClose: 4000
+        render: `Error: ${msg}`,
+        type: "error", isLoading: false, autoClose: 4000
       });
     } finally {
       setIsUploading(false);
@@ -72,10 +82,11 @@ export const useLicenseOnboarding = () => {
   };
 
   return {
-    license,       // Datos para mostrar (Institución, Número, etc.)
-    isLoading,     // Carga inicial
-    isUploading,   // Carga de subida
-    uploadLicense, // Acción
+    license,
+    sector,
+    isLoading,
+    isUploading,
+    uploadLicense,
     refetch: loadLicense
   };
 };

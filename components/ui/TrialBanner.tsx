@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el store de sesión unificado
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
-import { 
-   
-  Clock, 
-  Crown, 
-  X, 
-  Zap, 
+import {
+
+  Clock,
+  Crown,
+  X,
+  Zap,
   Star,
   ArrowRight,
   AlertTriangle,
@@ -89,15 +89,15 @@ const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
 
 // Animaciones
 const bannerVariants = {
-  initial: { 
-    opacity: 0, 
-    height: 0, 
+  initial: {
+    opacity: 0,
+    height: 0,
     y: -20,
     scale: 0.95
   },
-  animate: { 
-    opacity: 1, 
-    height: 'auto', 
+  animate: {
+    opacity: 1,
+    height: 'auto',
     y: 0,
     scale: 1,
     transition: {
@@ -105,9 +105,9 @@ const bannerVariants = {
       ease: [0.25, 0.46, 0.45, 0.94]
     }
   },
-  exit: { 
-    opacity: 0, 
-    height: 0, 
+  exit: {
+    opacity: 0,
+    height: 0,
     y: -20,
     scale: 0.95,
     transition: {
@@ -119,8 +119,8 @@ const bannerVariants = {
 
 const contentVariants = {
   initial: { opacity: 0, x: -20 },
-  animate: { 
-    opacity: 1, 
+  animate: {
+    opacity: 1,
     x: 0,
     transition: {
       delay: 0.2,
@@ -132,8 +132,8 @@ const contentVariants = {
 
 const badgeVariants = {
   initial: { opacity: 0, scale: 0.8 },
-  animate: { 
-    opacity: 1, 
+  animate: {
+    opacity: 1,
     scale: 1,
     transition: {
       delay: 0.4,
@@ -183,11 +183,11 @@ export const TrialBanner = () => {
 
   // Derivamos las propiedades necesarias directamente del objeto 'user'
   const planStatus = user?.planStatus;
-  const trialExpiresAt = user && user.role === 'provider' ? (user as any).trialExpiresAt : null;
+  const trialExpiresAt = user && user.role === 'PROVIDER' ? (user as any).trialExpiresAt : null;
 
   useEffect(() => {
     // La validación ahora comprueba el rol y el estado del plan desde 'user'
-    if (user?.role !== 'provider' || planStatus !== 'trial' || !trialExpiresAt) {
+    if (user?.role !== 'PROVIDER' || planStatus !== 'trial' || !trialExpiresAt) {
       setTimeLeft(null);
       return;
     }
@@ -198,7 +198,7 @@ export const TrialBanner = () => {
       const today = new Date();
       const expiryDate = new Date(expiryDateString);
       const diffTime = expiryDate.getTime() - today.getTime();
-      
+
       if (diffTime <= 0) {
         setTimeLeft({ hours: 0, minutes: 0 });
         return;
@@ -216,13 +216,13 @@ export const TrialBanner = () => {
     };
 
     updateTimeLeft();
-    const interval = setInterval(updateTimeLeft, 60000); 
+    const interval = setInterval(updateTimeLeft, 60000);
 
     return () => clearInterval(interval);
   }, [user, planStatus, trialExpiresAt]); // Dependemos del objeto 'user' completo
 
   // Condición de renderizado actualizada
-  if (isLoading || !user || user.role !== 'provider' || planStatus !== 'trial' || !trialExpiresAt || isDismissed) {
+  if (isLoading || !user || user.role !== 'PROVIDER' || planStatus !== 'trial' || !trialExpiresAt || isDismissed) {
     return null;
   }
 
@@ -231,7 +231,7 @@ export const TrialBanner = () => {
   const expiryDate = new Date(trialExpiresAt);
   const diffTime = expiryDate.getTime() - today.getTime();
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (daysLeft < 0) return null;
 
   const config = getTrialConfig(daysLeft);
@@ -241,7 +241,7 @@ export const TrialBanner = () => {
   const renderTimeRemaining = () => {
     if (timeLeft && daysLeft === 0) {
       return (
-        <motion.div 
+        <motion.div
           className="flex items-center space-x-2 text-sm"
           animate={{ opacity: [1, 0.7, 1] }}
           transition={{ duration: 1, repeat: Infinity }}
@@ -265,7 +265,7 @@ export const TrialBanner = () => {
     ];
 
     return (
-      <motion.div 
+      <motion.div
         className="hidden lg:flex items-center space-x-4 text-xs opacity-80"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.8 }}
@@ -330,7 +330,7 @@ export const TrialBanner = () => {
                 delay: 4
               }}
             />
-            
+
             {/* Shimmer effect */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
@@ -343,14 +343,14 @@ export const TrialBanner = () => {
           <div className="container mx-auto px-4 py-4 relative z-10">
             <div className="flex items-center justify-between gap-4">
               {/* Left section - Icon and message */}
-              <motion.div 
+              <motion.div
                 className="flex items-center gap-3 flex-1"
                 variants={contentVariants}
                 initial="initial"
                 animate="animate"
               >
                 {/* Animated icon */}
-                <motion.div 
+                <motion.div
                   className="relative flex-shrink-0"
                   variants={pulseVariants}
                   animate={config.urgency === 'critical' ? 'pulse' : ''}
@@ -390,7 +390,7 @@ export const TrialBanner = () => {
                   whileTap="tap"
                 >
                   <Link href="/quhealthy/profile/providers/plans">
-                    <Badge 
+                    <Badge
                       className={`
                         ${config.badgeStyle} font-bold cursor-pointer 
                         shadow-lg border-0 px-4 py-2 text-sm
@@ -399,7 +399,7 @@ export const TrialBanner = () => {
                     >
                       {/* Button shimmer effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
-                      
+
                       <span className="relative z-10 flex items-center gap-2">
                         {config.ctaText}
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
@@ -440,7 +440,7 @@ export const TrialBanner = () => {
                   <motion.div
                     className={`h-full ${config.pulseColor} rounded-full`}
                     initial={{ width: 0 }}
-                    animate={{ 
+                    animate={{
                       width: `${Math.max(5, (timeLeft.hours * 60 + timeLeft.minutes) / (24 * 60) * 100)}%`
                     }}
                     transition={{ duration: 1, ease: "easeOut" }}

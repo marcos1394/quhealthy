@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, ControllerRenderProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import {
     User, Mail, Phone, MapPin, CheckCircle, Save,
-    Activity, HeartPulse, AlertTriangle
+    Activity, HeartPulse, AlertTriangle, Loader2
 } from 'lucide-react';
 
 // ShadCN UI
@@ -106,7 +106,7 @@ export default function PatientProfilePage() {
                             </div>
                             <CardContent className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                                <FormField control={form.control} name="fullName" render={({ field }) => (
+                                <FormField control={form.control} name="fullName" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'fullName'> }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-700 dark:text-slate-300">Nombre Completo</FormLabel>
                                         <FormControl><Input {...field} className="h-12 bg-slate-50 dark:bg-slate-950/50 border-slate-200" /></FormControl>
@@ -114,7 +114,7 @@ export default function PatientProfilePage() {
                                     </FormItem>
                                 )} />
 
-                                <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormField control={form.control} name="email" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'email'> }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-700 dark:text-slate-300">Correo Electrónico</FormLabel>
                                         <FormControl>
@@ -127,7 +127,7 @@ export default function PatientProfilePage() {
                                     </FormItem>
                                 )} />
 
-                                <FormField control={form.control} name="phone" render={({ field }) => (
+                                <FormField control={form.control} name="phone" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'phone'> }) => (
                                     <FormItem className="md:col-span-2">
                                         <FormLabel className="text-slate-700 dark:text-slate-300">Teléfono Móvil</FormLabel>
                                         <FormControl>
@@ -153,7 +153,7 @@ export default function PatientProfilePage() {
                             <CardContent className="p-6 md:p-8 space-y-6">
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormField control={form.control} name="bloodType" render={({ field }) => (
+                                    <FormField control={form.control} name="bloodType" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'bloodType'> }) => (
                                         <FormItem>
                                             <FormLabel className="text-slate-700 dark:text-slate-300">Tipo de Sangre</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -173,7 +173,7 @@ export default function PatientProfilePage() {
                                     )} />
                                 </div>
 
-                                <FormField control={form.control} name="allergies" render={({ field }) => (
+                                <FormField control={form.control} name="allergies" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'allergies'> }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                                             Alergias Conocidas <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
@@ -185,7 +185,7 @@ export default function PatientProfilePage() {
                                     </FormItem>
                                 )} />
 
-                                <FormField control={form.control} name="currentMedications" render={({ field }) => (
+                                <FormField control={form.control} name="currentMedications" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'currentMedications'> }) => (
                                     <FormItem>
                                         <FormLabel className="text-slate-700 dark:text-slate-300">Medicamentos Actuales</FormLabel>
                                         <FormControl>

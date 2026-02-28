@@ -38,8 +38,16 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
 }) => {
   const Icon = getIconForStep(step.id);
   const isCompleted = step.isComplete;
+  const isUnderReview = step.status === "UNDER_REVIEW";
+  const isRejected = step.status === "REJECTED";
+
+  // Si está en revisión o ya completado, lo consideramos bloqueado para nueva edición normal, 
+  // pero el bloqueo secuencial viene de step.isLocked.
   const isLocked = step.isLocked;
-  const isCurrent = !isCompleted && !isLocked && isNext;
+  const isDisabledAction = isLocked || isUnderReview;
+
+  // Un paso es 'current' si es el siguiente lógico a hacer y NO está completado, bloqueado, en revisión ni rechazado.
+  const isCurrent = !isCompleted && !isLocked && isNext && !isUnderReview && !isRejected;
   const isOptional = !step.isRequired;
 
   return (
@@ -48,6 +56,8 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
         "overflow-hidden transition-all duration-300 border group hover:shadow-lg",
         isCurrent ? "bg-white dark:bg-slate-900 border-medical-500/50 shadow-lg ring-1 ring-medical-500/20" : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800",
         isCompleted ? "bg-medical-50/30 dark:bg-medical-500/5 border-medical-500/30" : "",
+        isUnderReview ? "bg-blue-50/30 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50" : "",
+        isRejected ? "bg-red-50/20 dark:bg-red-900/10 border-red-300 dark:border-red-800/50" : "",
         isLocked ? "bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-60 cursor-not-allowed" : "",
       )}>
         <CardContent className="p-0">
@@ -57,22 +67,30 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
                 className={cn(
                   "w-14 h-14 rounded-xl flex items-center justify-center border transition-all duration-300",
                   isCompleted ? "bg-medical-600 border-medical-500 text-white dark:bg-medical-500" : "",
+                  isUnderReview ? "bg-blue-600 border-blue-500 text-white dark:bg-blue-500" : "",
+                  isRejected ? "bg-red-600 border-red-500 text-white dark:bg-red-500" : "",
                   isCurrent ? "bg-slate-900 border-slate-800 text-white dark:bg-white dark:border-slate-200 dark:text-slate-900" : "",
                   isLocked ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600" : "",
-                  !isCurrent && !isCompleted && !isLocked ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400" : ""
+                  !isCurrent && !isCompleted && !isLocked && !isUnderReview && !isRejected ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400" : ""
                 )}
                 animate={isCurrent ? { scale: [1, 1.05, 1] } : {}}
                 transition={{ duration: 2, repeat: isCurrent ? Infinity : 0, repeatDelay: 1 }}
               >
-                {isCompleted ? <CheckCircle2 className="w-7 h-7" /> : isLocked ? <Lock className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
+                {isCompleted ? <CheckCircle2 className="w-7 h-7" /> :
+                  isLocked ? <Lock className="w-6 h-6" /> :
+                    isUnderReview ? <Loader2 className="w-6 h-6 animate-spin" /> :
+                      isRejected ? <AlertCircle className="w-6 h-6" /> :
+                        <Icon className="w-6 h-6" />}
               </motion.div>
               <motion.div
                 className={cn(
                   "absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border",
                   isCompleted ? "bg-medical-600 border-medical-500 text-white dark:bg-medical-500" : "",
+                  isUnderReview ? "bg-blue-600 border-blue-500 text-white dark:bg-blue-500" : "",
+                  isRejected ? "bg-red-600 border-red-500 text-white dark:bg-red-500" : "",
                   isCurrent ? "bg-slate-900 border-slate-800 text-white dark:bg-white dark:border-slate-200 dark:text-slate-900" : "",
                   isLocked ? "bg-slate-300 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400" : "",
-                  !isCurrent && !isCompleted && !isLocked ? "bg-slate-200 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400" : ""
+                  !isCurrent && !isCompleted && !isLocked && !isUnderReview && !isRejected ? "bg-slate-200 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400" : ""
                 )}
                 animate={isCurrent ? { scale: [1, 1.2, 1] } : {}}
                 transition={{ duration: 1.5, repeat: isCurrent ? Infinity : 0, repeatDelay: 1 }}
@@ -90,10 +108,13 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
                       isCompleted ? "text-medical-600 dark:text-medical-400" : "",
                       isCurrent ? "text-slate-900 dark:text-white" : "",
                       isLocked ? "text-slate-400 dark:text-slate-500" : "",
-                      !isCurrent && !isCompleted && !isLocked ? "text-slate-700 dark:text-slate-300" : ""
+                      isUnderReview ? "text-blue-700 dark:text-blue-400" : "",
+                      isRejected ? "text-red-700 dark:text-red-400" : "",
+                      !isCurrent && !isCompleted && !isLocked && !isUnderReview && !isRejected ? "text-slate-700 dark:text-slate-300" : ""
                     )}>
                       {step.title}
                     </h3>
+
                     {isCurrent && (
                       <Badge className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-0 text-[10px] px-2 py-0.5">
                         <Zap className="w-3 h-3 mr-1" />{t("in_progress")}
@@ -104,14 +125,24 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
                         <Info className="w-3 h-3 mr-1" />{t("optional")}
                       </Badge>
                     )}
-                    {!isOptional && !isCompleted && !isLocked && !isCurrent && (
+                    {!isOptional && !isCompleted && !isLocked && !isCurrent && !isUnderReview && !isRejected && (
                       <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 text-[10px] px-2 py-0.5">
                         <Target className="w-3 h-3 mr-1" />{t("required")}
                       </Badge>
                     )}
                     {isCompleted && (
                       <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 text-[10px] px-2 py-0.5">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />{t("completed")}
+                        <CheckCircle2 className="w-3 h-3 mr-1" />{t("completed") || "Completado"}
+                      </Badge>
+                    )}
+                    {isUnderReview && (
+                      <Badge className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-0 text-[10px] px-2 py-0.5">
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" /> En revisión
+                      </Badge>
+                    )}
+                    {isRejected && (
+                      <Badge className="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 border-0 text-[10px] px-2 py-0.5">
+                        <AlertCircle className="w-3 h-3 mr-1" /> Requiere cambios
                       </Badge>
                     )}
                     {isLocked && (
@@ -122,25 +153,53 @@ const StepItem = ({ step, index, onAction, isNext, t }: {
                   </div>
                 </div>
               </div>
+
               <p className="text-sm text-slate-500 dark:text-slate-400 font-light leading-relaxed mb-3">{step.description}</p>
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <Circle className={cn("w-2 h-2 fill-current", isCompleted ? "text-medical-500" : "", isCurrent ? "text-slate-900 dark:text-white animate-pulse" : "", isLocked ? "text-slate-300 dark:text-slate-600" : "", !isCurrent && !isCompleted && !isLocked ? "text-slate-400" : "")} />
-                  <span className={cn("text-xs font-medium", isCompleted ? "text-medical-600 dark:text-medical-400" : "", isCurrent ? "text-slate-700 dark:text-slate-300" : "", isLocked ? "text-slate-400 dark:text-slate-600" : "", !isCurrent && !isCompleted && !isLocked ? "text-slate-500" : "")}>{step.statusText}</span>
+
+              {isUnderReview && (
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/30 flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Nuestro equipo está revisando tu documento. Te notificaremos en un plazo de 24-48 horas.
+                  </p>
                 </div>
+              )}
+
+              {isRejected && step.rejectionReason && (
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/30 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm text-red-700 dark:text-red-400">Motivo de rechazo:</p>
+                    <p className="text-sm text-red-600 dark:text-red-300">
+                      {step.rejectionReason}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-4 flex-wrap mt-2">
+                <div className="flex items-center gap-2">
+                  <Circle className={cn("w-2 h-2 fill-current", isCompleted ? "text-medical-500" : "", isCurrent ? "text-slate-900 dark:text-white animate-pulse" : "", isLocked ? "text-slate-300 dark:text-slate-600" : "", isUnderReview ? "text-blue-500" : "", isRejected ? "text-red-500" : "", !isCurrent && !isCompleted && !isLocked && !isUnderReview && !isRejected ? "text-slate-400" : "")} />
+                  <span className={cn("text-xs font-medium", isCompleted ? "text-medical-600 dark:text-medical-400" : "", isCurrent ? "text-slate-700 dark:text-slate-300" : "", isLocked ? "text-slate-400 dark:text-slate-600" : "", isUnderReview ? "text-blue-600 dark:text-blue-400" : "", isRejected ? "text-red-600 dark:text-red-400" : "", !isCurrent && !isCompleted && !isLocked && !isUnderReview && !isRejected ? "text-slate-500" : "")}>{step.statusText}</span>
+                </div>
+
                 {isCompleted ? (
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20">
                     <CheckCircle2 className="w-4 h-4 text-medical-600 dark:text-medical-400" />
-                    <span className="text-sm font-medium text-medical-600 dark:text-medical-400">{t("completed")}</span>
+                    <span className="text-sm font-medium text-medical-600 dark:text-medical-400">{t("completed") || "Completado"}</span>
                   </div>
                 ) : (
-                  <Button disabled={isLocked} onClick={() => onAction(step.actionPath)} size="sm"
+                  <Button disabled={isDisabledAction} onClick={() => onAction(step.actionPath)} size="sm"
                     className={cn("h-9 px-4 rounded-lg shadow-none font-medium",
                       isCurrent ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100" :
-                        isLocked ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed" :
-                          "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        isRejected ? "bg-red-600 text-white hover:bg-red-700" :
+                          isDisabledAction ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed" :
+                            "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
                     )}>
-                    {isLocked ? <><Lock className="w-3 h-3 mr-1.5" />{t("locked")}</> : <>{isCurrent ? t("continue") : t("start")}<ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" /></>}
+                    {isLocked ? <><Lock className="w-3 h-3 mr-1.5" />{t("locked")}</> :
+                      isUnderReview ? <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />En revisión</> :
+                        isRejected ? <>Corregir<ChevronRight className="w-4 h-4 ml-1" /></> :
+                          <>{isCurrent ? t("continue") : t("start")}<ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" /></>}
                   </Button>
                 )}
               </div>

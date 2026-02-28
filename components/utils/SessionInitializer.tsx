@@ -8,7 +8,7 @@ export function SessionInitializer() {
   useEffect(() => {
     const state = useSessionStore.getState();
     if (!state.user && !state.isLoading) {
-      authService.getSession();
+      // authService.getSession();
     }
   }, []);
 

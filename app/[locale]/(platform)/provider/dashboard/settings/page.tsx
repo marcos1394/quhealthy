@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { useForm } from 'react-hook-form';
+import { useForm, ControllerRenderProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
@@ -131,8 +131,8 @@ export default function ProviderSettingsPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
                                     className={`w-full flex items-start text-left gap-4 p-4 rounded-2xl transition-all duration-200 border ${isActive
-                                            ? 'bg-white dark:bg-slate-900 border-medical-500/30 dark:border-medical-500/30 shadow-md ring-1 ring-medical-500/20 shadow-medical-500/10'
-                                            : 'bg-transparent border-transparent hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
+                                        ? 'bg-white dark:bg-slate-900 border-medical-500/30 dark:border-medical-500/30 shadow-md ring-1 ring-medical-500/20 shadow-medical-500/10'
+                                        : 'bg-transparent border-transparent hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-xl mt-0.5 ${isActive ? 'bg-medical-50 dark:bg-medical-500/20 text-medical-600 dark:text-medical-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'}`}>
@@ -195,7 +195,7 @@ export default function ProviderSettingsPage() {
                                                 <Separator className="bg-slate-100 dark:bg-slate-800" />
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <FormField control={profileForm.control} name="fullName" render={({ field }) => (
+                                                    <FormField control={profileForm.control} name="fullName" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'fullName'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Nombre Completo</FormLabel>
                                                             <FormControl><Input placeholder="Ej. Dr. Juan Pérez" {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
@@ -203,7 +203,7 @@ export default function ProviderSettingsPage() {
                                                         </FormItem>
                                                     )} />
 
-                                                    <FormField control={profileForm.control} name="specialty" render={({ field }) => (
+                                                    <FormField control={profileForm.control} name="specialty" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'specialty'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Especialidad Principal</FormLabel>
                                                             <FormControl><Input placeholder="Ej. Cardiología" {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
@@ -211,7 +211,7 @@ export default function ProviderSettingsPage() {
                                                         </FormItem>
                                                     )} />
 
-                                                    <FormField control={profileForm.control} name="email" render={({ field }) => (
+                                                    <FormField control={profileForm.control} name="email" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'email'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Correo Electrónico</FormLabel>
                                                             <FormControl>
@@ -224,7 +224,7 @@ export default function ProviderSettingsPage() {
                                                         </FormItem>
                                                     )} />
 
-                                                    <FormField control={profileForm.control} name="phone" render={({ field }) => (
+                                                    <FormField control={profileForm.control} name="phone" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'phone'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Teléfono</FormLabel>
                                                             <FormControl>
@@ -238,7 +238,7 @@ export default function ProviderSettingsPage() {
                                                     )} />
                                                 </div>
 
-                                                <FormField control={profileForm.control} name="about" render={({ field }) => (
+                                                <FormField control={profileForm.control} name="about" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'about'> }) => (
                                                     <FormItem>
                                                         <FormLabel className="text-slate-700 dark:text-slate-300">Biografía Pública (Resumen)</FormLabel>
                                                         <FormControl>
@@ -329,7 +329,7 @@ export default function ProviderSettingsPage() {
                                                 </h3>
 
                                                 <div className="grid grid-cols-1 gap-5 max-w-md">
-                                                    <FormField control={securityForm.control} name="currentPassword" render={({ field }) => (
+                                                    <FormField control={securityForm.control} name="currentPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'currentPassword'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Contraseña Actual</FormLabel>
                                                             <FormControl>
@@ -339,7 +339,7 @@ export default function ProviderSettingsPage() {
                                                         </FormItem>
                                                     )} />
 
-                                                    <FormField control={securityForm.control} name="newPassword" render={({ field }) => (
+                                                    <FormField control={securityForm.control} name="newPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'newPassword'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Nueva Contraseña</FormLabel>
                                                             <FormControl>
@@ -354,7 +354,7 @@ export default function ProviderSettingsPage() {
                                                         </FormItem>
                                                     )} />
 
-                                                    <FormField control={securityForm.control} name="confirmPassword" render={({ field }) => (
+                                                    <FormField control={securityForm.control} name="confirmPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'confirmPassword'> }) => (
                                                         <FormItem>
                                                             <FormLabel className="text-slate-700 dark:text-slate-300">Confirmar Nueva Contraseña</FormLabel>
                                                             <FormControl>
