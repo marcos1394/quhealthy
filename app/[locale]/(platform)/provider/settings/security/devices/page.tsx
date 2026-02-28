@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Laptop, Smartphone, MapPin, Clock, Shield, Trash2, Monitor, Loader2, Info } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,8 @@ const mockDevices: Device[] = [
 ];
 
 export default function DeviceManagementPage() {
+  const t = useTranslations('SettingsDevices');
+
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null);
@@ -108,16 +111,16 @@ export default function DeviceManagementPage() {
     try {
       // Intentar llamada real a la API
       await axios.delete(`/api/security/devices/${deviceToDelete.id}`);
-      
+
       // Actualizar estado si éxito
       setDevices(prev => prev.filter(d => d.id !== deviceToDelete.id));
-      toast.success("Dispositivo desconectado correctamente");
+      toast.success(t('toast_success'));
     } catch (error) {
       console.error("Error al desconectar (Demo mode)", error);
-      
+
       // Fallback para demo: simular éxito aunque falle la API
       setDevices(prev => prev.filter(d => d.id !== deviceToDelete.id));
-      toast.success("Dispositivo desconectado (Simulación)");
+      toast.success(t('toast_sim_success'));
     } finally {
       setIsDeleting(false);
       setDeviceToDelete(null);
@@ -126,135 +129,141 @@ export default function DeviceManagementPage() {
 
   if (loading) {
     return (
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-            <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
-            <p className="text-gray-400 text-sm">Cargando dispositivos...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="w-8 h-8 text-medical-500 animate-spin" />
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{t('loading')}</p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6 max-w-5xl mx-auto">
-      
-      {/* Header */}
-      <div className="flex items-center space-x-4">
-        <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
-            <Shield className="w-8 h-8 text-purple-500" />
-        </div>
-        <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Dispositivos Conectados</h1>
-            <p className="text-gray-400 mt-1">Gestiona los dispositivos que tienen acceso a tu cuenta.</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
+      <div className="space-y-6 max-w-5xl mx-auto">
 
-      <div className="grid gap-4">
-        <AnimatePresence>
-          {devices.map((device) => (
-            <motion.div
-              key={device.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0, marginBottom: 0, padding: 0 }}
-              layout
-            >
-              <Card className={`border-gray-800 bg-gray-900/50 transition-all ${device.isCurrentDevice ? 'border-l-4 border-l-purple-500 bg-purple-900/5' : ''}`}>
-                <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                  
-                  {/* Icono y Detalles Principales */}
-                  <div className="flex items-center gap-4">
-                    <div className={`p-4 rounded-xl ${device.isCurrentDevice ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-800 text-gray-400'}`}>
-                      {getDeviceIcon(device.type)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="font-semibold text-lg text-white">{device.name}</h3>
-                        {device.isCurrentDevice && (
-                          <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50 hover:bg-purple-500/30 border-0">
-                            Este dispositivo
-                          </Badge>
-                        )}
+        {/* Header */}
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
+            <Shield className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          <AnimatePresence>
+            {devices.map((device) => (
+              <motion.div
+                key={device.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0, padding: 0 }}
+                layout
+              >
+                <Card className={`bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-all ${device.isCurrentDevice ? 'border-l-4 border-l-medical-500 bg-medical-50/50 dark:bg-medical-900/10' : ''}`}>
+                  <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+
+                    {/* Icono y Detalles Principales */}
+                    <div className="flex items-center gap-5">
+                      <div className={`p-4 rounded-xl shadow-sm border ${device.isCurrentDevice ? 'bg-white dark:bg-slate-900 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-800' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-100 dark:border-slate-800'}`}>
+                        {getDeviceIcon(device.type)}
                       </div>
-                      <p className="text-gray-400 text-sm flex items-center gap-2">
-                        {device.browser} <span className="text-gray-600">•</span> {device.ip}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Detalles Secundarios */}
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-gray-400 md:ml-auto">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-500" />
-                      {device.location}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      {device.lastUsed}
-                    </div>
-                  </div>
-
-                  {/* Acción */}
-                  <div className="md:ml-4 flex items-center">
-                    {device.isCurrentDevice ? (
-                        <div className="flex items-center text-emerald-500 text-sm font-medium px-3 py-2 bg-emerald-500/10 rounded-lg">
-                            <span className="relative flex h-2 w-2 mr-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            Activo ahora
+                      <div>
+                        <div className="flex items-center gap-3 mb-1.5">
+                          <h3 className="font-semibold text-lg text-slate-900 dark:text-white">{device.name}</h3>
+                          {device.isCurrentDevice && (
+                            <Badge className="bg-medical-100 text-medical-700 dark:bg-medical-500/20 dark:text-medical-300 border-medical-200 dark:border-medical-500/30 hover:bg-medical-200 dark:hover:bg-medical-500/30 font-semibold px-2.5 py-0.5">
+                              {t('current_device')}
+                            </Badge>
+                          )}
                         </div>
-                    ) : (
-                        <Button 
-                            variant="outline" 
-                            className="border-red-900/30 text-red-400 hover:bg-red-900/20 hover:text-red-300 hover:border-red-900/50 transition-colors"
-                            onClick={() => setDeviceToDelete(device)}
+                        <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2 font-medium">
+                          {device.browser} <span className="text-slate-300 dark:text-slate-600">•</span> {device.ip}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Detalles Secundarios */}
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-slate-500 dark:text-slate-400 md:ml-auto">
+                      <div className="flex items-center gap-2 font-medium">
+                        <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                        {device.location}
+                      </div>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                        {device.lastUsed}
+                      </div>
+                    </div>
+
+                    {/* Acción */}
+                    <div className="md:ml-4 flex items-center pt-4 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 w-full md:w-auto mt-4 md:mt-0">
+                      {device.isCurrentDevice ? (
+                        <div className="flex items-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-lg w-full justify-center md:w-auto">
+                          <span className="relative flex h-2.5 w-2.5 mr-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                          </span>
+                          {t('active_now')}
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="w-full md:w-auto border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-700 dark:hover:text-rose-300 font-medium"
+                          onClick={() => setDeviceToDelete(device)}
                         >
-                            <Trash2 className="w-4 h-4 mr-2" /> Desconectar
+                          <Trash2 className="w-4 h-4 mr-2" /> {t('disconnect')}
                         </Button>
-                    )}
-                  </div>
+                      )}
+                    </div>
 
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
-        {devices.length === 0 && !loading && (
-            <div className="text-center py-12 bg-gray-900/50 rounded-xl border border-dashed border-gray-800">
-                <Info className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-400">No se encontraron dispositivos conectados.</p>
+          {devices.length === 0 && !loading && (
+            <div className="text-center py-16 bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+              <div className="mx-auto w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                <Info className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">{t('empty')}</p>
             </div>
-        )}
+          )}
+        </div>
+
+        {/* Alerta de Confirmación (ShadCN) */}
+        <AlertDialog open={!!deviceToDelete} onOpenChange={() => !isDeleting && setDeviceToDelete(null)}>
+          <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-0 overflow-hidden sm:max-w-[425px]">
+            <div className="p-6">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-xl font-bold text-slate-900 dark:text-white">{t('disconnect_dialog.title')}</AlertDialogTitle>
+                <AlertDialogDescription className="text-slate-500 dark:text-slate-400 mt-3 text-base" dangerouslySetInnerHTML={{ __html: t.raw('disconnect_dialog.desc').replace('{device}', deviceToDelete?.name) }} />
+              </AlertDialogHeader>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-950/50 p-6 border-t border-slate-100 dark:border-slate-800">
+              <AlertDialogFooter className="gap-3 sm:gap-0">
+                <AlertDialogCancel
+                  disabled={isDeleting}
+                  className="mt-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                >
+                  {t('disconnect_dialog.cancel')}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => { e.preventDefault(); handleRevoke(); }} // Prevent default to handle async logic manually
+                  disabled={isDeleting}
+                  className="bg-rose-600 hover:bg-rose-700 text-white border-0"
+                >
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                  {isDeleting ? t('disconnect_dialog.disconnecting') : t('disconnect_dialog.confirm')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </div>
-
-      {/* Alerta de Confirmación (ShadCN) */}
-      <AlertDialog open={!!deviceToDelete} onOpenChange={() => !isDeleting && setDeviceToDelete(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">¿Desconectar dispositivo?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              Se cerrará la sesión en <strong>{deviceToDelete?.name}</strong>. Si el dispositivo está siendo usado por alguien más, perderá el acceso inmediatamente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel 
-                disabled={isDeleting}
-                className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
-            >
-                Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction 
-                onClick={(e) => { e.preventDefault(); handleRevoke(); }} // Prevent default to handle async logic manually
-                disabled={isDeleting}
-                className="bg-red-600 hover:bg-red-700 text-white border-0"
-            >
-              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
-              {isDeleting ? "Desconectando..." : "Sí, desconectar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
     </div>
   );
 }

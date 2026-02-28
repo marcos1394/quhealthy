@@ -2,51 +2,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, TrendingUp, Users, Heart, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * PlansHeader Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. PRIMING
- *    - Título emocional por rol
- *    - Beneficios destacados
- *    - Ahorro visible (-20%)
- *    - Urgencia sutil
- * 
- * 2. AVERSIÓN A LA PÉRDIDA
- *    - Badge de descuento prominente
- *    - "Ahorra X al año" visible
- *    - Comparación de ahorro
- * 
- * 3. AFFORDANCE
- *    - Toggle visual claro
- *    - Estados activo/inactivo
- *    - Animaciones suaves
- *    - Feedback inmediato
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Iconos por rol
- *    - Labels claros
- *    - Estado visible
- * 
- * 5. CREDIBILIDAD
- *    - Números específicos
- *    - Beneficios concretos
- *    - Social proof sutil
- * 
- * 6. JERARQUÍA VISUAL
- *    - Título destacado
- *    - Subtítulo secundario
- *    - Toggle terciario
- *    - Badge de ahorro
- */
-
-// Tipos
 export type UserRole = "paciente" | "proveedor";
 export type BillingCycle = "monthly" | "yearly";
 
@@ -56,14 +17,15 @@ interface PlansHeaderProps {
   setBillingCycle: (cycle: BillingCycle) => void;
 }
 
-export const PlansHeader: React.FC<PlansHeaderProps> = ({ 
-  role, 
-  billingCycle, 
-  setBillingCycle 
+export const PlansHeader: React.FC<PlansHeaderProps> = ({
+  role,
+  billingCycle,
+  setBillingCycle
 }) => {
-  // Helper para calcular ahorro anual - AVERSIÓN A LA PÉRDIDA
+  const t = useTranslations('SettingsSubscription.PlansHeader');
+
+  // Helper para calcular ahorro anual
   const calculateYearlySavings = () => {
-    // Asumiendo plan base de $50/mes
     const monthlyBase = 50;
     const yearlyTotal = monthlyBase * 12;
     const savings = Math.round(yearlyTotal * 0.2);
@@ -72,19 +34,18 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
 
   const yearlySavings = calculateYearlySavings();
 
-  // Content por rol - PRIMING
   const roleContent = {
     paciente: {
-      title: "Tu bienestar, al siguiente nivel",
-      subtitle: "Accede a descuentos exclusivos y funcionalidades premium para cuidar tu salud",
+      title: t('role_patient_title'),
+      subtitle: t('role_patient_subtitle'),
       icon: Heart,
-      highlight: "Miles de pacientes confían en nosotros"
+      highlight: t('role_patient_highlight')
     },
     proveedor: {
-      title: "Escala tu práctica médica",
-      subtitle: "Herramientas profesionales diseñadas para gestionar más pacientes y aumentar tus ingresos",
+      title: t('role_provider_title'),
+      subtitle: t('role_provider_subtitle'),
       icon: TrendingUp,
-      highlight: "Únete a +500 profesionales de la salud"
+      highlight: t('role_provider_highlight')
     }
   };
 
@@ -93,95 +54,93 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
 
   return (
     <div className="text-center mb-16 space-y-6">
-      
-      {/* Icon Badge - RECONOCIMIENTO */}
+
+      {/* Icon Badge */}
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200 }}
-        className="inline-flex items-center justify-center"
+        className="inline-flex items-center justify-center.tsx"
       >
-        <div className="p-3 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20 shadow-lg">
-          <Icon className="w-8 h-8 text-purple-400" />
+        <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
+          <Icon className="w-8 h-8 text-medical-600 dark:text-medical-400" />
         </div>
       </motion.div>
 
-      {/* Title - JERARQUÍA VISUAL */}
+      {/* Title */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         className="space-y-3"
       >
-        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-          <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-            {content.title}
-          </span>
+        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
+          {content.title}
         </h1>
-        
-        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+
+        <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
           {content.subtitle}
         </p>
 
-        {/* Social Proof Badge - CREDIBILIDAD */}
+        {/* Social Proof Badge */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full"
+          className="inline-flex items-center gap-2 px-4 py-2 mt-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-full"
         >
-          <Users className="w-4 h-4 text-purple-400" />
-          <span className="text-sm text-purple-300 font-medium">
+          <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
             {content.highlight}
           </span>
         </motion.div>
       </motion.div>
 
-      {/* Billing Toggle - AFFORDANCE */}
+      {/* Billing Toggle */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="flex flex-col items-center gap-4"
+        className="flex flex-col items-center gap-4 mt-8"
       >
-        
-        {/* Savings Preview - AVERSIÓN A LA PÉRDIDA */}
+
+        {/* Savings Preview */}
         {billingCycle === "yearly" && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 rounded-xl px-4 py-2 flex items-center gap-2"
+            className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl px-4 py-2 flex items-center gap-2"
           >
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-300">
-              ¡Ahorra ${yearlySavings} al año con el plan anual!
+            <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+            <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+              {t('savings_yearly', { amount: yearlySavings })}
             </span>
           </motion.div>
         )}
 
         {/* Toggle Buttons */}
-        <div className="inline-flex items-center p-1.5 bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl shadow-xl">
-          
+        <div className="inline-flex items-center p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+
           {/* Monthly Button */}
           <Button
             variant="ghost"
             onClick={() => setBillingCycle("monthly")}
             className={cn(
               "relative rounded-xl px-8 py-3 font-semibold transition-all duration-300",
-              billingCycle === "monthly" 
-                ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white shadow-lg border border-gray-600" 
-                : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+              billingCycle === "monthly"
+                ? "text-slate-900 bg-slate-100 dark:text-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:hover:text-white"
             )}
           >
             {billingCycle === "monthly" && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl border border-gray-600"
+                className="absolute inset-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
             <span className="relative z-10 flex items-center gap-2">
-              Mensual
+              {t('toggle_monthly')}
             </span>
           </Button>
 
@@ -191,43 +150,43 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
             onClick={() => setBillingCycle("yearly")}
             className={cn(
               "relative rounded-xl px-8 py-3 font-semibold transition-all duration-300",
-              billingCycle === "yearly" 
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30" 
-                : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+              billingCycle === "yearly"
+                ? "bg-medical-600 text-white shadow-md shadow-medical-500/20"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
             )}
           >
             {billingCycle === "yearly" && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl"
+                className="absolute inset-0 bg-medical-600 rounded-xl"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
             <span className="relative z-10 flex items-center gap-2">
-              Anual
+              {t('toggle_yearly')}
               <Badge className={cn(
-                "ml-1 text-xs px-2 py-0.5 font-bold transition-all",
+                "ml-1 text-xs px-2 py-0.5 font-bold transition-all shadow-none",
                 billingCycle === "yearly"
-                  ? "bg-white/20 text-white border-white/30"
-                  : "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                  ? "bg-white/20 text-white hover:bg-white/30"
+                  : "bg-medical-50 text-medical-600 dark:bg-medical-500/20 dark:text-medical-300 hover:bg-medical-100"
               )}>
                 <Zap className="w-3 h-3 mr-1" />
-                -20%
+                {t('badge_discount')}
               </Badge>
             </span>
           </Button>
         </div>
 
-        {/* Info Text - CREDIBILIDAD */}
+        {/* Info Text */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-xs text-gray-500"
+          className="text-xs text-slate-500 dark:text-slate-400 mt-2"
         >
-          {billingCycle === "yearly" 
-            ? "Facturación anual • Cancela cuando quieras"
-            : "Sin compromiso • Cancela en cualquier momento"}
+          {billingCycle === "yearly"
+            ? t('info_yearly')
+            : t('info_monthly')}
         </motion.p>
       </motion.div>
 
@@ -236,54 +195,53 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
-        className="w-24 h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent mx-auto rounded-full"
+        className="w-24 h-1 bg-gradient-to-r from-transparent via-medical-500 to-transparent mx-auto rounded-full mt-8 opacity-50"
       />
     </div>
   );
 };
 
-/**
- * Variante compacta para páginas con espacio limitado
- */
-export const PlansHeaderCompact: React.FC<PlansHeaderProps> = ({ 
-  role, 
-  billingCycle, 
-  setBillingCycle 
+export const PlansHeaderCompact: React.FC<PlansHeaderProps> = ({
+  role,
+  billingCycle,
+  setBillingCycle
 }) => {
+  const t = useTranslations('SettingsSubscription.PlansHeader');
+
   return (
     <div className="text-center mb-8 space-y-4">
-      <h2 className="text-2xl md:text-3xl font-bold text-white">
-        {role === "paciente" 
-          ? "Elige tu plan" 
-          : "Planes para profesionales"}
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        {role === "paciente"
+          ? t('compact_patient_title')
+          : t('compact_provider_title')}
       </h2>
 
-      <div className="inline-flex items-center p-1 bg-gray-900 border border-gray-800 rounded-xl">
+      <div className="inline-flex items-center p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
         <Button
           variant="ghost"
           onClick={() => setBillingCycle("monthly")}
           className={cn(
             "rounded-lg px-4 py-2 text-sm transition-all",
-            billingCycle === "monthly" 
-              ? "bg-gray-800 text-white" 
-              : "text-gray-400 hover:text-white"
+            billingCycle === "monthly"
+              ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           )}
         >
-          Mensual
+          {t('toggle_monthly')}
         </Button>
         <Button
           variant="ghost"
           onClick={() => setBillingCycle("yearly")}
           className={cn(
-            "rounded-lg px-4 py-2 text-sm transition-all",
-            billingCycle === "yearly" 
-              ? "bg-purple-600 text-white" 
-              : "text-gray-400 hover:text-white"
+            "rounded-lg px-4 py-2 text-sm transition-all flex items-center",
+            billingCycle === "yearly"
+              ? "bg-medical-600 text-white font-medium"
+              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           )}
         >
-          Anual
-          <Badge className="ml-1 bg-purple-500/20 text-purple-300 text-xs">
-            -20%
+          {t('toggle_yearly')}
+          <Badge className={cn("ml-2 shadow-none border-0 text-[10px]", billingCycle === "yearly" ? "bg-white/20 hover:bg-white/30" : "bg-medical-50 text-medical-600 dark:bg-medical-500/20 dark:text-medical-300")}>
+            {t('badge_discount')}
           </Badge>
         </Button>
       </div>

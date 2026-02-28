@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Loader2, 
-  CalendarClock, 
-  Instagram, 
-  Facebook, 
+import { useTranslations } from 'next-intl';
+import {
+  Loader2,
+  CalendarClock,
+  Instagram,
+  Facebook,
   Image as ImageIcon,
   CheckCircle2,
   AlertCircle,
@@ -44,47 +45,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- * ImageScheduleModal Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR ERRORES
- *    - Validación visual de campos
- *    - Mensajes de error claros
- *    - Disabled states informativos
- *    - Confirmación antes de enviar
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Loading states detallados
- *    - Success animation
- *    - Error handling visual
- *    - Preview del contenido
- * 
- * 3. AFFORDANCE
- *    - Iconos por plataforma
- *    - Colores distintivos
- *    - Estados hover claros
- *    - CTAs prominentes
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Preview de imagen
- *    - Texto visible
- *    - Plataforma con icono
- *    - Fecha formateada
- * 
- * 5. CREDIBILIDAD
- *    - Confirmación de datos
- *    - Preview antes de enviar
- *    - Contador de caracteres
- *    - Timezone visible
- * 
- * 6. MINIMIZAR CARGA COGNITIVA
- *    - Campos organizados lógicamente
- *    - Una decisión a la vez
- *    - Defaults inteligentes
- */
-
 // Tipos
 export interface GeneratedContent {
   id: string;
@@ -107,25 +67,26 @@ interface ImageScheduleModalProps {
   connections: SocialConnection[];
 }
 
-export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onScheduled, 
-  content, 
-  connections 
+export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
+  isOpen,
+  onClose,
+  onScheduled,
+  content,
+  connections
 }) => {
+  const t = useTranslations('DashboardMarketing.imageModal');
   const [publishAt, setPublishAt] = useState('');
   const [selectedConnectionId, setSelectedConnectionId] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [schedulingStep, setSchedulingStep] = useState<'idle' | 'uploading' | 'success'>('idle');
-  
-  const imageConnections = connections.filter(c => 
+
+  const imageConnections = connections.filter(c =>
     ['instagram', 'facebook', 'linkedin', 'twitter'].includes(c.platform)
   );
 
-  // Reset al abrir - MINIMIZAR ERRORES
+  // Reset al abrir
   useEffect(() => {
     if (isOpen) {
       setPublishAt('');
@@ -136,7 +97,7 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
     }
   }, [isOpen]);
 
-  // Validación en tiempo real - FEEDBACK INMEDIATO
+  // Validación en tiempo real
   useEffect(() => {
     if (!publishAt || !selectedConnectionId) {
       setValidationError(null);
@@ -147,40 +108,29 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
     const now = new Date();
 
     if (selectedDate <= now) {
-      setValidationError('La fecha debe ser futura');
+      setValidationError(t('err_date_past'));
     } else if (selectedDate.getTime() - now.getTime() < 5 * 60 * 1000) {
-      setValidationError('Programa con al menos 5 minutos de anticipación');
+      setValidationError(t('err_date_min'));
     } else {
       setValidationError(null);
     }
-  }, [publishAt, selectedConnectionId]);
+  }, [publishAt, selectedConnectionId, t]);
 
-  // Helper para iconos de plataforma - RECONOCIMIENTO
+  // Helper para iconos de plataforma
   const getPlatformIcon = (platform: string) => {
     const icons = {
       instagram: <Instagram className="w-4 h-4 text-pink-500" />,
-      facebook: <Facebook className="w-4 h-4 text-blue-500" />,
+      facebook: <Facebook className="w-4 h-4 text-[#1877F2]" />,
       twitter: <Twitter className="w-4 h-4 text-sky-500" />,
-      linkedin: <Linkedin className="w-4 h-4 text-blue-600" />
+      linkedin: <Linkedin className="w-4 h-4 text-[#0A66C2]" />
     };
     return icons[platform as keyof typeof icons] || <ImageIcon className="w-4 h-4" />;
   };
 
-  // Helper para color de plataforma - PRIMING
-  const getPlatformColor = (platform: string) => {
-    const colors = {
-      instagram: 'text-pink-500',
-      facebook: 'text-blue-500',
-      twitter: 'text-sky-500',
-      linkedin: 'text-blue-600'
-    };
-    return colors[platform as keyof typeof colors] || 'text-gray-400';
-  };
-
-  // Handler de submit - FEEDBACK INMEDIATO
+  // Handler de submit
   const handleSubmit = async () => {
     if (!content || !selectedConnectionId || !publishAt) {
-      toast.warn("Completa todos los campos requeridos");
+      toast.warn(t('toast_warn'));
       return;
     }
 
@@ -188,7 +138,7 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
       toast.error(validationError);
       return;
     }
-    
+
     setIsScheduling(true);
     setSchedulingStep('uploading');
 
@@ -199,9 +149,9 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
         imageUrl: content.generatedImageUrl,
         publishAt: new Date(publishAt).toISOString(),
       }, { withCredentials: true });
-      
+
       setSchedulingStep('success');
-      toast.success("¡Publicación programada exitosamente! 🎉", {
+      toast.success(t('toast_success'), {
         icon: <span>"✨"</span>
       });
 
@@ -214,9 +164,8 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
     } catch (error: any) {
       console.error(error);
       setSchedulingStep('idle');
-      
-      const errorMessage = error?.response?.data?.message || 
-                          "No se pudo programar la publicación";
+
+      const errorMessage = error?.response?.data?.message || t('toast_error');
       toast.error(errorMessage);
     } finally {
       setTimeout(() => setIsScheduling(false), 1500);
@@ -232,9 +181,9 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        
-        {/* Header - JERARQUÍA VISUAL */}
+      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+
+        {/* Header */}
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">
@@ -242,26 +191,26 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="p-3 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-xl border border-pink-500/20 shadow-lg"
+                className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm"
               >
-                <CalendarClock className="w-6 h-6 text-pink-400" />
+                <CalendarClock className="w-6 h-6 text-medical-600 dark:text-medical-400" />
               </motion.div>
-              
-              <div className="flex-1 min-w-0">
-                <DialogTitle className="text-2xl font-black text-white mb-1">
-                  Programar Publicación
+
+              <div className="flex-1 min-w-0 flex flex-col items-start justify-start text-left">
+                <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight text-left">
+                  {t('title')}
                 </DialogTitle>
-                <DialogDescription className="text-gray-400 text-base">
-                  Configura cuándo y dónde se publicará tu contenido
+                <DialogDescription className="text-slate-500 dark:text-slate-400 text-base text-left">
+                  {t('subtitle')}
                 </DialogDescription>
               </div>
             </div>
 
             <Button
               variant="ghost"
-              size="default"
+              size="icon"
               onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg absolute right-4 top-4"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -269,8 +218,8 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-            
-          {/* Preview Section - RECONOCIMIENTO */}
+
+          {/* Preview Section */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -278,17 +227,17 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
             className="space-y-3"
           >
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                Preview del Contenido
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {t('preview_title')}
               </Label>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowPreview(!showPreview)}
-                className="text-purple-400 hover:text-purple-300 h-7"
+                className="text-medical-600 hover:text-medical-700 hover:bg-medical-50 dark:text-medical-400 dark:hover:text-medical-300 dark:hover:bg-medical-500/10 h-8"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                {showPreview ? 'Ocultar' : 'Ver preview'}
+                {showPreview ? t('hide_preview') : t('show_preview')}
               </Button>
             </div>
 
@@ -300,22 +249,21 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="bg-gray-950/50 p-4 rounded-xl border border-gray-800 space-y-3">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
                     {content.generatedImageUrl && (
-                      <div className="relative rounded-lg overflow-hidden">
-                        <img 
-                          src={content.generatedImageUrl} 
-                          alt="Preview" 
+                      <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <img
+                          src={content.generatedImageUrl}
+                          alt="Preview"
                           className="w-full h-48 object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                       </div>
                     )}
-                    <p className="text-sm text-gray-300 italic">
-                      {content.generatedText}
+                    <p className="text-sm text-slate-600 dark:text-slate-300 italic">
+                      "{content.generatedText}"
                     </p>
                     {content.generatedText && (
-                      <Badge variant="outline" className="bg-gray-800/50 text-gray-400 border-gray-700">
+                      <Badge variant="outline" className="bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 font-medium">
                         {content.generatedText.length} caracteres
                       </Badge>
                     )}
@@ -326,42 +274,42 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
 
             {/* Copy para referencia */}
             {!showPreview && (
-              <Textarea 
-                value={content.generatedText || ''} 
-                readOnly 
-                className="bg-gray-950/50 border-gray-700 min-h-[100px] text-gray-400 resize-none focus:border-purple-500"
+              <Textarea
+                value={content.generatedText || ''}
+                readOnly
+                className="bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-800/50 dark:border-slate-800 dark:text-slate-300 min-h-[100px] resize-none focus-visible:ring-0"
               />
             )}
           </motion.div>
 
-          {/* Platform Selection - AFFORDANCE */}
+          {/* Platform Selection */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-              Plataforma de Publicación
+            <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {t('platform_title')}
             </Label>
-            
+
             {imageConnections.length > 0 ? (
               <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
                 <SelectTrigger className={cn(
-                  "bg-gray-950/50 border-gray-700 h-12 transition-all",
-                  selectedConnectionId && "border-pink-500/50 bg-pink-500/5"
+                  "bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 h-12 transition-all",
+                  selectedConnectionId && "border-medical-500/50 bg-medical-50 dark:bg-medical-500/5 focus:ring-medical-500/20"
                 )}>
-                  <SelectValue placeholder="Selecciona una plataforma" />
+                  <SelectValue placeholder={t('platform_placeholder')} />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                   {imageConnections.map(c => (
-                    <SelectItem key={c.id} value={c.id.toString()}>
+                    <SelectItem key={c.id} value={c.id.toString()} className="focus:bg-slate-100 dark:focus:bg-slate-800">
                       <div className="flex items-center gap-3">
                         {getPlatformIcon(c.platform)}
-                        <div className="flex flex-col">
-                          <span className="font-semibold capitalize">{c.platform}</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold capitalize text-slate-900 dark:text-white">{c.platform}</span>
                           {c.username && (
-                            <span className="text-xs text-gray-500">@{c.username}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">@{c.username}</span>
                           )}
                         </div>
                       </div>
@@ -370,53 +318,53 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                 </SelectContent>
               </Select>
             ) : (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-amber-400 mb-1">
-                    No hay cuentas conectadas
+              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-0.5">
+                    {t('no_accounts_title')}
                   </p>
-                  <p className="text-xs text-amber-300/80">
-                    Conecta al menos una red social para programar publicaciones
+                  <p className="text-xs text-amber-600 dark:text-amber-300">
+                    {t('no_accounts_desc')}
                   </p>
                 </div>
               </div>
             )}
           </motion.div>
 
-          {/* Date/Time Selection - MINIMIZAR ERRORES */}
+          {/* Date/Time Selection */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="space-y-3"
           >
-            <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-              Fecha y Hora de Publicación
+            <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {t('datetime_title')}
             </Label>
             <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-              <Input 
-                type="datetime-local" 
-                value={publishAt} 
-                onChange={e => setPublishAt(e.target.value)} 
+              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+              <Input
+                type="datetime-local"
+                value={publishAt}
+                onChange={e => setPublishAt(e.target.value)}
                 className={cn(
-                  "bg-gray-950/50 border-gray-700 pl-11 h-12 transition-all",
-                  "focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
-                  publishAt ? !validationError ? "border-emerald-500/50 bg-emerald-500/5" : "" : "",
-                  validationError ? "border-red-500/50 bg-red-500/5" : ""
+                  "bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 pl-11 h-12 transition-all",
+                  "focus:border-medical-500 focus:ring-medical-500/20",
+                  publishAt ? !validationError ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/5" : "" : "",
+                  validationError ? "border-red-500/50 bg-red-50 dark:bg-red-500/5 focus:border-red-500 focus:ring-red-500/20" : ""
                 )}
               />
             </div>
 
-            {/* Validation Error - FEEDBACK INMEDIATO */}
+            {/* Validation Error */}
             <AnimatePresence>
               {validationError && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="flex items-start gap-2 text-red-400 text-xs bg-red-500/10 p-3 rounded-lg border border-red-500/20"
+                  className="flex items-start gap-2 text-red-600 dark:text-red-400 text-xs bg-red-50 dark:bg-red-500/10 p-3 rounded-lg border border-red-200 dark:border-red-500/20"
                 >
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>{validationError}</span>
@@ -424,37 +372,37 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
               )}
             </AnimatePresence>
 
-            {/* Timezone info - CREDIBILIDAD */}
-            <p className="text-xs text-gray-500 flex items-center gap-1">
+            {/* Timezone info */}
+            <p className="text-xs text-slate-500 flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              Zona horaria: {Intl.DateTimeFormat().resolvedOptions().timeZone}
+              {t('timezone_info')} {Intl.DateTimeFormat().resolvedOptions().timeZone}
             </p>
           </motion.div>
 
-          {/* Summary Card - RECONOCIMIENTO */}
+          {/* Summary Card */}
           {selectedConnection && publishAt && !validationError && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
-              className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 rounded-xl border border-purple-500/20"
+              className="bg-medical-50 dark:bg-medical-500/10 p-4 rounded-xl border border-medical-100 dark:border-medical-500/20"
             >
               <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm font-semibold text-white">
-                    Resumen de Publicación
+                <Sparkles className="w-5 h-5 text-medical-600 dark:text-medical-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2 text-left">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {t('summary_title')}
                   </p>
-                  <div className="space-y-1 text-xs text-gray-400">
+                  <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                     <p className="flex items-center gap-2">
                       {getPlatformIcon(selectedConnection.platform)}
                       <span className="capitalize">{selectedConnection.platform}</span>
                       {selectedConnection.username && (
-                        <span className="text-gray-500">@{selectedConnection.username}</span>
+                        <span className="text-slate-500">@{selectedConnection.username}</span>
                       )}
                     </p>
                     <p className="flex items-center gap-2">
-                      <CalendarClock className="w-3 h-3" />
+                      <CalendarClock className="w-3 h-3 text-slate-400" />
                       {new Date(publishAt).toLocaleString('es-MX', {
                         dateStyle: 'full',
                         timeStyle: 'short'
@@ -467,31 +415,31 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
           )}
         </div>
 
-        {/* Footer - AFFORDANCE */}
+        {/* Footer */}
         <DialogFooter className="flex flex-col sm:flex-row gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             disabled={isScheduling}
-            className="flex-1 sm:flex-none border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+            className="flex-1 sm:flex-none border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
-            Cancelar
+            {t('cancel_btn')}
           </Button>
-          
-          <Button 
-            onClick={handleSubmit} 
+
+          <Button
+            onClick={handleSubmit}
             disabled={
-              isScheduling || 
-              !selectedConnectionId || 
-              !publishAt || 
+              isScheduling ||
+              !selectedConnectionId ||
+              !publishAt ||
               !!validationError ||
               imageConnections.length === 0
             }
             className={cn(
-              "flex-1 sm:flex-none min-w-[160px] font-bold transition-all duration-300",
-              schedulingStep === 'success' 
-                ? "bg-emerald-600 hover:bg-emerald-700" 
-                : "bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 shadow-lg hover:shadow-xl"
+              "flex-1 sm:flex-none min-w-[160px] font-bold transition-all duration-300 shadow-sm",
+              schedulingStep === 'success'
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                : "bg-medical-600 hover:bg-medical-700 text-white"
             )}
           >
             <AnimatePresence mode="wait">
@@ -504,7 +452,7 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Programando...
+                  {t('schedule_loading')}
                 </motion.div>
               )}
               {schedulingStep === 'success' && (
@@ -516,7 +464,7 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
-                  ¡Programado!
+                  {t('schedule_success')}
                 </motion.div>
               )}
               {schedulingStep === 'idle' && (
@@ -528,7 +476,7 @@ export const ImageScheduleModal: React.FC<ImageScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <Send className="mr-2 h-4 w-4" />
-                  Programar Publicación
+                  {t('schedule_idle')}
                 </motion.div>
               )}
             </AnimatePresence>

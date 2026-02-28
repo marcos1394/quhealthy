@@ -2,25 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Loader2, 
-  CalendarClock, 
-  Youtube, 
+import { useTranslations } from 'next-intl';
+import {
+  Loader2,
+  CalendarClock,
   Video,
-  X,
-  CheckCircle2,
+  Youtube,
   AlertCircle,
+  X,
   Eye,
-  EyeOff,
-  Lock,
-  Unlock,
-  Globe,
-  Sparkles,
+  CheckCircle2,
   Clock,
+  Sparkles,
   Send,
-  Tag,
-  FileText,
-  AlertTriangle
+  Globe,
+  Lock,
+  Link as LinkIcon
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -29,6 +26,7 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -47,58 +45,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- * VideoScheduleModal Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. MINIMIZAR ERRORES
- *    - Validación de título (requerido, longitud)
- *    - Validación de fecha futura
- *    - Campos requeridos marcados
- *    - Límites de caracteres visibles
- * 
- * 2. FEEDBACK INMEDIATO
- *    - Contador de caracteres en tiempo real
- *    - Validación visual de campos
- *    - 3 estados de scheduling
- *    - Success animation
- * 
- * 3. AFFORDANCE
- *    - Iconos por privacidad
- *    - Colores por plataforma
- *    - Preview video cuando aplica
- *    - Estados disabled claros
- * 
- * 4. RECONOCIMIENTO VS RECUPERACIÓN
- *    - Iconos descriptivos
- *    - Labels claros
- *    - Placeholder examples
- *    - Summary antes de enviar
- * 
- * 5. CREDIBILIDAD
- *    - Preview del video
- *    - Timezone visible
- *    - Límites de plataforma
- *    - Confirmación de datos
- * 
- * 6. MINIMIZAR CARGA COGNITIVA
- *    - Campos organizados lógicamente
- *    - Defaults inteligentes
- *    - Ayuda contextual
- */
-
 // Tipos
 export interface GeneratedContent {
   id: string;
-  prompt: string;
   generatedText: string;
-  generatedVideoUrl?: string;
+  generatedVideoUrl?: string; // Nuevo para videos
+  generatedImageUrl?: string;
+  prompt?: string;
 }
 
 export interface SocialConnection {
   id: number;
-  platform: 'youtube' | 'tiktok' | 'instagram' | 'facebook';
+  platform: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'twitter' | 'linkedin';
   username?: string;
 }
 
@@ -110,141 +68,116 @@ interface VideoScheduleModalProps {
   connections: SocialConnection[];
 }
 
-export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onScheduled, 
-  content, 
-  connections 
+export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
+  isOpen,
+  onClose,
+  onScheduled,
+  content,
+  connections
 }) => {
-  const [title, setTitle] = useState('');
-  const [tags, setTags] = useState('');
-  const [privacyStatus, setPrivacyStatus] = useState('public');
+  const t = useTranslations('DashboardMarketing.videoModal');
   const [publishAt, setPublishAt] = useState('');
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
+  const [selectedConnectionId, setSelectedConnectionId] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
-  const [schedulingStep, setSchedulingStep] = useState<'idle' | 'uploading' | 'success'>('idle');
   const [showPreview, setShowPreview] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [schedulingStep, setSchedulingStep] = useState<'idle' | 'uploading' | 'processing' | 'success'>('idle');
 
-  const videoConnections = connections.filter(c => 
-    c.platform === 'youtube' || c.platform === 'tiktok'
+  // YouTube specific
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoDesc, setVideoDesc] = useState('');
+  const [tags, setTags] = useState('');
+  const [privacyStatus, setPrivacyStatus] = useState<'public' | 'unlisted' | 'private'>('public');
+
+  const videoConnections = connections.filter(c =>
+    ['youtube', 'tiktok'].includes(c.platform)
   );
 
-  // Límites por plataforma - MINIMIZAR ERRORES
-  const platformLimits = {
-    youtube: { title: 100, description: 5000, tags: 500 },
-    tiktok: { title: 150, description: 2200, tags: 100 }
-  };
-
-  const selectedConnection = videoConnections.find(
-    c => c.id.toString() === selectedConnectionId
-  );
-
-  const currentLimit = selectedConnection 
-    ? platformLimits[selectedConnection.platform as keyof typeof platformLimits]
-    : platformLimits.youtube;
-
-  // Auto-fill title - SATISFICING
+  // Reset al abrir/cambiar contenido
   useEffect(() => {
-    if (content && !title) {
-      const autoTitle = content.prompt 
-        ? `${content.prompt.substring(0, 50)}${content.prompt.length > 50 ? '...' : ''}`
-        : 'Video generado con IA';
-      setTitle(autoTitle);
-    }
-  }, [content]);
-
-  // Reset al abrir
-  useEffect(() => {
-    if (isOpen) {
+    if (isOpen && content) {
       setPublishAt('');
       setSelectedConnectionId('');
-      setPrivacyStatus('public');
-      setValidationErrors({});
+      setValidationError(null);
       setSchedulingStep('idle');
       setShowPreview(false);
-    }
-  }, [isOpen]);
 
-  // Validación en tiempo real - FEEDBACK INMEDIATO
+      // Pre-llenar campos
+      const defaultTitle = content.prompt ?
+        (content.prompt.length > 60 ? content.prompt.substring(0, 57) + "..." : content.prompt)
+        : "Video Generado IA";
+
+      setVideoTitle(defaultTitle);
+      setVideoDesc(content.generatedText || '');
+      setTags('health, wellness, tips');
+    }
+  }, [isOpen, content]);
+
+  // Validación en tiempo real
   useEffect(() => {
-    const errors: Record<string, string> = {};
-
-    if (title && title.length > currentLimit.title) {
-      errors.title = `Máximo ${currentLimit.title} caracteres`;
+    if (!publishAt || !selectedConnectionId || !videoTitle) {
+      setValidationError(null);
+      return;
     }
 
-    if (tags && tags.length > currentLimit.tags) {
-      errors.tags = `Máximo ${currentLimit.tags} caracteres`;
+    const selectedDate = new Date(publishAt);
+    const now = new Date();
+
+    if (videoTitle.length > 100) {
+      setValidationError(t('err_max_chars', { max: 100 }));
+    } else if (selectedDate <= now) {
+      setValidationError(t('err_date_past'));
+    } else if (selectedDate.getTime() - now.getTime() < 5 * 60 * 1000) {
+      setValidationError(t('err_date_min'));
+    } else {
+      setValidationError(null);
     }
+  }, [publishAt, selectedConnectionId, videoTitle, t]);
 
-    if (publishAt) {
-      const selectedDate = new Date(publishAt);
-      const now = new Date();
-      if (selectedDate <= now) {
-        errors.date = 'La fecha debe ser futura';
-      } else if (selectedDate.getTime() - now.getTime() < 5 * 60 * 1000) {
-        errors.date = 'Mínimo 5 minutos de anticipación';
-      }
-    }
-
-    setValidationErrors(errors);
-  }, [title, tags, publishAt, currentLimit]);
-
-  // Helper para iconos de privacidad - RECONOCIMIENTO
-  const getPrivacyIcon = (status: string) => {
-    const icons = {
-      public: <Globe className="w-4 h-4 text-emerald-400" />,
-      private: <Lock className="w-4 h-4 text-red-400" />,
-      unlisted: <EyeOff className="w-4 h-4 text-amber-400" />
-    };
-    return icons[status as keyof typeof icons] || <Globe className="w-4 h-4" />;
-  };
-
-  // Helper para iconos de plataforma - RECONOCIMIENTO
   const getPlatformIcon = (platform: string) => {
-    const icons = {
-      youtube: <Youtube className="w-4 h-4 text-red-500" />,
-      tiktok: <Video className="w-4 h-4 text-cyan-400" />
-    };
-    return icons[platform as keyof typeof icons] || <Video className="w-4 h-4" />;
-  };
-
-  // Validación final antes de submit
-  const canSubmit = () => {
-    return (
-      title.trim() &&
-      selectedConnectionId &&
-      publishAt &&
-      Object.keys(validationErrors).length === 0 &&
-      videoConnections.length > 0
-    );
+    if (platform === 'youtube') return <Youtube className="w-5 h-5 text-[#FF0000]" />;
+    if (platform === 'tiktok') return <Video className="w-5 h-5 text-black dark:text-white" />;
+    return <Video className="w-5 h-5" />;
   };
 
   const handleSubmit = async () => {
-    if (!content || !canSubmit()) {
-      toast.warn("Completa todos los campos requeridos");
+    if (!content || !selectedConnectionId || !publishAt || !videoTitle) {
+      toast.warn(t('toast_warn'));
       return;
     }
-    
+
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     setIsScheduling(true);
     setSchedulingStep('uploading');
 
     try {
-      await axios.post('/api/social/schedule-post', {
+      const selectedConn = videoConnections.find(c => c.id.toString() === selectedConnectionId);
+
+      // Simulamos la subida en fases para mejor UX
+      setTimeout(() => setSchedulingStep('processing'), 2000);
+
+      // Endpoint unificado o específico según tu backend
+      const endpoint = selectedConn?.platform === 'youtube'
+        ? '/api/google/youtube/upload'
+        : '/api/social/schedule-video';
+
+      await axios.post(endpoint, {
         socialConnectionId: parseInt(selectedConnectionId),
-        content: content.generatedText,
-        videoUrl: content.generatedVideoUrl,
-        title,
+        title: videoTitle,
+        description: videoDesc,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        privacyStatus,
+        privacyStatus: privacyStatus,
+        videoUrl: content.generatedVideoUrl,
         publishAt: new Date(publishAt).toISOString(),
       }, { withCredentials: true });
-      
+
       setSchedulingStep('success');
-      toast.success("¡Video programado exitosamente! 🎉", {
-        icon: <span>"🎬"</span>
+      toast.success(t('toast_success'), {
+        icon: <span>"🚀"</span>
       });
 
       setTimeout(() => {
@@ -255,22 +188,24 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
     } catch (error: any) {
       console.error(error);
       setSchedulingStep('idle');
-      
-      const errorMessage = error?.response?.data?.message || 
-                          "No se pudo programar el video";
+      const errorMessage = error?.response?.data?.message || t('toast_error');
       toast.error(errorMessage);
     } finally {
       setTimeout(() => setIsScheduling(false), 1500);
     }
   };
 
+  const selectedConnection = videoConnections.find(
+    c => c.id.toString() === selectedConnectionId
+  );
+
   if (!content) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        
-        {/* Header - JERARQUÍA VISUAL */}
+      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+
+        {/* Header */}
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">
@@ -278,26 +213,26 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="p-3 bg-gradient-to-br from-red-500/10 to-purple-500/10 rounded-xl border border-red-500/20 shadow-lg"
+                className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl border border-indigo-100 dark:border-indigo-500/20 shadow-sm"
               >
-                <Youtube className="w-6 h-6 text-red-400" />
+                <Video className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </motion.div>
-              
-              <div className="flex-1 min-w-0">
-                <DialogTitle className="text-2xl font-black text-white mb-1">
-                  Programar Video
+
+              <div className="flex-1 min-w-0 flex flex-col items-start justify-start text-left">
+                <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight text-left">
+                  {t('title')}
                 </DialogTitle>
-                <DialogDescription className="text-gray-400 text-base">
-                  Configura los detalles de tu publicación de video
+                <DialogDescription className="text-slate-500 dark:text-slate-400 text-base text-left">
+                  {t('subtitle')}
                 </DialogDescription>
               </div>
             </div>
 
             <Button
               variant="ghost"
-              size="default"
+              size="icon"
               onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg absolute right-4 top-4"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -305,299 +240,248 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-            
-          {/* Video Preview - RECONOCIMIENTO */}
-          {content.generatedVideoUrl && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                  Preview del Video
-                </Label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="text-purple-400 hover:text-purple-300 h-7"
+
+          {/* Preview Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {t('preview_title')}
+              </Label>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-indigo-500/10 h-8"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                {showPreview ? t('hide_preview') : t('show_preview')}
+              </Button>
+            </div>
+
+            <AnimatePresence>
+              {showPreview && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
                 >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {showPreview ? 'Ocultar' : 'Ver preview'}
-                </Button>
-              </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 flex items-center justify-center min-h-[150px]">
+                    {content.generatedVideoUrl ? (
+                      <video
+                        src={content.generatedVideoUrl}
+                        controls
+                        className="w-full max-h-64 rounded-lg object-contain bg-black"
+                      />
+                    ) : (
+                      <div className="text-center text-slate-500 py-6">
+                        <Video className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Video no disponible para vista previa</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
-              <AnimatePresence>
-                {showPreview && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden rounded-xl"
-                  >
-                    <video 
-                      src={content.generatedVideoUrl}
-                      controls
-                      className="w-full rounded-xl border border-gray-800"
-                      style={{ maxHeight: '300px' }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-          {/* Title - MINIMIZAR ERRORES */}
+          {/* Form Fields: Meta */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-3"
+            className="space-y-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800"
           >
-            <div className="flex items-center justify-between">
-              <Label htmlFor="title" className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                Título del Video <span className="text-red-400">*</span>
-              </Label>
-              <span className={cn(
-                "text-xs font-medium",
-                title.length > currentLimit.title * 0.9 
-                  ? "text-red-400" 
-                  : "text-gray-500"
-              )}>
-                {title.length}/{currentLimit.title}
-              </span>
-            </div>
-            <Input 
-              id="title" 
-              value={title} 
-              onChange={e => setTitle(e.target.value)} 
-              className={cn(
-                "bg-gray-950/50 border-gray-700 h-12 transition-all",
-                "focus:border-red-500 focus:ring-2 focus:ring-red-500/20",
-                title ? !validationErrors.title ? "border-emerald-500/50 bg-emerald-500/5" : "" : "",
-                validationErrors.title && "border-red-500/50 bg-red-500/5"
-              )}
-              placeholder="Ej: Beneficios del ejercicio cardiovascular..."
-              maxLength={currentLimit.title}
-            />
-            {validationErrors.title && (
-              <p className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {validationErrors.title}
-              </p>
-            )}
-          </motion.div>
-
-          {/* Tags - AFFORDANCE */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <Label htmlFor="tags" className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <Tag className="w-3.5 h-3.5" />
-                Etiquetas
-              </Label>
-              <span className={cn(
-                "text-xs font-medium",
-                tags.length > currentLimit.tags * 0.9 
-                  ? "text-red-400" 
-                  : "text-gray-500"
-              )}>
-                {tags.length}/{currentLimit.tags}
-              </span>
-            </div>
-            <Input 
-              id="tags" 
-              value={tags} 
-              onChange={e => setTags(e.target.value)} 
-              placeholder="salud, bienestar, ejercicio, nutrición..."
-              className={cn(
-                "bg-gray-950/50 border-gray-700 h-12 transition-all",
-                "focus:border-red-500 focus:ring-2 focus:ring-red-500/20",
-                validationErrors.tags && "border-red-500/50 bg-red-500/5"
-              )}
-              maxLength={currentLimit.tags}
-            />
-            {validationErrors.tags && (
-              <p className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {validationErrors.tags}
-              </p>
-            )}
-            <p className="text-xs text-gray-500 flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
-              Separa con comas. Máximo 15 etiquetas recomendadas
-            </p>
-          </motion.div>
-
-          {/* Platform & Privacy - RECONOCIMIENTO */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            {/* Platform */}
-            <div className="space-y-3">
-              <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                Plataforma <span className="text-red-400">*</span>
-              </Label>
-              
-              {videoConnections.length > 0 ? (
-                <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
-                  <SelectTrigger className={cn(
-                    "bg-gray-950/50 border-gray-700 h-12 transition-all",
-                    selectedConnectionId && "border-red-500/50 bg-red-500/5"
-                  )}>
-                    <SelectValue placeholder="Seleccionar plataforma" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-800">
-                    {videoConnections.map(c => (
-                      <SelectItem key={c.id} value={c.id.toString()}>
-                        <div className="flex items-center gap-3">
-                          {getPlatformIcon(c.platform)}
-                          <div className="flex flex-col">
-                            <span className="font-semibold capitalize">{c.platform}</span>
-                            {c.username && (
-                              <span className="text-xs text-gray-500">@{c.username}</span>
-                            )}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-amber-400">
-                      No hay cuentas conectadas
-                    </p>
-                    <p className="text-xs text-amber-300/80 mt-1">
-                      Conecta YouTube o TikTok primero
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Privacy */}
-            <div className="space-y-3">
-              <Label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                Visibilidad
-              </Label>
-              <Select onValueChange={setPrivacyStatus} value={privacyStatus}>
-                <SelectTrigger className="bg-gray-950/50 border-gray-700 h-12">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
-                  <SelectItem value="public">
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-emerald-400" />
-                      <div>
-                        <div className="font-semibold">Público</div>
-                        <div className="text-xs text-gray-500">Visible para todos</div>
-                      </div>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="unlisted">
-                    <div className="flex items-center gap-2">
-                      <EyeOff className="w-4 h-4 text-amber-400" />
-                      <div>
-                        <div className="font-semibold">No listado</div>
-                        <div className="text-xs text-gray-500">Solo con enlace</div>
-                      </div>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="private">
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-red-400" />
-                      <div>
-                        <div className="font-semibold">Privado</div>
-                        <div className="text-xs text-gray-500">Solo tú</div>
-                      </div>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </motion.div>
-
-          {/* Date/Time - VALIDACIÓN */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="space-y-3"
-          >
-            <Label htmlFor="publishAt" className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-              Fecha y Hora de Publicación <span className="text-red-400">*</span>
-            </Label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-              <Input 
-                id="publishAt" 
-                type="datetime-local" 
-                value={publishAt} 
-                onChange={e => setPublishAt(e.target.value)} 
-                className={cn(
-                  "bg-gray-950/50 border-gray-700 pl-11 h-12 transition-all",
-                  "focus:border-red-500 focus:ring-2 focus:ring-red-500/20",
-                  publishAt ? !validationErrors.date ? "border-emerald-500/50 bg-emerald-500/5" : "" : "",
-                  validationErrors.date && "border-red-500/50 bg-red-500/5"
-                )}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('video_title_label')} <span className="text-red-500">*</span></Label>
+                <span className={cn("text-xs font-medium", videoTitle.length > 100 ? "text-red-500" : "text-slate-400")}>
+                  {videoTitle.length}/100
+                </span>
+              </div>
+              <Input
+                value={videoTitle}
+                onChange={(e) => setVideoTitle(e.target.value)}
+                placeholder={t('video_title_placeholder')}
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500"
               />
             </div>
-            {validationErrors.date && (
-              <p className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {validationErrors.date}
-              </p>
-            )}
-            <p className="text-xs text-gray-500 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Zona horaria: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-            </p>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('tags_label')}</Label>
+              <Input
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder={t('tags_placeholder')}
+                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500"
+              />
+              <p className="text-xs text-slate-500">{t('tags_hint')}</p>
+            </div>
           </motion.div>
 
-          {/* Summary Card - CREDIBILIDAD */}
-          {canSubmit() && (
+          {/* Platform & Date Selection Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Column 1: Platform & Privacy */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="space-y-4"
+            >
+              <div className="space-y-3">
+                <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  {t('platform_label')}
+                </Label>
+
+                {videoConnections.length > 0 ? (
+                  <Select onValueChange={setSelectedConnectionId} value={selectedConnectionId}>
+                    <SelectTrigger className={cn(
+                      "bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 h-12 transition-all",
+                      selectedConnectionId && "border-indigo-500/50 bg-indigo-50 dark:bg-indigo-500/5 focus:ring-indigo-500/20"
+                    )}>
+                      <SelectValue placeholder={t('platform_placeholder')} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      {videoConnections.map(c => (
+                        <SelectItem key={c.id} value={c.id.toString()} className="focus:bg-slate-100 dark:focus:bg-slate-800">
+                          <div className="flex items-center gap-3">
+                            {getPlatformIcon(c.platform)}
+                            <div className="flex flex-col text-left">
+                              <span className="font-semibold capitalize text-slate-900 dark:text-white">{c.platform}</span>
+                              {c.username && (
+                                <span className="text-xs text-slate-500 dark:text-slate-400">@{c.username}</span>
+                              )}
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-0.5">
+                        {t('no_accounts_title')}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-300">
+                        {t('no_accounts_desc')}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {selectedConnection?.platform === 'youtube' && (
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    {t('privacy_label')}
+                  </Label>
+                  <Select value={privacyStatus} onValueChange={(v: any) => setPrivacyStatus(v)}>
+                    <SelectTrigger className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                      <SelectItem value="public">
+                        <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-emerald-500" /> {t('privacy_public')} <span className="text-xs text-slate-500 ml-1">- {t('privacy_public_desc')}</span></div>
+                      </SelectItem>
+                      <SelectItem value="unlisted">
+                        <div className="flex items-center gap-2"><LinkIcon className="w-4 h-4 text-amber-500" /> {t('privacy_unlisted')} <span className="text-xs text-slate-500 ml-1">- {t('privacy_unlisted_desc')}</span></div>
+                      </SelectItem>
+                      <SelectItem value="private">
+                        <div className="flex items-center gap-2"><Lock className="w-4 h-4 text-red-500" /> {t('privacy_private')} <span className="text-xs text-slate-500 ml-1">- {t('privacy_private_desc')}</span></div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Column 2: Date & Validation */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-3"
+            >
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                {t('datetime_title')}
+              </Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+                <Input
+                  type="datetime-local"
+                  value={publishAt}
+                  onChange={e => setPublishAt(e.target.value)}
+                  className={cn(
+                    "bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 pl-11 h-12 transition-all",
+                    "focus:border-indigo-500 focus:ring-indigo-500/20",
+                    publishAt ? !validationError ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/5" : "" : "",
+                    validationError ? "border-red-500/50 bg-red-50 dark:bg-red-500/5 focus:border-red-500 focus:ring-red-500/20" : ""
+                  )}
+                />
+              </div>
+
+              <AnimatePresence>
+                {validationError && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-start gap-2 text-red-600 dark:text-red-400 text-xs bg-red-50 dark:bg-red-500/10 p-3 rounded-lg border border-red-200 dark:border-red-500/20"
+                  >
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{validationError}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <p className="text-xs text-slate-500 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {t('timezone_info')} {Intl.DateTimeFormat().resolvedOptions().timeZone}
+              </p>
+            </motion.div>
+
+          </div>
+
+          {/* Summary Card */}
+          {selectedConnection && publishAt && !validationError && videoTitle && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
-              className="bg-gradient-to-r from-red-500/10 to-purple-500/10 p-4 rounded-xl border border-red-500/20"
+              transition={{ delay: 0.5 }}
+              className="bg-indigo-50 dark:bg-indigo-500/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-500/20"
             >
               <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm font-semibold text-white">
-                    Resumen de Publicación
+                <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2 text-left">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    {t('summary_title')}
                   </p>
-                  <div className="space-y-1 text-xs text-gray-400">
-                    <p className="flex items-center gap-2">
-                      <FileText className="w-3 h-3" />
-                      {title}
+                  <div className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                    <p className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-200">
+                      {videoTitle.substring(0, 40)}{videoTitle.length > 40 ? '...' : ''}
                     </p>
                     <p className="flex items-center gap-2">
-                      {getPlatformIcon(selectedConnection!.platform)}
-                      <span className="capitalize">{selectedConnection!.platform}</span>
-                      {selectedConnection!.username && (
-                        <span className="text-gray-500">@{selectedConnection!.username}</span>
+                      {getPlatformIcon(selectedConnection.platform)}
+                      <span className="capitalize">{selectedConnection.platform}</span>
+                      {selectedConnection.username && (
+                        <span className="text-slate-500">@{selectedConnection.username}</span>
+                      )}
+                      {selectedConnection.platform === 'youtube' && (
+                        <Badge variant="outline" className="ml-1 h-5 text-[10px] bg-white/50 dark:bg-slate-900/50">
+                          {privacyStatus}
+                        </Badge>
                       )}
                     </p>
                     <p className="flex items-center gap-2">
-                      {getPrivacyIcon(privacyStatus)}
-                      <span className="capitalize">{privacyStatus === 'public' ? 'Público' : privacyStatus === 'private' ? 'Privado' : 'No listado'}</span>
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <CalendarClock className="w-3 h-3" />
+                      <CalendarClock className="w-3 h-3 text-slate-400" />
                       {new Date(publishAt).toLocaleString('es-MX', {
                         dateStyle: 'full',
                         timeStyle: 'short'
@@ -608,27 +492,35 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
               </div>
             </motion.div>
           )}
+
         </div>
 
-        {/* Footer - AFFORDANCE */}
+        {/* Footer */}
         <DialogFooter className="flex flex-col sm:flex-row gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             disabled={isScheduling}
-            className="flex-1 sm:flex-none border-gray-700 text-gray-300 hover:bg-gray-800"
+            className="flex-1 sm:flex-none border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
-            Cancelar
+            {t('cancel_btn')}
           </Button>
-          
-          <Button 
-            onClick={handleSubmit} 
-            disabled={!canSubmit() || isScheduling}
+
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              isScheduling ||
+              !selectedConnectionId ||
+              !publishAt ||
+              !videoTitle ||
+              !!validationError ||
+              videoConnections.length === 0
+            }
             className={cn(
-              "flex-1 sm:flex-none min-w-[160px] font-bold transition-all duration-300",
-              schedulingStep === 'success' 
-                ? "bg-emerald-600 hover:bg-emerald-700" 
-                : "bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-500 hover:to-purple-500 shadow-lg hover:shadow-xl"
+              "flex-1 sm:flex-none min-w-[160px] font-bold transition-all duration-300 shadow-sm",
+              schedulingStep === 'success'
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white"
             )}
           >
             <AnimatePresence mode="wait">
@@ -641,7 +533,19 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Programando...
+                  Subiendo...
+                </motion.div>
+              )}
+              {schedulingStep === 'processing' && (
+                <motion.div
+                  key="processing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center"
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('schedule_loading')}
                 </motion.div>
               )}
               {schedulingStep === 'success' && (
@@ -653,7 +557,7 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
-                  ¡Programado!
+                  {t('schedule_success')}
                 </motion.div>
               )}
               {schedulingStep === 'idle' && (
@@ -665,7 +569,7 @@ export const VideoScheduleModal: React.FC<VideoScheduleModalProps> = ({
                   className="flex items-center"
                 >
                   <Send className="mr-2 h-4 w-4" />
-                  Programar Video
+                  {t('schedule_idle')}
                 </motion.div>
               )}
             </AnimatePresence>

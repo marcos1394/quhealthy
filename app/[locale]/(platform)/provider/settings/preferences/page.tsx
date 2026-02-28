@@ -1,228 +1,310 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Loader2, Settings, Save, X, Bell, Moon, Globe, Shield, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+    Settings,
+    Save,
+    Bell,
+    Moon,
+    Globe,
+    Loader2,
+    CheckCircle2,
+    Mail,
+    MessageSquare,
+    Gift,
+    Palette
+} from "lucide-react";
 import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
 
 // ShadCN UI
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import {
+    Select,
+    SelectTrigger,
+    SelectContent,
+    SelectItem,
+    SelectValue
+} from "@/components/ui/select";
+import { motion } from "framer-motion";
 
-// Componentes Personalizados (Asegúrate de que las rutas coincidan con donde los guardaste)
-import { NotificationsTab, UserRole, NotificationPreferences } from '@/components/dashboard/preferences/NotificationsTab';
-import { AppearanceTab } from '@/components/dashboard/preferences/AppearanceTab';
-import { LanguageTab } from '@/components/dashboard/preferences/LanguageTab';
-import { PrivacyTab } from '@/components/dashboard/preferences/PrivacyTab';
-
-// Tipos Globales para la Página
 interface AppPreferences {
-  notifications: NotificationPreferences;
-  appearance: { theme: string; reduceMotion: boolean; highContrast: boolean };
-  language: string;
-  currency: string;
-  timeFormat: string;
-  timeZone: string;
-  privacy: { showOnlineStatus: boolean; showLastSeen: boolean; showProfile: string; allowMessages: string };
+    language: string;
+    timeZone: string;
+    email_alerts: boolean;
+    sms_alerts: boolean;
+    marketing: boolean;
+    theme: string;
 }
 
-const initialPreferences: AppPreferences = {
-  notifications: { 
-    email: true, push: true, sms: false, 
-    // Provider specific
-    new_appointment: true, cancellations: true, reviews: true,
-    // Consumer specific
-    reminders: true, promotions: false, documents: true 
-  },
-  appearance: { theme: "dark", reduceMotion: false, highContrast: false },
-  language: "es", 
-  currency: "MXN", 
-  timeFormat: "12",
-  timeZone: typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC',
-  privacy: { showOnlineStatus: true, showLastSeen: true, showProfile: "all", allowMessages: "all" },
-};
+export default function PreferencesPage() {
+    const t = useTranslations('SettingsPreferences');
 
-export default function SettingsPage() {
-  // Simulación de rol (esto vendría de tu useSessionStore)
-  // Cambia a 'consumer' para probar la vista del paciente
-  const role: UserRole = "provider"; 
+    const [preferences, setPreferences] = useState<AppPreferences>({
+        language: "es",
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+        email_alerts: true,
+        sms_alerts: false,
+        marketing: false,
+        theme: "system",
+    });
 
-  const [preferences, setPreferences] = useState<AppPreferences>(initialPreferences);
-  const [originalPreferences, setOriginalPreferences] = useState<AppPreferences>(initialPreferences);
-  
-  const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    // Simulación de carga desde API
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+    useEffect(() => {
+        // Simulación de carga desde API
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 600);
+        return () => clearTimeout(timer);
+    }, []);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setStatusMessage(null);
-    
-    try {
-      // Simulación de guardado
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setOriginalPreferences(preferences);
-      setEditMode(false);
-      setStatusMessage({ type: 'success', text: "Preferencias guardadas correctamente." });
-      toast.success("Configuración actualizada.");
-      
-      setTimeout(() => setStatusMessage(null), 4000);
-    } catch (err) {
-      setStatusMessage({ type: 'error', text: "No se pudieron guardar los cambios." });
-      toast.error("Error al guardar.");
-    } finally {
-      setIsSaving(false);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            // Simulación de guardado a API
+            await new Promise(resolve => setTimeout(resolve, 800));
+            toast.success(t('toast_save'), {
+                icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            });
+        } catch (err) {
+            toast.error("Error al guardar las preferencias.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const updatePref = (key: keyof AppPreferences, value: any) => {
+        setPreferences(prev => ({ ...prev, [key]: value }));
+    };
+
+    if (loading) {
+        return (
+            <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
+                <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
+                <p className="text-slate-500 font-medium">Cargando...</p>
+            </div>
+        );
     }
-  };
 
-  const handleCancel = () => {
-    setPreferences(originalPreferences);
-    setEditMode(false);
-    setStatusMessage(null);
-    toast.info("Cambios descartados.");
-  };
-
-  if (loading) {
     return (
-        <div className="flex flex-col justify-center items-center h-[80vh] gap-4">
-            <Loader2 className="w-12 h-12 animate-spin text-purple-500" />
-            <p className="text-gray-400 font-medium">Cargando configuración...</p>
-        </div>
-    );
-  }
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
 
-  return (
-    <div className="min-h-screen bg-gray-950 p-4 md:p-8 font-sans selection:bg-purple-500/30">
-      
-      <div className="max-w-5xl mx-auto space-y-6">
-        
-        {/* Card Principal */}
-        <Card className="bg-gray-900 border-gray-800 shadow-xl">
-            <CardHeader className="border-b border-gray-800 p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-purple-500/10 p-3 rounded-xl border border-purple-500/20">
-                            <Settings className="w-8 h-8 text-purple-400" />
+            <div className="max-w-4xl mx-auto space-y-6">
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
+                            <Settings className="w-8 h-8 text-medical-600 dark:text-medical-400" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-white tracking-tight">Configuración</h1>
-                            <p className="text-sm text-gray-400">Personaliza tu experiencia en QuHealthy.</p>
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
+                            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
                         </div>
                     </div>
-
-                    {/* Botones de Acción */}
-                    <div className="flex items-center gap-3">
-                        {!editMode ? (
-                            <Button 
-                                onClick={() => setEditMode(true)} 
-                                className="bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-lg hover:shadow-purple-500/20"
-                            >
-                                <Settings className="w-4 h-4 mr-2" /> Editar Preferencias
-                            </Button>
-                        ) : (
-                            <>
-                                <Button 
-                                    variant="ghost" 
-                                    onClick={handleCancel} 
-                                    className="text-gray-400 hover:text-white hover:bg-gray-800"
-                                >
-                                    <X className="w-4 h-4 mr-2" /> Cancelar
-                                </Button>
-                                <Button 
-                                    onClick={handleSave} 
-                                    disabled={isSaving}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[120px]"
-                                >
-                                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                                    Guardar
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="bg-medical-600 hover:bg-medical-700 text-white shadow-sm min-w-[140px] h-11"
+                    >
+                        {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                        {t('general.save')}
+                    </Button>
                 </div>
-            </CardHeader>
 
-            <CardContent className="p-6">
-                
-                {/* Mensajes de Estado */}
-                {statusMessage && (
-                    <Alert className={`mb-6 border ${statusMessage.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-                        {statusMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                        <AlertDescription className="ml-2 font-medium">
-                            {statusMessage.text}
-                        </AlertDescription>
-                    </Alert>
-                )}
-
-                {/* Tabs de Configuración */}
-                <Tabs defaultValue="notifications" className="space-y-8">
-                    <TabsList className="bg-gray-950 border border-gray-800 p-1 w-full justify-start overflow-x-auto rounded-xl h-auto gap-1">
-                        <TabsTrigger value="notifications" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 py-2.5 px-4 rounded-lg transition-all">
-                            <Bell className="w-4 h-4 mr-2" /> Notificaciones
+                {/* Tabs */}
+                <Tabs defaultValue="general" className="space-y-6">
+                    <TabsList className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 w-full justify-start overflow-x-auto rounded-xl h-auto gap-1 shadow-sm">
+                        <TabsTrigger value="general" className="data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white text-slate-500 py-2.5 px-4 rounded-lg transition-all font-medium">
+                            <Globe className="w-4 h-4 mr-2" /> {t('tabs.general')}
                         </TabsTrigger>
-                        <TabsTrigger value="appearance" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 py-2.5 px-4 rounded-lg transition-all">
-                            <Moon className="w-4 h-4 mr-2" /> Apariencia
+                        <TabsTrigger value="notifications" className="data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white text-slate-500 py-2.5 px-4 rounded-lg transition-all font-medium">
+                            <Bell className="w-4 h-4 mr-2" /> {t('tabs.notifications')}
                         </TabsTrigger>
-                        <TabsTrigger value="language" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 py-2.5 px-4 rounded-lg transition-all">
-                            <Globe className="w-4 h-4 mr-2" /> Idioma
-                        </TabsTrigger>
-                        <TabsTrigger value="privacy" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400 py-2.5 px-4 rounded-lg transition-all">
-                            <Shield className="w-4 h-4 mr-2" /> Privacidad
+                        <TabsTrigger value="appearance" className="data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white text-slate-500 py-2.5 px-4 rounded-lg transition-all font-medium">
+                            <Moon className="w-4 h-4 mr-2" /> {t('tabs.appearance')}
                         </TabsTrigger>
                     </TabsList>
 
                     <div className="min-h-[400px]">
+
+                        {/* GENERAL TAB */}
+                        <TabsContent value="general" className="mt-0 focus-visible:outline-none">
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                                    <CardHeader>
+                                        <CardTitle className="text-slate-900 dark:text-white text-lg">{t('general.title')}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+
+                                        <div className="space-y-3">
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                {t('general.language')}
+                                            </label>
+                                            <Select
+                                                value={preferences.language}
+                                                onValueChange={(val) => updatePref('language', val)}
+                                            >
+                                                <SelectTrigger className="w-full md:w-[400px] h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                                    <SelectItem value="es">🇪🇸 Español</SelectItem>
+                                                    <SelectItem value="en">🇺🇸 English</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+                                            <div>
+                                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                    {t('general.timezone')}
+                                                </label>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                    {t('general.timezone_desc')}
+                                                </p>
+                                            </div>
+                                            <Select
+                                                value={preferences.timeZone}
+                                                onValueChange={(val) => updatePref('timeZone', val)}
+                                            >
+                                                <SelectTrigger className="w-full md:w-[400px] h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 max-h-60">
+                                                    <SelectItem value="America/Mexico_City">America/Mexico_City</SelectItem>
+                                                    <SelectItem value="America/New_York">America/New_York</SelectItem>
+                                                    <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
+                                                    <SelectItem value="America/Bogota">America/Bogota</SelectItem>
+                                                    <SelectItem value="Europe/Madrid">Europe/Madrid</SelectItem>
+                                                    <SelectItem value={preferences.timeZone}>{preferences.timeZone}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        </TabsContent>
+
+                        {/* NOTIFICATIONS TAB */}
                         <TabsContent value="notifications" className="mt-0 focus-visible:outline-none">
-                            <NotificationsTab 
-                                preferences={preferences} 
-                                setPreferences={setPreferences} 
-                                editMode={editMode} 
-                                role={role} 
-                            />
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                                    <CardHeader>
+                                        <CardTitle className="text-slate-900 dark:text-white text-lg">{t('notifications.title')}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-1">
+
+                                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-10 w-10 shrink-0 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                                    <Mail className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">{t('notifications.email_alerts')}</p>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('notifications.email_alerts_desc')}</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={preferences.email_alerts}
+                                                onCheckedChange={(val) => updatePref('email_alerts', val)}
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-10 w-10 shrink-0 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                                    <MessageSquare className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">{t('notifications.sms_alerts')}</p>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('notifications.sms_alerts_desc')}</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={preferences.sms_alerts}
+                                                onCheckedChange={(val) => updatePref('sms_alerts', val)}
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-10 w-10 shrink-0 rounded-full bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                                    <Gift className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">{t('notifications.marketing')}</p>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('notifications.marketing_desc')}</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={preferences.marketing}
+                                                onCheckedChange={(val) => updatePref('marketing', val)}
+                                            />
+                                        </div>
+
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
                         </TabsContent>
-                        
+
+                        {/* APPEARANCE TAB */}
                         <TabsContent value="appearance" className="mt-0 focus-visible:outline-none">
-                            <AppearanceTab 
-                                preferences={preferences} 
-                                setPreferences={setPreferences} 
-                                editMode={editMode} 
-                            />
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                                    <CardHeader>
+                                        <CardTitle className="text-slate-900 dark:text-white text-lg">{t('appearance.title')}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+
+                                        <div className="space-y-3">
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                {t('appearance.theme')}
+                                            </label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                {[
+                                                    { id: "light", label: t('appearance.light'), icon: Moon },
+                                                    { id: "dark", label: t('appearance.dark'), icon: Moon },
+                                                    { id: "system", label: t('appearance.system'), icon: Settings }
+                                                ].map((themeOpt) => {
+                                                    const isSelected = preferences.theme === themeOpt.id;
+                                                    return (
+                                                        <button
+                                                            key={themeOpt.id}
+                                                            onClick={() => updatePref('theme', themeOpt.id)}
+                                                            className={`relative flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all ${isSelected
+                                                                    ? "bg-medical-50 border-medical-500 text-medical-700 dark:bg-medical-500/10 dark:text-medical-400 dark:border-medical-500"
+                                                                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-900"
+                                                                }`}
+                                                        >
+                                                            {isSelected && (
+                                                                <div className="absolute top-3 right-3 bg-medical-500 rounded-full p-0.5">
+                                                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                                                </div>
+                                                            )}
+                                                            <themeOpt.icon className={`w-8 h-8 mb-3 ${isSelected ? "text-medical-500" : "text-slate-400"}`} />
+                                                            <span className="font-semibold">{themeOpt.label}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
                         </TabsContent>
-                        
-                        <TabsContent value="language" className="mt-0 focus-visible:outline-none">
-                            <LanguageTab 
-                                preferences={preferences} 
-                                setPreferences={setPreferences} 
-                                editMode={editMode} 
-                            />
-                        </TabsContent>
-                        
-                        <TabsContent value="privacy" className="mt-0 focus-visible:outline-none">
-                            <PrivacyTab 
-                                preferences={preferences} 
-                                setPreferences={setPreferences} 
-                                editMode={editMode} 
-                            />
-                        </TabsContent>
+
                     </div>
                 </Tabs>
 
-            </CardContent>
-        </Card>
-
-      </div>
-    </div>
-  );
+            </div>
+        </div>
+    );
 }

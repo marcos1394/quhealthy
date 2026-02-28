@@ -1116,5 +1116,429 @@
         "error_publish": "No se pudo enviar la respuesta.",
         "empty_title": "Aún no hay reseñas",
         "empty_desc": "Invita a tus pacientes a calificar tu servicio después de su cita."
+    },
+    "DashboardMarketing": {
+        "title": "Centro de Marketing",
+        "subtitle": "Impulsa tu práctica con contenido para redes sociales generado por IA.",
+        "social_tab": "Redes Sociales",
+        "assets_tab": "Activos de Marca",
+        "campaigns_tab": "Campañas",
+        "connect_section_title": "1. Conecta tus Cuentas",
+        "connect_section_desc": "Vincula tus perfiles sociales para publicar directamente desde QuHealthy.",
+        "connect_btn": "Conectar",
+        "manage_btn": "Administrar",
+        "ai_studio_title": "2. Estudio Creativo IA",
+        "ai_studio_desc": "Genera imágenes y videos profesionales optimizados para tu especialidad.",
+        "image_generator_title": "Generador de Imágenes",
+        "image_generator_desc": "Describe lo que necesitas y nuestra IA lo creará en segundos.",
+        "image_placeholder": "Ej: Foto profesional de una clínica dental moderna, iluminación clara, colores relajantes...",
+        "video_generator_title": "Generador de Videos",
+        "video_generator_desc": "Crea videos cortos estilo TikTok/Reels educativos.",
+        "video_placeholder": "Ej: 3 consejos para mantener una buena higiene bucal, tono amigable...",
+        "generate_btn": "Generar Contenido",
+        "generating": "Generando...",
+        "content_gallery_title": "Galería de Contenido",
+        "content_gallery_desc": "Tus archivos generados recientemente",
+        "gallery_empty_title": "Tu galería está vacía",
+        "gallery_empty_desc": "Genera tu primera imagen o video para verlo aquí.",
+        "video_badge": "Video",
+        "image_badge": "Imagen",
+        "schedule_btn": "Programar",
+        "schedule_video_btn": "Programar Video",
+        "download_btn": "Descargar",
+        "loading_studio": "Cargando estudio de marketing...",
+        "toast_success": "Contenido generado exitosamente",
+        "toast_error": "Error al generar contenido. Inténtalo de nuevo.",
+        "imageModal": {
+            "title": "Programar Publicación",
+            "subtitle": "Configura cuándo y dónde se publicará tu contenido",
+            "preview_title": "Preview del Contenido",
+            "show_preview": "Ver preview",
+            "hide_preview": "Ocultar",
+            "platform_title": "Plataforma de Publicación",
+            "platform_placeholder": "Selecciona una plataforma",
+            "no_accounts_title": "No hay cuentas conectadas",
+            "no_accounts_desc": "Conecta al menos una red social para programar publicaciones",
+            "datetime_title": "Fecha y Hora de Publicación",
+            "timezone_info": "Zona horaria:",
+            "summary_title": "Resumen de Publicación",
+            "cancel_btn": "Cancelar",
+            "schedule_idle": "Programar Publicación",
+            "schedule_loading": "Programando...",
+            "schedule_success": "¡Programado!",
+            "toast_success": "¡Publicación programada exitosamente! 🎉",
+            "toast_error": "No se pudo programar la publicación",
+            "toast_warn": "Completa todos los campos requeridos",
+            "err_date_past": "La fecha debe ser futura",
+            "err_date_min": "Programa con al menos 5 minutos de anticipación"
+        },
+        "videoModal": {
+            "title": "Programar Video",
+            "subtitle": "Configura los detalles de tu publicación de video",
+            "preview_title": "Preview del Video",
+            "show_preview": "Ver preview",
+            "hide_preview": "Ocultar",
+            "video_title_label": "Título del Video",
+            "video_title_placeholder": "Ej: Beneficios del ejercicio cardiovascular...",
+            "tags_label": "Etiquetas",
+            "tags_placeholder": "salud, bienestar, ejercicio, nutrición...",
+            "tags_hint": "Separa con comas. Máximo 15 etiquetas recomendadas",
+            "platform_label": "Plataforma",
+            "platform_placeholder": "Seleccionar plataforma",
+            "no_accounts_title": "No hay cuentas conectadas",
+            "no_accounts_desc": "Conecta YouTube o TikTok primero",
+            "privacy_label": "Visibilidad",
+            "privacy_public": "Público",
+            "privacy_public_desc": "Visible para todos",
+            "privacy_unlisted": "No listado",
+            "privacy_unlisted_desc": "Solo con enlace",
+            "privacy_private": "Privado",
+            "privacy_private_desc": "Solo tú",
+            "datetime_title": "Fecha y Hora de Publicación",
+            "timezone_info": "Zona horaria:",
+            "summary_title": "Resumen de Publicación",
+            "cancel_btn": "Cancelar",
+            "schedule_idle": "Programar Video",
+            "schedule_loading": "Programando...",
+            "schedule_success": "¡Programado!",
+            "toast_success": "¡Video programado exitosamente! 🎉",
+            "toast_error": "No se pudo programar el video",
+            "toast_warn": "Completa todos los campos requeridos",
+            "err_max_chars": "Máximo {max} caracteres",
+            "err_date_past": "La fecha debe ser futura",
+            "err_date_min": "Mínimo 5 minutos de anticipación"
+        }
+    },
+    "SettingsSubscription": {
+        "title": "Suscripción",
+        "subtitle": "Gestiona tu plan de QuHealthy",
+        "loading": "Cargando planes...",
+        "secure_payments": "Pagos Seguros SSL",
+        "accept_cards": "Aceptamos Tarjetas",
+        "cancel_anytime": "Cancela cuando quieras",
+        "toast_processing": "Procesando pago...",
+        "toast_demo": "(Demo) Redirigiendo a pago de {planName}...",
+        "error_stripe": "Stripe no cargó correctamente.",
+        "PlansHeader": {
+            "role_patient_title": "Tu bienestar, al siguiente nivel",
+            "role_patient_subtitle": "Accede a descuentos exclusivos y funcionalidades premium para cuidar tu salud",
+            "role_patient_highlight": "Miles de pacientes confían en nosotros",
+            "role_provider_title": "Escala tu práctica médica",
+            "role_provider_subtitle": "Herramientas profesionales diseñadas para gestionar más pacientes y aumentar tus ingresos",
+            "role_provider_highlight": "Únete a +500 profesionales de la salud",
+            "savings_yearly": "¡Ahorra ${amount} al año con el plan anual!",
+            "toggle_monthly": "Mensual",
+            "toggle_yearly": "Anual",
+            "badge_discount": "-20%",
+            "info_yearly": "Facturación anual • Cancela cuando quieras",
+            "info_monthly": "Sin compromiso • Cancela en cualquier momento",
+            "compact_patient_title": "Elige tu plan",
+            "compact_provider_title": "Planes para profesionales"
+        },
+        "PricingCard": {
+            "popular_badge": "Más Popular",
+            "recommended_badge": "Recomendado",
+            "limited_offer_badge": "Oferta Limitada",
+            "duration_monthly": "mes",
+            "duration_yearly": "año",
+            "daily_price": "Solo ${amount} por día",
+            "savings_badge": "¡Ahorras ${amount} al año!",
+            "premium_feature": "Premium",
+            "more_features": "Y {count} beneficios más",
+            "btn_popular": "Comenzar Ahora",
+            "btn_regular": "Elegir {planName}",
+            "trust_indicator": "Sin tarjeta de crédito • Cancela cuando quieras"
+        },
+        "ConfirmationModal": {
+            "title": "Confirmar Suscripción",
+            "subtitle": "Revisa los detalles de tu plan antes de continuar",
+            "billing_monthly": "Facturación Mensual",
+            "billing_yearly": "Facturación Anual",
+            "duration_monthly": "mes",
+            "duration_yearly": "año",
+            "includes": "Lo que incluye:",
+            "more_benefits": "+ {count} beneficios adicionales",
+            "subtotal": "Subtotal",
+            "yearly_savings": "Ahorro anual",
+            "total_today": "Total a pagar hoy",
+            "next_billing_title": "Próximo Cargo Automático",
+            "next_billing_desc": "{date} • Puedes cancelar en cualquier momento",
+            "secure_payment_title": "Pago 100% Seguro",
+            "secure_payment_desc": "Encriptación SSL de grado bancario",
+            "no_commitment_title": "Sin Compromiso",
+            "no_commitment_desc": "Cancela cuando quieras, sin cargos extra",
+            "guarantee_title": "Garantía de Satisfacción",
+            "guarantee_desc": "Reembolso completo en los primeros 14 días",
+            "important_info_title": "Información Importante",
+            "important_info_1": "Tu suscripción se renovará automáticamente",
+            "important_info_2": "Recibirás un recordatorio antes de cada cargo",
+            "important_info_3": "Puedes gestionar tu plan desde tu cuenta",
+            "btn_processing": "Procesando pago seguro...",
+            "btn_confirm": "Confirmar y Pagar ${amount}",
+            "btn_cancel": "Cancelar",
+            "trust_ssl": "SSL Seguro",
+            "trust_pci": "PCI Compliant",
+            "trust_no_commitment": "Sin compromiso"
+        },
+        "SettingsPreferences": {
+            "title": "Preferencias",
+            "subtitle": "Personaliza tu experiencia en QuHealthy y configura tus notificaciones.",
+            "tabs": {
+                "general": "General",
+                "notifications": "Notificaciones",
+                "appearance": "Apariencia"
+            },
+            "general": {
+                "title": "Configuración General",
+                "language": "Idioma de la plataforma",
+                "timezone": "Zona Horaria",
+                "timezone_desc": "La zona horaria que se usa para tus citas",
+                "save": "Guardar Cambios"
+            },
+            "notifications": {
+                "title": "Notificaciones",
+                "email_alerts": "Alertas por Email",
+                "email_alerts_desc": "Recibir resúmenes diarios y avisos importantes",
+                "sms_alerts": "Recordatorios SMS",
+                "sms_alerts_desc": "Enviar recordatorios de citas por SMS a pacientes",
+                "marketing": "Ofertas y Marketing",
+                "marketing_desc": "Promociones y nuevas funcionalidades de QuHealthy"
+            },
+            "appearance": {
+                "title": "Apariencia",
+                "theme": "Tema de la aplicación",
+                "light": "Claro",
+                "dark": "Oscuro",
+                "system": "Sistema"
+            },
+            "toast_save": "Preferencias actualizadas correctamente"
+        },
+        "SettingsConnections": {
+            "title": "Conexiones",
+            "subtitle": "Administra tus cuentas vinculadas y dispositivos de acceso.",
+            "social": {
+                "title": "Cuentas Sociales",
+                "desc": "Conecta tus redes para iniciar sesión más rápido y mostrar tus perfiles a los pacientes.",
+                "google": "Google",
+                "google_desc": "Conectado para inicio de sesión rápido",
+                "facebook": "Facebook",
+                "facebook_desc": "Conectar para mostrar en tu perfil público",
+                "instagram": "Instagram",
+                "instagram_desc": "Conectar para mostrar tu feed clínico",
+                "linkedin": "LinkedIn",
+                "linkedin_desc": "Mostrar tu perfil profesional",
+                "connect": "Conectar",
+                "disconnect": "Cerrar sesión"
+            },
+            "devices": {
+                "title": "Dispositivos Conectados",
+                "desc": "Controla dónde tienes tu sesión iniciada.",
+                "current": "Este dispositivo",
+                "revoke": "Revocar acceso",
+                "revoke_all": "Cerrar sesión en todos los demás dispositivos"
+            }
+        },
+        "SettingsSecurity": {
+            "title": "Centro de Seguridad",
+            "subtitle": "Gestiona la protección de tu cuenta y datos sensibles.",
+            "options": {
+                "2fa": {
+                    "title": "Autenticación en Dos Pasos (2FA)",
+                    "desc": "Añade una capa extra de seguridad a tu cuenta móvil.",
+                    "status": "Recomendado"
+                },
+                "password": {
+                    "title": "Contraseña",
+                    "desc": "Cambia tu contraseña o configura reglas de complejidad."
+                },
+                "alerts": {
+                    "title": "Alertas de Sesión",
+                    "desc": "Recibe notificaciones sobre nuevos dispositivos de inicio de sesión."
+                },
+                "devices": {
+                    "title": "Dispositivos Conectados",
+                    "desc": "Revisa y cierra sesión en dispositivos que no reconozcas."
+                },
+                "activity": {
+                    "title": "Historial de Actividad",
+                    "desc": "Auditoría completa de acciones realizadas en tu cuenta."
+                }
+            },
+            "configure": "Configurar"
+        },
+        "Settings2FA": {
+            "title": "Autenticación en Dos Pasos (2FA)",
+            "subtitle": "Protege tu cuenta con una capa extra de seguridad.",
+            "step1": {
+                "instructions_title": "Instrucciones",
+                "instructions_desc": "Abre tu app de autenticación (Google Authenticator, Authy) y escanea el código.",
+                "cannot_scan": "¿No puedes escanear? Usa este código:",
+                "error_secret": "Error cargando el secreto. Por favor recarga la página.",
+                "continue": "Continuar"
+            },
+            "step2": {
+                "instructions": "Ingresa el código de 6 dígitos que aparece en tu aplicación.",
+                "placeholder": "000 000",
+                "verify": "Verificar y Activar",
+                "back": "Volver al QR"
+            },
+            "step3": {
+                "success_title": "¡2FA Configurado!",
+                "success_desc": "Tu cuenta ahora es mucho más segura.",
+                "important_title": "IMPORTANTE",
+                "important_desc": "Si pierdes tu teléfono, estos códigos son la única forma de recuperar tu cuenta. Guárdalos en un lugar seguro.",
+                "no_backup_codes": "No se generaron códigos de respaldo (Revisar Backend)",
+                "download": "Descargar",
+                "go_to_dashboard": "Ir al Dashboard"
+            },
+            "toast_copy": "Copiado al portapapeles",
+            "toast_download": "Archivo descargado",
+            "toast_error_init": "Error al iniciar la configuración de seguridad.",
+            "toast_success": "¡Autenticación en dos pasos activada!",
+            "toast_error_verify": "Código incorrecto. Inténtalo de nuevo."
+        },
+        "SettingsPassword": {
+            "title": "Reglas de Contraseña",
+            "subtitle": "Define los requisitos de complejidad para tu cuenta.",
+            "card_title": "Política de Complejidad",
+            "card_desc": "Establece qué tan estrictas deben ser las contraseñas.",
+            "security": {
+                "strong": "Seguridad Fuerte",
+                "medium": "Seguridad Media",
+                "weak": "Seguridad Débil"
+            },
+            "min_length": {
+                "title": "Longitud Mínima de Caracteres",
+                "recommendation": "Recomendamos al menos 12 caracteres."
+            },
+            "uppercase": {
+                "title": "Mayúsculas",
+                "desc": "Requerir al menos una letra mayúscula (A-Z)"
+            },
+            "numbers": {
+                "title": "Números",
+                "desc": "Requerir al menos un número (0-9)"
+            },
+            "special": {
+                "title": "Caracteres Especiales",
+                "desc": "Requerir símbolos (!@#$%)"
+            },
+            "warning": "Una política débil hace que tu cuenta sea vulnerable a ataques de fuerza bruta.",
+            "save": "Guardar Reglas",
+            "saving": "Guardando...",
+            "toast_success": "Política de contraseñas actualizada"
+        },
+        "SettingsAlerts": {
+            "title": "Alertas de Inicio de Sesión",
+            "subtitle": "Recibe notificaciones sobre actividad sospechosa en tu cuenta.",
+            "status": {
+                "title": "Estado de Alertas",
+                "desc": "Activa o desactiva todas las notificaciones de seguridad."
+            },
+            "channels": {
+                "title": "Canales de envío",
+                "email": "Correo Electrónico",
+                "email_desc": "Enviar a tu email",
+                "sms": "Mensaje SMS",
+                "sms_desc": "Pueden aplicar cargos"
+            },
+            "frequency": {
+                "title": "Frecuencia de Notificación",
+                "placeholder": "Selecciona horario",
+                "always": "Siempre (24/7)",
+                "suspicious": "Solo actividad de alto riesgo",
+                "new_device": "Solo nuevos dispositivos"
+            },
+            "info": "Te recomendamos mantener activadas las alertas por correo para recibir avisos inmediatos si alguien accede a tu cuenta desde una ubicación desconocida.",
+            "save": "Guardar Cambios",
+            "saving": "Guardando...",
+            "toast_success": "Configuración de alertas actualizada"
+        },
+        "SettingsDevices": {
+            "title": "Dispositivos Conectados",
+            "subtitle": "Gestiona los dispositivos que tienen acceso a tu cuenta.",
+            "loading": "Cargando dispositivos...",
+            "empty": "No se encontraron dispositivos conectados.",
+            "current_device": "Este dispositivo",
+            "active_now": "Activo ahora",
+            "disconnect": "Desconectar",
+            "disconnect_dialog": {
+                "title": "¿Desconectar dispositivo?",
+                "desc": "Se cerrará la sesión en <strong>{device}</strong>. Si el dispositivo está siendo usado por alguien más, perderá el acceso inmediatamente.",
+                "cancel": "Cancelar",
+                "confirm": "Sí, desconectar",
+                "disconnecting": "Desconectando..."
+            },
+            "toast_success": "Dispositivo desconectado correctamente",
+            "toast_sim_success": "Dispositivo desconectado (Simulación)"
+        },
+        "SettingsActivity": {
+            "title": "Historial de Actividad",
+            "subtitle": "Monitorea los accesos y cambios de seguridad en tu cuenta.",
+            "export": "Exportar CSV",
+            "search_placeholder": "Buscar por IP, ubicación o actividad...",
+            "filter": {
+                "placeholder": "Filtrar por tipo",
+                "all": "Todos los eventos",
+                "success": "Exitosos",
+                "error": "Errores / Fallidos",
+                "warning": "Cambios Críticos"
+            },
+            "table": {
+                "activity": "Actividad",
+                "status": "Estado",
+                "location_ip": "Ubicación & IP",
+                "device": "Dispositivo",
+                "date": "Fecha"
+            },
+            "badges": {
+                "success": "Exitoso",
+                "error": "Fallido",
+                "warning": "Seguridad",
+                "info": "Info"
+            },
+            "loading": "Cargando historial...",
+            "empty": "No se encontraron registros que coincidan con tu búsqueda."
+        },
+        "StoreHub": {
+            "title": "Mi Tienda",
+            "subtitle": "Configura tu tienda pública para que los pacientes puedan descubrir y reservar tus servicios de forma digital.",
+            "badge_marketplace": "Marketplace",
+            "btn_publish": "Publicar Tienda",
+            "btn_publishing": "Publicando...",
+            "btn_active": "Tienda Activa",
+            "loading_title": "Analizando tu tienda",
+            "loading_subtitle": "Sincronizando servicios y configuración...",
+            "progress_title": "Progreso de Configuración",
+            "progress_subtitle": "{completed} de {total} secciones completadas",
+            "progress_complete": "¡Completo!",
+            "missing_steps": "Completa todas las secciones para poder publicar tu tienda.",
+            "steps": {
+                "identity": {
+                    "title": "Identidad Visual",
+                    "desc": "Logo, banner, colores y URL de tu tienda"
+                },
+                "services": {
+                    "title": "Catálogo de Servicios",
+                    "desc": "Tratamientos, precios y duración de consultas",
+                    "badge": "{count} creados"
+                },
+                "policies": {
+                    "title": "Políticas de Cita",
+                    "desc": "Reglas de cancelación y reprogramación"
+                },
+                "staff": {
+                    "title": "Equipo de Trabajo",
+                    "desc": "Agrega especialistas y asistentes a tu consultorio"
+                }
+            },
+            "status_completed": "Completado",
+            "status_continue": "Continuar",
+            "status_configure": "Configurar",
+            "ready_title": "¡Tu tienda está lista! 🎉",
+            "ready_desc": "Has completado toda la configuración. Ahora puedes publicar tu tienda y comenzar a recibir reservas.",
+            "help_title": "¿Necesitas ayuda con tu tienda?",
+            "help_desc": "Si tienes dudas sobre cómo configurar tu tienda o necesitas asistencia, nuestro equipo está aquí para ayudarte. Contáctanos en support@quhealthy.com"
+        }
     }
 }
