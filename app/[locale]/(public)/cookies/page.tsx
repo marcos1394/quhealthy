@@ -1,13 +1,22 @@
 "use client";
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/animations/FadeIn';
-import { Cookie, Printer } from 'lucide-react';
+import { Cookie, Printer, Search } from 'lucide-react';
 
 export default function CookiesPage() {
     const t = useTranslations('Legal.Cookies');
-    const sections = [0, 1, 2];
+    const [searchQuery, setSearchQuery] = useState("");
 
+    const allSections = [0, 1, 2];
+
+    const sections = allSections.filter(idx => {
+        const title = t(`sections.${idx}.title`).toLowerCase();
+        const content = t(`sections.${idx}.content`).toLowerCase();
+        const query = searchQuery.toLowerCase();
+        return title.includes(query) || content.includes(query);
+    });
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-24 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,6 +34,19 @@ export default function CookiesPage() {
                     <div className="hidden lg:block sticky top-32 space-y-8">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tabla de Contenidos</h3>
+
+                            {/* Search Bar */}
+                            <div className="relative mb-6">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar en el documento..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white placeholder:text-slate-500"
+                                />
+                            </div>
+
                             <nav className="space-y-3">
                                 {sections.map(idx => (
                                     <a key={idx} href={`#section-${idx}`} className="block text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
@@ -58,17 +80,23 @@ export default function CookiesPage() {
                         </StaggerItem>
 
                         <div className="space-y-16">
-                            {sections.map((index) => (
-                                <StaggerItem key={index} id={`section-${index}`} className="space-y-6 scroll-mt-32">
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        {t(`sections.${index}.title`)}
-                                    </h2>
-                                    <div className="h-1 w-12 bg-indigo-500 dark:bg-indigo-400 rounded-full"></div>
-                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
-                                        {t(`sections.${index}.content`)}
-                                    </p>
-                                </StaggerItem>
-                            ))}
+                            {sections.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <p className="text-slate-500 dark:text-slate-400">No se encontraron resultados para "{searchQuery}"</p>
+                                </div>
+                            ) : (
+                                sections.map((index) => (
+                                    <StaggerItem key={index} id={`section-${index}`} className="space-y-6 scroll-mt-32">
+                                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            {t(`sections.${index}.title`)}
+                                        </h2>
+                                        <div className="h-1 w-12 bg-indigo-500 dark:bg-indigo-400 rounded-full"></div>
+                                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
+                                            {t(`sections.${index}.content`)}
+                                        </p>
+                                    </StaggerItem>
+                                ))
+                            )}
                         </div>
                     </StaggerContainer>
                 </div>

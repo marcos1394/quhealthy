@@ -38,7 +38,7 @@ export const Header = () => {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="default" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
+              <Button aria-label="Open menu" variant="ghost" size="default" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
                 <Menu className="w-4 h-4" />
               </Button>
             </SheetTrigger>
@@ -57,7 +57,7 @@ export const Header = () => {
               className={cn("pl-9 pr-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 rounded-lg h-9 text-sm transition-all",
                 searchFocused ? "border-medical-500 ring-1 ring-medical-500/20" : "")} />
             {searchQuery && (
-              <Button variant="ghost" size="default" onClick={() => setSearchQuery("")}
+              <Button aria-label="Clear search" variant="ghost" size="default" onClick={() => setSearchQuery("")}
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-slate-900 dark:hover:text-white">
                 <X className="w-3 h-3" />
               </Button>
@@ -94,7 +94,7 @@ export const Header = () => {
       {/* Right */}
       <div className="flex items-center gap-1.5">
         <div className="md:hidden">
-          <Button variant="ghost" size="default" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
+          <Button aria-label="Search" variant="ghost" size="default" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
             <Search className="w-4 h-4" />
           </Button>
         </div>
@@ -102,7 +102,7 @@ export const Header = () => {
         {/* Notifications */}
         <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="default" className="relative text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
+            <Button aria-label="Open notifications" variant="ghost" size="default" className="relative text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5">
@@ -153,7 +153,7 @@ export const Header = () => {
         {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 gap-2 pl-1.5 pr-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+            <Button aria-label="User menu" variant="ghost" className="relative h-9 gap-2 pl-1.5 pr-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
               <Avatar className="h-7 w-7 border border-slate-200 dark:border-slate-700">
                 <AvatarImage src="/avatars/01.png" alt="@user" />
                 <AvatarFallback className="bg-medical-600 dark:bg-medical-500 text-white font-semibold text-xs">DR</AvatarFallback>

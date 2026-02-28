@@ -111,11 +111,11 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
         {/* Zoom Controls */}
         {!showStreetView && (
           <div className="absolute bottom-5 right-5 flex flex-col gap-px z-10">
-            <button onClick={() => map?.setZoom((map.getZoom() || 15) + 1)}
+            <button aria-label="Zoom in" onClick={() => map?.setZoom((map.getZoom() || 15) + 1)}
               className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white rounded-t-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <ZoomIn className="w-4 h-4" />
             </button>
-            <button onClick={() => map?.setZoom((map.getZoom() || 15) - 1)}
+            <button aria-label="Zoom out" onClick={() => map?.setZoom((map.getZoom() || 15) - 1)}
               className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-900/90 border-x border-b border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white rounded-b-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <ZoomOut className="w-4 h-4" />
             </button>

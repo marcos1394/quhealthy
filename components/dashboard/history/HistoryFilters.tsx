@@ -80,7 +80,7 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
           />
           <AnimatePresence>
             {searchTerm && (
-              <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+              <motion.button aria-label="Clear search" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
                 onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X className="w-3.5 h-3.5" />
               </motion.button>
@@ -160,7 +160,7 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
                     <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
                       <Search className="w-2.5 h-2.5" />
                       <span className="max-w-[100px] truncate">{searchTerm}</span>
-                      <button onClick={handleClearSearch} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear search" onClick={handleClearSearch} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
@@ -169,7 +169,7 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
                     <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
                       <Calendar className="w-2.5 h-2.5" />
                       {getFilterLabel("dateRange", filters.dateRange)}
-                      <button onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
@@ -178,7 +178,7 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
                     <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
                       <ListFilter className="w-2.5 h-2.5" />
                       {filters.type}
-                      <button onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
@@ -187,7 +187,7 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
                     <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 gap-1 text-xs">
                       <Filter className="w-2.5 h-2.5" />
                       {getFilterLabel("status", filters.status)}
-                      <button onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 hover:text-emerald-700 dark:hover:text-emerald-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 hover:text-emerald-700 dark:hover:text-emerald-300"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}

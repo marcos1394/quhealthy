@@ -73,9 +73,9 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ doc, onSelect, onDow
           </Badge>
           {showActions && (
             <motion.div initial={{ opacity: 0, x: -5 }} animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -5 }} className="flex items-center gap-0.5">
-              {onPreview && <button onClick={e => { e.stopPropagation(); onPreview(doc); }} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>}
-              {onDownload && <button onClick={e => { e.stopPropagation(); onDownload(doc); }} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>}
-              <button className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><MoreVertical className="w-3.5 h-3.5" /></button>
+              {onPreview && <button aria-label="Preview document" onClick={e => { e.stopPropagation(); onPreview(doc); }} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>}
+              {onDownload && <button aria-label="Download document" onClick={e => { e.stopPropagation(); onDownload(doc); }} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>}
+              <button aria-label="More options" className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"><MoreVertical className="w-3.5 h-3.5" /></button>
             </motion.div>
           )}
         </div>
