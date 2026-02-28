@@ -9,7 +9,7 @@ export default function CustomProvider({ children, ...props }: ThemeProviderProp
   return (
     <NextThemesProvider
       attribute="class"      // Usa clases de Tailwind (.dark) en lugar de data-attributes
-      defaultTheme="system"  // Soporte para Modo Claro y Oscuro según sistema
+      defaultTheme="light"   // Por defecto modo claro
       enableSystem={true}    // Permite respetar la preferencia del sistema operativo si el usuario cambia
       disableTransitionOnChange // Evita parpadeos molestos al cambiar de tema
       {...props}

@@ -1853,5 +1853,77 @@
             "btn_video_off": "Desactivar cámara",
             "btn_hangup": "Colgar"
         }
+    },
+    "Legal": {
+        "Terms": {
+            "title": "Términos y Condiciones",
+            "last_updated": "Última actualización: Febrero 2026",
+            "intro": "Bienvenido a QuHealthy. Estos Términos y Condiciones rigen tu uso de nuestra plataforma y servicios.",
+            "sections": [
+                {
+                    "title": "1. Aceptación de los Términos",
+                    "content": "Al acceder o utilizar QuHealthy, aceptas estar sujeto a estos Términos. Si no estás de acuerdo con alguna parte, no podrás usar nuestros servicios."
+                },
+                {
+                    "title": "2. Cuentas de Usuario",
+                    "content": "Eres responsable de mantener la confidencialidad de tus credenciales de acceso. Cualquier actividad bajo tu cuenta es tu responsabilidad."
+                },
+                {
+                    "title": "3. Reservas y Cancelaciones",
+                    "content": "Las citas pueden ser reservadas en tiempo real. Las cancelaciones deben hacerse al menos con 24 horas de anticipación para evitar una tarifa de penalidad."
+                },
+                {
+                    "title": "4. Descargo de Responsabilidad Médica",
+                    "content": "QuHealthy proporciona una plataforma para conectar con profesionales de salud. No brindamos consejo médico. Siempre busca el consejo de un proveedor de salud calificado."
+                }
+            ]
+        },
+        "Privacy": {
+            "title": "Aviso de Privacidad",
+            "last_updated": "Última actualización: Febrero 2026",
+            "intro": "Tu privacidad es importante para nosotros. Esta política explica cómo recopilamos, usamos y protegemos tus datos personales.",
+            "sections": [
+                {
+                    "title": "1. Información que Recopilamos",
+                    "content": "Recopilamos información personal como tu nombre, correo electrónico, detalles de pago y preferencias de salud cuando te registras o utilizas nuestros servicios."
+                },
+                {
+                    "title": "2. Cómo Usamos tu Información",
+                    "content": "Tus datos se utilizan para facilitar reservaciones, mejorar nuestra plataforma y comunicarnos contigo acerca de tus citas."
+                },
+                {
+                    "title": "3. Seguridad de Datos",
+                    "content": "Utilizamos encriptación estándar de la industria para proteger tus datos. TUS expedientes de salud son estrictamente confidenciales."
+                }
+            ]
+        },
+        "Cookies": {
+            "title": "Política de Cookies",
+            "last_updated": "Última actualización: Febrero 2026",
+            "intro": "Esta Política de Cookies explica cómo usamos cookies y tecnologías similares en nuestra plataforma.",
+            "sections": [
+                {
+                    "title": "1. ¿Qué son las Cookies?",
+                    "content": "Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo y nos ayudan a mejorar tu experiencia en QuHealthy."
+                },
+                {
+                    "title": "2. Tipos de Cookies que Usamos",
+                    "content": "Usamos cookies esenciales para la autenticación y cookies de analíticas para entender cómo nuestros usuarios interactúan con la plataforma."
+                },
+                {
+                    "title": "3. Gestión de Cookies",
+                    "content": "Puedes gestionar tus preferencias de cookies a través de la configuración de tu navegador. Sin embargo, deshabilitar ciertas cookies podría afectar la funcionalidad del sitio."
+                }
+            ]
+        },
+        "Sitemap": {
+            "title": "Mapa del sitio",
+            "description": "Encuentra lo que buscas con nuestro directorio completo del sitio.",
+            "categories": {
+                "platform": "Plataforma",
+                "company": "Compañía",
+                "legal": "Legal"
+            }
+        }
     }
 }

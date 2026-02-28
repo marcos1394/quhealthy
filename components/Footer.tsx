@@ -50,10 +50,10 @@ const Footer: React.FC = () => {
     <footer className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 py-16 font-sans transition-colors duration-300 border-t border-slate-200 dark:border-slate-800">
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-10">
 
-          {/* Columna 1: Marca y Propuesta (Ocupa 2 espacios en LG) */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Columna 1: Marca y Propuesta (Ocupa 4 espacios en MD y 2 en LG) */}
+          <div className="md:col-span-4 lg:col-span-2 space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

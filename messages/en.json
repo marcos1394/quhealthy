@@ -1853,5 +1853,77 @@
             "btn_video_off": "Turn off camera",
             "btn_hangup": "Hang up"
         }
+    },
+    "Legal": {
+        "Terms": {
+            "title": "Terms and Conditions",
+            "last_updated": "Last updated: February 2026",
+            "intro": "Welcome to QuHealthy. These Terms and Conditions govern your use of our platform and services.",
+            "sections": [
+                {
+                    "title": "1. Acceptance of Terms",
+                    "content": "By accessing or using QuHealthy, you agree to be bound by these Terms. If you do not agree with any part, you may not use our services."
+                },
+                {
+                    "title": "2. User Accounts",
+                    "content": "You are responsible for maintaining the confidentiality of your account credentials. Any activity under your account is your responsibility."
+                },
+                {
+                    "title": "3. Booking and Cancellations",
+                    "content": "Appointments can be booked in real time. Cancellations must be made at least 24 hours in advance to avoid a penalty fee."
+                },
+                {
+                    "title": "4. Medical Disclaimer",
+                    "content": "QuHealthy provides a platform to connect with professionals. We do not provide medical advice. Always seek the advice of a qualified health provider."
+                }
+            ]
+        },
+        "Privacy": {
+            "title": "Privacy Policy",
+            "last_updated": "Last updated: February 2026",
+            "intro": "Your privacy is important to us. This policy explains how we collect, use, and protect your personal data.",
+            "sections": [
+                {
+                    "title": "1. Information We Collect",
+                    "content": "We collect personal information such as your name, email, payment details, and health preferences when you register or use our services."
+                },
+                {
+                    "title": "2. How We Use Your Information",
+                    "content": "Your data is used to facilitate bookings, improve our platform, and communicate with you regarding your appointments."
+                },
+                {
+                    "title": "3. Data Security",
+                    "content": "We use industry-standard encryption to protect your data. Your health records are strictly confidential."
+                }
+            ]
+        },
+        "Cookies": {
+            "title": "Cookie Policy",
+            "last_updated": "Last updated: February 2026",
+            "intro": "This Cookie Policy explains how we use cookies and similar technologies on our platform.",
+            "sections": [
+                {
+                    "title": "1. What are Cookies?",
+                    "content": "Cookies are small text files stored on your device that help us improve your experience on QuHealthy."
+                },
+                {
+                    "title": "2. Types of Cookies We Use",
+                    "content": "We use essential cookies for authentication and analytics cookies to understand how our users interact with the platform."
+                },
+                {
+                    "title": "3. Managing Cookies",
+                    "content": "You can manage your cookie preferences through your browser settings. However, disabling certain cookies may affect site functionality."
+                }
+            ]
+        },
+        "Sitemap": {
+            "title": "Sitemap",
+            "description": "Find what you're looking for with our complete site directory.",
+            "categories": {
+                "platform": "Platform",
+                "company": "Company",
+                "legal": "Legal"
+            }
+        }
     }
 }
