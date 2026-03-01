@@ -54,7 +54,8 @@ export const authService = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>(
       `${BASE_AUTH}/login`,
-      data
+      data,
+      { withCredentials: true } // 🚀 PERMITE GUARDAR LA COOKIE
     );
     return response.data;
   },
@@ -65,7 +66,8 @@ export const authService = {
       {
         token: data.token,
         role: data.role,
-      }
+      },
+      { withCredentials: true } // 🚀 PERMITE GUARDAR LA COOKIE
     );
     return response.data;
   },
@@ -76,7 +78,8 @@ export const authService = {
 
   validateSession: async (): Promise<AuthResponse> => {
     const response = await axiosInstance.get<AuthResponse>(
-      `${BASE_AUTH}/session`
+      `${BASE_AUTH}/session`,
+      { withCredentials: true } // 🚀 ENVÍA LA COOKIE
     );
     return response.data;
   },
@@ -84,7 +87,8 @@ export const authService = {
   refreshToken: async (data: RefreshTokenRequest): Promise<RefreshTokenResponse> => {
     const response = await axiosInstance.post<RefreshTokenResponse>(
       `${BASE_AUTH}/refresh-token`,
-      data
+      data,
+      { withCredentials: true } // 🚀 ENVÍA LA COOKIE PARA OBTENER UN NUEVO TOKEN
     );
     return response.data;
   },
@@ -92,7 +96,8 @@ export const authService = {
   logout: async (data: LogoutRequest): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/logout`,
-      data
+      data,
+      { withCredentials: true } // 🚀 ENVÍA LA COOKIE PARA DESTRUIRLA EN EL BACKEND
     );
     return response.data;
   },
