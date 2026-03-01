@@ -1623,7 +1623,8 @@
             "cart_items": "ítems",
             "btn_continue": "Continuar al Pago",
             "new_label": "Nuevo"
-        },
+        }
+    },
         "PatientDashboard": {
             "greeting": "Hola, {name} 👋",
             "subtitle": "Gestiona tu salud y bienestar desde aquí.",
@@ -1852,8 +1853,7 @@
             "btn_video_on": "Activar cámara",
             "btn_video_off": "Desactivar cámara",
             "btn_hangup": "Colgar"
-        }
-    },
+        },
     "Legal": {
         "Terms": {
             "title": "Términos y Condiciones de Uso",
