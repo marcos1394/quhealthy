@@ -1,11 +1,12 @@
 // src/stores/SessionStore.ts
 import { create } from 'zustand';
-import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth'; // Nuevas interfaces
+import axios from 'axios'; // Importamos el axios genérico (sin interceptores) para el refresh
+import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 
 interface SessionState {
   // Estado
   token: string | null;
-  expiresAt: number | null; // Seguimiento de expiración sugerido en el plan 4.2
+  expiresAt: number | null;
   user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
   status: AuthStatus | null;
@@ -14,9 +15,12 @@ interface SessionState {
 
   // Acciones
   setSession: (authResponse: AuthResponse) => void;
-  updateToken: (payload: Partial<AuthResponse>) => void; // Para interceptor
+  updateToken: (payload: Partial<AuthResponse>) => void;
   clearSession: () => void;
   setLoading: (loading: boolean) => void;
+  
+  // 🚀 LA NUEVA ACCIÓN PROFESIONAL
+  initializeSession: () => Promise<void>; 
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -27,9 +31,11 @@ export const useSessionStore = create<SessionState>((set) => ({
   role: null,
   status: null,
   isAuthenticated: false,
-  isLoading: true, // Empieza cargando para que la app valide vía GET /session primero si es necesario
+  
+  // 🔥 Iniciar en TRUE es la mejor práctica. Evita parpadeos de UI no autorizada
+  isLoading: true, 
 
-  // Acción: Guardar Sesión (Login Exitoso o Refresco Maestro)
+  // Acción: Guardar Sesión (Login Exitoso)
   setSession: (response) => {
     set({
       token: response.token,
@@ -53,7 +59,7 @@ export const useSessionStore = create<SessionState>((set) => ({
     }));
   },
 
-  // Acción: Cerrar Sesión (No hay persistencia en origin así que basta setear memory a null)
+  // Acción: Cerrar Sesión
   clearSession: () => {
     set({
       token: null,
@@ -62,9 +68,49 @@ export const useSessionStore = create<SessionState>((set) => ({
       role: null,
       status: null,
       isAuthenticated: false,
-      isLoading: false, // Dejar en false para renderizar el fallback (login)
+      isLoading: false,
     });
   },
 
   setLoading: (loading) => set({ isLoading: loading }),
+
+  // =========================================================================
+  // 🚀 MAGIA DE SEGURIDAD: RESTAURAR SESIÓN AL RECARGAR (F5)
+  // =========================================================================
+  initializeSession: async () => {
+    try {
+      // Hacemos un post al endpoint de refresh. 
+      // Al tener withCredentials: true, el navegador envía la cookie HttpOnly automáticamente.
+      const response = await axios.post<AuthResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`, 
+        {}, 
+        { withCredentials: true }
+      );
+
+      // Si el backend nos da un token nuevo, restauramos la memoria
+      set({
+        token: response.data.token,
+        expiresAt: response.data.expiresIn ? Date.now() + response.data.expiresIn * 1000 : null,
+        user: response.data.user,
+        role: response.data.role,
+        status: response.data.status,
+        isAuthenticated: true,
+        isLoading: false, // Terminamos de cargar
+      });
+      
+      console.log("✅ [Auth] Sesión restaurada de forma segura vía HttpOnly Cookie");
+
+    } catch (error) {
+      // Si falla (no hay cookie o expiró), simplemente lo tratamos como "No logueado"
+      console.log("ℹ️ [Auth] No hay sesión activa. Usuario debe loguearse.");
+      set({
+        token: null,
+        user: null,
+        role: null,
+        status: null,
+        isAuthenticated: false,
+        isLoading: false, // 👈 CRÍTICO: pasarlo a false para que la app termine de cargar y muestre el Login
+      });
+    }
+  },
 }));
