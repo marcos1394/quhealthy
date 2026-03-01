@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { useTheme } from 'next-themes'; // 🚀 Importamos el detector de tema
 import {
   Loader2, Search, SlidersHorizontal, Star,
   ChevronRight, Sparkles, Navigation, PlayCircle, MapPin
@@ -22,6 +23,23 @@ const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
 const defaultCenter = { lat: 25.7904, lng: -108.9858 };
 
+// ☀️ ESTILO MODO CLARO
+const lightMapStyle = [
+  { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#333333" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.medical", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e5e5e5" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9d5e0" }] },
+];
+
+// 🌙 ESTILO MODO OSCURO
 const darkMapStyle = [
   { elementType: "geometry", stylers: [{ color: "#0f172a" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0f172a" }] },
@@ -34,14 +52,6 @@ const darkMapStyle = [
   { featureType: "transit", stylers: [{ visibility: "off" }] },
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#020617" }] },
 ];
-
-const mapOptions: google.maps.MapOptions = {
-  styles: darkMapStyle,
-  disableDefaultUI: true,
-  zoomControl: true,
-  gestureHandling: 'greedy',
-  clickableIcons: false,
-};
 
 // Provider Card
 const MapProviderCard = ({
@@ -85,24 +95,24 @@ const MapProviderCard = ({
       <div
         className={cn(
           "absolute inset-0 transition-opacity duration-500 blur-md pointer-events-none",
-          isSelected ? "opacity-50" : "opacity-0 group-hover:opacity-30"
+          isSelected ? "opacity-30 dark:opacity-50" : "opacity-0 group-hover:opacity-20 dark:group-hover:opacity-30"
         )}
         style={{ backgroundColor: provider.color }}
       />
 
       <div className={cn(
-        "relative h-full bg-slate-950/80 backdrop-blur-2xl rounded-[1.8rem] border flex flex-col overflow-hidden transition-colors",
-        isSelected ? "border-white/20" : "border-slate-700/30 hover:border-slate-600/50"
+        "relative h-full bg-white/90 dark:bg-slate-950/80 backdrop-blur-2xl rounded-[1.8rem] border flex flex-col overflow-hidden transition-colors",
+        isSelected ? "border-slate-300 dark:border-white/20" : "border-slate-200/50 dark:border-slate-700/30 hover:border-slate-300/80 dark:hover:border-slate-600/50"
       )}>
 
         {/* Media */}
-        <div className="h-32 md:h-40 w-full relative overflow-hidden bg-slate-950">
+        <div className="h-32 md:h-40 w-full relative overflow-hidden bg-slate-100 dark:bg-slate-950">
           <img
             src={provider.imageUrl || '/placeholder-banner.jpg'}
             alt={provider.name}
             className={cn(
               "absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105",
-              (isHovered || isSelected) && provider.previewVideoUrl ? "opacity-0" : "opacity-80"
+              (isHovered || isSelected) && provider.previewVideoUrl ? "opacity-0" : "opacity-90 dark:opacity-80"
             )}
           />
 
@@ -120,8 +130,9 @@ const MapProviderCard = ({
             />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 dark:from-slate-950 dark:via-transparent to-transparent" />
 
+          {/* OJO: Los badges sobre la imagen se quedan oscuros para contrastar con las fotos */}
           {provider.previewVideoUrl && !isHovered && !isSelected && (
             <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md rounded-full p-1.5 border border-white/10">
               <PlayCircle className="w-4 h-4 text-white/80" />
@@ -129,44 +140,46 @@ const MapProviderCard = ({
           )}
 
           {provider.isPremium && (
-            <Badge className="absolute top-3 left-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
+            <Badge className="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
               <Sparkles className="w-3 h-3 mr-1 text-amber-400" /> Premium
             </Badge>
           )}
 
-          <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span className="text-xs font-bold text-white">{provider.rating || '4.9'}</span>
-            <span className="text-[10px] text-slate-400">({provider.reviews || '0'})</span>
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/80 dark:bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-slate-200 dark:border-white/10 shadow-sm">
+            <Star className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400" />
+            <span className="text-xs font-bold text-slate-800 dark:text-white">{provider.rating || '4.9'}</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">({provider.reviews || '0'})</span>
           </div>
         </div>
 
         {/* Info */}
         <div className="p-4 flex-1 flex flex-col">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-bold text-lg text-white leading-tight line-clamp-1">{provider.name}</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight line-clamp-1">{provider.name}</h3>
             {provider.logoUrl && (
-              <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-full border border-white/10 bg-slate-900 flex-shrink-0 object-cover" />
+              <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 flex-shrink-0 object-cover shadow-sm" />
             )}
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-4">
-            <Badge variant="outline" className="border-slate-700 text-slate-300 font-medium truncate max-w-[120px]">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4">
+            <Badge variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium truncate max-w-[120px]">
               {provider.category || 'Especialista'}
             </Badge>
-            <span className="flex items-center text-medical-400 font-medium">
+            <span className="flex items-center text-medical-600 dark:text-medical-400 font-medium">
               <Navigation className="w-3 h-3 mr-1" />
               {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km` : '...'}
             </span>
           </div>
 
-          <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Disponible hoy</span>
+          <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">Disponible hoy</span>
             <Button
               size="sm"
               className={cn(
                 "rounded-xl font-bold transition-all h-8 px-4",
-                isSelected ? "text-white shadow-lg" : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                isSelected 
+                  ? "text-white shadow-lg" 
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
               )}
               style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
               onClick={(e) => {
@@ -193,6 +206,18 @@ const DiscoverMapContent = () => {
 
   const { providers, isLoading: isFetchingProviders } = useDiscover();
   const { coordinates, calculateDistance } = useGeolocation();
+  
+  // 🚀 Obtenemos el tema actual para el mapa
+  const { resolvedTheme } = useTheme();
+
+  // 🚀 Mapa dinámico según el tema
+  const dynamicMapOptions = useMemo<google.maps.MapOptions>(() => ({
+    disableDefaultUI: true,
+    zoomControl: true,
+    gestureHandling: 'greedy',
+    clickableIcons: false,
+    styles: resolvedTheme === 'dark' ? darkMapStyle : lightMapStyle,
+  }), [resolvedTheme]);
 
   const enrichedProviders = useMemo(() => {
     if (!providers) return [];
@@ -227,17 +252,17 @@ const DiscoverMapContent = () => {
 
   if (isFetchingProviders) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-slate-950">
+      <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 text-medical-500 animate-spin" />
-          <p className="text-slate-400 font-medium animate-pulse">{t('loading')}</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">{t('loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-[calc(100vh-64px)] bg-slate-950 overflow-hidden selection:bg-medical-500/30 font-sans">
+    <div className="relative w-full h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 overflow-hidden selection:bg-medical-500/30 font-sans transition-colors">
 
       <div className="absolute inset-0 z-0">
         <GoogleMap
@@ -246,7 +271,7 @@ const DiscoverMapContent = () => {
           center={mapCenter}
           onLoad={onMapLoad}
           onClick={() => setSelectedId(null)}
-          options={mapOptions}
+          options={dynamicMapOptions} // 🚀 Opciones dinámicas aplicadas
         >
           {coordinates && (
             <MarkerF
@@ -280,7 +305,7 @@ const DiscoverMapContent = () => {
                   fillColor: isSelected || isHovered ? provider.color : '#475569',
                   fillOpacity: 1,
                   strokeWeight: isSelected ? 2 : 1,
-                  strokeColor: isSelected ? '#ffffff' : '#1e293b',
+                  strokeColor: isSelected ? '#ffffff' : (resolvedTheme === 'dark' ? '#1e293b' : '#e2e8f0'), // Borde del pin adaptable
                   scale: isSelected ? 1.8 : 1.5,
                   anchor: new google.maps.Point(12, 24),
                 }}
@@ -291,23 +316,24 @@ const DiscoverMapContent = () => {
         </GoogleMap>
       </div>
 
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-slate-950/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/90 to-transparent z-10 pointer-events-none md:hidden" />
+      {/* Gradientes Superior e Inferior */}
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-slate-50/90 dark:from-slate-950/90 to-transparent z-10 pointer-events-none transition-colors" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-50/90 dark:from-slate-950/90 to-transparent z-10 pointer-events-none md:hidden transition-colors" />
 
       {/* Search Bar */}
       <div className="absolute top-6 left-4 right-4 md:left-8 md:w-[420px] z-20">
         <div className="flex items-center gap-2">
           <div className="relative flex-1 group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-medical-500 to-medical-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-            <div className="relative flex items-center bg-slate-950/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl px-4 py-3 shadow-2xl">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-medical-500 to-medical-400 rounded-2xl blur opacity-10 dark:opacity-20 group-hover:opacity-30 dark:group-hover:opacity-40 transition duration-500"></div>
+            <div className="relative flex items-center bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-2xl px-4 py-3 shadow-xl dark:shadow-2xl transition-colors">
               <Search className="w-5 h-5 text-slate-400 mr-3" />
               <Input
                 placeholder={t('search_placeholder')}
-                className="bg-transparent border-none p-0 h-auto text-white placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
+                className="bg-transparent border-none p-0 h-auto text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button variant="ghost" size="default" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 ml-2 rounded-xl">
+              <Button variant="ghost" size="default" className="h-8 w-8 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 ml-2 rounded-xl transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
               </Button>
             </div>
@@ -315,7 +341,7 @@ const DiscoverMapContent = () => {
         </div>
 
         {!coordinates && (
-          <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400/90 text-xs font-medium backdrop-blur-md">
+          <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-700 dark:text-amber-400/90 text-xs font-medium backdrop-blur-md shadow-sm transition-colors">
             <MapPin className="w-4 h-4" /> Activa tu ubicación para ver resultados exactos
           </div>
         )}
@@ -325,10 +351,10 @@ const DiscoverMapContent = () => {
       <div className="absolute bottom-6 left-0 w-full md:top-36 md:bottom-8 md:left-8 md:w-[420px] z-20 pointer-events-none">
 
         {enrichedProviders.length === 0 ? (
-          <div className="w-[90%] md:w-full mx-auto bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 text-center pointer-events-auto">
-            <Search className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-white font-bold text-lg">{t('no_results')}</h3>
-            <p className="text-slate-400 text-sm mt-2">{t('no_results_desc')}</p>
+          <div className="w-[90%] md:w-full mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-3xl p-8 text-center pointer-events-auto shadow-xl transition-colors">
+            <Search className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg">{t('no_results')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">{t('no_results_desc')}</p>
           </div>
         ) : (
           <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto w-full h-full gap-4 px-4 md:px-0 custom-scrollbar pointer-events-auto snap-x snap-mandatory pb-4 md:pb-0">
@@ -362,13 +388,13 @@ export default function DiscoverPageWrapper() {
     libraries,
   });
 
-  if (loadError) return <div className="h-screen w-full flex items-center justify-center bg-slate-950 text-rose-400 p-4 text-center">Error connecting to Google Maps.</div>;
+  if (loadError) return <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-rose-500 dark:text-rose-400 p-4 text-center transition-colors">Error connecting to Google Maps.</div>;
 
   if (!isLoaded) return (
-    <div className="h-screen w-full flex items-center justify-center bg-slate-950">
+    <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="w-10 h-10 text-medical-500 animate-spin" />
-        <p className="text-slate-500 text-sm font-medium animate-pulse">{t('loading')}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">{t('loading')}</p>
       </div>
     </div>
   );
