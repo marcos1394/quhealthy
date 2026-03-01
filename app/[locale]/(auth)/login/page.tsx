@@ -356,7 +356,7 @@ export default function LoginPage() {
               </p>
 
               <Link
-                href={userType === 'consumer' ? "/consumer-signup" : "/signup"}
+                href={userType === 'consumer' ? "/register" : "/provider/register"}
                 className="inline-flex items-center justify-center w-full h-14 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group"
               >
                 {t('create_account')}
