@@ -1623,8 +1623,10 @@
             "cart_items": "items",
             "btn_continue": "Continue to Payment",
             "new_label": "New"
-        },
-        "PatientDashboard": {
+        }
+      
+    },
+      "PatientDashboard": {
             "greeting": "Hello, {name} 👋",
             "subtitle": "Manage your health and wellness from here.",
             "loading": "Loading your wellness...",
@@ -1749,16 +1751,7 @@
             "btn_explore": "Explore Offers",
             "toast_error": "Error loading packages."
         },
-        "PatientDiscover": {
-            "loading": "Loading map...",
-            "search_placeholder": "Search by specialty or name...",
-            "near_you": "Near you",
-            "km_away": "km away",
-            "btn_book": "Book Appointment",
-            "rating": "Rating",
-            "no_results": "No results found",
-            "no_results_desc": "Try searching with different terms or expand your search area."
-        },
+       
         "PatientProfile": {
             "title": "My Profile",
             "subtitle": "Update your personal information and health preferences.",
@@ -1852,8 +1845,17 @@
             "btn_video_on": "Turn on camera",
             "btn_video_off": "Turn off camera",
             "btn_hangup": "Hang up"
-        }
-    },
+        },
+     "PatientDiscover": {
+            "loading": "Loading map...",
+            "search_placeholder": "Search by specialty or name...",
+            "near_you": "Near you",
+            "km_away": "km away",
+            "btn_book": "Book Appointment",
+            "rating": "Rating",
+            "no_results": "No results found",
+            "no_results_desc": "Try searching with different terms or expand your search area."
+        },
     "Legal": {
         "Terms": {
             "title": "Terms and Conditions of Use",

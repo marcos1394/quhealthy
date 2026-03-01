@@ -355,7 +355,7 @@ const DiscoverMapContent = () => {
 
 // Wrapper
 export default function DiscoverPageWrapper() {
-  const t = useTranslations('SettingsSubscription.patient_discover');
+  const t = useTranslations('PatientDiscover');
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
