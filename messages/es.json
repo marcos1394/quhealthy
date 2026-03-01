@@ -1808,6 +1808,7 @@
             "select_time": "Selecciona un horario",
             "btn_continue": "Continuar",
             "btn_back": "Volver",
+            "btn_checkout": "Ir al Pago",
             "btn_confirm": "Confirmar Cita",
             "optional": "Opcional",
             "btn_confirming": "Procesando...",

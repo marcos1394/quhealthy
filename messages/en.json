@@ -1797,6 +1797,7 @@
             "select_time": "Select a time slot",
             "btn_continue": "Continue",
             "btn_back": "Back",
+            "btn_checkout": "Proceed to Payment",
             "label_price": "Price",
             "optional":"Optional",
             "btn_confirm": "Confirm Appointment",
