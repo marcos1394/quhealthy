@@ -1797,9 +1797,11 @@
             "select_time": "Select a time slot",
             "btn_continue": "Continue",
             "btn_back": "Back",
+            "label_price": "Price",
+            "optional":"Optional",
             "btn_confirm": "Confirm Appointment",
             "btn_confirming": "Processing...",
-            "symptoms_label": "Describe your symptoms (optional)",
+            "label_symptoms": "Describe your symptoms (optional)",
             "symptoms_placeholder": "What discomfort do you have? How long?",
             "cart_summary": "Appointment Summary",
             "toast_error": "Error processing appointment"
@@ -1857,6 +1859,7 @@
             "no_results": "No results found",
             "no_results_desc": "Try searching with different terms or expand your search area."
         },
+
     "Legal": {
         "Terms": {
             "title": "Terms and Conditions of Use",

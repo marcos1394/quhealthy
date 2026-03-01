@@ -1801,6 +1801,7 @@
             "loading": "Cargando disponibilidad...",
             "step_date": "Fecha",
             "step_time": "Hora",
+            "label_price": "Precio",
             "step_confirm": "Confirmar",
             "no_slots": "No hay horarios disponibles para esta fecha",
             "select_date": "Selecciona una fecha",
@@ -1808,8 +1809,9 @@
             "btn_continue": "Continuar",
             "btn_back": "Volver",
             "btn_confirm": "Confirmar Cita",
+            "optional": "Opcional",
             "btn_confirming": "Procesando...",
-            "symptoms_label": "Describe tus síntomas (opcional)",
+            "label_symptoms": "Describe tus síntomas (opcional)",
             "symptoms_placeholder": "¿Qué molestias tienes? ¿Desde cuándo?",
             "cart_summary": "Resumen de tu cita",
             "toast_error": "Error al procesar la cita"
