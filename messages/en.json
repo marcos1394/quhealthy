@@ -1857,6 +1857,7 @@
             "km_away": "km away",
             "btn_book": "Book Appointment",
             "rating": "Rating",
+            "btn_view_store": "View Store",
             "no_results": "No results found",
             "no_results_desc": "Try searching with different terms or expand your search area."
         },

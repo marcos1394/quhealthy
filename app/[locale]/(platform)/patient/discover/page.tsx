@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { useDiscover } from '@/hooks/useDiscover';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { DiscoverProvider } from '@/types/discover';
+import router, { useRouter } from 'next/router';
 
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
@@ -69,6 +70,8 @@ const MapProviderCard = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter(); // 🚀 3. Instanciar el router
+  const t = useTranslations('PatientDiscover'); // 🚀 4. Instanciar traducciones
 
   useEffect(() => {
     if ((isHovered || isSelected) && videoRef.current) {
@@ -173,22 +176,24 @@ const MapProviderCard = ({
 
           <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">Disponible hoy</span>
-            <Button
-              size="sm"
-              className={cn(
-                "rounded-xl font-bold transition-all h-8 px-4",
-                isSelected 
-                  ? "text-white shadow-lg" 
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
-              )}
-              style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(`/provider/store/${provider.slug}`, '_blank');
-              }}
-            >
-              Ver Tienda <ChevronRight className="w-3 h-3 ml-1" />
-            </Button>
+          <Button
+  size="sm"
+  className={cn(
+    "rounded-xl font-bold transition-all h-8 px-4",
+    isSelected 
+      ? "text-white shadow-lg" 
+      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+  )}
+  style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
+  onClick={(e) => {
+    e.stopPropagation();
+    // 🚀 Navegación líquida en la misma pestaña sin perder la memoria RAM
+    router.push(`/provider/store/${provider.slug}`);
+  }}
+>
+  {/* 🚀 Llave de traducción con valor por defecto de respaldo */}
+  {t('btn_view_store', { defaultValue: 'Ver Tienda' })} <ChevronRight className="w-3 h-3 ml-1" />
+</Button>
           </div>
         </div>
       </div>
