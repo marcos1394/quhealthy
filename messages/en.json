@@ -1499,8 +1499,10 @@
             },
             "loading": "Loading history...",
             "empty": "No records found matching your search."
-        },
-        "StoreHub": {
+        }
+      
+    },
+     "StoreHub": {
             "title": "My Store",
             "subtitle": "Configure your public store so patients can digitally discover and book your services.",
             "badge_marketplace": "Marketplace",
@@ -1623,9 +1625,8 @@
             "cart_items": "items",
             "btn_continue": "Continue to Payment",
             "new_label": "New"
-        }
-      
-    },
+        },
+
       "PatientDashboard": {
             "greeting": "Hello, {name} 👋",
             "subtitle": "Manage your health and wellness from here.",
