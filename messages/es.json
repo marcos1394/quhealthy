@@ -1499,7 +1499,10 @@
             },
             "loading": "Cargando historial...",
             "empty": "No se encontraron registros que coincidan con tu búsqueda."
-        },
+        }
+    },
+
+
         "StoreHub": {
             "title": "Mi Tienda",
             "subtitle": "Configura tu tienda pública para que los pacientes puedan descubrir y reservar tus servicios de forma digital.",
@@ -1623,8 +1626,8 @@
             "cart_items": "ítems",
             "btn_continue": "Continuar al Pago",
             "new_label": "Nuevo"
-        }
-    },
+        },
+
         "PatientDashboard": {
             "greeting": "Hola, {name} 👋",
             "subtitle": "Gestiona tu salud y bienestar desde aquí.",
