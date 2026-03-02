@@ -652,6 +652,59 @@
         "success_toast": "Identity Verified! Proceeding...",
         "pending_toast": "You still have pending or rejected documents."
     },
+  
+  "PatientDashboard": {
+    "greeting": "Hello, {name}! 👋",
+    "subtitle": "Here is a summary of your medical activity.",
+    "loading": "Preparing your health dashboard...",
+    "error_title": "There was a problem",
+    "btn_retry": "Retry",
+    "fallback_name": "Patient",
+    "next_badge": "UPCOMING APPOINTMENT",
+    "btn_details": "Manage Appointment",
+    "empty_title": "Your schedule is clear",
+    "empty_desc": "You have no upcoming appointments. Time for a check-up?",
+    "btn_search": "Find a Doctor",
+    "card_history": "Medical History",
+    "card_history_desc": "Access your diagnoses, prescriptions, and lab results.",
+    "card_history_link": "Explore Documents",
+    "card_profile": "My Profile",
+    "card_profile_desc": "Manage your contact info, insurance, and family members.",
+    "card_profile_link": "Update Profile",
+    
+    "Widget": {
+      "loading": "Calculating your index...",
+      "cta_title": "Unlock your QuHealthScore™",
+      "cta_desc": "Discover your smart health index. Answer 5 quick questions to track your progress and receive personalized goals.",
+      "cta_button": "Generate My Smart Score",
+      "level": "Level: {band}"
+    },
+    "Modal": {
+      "title": "Your Health Profile",
+      "subtitle": "Step {current} of {total}",
+      "btn_next": "Next",
+      "btn_back": "Back",
+      "btn_submit": "Generate Score",
+      "step1_title": "Basic Biometrics",
+      "weight_label": "Weight (kg)",
+      "height_label": "Height (cm)",
+      "step2_title": "Physical Activity",
+      "activity_label": "Activity Level",
+      "act_sedentary": "Sedentary (Little to no exercise)",
+      "act_light": "Light (1-2 days/week)",
+      "act_moderate": "Moderate (3-4 days/week)",
+      "act_high": "High (5-6 days/week)",
+      "act_athlete": "Athlete (Pro training)",
+      "step3_title": "Daily Habits",
+      "smoker_label": "Do you currently smoke?",
+      "yes": "Yes",
+      "no": "No",
+      "water_label": "Daily Water (Liters)",
+      "step4_title": "Mental Wellness",
+      "stress_label": "Recent stress level (1-10)",
+      "sleep_label": "Average sleep hours"
+    }
+  },
     "DashboardAppointments": {
         "title": "Appointments",
         "subtitle": "Manage and track your patient appointments.",
@@ -1627,23 +1680,7 @@
             "new_label": "New"
         },
 
-      "PatientDashboard": {
-            "greeting": "Hello, {name} 👋",
-            "subtitle": "Manage your health and wellness from here.",
-            "loading": "Loading your wellness...",
-            "next_badge": "Next Appointment",
-            "btn_details": "View Details",
-            "empty_title": "All clear",
-            "empty_desc": "You have no upcoming appointments. Time for a checkup?",
-            "btn_search": "Find a Specialist",
-            "card_history": "History",
-            "card_history_desc": "Review your past appointments and prescriptions.",
-            "card_history_link": "View full history",
-            "card_profile": "My Profile",
-            "card_profile_desc": "Update your details and preferences.",
-            "card_profile_link": "Manage account",
-            "fallback_name": "Patient"
-        },
+      
         "PatientAppointments": {
             "title": "My Appointments",
             "subtitle": "Manage your bookings and check your history",

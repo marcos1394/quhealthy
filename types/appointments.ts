@@ -1,5 +1,9 @@
 // types/appointment.ts
 
+// ==========================================
+// ENUMS Y TIPOS LITERALES (Backend Match)
+// ==========================================
+
 export type AppointmentStatus = 
   | 'PENDING' 
   | 'PENDING_PAYMENT' 
@@ -25,7 +29,14 @@ export type PaymentStatus =
   | 'REFUND_PENDING' 
   | 'FAILED';
 
-// El DTO que devuelve el backend (AppointmentResponse)
+// ==========================================
+// INTERFACES DE DOMINIO (Entidades)
+// ==========================================
+
+/**
+ * Representa una cita completa tal cual llega del Backend.
+ * Incluye snapshots para evitar joins costosos en la UI.
+ */
 export interface Appointment {
   id: number;
   
@@ -44,7 +55,7 @@ export interface Appointment {
   
   // Modalidad
   type: AppointmentType;
-  appointmentType?: AppointmentType; // Por retrocompatibilidad si lo usabas
+  appointmentType?: AppointmentType; // Retrocompatibilidad
   meetLink?: string;
   locationAddress?: string;
   
@@ -62,37 +73,44 @@ export interface Appointment {
   packageReferenceId?: number;
   productsToDeliver?: Record<string, any>;
   
-  // Extras
+  // Extras / Notas
   consumerSymptoms?: string;
   cancellationReason?: string;
-  cancelReason?: string; // Por retrocompatibilidad
+  cancelReason?: string; // Retrocompatibilidad
   
-  // Snapshots para la UI de éxito
+  // Snapshots para la UI (Campos calculados o nombres directos)
   serviceNameSnapshot?: string;
   providerNameSnapshot?: string;
   providerPhoneSnapshot?: string;
   consumerNameSnapshot?: string;
-  consumerName?: string; // Por retrocompatibilidad
+  consumerName?: string; // Retrocompatibilidad
   consumerEmailSnapshot?: string;
   totalPrice?: number;
   
-  // Tiempos
+  // Tiempos de sistema
   cancelledAt?: string; // ISO 8601
   createdAt?: string;   // ISO 8601
+
+  // Relaciones anidadas (si el endpoint las incluye)
+  provider?: {
+    name: string;
+    image?: string;
+    specialty?: string;
+  };
+  consumer?: {
+    name: string;
+    email?: string;
+  };
 }
 
-// El DTO para reprogramar
-export interface ReschedulePayload {
-  newStartTime: string; // ISO 8601
-}
-
-// types/appointments.ts
-
+/**
+ * Estructura específica para la lista detallada del Proveedor/Doctor
+ */
 export interface ProviderAppointment {
   id: number;
-  status: 'pending' | 'confirmed' | 'completed' | 'canceled_by_provider' | 'canceled_by_consumer';
-  startTime: string; // ISO String
-  endTime: string;   // ISO String
+  status: AppointmentStatus;
+  startTime: string; 
+  endTime: string;   
   provider: { 
     name: string; 
   };
@@ -101,33 +119,48 @@ export interface ProviderAppointment {
   };
   service: { 
     name: string;
-    serviceDeliveryType: 'in_person' | 'video_call'; 
+    serviceDeliveryType: 'IN_PERSON' | 'ONLINE' | string; 
   };
 }
 
 // ==========================================
-// INTERFAZ PARA LA UI DEL CALENDARIO
+// PAYLOADS (Peticiones al API)
 // ==========================================
+
+export interface ReschedulePayload {
+  newStartTime: string; // ISO 8601
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+// ==========================================
+// INTERFAZ PARA LA UI DEL CALENDARIO (FullCalendar/Custom)
+// ==========================================
+
 export interface CalendarEvent {
   id: string | number;
   title: string;
   start: Date | string;
   end: Date | string;
-  
-  // 🎨 Estilos inyectados por la vista
   backgroundColor?: string;
   borderColor?: string;
-  textColor?: string; // 🚀 Añadido para el contraste del texto en las "píldoras"
-  className?: string; // 🚀 Añadido para inyectar clases CSS personalizadas ('apple-calendar-event')
+  textColor?: string;
+  className?: string;
   
-  // 📦 Datos de negocio (La carga útil)
   extendedProps?: {
-    status?: 'confirmed' | 'pending' | 'completed' | 'cancelled' | string;
+    status?: string; // 🚀 Cambiado a string para aceptar los valores mapeados ('confirmed', etc.)
+    rawStatus?: AppointmentStatus; // 🚀 Guardamos el original por si lo necesitamos para lógica pesada
     clientName?: string;
     providerName?: string;
-    type?: string; // ej. 'APPOINTMENT' o 'TIME_BLOCK'
+    type?: AppointmentType; 
     notes?: string;
-    modality?: 'ONLINE' | 'IN_PERSON' | string; // 🚀 Para el ícono de Videollamada vs Clínica
-    paymentStatus?: 'SETTLED' | 'PENDING_PAYMENT' | string; // 🚀 Para el estado de facturación en el Modal
+    modality?: AppointmentType;
+    paymentStatus?: PaymentStatus;
   };
 }

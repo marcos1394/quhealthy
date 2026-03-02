@@ -1,218 +1,117 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Loader2, Calendar, Clock, User, ArrowRight, Search } from 'lucide-react';
-import { formatInTimeZone } from 'date-fns-tz';
-import { es } from 'date-fns/locale';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard';
 
-// Store
+// Componentes Extraídos
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { NextAppointmentHero } from '@/components/dashboard/NextAppointmentHero';
+import { QuickAccessCards } from '@/components/dashboard/QuickAccessCards';
+import { HealthScoreWidget } from '@/components/dashboard/HealthScoreWidget';
+import { HealthOnboardingModal } from '@/components/dashboard/HealthOnboardingModal';
+
+// Store & Hooks
 import { useSessionStore } from '@/stores/SessionStore';
-
-// Tipos
-interface Appointment {
-    id: number;
-    status: 'pending' | 'confirmed' | 'completed' | 'canceled';
-    startTime: string;
-    provider: {
-        name: string;
-        image?: string;
-        specialty?: string
-    };
-    service: { name: string };
-    location?: string;
-}
-
-// Mock Data
-const mockAppointments: Appointment[] = [
-    {
-        id: 1,
-        status: 'confirmed',
-        startTime: new Date(Date.now() + 86400000).toISOString(),
-        provider: { name: "Dr. Roberto Casas", specialty: "Dentista" },
-        service: { name: "Limpieza Dental Profunda" },
-        location: "Av. Reforma 222, CDMX"
-    }
-];
+import { useConsumerDashboard } from '@/hooks/useConsumerDashboard';
+import { useHealthScore } from '@/hooks/useHealthScore'; // 🚀 Hook de Salud
 
 export default function ConsumerDashboardPage() {
-    const { user } = useSessionStore();
-    const router = useRouter();
-    const t = useTranslations('PatientDashboard');
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const { user } = useSessionStore();
+  const router = useRouter();
+  const t = useTranslations('PatientDashboard');
+  
+  // 1. Hook del Dashboard (Citas)
+  const { nextAppointment, isLoading: isDashboardLoading, error: dashboardError } = useConsumerDashboard();
+  
+  // 2. Hook de Salud (Score) - ELEVADO AQUÍ
+  const { 
+    scoreData, 
+    isLoading: isScoreLoading, 
+    isSubmitting, 
+    fetchMyScore, 
+    submitHealthProfile 
+  } = useHealthScore();
+  
+  // 3. Estado local del Modal
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setAppointments(mockAppointments);
-            setIsLoading(false);
-        }, 800);
-    }, []);
+  // Cargar el score al montar la página
+  useEffect(() => {
+    fetchMyScore();
+  }, [fetchMyScore]);
 
-    const nextAppointment = useMemo(() => {
-        const upcoming = appointments
-            .filter(appt => new Date(appt.startTime) > new Date() && appt.status === 'confirmed')
-            .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-        return upcoming.length > 0 ? upcoming[0] : null;
-    }, [appointments]);
-
-    if (isLoading) {
-        return (
-            <div className="flex flex-col justify-center items-center h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
-                <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
-                <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
-            </div>
-        );
-    }
-
-    const firstName = user?.firstName || t('fallback_name');
-
+  // Pantallas de Carga/Error generales (Solo para los datos críticos del dashboard)
+  if (isDashboardLoading) {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-            >
-
-                {/* Header */}
-                <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {t('greeting', { name: firstName })}
-                    </h1>
-                    <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 mt-2">
-                        {t('subtitle')}
-                    </p>
-                </div>
-
-                {/* Contenedor Principal: Cita Destacada + Health Score */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Tarjeta de Próxima Cita (Destacada) */}
-                    <div className="lg:col-span-2 relative overflow-hidden h-full rounded-2xl bg-gradient-to-br from-medical-700 to-medical-900 dark:from-medical-800 dark:to-medical-950 p-8 shadow-xl border border-medical-500/30 flex flex-col justify-center">
-                        {/* Decoración de fondo */}
-                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-medical-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-                        {nextAppointment ? (
-                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-medical-100 text-xs font-semibold uppercase tracking-wider">
-                                        <Calendar className="w-3 h-3" /> {t('next_badge')}
-                                    </div>
-
-                                    <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-                                        {nextAppointment.service.name}
-                                    </h2>
-
-                                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-medical-100">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar className="h-10 w-10 border-2 border-white/30">
-                                                <AvatarFallback className="bg-white/10 text-white font-bold">
-                                                    {nextAppointment.provider.name.charAt(0)}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-semibold text-white">{nextAppointment.provider.name}</p>
-                                                <p className="text-xs text-medical-200">{nextAppointment.provider.specialty}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="h-10 w-[1px] bg-white/20 hidden sm:block"></div>
-
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <Calendar className="w-4 h-4 text-medical-200" />
-                                                <span className="font-medium">
-                                                    {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "EEEE d 'de' MMMM", { locale: es })}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="w-4 h-4 text-medical-200" />
-                                                <span>
-                                                    {formatInTimeZone(new Date(nextAppointment.startTime), 'UTC', "h:mm a", { locale: es })}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="w-full md:w-auto mt-4 md:mt-0">
-                                    <Button
-                                        onClick={() => router.push(`/patient/appointments/${nextAppointment.id}`)}
-                                        className="w-full md:w-auto bg-white text-medical-900 hover:bg-medical-50 font-bold py-6 px-8 rounded-xl shadow-lg transition-all hover:scale-105"
-                                    >
-                                        {t('btn_details')}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8 text-center space-y-4 relative z-10 w-full h-full text-white">
-                                <div className="p-4 bg-white/10 rounded-full border border-white/20">
-                                    <Search className="w-8 h-8 text-medical-200" />
-                                </div>
-                                <h3 className="text-xl font-bold">{t('empty_title')}</h3>
-                                <p className="text-medical-100 max-w-sm font-light">
-                                    {t('empty_desc')}
-                                </p>
-                                <Button
-                                    onClick={() => router.push('/search')}
-                                    className="bg-white text-medical-900 hover:bg-medical-50 mt-4 rounded-xl font-bold px-8 shadow-md"
-                                >
-                                    {t('btn_search')}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Health Score / Profile Arc Card */}
-                    <div className="h-full">
-                        <HealthScoreCard score={88} title="Health Index" subtitle="Based on your recent tests and activity" />
-                    </div>
-                </div>
-
-                {/* Grid de Accesos Rápidos */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <Card
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-medical-400 dark:hover:border-medical-500/50 transition-all cursor-pointer group shadow-sm"
-                        onClick={() => router.push('/patient/dashboard/appointments')}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">{t('card_history')}</CardTitle>
-                            <Clock className="w-5 h-5 text-slate-400 group-hover:text-medical-500 transition-colors" />
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{t('card_history_desc')}</p>
-                            <div className="text-xs font-semibold text-medical-600 dark:text-medical-400 flex items-center">
-                                {t('card_history_link')} <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-medical-400 dark:hover:border-medical-500/50 transition-all cursor-pointer group shadow-sm"
-                        onClick={() => router.push('/patient/profile')}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">{t('card_profile')}</CardTitle>
-                            <User className="w-5 h-5 text-slate-400 group-hover:text-medical-500 transition-colors" />
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{t('card_profile_desc')}</p>
-                            <div className="text-xs font-semibold text-medical-600 dark:text-medical-400 flex items-center">
-                                {t('card_profile_link')} <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-            </motion.div>
-        </div>
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
+        <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
+        <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
+      </div>
     );
+  }
+
+  if (dashboardError) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-6 px-4 text-center bg-slate-50 dark:bg-slate-950">
+        <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-full">
+          <AlertCircle className="w-10 h-10 text-red-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('error_title')}</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-xs">{dashboardError}</p>
+        </div>
+        <Button variant="outline" onClick={() => window.location.reload()}>{t('btn_retry')}</Button>
+      </div>
+    );
+  }
+
+  const firstName = user?.firstName || t('fallback_name');
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
+        {/* --- HEADER --- */}
+        <DashboardHeader firstName={firstName} />
+
+        {/* --- SECCIÓN PRINCIPAL --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <NextAppointmentHero 
+            appointment={nextAppointment}
+            onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
+            onSearch={() => router.push('/search')}
+          />
+
+          <div className="h-full">
+            {/* Le pasamos el estado y la función para abrir el modal */}
+            <HealthScoreWidget 
+              scoreData={scoreData}
+              isLoading={isScoreLoading}
+              onOpenOnboarding={() => setIsOnboardingOpen(true)} 
+            />
+          </div>
+        </div>
+
+        {/* --- ACCESOS RÁPIDOS --- */}
+        <QuickAccessCards />
+
+        {/* 🚀 MODAL DE ONBOARDING DE SALUD */}
+        <HealthOnboardingModal 
+          isOpen={isOnboardingOpen} 
+          onClose={() => setIsOnboardingOpen(false)} 
+          onSubmit={submitHealthProfile}
+          isSubmitting={isSubmitting}
+        />
+      </motion.div>
+    </div>
+  );
 }

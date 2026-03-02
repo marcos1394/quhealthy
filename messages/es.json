@@ -652,6 +652,60 @@
         "success_toast": "¡Identidad Verificada! Avanzando...",
         "pending_toast": "Aún tienes documentos pendientes o rechazados."
     },
+    
+  "PatientDashboard": {
+    "greeting": "¡Hola, {name}! 👋",
+    "subtitle": "Aquí tienes un resumen de tu actividad médica.",
+    "loading": "Preparando tu salud...",
+    "error_title": "Hubo un problema",
+    "btn_retry": "Reintentar",
+    "fallback_name": "Paciente",
+    "next_badge": "PRÓXIMA CITA",
+    "btn_details": "Gestionar Cita",
+    "empty_title": "Tu agenda está libre",
+    "empty_desc": "No tienes citas programadas próximamente. ¿Es momento de un chequeo?",
+    "btn_search": "Encontrar Médico",
+    "card_history": "Historial Médico",
+    "card_history_desc": "Accede a tus diagnósticos, recetas y resultados de laboratorio.",
+    "card_history_link": "Explorar Documentos",
+    "card_profile": "Mi Expediente",
+    "card_profile_desc": "Gestiona tu información de contacto, seguros y familiares.",
+    "card_profile_link": "Actualizar Perfil",
+    
+    "Widget": {
+      "loading": "Calculando tu índice...",
+      "cta_title": "Desbloquea tu QuHealthScore™",
+      "cta_desc": "Descubre tu índice de salud inteligente. Responde 5 preguntas rápidas para monitorear tu progreso y recibir metas personalizadas.",
+      "cta_button": "Generar mi Score Inteligente",
+      "level": "Nivel: {band}"
+    },
+    "Modal": {
+      "title": "Tu Perfil de Salud",
+      "subtitle": "Paso {current} de {total}",
+      "btn_next": "Siguiente",
+      "btn_back": "Atrás",
+      "btn_submit": "Generar Score",
+      "step1_title": "Biometría Básica",
+      "weight_label": "Peso (kg)",
+      "height_label": "Altura (cm)",
+      "step2_title": "Actividad Física",
+      "activity_label": "Nivel de Actividad",
+      "act_sedentary": "Sedentario (Poco o nulo)",
+      "act_light": "Ligero (1-2 días/sem)",
+      "act_moderate": "Moderado (3-4 días/sem)",
+      "act_high": "Alto (5-6 días/sem)",
+      "act_athlete": "Atleta (Entrenamiento profesional)",
+      "step3_title": "Hábitos Diarios",
+      "smoker_label": "¿Fumas actualmente?",
+      "yes": "Sí",
+      "no": "No",
+      "water_label": "Agua al día (Litros)",
+      "step4_title": "Bienestar Mental",
+      "stress_label": "Nivel de estrés reciente (1-10)",
+      "sleep_label": "Horas de sueño promedio"
+    }
+  },
+
     "DashboardAppointments": {
         "title": "Citas",
         "subtitle": "Gestiona y da seguimiento a las citas de tus pacientes.",
@@ -1628,23 +1682,7 @@
             "new_label": "Nuevo"
         },
 
-        "PatientDashboard": {
-            "greeting": "Hola, {name} 👋",
-            "subtitle": "Gestiona tu salud y bienestar desde aquí.",
-            "loading": "Cargando tu bienestar...",
-            "next_badge": "Próxima Cita",
-            "btn_details": "Ver Detalles",
-            "empty_title": "Todo despejado",
-            "empty_desc": "No tienes citas programadas próximamente. ¿Es hora de un chequeo?",
-            "btn_search": "Buscar Especialista",
-            "card_history": "Historial",
-            "card_history_desc": "Revisa tus citas pasadas y recetas.",
-            "card_history_link": "Ver historial completo",
-            "card_profile": "Mi Perfil",
-            "card_profile_desc": "Actualiza tus datos y preferencias.",
-            "card_profile_link": "Gestionar cuenta",
-            "fallback_name": "Paciente"
-        },
+      
         "PatientAppointments": {
             "title": "Mis Citas",
             "subtitle": "Gestiona tus reservas y consulta tu historial",
@@ -1796,6 +1834,8 @@
             "toast_saved": "Perfil actualizado correctamente",
             "toast_error": "Error al guardar el perfil"
         },
+        
+
         "PatientBooking": {
             "title": "Agenda tu Cita",
             "subtitle": "Selecciona fecha y hora para tu consulta",
