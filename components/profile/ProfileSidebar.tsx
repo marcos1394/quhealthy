@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { User, HeartPulse, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSessionStore } from '@/stores/SessionStore';
+import { ConsumerProfile } from '@/types/consumerProfile';
 
 export const SECTIONS = [
     { id: 0, value: 'personal', titleKey: 'section_personal', icon: User },
@@ -12,12 +13,37 @@ export const SECTIONS = [
     { id: 2, value: 'preferences', titleKey: 'section_preferences', icon: Sparkles },
 ];
 
+/**
+ * Calcula el porcentaje de completitud basándose en los campos
+ * realmente llenos del perfil, no en el tab actual.
+ */
+function calculateProgress(form: ConsumerProfile): number {
+    const checks = [
+        // Sección 1: Identidad y Contacto (5 campos)
+        !!form.fullName?.trim(),
+        !!form.birthDate?.trim(),
+        !!form.gender?.trim(),
+        !!form.phoneNumber?.trim(),
+        !!form.location?.trim(),
+        // Sección 2: Expediente Clínico (3 campos)
+        (form.medicalConditions?.length ?? 0) > 0,
+        (form.allergies?.length ?? 0) > 0,
+        (form.currentMedications?.length ?? 0) > 0,
+        // Sección 3: Preferencias (2 campos)
+        (form.healthGoals?.length ?? 0) > 0,
+        !!form.preferredModality?.trim(),
+    ];
+    const filled = checks.filter(Boolean).length;
+    return Math.round((filled / checks.length) * 100);
+}
+
 interface ProfileHeaderProps {
     currentSection: number;
     setCurrentSection: (id: number) => void;
+    form: ConsumerProfile;
 }
 
-export function ProfileSidebar({ currentSection, setCurrentSection }: ProfileHeaderProps) {
+export function ProfileSidebar({ currentSection, setCurrentSection, form }: ProfileHeaderProps) {
     const t = useTranslations('PatientProfile');
     const { user } = useSessionStore();
 
@@ -27,7 +53,7 @@ export function ProfileSidebar({ currentSection, setCurrentSection }: ProfileHea
     const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?';
     const fullName = `${firstName} ${lastName}`.trim() || t('title', { defaultValue: 'Perfil de Salud' });
 
-    const progressPercentage = Math.round(((currentSection + 1) / SECTIONS.length) * 100);
+    const progressPercentage = calculateProgress(form);
 
     return (
         <div className="space-y-8">
