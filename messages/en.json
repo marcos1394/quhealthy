@@ -1676,6 +1676,31 @@
         "btn_continue": "Continue to Payment",
         "new_label": "New"
     },
+    "HealthVault": {
+        "title": "My Clinical Record",
+        "subtitle": "Your encrypted health vault. Upload labs or prescriptions, and our AI will automatically extract relevant clinical data.",
+        "docs_title": "Your Documents",
+        "loading": "Decrypting your vault...",
+        "empty_title": "Your vault is empty",
+        "empty_desc": "Upload your first lab result, medical prescription, or progress note using the box above.",
+        "Dropzone": {
+            "title": "Drag and drop your results or prescriptions here",
+            "subtitle": "or click to browse your device. Make sure the text is readable.",
+            "drop_here": "Drop the document here",
+            "btn_uploading": "Processing document...",
+            "ai_analyzing": "Our AI is extracting medical data.",
+            "privacy_note": "End-to-end encryption (HIPAA Compliant)"
+        },
+        "Card": {
+            "ai_pending": "Analyzing...",
+            "ai_processed": "AI Analyzed",
+            "ai_failed": "Storage Only",
+            "ai_unsupported": "Secure Document",
+            "findings": "Findings",
+            "medications": "Medications",
+            "btn_view": "View Document"
+        }
+    },
     "PatientAppointments": {
         "title": "My Appointments",
         "subtitle": "Manage your bookings and check your history",

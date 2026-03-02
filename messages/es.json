@@ -1676,6 +1676,31 @@
         "btn_continue": "Continuar al Pago",
         "new_label": "Nuevo"
     },
+    "HealthVault": {
+        "title": "Mi Expediente Clínico",
+        "subtitle": "Tu bóveda de salud encriptada. Sube tus laboratorios o recetas y nuestra IA extraerá los datos clínicos relevantes automáticamente.",
+        "docs_title": "Tus Documentos",
+        "loading": "Desencriptando tu bóveda...",
+        "empty_title": "Tu bóveda está vacía",
+        "empty_desc": "Sube tu primer estudio de laboratorio, receta médica o nota de evolución usando el recuadro de arriba.",
+        "Dropzone": {
+            "title": "Arrastra tus resultados o recetas aquí",
+            "subtitle": "o haz clic para explorar en tu dispositivo. Asegúrate de que el texto sea legible.",
+            "drop_here": "Suelta el documento aquí",
+            "btn_uploading": "Procesando documento...",
+            "ai_analyzing": "Nuestra IA está extrayendo los datos médicos.",
+            "privacy_note": "Encriptación de extremo a extremo (HIPAA Compliant)"
+        },
+        "Card": {
+            "ai_pending": "Analizando...",
+            "ai_processed": "Analizado por IA",
+            "ai_failed": "Solo Almacenamiento",
+            "ai_unsupported": "Documento Seguro",
+            "findings": "Hallazgos",
+            "medications": "Medicamentos",
+            "btn_view": "Ver Documento"
+        }
+    },
     "PatientAppointments": {
         "title": "Mis Citas",
         "subtitle": "Gestiona tus reservas y consulta tu historial",
