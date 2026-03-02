@@ -159,7 +159,7 @@ export function ProfilePersonalSection({ form, handleInputChange, handleSelectCh
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Location (City / Postal Code) */}
                     <div className="space-y-2">
-                        <Label htmlFor="address" className="text-slate-700 dark:text-slate-300 font-medium">
+                        <Label htmlFor="location" className="text-slate-700 dark:text-slate-300 font-medium">
                             {t('label_address')}
                         </Label>
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
@@ -168,9 +168,9 @@ export function ProfilePersonalSection({ form, handleInputChange, handleSelectCh
                         <div className="relative">
                             <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <Input
-                                id="address"
-                                name="address"
-                                value={form.address}
+                                id="location"
+                                name="location"
+                                value={form.location}
                                 onChange={handleInputChange}
                                 placeholder={t('placeholder_address', { defaultValue: 'Ej. Ciudad de México, CDMX' })}
                                 className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"

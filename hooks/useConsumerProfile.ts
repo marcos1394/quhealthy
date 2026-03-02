@@ -16,18 +16,20 @@ export const useConsumerProfile = () => {
     setIsLoading(true);
     try {
       const data = await consumerProfileService.getProfile();
-      
-      // Combinamos el perfil por defecto con la data que llega del backend
-      // Esto asegura que si el backend manda "fullName: null", se convierta en ""
+
+      // Combinamos el perfil por defecto con la data que llega del backend.
+      // Esto asegura que si el backend manda nulls, se usan los defaults.
       const safeData: ConsumerProfile = {
         ...defaultConsumerProfile,
         ...data,
-        // Nos aseguramos de que los objetos anidados no sean null
-        healthGoals: data.healthGoals || [],
-        servicePreferences: data.servicePreferences || [],
-        interestInActivities: data.interestInActivities || defaultConsumerProfile.interestInActivities
+        // Nos aseguramos de que los arrays nunca sean null
+        medicalConditions: data.medicalConditions ?? [],
+        allergies: data.allergies ?? [],
+        currentMedications: data.currentMedications ?? [],
+        healthGoals: data.healthGoals ?? [],
+        preferredModality: data.preferredModality ?? "",
       };
-      
+
       setProfile(safeData);
     } catch (error: any) {
       console.error("Error al cargar el perfil del paciente:", error);
@@ -44,13 +46,13 @@ export const useConsumerProfile = () => {
     setIsSaving(true);
     try {
       const updatedProfile = await consumerProfileService.updateProfile(data);
-      
+
       setProfile({
         ...defaultConsumerProfile,
         ...updatedProfile
       });
-      
-      return true; // Retornamos true para que la UI sepa que fue exitoso
+
+      return true;
     } catch (error: any) {
       console.error("Error al guardar el perfil:", error);
       toast.error("Ocurrió un error al guardar tus cambios.");
