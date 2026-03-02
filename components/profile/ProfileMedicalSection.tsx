@@ -4,8 +4,8 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { HeartPulse, AlertCircle, Pill, Activity } from 'lucide-react';
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ConsumerProfile } from '@/types/consumerProfile';
+import { TagInput } from '@/components/profile/TagInput';
 
 interface Props {
     form: ConsumerProfile;
@@ -14,6 +14,14 @@ interface Props {
 
 export function ProfileMedicalSection({ form, handleInputChange }: Props) {
     const t = useTranslations('PatientProfile');
+
+    // Helper to create a synthetic textarea change event for the TagInput
+    const handleTagChange = (field: string, value: string) => {
+        const syntheticEvent = {
+            target: { name: field, value },
+        } as React.ChangeEvent<HTMLTextAreaElement>;
+        handleInputChange(syntheticEvent);
+    };
 
     return (
         <div className="space-y-8">
@@ -24,35 +32,36 @@ export function ProfileMedicalSection({ form, handleInputChange }: Props) {
                         <HeartPulse className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                     </div>
                     <h3 className="text-xl font-medium text-slate-900 dark:text-white tracking-tight">
-                        {t('section_medical', { defaultValue: 'Historial Médico' })}
+                        {t('section_medical')}
                     </h3>
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 font-light text-sm ml-12">
-                    {t('section_medical_desc', { defaultValue: 'Esta información es confidencial y ayudará a los especialistas a brindarte un diagnóstico más preciso y seguro.' })}
+                    {t('section_medical_desc')}
                 </p>
             </div>
 
             {/* Fields */}
-            <div className="space-y-6">
+            <div className="space-y-8">
 
-                {/* Medical History */}
+                {/* Medical History / Prior Conditions */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2">
                         <Activity className="w-4 h-4 text-medical-500" />
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                            {t('label_medical_history', { defaultValue: 'Condiciones Médicas Previas' })}
+                            {t('label_medical_history')}
                         </Label>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-light ml-6">
-                        {t('help_medical_history', { defaultValue: 'Enfermedades crónicas, cirugías previas o condiciones relevantes. Si no tienes, escribe "Ninguna".' })}
+                        {t('help_medical_history')}
                     </p>
-                    <Textarea
-                        name="medicalHistory"
-                        value={form.medicalHistory}
-                        onChange={handleInputChange}
-                        placeholder="Ej. Diabetes tipo 2 controlada, hipertensión, cirugía de rodilla en 2021..."
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[120px] resize-none focus:border-medical-500 focus:ring-medical-500/20 transition-all rounded-xl text-slate-900 dark:text-white"
-                    />
+                    <div className="ml-6">
+                        <TagInput
+                            value={form.medicalHistory}
+                            onChange={(val) => handleTagChange('medicalHistory', val)}
+                            placeholder={t('placeholder_medical', { defaultValue: 'Ej. Diabetes tipo 2, Hipertensión, Cirugía rodilla 2021' })}
+                            icon={<Activity className="w-5 h-5" />}
+                        />
+                    </div>
                 </div>
 
                 {/* Allergies */}
@@ -60,39 +69,41 @@ export function ProfileMedicalSection({ form, handleInputChange }: Props) {
                     <div className="flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-amber-500" />
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                            {t('label_allergies', { defaultValue: 'Alergias Conocidas' })}
+                            {t('label_allergies')}
                         </Label>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-light ml-6">
-                        {t('help_allergies', { defaultValue: 'Medicamentos, alimentos, látex o factores ambientales.' })}
+                        {t('help_allergies')}
                     </p>
-                    <Textarea
-                        name="allergies"
-                        value={form.allergies}
-                        onChange={handleInputChange}
-                        placeholder="Ej. Penicilina, nueces, polen, picadura de abeja..."
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[100px] resize-none focus:border-medical-500 focus:ring-medical-500/20 transition-all rounded-xl text-slate-900 dark:text-white"
-                    />
+                    <div className="ml-6">
+                        <TagInput
+                            value={form.allergies}
+                            onChange={(val) => handleTagChange('allergies', val)}
+                            placeholder={t('placeholder_allergies', { defaultValue: 'Ej. Penicilina, Nueces, Polen' })}
+                            icon={<AlertCircle className="w-5 h-5" />}
+                        />
+                    </div>
                 </div>
 
-                {/* Medications */}
+                {/* Current Medications */}
                 <div className="space-y-2">
                     <div className="flex items-center gap-2">
                         <Pill className="w-4 h-4 text-blue-500" />
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                            {t('label_medications', { defaultValue: 'Medicamentos Actuales' })}
+                            {t('label_medications')}
                         </Label>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-light ml-6">
-                        {t('help_medications', { defaultValue: 'Incluye vitaminas, suplementos y tratamientos que tomes regularmente.' })}
+                        {t('help_medications')}
                     </p>
-                    <Textarea
-                        name="currentMedications"
-                        value={form.currentMedications}
-                        onChange={handleInputChange}
-                        placeholder="Ej. Metformina 500mg diaria, Vitamina C, Paracetamol ocasional..."
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[100px] resize-none focus:border-medical-500 focus:ring-medical-500/20 transition-all rounded-xl text-slate-900 dark:text-white"
-                    />
+                    <div className="ml-6">
+                        <TagInput
+                            value={form.currentMedications}
+                            onChange={(val) => handleTagChange('currentMedications', val)}
+                            placeholder={t('placeholder_medications', { defaultValue: 'Ej. Metformina 500mg, Vitamina C, Paracetamol' })}
+                            icon={<Pill className="w-5 h-5" />}
+                        />
+                    </div>
                 </div>
 
             </div>
