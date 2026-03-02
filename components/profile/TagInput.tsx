@@ -20,9 +20,10 @@ interface TagInputProps {
 export function TagInput({ value, onChange, placeholder, icon }: TagInputProps) {
     const [inputValue, setInputValue] = useState('');
 
-    // Parse the comma-separated string into tags
-    const tags = value
-        ? value.split(',').map(t => t.trim()).filter(Boolean)
+    // Parse the comma-separated string into tags (safely handle null/undefined/non-string)
+    const safeValue = typeof value === 'string' ? value : '';
+    const tags = safeValue
+        ? safeValue.split(',').map(t => t.trim()).filter(Boolean)
         : [];
 
     const addTag = (tag: string) => {
