@@ -4,7 +4,8 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { formatInTimeZone } from 'date-fns-tz';
+// 🚀 FIX: Usamos format normal, no formatInTimeZone
+import { format } from 'date-fns'; 
 import { es } from 'date-fns/locale';
 import { toast } from 'react-toastify';
 import {
@@ -17,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Appointment, AppointmentStatus } from '@/types/appointments'; // 🚀 IMPORTAMOS EL TIPO REAL
+import { Appointment, AppointmentStatus } from '@/types/appointments'; 
 
 interface AppointmentCardProps {
   appt: Appointment;
@@ -29,12 +30,10 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
   const router = useRouter();
   const t = useTranslations('PatientAppointments');
 
-  // Lógica de visualización basada en datos reales
   const isPast = new Date(appt.endTime) < new Date();
   const isVideo = appt.type === 'ONLINE';
   const canJoinVideo = isVideo && !isPast && (appt.status === 'SCHEDULED' || appt.status === 'IN_PROGRESS');
 
-  // Mapeo de estados reales a colores e iconos
   const getStatusConfig = (status: AppointmentStatus) => {
     switch (status) {
       case 'COMPLETED':
@@ -72,14 +71,15 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
             {/* --- COLUMNA 1: FECHA Y ESTADO --- */}
             <div className="bg-slate-50 dark:bg-slate-800/50 p-6 flex flex-col justify-center items-center lg:items-start min-w-[180px] border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800 gap-3">
               <div className="text-center lg:text-left">
+                {/* 🚀 FIX: Usamos format simple */}
                 <p className="text-sm font-bold text-medical-600 dark:text-medical-400 uppercase tracking-wide">
-                  {formatInTimeZone(new Date(appt.startTime), 'UTC', "MMM", { locale: es })}
+                  {format(new Date(appt.startTime), "MMM", { locale: es })}
                 </p>
                 <p className="text-4xl font-bold text-slate-900 dark:text-white">
-                  {formatInTimeZone(new Date(appt.startTime), 'UTC', "d", { locale: es })}
+                  {format(new Date(appt.startTime), "d", { locale: es })}
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold">
-                  {formatInTimeZone(new Date(appt.startTime), 'UTC', "yyyy", { locale: es })}
+                  {format(new Date(appt.startTime), "yyyy", { locale: es })}
                 </p>
               </div>
               <Badge variant="outline" className={cn("border", statusConfig.className)}>
@@ -103,9 +103,10 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
                 <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
                   <Clock className="w-4 h-4" />
                   <span className="font-semibold">
-                    {formatInTimeZone(new Date(appt.startTime), 'UTC', "h:mm a", { locale: es })}
+                    {/* 🚀 FIX: Usamos format simple */}
+                    {format(new Date(appt.startTime), "h:mm a", { locale: es })}
                     {' - '}
-                    {formatInTimeZone(new Date(appt.endTime), 'UTC', "h:mm a", { locale: es })}
+                    {format(new Date(appt.endTime), "h:mm a", { locale: es })}
                   </span>
                 </div>
               </div>
@@ -115,7 +116,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
                 <Avatar className="h-10 w-10 border-2 border-medical-200 dark:border-medical-500/20">
                   <AvatarImage src={appt.providerImageUrl} />
                   <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 font-bold">
-                    {appt.providerNameSnapshot.charAt(0)}
+                    {appt.providerNameSnapshot?.charAt(0) || '?'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -142,11 +143,11 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
                     <span>{appt.locationAddress}</span>
                   </div>
                 )}
-                {appt.totalPrice && (
+                {appt.price != null && (
                   <div className="text-right">
                     <p className="text-xs text-slate-500 dark:text-slate-400">{t('label_total', { defaultValue: 'Total' })}</p>
                     <p className="text-lg font-bold text-medical-600 dark:text-medical-400">
-                      ${appt.totalPrice}
+                      ${appt.price} {appt.currency}
                     </p>
                   </div>
                 )}
@@ -189,7 +190,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
               {(appt.status === 'SCHEDULED' || appt.status === 'PENDING_PAYMENT') && !isPast && (
                 <Button
                   variant="outline"
-                  onClick={() => onRequestCancel(appt)} // 🚀 Subimos la acción al padre para que abra el modal
+                  onClick={() => onRequestCancel(appt)}
                   className="w-full border-rose-200 dark:border-red-900 text-rose-600 dark:text-red-400 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
