@@ -1903,6 +1903,17 @@
             "btn_video_off": "Desactivar cámara",
             "btn_hangup": "Colgar"
         },
+
+    
+  "ProviderReputation": {
+    "title": "Mi Reputación",
+    "updated_at": "Actualizado: {date}",
+    "unlock_title": "Desbloquea tu QuScore",
+    "unlock_desc": "Completa al menos 5 consultas a través de QuHealthy para desbloquear tu Índice de Reputación y destacar en las búsquedas.",
+    "top_percentile": "Estás en el <highlight>Top {percent}%</highlight> de tu zona.",
+    "loading": "Calculando tu reputación..."
+  },
+
       
   "ProviderScore": {
     "band_elite": "Elite",

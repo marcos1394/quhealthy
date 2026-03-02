@@ -1901,6 +1901,17 @@
             "no_results_desc": "Try searching with different terms or expand your search area."
         },
 
+   
+  "ProviderReputation": {
+    "title": "My Reputation",
+    "updated_at": "Updated: {date}",
+    "unlock_title": "Unlock your QuScore",
+    "unlock_desc": "Complete at least 5 appointments through QuHealthy to unlock your Reputation Index and stand out in searches.",
+    "top_percentile": "You are in the <highlight>Top {percent}%</highlight> of your area.",
+    "loading": "Calculating your reputation..."
+  },
+
+
         
   "ProviderScore": {
     "band_elite": "Elite",
