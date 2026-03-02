@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { useDiscover } from '@/hooks/useDiscover';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { DiscoverProvider } from '@/types/discover';
-import router, { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
