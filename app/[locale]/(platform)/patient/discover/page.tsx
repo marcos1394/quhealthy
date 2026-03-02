@@ -20,6 +20,11 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { DiscoverProvider } from '@/types/discover';
 import { useRouter } from 'next/navigation';
 
+// 🚀 IMPORTAMOS EL HOOK Y EL BADGE DE SCORE
+import { useProviderScore } from '@/hooks/useProviderScore';
+import { ProviderScoreResponse } from '@/types/providerScore';
+import { ProviderScoreBadge } from '@/components/provider/ProviderScoreBadge';
+
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
 const defaultCenter = { lat: 25.7904, lng: -108.9858 };
@@ -58,20 +63,22 @@ const darkMapStyle = [
 const MapProviderCard = ({
   provider,
   isSelected,
+  scoreData, // 🚀 Añadimos el scoreData como prop
   onClick,
   onHover,
   onLeave
 }: {
   provider: DiscoverProvider & { distanceKm?: number },
   isSelected: boolean,
+  scoreData?: ProviderScoreResponse, // 🚀 Definimos el tipo
   onClick: () => void,
   onHover: () => void,
   onLeave: () => void
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const router = useRouter(); // 🚀 3. Instanciar el router
-  const t = useTranslations('PatientDiscover'); // 🚀 4. Instanciar traducciones
+  const router = useRouter(); 
+  const t = useTranslations('PatientDiscover'); 
 
   useEffect(() => {
     if ((isHovered || isSelected) && videoRef.current) {
@@ -135,17 +142,15 @@ const MapProviderCard = ({
 
           <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 dark:from-slate-950 dark:via-transparent to-transparent" />
 
-          {/* OJO: Los badges sobre la imagen se quedan oscuros para contrastar con las fotos */}
+          {/* 🚀 EL NUEVO BADGE DE SCORE */}
+          <div className="absolute top-3 left-3 z-10">
+            <ProviderScoreBadge scoreData={scoreData} />
+          </div>
+
           {provider.previewVideoUrl && !isHovered && !isSelected && (
             <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md rounded-full p-1.5 border border-white/10">
               <PlayCircle className="w-4 h-4 text-white/80" />
             </div>
-          )}
-
-          {provider.isPremium && (
-            <Badge className="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
-              <Sparkles className="w-3 h-3 mr-1 text-amber-400" /> Premium
-            </Badge>
           )}
 
           <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/80 dark:bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg border border-slate-200 dark:border-white/10 shadow-sm">
@@ -176,24 +181,22 @@ const MapProviderCard = ({
 
           <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-500 font-medium">Disponible hoy</span>
-          <Button
-  size="sm"
-  className={cn(
-    "rounded-xl font-bold transition-all h-8 px-4",
-    isSelected 
-      ? "text-white shadow-lg" 
-      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
-  )}
-  style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
-  onClick={(e) => {
-    e.stopPropagation();
-    // 🚀 Navegación líquida en la misma pestaña sin perder la memoria RAM
-    router.push(`/provider/store/${provider.slug}`);
-  }}
->
-  {/* 🚀 Llave de traducción con valor por defecto de respaldo */}
-  {t('btn_view_store', { defaultValue: 'Ver Tienda' })} <ChevronRight className="w-3 h-3 ml-1" />
-</Button>
+            <Button
+              size="sm"
+              className={cn(
+                "rounded-xl font-bold transition-all h-8 px-4",
+                isSelected 
+                  ? "text-white shadow-lg" 
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white"
+              )}
+              style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/provider/store/${provider.slug}`);
+              }}
+            >
+              {t('btn_view_store', { defaultValue: 'Ver Tienda' })} <ChevronRight className="w-3 h-3 ml-1" />
+            </Button>
           </div>
         </div>
       </div>
@@ -211,11 +214,19 @@ const DiscoverMapContent = () => {
 
   const { providers, isLoading: isFetchingProviders } = useDiscover();
   const { coordinates, calculateDistance } = useGeolocation();
-  
-  // 🚀 Obtenemos el tema actual para el mapa
   const { resolvedTheme } = useTheme();
 
-  // 🚀 Mapa dinámico según el tema
+  // 🚀 INSTANCIAR EL HOOK DE SCORES
+  const { batchScores, fetchBatchScores } = useProviderScore();
+
+  // 🚀 FETCH SCORES EN BATCH CUANDO CARGAN LOS PROVEEDORES
+  useEffect(() => {
+    if (providers && providers.length > 0) {
+      const providerIds = providers.map(p => p.id);
+      fetchBatchScores(providerIds);
+    }
+  }, [providers, fetchBatchScores]);
+
   const dynamicMapOptions = useMemo<google.maps.MapOptions>(() => ({
     disableDefaultUI: true,
     zoomControl: true,
@@ -276,7 +287,7 @@ const DiscoverMapContent = () => {
           center={mapCenter}
           onLoad={onMapLoad}
           onClick={() => setSelectedId(null)}
-          options={dynamicMapOptions} // 🚀 Opciones dinámicas aplicadas
+          options={dynamicMapOptions}
         >
           {coordinates && (
             <MarkerF
@@ -310,7 +321,7 @@ const DiscoverMapContent = () => {
                   fillColor: isSelected || isHovered ? provider.color : '#475569',
                   fillOpacity: 1,
                   strokeWeight: isSelected ? 2 : 1,
-                  strokeColor: isSelected ? '#ffffff' : (resolvedTheme === 'dark' ? '#1e293b' : '#e2e8f0'), // Borde del pin adaptable
+                  strokeColor: isSelected ? '#ffffff' : (resolvedTheme === 'dark' ? '#1e293b' : '#e2e8f0'), 
                   scale: isSelected ? 1.8 : 1.5,
                   anchor: new google.maps.Point(12, 24),
                 }}
@@ -369,6 +380,7 @@ const DiscoverMapContent = () => {
                   key={`card-${provider.id}`}
                   provider={provider}
                   isSelected={selectedId === provider.id}
+                  scoreData={batchScores[provider.id]} // 🚀 PASAMOS EL SCORE ESPECÍFICO DEL DICCIONARIO
                   onClick={() => handleSelectProvider(provider)}
                   onHover={() => setHoveredId(provider.id)}
                   onLeave={() => setHoveredId(null)}

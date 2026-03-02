@@ -1901,6 +1901,18 @@
             "no_results_desc": "Try searching with different terms or expand your search area."
         },
 
+        
+  "ProviderScore": {
+    "band_elite": "Elite",
+    "band_premium": "Premium",
+    "band_advanced": "Advanced",
+    "band_in_progress": "In Progress",
+    "band_low": "Low",
+    "band_nuevo": "New",
+    "no_score": "No Score"
+  },
+
+
     "Legal": {
         "Terms": {
             "title": "Terms and Conditions of Use",

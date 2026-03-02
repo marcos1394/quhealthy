@@ -1903,6 +1903,17 @@
             "btn_video_off": "Desactivar cámara",
             "btn_hangup": "Colgar"
         },
+      
+  "ProviderScore": {
+    "band_elite": "Elite",
+    "band_premium": "Premium",
+    "band_advanced": "Avanzado",
+    "band_in_progress": "En Desarrollo",
+    "band_low": "Bajo",
+    "band_nuevo": "Nuevo",
+    "no_score": "Sin Score"
+  },
+
     "Legal": {
         "Terms": {
             "title": "Términos y Condiciones de Uso",
