@@ -106,7 +106,7 @@ export default function PatientProfilePage() {
             className="max-w-5xl mx-auto space-y-8 py-6 px-4"
         >
             {/* 🏥 Sidebar / Header de Progreso */}
-            <ProfileSidebar currentSection={currentSection} setCurrentSection={setCurrentSection} />
+            <ProfileSidebar currentSection={currentSection} setCurrentSection={setCurrentSection} form={form} />
 
             {/* Contenedor Principal del Formulario */}
             <form onSubmit={handleSubmit} className="space-y-8">

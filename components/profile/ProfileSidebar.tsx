@@ -17,7 +17,9 @@ export const SECTIONS = [
  * Calcula el porcentaje de completitud basándose en los campos
  * realmente llenos del perfil, no en el tab actual.
  */
-function calculateProgress(form: ConsumerProfile): number {
+function calculateProgress(form?: ConsumerProfile): number {
+    if (!form) return 0;
+
     const checks = [
         // Sección 1: Identidad y Contacto (5 campos)
         !!form.fullName?.trim(),
