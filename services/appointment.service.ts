@@ -1,7 +1,7 @@
-// services/appointment.service.ts
+// src/services/appointment.service.ts
 import axiosInstance from '@/lib/axios';
 import { 
-  Appointment, 
+  AppointmentResponse, 
   ProviderAppointment, 
   ReschedulePayload, 
   PageResponse 
@@ -17,26 +17,27 @@ export const appointmentService = {
   
   /**
    * 📅 Obtiene el historial y próximas citas del Paciente (Consumer)
-   * Usa paginación por defecto para optimizar la carga del Dashboard.
+   * Retorna el objeto completo de paginación (PageResponse) para soportar 
+   * scroll infinito o botones "Siguiente" en el futuro.
    */
-  getMyAppointments: async (page = 0, size = 500): Promise<Appointment[]> => {
-    const response = await axiosInstance.get<PageResponse<Appointment>>(
+  getMyAppointments: async (page = 0, size = 500): Promise<PageResponse<AppointmentResponse>> => {
+    const response = await axiosInstance.get<PageResponse<AppointmentResponse>>(
       `${BASE_URL}/list`, {
         params: {
           page,
           size,
-          sort: 'startTime,asc'
+          sort: 'startTime,desc'
         }
       }
     );
-    return response.data.content;
+    return response.data;
   },
 
   /**
    * 🔍 Obtiene los detalles extendidos de una cita específica por su ID
    */
-  getAppointmentById: async (id: string | number): Promise<Appointment> => {
-    const response = await axiosInstance.get<Appointment>(`${BASE_URL}/${id}`);
+  getAppointmentById: async (id: string | number): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.get<AppointmentResponse>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
@@ -44,8 +45,9 @@ export const appointmentService = {
    * 🆕 Crea una nueva reserva (Booking)
    * El payload debe cumplir con los requisitos del backend (serviceId, startTime, etc.)
    */
-  createAppointment: async (payload: any): Promise<Appointment> => {
-    const response = await axiosInstance.post<Appointment>(`${BASE_URL}/create`, payload);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createAppointment: async (payload: any): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/create`, payload);
     return response.data;
   },
 
@@ -53,10 +55,10 @@ export const appointmentService = {
    * ❌ Cancela una cita
    * Soporta el envío de un motivo (reason) como parámetro de consulta
    */
-  cancelAppointment: async (id: number, reason: string): Promise<Appointment> => {
-    const response = await axiosInstance.patch<Appointment>(
+  cancelAppointment: async (id: number, reason: string): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.patch<AppointmentResponse>(
       `${BASE_URL}/${id}/cancel`, 
-      null, // Body vacío
+      null, // Body vacío porque va por query param en el backend
       { params: { reason } }
     );
     return response.data;
@@ -65,8 +67,8 @@ export const appointmentService = {
   /**
    * ⏳ Reprograma una cita existente a un nuevo horario
    */
-  rescheduleAppointment: async (id: number, payload: ReschedulePayload): Promise<Appointment> => {
-    const response = await axiosInstance.post<Appointment>(`${BASE_URL}/${id}/reschedule`, payload);
+  rescheduleAppointment: async (id: number, payload: ReschedulePayload): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/${id}/reschedule`, payload);
     return response.data;
   },
 
@@ -74,8 +76,8 @@ export const appointmentService = {
    * ✅ Finaliza una cita (Solo para Providers)
    * Permite adjuntar notas clínicas o de seguimiento.
    */
-  completeAppointment: async (id: number, notes: string): Promise<Appointment> => {
-    const response = await axiosInstance.patch<Appointment>(`${BASE_URL}/${id}/complete`, { notes });
+  completeAppointment: async (id: number, notes: string): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.patch<AppointmentResponse>(`${BASE_URL}/${id}/complete`, { notes });
     return response.data;
   },
 

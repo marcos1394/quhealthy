@@ -6,7 +6,7 @@ import {
   AppointmentStatus, 
   ReschedulePayload, 
   CalendarEvent 
-} from '@/types/appointments'; // 🚀 Asegúrate de que apunte al archivo correcto
+} from '@/types/appointments'; // 🚀 Asegúrate de que el nombre del archivo coincida con tu proyecto (appointment o appointments)
 import { toast } from 'react-toastify';
 
 export const useAppointments = () => {
@@ -47,22 +47,28 @@ export const useAppointments = () => {
     }
   };
 
-  // 1. OBTENER Y TRANSFORMAR PARA EL CALENDARIO
-  const fetchAppointments = useCallback(async (): Promise<CalendarEvent[]> => {
+  // 1. OBTENER Y TRANSFORMAR PARA EL CALENDARIO Y LA LISTA
+  const fetchAppointments = useCallback(async (page = 0, size = 500): Promise<CalendarEvent[]> => {
     setIsLoading(true);
     try {
-      const data = await appointmentService.getMyAppointments();
+      // Obtenemos la paginación de Spring Boot
+      const pageData = await appointmentService.getMyAppointments(page, size);
+      
+      // Extraemos el arreglo real
+      const data = pageData.content || [];
+      
+      // 🚀 Guardamos la data cruda en el estado para la vista de Lista (La pantalla del paciente)
       setAppointments(data);
       
-      // Transformamos al formato que exige FullCalendar (o tu UI)
+      // 🚀 Retornamos la data transformada para la vista de Calendario
       return data.map(app => ({
         id: String(app.id),
         title: app.serviceName || 'Cita Médica',
         start: app.startTime, 
         end: app.endTime,
         extendedProps: {
-          status: mapStatusForUI(app.status), // Usamos la nueva función mapeadora
-          clientName: app.consumerNameSnapshot || app.consumerName, // Usamos los snapshots si existen
+          status: mapStatusForUI(app.status),
+          clientName: app.consumerNameSnapshot || app.consumerName,
           providerName: app.providerNameSnapshot,
           type: app.type || app.appointmentType,
           notes: app.consumerSymptoms
@@ -70,18 +76,22 @@ export const useAppointments = () => {
       }));
     } catch (error) {
       console.error("Error cargando citas:", error);
-      toast.error("No pudimos cargar tu calendario.");
+      toast.error("No pudimos cargar tus citas.");
       return [];
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // 2. REPROGRAMAR (Drag & Drop)
+  // 2. REPROGRAMAR (Drag & Drop o UI)
   const reschedule = async (id: number, newStartTime: string): Promise<boolean> => {
     try {
       const payload: ReschedulePayload = { newStartTime };
-      await appointmentService.rescheduleAppointment(id, payload);
+      const updatedAppt = await appointmentService.rescheduleAppointment(id, payload);
+      
+      // 🚀 Actualizamos el estado local para que la UI reaccione instantáneamente
+      setAppointments(prev => prev.map(app => app.id === id ? updatedAppt : app));
+      
       toast.success("Cita reprogramada con éxito.");
       return true;
     } catch (error: any) {
@@ -94,7 +104,11 @@ export const useAppointments = () => {
   // 3. CANCELAR
   const cancel = async (id: number, reason: string): Promise<boolean> => {
     try {
-      await appointmentService.cancelAppointment(id, reason);
+      const updatedAppt = await appointmentService.cancelAppointment(id, reason);
+      
+      // 🚀 Actualizamos el estado local para que la UI reaccione instantáneamente
+      setAppointments(prev => prev.map(app => app.id === id ? updatedAppt : app));
+      
       toast.success("Cita cancelada.");
       return true;
     } catch (error: any) {
@@ -103,11 +117,18 @@ export const useAppointments = () => {
     }
   };
 
+  // Envolvemos el cancel original en la firma que espera la pantalla del paciente actual
+  // (Para mantener compatibilidad con el código que te pasé antes)
+  const cancelAppointment = async (id: number, reason: string) => {
+    return await cancel(id, reason);
+  };
+
   return {
-    appointments, // Los datos crudos por si los necesitas para una tabla
-    fetchAppointments,
-    reschedule,
-    cancel,
+    appointments, // Usado por ConsumerAppointmentsPage
+    fetchAppointments, // Usado por ambos
+    reschedule, // Usado por Calendario
+    cancel, // Usado por Calendario
+    cancelAppointment, // Usado por ConsumerAppointmentsPage
     isLoading
   };
 };

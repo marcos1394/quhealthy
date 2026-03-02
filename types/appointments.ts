@@ -1,4 +1,4 @@
-// types/appointment.ts
+// src/types/appointment.ts
 
 // ==========================================
 // ENUMS Y TIPOS LITERALES (Backend Match)
@@ -71,6 +71,7 @@ export interface Appointment {
   
   // Paquetes & Productos
   packageReferenceId?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   productsToDeliver?: Record<string, any>;
   
   // Extras / Notas
@@ -80,12 +81,17 @@ export interface Appointment {
   
   // Snapshots para la UI (Campos calculados o nombres directos)
   serviceNameSnapshot?: string;
-  providerNameSnapshot?: string;
+  providerNameSnapshot: string; // 🚀 Requerido, el backend siempre lo debe mandar
   providerPhoneSnapshot?: string;
   consumerNameSnapshot?: string;
   consumerName?: string; // Retrocompatibilidad
   consumerEmailSnapshot?: string;
   totalPrice?: number;
+  
+  // 🚀 NUEVOS: Datos visuales del Doctor para la UI del Paciente
+  providerImageUrl?: string;
+  providerSpecialty?: string;
+  providerRating?: number;
   
   // Tiempos de sistema
   cancelledAt?: string; // ISO 8601
@@ -102,6 +108,9 @@ export interface Appointment {
     email?: string;
   };
 }
+
+// 🚀 ALIAS: Para que coincida exactamente con el nombre del DTO en Java
+export type AppointmentResponse = Appointment;
 
 /**
  * Estructura específica para la lista detallada del Proveedor/Doctor
@@ -154,8 +163,8 @@ export interface CalendarEvent {
   className?: string;
   
   extendedProps?: {
-    status?: string; // 🚀 Cambiado a string para aceptar los valores mapeados ('confirmed', etc.)
-    rawStatus?: AppointmentStatus; // 🚀 Guardamos el original por si lo necesitamos para lógica pesada
+    status?: string; 
+    rawStatus?: AppointmentStatus; 
     clientName?: string;
     providerName?: string;
     type?: AppointmentType; 
