@@ -15,6 +15,9 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { cn } from "@/lib/utils";
 
+// 🚀 IMPORTAMOS EL NUEVO COMPONENTE DE REPUTACIÓN
+import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
+
 export default function DashboardPage() {
   const router = useRouter();
   const [dateRange, setDateRange] = useState("this_month");
@@ -137,7 +140,7 @@ export default function DashboardPage() {
           trend={{ value: 2.1, isPositive: false, period: "last month" }} />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Grid: Chart & Reputation */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
         {/* Revenue Chart */}
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[350px] flex flex-col p-6 shadow-sm">
@@ -155,7 +158,12 @@ export default function DashboardPage() {
           <RevenueChart />
         </Card>
 
-        {/* Upcoming Appointments */}
+        {/* 🚀 TARJETA DE REPUTACIÓN DEL PROVEEDOR */}
+        <ProviderReputationCard />
+      </div>
+
+      {/* Upcoming Appointments (Full Width below the grid) */}
+      <div className="mt-5">
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-3.5">
             <div className="flex items-center justify-between">
@@ -170,7 +178,7 @@ export default function DashboardPage() {
               )}
             </div>
           </CardHeader>
-          <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
+          <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar max-h-[400px]">
             {upcomingAppointments.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center p-7 text-center min-h-[220px]">
                 <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
