@@ -1934,17 +1934,24 @@
         "tip_questions": "Anota tus preguntas"
     },
     "PatientReviews": {
-        "title": "Deja tu Opinión",
-        "subtitle": "Tu feedback ayuda a otros a tomar mejores decisiones.",
-        "loading": "Cargando...",
-        "label_rating": "Tu Calificación",
-        "label_comment": "Tu Comentario (Opcional)",
-        "comment_placeholder": "Describe tu experiencia con el profesional, el servicio, las instalaciones, etc.",
-        "btn_submit": "Enviar Reseña",
-        "toast_success": "¡Gracias por tu reseña!",
-        "toast_error": "No se pudo enviar tu reseña.",
-        "toast_rating_required": "Por favor, selecciona una calificación de estrellas.",
-        "error_invalid": "Este enlace ya no es válido."
+       "loading_validation": "Verificando tu cita de forma segura...",
+    "error_title": "Enlace no válido",
+    "btn_back_home": "Volver al Inicio",
+    "title": "Califica tu experiencia",
+    "subtitle": "Tu opinión ayuda a otros pacientes a encontrar al especialista ideal.",
+    "label_rating": "Puntuación General",
+    "label_comment": "Cuéntanos más detalles",
+    "optional": "Opcional",
+    "comment_placeholder": "¿Cómo fue el trato del doctor? ¿Las instalaciones estaban limpias?",
+    "btn_submit": "Publicar Reseña",
+    "btn_submitting": "Enviando...",
+    "privacy_notice": "Tu reseña será revisada por nuestro sistema antes de ser pública.",
+    "error_missing_token": "Enlace inválido o incompleto.",
+    "error_invalid": "El enlace de la reseña ha expirado o es inválido.",
+    "toast_rating_required": "Por favor selecciona una calificación en estrellas.",
+    "toast_success": "¡Gracias! Tu reseña ha sido enviada con éxito.",
+    "toast_error": "Ocurrió un error al enviar tu reseña. Intenta nuevamente."
+
     },
     "PatientVideoCall": {
         "connecting": "Conectando a la videollamada...",
