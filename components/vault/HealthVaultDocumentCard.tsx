@@ -61,7 +61,12 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
         }
     };
 
-    const StatusIcon = aiStatusConfig[document.aiStatus].icon;
+    // 🚀 FIX: Salvavidas ultra seguro. Si document.aiStatus no existe o no es válido, usamos 'PENDING'
+    const currentStatus = (document.aiStatus && aiStatusConfig[document.aiStatus as keyof typeof aiStatusConfig]) 
+        ? (document.aiStatus as keyof typeof aiStatusConfig) 
+        : 'PENDING';
+
+    const StatusIcon = aiStatusConfig[currentStatus].icon;
     const aiData = document.aiExtractedData;
 
     return (
@@ -90,15 +95,15 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
             <div className="mb-6">
                 <Badge variant="outline" className={cn(
                     "px-3 py-1.5 text-xs font-semibold border flex items-center w-fit gap-2 rounded-xl",
-                    aiStatusConfig[document.aiStatus].color
+                    aiStatusConfig[currentStatus].color
                 )}>
-                    <StatusIcon className={cn("w-3.5 h-3.5", aiStatusConfig[document.aiStatus].pulse && "animate-spin")} />
-                    {aiStatusConfig[document.aiStatus].text}
+                    <StatusIcon className={cn("w-3.5 h-3.5", aiStatusConfig[currentStatus].pulse && "animate-spin")} />
+                    {aiStatusConfig[currentStatus].text}
                 </Badge>
             </div>
 
             {/* Resultados de la IA */}
-            {document.aiStatus === 'PROCESSED' && aiData && (
+            {currentStatus === 'PROCESSED' && aiData && (
                 <div className="flex-1 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 mb-6 space-y-5 transition-colors group-hover:bg-slate-50 dark:group-hover:bg-slate-950">
 
                     {aiData.summary && (
@@ -141,7 +146,7 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
                 </div>
             )}
 
-            {document.aiStatus !== 'PROCESSED' && <div className="flex-1 min-h-[1rem]"></div>}
+            {currentStatus !== 'PROCESSED' && <div className="flex-1 min-h-[1rem]"></div>}
 
             {/* Acciones */}
             <div className="pt-2 mt-auto">
