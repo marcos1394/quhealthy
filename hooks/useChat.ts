@@ -46,7 +46,7 @@ export const useChat = () => {
 
         // 2. Configurar túnel STOMP Seguro para Producción
         // Utilizamos wss:// en producción por defecto
-        const wsUrl =  'wss://api.quhealthy.org/api/appointments/ws/chat';
+        const wsUrl =  process.env.NEXT_PUBLIC_WS_URL;
         
         const client = new Client({
             brokerURL: wsUrl,
