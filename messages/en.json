@@ -1782,6 +1782,7 @@
         "online": "Online",
         "offline": "Offline",
         "unread": "unread",
+        "reconnecting": "Reconnecting...",
         "no_conversations": "No conversations",
         "no_conversations_desc": "Your messages with health professionals will appear here.",
         "select_conversation": "Select a conversation",

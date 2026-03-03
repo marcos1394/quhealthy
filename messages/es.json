@@ -1782,6 +1782,7 @@
         "online": "En línea",
         "offline": "Desconectado",
         "unread": "sin leer",
+        "reconnecting": "Reconectando...",
         "no_conversations": "No tienes conversaciones",
         "no_conversations_desc": "Tus mensajes con profesionales de salud aparecerán aquí.",
         "select_conversation": "Selecciona una conversación",

@@ -5,7 +5,7 @@ import { Conversation, ChatMessage } from '@/types/chat';
 
 // Ajusta este prefijo según tu API Gateway o proxy en Next.js
 // Basado en tu backend: @RequestMapping("/v1/conversations")
-const BASE_URL = '/api/v1/conversations'; 
+const BASE_URL = '/api/appointments/conversations';
 
 export interface PageResponse<T> {
   content: T[];
