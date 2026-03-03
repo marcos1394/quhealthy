@@ -54,9 +54,10 @@ export const useChat = () => {
                 Authorization: `Bearer ${token}` // 🔒 JWT Inyectado para interceptor Spring Boot
             },
             reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-            
+            // 🚀 Reducimos la frecuencia de latidos para que no haga tanto ruido en la red
+            heartbeatIncoming: 10000, 
+            heartbeatOutgoing: 10000,
+
             onConnect: () => {
                 console.log("🟢 Conectado al Hub de Mensajería Clínica QuHealthy");
                 setIsConnected(true);
@@ -79,8 +80,21 @@ export const useChat = () => {
         client.activate();
         stompClientRef.current = client;
 
-        // Limpieza: Cerrar túnel si el componente se desmonta o el usuario cierra sesión
+        // Detectar si el usuario cambia de pestaña o minimiza el navegador
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                console.log("💤 Usuario inactivo. Pausando conexión WebSocket para ahorrar recursos...");
+                client.deactivate(); 
+            } else if (document.visibilityState === 'visible') {
+                console.log("👋 Usuario regresó. Reconectando WebSocket...");
+                client.activate();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (stompClientRef.current) {
                 stompClientRef.current.deactivate();
             }
