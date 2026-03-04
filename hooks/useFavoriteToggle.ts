@@ -1,5 +1,5 @@
 // src/hooks/useFavoriteToggle.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { favoriteService } from '@/services/favorite.service';
 
@@ -10,6 +10,11 @@ export const useFavoriteToggle = (
 ) => {
     const [isFavorite, setIsFavorite] = useState(initialState);
     const [isLoading, setIsLoading] = useState(false);
+
+    // 🚀 NUEVO: Si el estado inicial llega tarde (después de consultar al backend), actualizamos el corazón
+    useEffect(() => {
+        setIsFavorite(initialState);
+    }, [initialState]);
 
     const toggleFavorite = useCallback(async (e?: React.MouseEvent) => {
         if (e) {

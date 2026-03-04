@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 import { useDiscover } from '@/hooks/useDiscover';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useMyFavorites } from '@/hooks/useMyFavorites';
 import { DiscoverProvider } from '@/types/discover';
 import { useRouter } from 'next/navigation';
 
@@ -64,6 +65,7 @@ const darkMapStyle = [
 const MapProviderCard = ({
   provider,
   isSelected,
+  isFavorited, // 🚀 Recibimos si es favorito o no
   scoreData, // 🚀 Añadimos el scoreData como prop
   onClick,
   onHover,
@@ -71,6 +73,7 @@ const MapProviderCard = ({
 }: {
   provider: DiscoverProvider & { distanceKm?: number },
   isSelected: boolean,
+  isFavorited: boolean, // 🚀 Recibimos si es favorito o no
   scoreData?: ProviderScoreResponse, // 🚀 Definimos el tipo
   onClick: () => void,
   onHover: () => void,
@@ -162,6 +165,7 @@ const MapProviderCard = ({
             <FavoriteButton 
                entityType="PROVIDER" 
                entityId={provider.id} 
+               initialIsFavorite={isFavorited} // 🚀 ¡Magia conectada!
                // initialIsFavorite={provider.isFavorite} // <- Descomenta esto cuando el backend te envíe este dato
             />
           </div>
@@ -237,6 +241,8 @@ const DiscoverMapContent = () => {
 
   // 🚀 INSTANCIAR EL HOOK DE SCORES
   const { batchScores, fetchBatchScores } = useProviderScore();
+    // 🚀 NUEVO: Traer los IDs de los doctores que le gustan al paciente
+  const { favoriteIds } = useMyFavorites('PROVIDER');
 
   // 🚀 FETCH SCORES EN BATCH CUANDO CARGAN LOS PROVEEDORES
   useEffect(() => {
@@ -399,6 +405,7 @@ const DiscoverMapContent = () => {
                   key={`card-${provider.id}`}
                   provider={provider}
                   isSelected={selectedId === provider.id}
+                  isFavorited={favoriteIds.has(provider.id)} // 🚀 LE DECIMOS SI YA TIENE CORAZÓN
                   scoreData={batchScores[provider.id]} // 🚀 PASAMOS EL SCORE ESPECÍFICO DEL DICCIONARIO
                   onClick={() => handleSelectProvider(provider)}
                   onHover={() => setHoveredId(provider.id)}
