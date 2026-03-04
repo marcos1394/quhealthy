@@ -9,7 +9,8 @@ import {
   LayoutDashboard, Store, Calendar, Users, BarChart3, Settings,
   HeartPulse, ChevronLeft, LogOut, Sparkles,
   ClipboardList,
-  MessageSquare
+  MessageSquare,
+  Menu
 } from 'lucide-react';
 import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el nuevo store unificado
 import { toast } from 'react-toastify';
@@ -96,10 +97,11 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
               className="flex items-center"
               variants={itemVariants} initial="collapsed" animate="expanded" exit="collapsed"
             >
-              <HeartPulse className="w-8 h-8 text-purple-400" />
-              <div className="ml-3">
-                <h1 className="text-xl font-bold text-white">QuHealthy</h1>
-                <div className="flex items-center mt-1">
+              <div className="ml-1">
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 tracking-tight">
+                  QuHealthy
+                </h1>
+                <div className="flex items-center mt-0.5">
                   <Sparkles className="w-3 h-3 text-yellow-400 mr-1" />
                   <span className="text-xs text-yellow-400 font-medium capitalize">{user.planStatus || 'Trial'}</span>
                 </div>
@@ -109,11 +111,9 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
         </AnimatePresence>
         <motion.button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white ml-auto"
+          className="p-2.5 rounded-xl bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600 text-gray-300 hover:text-white ml-auto shadow-sm transition-all"
         >
-          <motion.div animate={{ rotate: isCollapsed ? 180 : 0 }}>
-            <ChevronLeft className="w-5 h-5" />
-          </motion.div>
+          <Menu className="w-5 h-5" />
         </motion.button>
       </div>
 

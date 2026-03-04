@@ -17,7 +17,8 @@ import {
   Loader2,
   Trophy,
   Info,
-  ExternalLink
+  ExternalLink,
+  ShoppingBag // 🚀 Importamos un icono más de E-commerce
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,7 +41,9 @@ export default function StoreSetupPage() {
   // 1. EXTRAER DATOS DEL BACKEND
   // ==========================================
   const { profile, isLoading: loadingProfile, updateProfile } = useStoreProfile();
-  const { services, fetchInventory, isLoading: loadingCatalog } = useCatalog();
+  
+  // 🚀 AHORA TRAEMOS TODO EL INVENTARIO
+  const { services, packages, products, courses, fetchInventory, isLoading: loadingCatalog } = useCatalog();
   const { staff, fetchStaff, isLoading: loadingStaff } = useStaff();
   const [isPublishing, setIsPublishing] = React.useState(false);
 
@@ -57,8 +60,16 @@ export default function StoreSetupPage() {
   // 2. LÓGICA DE PROGRESO REAL
   // ==========================================
   const isIdentityComplete = !!profile?.displayName && !!profile?.slug;
-  const realServicesCount = services.filter(s => !s.isNew).length;
-  const isServicesComplete = realServicesCount > 0;
+  
+  // 🚀 CALCULAMOS EL TOTAL DEL CATÁLOGO (Ignorando los que están en modo edición/isNew)
+  const realCatalogCount = 
+    services.filter(s => !s.isNew).length + 
+    packages.filter(p => !p.isNew).length + 
+    products.filter(p => !p.isNew).length + 
+    courses.filter(c => !c.isNew).length;
+
+  const isCatalogComplete = realCatalogCount > 0;
+  
   const isPoliciesComplete = !!profile?.cancellationPolicy;
   const isStaffComplete = staff.filter(s => !s.isNew).length > 0;
 
@@ -85,13 +96,13 @@ export default function StoreSetupPage() {
       color: "medical"
     },
     {
-      id: "services",
-      title: t('steps.services.title'),
-      description: t('steps.services.desc'),
-      icon: BriefcaseMedical,
-      isComplete: isServicesComplete,
-      path: "/provider/store/services",
-      badge: realServicesCount > 0 ? t('steps.services.badge', { count: realServicesCount }) : null,
+      id: "catalog", // 🚀 RENOMBRAMOS EL PASO
+      title: t('steps.catalog.title', { defaultValue: 'Catálogo y Precios' }),
+      description: t('steps.catalog.desc', { defaultValue: 'Servicios, productos y cursos' }),
+      icon: ShoppingBag, // 🚀 CAMBIAMOS EL ICONO
+      isComplete: isCatalogComplete,
+      path: "/provider/store/catalog", // 🚀 NUEVA RUTA UNIFICADA
+      badge: realCatalogCount > 0 ? `${realCatalogCount} ítems` : null,
       color: "blue"
     },
     {

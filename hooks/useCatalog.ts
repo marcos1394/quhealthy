@@ -1,13 +1,25 @@
 // hooks/useCatalog.ts
+
 import { useState, useCallback } from 'react';
 import { catalogService } from '@/services/catalog.service';
-import { storeService } from '@/services/store.service'; // 📸 Requerido para subir a GCP
-import { UI_Service, UI_Package, CatalogItemDTO, ServiceModality, ServiceDeliveryType, CancellationPolicy } from '@/types/catalog';
+import { storeService } from '@/services/store.service'; 
+import { 
+  UI_Service, 
+  UI_Package, 
+  UI_Product, // 🚀 NUEVO
+  UI_Course,  // 🚀 NUEVO
+  CatalogItemDTO, 
+  ServiceModality, 
+  ServiceDeliveryType, 
+  CancellationPolicy 
+} from '@/types/catalog';
 import { toast } from 'react-toastify';
 
 export const useCatalog = () => {
   const [services, setServices] = useState<UI_Service[]>([]);
   const [packages, setPackages] = useState<UI_Package[]>([]);
+  const [products, setProducts] = useState<UI_Product[]>([]); // 📦 NUEVO ESTADO
+  const [courses, setCourses] = useState<UI_Course[]>([]);    // 🎓 NUEVO ESTADO
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // --- TRADUCTORES FRONT <-> BACK ---
@@ -23,7 +35,7 @@ export const useCatalog = () => {
     return 'IN_PERSON';
   };
 
-  // --- CARGAR INVENTARIO ---
+  // --- CARGAR INVENTARIO COMPLETO ---
   const fetchInventory = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -36,13 +48,13 @@ export const useCatalog = () => {
           id: item.id!,
           name: item.name,
           description: item.description || '',
-            category: item.category || '', // 🚀 NUEVO CAMPO
+          category: item.category || '', 
           price: item.price,
           duration: item.durationMinutes || 30,
           serviceDeliveryType: mapModalityToDelivery(item.modality),
           cancellationPolicy: (item.cancellationPolicy as CancellationPolicy) || 'flexible',
           followUpPeriodDays: item.followUpPeriodDays,
-          imageUrl: item.imageUrl, // 📸 Mapeo de imagen
+          imageUrl: item.imageUrl, 
           isNew: false,
           hasUnsavedChanges: false
         }));
@@ -54,16 +66,50 @@ export const useCatalog = () => {
           id: item.id!,
           name: item.name,
           description: item.description || '',
-          category: item.category || '', // 🚀 NUEVO CAMPO
+          category: item.category || '', 
           price: item.price,
           serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
-          imageUrl: item.imageUrl, // 📸 Mapeo de imagen
+          imageUrl: item.imageUrl, 
+          isNew: false,
+          hasUnsavedChanges: false
+        }));
+
+      // 📦 NUEVO: Formateamos Productos Físicos
+      const loadedProducts: UI_Product[] = items
+        .filter(item => item.type === 'PRODUCT')
+        .map(item => ({
+          id: item.id!,
+          name: item.name,
+          description: item.description || '',
+          category: item.category || '',
+          price: item.price,
+          stockQuantity: item.stockQuantity || 0,
+          sku: item.sku || '',
+          imageUrl: item.imageUrl,
+          isNew: false,
+          hasUnsavedChanges: false
+        }));
+
+      // 🎓 NUEVO: Formateamos Cursos
+      const loadedCourses: UI_Course[] = items
+        .filter(item => item.type === 'COURSE')
+        .map(item => ({
+          id: item.id!,
+          name: item.name,
+          description: item.description || '',
+          category: item.category || '',
+          price: item.price,
+          contentUrl: item.contentUrl || '',
+          imageUrl: item.imageUrl,
           isNew: false,
           hasUnsavedChanges: false
         }));
 
       setServices(loadedServices);
       setPackages(loadedPackages);
+      setProducts(loadedProducts); // 🚀 Setear Productos
+      setCourses(loadedCourses);   // 🚀 Setear Cursos
+
     } catch (error) {
       console.error("Error cargando inventario", error);
       toast.error("Hubo un error al cargar tu catálogo.");
@@ -77,14 +123,14 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'SERVICE',
       name: service.name,
-      category: service.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
+      category: service.category, 
       description: service.description,
       price: service.price,
       durationMinutes: service.duration,
       modality: mapDeliveryToModality(service.serviceDeliveryType),
       cancellationPolicy: service.cancellationPolicy,
       followUpPeriodDays: service.followUpPeriodDays,
-      imageUrl: service.imageUrl // 📸 Incluir en el envío
+      imageUrl: service.imageUrl 
     };
 
     try {
@@ -116,11 +162,11 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'PACKAGE',
       name: pkg.name,
-      category: pkg.category, // 🚀 AHORA TOMA EL VALOR REAL DEL FORMULARIO
+      category: pkg.category, 
       description: pkg.description,
       price: pkg.price,
       packageItemIds: pkg.serviceIds,
-      imageUrl: pkg.imageUrl // 📸 Incluir en el envío
+      imageUrl: pkg.imageUrl 
     };
 
     try {
@@ -147,10 +193,84 @@ export const useCatalog = () => {
     }
   };
 
+  // 📦 --- GESTIÓN DE PRODUCTOS ---
+  const saveProduct = async (product: UI_Product): Promise<UI_Product | null> => {
+    const payload: CatalogItemDTO = {
+      type: 'PRODUCT',
+      name: product.name,
+      category: product.category,
+      description: product.description,
+      price: product.price,
+      stockQuantity: product.stockQuantity,
+      sku: product.sku,
+      isDigital: false,
+      imageUrl: product.imageUrl
+    };
+
+    try {
+      let savedItem: CatalogItemDTO;
+      if (product.isNew) {
+        savedItem = await catalogService.createItem(payload);
+      } else {
+        savedItem = await catalogService.updateItem(product.id, payload);
+      }
+      return { ...product, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Error al guardar el producto.");
+      return null;
+    }
+  };
+
+  const deleteProduct = async (id: number): Promise<boolean> => {
+    try {
+      await catalogService.deleteItem(id);
+      return true;
+    } catch (error) {
+      toast.error("Error al eliminar el producto.");
+      return false;
+    }
+  };
+
+  // 🎓 --- GESTIÓN DE CURSOS ---
+  const saveCourse = async (course: UI_Course): Promise<UI_Course | null> => {
+    const payload: CatalogItemDTO = {
+      type: 'COURSE',
+      name: course.name,
+      category: course.category,
+      description: course.description,
+      price: course.price,
+      contentUrl: course.contentUrl,
+      isDigital: true,
+      imageUrl: course.imageUrl
+    };
+
+    try {
+      let savedItem: CatalogItemDTO;
+      if (course.isNew) {
+        savedItem = await catalogService.createItem(payload);
+      } else {
+        savedItem = await catalogService.updateItem(course.id, payload);
+      }
+      return { ...course, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Error al guardar el curso.");
+      return null;
+    }
+  };
+
+  const deleteCourse = async (id: number): Promise<boolean> => {
+    try {
+      await catalogService.deleteItem(id);
+      return true;
+    } catch (error) {
+      toast.error("Error al eliminar el curso.");
+      return false;
+    }
+  };
+
   // 📸 --- SUBIDA A GCP ---
   const uploadItemImage = async (file: File): Promise<string | null> => {
     try {
-      // Reutiliza la función de storeService con el enum correcto
       const response = await storeService.uploadMedia(file, 'ITEM_IMAGE' as any);
       return response.url;
     } catch (error) {
@@ -165,12 +285,20 @@ export const useCatalog = () => {
     setServices,
     packages,
     setPackages,
+    products,       // 🚀 Exportado
+    setProducts,    // 🚀 Exportado
+    courses,        // 🚀 Exportado
+    setCourses,     // 🚀 Exportado
     isLoading,
     fetchInventory,
     saveService,
     deleteService,
     savePackage,
     deletePackage,
-    uploadItemImage // 📸 Expuesto hacia la página
+    saveProduct,    // 🚀 Exportado
+    deleteProduct,  // 🚀 Exportado
+    saveCourse,     // 🚀 Exportado
+    deleteCourse,   // 🚀 Exportado
+    uploadItemImage 
   };
 };

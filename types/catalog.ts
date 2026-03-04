@@ -1,6 +1,6 @@
 // types/catalog.ts
 
-export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE';
+export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE'; // 🚀 NUEVOS TIPOS
 export type ServiceModality = 'IN_PERSON' | 'ONLINE' | 'HYBRID';
 export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
 export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';
@@ -13,7 +13,7 @@ export interface CatalogItemDTO {
   category?: string;
   description?: string;
   price: number;
-  imageUrl?: string; // 📸 Agregado para GCP
+  imageUrl?: string; 
   
   // Específico de Servicios
   durationMinutes?: number;
@@ -21,9 +21,17 @@ export interface CatalogItemDTO {
   cancellationPolicy?: CancellationPolicy | string;
   followUpPeriodDays?: number;
 
+  // 📦 Específico E-commerce (Productos Físicos)
+  sku?: string;
+  stockQuantity?: number;
+  isDigital?: boolean;
+
+  // 🎓 Específico Cursos / Contenido Digital
+  contentUrl?: string;
+
   // Específico de Paquetes
   packageItemIds?: number[];
-  packageContents?: any[]; // Resumen que manda el backend
+  packageContents?: any[]; 
 }
 
 // Interfaz para la UI de Servicios
@@ -32,12 +40,12 @@ export interface UI_Service {
   name: string;
   description: string;
   duration: number;
-  category: string; // 🚀 NUEVO Y OBLIGATORIO
+  category: string; 
   price: number;
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
   followUpPeriodDays?: number;
-  imageUrl?: string; // 📸 Agregado
+  imageUrl?: string; 
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
@@ -47,10 +55,37 @@ export interface UI_Package {
   id: number;
   name: string;
   description: string;
-  category?: string; // 🚀 NUEVO CAMPO OPCIONAL
+  category?: string; 
   price: number;
   serviceIds: number[];
-  imageUrl?: string; // 📸 Agregado
+  imageUrl?: string; 
+  isNew?: boolean;
+  hasUnsavedChanges?: boolean;
+}
+
+// 📦 NUEVO: Interfaz para la UI de Productos Físicos
+export interface UI_Product {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stockQuantity: number;
+  sku?: string;
+  imageUrl?: string;
+  isNew?: boolean;
+  hasUnsavedChanges?: boolean;
+}
+
+// 🎓 NUEVO: Interfaz para la UI de Cursos Digitales
+export interface UI_Course {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  contentUrl: string; // Enlace del video/PDF
+  imageUrl?: string;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }

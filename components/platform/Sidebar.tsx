@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, Star, HeartIcon } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, Star, HeartIcon, Menu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -32,12 +32,12 @@ const patientLinks = [
   { label: "Overview", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
   { label: "Appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
   { label: "Discover", href: "/patient/discover", icon: Sparkles, badge: null },
-    { label: "Vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
-      { label: "Messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
-    { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
-    { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
-    { label: "Favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
-{ label: "Dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
+  { label: "Vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
+  { label: "Messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
+  { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
+  { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
+  { label: "Favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
+  { label: "Dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
 
 ];
 
@@ -117,36 +117,23 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
         className
       )}>
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white dark:bg-slate-950 transition-colors">
-        <Link href={homeLink} className={cn("flex items-center gap-2.5 min-w-0", isCollapsed ? "justify-center w-full hidden" : "")}>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            className="w-9 h-9 rounded-xl bg-medical-600 dark:bg-medical-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <span className="font-bold text-white text-lg">Q</span>
-          </motion.div>
-          <AnimatePresence>
-            {!isCollapsed && (
+      <div className={cn("h-20 flex items-center px-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-xl transition-colors", isCollapsed ? "justify-center" : "justify-between")}>
+        <AnimatePresence>
+          {!isCollapsed && (
+            <Link href={homeLink} className="flex-1 overflow-hidden">
               <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                className="text-xl font-semibold text-slate-900 dark:text-white whitespace-nowrap">QuHealthy</motion.span>
-            )}
-          </AnimatePresence>
-        </Link>
-        {!isCollapsed && (
-          <Button variant="ghost" size="default" onClick={() => setIsCollapsed(true)}
-            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-8 w-8 flex-shrink-0">
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-        )}
-      </div>
+                className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 tracking-tight whitespace-nowrap inline-block">
+                QuHealthy
+              </motion.span>
+            </Link>
+          )}
+        </AnimatePresence>
 
-      {/* Toggle when collapsed */}
-      {isCollapsed && (
-        <div className="flex justify-center mt-4 mb-2">
-          <Button variant="ghost" size="default" onClick={() => setIsCollapsed(false)}
-            className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
+        <Button variant="outline" size="icon" onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 w-10 flex-shrink-0 shadow-sm transition-all ml-auto">
+          <Menu className="w-5 h-5" />
+        </Button>
+      </div>
 
       {/* Plan Banner (Only for Provider) */}
       <AnimatePresence>
