@@ -41,6 +41,17 @@ export default function PatientFamilyDashboard() {
         return <User className="w-6 h-6 text-indigo-500" />;
     };
 
+    // Helper para traducir el parentesco de forma segura (evita errores de TS con claves dinámicas)
+    const getTranslatedRelationship = (rel: string) => {
+        switch (rel) {
+            case 'CHILD': return t('rel_child');
+            case 'PARENT': return t('rel_parent');
+            case 'SPOUSE': return t('rel_spouse');
+            case 'SIBLING': return t('rel_sibling');
+            default: return t('rel_other');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[60vh]">
@@ -61,10 +72,10 @@ export default function PatientFamilyDashboard() {
                         </div>
                         <div>
                             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                {t('title', { defaultValue: 'Mi Familia' })}
+                                {t('title')}
                             </h1>
                             <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg font-light">
-                                {t('subtitle', { defaultValue: 'Gestiona los perfiles de tus seres queridos para agendar citas rápidamente.' })}
+                                {t('subtitle')}
                             </p>
                         </div>
                     </div>
@@ -74,7 +85,7 @@ export default function PatientFamilyDashboard() {
                             onClick={() => setShowAddForm(true)}
                             className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl shadow-md hover:bg-slate-800 dark:hover:bg-slate-200 font-bold"
                         >
-                            <UserPlus className="w-4 h-4 mr-2" /> {t('btn_add_member', { defaultValue: 'Añadir Familiar' })}
+                            <UserPlus className="w-4 h-4 mr-2" /> {t('btn_add_member')}
                         </Button>
                     )}
                 </div>
@@ -93,38 +104,38 @@ export default function PatientFamilyDashboard() {
                                     <X className="w-5 h-5" />
                                 </button>
                                 
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Nuevo Perfil Familiar</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{t('form_title')}</h3>
                                 
                                 <form onSubmit={handleAddSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Nombre(s)</label>
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_first_name')}</label>
                                             <Input required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Apellidos</label>
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_last_name')}</label>
                                             <Input required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Fecha de Nacimiento</label>
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_dob')}</label>
                                             <Input type="date" required value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 block w-full" />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Parentesco</label>
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_relationship')}</label>
                                             <select required value={formData.relationship} onChange={e => setFormData({...formData, relationship: e.target.value})} className="w-full h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:ring-2 focus:ring-indigo-500">
-                                                <option value="CHILD">Hijo/a</option>
-                                                <option value="PARENT">Padre/Madre</option>
-                                                <option value="SPOUSE">Pareja</option>
-                                                <option value="SIBLING">Hermano/a</option>
-                                                <option value="OTHER">Otro</option>
+                                                <option value="CHILD">{t('rel_child')}</option>
+                                                <option value="PARENT">{t('rel_parent')}</option>
+                                                <option value="SPOUSE">{t('rel_spouse')}</option>
+                                                <option value="SIBLING">{t('rel_sibling')}</option>
+                                                <option value="OTHER">{t('rel_other')}</option>
                                             </select>
                                         </div>
                                     </div>
                                     
                                     <div className="pt-4 flex justify-end gap-3">
-                                        <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="rounded-xl border-slate-200 dark:border-slate-700">Cancelar</Button>
+                                        <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="rounded-xl border-slate-200 dark:border-slate-700">{t('btn_cancel')}</Button>
                                         <Button type="submit" disabled={isSubmitting} className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
-                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />} Guardar Perfil
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />} {t('btn_save')}
                                         </Button>
                                     </div>
                                 </form>
@@ -153,7 +164,7 @@ export default function PatientFamilyDashboard() {
                                             {member.firstName} {member.lastName}
                                         </h3>
                                         <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                            {member.relationship}
+                                            {getTranslatedRelationship(member.relationship)}
                                         </span>
                                     </div>
                                 </div>
@@ -161,7 +172,7 @@ export default function PatientFamilyDashboard() {
                                 <div className="space-y-2 mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
                                     <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                         <Calendar className="w-4 h-4 mr-2 opacity-70" />
-                                        {calculateAge(member.dateOfBirth)} años (Nacimiento: {member.dateOfBirth})
+                                        {calculateAge(member.dateOfBirth)} {t('age_years')} ({t('dob_prefix')}: {member.dateOfBirth})
                                     </div>
                                 </div>
                             </div>
@@ -174,16 +185,16 @@ export default function PatientFamilyDashboard() {
                     <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
                         <Users className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                            Aún no has agregado familiares
+                            {t('empty_title')}
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">
-                            Agrega a tus hijos, pareja o padres para agendar citas a su nombre de forma rápida.
+                            {t('empty_desc')}
                         </p>
                         <Button 
                             onClick={() => setShowAddForm(true)}
                             className="rounded-full bg-indigo-600 text-white hover:bg-indigo-700 font-bold"
                         >
-                            <UserPlus className="w-4 h-4 mr-2" /> Añadir mi primer familiar
+                            <UserPlus className="w-4 h-4 mr-2" /> {t('btn_add_first')}
                         </Button>
                     </div>
                 )}

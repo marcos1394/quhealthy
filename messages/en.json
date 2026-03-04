@@ -1972,6 +1972,29 @@
     "view_profile": "View Profile"
   },
 
+  "PatientFamilyDashboard": {
+    "title": "My Family",
+    "subtitle": "Manage your loved ones' profiles to quickly schedule appointments.",
+    "btn_add_member": "Add Family Member",
+    "empty_title": "You haven't added any family members yet",
+    "empty_desc": "Add your children, partner, or parents to quickly book appointments on their behalf.",
+    "btn_add_first": "Add my first family member",
+    "form_title": "New Family Profile",
+    "label_first_name": "First Name(s)",
+    "label_last_name": "Last Name",
+    "label_dob": "Date of Birth",
+    "label_relationship": "Relationship",
+    "rel_child": "Child",
+    "rel_parent": "Parent",
+    "rel_spouse": "Spouse / Partner",
+    "rel_sibling": "Sibling",
+    "rel_other": "Other",
+    "btn_cancel": "Cancel",
+    "btn_save": "Save Profile",
+    "age_years": "years old",
+    "dob_prefix": "DOB"
+  },
+
     "PatientVideoCall": {
         "connecting": "Connecting to video call...",
         "error": "Connection error",

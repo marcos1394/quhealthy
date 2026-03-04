@@ -1971,6 +1971,29 @@
     "toast_error": "No pudimos cargar tu historial. Intenta de nuevo."
   },
 
+  "PatientFamilyDashboard": {
+    "title": "Mi Familia",
+    "subtitle": "Gestiona los perfiles de tus seres queridos para agendar citas rápidamente.",
+    "btn_add_member": "Añadir Familiar",
+    "empty_title": "Aún no has agregado familiares",
+    "empty_desc": "Agrega a tus hijos, pareja o padres para agendar citas a su nombre de forma rápida.",
+    "btn_add_first": "Añadir mi primer familiar",
+    "form_title": "Nuevo Perfil Familiar",
+    "label_first_name": "Nombre(s)",
+    "label_last_name": "Apellidos",
+    "label_dob": "Fecha de Nacimiento",
+    "label_relationship": "Parentesco",
+    "rel_child": "Hijo/a",
+    "rel_parent": "Padre/Madre",
+    "rel_spouse": "Pareja",
+    "rel_sibling": "Hermano/a",
+    "rel_other": "Otro",
+    "btn_cancel": "Cancelar",
+    "btn_save": "Guardar Perfil",
+    "age_years": "años",
+    "dob_prefix": "Nacimiento"
+  },
+
   "PatientFavoritesDashboard": {
     "title": "Mis Guardados",
     "subtitle": "Tus especialistas de confianza y paquetes de salud a un clic de distancia.",
