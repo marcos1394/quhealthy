@@ -23,6 +23,8 @@ import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { CalendarDay } from "@/components/booking/CalendarDay";
 import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
+// 🚀 NUEVO: Importamos el selector de paciente
+import { PatientSelector } from "@/components/booking/PatientSelector";
 import {
   format,
   addMonths,
@@ -266,6 +268,40 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               </motion.section>
             )}
           </AnimatePresence>
+
+          {/* Step 3: Selector de Paciente (Solo aparece si ya eligió hora) */}
+          <AnimatePresence>
+            {selectedTime && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center border-2 border-emerald-200 dark:border-emerald-500/30">
+                    <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">3</span>
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+                      {/* Puedes mover este texto a tu next-intl luego: t('step_patient') */}
+                      Paciente
+                    </h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Confirma quién recibirá la atención médica
+                    </p>
+                  </div>
+                </div>
+
+                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                  <CardContent className="p-6 md:p-8">
+                    {/* 🚀 AQUÍ VIVE NUESTRO COMPONENTE */}
+                    <PatientSelector />
+                  </CardContent>
+                </Card>
+              </motion.section>
+            )}
+          </AnimatePresence>
+
         </div>
 
         {/* Summary Sidebar */}
