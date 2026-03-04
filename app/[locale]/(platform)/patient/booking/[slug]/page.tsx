@@ -43,7 +43,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const router = useRouter();
   const t = useTranslations('PatientBooking');
 
-  const { cart, providerId, providerName, providerColor, getTotalPrice, getTotalDuration } = useBookingStore();
+  const { cart, providerId, providerName, providerColor, dependentId, getTotalPrice, getTotalDuration } = useBookingStore();
   const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
   const { processCheckout, isProcessing } = useBookingCheckout();
 
@@ -76,6 +76,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
         selectedDate,
         selectedTime,
         cart,
+        dependentId, // 🚀 NUEVO
         consumerSymptoms: symptomsText
       });
     }

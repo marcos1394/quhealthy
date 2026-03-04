@@ -9,12 +9,13 @@ import { toast } from 'react-toastify';
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const processCheckout = async ({ 
-    providerId, 
-    consumerId, 
-    selectedDate, 
-    selectedTime, 
-    cart, 
+  const processCheckout = async ({
+    providerId,
+    consumerId,
+    dependentId, // 🚀 NUEVO
+    selectedDate,
+    selectedTime,
+    cart,
     consumerSymptoms // Recibimos el texto desde el componente
   }: CheckoutParams) => {
     setIsProcessing(true);
@@ -36,7 +37,7 @@ export const useBookingCheckout = () => {
 
       // 🚀 SOLUCIÓN TYPESCRIPT: Mapeo seguro de Modalidad de Servicio a Tipo de Cita
       let finalAppointmentType: 'IN_PERSON' | 'ONLINE' = 'IN_PERSON'; // Default seguro
-      
+
       if (mainItem.modality === 'ONLINE') {
         finalAppointmentType = 'ONLINE';
       } else if (mainItem.modality === 'IN_PERSON') {
@@ -48,13 +49,14 @@ export const useBookingCheckout = () => {
       const payload: CreateAppointmentRequest = {
         providerId,
         consumerId, // Si el doctor agenda, aquí va el ID del paciente. Si no, va undefined.
-        serviceId: mainItem.id, 
+        dependentId, // 🚀 NUEVO
+        serviceId: mainItem.id,
         startTime: startTimeIso,
-        
+
         // Asignamos la variable segura que ya pasó la validación
-        appointmentType: finalAppointmentType, 
-        
-        paymentMethod: 'CREDIT_CARD', 
+        appointmentType: finalAppointmentType,
+
+        paymentMethod: 'CREDIT_CARD',
         consumerSymptoms: consumerSymptoms || `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
       };
 
@@ -77,9 +79,9 @@ export const useBookingCheckout = () => {
 
     } catch (error: any) {
       console.error("❌ Checkout Error:", error);
-      
+
       const errorData = error.response?.data;
-      
+
       if (errorData?.code === "VALIDATION_ERROR") {
         const validationMsgs = Object.values(errorData.errors).join(", ");
         toast.error(`Datos inválidos: ${validationMsgs}`, { theme: 'dark' });
@@ -89,8 +91,8 @@ export const useBookingCheckout = () => {
         const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
         toast.error(errorMsg, { theme: 'dark' });
       }
-      
-      setIsProcessing(false); 
+
+      setIsProcessing(false);
     }
   };
 
