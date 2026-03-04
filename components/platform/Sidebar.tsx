@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +33,9 @@ const patientLinks = [
   { label: "Discover", href: "/patient/discover", icon: Sparkles, badge: null },
     { label: "Vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
       { label: "Messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
-        { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
+    { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
+    { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
+
 
 ];
 

@@ -64,5 +64,16 @@ export const reviewService = {
     replyToReview: async (reviewId: number, payload: ReplyReviewPayload): Promise<Review> => {
         const response = await axiosInstance.post<Review>(`${BASE_URL}/${reviewId}/reply`, payload);
         return response.data;
+    },
+
+    /**
+     * 👤 Obtiene el historial de reseñas escritas por el paciente autenticado.
+     * Incluye todos los estados (PENDING, APPROVED, REJECTED) y respuestas de doctores.
+     */
+    getMyReviews: async (page = 0, size = 20): Promise<PageResponse<Review>> => {
+        const response = await axiosInstance.get<PageResponse<Review>>(`${BASE_URL}/consumer/me`, {
+            params: { page, size, sort: 'createdAt,desc' }
+        });
+        return response.data;
     }
 };
