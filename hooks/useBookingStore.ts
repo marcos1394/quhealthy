@@ -8,17 +8,22 @@ interface BookingState {
   providerSlug: string | null;   // Necesario para la URL
   providerName: string | null;   // Necesario para el UI
   providerColor: string | null;  // Necesario para el tema (Dark/Neon)
-  
+
   // El carrito de compras
   cart: StorefrontItem[];
-  
+
+  // Para el paciente (Titular o Familiar)
+  dependentId: number | null;
+
+
   // Acciones
   // 🚀 ACTUALIZADO: Ahora recibe el ID numérico
   setProvider: (id: number, slug: string, name: string, color: string) => void;
   addToCart: (item: StorefrontItem, currentSlug: string) => void;
   removeFromCart: (itemId: number) => void;
+  setDependentId: (id: number | null) => void;
   clearCart: () => void;
-  
+
   // Selectores derivados
   getTotalPrice: () => number;
   getTotalDuration: () => number;
@@ -30,24 +35,25 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   providerName: null,
   providerColor: null,
   cart: [],
+  dependentId: null,
 
   // 🚀 ACTUALIZADO: Guardamos el ID en el estado global
-  setProvider: (id, slug, name, color) => 
-    set({ 
-      providerId: id, 
-      providerSlug: slug, 
-      providerName: name, 
-      providerColor: color 
+  setProvider: (id, slug, name, color) =>
+    set({
+      providerId: id,
+      providerSlug: slug,
+      providerName: name,
+      providerColor: color
     }),
 
   addToCart: (item, currentSlug) => {
     const { providerSlug, clearCart } = get();
-    
+
     // Si el paciente cambia de doctor (cambia el slug), limpiamos el carrito anterior por seguridad
     if (providerSlug && providerSlug !== currentSlug) {
       clearCart();
     }
-    
+
     set((state) => {
       // Evitamos duplicados en el carrito (buena UX para servicios médicos)
       const exists = state.cart.some((cartItem) => cartItem.id === item.id);
@@ -57,23 +63,26 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     });
   },
 
-  removeFromCart: (itemId) => 
+  removeFromCart: (itemId) =>
     set((state) => ({ cart: state.cart.filter((i) => i.id !== itemId) })),
 
+  setDependentId: (id) => set({ dependentId: id }),
+
   // 🚀 ACTUALIZADO: Limpiamos también el providerId
-  clearCart: () => 
-    set({ 
-      cart: [], 
-      providerId: null, 
-      providerSlug: null, 
-      providerName: null, 
-      providerColor: null 
+  clearCart: () =>
+    set({
+      cart: [],
+      providerId: null,
+      providerSlug: null,
+      providerName: null,
+      providerColor: null,
+      dependentId: null
     }),
 
   getTotalPrice: () => {
     return get().cart.reduce((total, item) => total + item.price, 0);
   },
-  
+
   getTotalDuration: () => {
     return get().cart.reduce((total, item) => total + (item.durationMinutes || 0), 0);
   }

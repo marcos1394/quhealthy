@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
+import { PatientSelector } from "@/components/booking/PatientSelector";
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
@@ -135,6 +136,11 @@ export function BookingSummary({
                 </motion.div>
               ))}
             </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-800" />
+
+            {/* Selector de Paciente */}
+            <PatientSelector />
 
             <Separator className="bg-slate-200 dark:bg-slate-800" />
 
