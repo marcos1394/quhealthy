@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { useProviderScore } from '@/hooks/useProviderScore';
 import { ProviderScoreResponse } from '@/types/providerScore';
 import { ProviderScoreBadge } from '@/components/provider/ProviderScoreBadge';
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
@@ -145,6 +146,24 @@ const MapProviderCard = ({
           {/* 🚀 EL NUEVO BADGE DE SCORE */}
           <div className="absolute top-3 left-3 z-10">
             <ProviderScoreBadge scoreData={scoreData} />
+          </div>
+          {/* 🚀 EL NUEVO BOTÓN DE FAVORITOS (Corazón) */}
+          {/* Lo ponemos absolute top-3 right-3. Si hay icono de video, lo empujamos o lo ponemos al lado */}
+          <div className="absolute top-3 right-3 z-20 flex gap-2">
+            
+            {/* Si tiene video y no está hovereado, mostramos el icono de Play */}
+            {provider.previewVideoUrl && !isHovered && !isSelected && (
+              <div className="bg-black/50 backdrop-blur-md rounded-full p-1.5 border border-white/10 flex items-center justify-center w-8 h-8">
+                <PlayCircle className="w-4 h-4 text-white/80" />
+              </div>
+            )}
+
+            {/* Inyectamos nuestro componente inteligente */}
+            <FavoriteButton 
+               entityType="PROVIDER" 
+               entityId={provider.id} 
+               // initialIsFavorite={provider.isFavorite} // <- Descomenta esto cuando el backend te envíe este dato
+            />
           </div>
 
           {provider.previewVideoUrl && !isHovered && !isSelected && (
