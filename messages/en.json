@@ -1958,6 +1958,20 @@
     "pending_integration": "We are cross-referencing data with your recent appointments. Soon you will see who you need to rate here!",
     "toast_error": "We couldn't load your history. Please try again."
   },
+
+  "PatientFavoritesDashboard": {
+    "title": "My Saved Items",
+    "subtitle": "Your trusted specialists and health packages just a click away.",
+    "tab_providers": "Specialists",
+    "tab_packages": "Promotions & Packages",
+    "empty_providers_title": "No saved specialists yet",
+    "empty_providers_desc": "Explore the map and tap the heart on the doctors you want to save for later.",
+    "empty_packages_title": "No saved packages yet",
+    "empty_packages_desc": "When you see an interesting health package, save it to easily find it here.",
+    "btn_explore": "Explore Map",
+    "view_profile": "View Profile"
+  },
+
     "PatientVideoCall": {
         "connecting": "Connecting to video call...",
         "error": "Connection error",

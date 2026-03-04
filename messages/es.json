@@ -1971,6 +1971,19 @@
     "toast_error": "No pudimos cargar tu historial. Intenta de nuevo."
   },
 
+  "PatientFavoritesDashboard": {
+    "title": "Mis Guardados",
+    "subtitle": "Tus especialistas de confianza y paquetes de salud a un clic de distancia.",
+    "tab_providers": "Especialistas",
+    "tab_packages": "Promos y Paquetes",
+    "empty_providers_title": "Aún no tienes especialistas guardados",
+    "empty_providers_desc": "Explora el mapa y dale al corazón a los doctores que quieras tener a la mano.",
+    "empty_packages_title": "Aún no tienes paquetes guardados",
+    "empty_packages_desc": "Cuando veas un paquete de salud interesante, guárdalo para encontrarlo fácilmente aquí.",
+    "btn_explore": "Explorar Mapa",
+    "view_profile": "Ver Perfil"
+  },
+
     "PatientVideoCall": {
         "connecting": "Conectando a la videollamada...",
         "error": "Error de conexión",

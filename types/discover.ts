@@ -15,4 +15,5 @@ export interface DiscoverProvider {
   color: string;
   isPremium: boolean;
   distanceKm?: number; // Lo calcularemos dinámicamente más adelante
+  city?: string;
 }
