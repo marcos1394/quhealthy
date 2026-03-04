@@ -3,7 +3,12 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, UserPlus, Baby, User, Trash2, Calendar, Plus, X, Loader2 } from 'lucide-react';
+import { Users, UserPlus, Baby, User, Trash2, Calendar, Plus, X, Loader2, CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +42,8 @@ export default function PatientFamilyDashboard() {
 
     // Helper de iconos
     const getRelationshipIcon = (rel: string) => {
-        if (rel === 'CHILD') return <Baby className="w-6 h-6 text-indigo-500" />;
-        return <User className="w-6 h-6 text-indigo-500" />;
+        if (rel === 'CHILD') return <Baby className="w-6 h-6 text-medical-500 text-rose-500" />;
+        return <User className="w-6 h-6 text-medical-500 text-rose-500" />;
     };
 
     // Helper para traducir el parentesco de forma segura (evita errores de TS con claves dinámicas)
@@ -55,7 +60,7 @@ export default function PatientFamilyDashboard() {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[60vh]">
-                <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+                <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
             </div>
         );
     }
@@ -63,11 +68,11 @@ export default function PatientFamilyDashboard() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans pb-20">
             <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 space-y-8">
-                
+
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-5">
-                        <div className="p-3.5 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-2xl shadow-lg shadow-indigo-500/20 text-white">
+                        <div className="p-3.5 bg-gradient-to-br from-medical-500 to-medical-400 dark:from-medical-600 dark:to-medical-500 rounded-2xl shadow-lg shadow-medical-500/20 text-white">
                             <Users className="w-8 h-8" />
                         </div>
                         <div>
@@ -79,9 +84,9 @@ export default function PatientFamilyDashboard() {
                             </p>
                         </div>
                     </div>
-                    
+
                     {!showAddForm && (
-                        <Button 
+                        <Button
                             onClick={() => setShowAddForm(true)}
                             className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl shadow-md hover:bg-slate-800 dark:hover:bg-slate-200 font-bold"
                         >
@@ -93,36 +98,65 @@ export default function PatientFamilyDashboard() {
                 {/* Formulario para Añadir */}
                 <AnimatePresence>
                     {showAddForm && (
-                        <motion.div 
-                            initial={{ opacity: 0, height: 0 }} 
-                            animate={{ opacity: 1, height: 'auto' }} 
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/30 rounded-3xl p-6 md:p-8 shadow-sm relative">
+                            <div className="bg-white dark:bg-slate-900 border border-medical-100 dark:border-medical-900/30 rounded-3xl p-6 md:p-8 shadow-sm relative">
                                 <button onClick={() => setShowAddForm(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-slate-800 p-2 rounded-full transition-colors">
                                     <X className="w-5 h-5" />
                                 </button>
-                                
+
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{t('form_title')}</h3>
-                                
+
                                 <form onSubmit={handleAddSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
                                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_first_name')}</label>
-                                            <Input required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
+                                            <Input required value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_last_name')}</label>
-                                            <Input required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
+                                            <Input required value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_dob')}</label>
-                                            <Input type="date" required value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 block w-full" />
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                            "w-full h-10 justify-start text-left font-normal rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800",
+                                                            !formData.dateOfBirth && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {formData.dateOfBirth ? (
+                                                            format(new Date(`${formData.dateOfBirth}T12:00:00`), "PPP", { locale: es })
+                                                        ) : (
+                                                            <span>Seleccionar fecha</span>
+                                                        )}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <CalendarUI
+                                                        mode="single"
+                                                        selected={formData.dateOfBirth ? new Date(`${formData.dateOfBirth}T12:00:00`) : undefined}
+                                                        onSelect={(date) => setFormData({ ...formData, dateOfBirth: date ? format(date, "yyyy-MM-dd") : "" })}
+                                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                        initialFocus
+                                                        captionLayout="dropdown-buttons"
+                                                        fromYear={1900}
+                                                        toYear={new Date().getFullYear()}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('label_relationship')}</label>
-                                            <select required value={formData.relationship} onChange={e => setFormData({...formData, relationship: e.target.value})} className="w-full h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:ring-2 focus:ring-indigo-500">
+                                            <select required value={formData.relationship} onChange={e => setFormData({ ...formData, relationship: e.target.value })} className="w-full h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:ring-2 focus:ring-medical-500">
                                                 <option value="CHILD">{t('rel_child')}</option>
                                                 <option value="PARENT">{t('rel_parent')}</option>
                                                 <option value="SPOUSE">{t('rel_spouse')}</option>
@@ -131,10 +165,10 @@ export default function PatientFamilyDashboard() {
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="pt-4 flex justify-end gap-3">
                                         <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="rounded-xl border-slate-200 dark:border-slate-700">{t('btn_cancel')}</Button>
-                                        <Button type="submit" disabled={isSubmitting} className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+                                        <Button type="submit" disabled={isSubmitting} className="rounded-xl bg-medical-600 hover:bg-medical-700 text-white font-bold">
                                             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />} {t('btn_save')}
                                         </Button>
                                     </div>
@@ -156,14 +190,14 @@ export default function PatientFamilyDashboard() {
                                 </div>
 
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-500/20">
+                                    <div className="w-14 h-14 rounded-full bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center border border-medical-100 dark:border-medical-500/20">
                                         {getRelationshipIcon(member.relationship)}
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight">
                                             {member.firstName} {member.lastName}
                                         </h3>
-                                        <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                        <span className="text-xs font-semibold text-medical-600 dark:text-medical-400 bg-medical-50 dark:bg-medical-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
                                             {getTranslatedRelationship(member.relationship)}
                                         </span>
                                     </div>
@@ -190,9 +224,9 @@ export default function PatientFamilyDashboard() {
                         <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">
                             {t('empty_desc')}
                         </p>
-                        <Button 
+                        <Button
                             onClick={() => setShowAddForm(true)}
-                            className="rounded-full bg-indigo-600 text-white hover:bg-indigo-700 font-bold"
+                            className="rounded-full bg-medical-600 text-white hover:bg-medical-700 font-bold px-6 py-6"
                         >
                             <UserPlus className="w-4 h-4 mr-2" /> {t('btn_add_first')}
                         </Button>
