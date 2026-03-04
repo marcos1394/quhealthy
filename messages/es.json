@@ -1953,6 +1953,24 @@
     "toast_error": "Ocurrió un error al enviar tu reseña. Intenta nuevamente."
 
     },
+
+    "PatientReviewsDashboard": {
+    "title": "Mis Reseñas",
+    "subtitle": "Gestiona tus opiniones y descubre las respuestas de tus especialistas.",
+    "tab_history": "Historial de Opiniones",
+    "tab_pending": "Pendientes por Calificar",
+    "status_approved": "Publicada",
+    "status_pending": "En revisión",
+    "status_rejected": "Rechazada",
+    "no_comment": "Calificación sin comentario.",
+    "provider_reply": "Respuesta del Especialista",
+    "rejected_notice": "Esta reseña no cumple con nuestras normas comunitarias y no es visible al público.",
+    "empty_history_title": "Aún no tienes reseñas publicadas",
+    "empty_history_desc": "Tus opiniones aparecerán aquí después de calificar tus citas.",
+    "pending_integration": "Estamos cruzando datos con tus citas recientes. ¡Pronto verás aquí a quién te falta calificar!",
+    "toast_error": "No pudimos cargar tu historial. Intenta de nuevo."
+  },
+
     "PatientVideoCall": {
         "connecting": "Conectando a la videollamada...",
         "error": "Error de conexión",

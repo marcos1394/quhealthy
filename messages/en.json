@@ -1941,6 +1941,23 @@
     "toast_success": "Thank you! Your review has been submitted successfully.",
     "toast_error": "An error occurred while submitting your review. Please try again."
     },
+
+    "PatientReviewsDashboard": {
+    "title": "My Reviews",
+    "subtitle": "Manage your opinions and discover responses from your specialists.",
+    "tab_history": "Review History",
+    "tab_pending": "Pending to Rate",
+    "status_approved": "Published",
+    "status_pending": "Under Review",
+    "status_rejected": "Rejected",
+    "no_comment": "Rating without a comment.",
+    "provider_reply": "Specialist's Reply",
+    "rejected_notice": "This review does not meet our community guidelines and is not visible to the public.",
+    "empty_history_title": "You haven't published any reviews yet",
+    "empty_history_desc": "Your opinions will appear here after you rate your appointments.",
+    "pending_integration": "We are cross-referencing data with your recent appointments. Soon you will see who you need to rate here!",
+    "toast_error": "We couldn't load your history. Please try again."
+  },
     "PatientVideoCall": {
         "connecting": "Connecting to video call...",
         "error": "Connection error",
