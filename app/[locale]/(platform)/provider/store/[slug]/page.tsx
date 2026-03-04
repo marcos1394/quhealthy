@@ -30,6 +30,9 @@ import { cn } from "@/lib/utils";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 import { useBookingStore } from "@/hooks/useBookingStore";
+// 🚀 NUEVOS IMPORTS PARA FAVORITOS
+import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { useMyFavorites } from "@/hooks/useMyFavorites";
 
 export default function PublicStorePage() {
   const params = useParams();
@@ -40,6 +43,10 @@ export default function PublicStorePage() {
   const [activeTab, setActiveTab] = useState<'servicios' | 'paquetes'>('servicios');
   const { cart, addToCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
+
+  // 🚀 NUEVO: Traer los IDs de los doctores y paquetes que el paciente ha guardado
+  const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
+  const { favoriteIds: favoritePackageIds } = useMyFavorites('PACKAGE');
 
   const { store, isLoading, isError } = useStorefront(slug);
 
@@ -141,6 +148,16 @@ export default function PublicStorePage() {
             <div className="w-full h-full bg-slate-200 dark:bg-zinc-900" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#09090b] dark:via-[#09090b]/80 dark:to-transparent" />
+
+          {/* 🚀 EL BOTÓN DE FAVORITO DEL DOCTOR */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+            <FavoriteButton
+              entityType="PROVIDER"
+              entityId={store.providerId}
+              initialIsFavorite={favoriteProviderIds.has(store.providerId)}
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-black/20 hover:bg-black/40 backdrop-blur-xl border-white/20 shadow-2xl"
+            />
+          </div>
         </div>
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 relative -mt-32 z-10">
@@ -361,6 +378,16 @@ export default function PublicStorePage() {
                     key={pkg.id}
                     className="relative bg-gradient-to-br from-white/80 dark:from-white/10 to-slate-50 dark:to-white/5 border border-slate-200 dark:border-white/20 rounded-[2rem] p-1 transition-all shadow-lg overflow-hidden group"
                   >
+                    {/* 🚀 EL BOTÓN DE FAVORITO DEL PAQUETE */}
+                    <div className="absolute top-5 right-5 z-20">
+                      <FavoriteButton
+                        entityType="PACKAGE"
+                        entityId={pkg.id}
+                        initialIsFavorite={favoritePackageIds.has(pkg.id)}
+                        className="bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/50 backdrop-blur-md"
+                      />
+                    </div>
+
                     <div
                       className="absolute inset-0 opacity-10 dark:opacity-20 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity duration-700 blur-xl"
                       style={{ backgroundColor: safePrimaryColor }}
