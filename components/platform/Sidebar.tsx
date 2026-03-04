@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
+import { Label } from "recharts";
 
 const providerLinks = [
   { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
@@ -36,7 +37,7 @@ const patientLinks = [
     { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
     { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
     { label: "Favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
-
+{ label: "Dependents", href: "/patient/dashboard/dependents", icon: Users, badge: null },
 
 ];
 
