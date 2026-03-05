@@ -6,7 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, CalendarDays, Users, CreditCard, Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, Star, HeartIcon, Menu } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, CreditCard, 
+  Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, 
+  BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, 
+  Star, HeartIcon, Menu, Package, ClipboardIcon, 
+  Handshake,
+  History} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -19,8 +24,13 @@ const providerLinks = [
   { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
   { label: "Calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: "blue" } },
   { label: "Patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
-  { label: "Services", href: "/provider/store", icon: BriefcaseMedical, badge: null },
+  { label: "Store", href: "/provider/store", icon: BriefcaseMedical, badge: null },
   { label: "Billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
+    { label: "Orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
+    { label: "Appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
+    { label: "Referrals", href: "/provider/dashboard/referrals", icon: Handshake, badge: null },
+    { label: "History", href: "/provider/dashboard/history", icon: History, badge: null },
+
 ];
 
 const providerSettingsLinks = [

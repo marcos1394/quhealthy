@@ -2615,5 +2615,35 @@
       "tip_title": "Tip de oro",
       "tip_desc": "Sube una foto atractiva para cada servicio. Los pacientes reservan un 40% más cuando ven una imagen clara de lo que ofreces."
     }
-  }
+  },
+  
+  "ProviderOrders": {
+  "title": "Logística de Pedidos",
+  "subtitle": "Gestiona el envío de productos físicos a tus pacientes.",
+  "col_order": "Pedido",
+  "col_patient": "Paciente / Envío",
+  "col_items": "Artículos",
+  "col_status": "Estado",
+  "col_actions": "Acciones",
+  "loading": "Cargando pedidos...",
+  "empty_state": "No tienes pedidos físicos por procesar en este momento.",
+  "badge_processing": "Por Enviar",
+  "badge_shipped": "En Tránsito",
+  "badge_delivered": "Entregado",
+  "tracking_label": "Guía: ",
+  "btn_ship": "Ingresar Guía",
+  "btn_deliver": "Marcar Entregado",
+  "modal_title": "Registrar Envío",
+  "modal_desc": "Ingresa el número de guía (tracking) para el pedido #{id} de {name}.",
+  "modal_input_label": "Número de Guía (FedEx, DHL, Estafeta, etc.)",
+  "modal_placeholder": "Ej. 1Z999...",
+  "btn_cancel": "Cancelar",
+  "btn_confirm": "Confirmar Envío",
+  "toast_load_error": "Error al cargar los pedidos.",
+  "toast_ship_success": "¡Pedido marcado como enviado exitosamente!",
+  "toast_ship_error": "Error al registrar el envío.",
+  "toast_deliver_success": "Pedido entregado.",
+  "toast_deliver_error": "Error al actualizar estado."
+}
+
 }

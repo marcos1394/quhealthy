@@ -2611,4 +2611,33 @@
       "tip_title": "Golden Tip",
       "tip_desc": "Upload an attractive photo for each service. Patients book 40% more when they see a clear image of what you offer."
 }
-}}
+},
+"ProviderOrders": {
+   "title": "Order Logistics",
+  "subtitle": "Manage the shipping of physical products to your patients.",
+  "col_order": "Order",
+  "col_patient": "Patient / Shipment",
+  "col_items": "Items",
+  "col_status": "Status",
+  "col_actions": "Actions",
+  "loading": "Loading orders...",
+  "empty_state": "You have no physical orders to process at this time.",
+  "badge_processing": "Processing",
+  "badge_shipped": "Shipped",
+  "badge_delivered": "Delivered",
+  "tracking_label": "Tracking: ",
+  "btn_ship": "Enter Tracking Number",
+  "btn_deliver": "Mark as Delivered",
+  "modal_title": "Register Shipment for Order #{id}",
+  "modal_desc": "Enter the tracking number for order #{id} from {name}.",
+  "modal_input_label": "Tracking Number (FedEx, DHL, Estafeta, etc.)",
+  "modal_placeholder": "e.g. 1Z999...",
+  "btn_cancel": "Cancel",
+  "btn_confirm": "Confirm Shipment",
+  "toast_load_error": "Error loading orders. Please try again.",
+  "toast_ship_success": "Order marked as shipped successfully!",
+  "toast_ship_error": "Error registering shipment.",
+  "toast_deliver_success": "Order delivered.",
+  "toast_deliver_error": "Error updating status."
+}
+}
