@@ -1,21 +1,29 @@
-// types/storefront.ts
-
 export interface StorefrontItem {
   id: number;
-  type: 'SERVICE' | 'PACKAGE';
+  type: 'SERVICE' | 'PACKAGE' | 'PRODUCT' | 'COURSE'; // 🚀 AHORA SOPORTA LOS 4 TIPOS
   category: string;
   name: string;
   description: string;
   price: number;
-  durationMinutes?: number;
   imageUrl?: string;
   
-  // 🚀 NUEVOS CAMPOS AÑADIDOS DESDE EL BACKEND
-  compareAtPrice?: number | null;
+  // 🩺 Campos de Servicio
+  durationMinutes?: number;
   modality?: 'IN_PERSON' | 'ONLINE' | 'HYBRID';
   cancellationPolicy?: string;
   followUpPeriodDays?: number;
+
+  // 🚀 Campos de Marketing (Compartidos)
+  compareAtPrice?: number | null;
   searchTags?: string[];
+
+  // 📦 NUEVOS CAMPOS: Productos Físicos (Farmacia)
+  sku?: string;
+  stockQuantity?: number;
+  isDigital?: boolean;
+
+  // 🎓 NUEVOS CAMPOS: Cursos y Contenido Digital
+  contentUrl?: string;
 }
 
 export interface StorefrontData {
@@ -25,22 +33,26 @@ export interface StorefrontData {
   bio: string;
   logoUrl: string | null;
   bannerUrl: string | null;
-  previewVideoUrl?: string | null; // Agregado para el hover en la UI
+  previewVideoUrl?: string | null; 
   primaryColor: string;
   whatsappEnabled: boolean;
   instagramUrl: string | null;
   
-  // 🚀 NUEVOS CAMPOS DE UBICACIÓN Y TIENDA
+  // Datos de Ubicación y Tienda
   address?: string;
   city?: string;
   latitude?: number;
   longitude?: number;
   languages?: string[];
   cancellationPolicy?: string;
-  tags?: string[]; // 🚀 AQUÍ ESTÁN NUESTROS TAGS DEL NEGOCIO
+  tags?: string[]; 
 
   rating: number;
   reviewsCount: number;
+
+  // 🚀 EL INVENTARIO COMPLETO SEPARADO
   services: StorefrontItem[];
   packages: StorefrontItem[];
+  products: StorefrontItem[]; // 🚀 Nueva lista de Farmacia
+  courses: StorefrontItem[];  // 🚀 Nueva lista de Cursos
 }

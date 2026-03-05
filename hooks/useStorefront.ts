@@ -1,4 +1,3 @@
-// hooks/useStorefront.ts
 import useSWR from 'swr';
 import { storefrontService } from '@/services/storefront.service';
 import { StorefrontData } from '@/types/storefront';
@@ -15,8 +14,19 @@ export function useStorefront(slug: string) {
     }
   );
 
+  // 🚀 FALLBACK DE SEGURIDAD: 
+  // Garantizamos que si el backend aún no envía 'products' o 'courses', 
+  // el componente no haga crash al intentar hacer un .map() o .length
+  const safeData: StorefrontData | undefined = data ? {
+    ...data,
+    services: data.services || [],
+    packages: data.packages || [],
+    products: data.products || [], // Si viene undefined, asigna []
+    courses: data.courses || [],   // Si viene undefined, asigna []
+  } : undefined;
+
   return {
-    store: data,
+    store: safeData,
     isLoading,
     isError: error,
   };
