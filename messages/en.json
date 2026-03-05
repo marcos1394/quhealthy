@@ -2639,5 +2639,25 @@
   "toast_ship_error": "Error registering shipment.",
   "toast_deliver_success": "Order delivered.",
   "toast_deliver_error": "Error updating status."
+},
+
+"PatientWallet": {
+  "title": "My Health Wallet",
+  "subtitle": "Manage your hybrid packages, prepaid consultations, and acquired products.",
+  "loading": "Loading your wallet...",
+  "empty_state_title": "No active packages yet",
+  "empty_state_desc": "When you purchase subscriptions or packages in the store, they will appear here ready to use.",
+  "btn_explore": "Explore Store",
+  "badge_active": "Active Package",
+  "provider_label": "Specialist:",
+  "purchased_on": "Purchased on",
+  "credits_title": "Available content:",
+  "consumed_all": "Exhausted",
+  "available": "Available: {remaining} out of {total}",
+  "btn_redeem_service": "Book Appointment",
+  "btn_redeem_product": "Request Shipping",
+  "btn_view_course": "View Course",
+  "btn_redeem_generic": "Redeem",
+  "toast_load_error": "We couldn't load your packages. Please try again."
 }
 }

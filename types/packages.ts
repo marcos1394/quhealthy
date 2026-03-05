@@ -11,10 +11,11 @@ export interface PackageServiceInfo {
 }
 
 export interface PackageCredit {
-    serviceId: number;
-    serviceName: string;
+    serviceId: number; // 🚀 En BD ahora mapea a catalogItemId
+    serviceName: string; // 🚀 En BD ahora mapea a itemNameSnapshot
     quantity: number; // Créditos restantes (los que aún puede usar)
     totalQuantity: number; // Créditos iniciales (los que compró)
+    itemType?: 'SERVICE' | 'PRODUCT' | 'COURSE' | string; // 🚀 NUEVO: Para lógica híbrida en la UI
 }
 
 /**

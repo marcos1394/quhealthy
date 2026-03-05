@@ -2616,7 +2616,7 @@
       "tip_desc": "Sube una foto atractiva para cada servicio. Los pacientes reservan un 40% más cuando ven una imagen clara de lo que ofreces."
     }
   },
-  
+
   "ProviderOrders": {
   "title": "Logística de Pedidos",
   "subtitle": "Gestiona el envío de productos físicos a tus pacientes.",
@@ -2644,6 +2644,26 @@
   "toast_ship_error": "Error al registrar el envío.",
   "toast_deliver_success": "Pedido entregado.",
   "toast_deliver_error": "Error al actualizar estado."
+},
+
+"PatientWallet": {
+  "title": "Mi Billetera de Salud",
+  "subtitle": "Gestiona tus paquetes híbridos, consultas prepagadas y productos adquiridos.",
+  "loading": "Cargando tu billetera...",
+  "empty_state_title": "Aún no tienes paquetes activos",
+  "empty_state_desc": "Cuando adquieras suscripciones o paquetes en la tienda, aparecerán aquí listos para usarse.",
+  "btn_explore": "Explorar Tienda",
+  "badge_active": "Paquete Activo",
+  "provider_label": "Especialista:",
+  "purchased_on": "Adquirido el",
+  "credits_title": "Contenido disponible:",
+  "consumed_all": "Agotado",
+  "available": "Disponibles: {remaining} de {total}",
+  "btn_redeem_service": "Agendar Cita",
+  "btn_redeem_product": "Solicitar Envío",
+  "btn_view_course": "Ver Curso",
+  "btn_redeem_generic": "Canjear",
+  "toast_load_error": "No pudimos cargar tus paquetes. Intenta de nuevo."
 }
 
 }

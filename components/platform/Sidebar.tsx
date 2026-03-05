@@ -48,6 +48,7 @@ const patientLinks = [
   { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
   { label: "Favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
   { label: "Dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
+  { label: "Wallet", href: "/patient/dashboard/wallet", icon: CreditCard, badge: null },
 
 ];
 
