@@ -2508,8 +2508,10 @@
             "info": {
                 "phone": "+52 (55) 1234 5678"
             }
-        },
-       "Marketplace": {
+        }
+    },
+
+     "Marketplace": {
     "packages": {
       "title": "Special Packages",
       "description": "Bundle services and offer promotions.",
@@ -2559,7 +2561,18 @@
       "saved": "Package saved successfully.",
       "incomplete": "Please fill in all fields and select at least one service.",
       "applied_discount": "{percent}% discount applied"
-    }
+    },
+    "services": {
+      "title": "My Services",
+      "description": "The building blocks of your packages.",
+      "create_service": "New Service",
+      
+      "empty_title": "You have no services",
+      "empty_desc": "Create individual services (e.g. Initial Consultation, Follow-up Assessment) that you can later bundle into packages.",
+      "create_first": "Create my first service",
+      
+      "tip_title": "Pro Tip",
+      "tip_desc": "Start by creating your most popular services. This way, when you create packages, you'll have them ready to include and attract more patients."
   }
-    }
+}
 }
