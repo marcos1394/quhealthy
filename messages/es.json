@@ -1609,27 +1609,80 @@
         "toast_video_uploaded": "Video procesado y guardado",
         "toast_upgrade": "Redirigiendo a planes y precios..."
     },
+    
     "StoreCatalog": {
-        "title": "Servicios y Paquetes",
-        "subtitle": "Agrega tus consultas individuales primero, y luego agrúpalas en paquetes promocionales para aumentar tus ventas.",
-        "badge": "Catálogo",
-        "back": "Volver a Mi Tienda",
-        "unsaved": "Cambios sin guardar",
-        "count_services": "{count} servicio",
-        "count_services_plural": "{count} servicios",
-        "count_packages": "{count} paquete",
-        "count_packages_plural": "{count} paquetes",
-        "loading_title": "Sincronizando inventario",
-        "loading_subtitle": "Cargando servicios y paquetes...",
-        "toast_name_price_required": "El nombre y precio son obligatorios",
-        "toast_service_saved": "Servicio \"{name}\" guardado exitosamente",
-        "toast_service_in_package": "No puedes borrar este servicio porque está incluido en un Paquete.",
-        "toast_service_deleted": "Servicio eliminado del catálogo",
-        "toast_service_image": "Imagen de servicio cargada",
-        "toast_package_saved": "Paquete guardado exitosamente",
-        "toast_package_deleted": "Paquete eliminado",
-        "toast_package_image": "Imagen de paquete cargada"
+    "title": "Catálogo y Precios",
+    "badge": "Inventario Unificado",
+    "subtitle": "Configura los servicios, paquetes, productos y cursos que ofrecerás a tus pacientes.",
+    "back": "Volver al Hub",
+    "unsaved": "Cambios sin guardar",
+    "loading_title": "Cargando Catálogo",
+    "loading_subtitle": "Preparando tu inventario...",
+    
+    "tabs": {
+      "services": "Servicios",
+      "packages": "Paquetes",
+      "products": "Farmacia / Productos",
+      "courses": "Cursos / Digitales"
     },
+    
+    "products": {
+      "title": "Farmacia y Productos",
+      "subtitle": "Vende suplementos, cremas o equipo médico con control de inventario.",
+      "btn_add": "Agregar Producto",
+      "empty_state": "No tienes productos físicos registrados.",
+      "change_image": "Cambiar Imagen",
+      "label_name": "Nombre del Producto",
+      "placeholder_name": "Ej. Crema Hidratante",
+      "label_price": "Precio ($)",
+      "label_category": "Categoría",
+      "placeholder_category": "Ej. Skincare",
+      "label_desc": "Descripción Breve",
+      "placeholder_desc": "Beneficios e instrucciones de uso...",
+      "label_stock": "Stock (Unidades)",
+      "label_sku": "SKU / Código",
+      "placeholder_sku": "Opcional"
+    },
+    
+    "courses": {
+      "title": "Cursos y Digitales",
+      "subtitle": "Vende acceso a tus videoclases, talleres pregrabados o PDFs.",
+      "btn_add": "Agregar Curso",
+      "empty_state": "No tienes cursos digitales registrados.",
+      "change_cover": "Cambiar Portada",
+      "label_title": "Título del Curso / Material",
+      "placeholder_title": "Ej. Taller de Nutrición",
+      "label_price": "Precio ($)",
+      "label_category": "Categoría",
+      "placeholder_category": "Ej. Bienestar",
+      "label_desc": "¿Qué aprenderán? (Descripción)",
+      "placeholder_desc": "Temario y beneficios del curso...",
+      "label_url": "Enlace del Contenido Privado",
+      "placeholder_url": "https://vimeo.com/... o enlace de Drive",
+      "url_warning": "Este enlace solo se revelará a los pacientes después de que completen su compra."
+    },
+    
+    "actions": {
+      "delete": "Eliminar",
+      "save_new": "Guardar Nuevo",
+      "save_changes": "Guardar Cambios"
+    },
+    
+    "toasts": {
+      "name_price_required": "El nombre y el precio son obligatorios.",
+      "service_saved": "Servicio '{name}' guardado correctamente.",
+      "service_deleted": "Servicio eliminado de tu catálogo.",
+      "service_in_package": "No puedes eliminar este servicio porque pertenece a un paquete.",
+      "package_saved": "Paquete guardado exitosamente.",
+      "package_deleted": "Paquete eliminado de tu catálogo.",
+      "product_saved": "Producto guardado exitosamente.",
+      "product_deleted": "Producto eliminado del inventario.",
+      "course_saved": "Curso guardado exitosamente.",
+      "course_deleted": "Curso eliminado de tu catálogo.",
+      "image_uploaded": "Imagen actualizada correctamente."
+    }
+  },
+
     "StoreStaff": {
         "title": "Tu Equipo de Trabajo",
         "subtitle": "Agrega a los profesionales que atienden en tu consultorio. Sube sus fotos para aumentar la confianza.",

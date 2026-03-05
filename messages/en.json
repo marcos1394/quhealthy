@@ -1609,27 +1609,80 @@
         "toast_video_uploaded": "Video processed and saved",
         "toast_upgrade": "Redirecting to plans and pricing..."
     },
+
     "StoreCatalog": {
-        "title": "Services & Packages",
-        "subtitle": "Add your individual consultations first, then group them into promotional packages to increase your sales.",
-        "badge": "Catalog",
-        "back": "Back to My Store",
-        "unsaved": "Unsaved changes",
-        "count_services": "{count} service",
-        "count_services_plural": "{count} services",
-        "count_packages": "{count} package",
-        "count_packages_plural": "{count} packages",
-        "loading_title": "Synchronizing inventory",
-        "loading_subtitle": "Loading services and packages...",
-        "toast_name_price_required": "Name and price are required",
-        "toast_service_saved": "Service \"{name}\" saved successfully",
-        "toast_service_in_package": "You cannot delete this service because it is included in a Package.",
-        "toast_service_deleted": "Service removed from catalog",
-        "toast_service_image": "Service image uploaded",
-        "toast_package_saved": "Package saved successfully",
-        "toast_package_deleted": "Package deleted",
-        "toast_package_image": "Package image uploaded"
+    "title": "Catalog & Pricing",
+    "badge": "Unified Inventory",
+    "subtitle": "Configure the services, packages, products, and courses you will offer your patients.",
+    "back": "Back to Hub",
+    "unsaved": "Unsaved changes",
+    "loading_title": "Loading Catalog",
+    "loading_subtitle": "Preparing your inventory...",
+    
+    "tabs": {
+      "services": "Services",
+      "packages": "Packages",
+      "products": "Pharmacy / Products",
+      "courses": "Courses / Digital"
     },
+    
+    "products": {
+      "title": "Pharmacy & Products",
+      "subtitle": "Sell supplements, skincare, or medical equipment with inventory tracking.",
+      "btn_add": "Add Product",
+      "empty_state": "You have no physical products registered.",
+      "change_image": "Change Image",
+      "label_name": "Product Name",
+      "placeholder_name": "e.g. Moisturizing Cream",
+      "label_price": "Price ($)",
+      "label_category": "Category",
+      "placeholder_category": "e.g. Skincare",
+      "label_desc": "Short Description",
+      "placeholder_desc": "Benefits and usage instructions...",
+      "label_stock": "Stock (Units)",
+      "label_sku": "SKU / Barcode",
+      "placeholder_sku": "Optional"
+    },
+    
+    "courses": {
+      "title": "Courses & Digital",
+      "subtitle": "Sell access to your video classes, pre-recorded workshops, or PDFs.",
+      "btn_add": "Add Course",
+      "empty_state": "You have no digital courses registered.",
+      "change_cover": "Change Cover",
+      "label_title": "Course / Material Title",
+      "placeholder_title": "e.g. Nutrition Workshop",
+      "label_price": "Price ($)",
+      "label_category": "Category",
+      "placeholder_category": "e.g. Wellness",
+      "label_desc": "What will they learn? (Description)",
+      "placeholder_desc": "Syllabus and course benefits...",
+      "label_url": "Private Content Link",
+      "placeholder_url": "https://vimeo.com/... or Drive link",
+      "url_warning": "This link will only be revealed to patients after they complete their purchase."
+    },
+    
+    "actions": {
+      "delete": "Delete",
+      "save_new": "Save New",
+      "save_changes": "Save Changes"
+    },
+    
+    "toasts": {
+      "name_price_required": "Name and price are required.",
+      "service_saved": "Service '{name}' saved successfully.",
+      "service_deleted": "Service removed from your catalog.",
+      "service_in_package": "You cannot delete this service because it belongs to a package.",
+      "package_saved": "Package saved successfully.",
+      "package_deleted": "Package removed from your catalog.",
+      "product_saved": "Product saved successfully.",
+      "product_deleted": "Product removed from inventory.",
+      "course_saved": "Course saved successfully.",
+      "course_deleted": "Course removed from your catalog.",
+      "image_uploaded": "Image updated successfully."
+    }
+  },
+
     "StoreStaff": {
         "title": "Your Work Team",
         "subtitle": "Add the professionals who attend at your practice. Upload their photos to increase trust.",
