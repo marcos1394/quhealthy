@@ -21,6 +21,7 @@ import {
   Camera
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -60,13 +61,14 @@ interface PackagesManagerProps {
   onImageUpload?: (id: number, file: File) => void;
 }
 
-export function PackagesManager({ 
+export function PackagesManager({
   packages, 
   availableServices, 
   onSave, 
   onDelete,
   onImageUpload
 }: PackagesManagerProps) {
+  const t = useTranslations('Marketplace.packages');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<ServicePackage | null>(null);
   const [discountPercent, setDiscountPercent] = useState(15);
@@ -133,11 +135,11 @@ export function PackagesManager({
   const handleSave = () => {
     if (editingPackage && editingPackage.name && editingPackage.category && editingPackage.price > 0 && editingPackage.serviceIds.length > 0) {
       onSave(editingPackage);
-      toast.success("¡Paquete guardado exitosamente! 🎉");
+      toast.success(t('saved'));
       setIsDialogOpen(false);
       setEditingPackage(null);
     } else {
-      toast.error("Completa el nombre, categoría, servicios y precio");
+      toast.error(t('incomplete'));
     }
   };
 
@@ -161,7 +163,7 @@ export function PackagesManager({
     if (!editingPackage) return;
     setEditingPackage({ ...editingPackage, price });
     setDiscountPercent(percent);
-    toast.success(`Aplicado ${percent}% de descuento`);
+    toast.success(t('applied_discount', { percent }));
   };
 
   // Aplicar descuento por slider - FEEDBACK INMEDIATO
@@ -173,35 +175,35 @@ export function PackagesManager({
   };
 
   return (
-    <Card className="bg-gradient-to-br from-gray-900 to-gray-900/50 border-gray-800 shadow-2xl overflow-hidden">
+    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl overflow-hidden">
       
       {/* Header */}
-      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-800/50 pb-6 bg-gradient-to-br from-gray-900 to-gray-800/50">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-6 bg-white dark:bg-slate-900">
         <div className="space-y-3">
-          <CardTitle className="flex items-center gap-4 text-white text-2xl">
+          <CardTitle className="flex items-center gap-4 text-slate-900 dark:text-white text-2xl">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="p-3 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-2xl border border-pink-500/30 shadow-lg shadow-pink-500/10"
+              className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-2xl border border-pink-200 dark:border-pink-500/30 text-pink-600 dark:text-pink-600 dark:text-pink-400"
             >
-              <Package className="w-7 h-7 text-pink-400" />
+              <Package className="w-7 h-7 text-pink-600 dark:text-pink-400" />
             </motion.div>
-            Paquetes y Promociones
+            {t('title')}
           </CardTitle>
-          <CardDescription className="text-gray-400 flex items-center gap-3 text-base">
-            Agrupa servicios para aumentar ventas
+          <CardDescription className="text-slate-500 dark:text-slate-400 flex items-center gap-3 text-base">
+            {t('description')}
             <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs shadow-md">
               <TrendingUp className="w-3 h-3 mr-1" />
-              +40% conversión
+              {t('conversion_badge')}
             </Badge>
           </CardDescription>
         </div>
         <Button 
           onClick={() => handleOpenDialog()} 
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all hover:scale-105 h-11 font-bold"
+          className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all rounded-xl h-11 font-bold"
         >
-          <Plus className="w-4 h-4 mr-2" /> Crear Paquete
+          <Plus className="w-4 h-4 mr-2" /> {t('create_package')}
         </Button>
       </CardHeader>
       
@@ -212,20 +214,20 @@ export function PackagesManager({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-800 rounded-3xl bg-gradient-to-br from-gray-900/50 to-gray-900/30"
+            className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-900/30"
           >
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl mb-6 border border-gray-700 shadow-xl">
-              <Tag className="w-12 h-12 text-gray-500" />
+            <div className="p-6 bg-white dark:bg-slate-800 rounded-2xl mb-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <Tag className="w-12 h-12 text-slate-500 dark:text-slate-400" />
             </div>
-            <p className="text-xl font-black text-white mb-2">No hay paquetes activos</p>
-            <p className="text-sm text-gray-500 mb-8">Crea tu primer paquete para aumentar ventas</p>
+            <p className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('empty_title')}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">{t('empty_desc')}</p>
             <Button 
               onClick={() => handleOpenDialog()}
               variant="outline"
-              className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 h-11"
+              className="border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 h-11"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Crear Primer Paquete
+              {t('create_first')}
             </Button>
           </motion.div>
         ) : (
@@ -247,23 +249,23 @@ export function PackagesManager({
                     className="bg-gradient-to-br from-gray-950 to-gray-900 border-2 border-gray-800 rounded-3xl p-6 hover:border-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 group relative overflow-hidden"
                   >
                     {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-purple-50/50 dark:bg-purple-900/5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {/* Content */}
                     <div className="relative z-10">
                       <div className="flex justify-between items-start mb-6">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
-                            <h3 className="text-xl font-black text-white">{pkg.name}</h3>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white">{pkg.name}</h3>
                             {savingsAmt > 0 && (
-                              <Badge className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 text-emerald-400 border-emerald-500/30 shadow-md">
+                              <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30 shadow-md">
                                 <Sparkles className="w-3 h-3 mr-1" />
-                                {savingsPerc}% OFF
+                                {t('off', { percent: savingsPerc })}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-400 leading-relaxed">
-                            {pkg.description || "Paquete personalizado"}
+                          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            {pkg.description || "{t('custom_package')}"}
                           </p>
                         </div>
 
@@ -273,7 +275,7 @@ export function PackagesManager({
                             variant="ghost" 
                             size="default"
                             onClick={() => handleOpenDialog(pkg)} 
-                            className="h-10 w-10 text-gray-400 hover:text-white hover:bg-gray-800"
+                            className="h-10 w-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                           >
                             <Edit2 className="w-4 h-4" />
                           </Button>
@@ -282,9 +284,9 @@ export function PackagesManager({
                             size="default"
                             onClick={() => {
                               onDelete(pkg.id);
-                              toast.success("Paquete eliminado");
+                              toast.success(t('deleted'));
                             }}
-                            className="h-10 w-10 text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                            className="h-10 w-10 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -307,16 +309,16 @@ export function PackagesManager({
                         })}
                       </div>
 
-                      <Separator className="bg-gray-800 mb-6" />
+                      <Separator className="bg-slate-100 dark:bg-slate-800 mb-6" />
 
                       {/* Pricing */}
                       <div className="flex items-end justify-between">
                         <div>
                           {savingsAmt > 0 && (
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="text-sm text-gray-500 line-through font-semibold">${realVal}</span>
+                              <span className="text-sm text-slate-500 dark:text-slate-400 line-through font-semibold">${realVal}</span>
                               <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs font-bold">
-                                Ahorras ${savingsAmt}
+                                {t('savings', { amount: savingsAmt })}
                               </Badge>
                             </div>
                           )}
@@ -324,12 +326,12 @@ export function PackagesManager({
                             <span className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                               ${pkg.price}
                             </span>
-                            <span className="text-sm text-gray-500 font-semibold">MXN</span>
+                            <span className="text-sm text-slate-500 dark:text-slate-400 font-semibold">MXN</span>
                           </div>
                         </div>
 
-                        <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 shadow-md">
-                          {pkg.serviceIds.length} servicios
+                        <Badge className="bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30 shadow-md">
+                          {t('services_count', { count: pkg.serviceIds.length })}
                         </Badge>
                       </div>
                     </div>
@@ -348,15 +350,14 @@ export function PackagesManager({
             className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-2xl p-6 flex items-start gap-4 shadow-lg"
           >
             <div className="p-2 bg-blue-500/10 rounded-xl">
-              <Info className="w-6 h-6 text-blue-400 flex-shrink-0" />
+              <Info className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
             </div>
             <div className="text-sm text-blue-300/80">
-              <p className="font-bold text-blue-400 mb-2 text-base">
-                💡 Tip: Los paquetes aumentan las ventas en promedio un 40%
+              <p className="font-bold text-blue-600 dark:text-blue-400 mb-2 text-base">
+                {t('tip_title')}
               </p>
               <p className="leading-relaxed">
-                Los clientes prefieren paquetes con 15-20% de descuento. 
-                Mantén tus precios competitivos y atractivos para maximizar conversiones.
+                {t('tip_desc')}
               </p>
             </div>
           </motion.div>
@@ -364,15 +365,15 @@ export function PackagesManager({
 
         {/* Modal de Edición */}
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && setIsDialogOpen(false)}>
-          <DialogContent className="bg-gray-900 border-gray-800 max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <DialogTitle className="text-3xl font-black text-white mb-2">
-                    {editingPackage?.id && editingPackage.id > 0 ? "Editar Paquete" : "Crear Nuevo Paquete"}
+                    {editingPackage?.id && editingPackage.id > 0 ? "{t('dialog_edit')}" : "{t('dialog_create')}"}
                   </DialogTitle>
-                  <DialogDescription className="text-gray-400 text-base">
-                    Combina servicios para crear una oferta atractiva y aumentar ventas
+                  <DialogDescription className="text-slate-500 dark:text-slate-400 text-base">
+                    {t('dialog_desc')}
                   </DialogDescription>
                 </div>
                 <Button
@@ -394,21 +395,21 @@ export function PackagesManager({
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-6 shadow-xl"
+                    className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-2xl p-6 shadow-xl"
                   >
                     <div className="grid grid-cols-3 gap-6 text-center">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Valor Real</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase mb-2 font-bold tracking-wider">{t('real_value')}</p>
                         <p className="text-3xl font-black text-white">${realValue}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Tu Precio</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase mb-2 font-bold tracking-wider">{t('your_price')}</p>
                         <p className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                           ${editingPackage.price}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 uppercase mb-2 font-bold tracking-wider">Ahorro</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase mb-2 font-bold tracking-wider">{t('saving')}</p>
                         <p className="text-3xl font-black text-emerald-400">${savings}</p>
                         <p className="text-xs text-emerald-400 font-bold mt-1">
                           {calculateSavingsPercent(realValue, editingPackage.price)}% OFF
@@ -428,15 +429,15 @@ export function PackagesManager({
                       {/* Image Upload */}
                       <div className="relative group/pkg-img flex-shrink-0">
                         <div className={cn(
-                          "w-24 h-24 rounded-2xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-gray-950 shadow-lg",
-                          editingPackage.imageUrl ? "border-pink-500/50 shadow-pink-500/20" : "border-dashed border-gray-700 hover:border-pink-500/50 hover:bg-gray-900 hover:shadow-xl"
+                          "w-24 h-24 rounded-2xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-slate-50 dark:bg-slate-800/50 shadow-lg",
+                          editingPackage.imageUrl ? "border-pink-500/50 shadow-pink-500/20" : "border-dashed border-slate-300 dark:border-slate-700 hover:border-pink-500/50 hover:bg-gray-900 hover:shadow-xl"
                         )}>
                           {editingPackage.imageUrl ? (
                             <img src={editingPackage.imageUrl} alt="Paquete" className="w-full h-full object-cover" />
                           ) : (
                             <>
-                              <Camera className="w-6 h-6 text-gray-500 mb-2 group-hover/pkg-img:text-pink-400 transition-colors" />
-                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Foto</span>
+                              <Camera className="w-6 h-6 text-slate-500 dark:text-slate-400 mb-2 group-hover/pkg-img:text-pink-600 dark:text-pink-400 transition-colors" />
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">{t('photo')}</span>
                             </>
                           )}
                         </div>
@@ -458,14 +459,14 @@ export function PackagesManager({
                         {/* Name */}
                         <div className="space-y-3">
                           <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Nombre del Paquete *
+                            {t('name_label')}
                           </Label>
                           <Input 
                             value={editingPackage.name}
                             onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                            placeholder="Ej: Pack Bienestar"
+                            placeholder={t('name_placeholder')}
                             className={cn(
-                              "bg-gray-950 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              "bg-slate-50 dark:bg-slate-800/50 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
                               !editingPackage.name ? "border-red-500/50" : ""
                             )}
                           />
@@ -474,14 +475,14 @@ export function PackagesManager({
                         {/* Category */}
                         <div className="space-y-3">
                           <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Categoría *
+                            {t('category_label')}
                           </Label>
                           <Input 
                             value={editingPackage.category || ''}
                             onChange={(e) => setEditingPackage({ ...editingPackage, category: e.target.value })}
-                            placeholder="Ej: Promociones"
+                            placeholder={t('category_placeholder')}
                             className={cn(
-                              "bg-gray-950 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
+                              "bg-slate-50 dark:bg-slate-800/50 border-gray-700 h-12 text-base font-semibold focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20",
                               !editingPackage.category ? "border-red-500/50" : ""
                             )}
                           />
@@ -492,30 +493,30 @@ export function PackagesManager({
                     {/* Description */}
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                          Descripción (Opcional)
+                        <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          {t('desc_label')}
                         </Label>
-                        <span className="text-xs text-gray-600 font-mono">
+                        <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
                           {editingPackage.description?.length || 0}/200
                         </span>
                       </div>
                       <Textarea 
                         value={editingPackage.description}
                         onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value.slice(0, 200) })}
-                        placeholder="Menciona los beneficios de adquirir este paquete..."
+                        placeholder={t('desc_placeholder')}
                         rows={3}
                         maxLength={200}
-                        className="bg-gray-950 border-gray-700 resize-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                        className="bg-slate-50 dark:bg-slate-800/50 border-gray-700 resize-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                       />
                     </div>
 
                     {/* Pricing Engine */}
                     {editingPackage.serviceIds.length > 0 && (
-                      <div className="space-y-5 pt-6 border-t border-gray-800">
+                      <div className="space-y-5 pt-6 border-t border-slate-200 dark:border-slate-800">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                          <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
                             <Percent className="w-4 h-4 text-emerald-400" />
-                            Aplicar Descuento: {discountPercent}%
+                            {t('apply_discount', { percent: discountPercent })}
                           </Label>
                           <span className="text-xs font-mono text-emerald-400 font-bold">
                             Ahorro: ${savings}
@@ -538,7 +539,7 @@ export function PackagesManager({
                             <Badge 
                               key={idx}
                               variant="outline" 
-                              className="cursor-pointer hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400 flex-1 justify-center py-2 font-bold transition-all"
+                              className="cursor-pointer hover:bg-emerald-100 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30 text-emerald-400 flex-1 justify-center py-2 font-bold transition-all"
                               onClick={() => applySuggestedPrice(sug.price, sug.percent)}
                             >
                               {sug.label}
@@ -547,11 +548,11 @@ export function PackagesManager({
                         </div>
 
                         <div className="space-y-3">
-                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            O ajusta el precio final manualmente
+                          <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            {t('manual_price')}
                           </Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400" />
                             <Input 
                               type="number" 
                               min="0"
@@ -562,7 +563,7 @@ export function PackagesManager({
                                 const newPercent = calculateSavingsPercent(realValue, newPrice);
                                 setDiscountPercent(Math.max(0, Math.min(100, newPercent)));
                               }}
-                              className="bg-gray-950 border-gray-700 pl-12 h-14 text-xl font-black transition-all focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                              className="bg-slate-50 dark:bg-slate-800/50 border-gray-700 pl-12 h-14 text-xl font-black transition-all focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                             />
                           </div>
                         </div>
@@ -571,20 +572,20 @@ export function PackagesManager({
                   </div>
 
                   {/* Right Column: Services Selection */}
-                  <div className="bg-gray-950 border-2 border-gray-800 rounded-2xl p-6 flex flex-col h-full">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-gray-800 rounded-2xl p-6 flex flex-col h-full">
                     <Label className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-wider">
-                      <ShoppingCart className="w-5 h-5 text-blue-400" />
-                      Servicios Incluidos ({editingPackage.serviceIds.length})
+                      <ShoppingCart className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      {t('included_services', { count: editingPackage.serviceIds.length })}
                     </Label>
                     
                     {availableServices.length === 0 ? (
                       <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-gray-800 rounded-2xl">
                         <AlertCircle className="w-10 h-10 text-amber-400 mb-4" />
                         <p className="text-base font-bold text-white mb-2">
-                          No hay servicios disponibles
+                          {t('no_services')}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          Primero crea servicios en la sección anterior
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {t('no_services_desc')}
                         </p>
                       </div>
                     ) : (
@@ -601,26 +602,26 @@ export function PackagesManager({
                                 className={cn(
                                   "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer",
                                   isSelected 
-                                    ? "bg-purple-500/10 border-purple-500/40 shadow-lg shadow-purple-500/20" 
-                                    : "border-gray-800 hover:bg-gray-900 hover:border-gray-700"
+                                    ? "bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-500/40 shadow-sm" 
+                                    : "border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                                 )}
                                 onClick={() => toggleServiceInPackage(service.id)}
                               >
                                 <Checkbox 
                                   checked={isSelected}
                                   onCheckedChange={() => toggleServiceInPackage(service.id)}
-                                  className="border-gray-600 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                                  className="border-slate-300 dark:border-slate-600 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                                 />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-bold text-white mb-1">
                                     {service.name}
                                   </p>
                                   <div className="flex items-center gap-2">
-                                    <Badge className="bg-gray-800 text-gray-400 text-xs font-bold">
+                                    <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
                                       ${service.price}
                                     </Badge>
                                     {service.duration && (
-                                      <span className="text-xs text-gray-600 font-semibold">
+                                      <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                                         {service.duration} min
                                       </span>
                                     )}
@@ -640,13 +641,13 @@ export function PackagesManager({
               </div>
             )}
 
-            <DialogFooter className="gap-3 pt-6 border-t border-gray-800">
+            <DialogFooter className="gap-3 pt-6 border-t border-slate-200 dark:border-slate-800">
               <Button 
                 variant="outline" 
                 onClick={() => setIsDialogOpen(false)} 
-                className="border-gray-700 text-gray-300 hover:bg-gray-800 h-11"
+                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 h-11"
               >
-                Cancelar
+                {t('cancel')}
               </Button>
               <Button 
                 onClick={handleSave} 
@@ -654,7 +655,7 @@ export function PackagesManager({
                 disabled={!editingPackage?.serviceIds.length || !editingPackage?.name || editingPackage.price <= 0}
               >
                 <Zap className="w-4 h-4 mr-2" />
-                Guardar Paquete
+                {t('save_package')}
               </Button>
             </DialogFooter>
           </DialogContent>
