@@ -2659,5 +2659,46 @@
   "btn_view_course": "View Course",
   "btn_redeem_generic": "Redeem",
   "toast_load_error": "We couldn't load your packages. Please try again."
+},
+
+"EHR": {
+  "title_consultation": "Consultation Room",
+  "tab_history": "History & Vault",
+  "tab_soap": "Clinical Notes (SOAP)",
+  "tab_prescription": "Digital Prescription",
+  
+  "patient_profile": "Patient Profile",
+  "qu_score": "QuHealth Score",
+  "allergies": "Registered Allergies:",
+  "conditions": "Chronic Conditions:",
+  "no_data": "Not registered",
+  
+  "vault_title": "Health Vault",
+  "vault_empty": "The patient has no saved medical documents.",
+  "doc_lab": "Lab Results",
+  "doc_prescription": "Past Prescriptions",
+  "doc_imaging": "Imaging",
+  
+  "soap_subjective": "Subjective (Symptoms & Reason)",
+  "soap_objective": "Objective (Physical Exam)",
+  "soap_assessment": "Assessment (Diagnosis)",
+  "soap_plan": "Plan (Treatment)",
+  
+  "rx_title": "Issue Prescription",
+  "rx_medication": "Medication or Product",
+  "rx_dosage": "Dosage (e.g., 500mg)",
+  "rx_frequency": "Frequency (e.g., Every 8 hours)",
+  "rx_duration": "Duration (e.g., For 5 days)",
+  "rx_instructions": "Special instructions (optional)",
+  "rx_add_item": "Add to Prescription",
+  "rx_empty": "No medications added to the prescription yet.",
+  
+  "link_store_product": "Link product from my store",
+  
+  "btn_end_consultation": "End Consultation & Issue Prescription",
+  "toast_load_error": "Error loading patient's medical record.",
+  "toast_success": "Consultation completed and prescription sent to patient's vault.",
+  "toast_error": "Could not finalize consultation. Please try again."
 }
+
 }

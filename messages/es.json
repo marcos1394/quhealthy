@@ -2664,6 +2664,46 @@
   "btn_view_course": "Ver Curso",
   "btn_redeem_generic": "Canjear",
   "toast_load_error": "No pudimos cargar tus paquetes. Intenta de nuevo."
+},
+
+"EHR": {
+  "title_consultation": "Sala de Consulta",
+  "tab_history": "Historial y Bóveda",
+  "tab_soap": "Notas Clínicas (SOAP)",
+  "tab_prescription": "Receta Digital",
+  
+  "patient_profile": "Perfil del Paciente",
+  "qu_score": "QuHealth Score",
+  "allergies": "Alergias registradas:",
+  "conditions": "Condiciones Crónicas:",
+  "no_data": "No registrado",
+  
+  "vault_title": "Bóveda de Salud",
+  "vault_empty": "El paciente no tiene documentos médicos guardados.",
+  "doc_lab": "Laboratorios",
+  "doc_prescription": "Recetas Anteriores",
+  "doc_imaging": "Imagenología",
+  
+  "soap_subjective": "Subjetivo (Síntomas y Motivo)",
+  "soap_objective": "Objetivo (Exploración Física)",
+  "soap_assessment": "Análisis (Diagnóstico)",
+  "soap_plan": "Plan (Tratamiento a seguir)",
+  
+  "rx_title": "Emitir Receta",
+  "rx_medication": "Medicamento o Producto",
+  "rx_dosage": "Dosis (Ej. 500mg)",
+  "rx_frequency": "Frecuencia (Ej. Cada 8 horas)",
+  "rx_duration": "Duración (Ej. Por 5 días)",
+  "rx_instructions": "Instrucciones especiales (opcional)",
+  "rx_add_item": "Agregar a la Receta",
+  "rx_empty": "No has agregado medicamentos a la receta.",
+  
+  "link_store_product": "Vincular producto de mi tienda",
+  
+  "btn_end_consultation": "Finalizar Consulta y Emitir Receta",
+  "toast_load_error": "Error al cargar el expediente del paciente.",
+  "toast_success": "Consulta finalizada y receta enviada a la bóveda del paciente.",
+  "toast_error": "No pudimos finalizar la consulta. Intenta de nuevo."
 }
 
 }
