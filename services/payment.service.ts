@@ -24,5 +24,15 @@ export const paymentService = {
       `${BASE_URL}/billing/history?page=${page}&size=${size}`
     );
     return response.data;
+  },
+
+  // 🚀 NUEVO: Método para cobrar el carrito híbrido
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createHybridCheckout: async (payload: any): Promise<string> => {
+    const response = await axiosInstance.post<{checkoutUrl: string}>(
+      `${BASE_URL}/hybrid-checkout`, 
+      payload
+    );
+    return response.data.checkoutUrl;
   }
 };

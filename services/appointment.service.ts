@@ -122,5 +122,13 @@ export const appointmentService = {
       // Fallback estático de seguridad para evitar bloqueos en la UI de pago
       return { MXN: 1, USD: 0.058, EUR: 0.054 }; 
     }
+  },
+
+  // 🚀 NUEVO: Método para preparar la orden híbrida
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  prepareHybridOrder: async (payload: any): Promise<any> => {
+    // Apunta al nuevo controlador que creamos en Java
+    const response = await axiosInstance.post(`/${BASE_URL}/checkout/prepare`, payload);
+    return response.data;
   }
 };

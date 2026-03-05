@@ -1,8 +1,7 @@
-// hooks/useBookingCheckout.ts
 import { useState } from 'react';
 import { appointmentService } from '@/services/appointment.service';
 import { paymentService } from '@/services/payment.service';
-import { CheckoutParams, CreateAppointmentRequest } from '@/types/booking';
+import { CheckoutParams } from '@/types/booking';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 
@@ -12,66 +11,82 @@ export const useBookingCheckout = () => {
   const processCheckout = async ({
     providerId,
     consumerId,
-    dependentId, // 🚀 NUEVO
+    dependentId,
     selectedDate,
     selectedTime,
     cart,
-    consumerSymptoms // Recibimos el texto desde el componente
+    consumerSymptoms,
+    shippingAddress // 🚀 Añadido para productos físicos
   }: CheckoutParams) => {
     setIsProcessing(true);
 
     try {
-      // 1. Preparar el LocalDateTime para Java (YYYY-MM-DDTHH:mm:ss)
-      const [hours, minutes] = selectedTime.split(':');
-      const startDateTime = new Date(selectedDate);
-      startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      const startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
-
-      // 2. Validación de seguridad del carrito
-      if (cart.length === 0) {
+      if (!cart || cart.length === 0) {
         throw new Error("El carrito está vacío.");
       }
 
-      // 3. Mapeo al DTO de Java
-      const mainItem = cart[0];
+      // 1. 🛠️ MAPEO INTELIGENTE DEL CARRITO
+      const cartItems = cart.map(item => {
+        let startTimeIso: string | null = null;
+        let appointmentType = 'IN_PERSON';
 
-      // 🚀 SOLUCIÓN TYPESCRIPT: Mapeo seguro de Modalidad de Servicio a Tipo de Cita
-      let finalAppointmentType: 'IN_PERSON' | 'ONLINE' = 'IN_PERSON'; // Default seguro
+        // Validar modalidades
+        if (item.modality === 'ONLINE') {
+          appointmentType = 'ONLINE';
+        }
 
-      if (mainItem.modality === 'ONLINE') {
-        finalAppointmentType = 'ONLINE';
-      } else if (mainItem.modality === 'IN_PERSON') {
-        finalAppointmentType = 'IN_PERSON';
-      }
-      // Nota: Si es 'HYBRID', se queda como 'IN_PERSON' por defecto hasta que 
-      // tengamos un selector en la UI para que el paciente elija.
+        // Si es Servicio o Paquete, asignamos la fecha elegida
+        if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
+          if (selectedDate && selectedTime) {
+            const [hours, minutes] = selectedTime.split(':');
+            const startDateTime = new Date(selectedDate);
+            startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+          } else {
+             // Fallback de seguridad por si falla la UI
+             startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
+          }
+        }
 
-      const payload: CreateAppointmentRequest = {
+        return {
+          catalogItemId: item.id,
+          itemType: item.type || 'SERVICE', // SERVICE, PRODUCT, COURSE, PACKAGE
+          quantity: item.quantity || 1,
+          startTime: startTimeIso,
+          appointmentType: appointmentType
+        };
+      });
+
+      // 2. 📦 PASO 1: PREPARAR ORDEN EN BACKEND
+      const preparePayload = {
         providerId,
-        consumerId, // Si el doctor agenda, aquí va el ID del paciente. Si no, va undefined.
-        dependentId, // 🚀 NUEVO
-        serviceId: mainItem.id,
-        startTime: startTimeIso,
-
-        // Asignamos la variable segura que ya pasó la validación
-        appointmentType: finalAppointmentType,
-
+        consumerId,
+        dependentId,
         paymentMethod: 'CREDIT_CARD',
-        consumerSymptoms: consumerSymptoms || `Reserva realizada desde la tienda. Ítems totales: ${cart.length}`
+        consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
+        shippingAddress,
+        cartItems
       };
 
-      // 4. Crear la Cita (Estado inicial: PENDING_PAYMENT)
-      const appointment = await appointmentService.createAppointment(payload);
+      const preparedOrder = await appointmentService.prepareHybridOrder(preparePayload);
 
-      if (!appointment?.id) {
-        throw new Error("El servidor no devolvió un ID de cita válido.");
+      if (!preparedOrder) {
+        throw new Error("No se pudo preparar la orden en el servidor.");
       }
 
-      // 5. Solicitar URL de pago a Stripe
-      const checkoutUrl = await paymentService.createCheckoutSession(appointment.id);
+      // 3. 💳 PASO 2: SOLICITAR LINK DE PAGO A STRIPE
+      const paymentPayload = {
+        appointmentIds: preparedOrder.createdAppointmentIds,
+        orderId: preparedOrder.createdOrderId,
+        providerId: providerId,
+        totalAmount: preparedOrder.totalAmount,
+        currency: preparedOrder.currency || "MXN"
+      };
 
+      const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
+
+      // 4. 🚀 REDIRECCIÓN FINAL
       if (checkoutUrl) {
-        // 6. Redirección final al checkout seguro de Stripe
         window.location.href = checkoutUrl;
       } else {
         throw new Error("No se pudo generar la sesión de pago de Stripe.");

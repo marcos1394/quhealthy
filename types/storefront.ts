@@ -5,6 +5,7 @@ export interface StorefrontItem {
   name: string;
   description: string;
   price: number;
+  quantity?: number; // Solo para productos físicos
   imageUrl?: string;
   
   // 🩺 Campos de Servicio
