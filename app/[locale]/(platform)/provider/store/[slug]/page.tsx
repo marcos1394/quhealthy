@@ -8,7 +8,7 @@ import {
   MapPin, Clock, MessageCircle, Instagram, Star, CheckCircle2, 
   ChevronRight, Sparkles, ArrowRight, Loader2, AlertCircle, 
   Video, Building2, Globe, ShieldCheck, Tag as TagIcon,
-  ShoppingBag, GraduationCap, Box, PlayCircle // 🚀 NUEVOS ICONOS
+  ShoppingBag, GraduationCap, Box, PlayCircle
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 
-// 🚀 Ampliamos los tipos de las pestañas
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
 export default function PublicStorePage() {
@@ -39,6 +38,7 @@ export default function PublicStorePage() {
 
   const { store, isLoading, isError } = useStorefront(slug);
 
+  // ✅ CORRECCIÓN DEL BUCLE INFINITO: Solo dependemos de valores primitivos
   useEffect(() => {
     if (store && slug) {
       setProvider(
@@ -48,7 +48,7 @@ export default function PublicStorePage() {
         store.primaryColor || '#9333ea'
       );
     }
-  }, [store, slug, setProvider]);
+  }, [store?.providerId, store?.displayName, store?.primaryColor, slug, setProvider]);
 
   const handleAddToCart = (item: StorefrontItem) => {
     addToCart(item, slug);
@@ -100,7 +100,7 @@ export default function PublicStorePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] pb-32 font-sans selection:bg-purple-500/30 text-slate-900 dark:text-white">
 
-      {/* --- HERO SECTION (Idéntico a tu versión original) --- */}
+      {/* --- HERO SECTION COMPLETAMENTE RESTAURADO --- */}
       <div className="relative pb-8">
         <div className="h-64 sm:h-80 w-full relative overflow-hidden">
           {store.bannerUrl ? (
@@ -138,6 +138,12 @@ export default function PublicStorePage() {
                   <MapPin className="w-4 h-4 mr-1.5 opacity-70" />
                   <span className="truncate max-w-[200px]">{store.city || store.address || 'Consultorio'}</span>
                 </Badge>
+                {store.languages && store.languages.length > 0 && (
+                  <Badge className="bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-white/10 backdrop-blur-md px-3 py-1.5 shadow-sm hidden sm:flex">
+                    <Globe className="w-4 h-4 mr-1.5 opacity-70" />
+                    {store.languages.join(", ")}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -145,6 +151,35 @@ export default function PublicStorePage() {
           <p className="mt-8 text-slate-600 dark:text-zinc-400 leading-relaxed text-[15px] sm:text-base text-center sm:text-left max-w-2xl">
             {store.bio || t('default_bio')}
           </p>
+
+          {/* 🚀 TAGS RESTAURADOS */}
+          {store.tags && store.tags.length > 0 && (
+            <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-2 max-w-2xl">
+              {store.tags.map((tag, idx) => (
+                <span key={idx} className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 text-xs px-3 py-1 rounded-full flex items-center">
+                  <CheckCircle2 className="w-3 h-3 mr-1.5 opacity-60" style={{ color: safePrimaryColor }} />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* 🚀 BOTONES DE CONTACTO RESTAURADOS */}
+          <div className="mt-8 flex justify-center sm:justify-start gap-3">
+            {store.whatsappEnabled && (
+              <Button className="rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/20 transition-all shadow-sm">
+                <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
+              </Button>
+            )}
+            {store.instagramUrl && (
+              <Button
+                onClick={() => window.open(store.instagramUrl || "", '_blank')}
+                className="rounded-full bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-500/20 border border-pink-200 dark:border-pink-500/20 transition-all shadow-sm"
+              >
+                <Instagram className="w-4 h-4 mr-2" /> Instagram
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -161,12 +196,10 @@ export default function PublicStorePage() {
               {t('tab_packages', { defaultValue: 'Paquetes' })} <Sparkles className={cn("w-4 h-4", activeTab === 'paquetes' ? "text-yellow-300" : "")} />
             </button>
 
-            {/* 🚀 NUEVA PESTAÑA: FARMACIA */}
             <button onClick={() => setActiveTab('productos')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'productos' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'productos' ? { backgroundColor: safePrimaryColor } : {}}>
               <ShoppingBag className="w-4 h-4" /> Farmacia <Badge className="bg-black/20 text-white border-none px-1.5 py-0 min-w-0">{store.products?.length || 0}</Badge>
             </button>
 
-            {/* 🚀 NUEVA PESTAÑA: CURSOS */}
             <button onClick={() => setActiveTab('cursos')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'cursos' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'cursos' ? { backgroundColor: safePrimaryColor } : {}}>
               <GraduationCap className="w-4 h-4" /> Cursos <Badge className="bg-black/20 text-white border-none px-1.5 py-0 min-w-0">{store.courses?.length || 0}</Badge>
             </button>
@@ -182,26 +215,44 @@ export default function PublicStorePage() {
           {/* VISTA 1: SERVICIOS */}
           {activeTab === 'servicios' && (
              <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
-             {/* Código de Servicios que ya tenías */}
              {store.services && store.services.length > 0 ? (
                store.services.map((service) => (
-                 <div key={service.id} className="group relative bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 rounded-2xl p-6 transition-all duration-300 shadow-sm">
+                 <div key={service.id} className="group relative bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl p-6 transition-all duration-300 overflow-hidden shadow-sm">
+                   <div className="absolute inset-0 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at right top, ${safePrimaryColor}, transparent 50%)` }} />
                    <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start">
                      <div className="space-y-3 flex-1">
-                       <h3 className="font-bold text-xl text-slate-900 dark:text-white">{service.name}</h3>
-                       <p className="text-sm text-slate-500 dark:text-zinc-400">{service.description}</p>
+                       <div className="flex flex-wrap items-center gap-2 mb-1">
+                         {service.category && <Badge className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-none px-2 py-0.5 text-[10px] uppercase tracking-wider">{service.category}</Badge>}
+                         {renderModalityBadge(service.modality)}
+                         <span className="flex items-center text-xs font-semibold text-slate-400 dark:text-zinc-500 ml-1"><Clock className="w-3.5 h-3.5 mr-1" /> {service.durationMinutes || 0} min</span>
+                       </div>
+                       <h3 className="font-bold text-xl text-slate-900 dark:text-white group-hover:text-slate-800 dark:group-hover:text-zinc-100 transition-colors">{service.name}</h3>
+                       <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-md">{service.description}</p>
+                       <div className="flex flex-wrap gap-2 pt-2">
+                         {service.searchTags && service.searchTags.map((tag, idx) => (
+                           <span key={idx} className="flex items-center text-[11px] text-slate-400 dark:text-zinc-500 font-medium"><TagIcon className="w-3 h-3 mr-1 opacity-50" /> {tag}</span>
+                         ))}
+                         {service.cancellationPolicy === 'flexible' && (
+                           <span className="flex items-center text-[11px] text-emerald-600 dark:text-emerald-400/80 font-medium ml-2"><ShieldCheck className="w-3 h-3 mr-1" /> {t('cancellation_flexible')}</span>
+                         )}
+                       </div>
                      </div>
-                     <div className="flex sm:flex-col items-center sm:items-end gap-3 min-w-[120px]">
-                       <span className="text-2xl font-bold text-slate-900 dark:text-white">${service.price}</span>
-                       <Button onClick={() => handleAddToCart(service)} className="w-full text-white font-bold" style={{ backgroundColor: safePrimaryColor }}>
-                         Agendar
+                     <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start mt-4 sm:mt-0 gap-3 border-t border-slate-100 dark:border-white/5 sm:border-t-0 pt-4 sm:pt-0 min-w-[120px]">
+                       <div className="flex flex-col items-start sm:items-end">
+                         {service.compareAtPrice && service.compareAtPrice > service.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through mb-0.5">${service.compareAtPrice}</span>}
+                         <span className="text-2xl font-bold text-slate-900 dark:text-white leading-none">${service.price}</span>
+                       </div>
+                       <Button onClick={() => handleAddToCart(service)} className="rounded-xl px-6 w-full font-bold text-white transition-all transform hover:scale-105 shadow-lg hover:brightness-110" style={{ backgroundColor: safePrimaryColor, boxShadow: `0 8px 25px -5px rgba(${primaryRgb}, 0.4)` }}>
+                         {t('btn_book')} <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
                        </Button>
                      </div>
                    </div>
                  </div>
                ))
              ) : (
-               <p className="text-center text-slate-500">No hay servicios disponibles.</p>
+               <div className="text-center py-12 border border-slate-200 dark:border-white/5 rounded-2xl bg-white dark:bg-white/5 shadow-sm">
+                 <p className="text-slate-500 dark:text-zinc-500 font-medium">{t('empty_services')}</p>
+               </div>
              )}
            </motion.div>
           )}
@@ -209,25 +260,44 @@ export default function PublicStorePage() {
           {/* VISTA 2: PAQUETES */}
           {activeTab === 'paquetes' && (
             <motion.div key="paquetes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-              {/* Código de Paquetes que ya tenías */}
               {store.packages && store.packages.length > 0 ? (
                 store.packages.map((pkg) => (
-                  <div key={pkg.id} className="relative bg-gradient-to-br from-white/80 dark:from-white/10 to-slate-50 dark:to-white/5 border border-slate-200 dark:border-white/20 rounded-[2rem] p-6 shadow-lg">
-                    <h3 className="font-bold text-2xl text-slate-900 dark:text-white mb-2">{pkg.name}</h3>
-                    <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4">{pkg.description}</p>
-                    <div className="flex justify-between items-end">
-                      <span className="text-3xl font-bold text-slate-900 dark:text-white">${pkg.price}</span>
-                      <Button onClick={() => handleAddToCart(pkg)} className="text-white font-bold" style={{ backgroundColor: safePrimaryColor }}>Comprar Promo</Button>
+                  <div key={pkg.id} className="relative bg-gradient-to-br from-white/80 dark:from-white/10 to-slate-50 dark:to-white/5 border border-slate-200 dark:border-white/20 rounded-[2rem] p-1 transition-all shadow-lg overflow-hidden group">
+                    <div className="absolute top-5 right-5 z-20">
+                      <FavoriteButton entityType="PACKAGE" entityId={pkg.id} initialIsFavorite={favoritePackageIds.has(pkg.id)} className="bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/50 backdrop-blur-md" />
+                    </div>
+                    <div className="absolute inset-0 opacity-10 dark:opacity-20 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity duration-700 blur-xl" style={{ backgroundColor: safePrimaryColor }} />
+                    <div className="relative bg-white/95 dark:bg-[#09090b]/90 backdrop-blur-2xl rounded-[1.8rem] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 justify-between items-center z-10 border border-slate-100 dark:border-white/5">
+                      <div className="space-y-3 w-full sm:w-auto flex-1">
+                        <Badge className="bg-amber-50 dark:bg-yellow-500/20 text-amber-700 dark:text-yellow-300 border-amber-200 dark:border-yellow-500/30 font-bold uppercase tracking-widest text-[10px]">{t('badge_special')}</Badge>
+                        <h3 className="font-bold text-2xl text-slate-900 dark:text-white">{pkg.name}</h3>
+                        <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-md">{pkg.description}</p>
+                        <ul className="space-y-2 mt-4">
+                          <li className="flex items-center text-sm text-slate-600 dark:text-zinc-300 font-medium"><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: safePrimaryColor }} /> {t('includes_services')}</li>
+                          <li className="flex items-center text-sm text-slate-600 dark:text-zinc-300 font-medium"><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: safePrimaryColor }} /> {t('preferential_price')}</li>
+                        </ul>
+                      </div>
+                      <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-4 bg-slate-50 dark:bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-slate-100 dark:border-white/5 sm:border-none">
+                        <div className="text-left sm:text-right">
+                          {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through block mb-1">${pkg.compareAtPrice}</span>}
+                          <span className="text-3xl font-bold bg-clip-text text-transparent leading-none" style={{ backgroundImage: `linear-gradient(to right, ${safePrimaryColor}, #333)` }}>${pkg.price}</span>
+                        </div>
+                        <Button onClick={() => handleAddToCart(pkg)} className="rounded-xl px-8 py-6 text-base font-bold text-white shadow-xl transition-transform hover:scale-105 hover:brightness-110" style={{ backgroundColor: safePrimaryColor, boxShadow: `0 0 30px -5px rgba(${primaryRgb}, 0.5)` }}>
+                          {t('btn_promo')}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-slate-500">No hay paquetes disponibles.</p>
+                <div className="text-center py-12 border border-slate-200 dark:border-white/5 rounded-2xl bg-white dark:bg-white/5 shadow-sm">
+                  <p className="text-slate-500 dark:text-zinc-500 font-medium">{t('empty_packages')}</p>
+                </div>
               )}
             </motion.div>
           )}
 
-          {/* 🚀 VISTA 3: FARMACIA Y PRODUCTOS */}
+          {/* VISTA 3: FARMACIA Y PRODUCTOS */}
           {activeTab === 'productos' && (
             <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               {store.products && store.products.length > 0 ? (
@@ -245,7 +315,6 @@ export default function PublicStorePage() {
                         <Badge className="w-fit bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-none mb-2 text-[10px] uppercase">{product.category || 'Producto'}</Badge>
                         <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-1 mb-1">{product.name}</h3>
                         <p className="text-sm text-slate-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
-                        
                         <div className="flex items-center justify-between mt-auto">
                           <span className="text-2xl font-black text-slate-900 dark:text-white">${product.price}</span>
                           <Button onClick={() => handleAddToCart(product)} className="rounded-xl text-white shadow-md hover:scale-105 transition-transform" style={{ backgroundColor: safePrimaryColor }}>
@@ -266,13 +335,12 @@ export default function PublicStorePage() {
             </motion.div>
           )}
 
-          {/* 🚀 VISTA 4: CURSOS DIGITALES */}
+          {/* VISTA 4: CURSOS DIGITALES */}
           {activeTab === 'cursos' && (
             <motion.div key="cursos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.courses && store.courses.length > 0 ? (
                 store.courses.map((course) => (
                   <div key={course.id} className="group flex flex-col sm:flex-row bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all">
-                    {/* Imagen del Curso (Más ancha en desktop) */}
                     <div className="w-full sm:w-1/3 h-48 sm:h-auto bg-slate-100 dark:bg-zinc-800 relative overflow-hidden">
                       {course.imageUrl ? (
                         <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -283,7 +351,6 @@ export default function PublicStorePage() {
                         <PlayCircle className="w-12 h-12 text-white drop-shadow-lg" />
                       </div>
                     </div>
-
                     <div className="p-6 flex flex-col justify-between flex-1">
                       <div>
                         <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-none mb-2 text-[10px] uppercase tracking-wider">
@@ -292,7 +359,6 @@ export default function PublicStorePage() {
                         <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-2">{course.name}</h3>
                         <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed mb-4">{course.description}</p>
                       </div>
-
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto border-t border-slate-100 dark:border-white/5 pt-4">
                         <span className="text-2xl font-black text-slate-900 dark:text-white">${course.price}</span>
                         <Button onClick={() => handleAddToCart(course)} className="rounded-xl w-full sm:w-auto font-bold text-white shadow-lg transition-transform hover:scale-105" style={{ backgroundColor: safePrimaryColor }}>
@@ -315,7 +381,7 @@ export default function PublicStorePage() {
         </AnimatePresence>
       </div>
 
-      {/* --- BOTTOM DOCK (Carrito Flotante - Sin cambios) --- */}
+      {/* --- BOTTOM DOCK --- */}
       <AnimatePresence>
         {cart.length > 0 && (
           <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-6 left-0 w-full z-50 px-4">
