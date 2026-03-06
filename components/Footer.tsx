@@ -162,8 +162,11 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 transition-colors duration-300">
           <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-600 gap-4">
-            <div className="flex items-center gap-2">
-              <p>{t('copyright.rights', { year: currentYear })}</p>
+            <div className="flex flex-col md:flex-row items-center gap-2 text-center md:text-left flex-wrap justify-center">
+              <p className="text-center md:text-left text-xs">
+                {t('copyright.rights', { year: currentYear })} <br className="block md:hidden" />
+                Plataforma operada legalmente por <strong>Marcos Sandoval Ruiz</strong>.
+              </p>
               <span className="hidden md:inline">•</span>
               <span className="flex items-center gap-1">
                 {t('copyright.made_with')} <Heart className="w-3 h-3 text-red-500 fill-current" /> {t('copyright.in')}

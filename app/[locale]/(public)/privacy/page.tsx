@@ -76,6 +76,16 @@ export default function PrivacyPage() {
                             </div>
                         </div>
 
+                        <StaggerItem className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-8">
+                            <p>
+                                El presente Aviso de Privacidad regula el tratamiento de datos personales de la
+                                plataforma tecnológica denominada comercialmente <strong>"QuHealthy"</strong>, la cual es
+                                propiedad y es operada legalmente por <strong>Marcos Sandoval Ruiz</strong>,
+                                quien es una persona física con actividad empresarial debidamente registrada ante
+                                las autoridades fiscales de México.
+                            </p>
+                        </StaggerItem>
+
                         <StaggerItem className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-12">
                             <p>{t('intro')}</p>
                         </StaggerItem>

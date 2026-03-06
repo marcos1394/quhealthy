@@ -166,6 +166,14 @@ export default function ContactPage() {
                                     <p className="text-lg text-slate-600 dark:text-slate-400">{t('info.phone')}</p>
                                 </div>
                             </div>
+
+                            {/* Legal Info */}
+                            <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 text-sm text-slate-500 dark:text-slate-400">
+                                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Información Legal</h4>
+                                <p>Entidad Legal: Marcos Sandoval Ruiz</p>
+                                <p>Nombre Comercial: QuHealthy</p>
+                                <p>País: México</p>
+                            </div>
                         </StaggerItem>
 
                     </StaggerContainer>
