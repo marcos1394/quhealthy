@@ -57,7 +57,7 @@ const SuiteSection: React.FC = () => {
   // Imágenes representativas para cada producto de la suite
   const suiteImages = [
     "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=1200&auto=format&fit=crop", // QuHealthy: Doctor / Clínica
-    "https://images.unsplash.com/photo-1576091160550-2173eff3e8fc?q=80&w=1200&auto=format&fit=crop", // QuMarket: Productos/Marketplace salud
+    "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200&auto=format&fit=crop", // QuMarket: Productos/Marketplace salud
     "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop"  // QuBlocks: Educación/Academia
   ];
 

@@ -3,17 +3,36 @@
 import React, { useEffect, useRef } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
 import { Loader2 } from 'lucide-react'; // Ajusta si usas otro ícono
+import { usePathname } from 'next/navigation';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { initializeSession, isLoading } = useSessionStore();
+  const { initializeSession, isLoading, isAuthenticated } = useSessionStore();
   const hasInitialized = useRef(false); // Previene doble ejecución en React Strict Mode
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      initializeSession(); // 🚀 ¡Aquí ocurre la magia silenciosa al recargar la página!
+
+      // Lista de rutas públicas donde no intentamos restaurar sesión automáticamente
+      // (a menos que ya estemos marcados como autenticados)
+      const publicRoutes = ['/', '/about', '/contact', '/pricing', '/features', '/academy', '/blog', '/business', '/careers', '/market'];
+
+      const isPublicPath = publicRoutes.some(route =>
+        pathname === route || pathname?.startsWith(`/${route}/`) || pathname?.startsWith(`/en${route === '/' ? '' : route}`) || pathname?.startsWith(`/es${route === '/' ? '' : route}`)
+      );
+
+      // Si es la raíz pura (/es o /en) también la consideramos pública
+      const isRoot = pathname === '/es' || pathname === '/en';
+
+      if ((isPublicPath || isRoot) && !isAuthenticated) {
+        // En landing pages, asumimos que no hay sesión por defecto saltando el fetch
+        useSessionStore.getState().setLoading(false);
+      } else {
+        initializeSession(); // 🚀 ¡Aquí ocurre la magia silenciosa al recargar la página!
+      }
     }
-  }, [initializeSession]);
+  }, [initializeSession, pathname, isAuthenticated]);
 
   // Mientras verifica la cookie en el backend, mostramos una pantalla de carga sutil
   // Esto evita que el usuario vea la página parpadear o que lo redirija al login accidentalmente
