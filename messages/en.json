@@ -2090,73 +2090,101 @@
     "Legal": {
         "Terms": {
             "title": "Terms and Conditions of Use",
-            "last_updated": "Last updated: February 2026",
-            "intro": "Welcome to QuHealthy. These Terms and Conditions govern the access and use of the QuHealthy web and mobile platform, a company incorporated under the laws of the United Mexican States.",
+            "last_updated": "Last updated: March 2026",
+            "intro": "Welcome to QuHealthy. These Terms and Conditions govern the access and use of the QuHealthy web and mobile platform, legally operated by Marcos Sandoval Ruiz, a natural person with business activity registered under the laws of the United Mexican States.",
             "sections": [
                 {
-                    "title": "1. Acceptance of Terms",
-                    "content": "By accessing, registering, or using QuHealthy (the 'Platform'), either as a Patient ('User') or a Healthcare Provider ('Professional'), you expressly agree to be bound by these Terms and Conditions, as well as our Privacy Notice. If you do not agree with any provision, you must refrain from using the Platform."
+                    "title": "1. Acceptance and Modification of Terms",
+                    "content": "By accessing, browsing, registering, or using QuHealthy (hereinafter, the 'Platform'), whether as a Patient ('User') or Healthcare Provider ('Professional'), you expressly agree to be legally bound by these Terms and Conditions and our Privacy Notice unconditionally. QuHealthy reserves the strict right to modify, update, or amend these Terms at any time, unilaterally, notifying through the Platform. Continued use after such modifications constitutes your undeniable acceptance."
                 },
                 {
-                    "title": "2. Nature of the Service and Medical Disclaimer",
-                    "content": "QuHealthy acts exclusively as a technological intermediary that facilitates the connection between Users and Healthcare Professionals. QUHEALTHY DOES NOT PROVIDE MEDICAL SERVICES, DIAGNOSES, TREATMENTS, OR HEALTH ADVICE. Any doctor-patient relationship is established directly and exclusively between the User and the Professional. QuHealthy assumes no liability for negligence, malpractice, misdiagnosis, or any damage resulting from the services provided by Professionals registered on the Platform."
+                    "title": "2. Nature of the Platform and Medical Disclaimer",
+                    "content": "QuHealthy acts EXCLUSIVELY as a technological and commercial intermediary that provides software infrastructure to connect Users with pre-verified Healthcare Professionals. QUHEALTHY DOES NOT PROVIDE MEDICAL, PSYCHIATRIC, DIAGNOSTIC, TREATMENT, OR DISEASE PREVENTION ADVICE. Any content issued on the Platform does not substitute a doctor's advice. Every doctor-patient relationship, diagnoses, and prescriptions issued are the absolute and exclusive legal and clinical responsibility of the Professionals. In case of a medical emergency, call 911 immediately or go to the nearest hospital; our platform is not designed for emergencies."
                 },
                 {
-                    "title": "3. User Accounts and Security",
-                    "content": "To access certain functions, Users and Professionals must create an account providing truthful, accurate, and updated information. You are solely responsible for maintaining the confidentiality of your credentials and for all activities that occur under your account. QuHealthy reserves the right to suspend or terminate accounts that violate these Terms, including providing false information or impersonation."
+                    "title": "3. User Profile, Eligibility, and Security",
+                    "content": "To use the Platform, the User must be of legal age (18 years in Mexico) with full legal capacity. You agree to provide reliable, complete, recent, and accurate information. You are exclusively responsible for maintaining the confidentiality of your account and password; any transaction or action under your account will be deemed your own and valid. QuHealthy reserves the right to revoke access to accounts with fraudulent behavior or moral and legal breach to these terms."
                 },
                 {
-                    "title": "4. Bookings, Payments, Cancellations, and Refunds",
-                    "content": "4.1 Fees and Payments: By booking an appointment or acquiring a service, the User agrees to pay the indicated fees through our authorized payment gateway (e.g., Stripe). 4.2 Cancellation Policies (Patients): The User may cancel or reschedule an appointment without penalty at least 24 hours in advance of the scheduled time. Cancellations with less notice, or no-shows, may result in a charge of 100% of the agreed fee, according to the Professional's criteria. 4.3 Cancellations (Professionals): If a Professional cancels a confirmed appointment, we will process a full refund to the User."
+                    "title": "4. Stable Obligations of the Healthcare Professional",
+                    "content": "Every Healthcare Professional ('Professional') registered on QuHealthy is legally obliged to comply with current Mexican health regulations imposed by COFEPRIS, the General Health Law, and competent bodies. Professionals declare and guarantee under perjury penalty that they have a valid professional degree, professional license (cedula) registered with the National Registry of Professionals (SEP), and any corresponding permit or certification. QuHealthy executes periodic reviews (KYC) but is not a perpetual guarantor of such credentials; any act or omission derived from the service falls civilly and criminally on the medical expert."
                 },
                 {
-                    "title": "5. Professional Obligations and Representations",
-                    "content": "Healthcare Professionals guarantee that they hold valid professional licenses (cédulas profesionales), certifications, medical specialties, and sanitary permits issued by the corresponding authorities in Mexico (e.g., SEP, COFEPRIS) or the applicable jurisdiction. QuHealthy performs identity verification (KYC), but the Professional assumes full civil, criminal, and administrative responsibility derived from their practice."
+                    "title": "5. Booking, Payments, Cancellations, and Billing",
+                    "content": "Using the calendar generates an Appointment intention, validated by a fee set independently by the Professional. QuHealthy uses secure third-party payment technology (e.g., Stripe). You agree that the Platform makes the respective transactional charge to your authorized and valid payment method.\nGeneral Cancellation Policies:\n(a) User cancellations with +24 hrs: Full refund applicable.\n(b) User cancellations / 'No-shows' with -24 hrs: The Professional has the right to retain 100% or a percentage defined in their policies, without QuHealthy intervening in monetary mediations beyond the initial credit.\n(c) Professional Cancellations: Full refund guaranteed or free rescheduling. Accounting invoices for the provision of medical services are issued directly by the Professional, not by QuHealthy."
                 },
                 {
-                    "title": "6. Intellectual Property",
-                    "content": "All intellectual property rights over the content, design, brand, logos, software, and codes of the Platform are the exclusive property of QuHealthy, protected by the Federal Copyright Law and the Federal Law for the Protection of Industrial Property of Mexico. Reproduction, distribution, or modification without express written authorization is strictly prohibited."
+                    "title": "6. Telemedicine, Permitted Use, and Prohibited Conduct",
+                    "content": "When using QuHealthy and its teleconsultation and video call tools, it is strictly prohibited to: \n(1) Upload in bad faith, illicit, defamatory material, viruses or software interruptions; \n(2) Infringe the bases of the electronic clinical record regulations (NOM-024-SSA3-2012);\n(3) Record, broadcast or perform acts without prior express and formal consent; \n(4) Impersonate clinical identity. \nAny transgressor will be reported to the corresponding penal jurisdiction, in addition to the immediate cancellation of their portal privileges."
                 },
                 {
-                    "title": "7. Applicable Law and Jurisdiction",
-                    "content": "For the interpretation, compliance, and execution of these Terms and Conditions, the parties expressly submit to the federal laws of the United Mexican States, and to the jurisdiction of the competent courts in Mexico City, waiving any other jurisdiction that may correspond to them by reason of their present or future domiciles."
+                    "title": "7. Intellectual and Industrial Property",
+                    "content": "All inherent rights, trademarks, patents, logos, data compilations, visual interfaces, underlying code (source-code) and algorithms present in QuHealthy belong exclusively to Marcos Sandoval Ruiz. You receive only a limited, non-transferable, and essential license to use the software at the client/user level; reverse engineering, copying, subleasing, data mining, or systematic extractions are impossible."
+                },
+                {
+                    "title": "8. Third-Party Links and Integration Modules",
+                    "content": "Occasionally, QuHealthy links or hosts software and modules provided by third-party companies (laboratories, pharmaceuticals, credit card processors). We disclaim all liability for the content, technical interruption, or security issues of external providers."
+                },
+                {
+                    "title": "9. Systemic Limitation of Liability and Indemnification",
+                    "content": "TO THE MAXIMUM EXTENT PERMITTED BY FEDERAL LAW AND JURISPRUDENCE, IN NO EVENT AND UNDER NO LEGAL THEORY WILL QUHEALTHY AND ITS OPERATORS BE LIABLE TO YOU OR ANY THIRD PARTY FOR DIRECT, INDIRECT, PUNITIVE, INCIDENTAL, EXEMPLARY, OR SPECIAL DAMAGES, INCLUDING MEDICAL NEGLIGENCE, PHYSICAL INJURY, LOSS OF PROFIT, AND DATA LOSS. As a user and healthcare professional, you agree to defend, indemnify, and hold the Platform completely harmless against complaints resulting from the misuse of its portal."
+                },
+                {
+                    "title": "10. Applicable Law and Consolidated Dispute Resolution",
+                    "content": "For the validation, execution, compliance, and material interpretation of these guidelines, the express will to regulate it under the Commerce Code, Federal Civil Code of Mexico, and the General Health Law is stacked, and to resolve contingencies or user lawsuits, the parties designate exclusively the courts of Mexico City, discarding jurisdiction that, due to subsequent or parallel domicile, assigns them. Before initiating legal contingencies, the User agrees to exhaust conciliatory means through customer service portals for a period of no less than 30 days, and otherwise conciliate with competent decentralized bodies such as PROFECO or CONAMED."
                 }
             ]
         },
         "Privacy": {
             "title": "Privacy Notice",
-            "last_updated": "Last updated: February 2026",
-            "intro": "In strict compliance with the provisions of the Federal Law on the Protection of Personal Data Held by Private Parties ('LFPDPPP'), its Regulations, and the Privacy Notice Guidelines, QuHealthy makes this Comprehensive Privacy Notice available to you.",
+            "last_updated": "Last updated: March 2026",
+            "intro": "In strict compliance with the provisions enshrined in the Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP), its Regulations and derivative guidelines, QuHealthy, a platform operated by Marcos Sandoval Ruiz, extends this Comprehensive Privacy Notice for the benefit and knowledge of our Users and Healthcare Professionals.",
             "sections": [
                 {
-                    "title": "1. Identity and Domicile of the Controller",
-                    "content": "QuHealthy (hereinafter 'the Controller'), with headquarters and operations in Mexico City, Mexico, is responsible for the processing and protection of your personal and sensitive data."
+                    "title": "1. Identity and Legal Domicile of the Controller",
+                    "content": "Marcos Sandoval Ruiz (operator and natural person with business activity responsible for the 'QuHealthy' brand), with face-to-face operational control headquarters in Mexico City, hereinafter 'The Controller', serves as the official entity in charge of collecting, safeguarding, processing, or revoking your IT, personal, and sensitive biomedical/clinical data."
                 },
                 {
-                    "title": "2. Personal Data Collected",
-                    "content": "To carry out the described purposes, we will request the following data: Identification data (name, official ID), Contact data (phone, address, email), Billing data, Geolocation data, and where applicable, Credential and certification data (for professionals). Additionally, the Controller will collect Sensitive Data regarding past, present, or future health status (clinical history, symptoms, required medical specialty)."
+                    "title": "2. Institutional Regulatory Framework for Data Privacy and Telemedicine",
+                    "content": "For IT transactional purposes of Telemedicine records and Clinical Records, the Platform assimilates the mandatory stipulations raised in the country's regulations, including, without limitation, NOM-024-SSA3-2012 for Electronic Clinical Records (ECE) of the National Health System and the guide on COFEPRIS and Ministry of Health guidelines. All interfaces pursue encrypted regulations comparable in degree to international level directives (e.g., HIPAA guidelines)."
                 },
                 {
-                    "title": "3. Purposes of Processing",
-                    "content": "Primary Purposes (necessary for the service): Account creation, appointment scheduling, connection between patient and healthcare professional, payment processing, telemedicine via secure platforms (if applicable), and billing. Secondary Purposes (non-essential): Sending promotions, quality surveys, marketing, and internal analytical research. You may object to the use of your data for secondary purposes by sending an email to privacy@quhealthy.com."
+                    "title": "3. Typology of Personal and Sensitive Data Subject to Processing",
+                    "content": "We actively identify, collect, and process various types of your information, whether captured from a direct, indirect, or observed source:\n- Physical and Digital Identification Data: First name, pseudonyms, RFC, CURP (as applicable), video call image, and IP device metadata.\n- Contact and Billing Data: Residential delivery address, current email, phone number, and standardized tax record.\n- SENSITIVE CLINICAL and Patrimonial Data: History of ailments, hereditary and individual pathologies, organic prognosis and information, allergies and formulated prescriptions, as well as numerical codes for fund dispersion or bank cards. We comprehensively understand and guard such dimensions under strict explicit controls due to their intimate nature."
                 },
                 {
-                    "title": "4. Data Transfer",
-                    "content": "QuHealthy will share your personal data (including sensitive data) ONLY with the Healthcare Professional with whom you decided to schedule and carry out your consultation. Likewise, for payment processing, financial data will be transferred to certified payment gateways (e.g., Stripe). QuHealthy does not sell or transfer your data to third parties for commercial purposes without your express consent."
+                    "title": "4. Analytical, Clinical, and Commercial Purpose of Processing",
+                    "content": "The unalienable primary purposes for legal perfection with the Controller encompass:\n(a) Validation of profiles and identities (KYC).\n(b) The tech and programmatic orchestration face-to-face, remote (video) or asynchronous to allow clinical consultations.\n(c) The processing, bank capture, billing, and operational dispatch of management to providers.\nThe accessory secondary purposes, over which the User is full owner of subsequent refusal without compromising their consultations, include:\nTargeted marketing of integrated medical services, novelties notifications (newsletters), Big Data compilation and creation and public health statistics (generalized and NON-nominative algorithmic data-mapping) for market analytical purposes."
                 },
                 {
-                    "title": "5. ARCO Rights and Revocation of Consent",
-                    "content": "You have the right to know what personal data we have (Access), request the correction of your information (Rectification), have us delete it from our databases (Cancellation), and oppose the use of your data for specific purposes (Opposition). To exercise your ARCO rights or revoke your consent, you must send a written request to privacy@quhealthy.com, which we will address within a maximum period of 20 business days in accordance with the LFPDPPP."
+                    "title": "5. Restrictions on Transfer to Third Parties and Consent",
+                    "content": "Your personal data, particularly those classified as sensitive (pathological state), WILL NOT BE COMMERCIALIZED, SOLD OR LICENSED TO THIRD PARTIES alien to the base or operative provision. We will only share data and corporately justified transfers to the following related elements:\n(a) Healthcare Providers and Clinics: Specialists explicitly cited or authorized through the proprietary Scheduling software.\n(b) Regulated Payment Processors, to process the capture in authorized accounts and with interbank encryption guarantee (e.g., Stripe Inc. or homologous open-source gateway entities).\n(c) Legal and Governmental Compliance: By mandate and subjection to Mexican ministries and authorities by firm ministerial mandate, a case on which we abide full revelation."
                 },
                 {
-                    "title": "6. Security Measures",
-                    "content": "Your personal data, particularly medical and health data, is stored on servers with advanced encryption, backed by appropriate technological infrastructure that prevents unauthorized access, loss, or alteration of the information."
+                    "title": "6. Limitation of Capacity, Use, and Disclosure of Clinical Criteria",
+                    "content": "The Controller maintains exhaustive internal protocols and instills in its chain of workers abstention and corporate secrecy in exploring vital metrics, so that neither its systems nor authorized doctors exploit them for their profit outside your record. You consent upon accepting and scheduling that your authorized specialist keeps the protocol derived from doctor-patient interactions."
+                },
+                {
+                    "title": "7. Inalienable Exercise of 'ARCO' Rights and Revocations",
+                    "content": "You exercise total prerogative of the material usufruct regarding your collected asset, named by acronym by government precept A.R.C.O. (Complete Access to validate it, Obligatory Rectification in faults or lags, Total or segregated Cancellation of organic flows, or Opposition over dictated secondary optative purposes).\nAny derivative procedure requires formal contact through the Official Personal Data Holder, by verified email to: privacy@quhealthy.com accrediting your identity and foundation. Its resolution and probatory issuance takes a maximum term no greater than 20 business days in its course for stipulating resolution."
+                },
+                {
+                    "title": "8. Use of Cookies, Tracking Pixels, and Transactional Intelligence",
+                    "content": "In conjunction with its flow of explicit nominal data, the 'QuHealthy' web operates functional, marketing, and web traffic statistics Cookies. They operate automatically, inserting alphanumeric chains of anonymous collection on your provision server and visiting browser. You can modulate them, reject non-critical cookies in initial panels of the web application's Front-end, or block them proactively from the browser; although disabling core Session cookies will cause your bookings and accounts to not operate, without incurring fault and commitment to the application."
+                },
+                {
+                    "title": "9. Cryptovolumetric and Technical Security Measures",
+                    "content": "The assets and clusters where we host your records and usage variables boast superior architectural safeguards equivalent in lineage, asymmetric perimeter rigor, and cyber-certificate logic to banking entities; records carry cutting-edge double-sided encryption algorithms, ensuring that damage from piracy or external theft does not result in textual exfiltration of the medical report that is deductible to an individual user. We maintain constant cyber resilience audit reports and protocols."
+                },
+                {
+                    "title": "10. Alteration and Issuance of Notification on Temporary Modifiers",
+                    "content": "Given the imperative dynamic and adaptability to legislative scenarios in corporate e-Health law in the federation, the Platform protects and exercises its exclusive right to replacement and perfection in whole or partial sections of this legal body and its Privacy annexes. Every change is visible in the upper date ('Last Update', current header). If required for a substantial express consent of the record management, the portal will notify previous interruptions in modal format or in situ virtual confirmation to the patient upon initiating subsequent web entries."
                 }
             ]
         },
         "Cookies": {
             "title": "Cookie Policy",
-            "last_updated": "Last updated: February 2026",
+            "last_updated": "Last updated: March 2026",
             "intro": "QuHealthy uses cookies and similar technologies to improve navigation and the services of our platform.",
             "sections": [
                 {

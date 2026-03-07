@@ -9,7 +9,8 @@ export default function PrivacyPage() {
     const t = useTranslations('Legal.Privacy');
     const [searchQuery, setSearchQuery] = useState("");
 
-    const allSections = [0, 1, 2];
+    // We have 10 sections for the comprehensive HealthTech policy
+    const allSections = Array.from({ length: 10 }, (_, i) => i);
 
     const sections = allSections.filter(idx => {
         const title = t(`sections.${idx}.title`).toLowerCase();

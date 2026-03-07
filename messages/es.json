@@ -2090,73 +2090,101 @@
     "Legal": {
         "Terms": {
             "title": "Términos y Condiciones de Uso",
-            "last_updated": "Última actualización: Febrero 2026",
-            "intro": "Bienvenido a QuHealthy. Los presentes Términos y Condiciones rigen el acceso y uso de la plataforma web y móvil de QuHealthy, una empresa constituida conforme a las leyes de los Estados Unidos Mexicanos.",
+            "last_updated": "Última actualización: Marzo 2026",
+            "intro": "Bienvenido a QuHealthy. Los presentes Términos y Condiciones rigen el acceso y uso de la plataforma web y móvil de QuHealthy, operada legalmente por Marcos Sandoval Ruiz, persona física con actividad empresarial registrada conforme a las leyes de los Estados Unidos Mexicanos.",
             "sections": [
                 {
-                    "title": "1. Aceptación de los Términos",
-                    "content": "Al acceder, registrarse o utilizar QuHealthy (la 'Plataforma'), ya sea como Paciente ('Usuario') o Proveedor de Salud ('Profesional'), usted acepta expresamente estar sujeto a estos Términos y Condiciones, así como a nuestro Aviso de Privacidad. Si no está de acuerdo con alguna disposición, deberá abstenerse de utilizar la Plataforma."
+                    "title": "1. Aceptación y Modificación de los Términos",
+                    "content": "Al acceder, navegar, registrarse o utilizar QuHealthy (en adelante, la 'Plataforma'), ya sea en calidad de Paciente ('Usuario') o Proveedor de Salud ('Profesional'), usted acepta expresamente estar legalmente vinculado por estos Términos y Condiciones y nuestro Aviso de Privacidad de forma incondicional. QuHealthy se reserva el estricto derecho de modificar, actualizar o enmendar estos Términos en cualquier momento, de forma unilateral, notificando a través de la Plataforma. El uso continuo tras dichas modificaciones constituye su aceptación innegable."
                 },
                 {
-                    "title": "2. Naturaleza del Servicio y Exclusión de Responsabilidad Médica",
-                    "content": "QuHealthy actúa exclusivamente como un intermediario tecnológico que facilita la conexión entre los Usuarios y los Profesionales de la salud. QUHEALTHY NO PROVEE SERVICIOS MÉDICOS, DIAGNÓSTICOS, TRATAMIENTOS NI ASESORAMIENTO DE SALUD. Cualquier relación médico-paciente se establece directa y exclusivamente entre el Usuario y el Profesional. QuHealthy no asume responsabilidad alguna por la negligencia, mala praxis, diagnósticos erróneos, o cualquier daño resultante de los servicios prestados por los Profesionales registrados en la Plataforma."
+                    "title": "2. Naturaleza de la Plataforma y Descargo de Responsabilidad Médica",
+                    "content": "QuHealthy actúa EXCLUSIVAMENTE como un intermediario tecnológico y comercial que provee infraestructura de software para conectar a Usuarios con Profesionales de la salud de pre-verificada formación. QUHEALTHY NO PROVEE SERVICIOS MÉDICOS, PSIQUIÁTRICOS, DIAGNÓSTICOS, TRATAMIENTOS NI ASESORAMIENTO DE PREVENCIÓN O CURA DE ENFERMEDADES. Cualquier contenido emitido en la Plataforma no sustituye el consejo de un médico. Toda relación médico-paciente, los diagnósticos y las prescripciones emitidas son absoluta y exclusiva responsabilidad legal y clínica de los Profesionales. En caso de una emergencia médica, comuníquese inmediatamente al 911 o acuda al hospital más cercano; nuestra plataforma no está diseñada para emergencias."
                 },
                 {
-                    "title": "3. Cuentas de Usuario y Seguridad",
-                    "content": "Para acceder a ciertas funciones, los Usuarios y Profesionales deben crear una cuenta proporcionando información veraz, precisa y actualizada. Usted es el único responsable de mantener la confidencialidad de sus credenciales y de todas las actividades que ocurran bajo su cuenta. QuHealthy se reserva el derecho de suspender o cancelar cuentas que violen estos Términos, incluyendo la provisión de información falsa o suplantación de identidad."
+                    "title": "3. Perfil de Usuario, Elegibilidad y Seguridad",
+                    "content": "Para utilizar la Plataforma, el Usuario debe ser mayor de edad legal (18 años en México) con plena capacidad jurídica. Usted se compromete a proporcionar información fidedigna, completa, reciente y exacta. Usted es el responsable exclusivo de mantener la confidencialidad de su cuenta y contraseña; cualquier transacción o acción bajo su cuenta será reputada como propia y válida. QuHealthy se reserva el derecho de revocar el acceso a cuentas con comportamiento fraudulento o incumplimiento moral y legal a estos términos."
                 },
                 {
-                    "title": "4. Reservas, Pagos, Cancelaciones y Reembolsos",
-                    "content": "4.1 Tarifas y Pagos: Al agendar una cita o adquirir un servicio, el Usuario acepta pagar las tarifas indicadas a través de nuestra pasarela de pagos autorizada (ej. Stripe). 4.2 Políticas de Cancelación (Pacientes): El Usuario podrá cancelar o reprogramar una cita sin penalización con al menos 24 horas de anticipación a la hora programada. Cancelaciones con menor tiempo de anticipación, o la inasistencia (no-show), podrán resultar en el cobro del 100% de la tarifa pactada, según los criterios del Profesional. 4.3 Cancelaciones (Profesionales): Si un Profesional cancela la cita confirmada, procesaremos el reembolso íntegro al Usuario."
+                    "title": "4. Obligaciones estables del Profesional de la Salud",
+                    "content": "Todo Profesional de la Salud ('Profesional') inscrito en QuHealthy está legalmente obligado a cumplir con la normatividad sanitaria mexicana vigente impuesta por la COFEPRIS, la Ley General de Salud y organismos competentes. Los Profesionales declaran y garantizan bajo previa penalización de perjurio que cuentan con título profesional válido, cédula profesional inscrita en el Registro Nacional de Profesionistas (SEP) y todo permiso o certificación correspondiente. QuHealthy ejecuta revisiones (KYC) periódicas pero no es fiador ni garante perenne de dichas credenciales; todo acto u omisión derivado del servicio recae civil y penalmente en el perito médico."
                 },
                 {
-                    "title": "5. Obligaciones y Declaraciones del Profesional",
-                    "content": "Los Profesionales de la salud garantizan contar con las cédulas profesionales, certificaciones, especialidades médicas y permisos sanitarios vigentes emitidos por las autoridades correspondientes en México (ej. SEP, COFEPRIS) o la jurisdicción aplicable. QuHealthy realiza una verificación de identidad (KYC), pero el Profesional asume total responsabilidad civil, penal y administrativa derivada de su práctica."
+                    "title": "5. Agenda, Pagos, Cancelaciones y Facturación",
+                    "content": "El uso de la agenda genera una intención de Cita, la cual está validada por una tarifa fijada independientemente por el Profesional. QuHealthy emplea tecnología de pagos segura de terceros (ej. Stripe). Usted acepta que la Plataforma haga el cargo transaccional respectivo a su método de pago autorizado y válido.\nPolíticas Generales de Cancelación:\n(a) Cancelaciones de Usuario con +24 hrs: Reembolso íntegro aplicable.\n(b) Cancelaciones de Usuario / 'No-shows' on -24 hrs: El Profesional tiene derecho a retener el 100% o porcentaje definido en sus políticas, sin que intervenga QuHealthy a mediaciones monetarias más allá del abono inicial.\n(c) Cancelaciones de Profesionales: Reembolso completo garantizado o re-agendamiento gratuito. Las facturas contables de la prestación del servicio médico son expedidas por el Profesional directamente, no por QuHealthy."
                 },
                 {
-                    "title": "6. Propiedad Intelectual",
-                    "content": "Todos los derechos de propiedad intelectual sobre el contenido, diseño, marca, logotipos, software y códigos de la Plataforma son propiedad exclusiva de QuHealthy, protegidos por la Ley Federal del Derecho de Autor y la Ley Federal de Protección a la Propiedad Industrial de México. Queda estrictamente prohibida su reproducción, distribución o modificación sin autorización expresa y por escrito."
+                    "title": "6. Telemedicina, Uso Permitido y Conducta Prohibida",
+                    "content": "Al usar QuHealthy y sus herramientas de teleconsulta y videollamada, prohíbese estrictamente: \n(1) Subir de mala fe, material ilícito, difamatorio, virus o interrupciones de software; \n(2) Infringir las bases de la normatividad de expedientes clínicos electrónicos (NOM-024-SSA3-2012);\n(3) Grabar, emitir o realizar actos sin previo consentimiento expreso y formal; \n(4) Suplantar identidad clínica. \nCualquier transgresor será denunciado a la jurisdicción que corresponda penalmente, además de la cancelación inmediata de sus privilegios del portal."
                 },
                 {
-                    "title": "7. Legislación Aplicable y Jurisdicción",
-                    "content": "Para la interpretación, cumplimiento y ejecución de los presentes Términos y Condiciones, las partes se someten expresamente a las leyes federales de los Estados Unidos Mexicanos, y a la jurisdicción de los tribunales competentes en la Ciudad de México, renunciando a cualquier otro fuero que pudiera corresponderles por razón de sus domicilios presentes o futuros."
+                    "title": "7. Propiedad Intelectual e Industrial",
+                    "content": "Todos los derechos inherentes, marcas, patentes, logotipos, compilaciones de datos, interfaces visuales, código subyacente (source-code) y algoritmos presentes en QuHealthy corresponden exclusivamente a Marcos Sandoval Ruiz. Usted recibe únicamente una licencia limitada, no transferible y esencial para utilizar el software a nivel cliente/usuario; se imposibilita ingeniería inversa, copias, subarriendos, minería de datos o extracciones sistemáticas."
+                },
+                {
+                    "title": "8. Enlaces de Terceros y Módulos de Integración",
+                    "content": "Oportunamente, QuHealthy vincula u hospeda software y módulos proveídos por compañías de terceras partes (laboratorios, farmacéuticas, procesadores de tarjetas de crédito). Eximimos toda responsabilidad por el contenido, la interrupción técnica o problemas de seguridad de los proveedores ajenos."
+                },
+                {
+                    "title": "9. Limitación Sistémica de Responsabilidad e Indemnización",
+                    "content": "BAJO LA MÁXIMA MEDIDA PERMITIDA POR LA LEGISLACIÓN Y JURISPRUDENCIA FEDERAL, EN NINGÚN CASO Y BAJO NINGUNA TEORÍA DE LEY QUHEALTHY Y SUS OPERADORES SERÁN RESPONSABLES ANTE USTED O CUALQUIER TERCER PARTE POR DAÑOS DIRECTOS, INDIRECTOS, PUNITIVOS, INCIDENTALES, EJEMPLARES O ESPECIALES, INCLUYENDO LA NEGLIGENCIA MÉDICA, EL DAÑO FÍSICO, LUCRO CESANTE Y PÉRDIDA DE DATOS. Como usuario y profesional de la salud acuerda defender, indemnizar y sacar en completa paz y a salvo a la Plataforma contra quejas resultantes del mal uso de su portal."
+                },
+                {
+                    "title": "10. Ley Aplicable y Resolución de Controversias Consolidadas",
+                    "content": "Para la validación, ejecución, cumplimiento e interpretación material de estos lineamientos, se apila la voluntad expresa de normarlo bajo el Código de Comercio, Código Civil Federal de México y la Ley General de Salud, y para dirimir contingencias o demandas de usuarios, las partes designan exclusivamente a los juzgados de la Cuidad de México, descartando fuero que, por domicilio posterior o paralelo, les adscriba. Antes de iniciar contingencias legales, el Usuario acuerda agotar medios conciliatorios a través de los portales de atención del cliente durante un plazo no menor a 30 días, y en caso contrario conciliar con órganos descentralizados competentes como la PROFECO o la CONAMED."
                 }
             ]
         },
         "Privacy": {
             "title": "Aviso de Privacidad",
-            "last_updated": "Última actualización: Febrero 2026",
-            "intro": "En estricto cumplimiento a lo dispuesto en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares ('LFPDPPP'), su Reglamento y los Lineamientos del Aviso de Privacidad, QuHealthy pone a su disposición el presente Aviso de Privacidad Integral.",
+            "last_updated": "Última actualización: Marzo 2026",
+            "intro": "En cumplimiento estricto a las disposiciones consagradas en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), su Reglamento y lineamientos derivados, QuHealthy, plataforma operada por Marcos Sandoval Ruiz, extiende este Aviso de Privacidad de características Comprehensivas e Integrales en beneficio y conocimiento de nuestros Usuarios y Profesionales de la Salud.",
             "sections": [
                 {
-                    "title": "1. Identidad y Domicilio del Responsable",
-                    "content": "QuHealthy (en adelante, el 'Responsable'), con dirección y operaciones en la Ciudad de México, México, es el responsable del tratamiento y protección de sus datos personales y sensibles."
+                    "title": "1. Identidad y Domicilio Legal del Responsable",
+                    "content": "Marcos Sandoval Ruiz (operador y persona física con actividad empresarial responsable de la marca 'QuHealthy'), con sede de control operativo presencial en la Cuidad de México, en adelante 'El Responsable', funge como la entidad encargada oficial de recabar, salvaguardar, tratar o revocar sus datos informáticos, personales y de carácter biomédico / clínico sensible."
                 },
                 {
-                    "title": "2. Datos Personales Recabados",
-                    "content": "Para llevar a cabo las finalidades descritas, solicitaremos los siguientes datos: Datos de identificación (nombre, identificación oficial), Datos de contacto (teléfono, domicilio, correo electrónico), Datos de facturación, Datos de geolocalización, y en su caso, Datos de credenciales y constancias (para profesionales). Adicionalmente, el Responsable recabará Datos Sensibles referentes al estado de salud pasado, presente o futuro (historial clínico, síntomas, especialidad médica requerida)."
+                    "title": "2. Marco Rector Institucional de Privacidad de Datos y Telemedicina",
+                    "content": "Para propósitos transaccionales informáticos de registros y Expediente Clínico de Telemedicina, la Plataforma asimila las estipulaciones obligatorias enarboladas en las regulaciones del país, incluyendo, sin limitación, la NOM-024-SSA3-2012 para Expedientes Clínicos Electrónicos (ECE) del Sistema Nacional de Salud y la guía sobre directrices de COFEPRIS y Secretaría de Salud. Todas las interfaces persiguen normatividades cifradas comparables en grado a directivas de nivel internacional (p. ej. lineamientos de HIPAA)."
                 },
                 {
-                    "title": "3. Finalidades del Tratamiento",
-                    "content": "Finalidades Primarias (necesarias para el servicio): Creación de su cuenta, agendamiento de citas, conexión entre paciente y profesional de la salud, procesamiento de pagos, telemedicina mediante plataformas seguras (si aplica) y facturación. Finalidades Secundarias (no esenciales): Envío de promociones, encuestas de calidad, marketing e investigación analítica interna. Usted puede oponerse al uso de sus datos para finalidades secundarias enviando un correo a privacidad@quhealthy.com."
+                    "title": "3. Tipología de Datos Personales y Sensibles Sometidos a Tratamiento",
+                    "content": "Identificamos, recopilamos y procesamos activamente diversas estirpes de su información, ya sea capturada de fuente directa, indirecta u observada:\n- Datos de Identificación Físicos y Digitales: Nombre de pila, pseudónimos, RFC, CURP (según aplicabilidad), imagen en videollamada y metadatos del dispositivo IP.\n- Datos de Contacto y Facturación: Dirección habitacional de remisión, correo electrónico vigente, número telefónico, y registro fiscal estandarizado.\n- Datos CLÍNICOS SENSIBLES y Patrimoniales: Historial de padecimientos, patologías hereditarias e individuales, pronóstico e informaciones orgánicas, alergias y prescripciones formuladas, como también claves numéricas para dispersión de fondos o de tarjetas bancarias. Entendemos y custodiamos exhaustivamente tales dimensiones bajo controles rigurosos explícitos por su naturaleza íntima."
                 },
                 {
-                    "title": "4. Transferencia de Datos",
-                    "content": "QuHealthy compartirá sus datos personales (incluyendo los sensibles) ÚNICAMENTE con el Profesional de la Salud con el que usted decidió agendar y llevar a cabo su consulta. Asimismo, para el procesamiento de pagos, los datos financieros serán trasferidos a pasarelas de pago certificadas (ej. Stripe). QuHealthy no vende ni transfiere sus datos a terceros con fines de lucro sin su consentimiento expreso."
+                    "title": "4. Finalidad Analítica, Clínica y Comercial del Tratamiento",
+                    "content": "Las finalidades primarias indeclinables para el perfeccionamiento legal con el Responsable engloban:\n(a) Validación de los perfiles e identidades (KYC).\n(b) La orquestación y enlace tecnológico y programático presencial, remoto (video) u asíncrono para permitir consultas clínicas.\n(c) El procesamiento, captura bancaria, facturación y envío operativo de las gestiones a proveedores.\nLas finalidades secundarias accesorias, sobre las cuales el Usuario es dueño pleno del rechazo posterior sin que comprometa sus consultas, encierran:\nMarketing focalizado de servicios integrados médicos, notificaciones de novedades (newsletters), compilación y creación de Big Data y estadísticas de salud pública (data-mapping algorítmico generalizado y NO nominativo) en aras analíticas de mercado."
                 },
                 {
-                    "title": "5. Derechos ARCO y Revocación del Consentimiento",
-                    "content": "Usted tiene derecho a conocer qué datos personales tenemos (Acceso), solicitar la corrección de su información (Rectificación), que la eliminemos de nuestras bases (Cancelación) oponerse al uso de sus datos para fines específicos (Oposición). Para ejercer sus derechos ARCO o revocar su consentimiento, deberá enviar una solicitud por escrito a privacidad@quhealthy.com, la cual atenderemos en un plazo máximo de 20 días hábiles conforme a la LFPDPPP."
+                    "title": "5. Restricciones a la Transferencia a Terceras Personas y Consentimiento",
+                    "content": "Sus datos personales, en particular aquellos clasificados como sensibles (estado patológico), NO SERÁN COMERCIALIZADOS, VENDIDOS O LICENCIADOS A TERCEROS ajenos a la prestación base u operativa. Sólo compartiremos datos y transferencias justificadas corporativamente a los siguientes elementos conexos:\n(a) Proveedores de Salud y Clínicas: Especialistas explícitamente citados o autorizados mediante el software propio de Agendamiento.\n(b) Procesadores de Pago Regulados, para procesar la captura en cuentas autorizadas y con aval interbancario de encripción (p. ej., Stripe Inc. o entidades de software libre homólogas de pasarela).\n(c) Acatamiento Jurídico y Gubernamental: Por oficio y sujeción ante secretarías y autoridades mexicanas a mandato ministerial firme, caso sobre el cual acatamos cabal revelación."
                 },
                 {
-                    "title": "6. Medidas de Seguridad",
-                    "content": "Sus datos personales, en particular los datos médicos y de salud, se guardan en servidores con encriptación avanzada, respaldados por la infraestructura tecnológica adecuada que previene accesos no autorizados, pérdida o alteración de la información."
+                    "title": "6. Limitación de Capacidad, Uso y Divulgación de los Criterios Clínicos",
+                    "content": "El Responsable mantiene protocolos exhaustivos internos e inculca a su cadena de trabajadores abstención y hermetismo corporativo en la exploración de las métricas vitales, con fines de que ni sus sistemas, ni los médicos autorizados realicen explotación para su lucro fuera de su expediente. Usted consiente al aceptar y agendar a que su especialista autorizado guarde el protocolo derivado de interacciones médico-paciente."
+                },
+                {
+                    "title": "7. Ejercicio inalienable de los Derechos 'ARCO' y Revocatorias",
+                    "content": "Usted ejerce prerrogativa total del usufructo material respecto de su acervo recabado, denominados bajo acrónimo por precepto gubernamental A.R.C.O. (Acceso completo para validarlo, Rectificación obligada en faltas o desfasajes, Cancelación total o segregada de los flujos orgánicos, u Oposición sobre propósitos optativos secundarios dictados).\nCualquier procedimiento derivado requiere el contacto formal a través del Titular Oficial de Datos Personales, por correo verificado a: privacidad@quhealthy.com acreditando su identidad y fundamentación. Su resolución y emisión probatoria toma como máximo un plazo no mayor a 20 días hábiles en su curso para resolución estipulante."
+                },
+                {
+                    "title": "8. Empleo de Cookies, Píxeles de Rastreo e Inteligencia Transaccional",
+                    "content": "En conjunción a su flujo de datos nominales explícitos, la web 'QuHealthy' opera Cookies funcionales, de marketing y estadísticas de tráfico web. Operan de forma automática, insertando cadenas alfanuméricas de recabo anónimo sobre su servidor de provisión y navegador de visita. Usted puede modularlas, rechazar las cookies no-críticas en paneles iniciales del Front-end de la aplicación web, o bloquearlas proactivamente del navegador; aunque de inhabilitar cookies torales de Sesión sus reservas y cuentas no operarán, sin incurrir culpa y compromiso a la aplicación."
+                },
+                {
+                    "title": "9. Medidas Criptovolumétricas y de Seguridad Técnica",
+                    "content": "Los activos y clústeres donde hospedamos sus expedientes y variables de uso ostentan salvaguardas arquitectónicas superiores equivalentes en estirpe, rigor perimetral asimétrico y lógica de ciber-certificados a entes bancarios; los expedientes portan algoritmos de cifrado de doble cara a la vanguardia, garantizando que el menoscabo frente a piratería o robo exterior no derive en exfiltración textual del informe médico que sea deducible a un usuario individual. Mantenemos reportes y protocolos de auditoría de resiliencia cibernéticos constantes."
+                },
+                {
+                    "title": "10. Alteración y Emisión de Notificación sobre Modificantes Temporales",
+                    "content": "Dada la imperiosa dinámica y adaptabilidad a escenarios legislativos en el derecho corporativo en e-Salud en la federación, la Plataforma ampara y ejerce su derecho exclusivo al recambio y perfeccionamiento en apartados íntegros o parciales de este cuerpo legal y sus anexos de Privacidad. Todo cambio es visible en la fecha superior ('Última Actualización', cabecera actual). Si se requiere para un consentimiento expreso sustancial de la gestión del expediente el portal notificará interrupciones previas en formato de modal o confirmación virtual in situ al paciente al iniciar subsecuentes entradas web."
                 }
             ]
         },
         "Cookies": {
             "title": "Política de Cookies",
-            "last_updated": "Última actualización: Febrero 2026",
+            "last_updated": "Última actualización: Marzo 2026",
             "intro": "QuHealthy utiliza cookies y tecnologías similares para mejorar la navegación y los servicios de nuestra plataforma.",
             "sections": [
                 {

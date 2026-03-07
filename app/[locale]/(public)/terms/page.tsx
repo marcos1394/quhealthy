@@ -9,8 +9,8 @@ export default function TermsPage() {
     const t = useTranslations('Legal.Terms');
     const [searchQuery, setSearchQuery] = useState("");
 
-    // We have 4 sections according to es.json/en.json
-    const allSections = [0, 1, 2, 3];
+    // We have 10 sections for the comprehensive HealthTech policy
+    const allSections = Array.from({ length: 10 }, (_, i) => i);
 
     // Filter sections based on search query
     const sections = allSections.filter(idx => {
