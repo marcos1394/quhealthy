@@ -10,12 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { UI_Package } from "@/types/catalog"; // O ajusta la ruta a donde tengas la interfaz
 import { UI_Service } from "@/types/catalog";
-import { ServicePackage } from "./PackagesManager";
+import {  } from "./PackagesManager";
 
 interface PackageItemCardProps {
-  pkg: ServicePackage;
+  pkg: UI_Package;
   availableServices: UI_Service[];
-  onEdit: (pkg: ServicePackage) => void;
+  onEdit: (pkg: UI_Package) => void;
   onDelete: (id: number) => void;
 }
 

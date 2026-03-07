@@ -53,7 +53,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
   // Recargar cuando el componente se monta o cuando la IA genera algo nuevo
   useEffect(() => {
     fetchPosts();
-  }, [fetchPosts, refreshTrigger]);
+  }, [refreshTrigger]);
 
   // Función auxiliar para determinar si es video basado en la URL
   const isVideo = (url?: string) => url?.match(/\.(mp4|webm|mov)$/i);

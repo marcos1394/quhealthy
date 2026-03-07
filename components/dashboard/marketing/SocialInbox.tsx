@@ -41,7 +41,7 @@ export function SocialInbox() {
   // Cargar la bandeja de entrada al montar el componente
   useEffect(() => {
     loadConversations(0, 50);
-  }, [loadConversations]);
+  }, []);
 
   // Auto-scroll hacia abajo cuando entran nuevos mensajes
   useEffect(() => {
