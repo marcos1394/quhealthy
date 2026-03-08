@@ -21,15 +21,15 @@ export const socialService = {
   // 1. CONEXIONES OAUTH
   // ==========================================
   getActiveConnections: async (): Promise<SocialConnectionDTO[]> => {
-    const response = await axiosInstance.get(`${BASE_URL}/auth/connections`);
+    const response = await axiosInstance.get(`${BASE_URL}/connections`);
     return response.data;
   },
   getAuthUrl: async (platform: string): Promise<AuthUrlResponse> => {
-    const response = await axiosInstance.get(`${BASE_URL}/auth/${platform}/url`);
+    const response = await axiosInstance.get(`${BASE_URL}/${platform}/url`);
     return response.data;
   },
   disconnectPlatform: async (platform: string): Promise<void> => {
-    await axiosInstance.delete(`${BASE_URL}/auth/${platform}`);
+    await axiosInstance.delete(`${BASE_URL}/${platform}`);
   },
 
   // ==========================================

@@ -1,5 +1,5 @@
 // src/hooks/useSocial.ts
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { socialService } from '@/services/social.service';
 import { useSessionStore } from '@/stores/SessionStore';
 import {
@@ -64,8 +64,14 @@ export const useSocial = (): UseSocialReturn => {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDTO[]>([]);
 
-  // 🚀 Obtenemos el token directamente del store de Zustand que me mostraste
+  // 🚀 Obtenemos el token directamente del store de Zustand
   const token = useSessionStore((state) => state.token);
+
+  // Refs estables para el SSE — evita re-crear la conexión en cada cambio de estado
+  const activeConversationIdRef = useRef(activeConversationId);
+  activeConversationIdRef.current = activeConversationId;
+
+  const loadConversationsRef = useRef<(page?: number, size?: number) => Promise<void>>(null!);
 
   // ==========================================
   // MANEJO CENTRALIZADO DE ERRORES
@@ -192,8 +198,13 @@ export const useSocial = (): UseSocialReturn => {
     finally { setLoading(false); }
   };
 
+  // Mantener siempre la referencia actualizada
+  loadConversationsRef.current = loadConversations;
+
   // =====================================================================
-  // 🔌 TIEMPO REAL (SSE): Magia del EventSource para Webhooks
+  // 🔌 TIEMPO REAL (SSE): Una sola conexión estable por sesión
+  // Solo se re-crea si cambia el token (login/logout).
+  // activeConversationId y loadConversations se leen desde refs.
   // =====================================================================
   useEffect(() => {
     // Si no hay token de Zustand, no abrimos el túnel
@@ -207,22 +218,21 @@ export const useSocial = (): UseSocialReturn => {
 
     eventSource.addEventListener('CONNECTED', () => {
       console.log('🟢 Túnel SSE CRM Activo');
-      retryCount = 0; // Reset on successful connection
+      retryCount = 0;
     });
 
     eventSource.addEventListener('NEW_MESSAGE', (event) => {
-      // Parseamos el JSON empujado por Spring Boot
       const incomingMsg: MessageDTO & { conversationId?: string } = JSON.parse(event.data);
 
       // A. Si el paciente está en el chat activo, aparece su mensaje en pantalla
       setMessages((prev) => {
-        if (incomingMsg.conversationId === activeConversationId) {
+        if (incomingMsg.conversationId === activeConversationIdRef.current) {
           return [...prev, incomingMsg];
         }
         return prev;
       });
 
-      // B. Actualizamos el Inbox (Puntito azul de "No Leído" y preview)
+      // B. Actualizamos el Inbox
       setConversations((prev) => {
         let isExistingChat = false;
         const updated = prev.map(conv => {
@@ -232,15 +242,14 @@ export const useSocial = (): UseSocialReturn => {
               ...conv,
               lastMessageAt: incomingMsg.createdAt,
               lastMessagePreview: incomingMsg.content,
-              isRead: incomingMsg.conversationId === activeConversationId // Si está abierto, ya se leyó
+              isRead: incomingMsg.conversationId === activeConversationIdRef.current
             };
           }
           return conv;
         });
 
-        // Si es un chat totalmente nuevo que no estaba en la RAM, lo recargamos del servidor
         if (!isExistingChat) {
-          loadConversations(0, 20);
+          loadConversationsRef.current(0, 20);
         }
 
         return updated.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
@@ -260,7 +269,7 @@ export const useSocial = (): UseSocialReturn => {
     return () => {
       eventSource.close();
     };
-  }, [token, activeConversationId, loadConversations]);
+  }, [token]); // ← Solo depende del token: 1 conexión por sesión
 
   return {
     loading,
