@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import { useTranslations } from 'next-intl';
 import { 
   Share2, 
@@ -27,8 +26,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Hooks y Stores
 import { useAuth } from '@/hooks/useAuth';
+import { useCatalog } from '@/hooks/useCatalog'; // 🚀 Importamos tu hook correctamente
 
-// 🧩 NUESTROS COMPONENTES MODULARES (La magia limpia)
+// 🧩 NUESTROS COMPONENTES MODULARES
 import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialConnectionsCard';
 import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
 import { ContentGallery } from '@/components/dashboard/marketing/ContentGallery';
@@ -40,7 +40,9 @@ function MarketingLoading() {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
       <Loader2 className="w-12 h-12 text-medical-500 animate-spin mb-4" />
-      <p className="text-slate-500 dark:text-slate-400 animate-pulse">{t('loading_studio') || 'Cargando tu estudio...'}</p>
+      <p className="text-slate-500 dark:text-slate-400 animate-pulse">
+        {t('loading_studio') || 'Cargando tu estudio...'}
+      </p>
     </div>
   );
 }
@@ -51,14 +53,16 @@ function MarketingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { checkSession } = useAuth();
+  
+  // 🚀 Usamos tu hook para traer los servicios y la función de carga
+  const { services, fetchInventory } = useCatalog();
 
   // Estados Globales de la Página
-  const [services, setServices] = useState<{ id: number; name: string; }[]>([]);
   const [galleryRefresh, setGalleryRefresh] = useState(0); // Trigger para recargar la galería
   
   // Estados del Perfil Público (Tab 3)
   const [bio, setBio] = useState('Dr. Especialista con más de 10 años de experiencia clínica. Comprometido con la salud integral de mis pacientes.');
-  const profileCompleteness = 85; // Esto podría venir del backend en un futuro
+  const profileCompleteness = 85;
 
   // 1. Manejo de Redirección OAuth (Cuando el usuario regresa de Facebook/Google)
   useEffect(() => {
@@ -78,23 +82,10 @@ function MarketingContent() {
     }
   }, [searchParams, router, checkSession, t]);
 
-  // 2. Cargar Catálogo de Servicios (Para el selector de la IA)
+  // 🚀 2. Cargamos el catálogo del doctor al montar el componente
   useEffect(() => {
-    // Usamos el axios genérico o tu servicio de catálogo
-    axios.get('/api/catalog/me/items?size=100', { withCredentials: true })
-      .then(res => {
-        // Formateamos para el select (solo necesitamos id y nombre)
-        const formattedServices = res.data.content?.map((item: any) => ({
-          id: item.id,
-          name: item.name
-        })) || [];
-        setServices(formattedServices.length > 0 ? formattedServices : [{ id: 1, name: 'Consulta General' }]);
-      })
-      .catch(() => {
-        // Fallback de prueba si falla el backend
-        setServices([{ id: 1, name: 'Consulta General' }, { id: 2, name: 'Limpieza Dental' }]);
-      });
-  }, []);
+    fetchInventory();
+  }, [fetchInventory]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 xl:p-8 font-sans">
@@ -138,9 +129,9 @@ function MarketingContent() {
             {/* Componente 1: Autorizaciones OAuth */}
             <SocialConnectionsCard />
 
-            {/* Componente 2: Formularios de Generación con IA */}
+            {/* 🚀 Componente 2: Formularios de Generación con IA (Mapeamos la data de useCatalog) */}
             <AiStudioForm 
-              services={services} 
+              services={services.map(s => ({ id: s.id, name: s.name }))} 
               onGenerationSuccess={() => setGalleryRefresh(prev => prev + 1)} 
             />
 
@@ -159,7 +150,7 @@ function MarketingContent() {
 
 
           {/* ============================================================== */}
-          {/* PESTAÑA 3: PERFIL CLÍNICO PÚBLICO (SE MANTIENE DEL ORIGINAL)   */}
+          {/* PESTAÑA 3: PERFIL CLÍNICO PÚBLICO                                */}
           {/* ============================================================== */}
           <TabsContent value="profile" className="space-y-8 mt-0 border-none outline-none">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
