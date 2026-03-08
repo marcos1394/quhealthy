@@ -79,15 +79,22 @@ export const useAuth = (): UseAuthReturn => {
 
   const login = async (data: LoginRequest) => {
     setLoading(true); setError(null);
-    try { return await authService.login(data); }
+    try {
+      const response = await authService.login(data);
+      useSessionStore.getState().setSession(response);
+      return response;
+    }
     catch (err) { return handleError(err); }
     finally { setLoading(false); }
   };
 
   const loginWithGoogle = async (data: SocialLoginRequest) => {
     setLoading(true); setError(null);
-    // authService.socialLogin lo maneja de forma simplificada
-    try { return await authService.socialLogin(data); }
+    try {
+      const response = await authService.socialLogin(data);
+      useSessionStore.getState().setSession(response);
+      return response;
+    }
     catch (err) { return handleError(err); }
     finally { setLoading(false); }
   };
@@ -105,7 +112,8 @@ export const useAuth = (): UseAuthReturn => {
   };
 
   const logout = () => {
-    authService.logout({ refreshToken: '' }).catch(() => { }); // Opcional
+    const { refreshToken } = useSessionStore.getState();
+    authService.logout({ refreshToken: refreshToken || '' }).catch(() => { });
     useSessionStore.getState().clearSession();
     router.push('/login');
   };

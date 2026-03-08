@@ -60,8 +60,8 @@ export interface AuthUser {
 }
 
 export interface AuthStatus {
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  emailVerified: boolean;
+  phoneVerified: boolean;
   onboardingComplete: boolean;
   hasActivePlan: boolean;
 }

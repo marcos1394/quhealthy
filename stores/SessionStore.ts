@@ -6,6 +6,7 @@ import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 interface SessionState {
   // Estado
   token: string | null;
+  refreshToken: string | null;
   expiresAt: number | null;
   user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
@@ -18,27 +19,29 @@ interface SessionState {
   updateToken: (payload: Partial<AuthResponse>) => void;
   clearSession: () => void;
   setLoading: (loading: boolean) => void;
-  
+
   // 🚀 LA NUEVA ACCIÓN PROFESIONAL
-  initializeSession: () => Promise<void>; 
+  initializeSession: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
   // Estado Inicial
   token: null,
+  refreshToken: null,
   expiresAt: null,
   user: null,
   role: null,
   status: null,
   isAuthenticated: false,
-  
+
   // 🔥 Iniciar en TRUE es la mejor práctica. Evita parpadeos de UI no autorizada
-  isLoading: true, 
+  isLoading: true,
 
   // Acción: Guardar Sesión (Login Exitoso)
   setSession: (response) => {
     set({
       token: response.token,
+      refreshToken: response.refreshToken || null,
       expiresAt: response.expiresIn ? Date.now() + response.expiresIn * 1000 : null,
       user: response.user,
       role: response.role,
@@ -63,6 +66,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   clearSession: () => {
     set({
       token: null,
+      refreshToken: null,
       expiresAt: null,
       user: null,
       role: null,
@@ -82,14 +86,15 @@ export const useSessionStore = create<SessionState>((set) => ({
       // Hacemos un post al endpoint de refresh. 
       // Al tener withCredentials: true, el navegador envía la cookie HttpOnly automáticamente.
       const response = await axios.post<AuthResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`, 
-        {}, 
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+        {},
         { withCredentials: true }
       );
 
       // Si el backend nos da un token nuevo, restauramos la memoria
       set({
         token: response.data.token,
+        refreshToken: response.data.refreshToken || null,
         expiresAt: response.data.expiresIn ? Date.now() + response.data.expiresIn * 1000 : null,
         user: response.data.user,
         role: response.data.role,
@@ -97,7 +102,7 @@ export const useSessionStore = create<SessionState>((set) => ({
         isAuthenticated: true,
         isLoading: false, // Terminamos de cargar
       });
-      
+
       console.log("✅ [Auth] Sesión restaurada de forma segura vía HttpOnly Cookie");
 
     } catch (error) {
@@ -105,6 +110,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       console.log("ℹ️ [Auth] No hay sesión activa. Usuario debe loguearse.");
       set({
         token: null,
+        refreshToken: null,
         user: null,
         role: null,
         status: null,
