@@ -3,14 +3,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { 
-  Sparkles, 
-  Video, 
-  Image as ImageIcon, 
-  Loader2, 
-  ArrowDownToLine, 
-  CalendarPlus, 
-  CheckCircle, 
+import {
+  Sparkles,
+  Video,
+  Image as ImageIcon,
+  Loader2,
+  ArrowDownToLine,
+  CalendarPlus,
+  CheckCircle,
   AlertCircle,
   Clock
 } from 'lucide-react';
@@ -23,13 +23,13 @@ import { ScheduledPostDTO, PostStatus } from '@/types/social';
 interface ContentGalleryProps {
   // Un contador o trigger que cambia cuando AiStudioForm genera un nuevo post
   // para obligar a la galería a recargarse automáticamente.
-  refreshTrigger: number; 
+  refreshTrigger: number;
 }
 
 export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
   const t = useTranslations('DashboardMarketing');
   const { getScheduledPosts, cancelPost } = useSocial();
-  
+
   const [posts, setPosts] = useState<ScheduledPostDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,7 +42,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
     try {
       // Traemos la primera página de posts (los últimos 20)
       const data = await getScheduledPosts(0, 20);
-      setPosts(data.content);
+      setPosts(data?.content ?? []);
     } catch (error) {
       console.error("Error al cargar la galería:", error);
     } finally {
@@ -106,20 +106,20 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
             const isMediaVideo = isVideo(mediaUrl || undefined);
 
             return (
-              <div 
-                key={post.id} 
+              <div
+                key={post.id}
                 className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col h-[380px]"
               >
                 {/* --- SECCIÓN MULTIMEDIA --- */}
                 <div className="relative h-48 bg-slate-100 dark:bg-slate-950 w-full flex-shrink-0">
                   {mediaUrl ? (
                     isMediaVideo ? (
-                      <video 
-                        src={mediaUrl} 
-                        className="w-full h-full object-cover" 
-                        muted 
-                        loop 
-                        onMouseOver={e => (e.target as HTMLVideoElement).play()} 
+                      <video
+                        src={mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        onMouseOver={e => (e.target as HTMLVideoElement).play()}
                         onMouseOut={e => (e.target as HTMLVideoElement).pause()}
                       />
                     ) : (
@@ -158,7 +158,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
                       {new Date(post.scheduledAt).toLocaleDateString()}
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3 mb-4 flex-1">
                     {post.content || "Sin descripción."}
                   </p>

@@ -162,15 +162,15 @@ export const useSocial = (): UseSocialReturn => {
     setLoading(true); setError(null);
     try {
       const msg = await socialService.sendMessage(conversationId, data);
-      
+
       // Inyectamos el mensaje inmediatamente en la UI del chat
       setMessages((prev) => [...prev, msg]);
-      
+
       // Subimos el chat al principio del inbox
       setConversations((prev) => {
-        const updated = prev.map(conv => 
-          conv.id === conversationId 
-            ? { ...conv, lastMessageAt: msg.createdAt, lastMessagePreview: msg.content } 
+        const updated = prev.map(conv =>
+          conv.id === conversationId
+            ? { ...conv, lastMessageAt: msg.createdAt, lastMessagePreview: msg.content }
             : conv
         );
         return updated.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
@@ -200,16 +200,20 @@ export const useSocial = (): UseSocialReturn => {
     if (!token) return;
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.com';
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
     const eventSource = new EventSource(`${apiUrl}/api/social/crm/stream?token=${token}`);
 
     eventSource.addEventListener('CONNECTED', () => {
       console.log('🟢 Túnel SSE CRM Activo');
+      retryCount = 0; // Reset on successful connection
     });
 
     eventSource.addEventListener('NEW_MESSAGE', (event) => {
       // Parseamos el JSON empujado por Spring Boot
       const incomingMsg: MessageDTO & { conversationId?: string } = JSON.parse(event.data);
-      
+
       // A. Si el paciente está en el chat activo, aparece su mensaje en pantalla
       setMessages((prev) => {
         if (incomingMsg.conversationId === activeConversationId) {
@@ -236,7 +240,7 @@ export const useSocial = (): UseSocialReturn => {
 
         // Si es un chat totalmente nuevo que no estaba en la RAM, lo recargamos del servidor
         if (!isExistingChat) {
-          loadConversations(0, 20); 
+          loadConversations(0, 20);
         }
 
         return updated.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
@@ -244,7 +248,13 @@ export const useSocial = (): UseSocialReturn => {
     });
 
     eventSource.onerror = () => {
-      console.warn('🟡 Intermitencia en SSE, el navegador reintentará...');
+      retryCount++;
+      if (retryCount >= MAX_RETRIES) {
+        console.warn('🔴 SSE CRM: Máximo de reintentos alcanzado. Cerrando conexión.');
+        eventSource.close();
+      } else {
+        console.warn(`🟡 Intermitencia en SSE (intento ${retryCount}/${MAX_RETRIES}), el navegador reintentará...`);
+      }
     };
 
     return () => {
@@ -255,12 +265,12 @@ export const useSocial = (): UseSocialReturn => {
   return {
     loading,
     error,
-    
+
     // Estados Reactivos
     conversations,
     messages,
     activeConversationId,
-    
+
     // Métodos
     getActiveConnections,
     getAuthUrl,
