@@ -101,17 +101,22 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Ejecutamos el refresh-token (el backend extraerá la httpOnly cookie)
-        const refreshRes = await axios.post('/api/auth/refresh-token', {}, {
-          baseURL: axiosInstance.defaults.baseURL,
-          withCredentials: true
-        });
+        // Enviamos el refreshToken almacenado en Zustand
+        const storedRefreshToken = useSessionStore.getState().refreshToken;
+        const refreshRes = await axios.post('/api/auth/refresh-token',
+          { refreshToken: storedRefreshToken },
+          {
+            baseURL: axiosInstance.defaults.baseURL,
+            withCredentials: true
+          }
+        );
 
         const newToken = refreshRes.data.token;
 
-        // Actualizar token en Zustand (memoria)
+        // Actualizar token en Zustand (persistido en localStorage)
         useSessionStore.getState().updateToken({
           token: newToken,
+          refreshToken: refreshRes.data.refreshToken,
           role: refreshRes.data.role,
           user: refreshRes.data.user,
           status: refreshRes.data.status,
