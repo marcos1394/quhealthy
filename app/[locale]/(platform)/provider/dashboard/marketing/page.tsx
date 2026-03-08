@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
-import { 
-  Share2, 
-  Loader2, 
-  UserCircle, 
-  Search, 
-  CheckCircle, 
-  QrCode, 
+import {
+  Share2,
+  Loader2,
+  UserCircle,
+  Search,
+  CheckCircle,
+  QrCode,
   Link as LinkIcon,
   Image as ImageIcon
 } from 'lucide-react';
@@ -26,7 +26,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Hooks y Stores
 import { useAuth } from '@/hooks/useAuth';
-import { useCatalog } from '@/hooks/useCatalog'; // 🚀 Importamos tu hook correctamente
+import { useCatalog } from '@/hooks/useCatalog';
+import axiosInstance from '@/lib/axios';
 
 // 🧩 NUESTROS COMPONENTES MODULARES
 import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialConnectionsCard';
@@ -52,35 +53,54 @@ function MarketingContent() {
   const t = useTranslations('DashboardMarketing');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { checkSession } = useAuth();
-  
-  // 🚀 Usamos tu hook para traer los servicios y la función de carga
+
   const { services, fetchInventory } = useCatalog();
 
   // Estados Globales de la Página
-  const [galleryRefresh, setGalleryRefresh] = useState(0); // Trigger para recargar la galería
-  
+  const [galleryRefresh, setGalleryRefresh] = useState(0);
+  const [connectionsRefresh, setConnectionsRefresh] = useState(0);
+  const oauthProcessed = useRef(false);
+
   // Estados del Perfil Público (Tab 3)
   const [bio, setBio] = useState('Dr. Especialista con más de 10 años de experiencia clínica. Comprometido con la salud integral de mis pacientes.');
   const profileCompleteness = 85;
 
-  // 1. Manejo de Redirección OAuth (Cuando el usuario regresa de Facebook/Google)
+  // 1. Manejo de Redirección OAuth (Cuando el usuario regresa de Facebook/Google/LinkedIn)
   useEffect(() => {
-    const success = searchParams.get('success');
+    const code = searchParams.get('code');
+    const state = searchParams.get('state'); // Puede contener el platform o provider ID
     const error = searchParams.get('error');
 
-    if (success) {
-      toast.success(t('oauth_success') || '¡Cuenta conectada exitosamente!');
-      checkSession(); // Refrescar el token/sesión si es necesario
-      // Limpiar la URL para evitar que se dispare de nuevo al recargar
-      router.replace('/provider/dashboard/marketing');
+    // Si Meta/Google/LinkedIn nos devolvió un código de autorización
+    if (code && !oauthProcessed.current) {
+      oauthProcessed.current = true;
+
+      // Determinamos la plataforma desde el state o default a facebook
+      const platform = state?.includes('google') ? 'google-business'
+        : state?.includes('linkedin') ? 'linkedin'
+          : 'facebook';
+
+      axiosInstance.post(`/api/social/auth/${platform}/callback`, { code, state })
+        .then(() => {
+          toast.success(t('oauth_success') || '¡Cuenta vinculada exitosamente!');
+          setConnectionsRefresh(prev => prev + 1);
+          router.replace(pathname, { scroll: false });
+        })
+        .catch((err) => {
+          console.error('OAuth callback error:', err);
+          toast.error(t('oauth_error') || 'No se pudo vincular la cuenta. Intenta de nuevo.');
+          router.replace(pathname, { scroll: false });
+        });
     }
-    
+
+    // Si Meta devolvió un error directamente
     if (error) {
       toast.error(t('oauth_error') || 'No se pudo conectar la cuenta. Intenta de nuevo.');
-      router.replace('/provider/dashboard/marketing');
+      router.replace(pathname, { scroll: false });
     }
-  }, [searchParams, router, checkSession, t]);
+  }, [searchParams, pathname, router, t]);
 
   // 🚀 2. Cargamos el catálogo del doctor al montar el componente
   useEffect(() => {
@@ -108,7 +128,7 @@ function MarketingContent() {
 
         {/* --- SISTEMA DE PESTAÑAS (TABS) --- */}
         <Tabs defaultValue="social" className="w-full">
-          
+
           <TabsList className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-full justify-start overflow-x-auto mb-8 h-12 rounded-xl">
             <TabsTrigger value="social" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm px-6 rounded-lg">
               Redes & IA
@@ -127,12 +147,12 @@ function MarketingContent() {
           {/* ============================================================== */}
           <TabsContent value="social" className="space-y-8 mt-0 border-none outline-none">
             {/* Componente 1: Autorizaciones OAuth */}
-            <SocialConnectionsCard />
+            <SocialConnectionsCard refreshTrigger={connectionsRefresh} />
 
             {/* 🚀 Componente 2: Formularios de Generación con IA (Mapeamos la data de useCatalog) */}
-            <AiStudioForm 
-              services={services.map(s => ({ id: s.id, name: s.name }))} 
-              onGenerationSuccess={() => setGalleryRefresh(prev => prev + 1)} 
+            <AiStudioForm
+              services={services.map(s => ({ id: s.id, name: s.name }))}
+              onGenerationSuccess={() => setGalleryRefresh(prev => prev + 1)}
             />
 
             {/* Componente 3: Resultados, Descargas y Calendario */}
@@ -154,10 +174,10 @@ function MarketingContent() {
           {/* ============================================================== */}
           <TabsContent value="profile" className="space-y-8 mt-0 border-none outline-none">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
+
               {/* Columna Izquierda: Editor y Preview */}
               <div className="lg:col-span-2 space-y-8">
-                
+
                 {/* Editor de Biografía */}
                 <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
                   <CardHeader>
@@ -175,7 +195,7 @@ function MarketingContent() {
                       <div className="flex-1">
                         <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">Acerca de ti</Label>
                         <Textarea
-                          value={bio} 
+                          value={bio}
                           onChange={e => setBio(e.target.value)}
                           className="min-h-[160px] resize-none border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:border-medical-500 focus:ring-medical-500/20"
                           placeholder="Describe tu experiencia, especialidades y enfoque clínico..."
@@ -217,7 +237,7 @@ function MarketingContent() {
 
               {/* Columna Derecha: Métricas y Share */}
               <div className="space-y-8">
-                
+
                 {/* Profile Completeness Ring */}
                 <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm text-center">
                   <CardContent className="pt-6 relative">
