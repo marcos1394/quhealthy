@@ -12,8 +12,8 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Notificaciones
-import { ToastContainer } from 'react-toastify';
+// Notificaciones (tema-aware + i18n error hydration)
+import { ToastProvider } from '@/components/providers/ToastProvider';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Configuración de la fuente
@@ -97,14 +97,14 @@ export default async function RootLayout({
 
         <NextIntlClientProvider messages={messages}>
           <CustomProvider>
-            
+
             {/* 🚀 ENVOLVEMOS LA APP CON EL AUTH PROVIDER AQUÍ EN LA RAÍZ */}
             <AuthProvider>
               {children}
             </AuthProvider>
 
-            {/* Componente de notificaciones global */}
-            <ToastContainer theme="dark" position="bottom-right" />
+            {/* Componente de notificaciones global (auto dark/light + i18n errors) */}
+            <ToastProvider />
 
             {/* Vercel Pro Analytics & Insights */}
             <Analytics />

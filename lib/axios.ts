@@ -150,27 +150,26 @@ axiosInstance.interceptors.response.use(
     }
 
     // =========================================================================
-    //  MANEJO GENÉRICO DE ERRORES HTTP
+    //  MANEJO GENÉRICO DE ERRORES HTTP (usa diccionario i18n)
     // =========================================================================
-    let errorMessage = 'Ocurrió un error inesperado. Intenta nuevamente.';
+    const { getErrorMessage } = await import('@/lib/handleApiError');
+
+    let errorMessage: string;
 
     if (error.response) {
-      if (error.response.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response.data?.error) {
-        errorMessage = error.response.data.error;
+      // Prefer server-provided message if specific
+      const serverMsg = error.response.data?.message || error.response.data?.error;
+      if (serverMsg && !serverMsg.startsWith('Request failed')) {
+        errorMessage = serverMsg;
+      } else {
+        errorMessage = getErrorMessage(error.response.status);
       }
-
-      switch (error.response.status) {
-        case 403:
-          errorMessage = 'No tienes permisos para realizar esta acción.';
-          break;
-        case 500:
-          errorMessage = 'Error interno del servidor.';
-          break;
-      }
-    } else if (error.request) {
-      errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+    } else if (error.code === 'ECONNABORTED') {
+      errorMessage = getErrorMessage('timeout');
+    } else if (error.code === 'ERR_NETWORK' || !error.request) {
+      errorMessage = getErrorMessage('network');
+    } else {
+      errorMessage = getErrorMessage('unknown');
     }
 
     const customError = new Error(errorMessage);

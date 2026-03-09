@@ -2778,5 +2778,23 @@
         "toast_load_error": "Error loading patient's medical record.",
         "toast_success": "Consultation completed and prescription sent to patient's vault.",
         "toast_error": "Could not finalize consultation. Please try again."
+    },
+    "Errors": {
+        "400": "Invalid request. Please check the information and try again.",
+        "401": "Your session has expired. Please log in again.",
+        "403": "You don't have permission to perform this action.",
+        "404": "The requested resource was not found.",
+        "408": "The request took too long. Please try again.",
+        "409": "A conflict occurred. The resource may already exist.",
+        "413": "The file is too large. Please try a smaller one.",
+        "422": "The data provided is not valid. Please review and try again.",
+        "429": "Too many requests. Please wait a moment before trying again.",
+        "500": "Internal server error. We're working to fix it.",
+        "502": "Service temporarily unavailable. Please try again shortly.",
+        "503": "Service under maintenance. Please try again later.",
+        "network": "Could not connect to the server. Check your internet connection.",
+        "timeout": "The request took too long. Please try again.",
+        "unknown": "An unexpected error occurred. Please try again.",
+        "loading": "Loading..."
     }
 }

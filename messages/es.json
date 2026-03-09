@@ -2783,5 +2783,23 @@
         "toast_load_error": "Error al cargar el expediente del paciente.",
         "toast_success": "Consulta finalizada y receta enviada a la bóveda del paciente.",
         "toast_error": "No pudimos finalizar la consulta. Intenta de nuevo."
+    },
+    "Errors": {
+        "400": "Solicitud inválida. Revisa la información e intenta de nuevo.",
+        "401": "Tu sesión ha expirado. Inicia sesión nuevamente.",
+        "403": "No tienes permisos para realizar esta acción.",
+        "404": "El recurso solicitado no fue encontrado.",
+        "408": "La solicitud tardó demasiado. Intenta nuevamente.",
+        "409": "Ocurrió un conflicto. El recurso podría ya existir.",
+        "413": "El archivo es demasiado grande. Intenta con uno más pequeño.",
+        "422": "Los datos proporcionados no son válidos. Revisa e intenta de nuevo.",
+        "429": "Demasiadas solicitudes. Espera un momento antes de intentar de nuevo.",
+        "500": "Error interno del servidor. Estamos trabajando para solucionarlo.",
+        "502": "Servicio temporalmente no disponible. Intenta en breve.",
+        "503": "Servicio en mantenimiento. Intenta más tarde.",
+        "network": "No se pudo conectar con el servidor. Verifica tu conexión a internet.",
+        "timeout": "La solicitud tardó demasiado. Intenta de nuevo.",
+        "unknown": "Ocurrió un error inesperado. Intenta nuevamente.",
+        "loading": "Cargando..."
     }
 }
