@@ -190,7 +190,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
         title: '¡Casi Listo!',
         description: 'Solo te faltan unos pasos para activar tu perfil completamente.',
         actionText: 'Continuar',
-        buttonClass: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white',
+        buttonClass: 'bg-gradient-to-r from-blue-600 to-medical-600 hover:from-blue-500 hover:to-purple-500 text-white',
         urgency: 'medium'
       };
     } else {
@@ -204,7 +204,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
         title: 'Completa tu Verificación',
         description: 'Activa pagos y visibilidad pública completando tu verificación de identidad.',
         actionText: 'Empezar Ahora',
-        buttonClass: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white',
+        buttonClass: 'bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600 text-white',
         urgency: 'high'
       };
     }

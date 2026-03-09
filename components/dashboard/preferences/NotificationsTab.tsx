@@ -247,7 +247,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4"
+        className="bg-gradient-to-r from-medical-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4"
       >
         <div className="flex items-start gap-3">
           <div className="p-2 bg-purple-500/10 rounded-lg">

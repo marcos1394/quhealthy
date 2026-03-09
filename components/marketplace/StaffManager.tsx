@@ -149,7 +149,7 @@ export function StaffManager({
               "shadow-2xl transition-all duration-300",
               !isBusinessPlan 
                 ? "bg-slate-800 text-slate-500 cursor-not-allowed hover:bg-slate-800" 
-                : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
+                : "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600 text-white"
             )}
           >
             <Plus className="w-4 h-4 mr-2" /> Agregar Miembro
@@ -228,7 +228,7 @@ export function StaffManager({
                   className={cn(
                     "group relative rounded-2xl border transition-all duration-300",
                     member.isNew || member.hasUnsavedChanges
-                      ? "bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/30 shadow-lg shadow-purple-500/10"
+                      ? "bg-gradient-to-br from-medical-500/5 to-medical-600/5 border-purple-500/30 shadow-lg shadow-purple-500/10"
                       : "bg-slate-950 border-slate-800 hover:border-slate-700 hover:shadow-xl"
                   )}
                 >
@@ -417,7 +417,7 @@ export function StaffManager({
             </p>
             <Button 
               onClick={onAdd}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+              className="bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600"
             >
               <Plus className="w-4 h-4 mr-2" />
               Agregar Primer Miembro

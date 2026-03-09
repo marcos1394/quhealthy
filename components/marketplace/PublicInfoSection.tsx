@@ -262,7 +262,7 @@ export function PublicInfoSection({
           className={cn(
             "rounded-2xl border transition-all duration-300",
             isPremium 
-              ? "bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/20 shadow-lg shadow-purple-500/5" 
+              ? "bg-gradient-to-br from-medical-500/5 to-medical-600/5 border-purple-500/20 shadow-lg shadow-purple-500/5" 
               : "bg-slate-950/50 border-slate-800"
           )}
         >
@@ -330,7 +330,7 @@ export function PublicInfoSection({
                   className={cn(
                     "border-2 border-dashed rounded-xl p-8 text-center transition-all",
                     isPremium 
-                      ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 cursor-pointer bg-slate-900" 
+                      ? "border-purple-500/30 hover:bg-medical-500/10 hover:border-purple-500 cursor-pointer bg-slate-900" 
                       : "border-slate-800 bg-slate-950/50 cursor-not-allowed opacity-50"
                   )}
                 >

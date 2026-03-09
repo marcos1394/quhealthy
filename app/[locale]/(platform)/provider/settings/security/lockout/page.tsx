@@ -42,12 +42,12 @@ export default function LockoutSettingsPage() {
       
       {/* Header */}
       <div className="flex items-center space-x-4 mb-2">
-        <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+        <div className="p-3 bg-medical-500/10 rounded-xl border border-medical-500/20">
             <ShieldCheck className="w-8 h-8 text-purple-500" />
         </div>
         <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Bloqueo de Cuenta</h1>
-            <p className="text-gray-400 mt-1">Protección contra ataques de fuerza bruta.</p>
+            <p className="text-slate-400 dark:text-slate-500 mt-1">Protección contra ataques de fuerza bruta.</p>
         </div>
       </div>
 
@@ -56,12 +56,12 @@ export default function LockoutSettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="bg-gray-900/90 backdrop-blur-xl border-gray-800 shadow-xl">
+        <Card className="bg-slate-900 dark:bg-slate-950/90 backdrop-blur-xl border-slate-800 dark:border-slate-800/50 shadow-xl">
           <CardHeader>
             <div className="flex justify-between items-start">
                 <div>
                     <CardTitle className="text-white">Umbral de Intentos Fallidos</CardTitle>
-                    <CardDescription className="text-gray-400 mt-2">
+                    <CardDescription className="text-slate-400 dark:text-slate-500 mt-2">
                         Define cuántas veces puede un usuario intentar ingresar su contraseña incorrectamente antes de bloquear la cuenta temporalmente.
                     </CardDescription>
                 </div>
@@ -74,8 +74,8 @@ export default function LockoutSettingsPage() {
           <CardContent className="space-y-8">
             
             {/* Visualizador del Valor */}
-            <div className="bg-gray-950 p-6 rounded-xl border border-gray-800 flex items-center justify-between">
-                <span className="text-gray-400 text-sm">Intentos permitidos:</span>
+            <div className="bg-slate-950 dark:bg-slate-950 p-6 rounded-xl border border-slate-800 dark:border-slate-800/50 flex items-center justify-between">
+                <span className="text-slate-400 dark:text-slate-500 text-sm">Intentos permitidos:</span>
                 <span className="text-4xl font-bold text-white tabular-nums">
                     {maxAttempts[0]}
                 </span>
@@ -92,7 +92,7 @@ export default function LockoutSettingsPage() {
                     onValueChange={setMaxAttempts}
                     className="py-4"
                 />
-                <div className="flex justify-between text-xs text-gray-500 px-1">
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-600 px-1">
                     <span>1 (Muy Estricto)</span>
                     <span>5 (Estándar)</span>
                     <span>10 (Permisivo)</span>
@@ -118,11 +118,11 @@ export default function LockoutSettingsPage() {
 
           </CardContent>
 
-          <CardFooter className="border-t border-gray-800 pt-6 flex justify-end">
+          <CardFooter className="border-t border-slate-800 dark:border-slate-800/50 pt-6 flex justify-end">
             <Button 
                 onClick={handleSave} 
                 disabled={loading}
-                className="bg-purple-600 hover:bg-purple-700 text-white min-w-[140px]"
+                className="bg-medical-600 hover:bg-medical-700 text-white min-w-[140px]"
             >
                 {loading ? (
                     <>

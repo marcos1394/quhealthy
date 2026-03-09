@@ -102,14 +102,14 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
               whileHover={{ scale: 1.1, rotate: 5 }}
               className={cn(
                 "relative p-4 rounded-2xl shrink-0 transition-all duration-300",
-                "bg-gradient-to-br from-purple-500/10 to-pink-500/10",
+                "bg-gradient-to-br from-medical-500/10 to-medical-600/10",
                 "border border-purple-500/20",
                 "shadow-lg shadow-purple-500/10",
-                "group-hover:shadow-xl group-hover:shadow-purple-500/20"
+                "group-hover:shadow-xl group-hover:shadow-medical-500/20"
               )}
             >
               {/* Glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-medical-500/20 to-medical-600/20 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               <Icon className={cn(
                 "relative w-6 h-6 md:w-7 md:h-7 transition-colors duration-300",
@@ -182,7 +182,7 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
               <div className={cn(
                 "w-full h-px transition-colors duration-300",
                 highlighted 
-                  ? "bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-transparent" 
+                  ? "bg-gradient-to-r from-medical-500/30 via-pink-500/30 to-transparent" 
                   : "bg-gradient-to-r from-slate-800 via-gray-700 to-transparent"
               )} />
               
@@ -222,7 +222,7 @@ export const PreferenceCardCompact: React.FC<PreferenceCardProps> = (props) => {
         <div className="flex items-start gap-3">
           <div className={cn(
             "p-2 rounded-lg shrink-0",
-            "bg-gradient-to-br from-purple-500/10 to-pink-500/10",
+            "bg-gradient-to-br from-medical-500/10 to-medical-600/10",
             "border border-purple-500/20"
           )}>
             <Icon className="w-5 h-5 text-purple-400" />
@@ -272,7 +272,7 @@ export const PreferenceCardAction: React.FC<PreferenceCardProps & {
           className={cn(
             "mt-4 w-full px-4 py-2 rounded-lg font-medium text-sm",
             "bg-purple-500/10 text-purple-400 border border-purple-500/20",
-            "hover:bg-purple-500/20 hover:border-purple-500/30",
+            "hover:bg-medical-500/20 hover:border-purple-500/30",
             "transition-all duration-200",
             "flex items-center justify-center gap-2"
           )}

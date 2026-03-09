@@ -192,7 +192,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
           <Button 
             onClick={handleCopyLink}
             className={cn(
-              "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white transition-all duration-300",
+              "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600 text-white transition-all duration-300",
               copiedLink ? "bg-emerald-600 hover:bg-emerald-700" : ""
             )}
           >
@@ -227,7 +227,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20"
+              className="p-2 bg-gradient-to-br from-medical-500/10 to-medical-600/10 rounded-xl border border-purple-500/20"
             >
               <Calendar className="w-5 h-5 text-purple-400"/>
             </motion.div>
@@ -256,7 +256,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/20 rounded-xl p-4"
+            className="bg-gradient-to-br from-medical-500/5 to-medical-600/5 border border-purple-500/20 rounded-xl p-4"
           >
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-purple-400" />
@@ -267,7 +267,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             
             <div className="flex items-start gap-3">
               {/* Avatar Placeholder */}
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-medical-500 to-medical-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                 {nextAppointment.clientName.charAt(0).toUpperCase()}
               </div>
               
@@ -324,14 +324,14 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 className={cn(
                   "group relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200",
                   isNext 
-                    ? "bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10" 
+                    ? "bg-purple-500/5 border-purple-500/20 hover:bg-medical-500/10" 
                     : "bg-slate-950/50 dark:bg-slate-950/70 border-slate-800 dark:border-slate-800/50 hover:bg-slate-800 dark:bg-slate-900",
                   onAppointmentClick ? "cursor-pointer" : ""
                 )}
               >
                 {/* Timeline indicator - JERARQUÍA VISUAL */}
                 {index < visibleAppointments.length - 1 && (
-                  <div className="absolute left-9 top-14 bottom-0 w-0.5 bg-gradient-to-b from-purple-500/20 to-transparent" />
+                  <div className="absolute left-9 top-14 bottom-0 w-0.5 bg-gradient-to-b from-medical-500/20 to-transparent" />
                 )}
 
                 {/* Time Block */}

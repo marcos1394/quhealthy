@@ -237,7 +237,7 @@ export default function PreferencesPage() {
 
                                         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 shrink-0 rounded-full bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                                <div className="h-10 w-10 shrink-0 rounded-full bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center text-medical-600 dark:text-medical-400">
                                                     <Gift className="w-5 h-5" />
                                                 </div>
                                                 <div>

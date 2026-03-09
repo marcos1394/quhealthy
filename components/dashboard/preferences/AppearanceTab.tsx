@@ -111,7 +111,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
   const getThemeColor = (theme: string) => {
     const colors = {
       light: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
-      dark: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30',
+      dark: 'from-medical-500/20 to-indigo-500/20 border-purple-500/30',
       system: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30'
     };
     return colors[theme as keyof typeof colors] || colors.system;

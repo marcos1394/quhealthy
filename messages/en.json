@@ -1658,6 +1658,11 @@
             "staff": {
                 "title": "Work Team",
                 "desc": "Add specialists and assistants to your practice"
+            },
+            "catalog": {
+                "title": "Catalog & Pricing",
+                "desc": "Services, products, packages, and courses",
+                "badge": "{count} items"
             }
         },
         "status_completed": "Completed",

@@ -148,7 +148,7 @@ export function VisualIdentitySection({
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20"
+              className="p-2 bg-gradient-to-br from-medical-500/10 to-medical-600/10 rounded-xl border border-purple-500/20"
             >
               <Palette className="w-5 h-5 text-purple-400" />
             </motion.div>
@@ -166,7 +166,7 @@ export function VisualIdentitySection({
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
-            className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+            className="border-purple-500/30 text-purple-400 hover:bg-medical-500/10"
           >
             <Eye className="w-4 h-4 mr-2" />
             {showPreview ? 'Ocultar' : 'Ver'} Preview
@@ -346,7 +346,7 @@ export function VisualIdentitySection({
                 onClick={() => logoInputRef.current?.click()}
                 className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'logo' ? (
                     <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
                   ) : (
@@ -418,7 +418,7 @@ export function VisualIdentitySection({
                 onClick={() => bannerInputRef.current?.click()}
                 className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'banner' ? (
                     <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
                   ) : (

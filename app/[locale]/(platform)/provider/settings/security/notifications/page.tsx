@@ -80,7 +80,7 @@ export default function SecurityNotificationsPage() {
       case "login": return <ShieldAlert className="w-5 h-5 text-yellow-400" />;
       case "device": return <Lock className="w-5 h-5 text-blue-400" />;
       case "password": return <Key className="w-5 h-5 text-emerald-400" />;
-      default: return <Info className="w-5 h-5 text-gray-400" />;
+      default: return <Info className="w-5 h-5 text-slate-400 dark:text-slate-500" />;
     }
   };
 
@@ -119,12 +119,12 @@ export default function SecurityNotificationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-4">
-            <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+            <div className="p-3 bg-medical-500/10 rounded-xl border border-medical-500/20">
                 <Bell className="w-8 h-8 text-purple-500" />
             </div>
             <div>
                 <h1 className="text-2xl font-bold text-white tracking-tight">Notificaciones de Seguridad</h1>
-                <p className="text-gray-400 mt-1">Alertas importantes sobre la integridad de tu cuenta.</p>
+                <p className="text-slate-400 dark:text-slate-500 mt-1">Alertas importantes sobre la integridad de tu cuenta.</p>
             </div>
         </div>
         
@@ -133,26 +133,26 @@ export default function SecurityNotificationsPage() {
                 variant="outline" 
                 size="sm"
                 onClick={markAllRead}
-                className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200"
+                className="border-medical-500/30 text-medical-300 hover:bg-medical-500/20 hover:text-medical-200"
             >
                 <Check className="w-4 h-4 mr-2" /> Marcar todo leído
             </Button>
         )}
       </div>
 
-      <Card className="bg-gray-900/90 backdrop-blur-xl border-gray-800 shadow-xl">
+      <Card className="bg-slate-900 dark:bg-slate-950/90 backdrop-blur-xl border-slate-800 dark:border-slate-800/50 shadow-xl">
         <CardContent className="p-0">
             {loading ? (
-                <div className="p-12 text-center text-gray-500 flex flex-col items-center gap-3">
+                <div className="p-12 text-center text-slate-500 dark:text-slate-600 flex flex-col items-center gap-3">
                     <QhSpinner size="md" />
                     <p>Cargando alertas...</p>
                 </div>
             ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 text-center space-y-3">
-                    <div className="bg-gray-800 p-4 rounded-full">
+                    <div className="bg-slate-800 dark:bg-slate-900 p-4 rounded-full">
                         <Bell className="w-8 h-8 text-gray-600" />
                     </div>
-                    <p className="text-gray-400 font-medium">No tienes notificaciones recientes.</p>
+                    <p className="text-slate-400 dark:text-slate-500 font-medium">No tienes notificaciones recientes.</p>
                     <p className="text-gray-600 text-sm">Te avisaremos cuando suceda algo importante.</p>
                 </div>
             ) : (
@@ -165,27 +165,27 @@ export default function SecurityNotificationsPage() {
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, height: 0, padding: 0 }}
-                                    className={`p-6 flex gap-4 transition-colors hover:bg-gray-800/30 group ${!notification.read ? 'bg-purple-900/10' : ''}`}
+                                    className={`p-6 flex gap-4 transition-colors hover:bg-slate-800 dark:bg-slate-900/30 group ${!notification.read ? 'bg-medical-900/10' : ''}`}
                                 >
                                     {/* Icono */}
-                                    <div className="mt-1 p-2 rounded-lg bg-gray-950 border border-gray-800 h-fit">
+                                    <div className="mt-1 p-2 rounded-lg bg-slate-950 dark:bg-slate-950 border border-slate-800 dark:border-slate-800/50 h-fit">
                                         {getIcon(notification.type)}
                                     </div>
 
                                     {/* Contenido */}
                                     <div className="flex-1 space-y-1">
                                         <div className="flex justify-between items-start">
-                                            <h4 className={`text-sm font-semibold ${!notification.read ? 'text-white' : 'text-gray-400'}`}>
+                                            <h4 className={`text-sm font-semibold ${!notification.read ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`}>
                                                 {notification.title}
                                                 {!notification.read && (
-                                                    <Badge className="ml-2 bg-purple-600 hover:bg-purple-600 text-[10px] px-1.5 py-0 h-5">NUEVO</Badge>
+                                                    <Badge className="ml-2 bg-medical-600 hover:bg-medical-600 text-[10px] px-1.5 py-0 h-5">NUEVO</Badge>
                                                 )}
                                             </h4>
-                                            <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
+                                            <span className="text-xs text-slate-500 dark:text-slate-600 whitespace-nowrap ml-4">
                                                 {notification.date}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-gray-400 leading-relaxed">
+                                        <p className="text-sm text-slate-400 dark:text-slate-500 leading-relaxed">
                                             {notification.message}
                                         </p>
                                     </div>
@@ -195,7 +195,7 @@ export default function SecurityNotificationsPage() {
                                         <Button
                                             variant="ghost"
                                             size="default"
-                                            className="h-8 w-8 text-gray-500 hover:text-red-400 hover:bg-red-900/20"
+                                            className="h-8 w-8 text-slate-500 dark:text-slate-600 hover:text-red-400 hover:bg-red-900/20"
                                             onClick={() => deleteNotification(notification.id)}
                                         >
                                             <Trash2 className="w-4 h-4" />

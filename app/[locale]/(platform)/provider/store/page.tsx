@@ -27,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Hooks
 import { useStoreProfile } from "@/hooks/useStoreProfile";
@@ -41,7 +42,7 @@ export default function StoreSetupPage() {
   // 1. EXTRAER DATOS DEL BACKEND
   // ==========================================
   const { profile, isLoading: loadingProfile, updateProfile } = useStoreProfile();
-  
+
   // 🚀 AHORA TRAEMOS TODO EL INVENTARIO
   const { services, packages, products, courses, fetchInventory, isLoading: loadingCatalog } = useCatalog();
   const { staff, fetchStaff, isLoading: loadingStaff } = useStaff();
@@ -60,16 +61,16 @@ export default function StoreSetupPage() {
   // 2. LÓGICA DE PROGRESO REAL
   // ==========================================
   const isIdentityComplete = !!profile?.displayName && !!profile?.slug;
-  
+
   // 🚀 CALCULAMOS EL TOTAL DEL CATÁLOGO (Ignorando los que están en modo edición/isNew)
-  const realCatalogCount = 
-    services.filter(s => !s.isNew).length + 
-    packages.filter(p => !p.isNew).length + 
-    products.filter(p => !p.isNew).length + 
+  const realCatalogCount =
+    services.filter(s => !s.isNew).length +
+    packages.filter(p => !p.isNew).length +
+    products.filter(p => !p.isNew).length +
     courses.filter(c => !c.isNew).length;
 
   const isCatalogComplete = realCatalogCount > 0;
-  
+
   const isPoliciesComplete = !!profile?.cancellationPolicy;
   const isStaffComplete = staff.filter(s => !s.isNew).length > 0;
 
@@ -135,12 +136,7 @@ export default function StoreSetupPage() {
   if (isGlobalLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6 bg-slate-50 dark:bg-slate-950">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        >
-          <Sparkles className="w-16 h-16 text-medical-500" />
-        </motion.div>
+        <QhSpinner size="lg" />
         <div className="text-center space-y-2">
           <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">{t('loading_title')}</p>
           <p className="text-slate-500 dark:text-slate-400 text-sm animate-pulse">{t('loading_subtitle')}</p>

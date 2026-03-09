@@ -81,8 +81,8 @@ export default function SecuritySettingsPage() {
       description: t('options.activity.desc'),
       icon: Activity,
       link: "security/activity",
-      color: "text-purple-600 dark:text-purple-400",
-      bgHover: "group-hover:bg-purple-50 dark:group-hover:bg-purple-500/10"
+      color: "text-medical-600 dark:text-medical-400",
+      bgHover: "group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10"
     },
   ];
 
