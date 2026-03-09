@@ -14,6 +14,7 @@ import { ChatSidebar } from '@/components/chat/ChatSidebar';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatMessageBubble } from '@/components/chat/ChatMessageBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function MessagesPage() {
     const t = useTranslations('PatientMessages');
@@ -54,7 +55,7 @@ export default function MessagesPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col justify-center items-center h-[70vh] gap-4 bg-slate-50 dark:bg-slate-950 rounded-3xl">
-                <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
+                <QhSpinner size="lg" />
                 <p className="text-slate-500 dark:text-slate-400 font-medium">
                     {t('loading', { defaultValue: 'Desencriptando tu bóveda de mensajes...' })}
                 </p>

@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { handleApiError } from '@/lib/handleApiError';
 
 export interface PublicInfoSettings {
   description: string;
@@ -67,11 +68,11 @@ export function PublicInfoSection({
     if (!file) return;
 
     if (!file.type.startsWith('video/')) {
-      toast.error('El archivo debe ser un video (MP4, WebM)');
+      return;
       return;
     }
     if (file.size > 20 * 1024 * 1024) { // 20MB Max
-      toast.error('El video debe pesar menos de 20MB');
+      return;
       return;
     }
 

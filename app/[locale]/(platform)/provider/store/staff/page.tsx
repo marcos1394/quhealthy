@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { StaffManager } from "@/components/marketplace/StaffManager";
 import { useStaff } from "@/hooks/useStaff";
 import { UI_StaffMember } from "@/types/staff";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function StaffSetupPage() {
   const router = useRouter();
@@ -81,7 +83,7 @@ export default function StaffSetupPage() {
     // Validar que todos los que tengan cambios tengan al menos un nombre
     const invalidMembers = staff.filter(m => (m.isNew || m.hasUnsavedChanges) && !m.name);
     if (invalidMembers.length > 0) {
-      toast.error(t('toast_name_required'));
+      return;
       return;
     }
 
@@ -104,7 +106,7 @@ export default function StaffSetupPage() {
         fetchStaff();
       }
     } catch (error) {
-      toast.error(t('toast_error'));
+      return;
     } finally {
       setIsSavingAll(false);
     }
@@ -114,7 +116,7 @@ export default function StaffSetupPage() {
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 bg-slate-50 dark:bg-slate-950">
-        <Loader2 className="w-12 h-12 text-medical-500 animate-spin" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">{t('loading')}</p>
       </div>
     );

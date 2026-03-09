@@ -1,6 +1,7 @@
 // src/hooks/useFamily.ts
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { dependentService } from '@/services/dependent.service';
 import { Dependent, DependentRequest } from '@/types/dependent';
 
@@ -16,7 +17,7 @@ export const useFamily = () => {
             setFamily(data);
         } catch (error) {
             console.error("Error cargando familiares:", error);
-            toast.error("No se pudo cargar tu perfil familiar.");
+            return;
         } finally {
             setIsLoading(false);
         }
@@ -35,7 +36,7 @@ export const useFamily = () => {
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Error agregando familiar:", error);
-            toast.error("Ocurrió un error al guardar los datos.");
+            return;
         } finally {
             setIsSubmitting(false);
         }
@@ -48,7 +49,7 @@ export const useFamily = () => {
             toast.success("Familiar eliminado.");
         } catch (error) {
             console.error("Error eliminando familiar:", error);
-            toast.error("No se pudo eliminar al familiar.");
+            return;
         }
     };
 

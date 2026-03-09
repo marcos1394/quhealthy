@@ -29,6 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { RegisterConsumerRequest } from "@/types/auth";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface PasswordRule {
   regex: RegExp;
@@ -136,7 +137,7 @@ export default function ConsumerSignupPage() {
 
     } catch (err: any) {
       const errorMessage = err.message || "Error al crear la cuenta de paciente";
-      toast.error(errorMessage, { position: "top-center" });
+      handleApiError(err);
     }
   };
 

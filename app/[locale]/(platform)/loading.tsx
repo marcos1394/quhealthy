@@ -1,19 +1,12 @@
-import { Loader2, Activity } from "lucide-react";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function PlatformLoading() {
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-
-            {/* Central animated loader */}
-            <div className="relative flex items-center justify-center mb-8">
-                <div className="absolute w-20 h-20 rounded-full border-4 border-medical-500/20 dark:border-medical-400/20 border-t-medical-600 dark:border-t-medical-500 animate-spin"></div>
-                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-800 z-10">
-                    <Activity className="w-6 h-6 text-medical-600 dark:text-medical-400 animate-pulse" />
-                </div>
-            </div>
+            <QhSpinner size="lg" />
 
             {/* Text */}
-            <div className="text-center mb-12">
+            <div className="text-center mt-8 mb-12">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Cargando tu espacio...</h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Preparando datos de salud en QuHealthy Platform.</p>
             </div>

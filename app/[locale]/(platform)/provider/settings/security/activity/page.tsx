@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { handleApiError } from '@/lib/handleApiError';
 
 // Definimos la interfaz para tipado estricto
 interface LogEntry {
@@ -93,7 +94,7 @@ export default function ActivityLogsPage() {
         // En producción, podrías mostrar un error o lista vacía.
         setLogs(mockLogs);
         // Opcional: Mostrar toast solo si es un error real y no 404 esperado en dev
-        // toast.error("No se pudo cargar el historial en tiempo real");
+        // return;
       } finally {
         setLoading(false);
       }

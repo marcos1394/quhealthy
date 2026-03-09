@@ -7,6 +7,7 @@ import { FileDown, Loader2, CheckCircle2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 export type UserRole = "paciente" | "proveedor";
 
@@ -31,7 +32,7 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = ({ entryCount, onExpo
       toast.success(t("export_success"));
       setTimeout(() => setExportSuccess(false), 3000);
     } catch {
-      toast.error(t("export_error"));
+      return;
     } finally {
       setIsExporting(false);
     }

@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { scheduleService } from '@/services/schedule.service';
 import { ProviderSchedule, mapEnumToNumber, mapNumberToEnum } from '@/types/schedule';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 // El tipo que usa tu UI internamente (DaySchedule)
 export interface UIDaySchedule {
@@ -31,7 +32,7 @@ export const useOperatingHours = () => {
       }));
     } catch (error) {
       console.error("Error cargando horarios:", error);
-      toast.error("No pudimos cargar tus horarios.");
+      return;
       return [];
     } finally {
       setIsLoading(false);
@@ -58,7 +59,7 @@ export const useOperatingHours = () => {
       return true;
     } catch (error: any) {
       console.error("Error guardando horarios:", error);
-      toast.error(error.response?.data?.message || "Ocurrió un error al guardar los horarios.");
+      return;
       return false;
     } finally {
       setIsSaving(false);

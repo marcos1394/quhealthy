@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 // ✅ Importamos nuestro Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
 import { UserRole, AuthResponse } from '@/types/auth';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface SocialAuthButtonsProps {
   role?: UserRole; // 'PROVIDER' | 'CONSUMER'
@@ -55,13 +56,13 @@ export default function SocialAuthButtons({
       } catch (error: any) {
         // El hook useAuth ya procesa el mensaje de error del backend
         const msg = error.message || 'Error al iniciar sesión con Google';
-        toast.error(msg);
+        return;
       } finally {
         setLoadingProvider(null);
       }
     },
     onError: () => {
-      toast.error('No se pudo conectar con Google. Verifica tu conexión.');
+      return;
       setLoadingProvider(null);
     }
   });

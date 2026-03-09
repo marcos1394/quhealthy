@@ -33,13 +33,15 @@ import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialCo
 import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
 import { ContentGallery } from '@/components/dashboard/marketing/ContentGallery';
 import { SocialInbox } from '@/components/dashboard/marketing/SocialInbox';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 // --- COMPONENTE DE CARGA (FALLBACK) ---
 function MarketingLoading() {
   const t = useTranslations('DashboardMarketing');
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
-      <Loader2 className="w-12 h-12 text-medical-500 animate-spin mb-4" />
+      <QhSpinner size="lg" />
       <p className="text-slate-500 dark:text-slate-400 animate-pulse">
         {t('loading_studio') || 'Cargando tu estudio...'}
       </p>
@@ -81,7 +83,7 @@ function MarketingContent() {
 
     else if (error && !oauthProcessed.current) {
       oauthProcessed.current = true;
-      toast.error(t('oauth_error') || 'No se pudo conectar la cuenta. Revisa los logs del servidor.');
+      return;
       router.replace(pathname, { scroll: false });
     }
   }, [searchParams, pathname, router, t]);

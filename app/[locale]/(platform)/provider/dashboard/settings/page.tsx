@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Esquema de Validación de Perfil
 const profileSchema = z.object({
@@ -79,7 +80,7 @@ export default function ProviderSettingsPage() {
             await new Promise(r => setTimeout(r, 1000));
             toast.success("Perfil actualizado correctamente");
         } catch (e) {
-            toast.error("Error al actualizar el perfil");
+            handleApiError(e);
         }
     };
 
@@ -89,7 +90,7 @@ export default function ProviderSettingsPage() {
             toast.success("Contraseña actualizada con éxito");
             securityForm.reset();
         } catch (e) {
-            toast.error("Error al cambiar contraseña");
+            handleApiError(e);
         }
     };
 

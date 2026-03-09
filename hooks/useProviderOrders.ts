@@ -1,6 +1,7 @@
 // hooks/useProviderOrders.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { providerOrderService } from '@/services/provider-order.service';
 import { OrderResponseDto } from '@/types/order';
 
@@ -15,7 +16,7 @@ export const useProviderOrders = () => {
       const data = await providerOrderService.getOrders(page, size);
       setOrders(data.content || []);
     } catch (error) {
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +35,7 @@ export const useProviderOrders = () => {
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
       return false;
     } finally {
       setIsSubmitting(false);
@@ -51,7 +52,7 @@ export const useProviderOrders = () => {
       setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
       toast.success(successMsg, { theme: 'colored' });
     } catch (error) {
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
     }
   };
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { appointmentService } from '@/services/appointment.service';
 import { ProviderAppointment } from '@/types/appointments';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useProviderAppointments = () => {
   const [appointments, setAppointments] = useState<ProviderAppointment[]>([]);
@@ -17,7 +18,7 @@ export const useProviderAppointments = () => {
       setAppointments(data);
     } catch (error) {
       console.error("Error al obtener las citas del proveedor:", error);
-      toast.error("Error al sincronizar la agenda.");
+      return;
     } finally {
       setIsLoading(false);
     }

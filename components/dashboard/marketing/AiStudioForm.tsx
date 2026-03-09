@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useSocial } from '@/hooks/useSocial';
 import { SocialPlatform } from '@/types/social';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Interfaz extended para los servicios del catálogo
 interface ServiceOption {
@@ -88,7 +89,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
         onGenerationSuccess();
       }
     } catch (error) {
-      toast.error(t('generate_error') || "Error al generar el contenido con IA.");
+      return;
     } finally {
       setIsGeneratingText(false);
     }
@@ -123,7 +124,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
       setImagePrompt('');
       onGenerationSuccess();
     } catch (error) {
-      toast.error(t('generate_error') || "Error al generar la imagen con IA.");
+      return;
     } finally {
       setIsGeneratingImage(false);
     }
@@ -152,7 +153,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
       setVideoPrompt('');
       onGenerationSuccess();
     } catch (error) {
-      toast.error(t('generate_error') || "Error al procesar el video.");
+      return;
     } finally {
       setIsGeneratingVideo(false);
     }
@@ -165,7 +166,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
       toast.success(t('copied_to_clipboard') || '¡Copiado al portapapeles!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Error al copiar');
+      return;
     }
   };
 

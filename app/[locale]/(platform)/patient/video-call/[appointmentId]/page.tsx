@@ -10,6 +10,7 @@ import axios from 'axios';
 import { Loader2, Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff, X, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function VideoCallPage() {
   const params = useParams();
@@ -107,7 +108,7 @@ export default function VideoCallPage() {
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 relative font-sans">
       {/* Remote video background */}
       <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-700" />
+        <QhSpinner size="md" />
       </div>
       <div ref={remoteVideoRef} className="absolute inset-0 w-full h-full [&>video]:w-full [&>video]:h-full [&>video]:object-cover" />
 

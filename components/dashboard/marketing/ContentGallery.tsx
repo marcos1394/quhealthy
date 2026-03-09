@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSocial } from '@/hooks/useSocial';
 import { ScheduledPostDTO, PostStatus } from '@/types/social';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface ContentGalleryProps {
   // Un contador o trigger que cambia cuando AiStudioForm genera un nuevo post
@@ -97,7 +98,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-medical-500" />
+          <QhSpinner size="md" />
         </div>
       ) : posts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSocial } from '@/hooks/useSocial';
 import { SocialPlatform, SocialConnectionDTO } from '@/types/social';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface SocialConnectionsCardProps {
   refreshTrigger?: number;
@@ -56,7 +57,7 @@ export function SocialConnectionsCard({ refreshTrigger = 0 }: SocialConnectionsC
         window.location.href = response.url;
       }
     } catch (error) {
-      toast.error(t('connect_error') || 'Error al conectar con la plataforma');
+      return;
     } finally {
       setIsProcessing(null);
     }
@@ -69,7 +70,7 @@ export function SocialConnectionsCard({ refreshTrigger = 0 }: SocialConnectionsC
       toast.success(t('disconnect_success') || 'Cuenta desconectada');
       loadConnections();
     } catch (error) {
-      toast.error(t('disconnect_error') || 'Error al desconectar');
+      return;
     } finally {
       setIsProcessing(null);
     }

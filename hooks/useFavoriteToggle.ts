@@ -1,6 +1,7 @@
 // src/hooks/useFavoriteToggle.ts
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { favoriteService } from '@/services/favorite.service';
 
 export const useFavoriteToggle = (
@@ -39,7 +40,7 @@ export const useFavoriteToggle = (
             console.error("❌ Error toggling favorite:", error);
             // 3. Rollback si falla
             setIsFavorite(previousState);
-            toast.error("No se pudo actualizar tu lista de guardados. Intenta de nuevo.");
+            return;
         } finally {
             setIsLoading(false);
         }

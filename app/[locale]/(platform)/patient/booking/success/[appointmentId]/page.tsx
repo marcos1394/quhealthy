@@ -39,6 +39,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function BookingSuccessPage() {
   const params = useParams();
@@ -67,7 +69,7 @@ export default function BookingSuccessPage() {
 
   useEffect(() => {
     if (error) {
-      toast.error(t('loading'));
+      return;
     }
   }, [error, router, t]);
 
@@ -124,7 +126,7 @@ export default function BookingSuccessPage() {
   if (isLoading || !appointment) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-medical-500 animate-spin mb-4" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
       </div>
     );
@@ -235,7 +237,7 @@ export default function BookingSuccessPage() {
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="w-8 h-8 text-medical-500 animate-spin" />
+                    <QhSpinner size="md" />
                   </div>
                 )}
               </div>

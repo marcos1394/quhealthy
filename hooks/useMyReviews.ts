@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { reviewService } from '@/services/review.service';
@@ -32,7 +33,7 @@ export const useMyReviews = () => {
             console.error("❌ Error cargando historial de reseñas:", err);
             const errorMessage = err.response?.data?.message || t('toast_error', { defaultValue: 'No pudimos cargar tu historial.' });
             setError(errorMessage);
-            toast.error(errorMessage);
+            handleApiError(err);
         } finally {
             setIsLoading(false);
         }

@@ -16,6 +16,7 @@ import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el nue
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Button } from './button';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Configuración de los elementos de navegación
 const navItems = [
@@ -57,7 +58,7 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
       toast.success('Sesión cerrada exitosamente.');
       router.push('/');
     } catch (error) {
-      toast.error("No se pudo cerrar la sesión.");
+      return;
       clearSession();
       router.push('/');
     }

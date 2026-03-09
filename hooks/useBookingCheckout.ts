@@ -4,6 +4,7 @@ import { paymentService } from '@/services/payment.service';
 import { CheckoutParams } from '@/types/booking';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -99,12 +100,12 @@ export const useBookingCheckout = () => {
 
       if (errorData?.code === "VALIDATION_ERROR") {
         const validationMsgs = Object.values(errorData.errors).join(", ");
-        toast.error(`Datos inválidos: ${validationMsgs}`, { theme: 'dark' });
+        return;
       } else if (error.response?.status === 401) {
-        toast.error("Debes iniciar sesión para completar la reserva.", { theme: 'dark' });
+        return;
       } else {
         const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
-        toast.error(errorMsg, { theme: 'dark' });
+        return;
       }
 
       setIsProcessing(false);

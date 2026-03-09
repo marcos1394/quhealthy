@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Client, IMessage } from '@stomp/stompjs';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { chatService } from '@/services/chat.service';
@@ -40,7 +41,7 @@ export const useChat = () => {
             })
             .catch(err => {
                 console.error("❌ Error cargando inbox:", err);
-                toast.error("No se pudo cargar la bandeja de mensajes.");
+                handleApiError(err);
                 setIsLoading(false);
             });
 
@@ -72,7 +73,7 @@ export const useChat = () => {
                 console.error("❌ Error STOMP de Producción:", frame.headers['message']);
                 // Si el token expira, el backend cerrará la conexión aquí
                 if (frame.headers['message']?.includes('No autorizado')) {
-                    toast.error("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+                    handleApiError(err);
                 }
             }
         });

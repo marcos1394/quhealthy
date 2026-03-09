@@ -8,6 +8,7 @@ import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Image as ImageIcon
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface DocumentUploadProps {
   selectedFile: File | null; uploadProgress: number; isUploading: boolean;
@@ -54,7 +55,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
   const handleFileSelection = (file: File) => {
     const v = validateFile(file);
-    if (!v.isValid) { setValidationError(v.error!); toast.error(v.error); return; }
+    if (!v.isValid) { setValidationError(v.error!); return; return; }
     setValidationError(null); onFileSelect(file);
     if (showPreview) generatePreview(file);
     toast.success(t('upload.file_selected'));

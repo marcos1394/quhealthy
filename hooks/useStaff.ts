@@ -4,6 +4,7 @@ import { staffService } from '@/services/staff.service';
 import { storeService } from '@/services/store.service'; // Para usar GCP uploadMedia
 import { UI_StaffMember, StaffDTO, StaffRoleBackend } from '@/types/staff';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useStaff = () => {
   const [staff, setStaff] = useState<UI_StaffMember[]>([]);
@@ -41,7 +42,7 @@ export const useStaff = () => {
       setStaff(mappedStaff);
     } catch (error) {
       console.error("Error cargando equipo", error);
-      toast.error("Hubo un error al cargar tu equipo de trabajo.");
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +67,7 @@ export const useStaff = () => {
       }
       return { ...member, id: savedData.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al guardar el miembro del equipo.");
+      return;
       return null;
     }
   };
@@ -76,7 +77,7 @@ export const useStaff = () => {
       await staffService.deleteStaffMember(id);
       return true;
     } catch (error) {
-      toast.error("Error al eliminar al colaborador.");
+      return;
       return false;
     }
   };
@@ -88,7 +89,7 @@ export const useStaff = () => {
       const response = await storeService.uploadMedia(file, 'STAFF_AVATAR' as any);
       return response.url;
     } catch (error) {
-      toast.error("Error al subir la imagen del colaborador.");
+      return;
       return null;
     }
   };

@@ -15,6 +15,7 @@ import { useLicenseOnboarding } from "@/hooks/useLicenseOnboarding";
 import { useOnboardingChecklist } from "@/hooks/useOnboardingChecklist";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function LicensePage() {
   const router = useRouter();
@@ -38,8 +39,8 @@ export default function LicensePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    if (selectedFile.size > 10 * 1024 * 1024) return toast.error("Max 10MB.");
-    if (!selectedFile.type.startsWith("image/")) return toast.error("JPG/PNG only.");
+    if (selectedFile.size > 10 * 1024 * 1024) return;
+    if (!selectedFile.type.startsWith("image/")) return;
     setFile(selectedFile);
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result as string);

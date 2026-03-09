@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { ConsumerDocument } from '@/types/healthVault';
 import { healthVaultService } from '@/services/healthVault.service'; // Asegúrate de que la ruta sea correcta
 
@@ -21,7 +22,7 @@ export function useHealthVault() {
             setDocuments(data);
         } catch (error: any) {
             console.error('Error fetching vault docs:', error);
-            toast.error(t('error_fetch', { defaultValue: 'No pudimos cargar tus documentos seguros.' }));
+            return;
         } finally {
             setIsLoading(false);
         }
@@ -55,7 +56,7 @@ export function useHealthVault() {
             return newDoc;
         } catch (error: any) {
             console.error('Error uploading document:', error);
-            toast.error(t('error_upload', { defaultValue: 'Hubo un error al subir el archivo.' }));
+            return;
             return null;
         } finally {
             setIsUploading(false);
@@ -70,7 +71,7 @@ export function useHealthVault() {
             window.open(url, '_blank');
         } catch (error: any) {
             console.error('Error generating presigned URL:', error);
-            toast.error(t('error_url', { defaultValue: 'El enlace seguro expiró o no es válido.' }));
+            return;
         }
     };
 

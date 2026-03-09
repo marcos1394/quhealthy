@@ -10,6 +10,7 @@ import { useProviderScore } from '@/hooks/useProviderScore';
 import { useSessionStore } from '@/stores/SessionStore';
 import { ProviderScoreBadge } from '@/components/provider/ProviderScoreBadge';
 import { cn } from '@/lib/utils';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export function ProviderReputationCard() {
   const t = useTranslations('ProviderReputation');
@@ -41,7 +42,7 @@ export function ProviderReputationCard() {
   if (isLoading) {
     return (
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm min-h-[350px] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-medical-500 animate-spin" />
+        <QhSpinner size="md" />
         <p className="text-sm text-slate-500 dark:text-slate-400">{t('loading')}</p>
       </Card>
     );

@@ -5,8 +5,8 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { es } from "date-fns/locale"; // 💡 Tip: Puedes hacer esto dinámico según el locale del usuario
-import { 
-  Package, Truck, CheckCircle2, Loader2, MapPin 
+import {
+  Package, Truck, CheckCircle2, Loader2, MapPin
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
@@ -24,13 +24,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function ProviderOrdersPage() {
   const t = useTranslations('ProviderOrders');
-  const { 
-    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered 
+  const {
+    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered
   } = useProviderOrders();
-  
+
   // Estados de la UI (Modal)
   const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -41,14 +42,14 @@ export default function ProviderOrdersPage() {
 
   const handleShipSubmit = async () => {
     if (!selectedOrder || trackingNumber.trim().length < 5) return;
-    
+
     const success = await shipOrder(
-      selectedOrder.id, 
+      selectedOrder.id,
       trackingNumber.trim(),
       t('toast_ship_success'),
       t('toast_ship_error')
     );
-    
+
     if (success) {
       setSelectedOrder(null);
       setTrackingNumber("");
@@ -58,11 +59,11 @@ export default function ProviderOrdersPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PROCESSING':
-        return <Badge className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30"><Package className="w-3 h-3 mr-1"/> {t('badge_processing')}</Badge>;
+        return <Badge className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30"><Package className="w-3 h-3 mr-1" /> {t('badge_processing')}</Badge>;
       case 'SHIPPED':
-        return <Badge className="bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30"><Truck className="w-3 h-3 mr-1"/> {t('badge_shipped')}</Badge>;
+        return <Badge className="bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30"><Truck className="w-3 h-3 mr-1" /> {t('badge_shipped')}</Badge>;
       case 'DELIVERED':
-        return <Badge className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"><CheckCircle2 className="w-3 h-3 mr-1"/> {t('badge_delivered')}</Badge>;
+        return <Badge className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"><CheckCircle2 className="w-3 h-3 mr-1" /> {t('badge_delivered')}</Badge>;
       default:
         return <Badge variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">{status}</Badge>;
     }
@@ -97,7 +98,7 @@ export default function ProviderOrdersPage() {
                 {isLoading ? (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-slate-500 dark:text-slate-400">
-                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-medical-500" />
+                      <QhSpinner size="md" />
                       {t('loading')}
                     </td>
                   </tr>
@@ -162,8 +163,8 @@ export default function ProviderOrdersPage() {
                       {/* 5. Acciones */}
                       <td className="px-6 py-4 align-top text-right">
                         {order.orderStatus === 'PROCESSING' && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="bg-medical-600 hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
                             onClick={() => setSelectedOrder(order)}
                           >
@@ -172,8 +173,8 @@ export default function ProviderOrdersPage() {
                           </Button>
                         )}
                         {order.orderStatus === 'SHIPPED' && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             className="border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
                             onClick={() => markAsDelivered(order.id, t('toast_deliver_success'), t('toast_deliver_error'))}
@@ -201,12 +202,12 @@ export default function ProviderOrdersPage() {
               {selectedOrder && t('modal_desc', { id: selectedOrder.id, name: selectedOrder.consumerName })}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">
               {t('modal_input_label')} <span className="text-red-500">*</span>
             </label>
-            <Input 
+            <Input
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               placeholder={t('modal_placeholder')}
@@ -216,16 +217,16 @@ export default function ProviderOrdersPage() {
           </div>
 
           <DialogFooter className="sm:justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setSelectedOrder(null)}
               className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               {t('btn_cancel')}
             </Button>
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               className="bg-medical-600 text-white hover:bg-medical-700 dark:bg-medical-500 dark:hover:bg-medical-600 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500"
               onClick={handleShipSubmit}
               disabled={isSubmitting || trackingNumber.trim().length < 5}

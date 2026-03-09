@@ -34,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface PasswordRule {
   regex: RegExp;
@@ -114,7 +115,7 @@ export default function AccountRecoveryPage() {
       setCanResend(false);
     } catch (err: any) {
       setError(err.message || "Error");
-      toast.error(err.message);
+      handleApiError(err);
     } finally {
       setLoading(false);
     }
@@ -153,7 +154,7 @@ export default function AccountRecoveryPage() {
       setStep(3);
     } catch (err: any) {
       setError(err.message || "Código inválido");
-      toast.error(err.message);
+      handleApiError(err);
     } finally {
       setLoading(false);
     }
@@ -177,7 +178,7 @@ export default function AccountRecoveryPage() {
       setTimeout(() => router.push("/login"), 2000);
     } catch (err: any) {
       setError(err.message || "Error");
-      toast.error(err.message);
+      handleApiError(err);
     } finally {
       setLoading(false);
     }

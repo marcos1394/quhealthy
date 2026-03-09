@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 import { reviewService } from '@/services/review.service';
 import { ReviewContext, CreateReviewPayload } from '@/types/reviews';
@@ -50,7 +51,7 @@ export const useLeaveReview = (token: string | undefined) => {
         if (!context) return;
         
         if (rating === 0) {
-            toast.error(t('toast_rating_required', { defaultValue: 'Por favor selecciona una calificación en estrellas.' }));
+            handleApiError(err);
             return;
         }
 
@@ -74,7 +75,7 @@ export const useLeaveReview = (token: string | undefined) => {
             
         } catch (err: any) {
             console.error("❌ Error enviando reseña:", err);
-            toast.error(err.response?.data?.message || t('toast_error', { defaultValue: 'Ocurrió un error al enviar tu reseña. Intenta nuevamente.' }));
+            handleApiError(err);
         } finally {
             setIsSubmitting(false);
         }

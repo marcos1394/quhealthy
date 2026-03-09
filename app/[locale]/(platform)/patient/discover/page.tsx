@@ -26,6 +26,7 @@ import { useProviderScore } from '@/hooks/useProviderScore';
 import { ProviderScoreResponse } from '@/types/providerScore';
 import { ProviderScoreBadge } from '@/components/provider/ProviderScoreBadge';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 const libraries: ("places" | "geometry")[] = ["places"];
 const mapContainerStyle = { width: '100%', height: '100%' };
@@ -295,7 +296,7 @@ const DiscoverMapContent = () => {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-medical-500 animate-spin" />
+          <QhSpinner size="lg" />
           <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">{t('loading')}</p>
         </div>
       </div>
@@ -436,7 +437,7 @@ export default function DiscoverPageWrapper() {
   if (!isLoaded) return (
     <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-10 h-10 text-medical-500 animate-spin" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">{t('loading')}</p>
       </div>
     </div>

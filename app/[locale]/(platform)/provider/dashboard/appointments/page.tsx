@@ -17,6 +17,8 @@ import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function ProviderAppointmentsPage() {
   const router = useRouter();
@@ -38,7 +40,7 @@ export default function ProviderAppointmentsPage() {
       toast.success("Appointment canceled successfully.");
       setAppointments(prev => prev.map(a => a.id === cancelModalState.appointment?.id ? { ...a, status: "canceled_by_provider" } : a));
       setCancelModalState({ isOpen: false, appointment: null });
-    } catch (error) { console.error(error); toast.error("Could not cancel appointment. Try again."); }
+    } catch (error) { console.error(error); handleApiError(error); }
     finally { setIsCanceling(false); }
   };
 
@@ -85,7 +87,7 @@ export default function ProviderAppointmentsPage() {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col justify-center items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+        <QhSpinner size="md" />
         <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t('loading')}</p>
       </div>
     );

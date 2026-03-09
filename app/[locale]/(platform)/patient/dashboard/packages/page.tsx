@@ -11,6 +11,7 @@ import { usePackages } from '@/hooks/usePackages';
 import { PackageCard } from '@/components/packages/PackageCard';
 import { EmptyPackages } from '@/components/packages/EmptyPackages';
 import { SuggestedUpgrades } from '@/components/packages/SuggestedUpgrades';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function ConsumerPackagesPage() {
     const t = useTranslations('PatientPackages');
@@ -22,7 +23,7 @@ export default function ConsumerPackagesPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col justify-center items-center h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
-                <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
+                <QhSpinner size="lg" />
                 <p className="text-slate-500 dark:text-slate-400 font-medium">
                     {t('loading', { defaultValue: 'Cargando tu billetera de salud...' })}
                 </p>

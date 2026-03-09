@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { HistoryEntry } from "./HistoryTable";
+import { handleApiError } from '@/lib/handleApiError';
 
 type UserRole = "paciente" | "proveedor";
 
@@ -63,7 +64,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
       await onDownloadReceipt?.(entry);
       toast.success(t("download_success"));
     } catch {
-      toast.error(t("download_error"));
+      return;
     } finally {
       setIsDownloading(false);
     }

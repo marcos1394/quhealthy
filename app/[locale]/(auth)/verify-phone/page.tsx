@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, ShieldCheck, Smartphone, Clock, RefreshCw, CheckCircle2, AlertCircle, Sparkles, ArrowRight, Shield, Info } from "lucide-react";
 import { useSessionStore } from "@/stores/SessionStore";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function VerifyPhonePage() {
   const t = useTranslations("AuthVerifyPhone");
@@ -51,7 +52,6 @@ export default function VerifyPhonePage() {
     if (e) e.preventDefault();
     if (code.length !== 6) return;
     if (!user?.email) {
-      toast.error(t("user_not_identified") || "Usuario no identificado.");
       return;
     }
     setIsLoading(true); setError("");
@@ -64,14 +64,13 @@ export default function VerifyPhonePage() {
       }, 2000);
     } catch (err: any) {
       setError(err.message || "Error");
-      toast.error(err.message);
+      handleApiError(err);
       setCode(""); setIsLoading(false);
     }
   };
 
   const handleResendCode = async () => {
     if (!user?.email) {
-      toast.error(t("user_not_identified") || "Usuario no identificado.");
       return;
     }
     setIsResending(true); setError("");
@@ -79,7 +78,7 @@ export default function VerifyPhonePage() {
       await resendVerification({ email: user.email, type: 'SMS' });
       toast.success(t("resend_button"));
       setCodeTimer(300); setCanResend(false); setResendCooldown(60);
-    } catch (err: any) { setError(err.message); toast.error(err.message); }
+    } catch (err: any) { setError(err.message); handleApiError(err); }
     finally { setIsResending(false); }
   };
 

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Appointment } from '@/types/appointments'; // ⚠️ Ojo con el nombre del archivo
 import { appointmentService } from '@/services/appointment.service';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useAppointmentDetails = (appointmentId: string | number | undefined) => {
   const [appointment, setAppointment] = useState<Appointment | null>(null);
@@ -41,7 +42,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
       } catch (err: any) {
         console.error("Error fetching appointment details:", err);
         setError(err);
-        toast.error("No se pudieron cargar los detalles de la cita.");
+        handleApiError(err);
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +77,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
       toast.success("Recibo descargado exitosamente");
     } catch (err) {
       console.error("Error downloading invoice:", err);
-      toast.error("El recibo no está disponible en este momento.");
+      handleApiError(err);
     } finally {
       setIsDownloading(false);
     }

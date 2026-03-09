@@ -1,6 +1,7 @@
 // src/hooks/useConsumerWallet.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { consumerPackageService } from '@/services/consumer-package.service';
 import { ConsumerPackage } from '@/types/packages';
 
@@ -15,7 +16,7 @@ export const useConsumerWallet = () => {
       setPackages(data || []);
     } catch (error) {
       console.error("Error fetching wallet:", error);
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
     } finally {
       setIsLoading(false);
     }

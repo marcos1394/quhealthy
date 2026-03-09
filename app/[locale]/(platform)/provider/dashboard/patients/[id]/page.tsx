@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Tipos
 interface ClientDetails {
@@ -100,7 +102,7 @@ export default function PatientDetailPage() {
             // setClientData(data);
         } catch (error) {
             console.error(error);
-            toast.error(t("error_loading"));
+            return;
         } finally {
             setIsLoading(false);
         }
@@ -136,7 +138,7 @@ export default function PatientDetailPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
-                <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+                <QhSpinner size="md" />
                 <p className="text-slate-500 dark:text-slate-400 font-light">{t("loading")}</p>
             </div>
         );

@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Tipos
 interface Referral {
@@ -67,7 +69,7 @@ export default function ProviderReferralsPage() {
       // setReferralData(data);
     } catch (error) {
       console.error(error);
-      toast.error("Error al cargar datos de referidos.");
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +92,7 @@ export default function ProviderReferralsPage() {
   if (isLoading) {
     return (
         <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
+            <QhSpinner size="lg" />
             <p className="text-gray-400">Cargando programa de referidos...</p>
         </div>
     );

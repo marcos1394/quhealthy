@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function VerificationContent() {
   const searchParams = useSearchParams();
@@ -147,7 +148,7 @@ function VerificationContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950"><Loader2 className="w-8 h-8 text-medical-500 animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950"><QhSpinner size="md" /></div>}>
       <VerificationContent />
     </Suspense>
   );

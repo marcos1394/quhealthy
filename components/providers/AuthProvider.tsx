@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
 import { Loader2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { initializeSession, isLoading, isAuthenticated, _hasHydrated } = useSessionStore();
@@ -41,7 +42,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   if (!_hasHydrated || isLoading) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <Loader2 className="w-10 h-10 text-medical-500 animate-spin mb-4" />
+        <QhSpinner size="lg" />
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
           Autenticando de forma segura...
         </p>

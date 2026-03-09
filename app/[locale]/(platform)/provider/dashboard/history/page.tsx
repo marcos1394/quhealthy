@@ -10,6 +10,7 @@ import { HistoryHeader } from "@/components/dashboard/history/HistoryHeader";
 import { HistoryFilters, FilterOptions } from "@/components/dashboard/history/HistoryFilters";
 import { HistoryTable, HistoryEntry } from "@/components/dashboard/history/HistoryTable";
 import { HistoryDetailModal } from "@/components/dashboard/history/HistoryDetailModal";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 type UserRole = "paciente" | "proveedor";
 
@@ -98,7 +99,7 @@ export default function ProviderHistoryPage() {
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
-        <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+        <QhSpinner size="md" />
         <p className="text-slate-500 dark:text-slate-400 font-light">{t("loading")}</p>
       </div>
     );

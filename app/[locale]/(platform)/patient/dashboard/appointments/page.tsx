@@ -19,6 +19,7 @@ import { AppointmentStats } from '@/components/appointments/AppointmentStats';
 import { AppointmentFilters, TabValue, SortValue } from '@/components/appointments/AppointmentFilters';
 import { AppointmentCard } from '@/components/appointments/AppointmentCard';
 import { AppointmentEmptyState } from '@/components/appointments/AppointmentEmptyState';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function ConsumerAppointmentsPage() {
   const router = useRouter();
@@ -119,7 +120,7 @@ export default function ConsumerAppointmentsPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-[60vh] space-y-4 bg-slate-50 dark:bg-slate-950 transition-colors">
-        <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading', { defaultValue: 'Cargando citas...' })}</p>
       </div>
     );

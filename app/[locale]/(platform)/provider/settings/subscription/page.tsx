@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { PlansHeader } from '@/components/dashboard/subscription/PlansHeader';
 import { PricingCard, Plan } from '@/components/dashboard/subscription/PricingCard';
 import { ConfirmationModal } from '@/components/dashboard/subscription/ConfirmationModal';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Tipos adicionales locales para la data
 export type UserRole = "paciente" | "proveedor";
@@ -140,7 +141,7 @@ export default function BillingPage() {
         sessionId: data.sessionId,
       });
 
-      if (error) toast.error(error.message);
+      if (error) return;
 
     } catch (err: any) {
       console.error(err);

@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { onboardingService } from '@/services/onboarding.service';
 import { UpdateProfileRequest, ProfileResponse, CategoryResponse, TagResponse, OnboardingStatusResponse } from '@/types/onboarding';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useProfileOnboarding = () => {
   const router = useRouter();
@@ -77,7 +78,7 @@ export const useProfileOnboarding = () => {
     } catch (error: any) {
       console.error("Error al guardar perfil:", error);
       const msg = error.response?.data?.message || "No se pudo guardar la información.";
-      toast.error(msg);
+      return;
       return false;
     } finally {
       setIsSaving(false);

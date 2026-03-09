@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { consumerProfileService } from '@/services/consumerProfile.service';
 import { ConsumerProfile, defaultConsumerProfile } from '@/types/consumerProfile';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useConsumerProfile = () => {
   const [profile, setProfile] = useState<ConsumerProfile>(defaultConsumerProfile);
@@ -33,7 +34,7 @@ export const useConsumerProfile = () => {
       setProfile(safeData);
     } catch (error: any) {
       console.error("Error al cargar el perfil del paciente:", error);
-      toast.error("No pudimos cargar tu información médica.");
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +56,7 @@ export const useConsumerProfile = () => {
       return true;
     } catch (error: any) {
       console.error("Error al guardar el perfil:", error);
-      toast.error("Ocurrió un error al guardar tus cambios.");
+      return;
       return false;
     } finally {
       setIsSaving(false);

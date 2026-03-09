@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function TwoFactorSetupPage() {
   const t = useTranslations('Settings2FA');
@@ -50,7 +52,7 @@ export default function TwoFactorSetupPage() {
       }
     } catch (err) {
       console.error(err);
-      toast.error(t('toast_error_init'));
+      handleApiError(err);
     } finally {
       setInitializing(false);
     }
@@ -86,7 +88,7 @@ export default function TwoFactorSetupPage() {
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || t('toast_error_verify');
-      toast.error(msg);
+      handleApiError(err);
       setCode("");
     } finally {
       setLoading(false);
@@ -114,7 +116,7 @@ export default function TwoFactorSetupPage() {
   if (initializing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <Loader2 className="w-10 h-10 text-medical-500 animate-spin" />
+        <QhSpinner size="lg" />
       </div>
     );
   }

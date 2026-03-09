@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { HealthScoreResponse } from '@/types/healthscore';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface HealthScoreWidgetProps {
   scoreData: HealthScoreResponse | null;
@@ -21,7 +22,7 @@ export function HealthScoreWidget({ scoreData, isLoading, onOpenOnboarding }: He
   if (isLoading) {
     return (
       <Card className="h-full min-h-[300px] flex flex-col justify-center items-center p-6 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm">
-         <Loader2 className="w-8 h-8 animate-spin text-medical-500 mb-4" />
+         <QhSpinner size="md" />
          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
       </Card>
     );

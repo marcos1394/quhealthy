@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 
 import { useMyReviews } from '@/hooks/useMyReviews';
 import { ReviewHistoryCard } from '@/components/reviews/ReviewHistoryCard';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function PatientReviewsDashboard() {
     const t = useTranslations('PatientReviewsDashboard');
@@ -18,7 +19,7 @@ export default function PatientReviewsDashboard() {
     if (isLoading) {
         return (
             <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4 bg-slate-50 dark:bg-slate-950">
-                <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
+                <QhSpinner size="lg" />
             </div>
         );
     }

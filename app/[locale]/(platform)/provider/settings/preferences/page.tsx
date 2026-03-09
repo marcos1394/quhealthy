@@ -30,6 +30,8 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface AppPreferences {
     language: string;
@@ -72,7 +74,7 @@ export default function PreferencesPage() {
                 icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
             });
         } catch (err) {
-            toast.error("Error al guardar las preferencias.");
+            handleApiError(err);
         } finally {
             setIsSaving(false);
         }
@@ -85,7 +87,7 @@ export default function PreferencesPage() {
     if (loading) {
         return (
             <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
-                <Loader2 className="w-10 h-10 animate-spin text-medical-500" />
+                <QhSpinner size="lg" />
                 <p className="text-slate-500 font-medium">Cargando...</p>
             </div>
         );

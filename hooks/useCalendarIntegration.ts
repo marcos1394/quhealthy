@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { calendarIntegrationService } from '@/services/calendar-integration.service';
 
 export const useCalendarIntegration = () => {
@@ -37,7 +38,7 @@ export const useCalendarIntegration = () => {
       setIsGoogleConnected(true);
       router.replace('/provider/dashboard/calendar'); // Limpiamos la URL
     } else if (syncStatus === 'error') {
-      toast.error("Error al conectar con Google.", { theme: "dark" });
+      return;
       router.replace('/provider/dashboard/calendar');
     }
   }, [searchParams, router]);
@@ -48,7 +49,7 @@ export const useCalendarIntegration = () => {
       const url = await calendarIntegrationService.getConnectUrl();
       window.location.href = url; // Redirección directa al Auth de Google
     } catch (error) {
-      toast.error("No se pudo iniciar la conexión con Google.", { theme: "dark" });
+      return;
     }
   };
 

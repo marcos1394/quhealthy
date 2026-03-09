@@ -22,6 +22,7 @@ import { CoursesManager } from "@/components/marketplace/CoursesManager";
 import { useCatalog } from "@/hooks/useCatalog";
 import { UI_Service, UI_Package, UI_Product, UI_Course } from "@/types/catalog";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 type TabType = 'SERVICES' | 'PACKAGES' | 'PRODUCTS' | 'COURSES';
 
@@ -60,7 +61,7 @@ export default function CatalogSetupPage() {
   };
 
   const handleSaveService = async (service: UI_Service) => {
-    if (!service.name || service.price <= 0) return toast.error(t('toast_name_price_required', { defaultValue: 'Nombre y precio requeridos' }));
+    if (!service.name || service.price <= 0) return;
     const saved = await saveService(service);
     if (saved) {
       setServices(prev => prev.map(s => s.id === service.id ? saved : s));
@@ -70,7 +71,7 @@ export default function CatalogSetupPage() {
 
   const handleDeleteService = async (id: number) => {
     const isInPackage = packages.some(pkg => pkg.serviceIds.includes(id));
-    if (isInPackage) return toast.error(t('toast_service_in_package', { defaultValue: 'Este servicio está en un paquete.' }));
+    if (isInPackage) return;
     const s = services.find(s => s.id === id);
     if (!s) return;
     if (s.isNew) return setServices(prev => prev.filter(s => s.id !== id));

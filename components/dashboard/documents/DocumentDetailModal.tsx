@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { Document } from "./DocumentCard";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface DocumentDetailModalProps {
   doc: Document | null; isOpen: boolean; onClose: () => void;
@@ -50,13 +51,13 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ doc, i
     if (!showDeleteConfirm) { setShowDeleteConfirm(true); return; }
     setIsDeleting(true);
     try { await onDelete?.(doc.id); toast.success("Document deleted"); onClose(); }
-    catch { toast.error("Could not delete document"); setIsDeleting(false); }
+    catch (e) { handleApiError(e); setIsDeleting(false); }
   };
 
   const handleDownload = async () => {
     setIsDownloading(true);
     try { await onDownload?.(doc); toast.success("Download started"); }
-    catch { toast.error("Could not download document"); }
+    catch (e) { handleApiError(e); }
     finally { setIsDownloading(false); }
   };
 

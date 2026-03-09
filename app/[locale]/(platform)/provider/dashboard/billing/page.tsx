@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { es } from "date-fns/locale";
 import { useBillingHistory } from "@/hooks/useBillingHistory";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function StripeConnectCardSkeleton() {
   return (
@@ -108,7 +109,7 @@ export default function BillingSettingsPage() {
               <CardContent className="p-0">
                 {isLoading ? (
                   <div className="flex flex-col items-center justify-center p-14">
-                    <Loader2 className="w-7 h-7 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+                    <QhSpinner size="md" />
                     <p className="text-slate-500 dark:text-slate-400 font-light">{t('loading')}</p>
                   </div>
                 ) : transactions.length === 0 ? (

@@ -8,6 +8,7 @@ import {
   CalendarEvent 
 } from '@/types/appointments'; // 🚀 Asegúrate de que el nombre del archivo coincida con tu proyecto (appointment o appointments)
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -76,7 +77,7 @@ export const useAppointments = () => {
       }));
     } catch (error) {
       console.error("Error cargando citas:", error);
-      toast.error("No pudimos cargar tus citas.");
+      return;
       return [];
     } finally {
       setIsLoading(false);
@@ -96,7 +97,7 @@ export const useAppointments = () => {
       return true;
     } catch (error: any) {
       console.error("Error al reprogramar:", error);
-      toast.error(error.response?.data?.message || "No se pudo reprogramar la cita.");
+      return;
       return false;
     }
   };
@@ -112,7 +113,7 @@ export const useAppointments = () => {
       toast.success("Cita cancelada.");
       return true;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al cancelar la cita.");
+      return;
       return false;
     }
   };

@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface PasswordRule { regex: RegExp; valid: boolean; }
 
@@ -61,7 +63,7 @@ function ResetPasswordForm() {
       await confirmResetPassword({ token, newPassword: password });
       setSuccess(true); toast.success(t("success_title"), { position: "top-center" });
       setTimeout(() => router.push("/login"), 3000);
-    } catch (err: any) { setError(err.message || "Error"); toast.error(err.message); }
+    } catch (err: any) { setError(err.message || "Error"); handleApiError(err); }
     finally { setLoading(false); }
   };
 
@@ -168,7 +170,7 @@ export default function ResetPasswordPage() {
             <h1 className="text-3xl font-medium text-slate-900 dark:text-white mb-2 tracking-tight">{t("title")}</h1>
             <p className="text-slate-500 dark:text-slate-400 font-light">{t("desc")}</p>
           </div>
-          <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-medical-500 animate-spin" /></div>}><ResetPasswordForm /></Suspense>
+          <Suspense fallback={<div className="flex justify-center py-12"><QhSpinner size="md" /></div>}><ResetPasswordForm /></Suspense>
           <div className="mt-10 text-center"><Link href="/login" className="inline-flex items-center text-sm text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white font-medium"><ArrowLeft className="w-4 h-4 mr-2" />{t("back_to_login")}</Link></div>
         </motion.div>
       </div>

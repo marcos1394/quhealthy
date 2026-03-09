@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { storeService } from '@/services/store.service';
 import { StoreProfile, StoreMediaType } from '@/types/store';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useStoreProfile = () => {
   const [profile, setProfile] = useState<StoreProfile | null>(null);
@@ -18,7 +19,7 @@ export const useStoreProfile = () => {
       setProfile(data);
     } catch (error) {
       console.error("Error cargando perfil de tienda:", error);
-      toast.error("No pudimos cargar la información de tu tienda.");
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -44,9 +45,9 @@ export const useStoreProfile = () => {
       console.error("Error actualizando perfil:", error);
       // Manejar el error específico del Slug duplicado que configuramos en Java
       if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+        return;
       } else {
-        toast.error("Error al guardar los cambios.");
+        return;
       }
       return false;
     } finally {
@@ -81,7 +82,7 @@ export const useStoreProfile = () => {
       return newUrl;
     } catch (error: any) {
       console.error("Error subiendo archivo:", error);
-      toast.error(error.response?.data?.message || "Ocurrió un error al subir el archivo.");
+      return;
       return null;
     } finally {
       setIsUploading(false);

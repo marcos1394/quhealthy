@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 
 // Color presets - SATISFICING
@@ -101,12 +102,12 @@ export function VisualIdentitySection({
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('El archivo debe ser una imagen');
+      return;
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('La imagen debe ser menor a 5MB');
+      return;
       return;
     }
 

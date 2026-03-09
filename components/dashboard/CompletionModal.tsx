@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface Appointment {
   id: number;
@@ -48,7 +49,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({ appointment, i
     } catch (error: any) {
       console.error(error);
       setCompletionStep("idle");
-      toast.error(error?.response?.data?.message || "Error completing appointment");
+      return;
     } finally { setTimeout(() => setIsLoading(false), 1500); }
   };
 

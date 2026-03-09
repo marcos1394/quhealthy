@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
 
@@ -81,7 +83,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   };
 
   const handleSave = async () => {
-    if (Object.keys(validationErrors).length > 0) { toast.error(t('save_error')); return; }
+    if (Object.keys(validationErrors).length > 0) { return; return; }
     setSavingStep("saving");
     const success = await saveSchedules(schedules);
     if (success) { setSavingStep("success"); toast.success(t('save_success')); setTimeout(() => { onSaveSuccess(); onClose(); }, 1000); }
@@ -118,7 +120,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
         {isLoading ? (
           <div className="h-[350px] flex flex-col items-center justify-center">
-            <Loader2 className="w-7 h-7 text-medical-600 dark:text-medical-400 animate-spin mb-3" />
+            <QhSpinner size="md" />
             <p className="text-slate-500 dark:text-slate-400 font-light">{t('loading')}</p>
           </div>
         ) : (

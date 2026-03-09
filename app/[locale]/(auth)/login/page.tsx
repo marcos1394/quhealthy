@@ -33,6 +33,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -120,7 +121,7 @@ export default function LoginPage() {
       } else {
         setError(errorMessage);
       }
-      toast.error(errorMessage);
+      handleApiError(err);
     } finally {
       setLoading(false);
     }

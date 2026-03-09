@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { healthScoreService } from '@/services/healthscore.service';
 import { HealthScoreResponse, HealthProfilePayload } from '@/types/healthscore';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useHealthScore = () => {
   const [scoreData, setScoreData] = useState<HealthScoreResponse | null>(null);
@@ -54,7 +55,7 @@ export const useHealthScore = () => {
       console.error("Error guardando perfil de salud:", err);
       const errorMsg = err.response?.data?.message || "Ocurrió un error al guardar tu perfil.";
       setError(errorMsg);
-      toast.error(errorMsg);
+      handleApiError(err);
       return false;
     } finally {
       setIsSubmitting(false);

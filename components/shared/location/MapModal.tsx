@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { googleService } from "@/services/google.service";
 import { LocationData, LocationPickerProps } from "@/types/location";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 const libraries: ("places")[] = ["places"];
 
@@ -105,7 +107,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
       onLocationSelect(newLocation);
     } catch (err) { 
       console.error(err); 
-      toast.error("Error updating location"); 
+      handleApiError(err); 
     } finally { 
       setIsProcessing(false); 
     }
@@ -186,7 +188,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
           {isProcessing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-30">
-              <Loader2 className="w-7 h-7 animate-spin text-medical-600 dark:text-medical-400" />
+              <QhSpinner size="md" />
             </motion.div>
           )}
         </AnimatePresence>

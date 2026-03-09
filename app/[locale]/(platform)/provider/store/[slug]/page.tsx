@@ -20,6 +20,7 @@ import { StorefrontItem } from "@/types/storefront";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -66,7 +67,7 @@ export default function PublicStorePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-medical-500 animate-spin mb-4" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-zinc-400 font-medium animate-pulse">{t('loading')}</p>
       </div>
     );

@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import { discoverService } from '@/services/discover.service';
 import { DiscoverProvider } from '@/types/discover';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useDiscover = () => {
   // SWR maneja el caché, la carga y los errores por nosotros
@@ -14,7 +15,7 @@ export const useDiscover = () => {
       dedupingInterval: 60000,  // Mantiene la caché por 1 minuto
       onError: (err) => {
         console.error("Error al cargar los especialistas:", err);
-        toast.error("Ocurrió un error al buscar los especialistas cercanos.");
+        return;
       }
     }
   );

@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Tipos
 interface Device {
@@ -130,7 +131,7 @@ export default function DeviceManagementPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <Loader2 className="w-8 h-8 text-medical-500 animate-spin" />
+        <QhSpinner size="md" />
         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{t('loading')}</p>
       </div>
     );

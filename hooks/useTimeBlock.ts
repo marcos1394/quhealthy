@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { scheduleService } from '@/services/schedule.service';
 import { CreateTimeBlockPayload } from '@/types/schedule';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useTimeBlock = () => {
   const [isCreating, setIsCreating] = useState(false);
@@ -15,7 +16,7 @@ export const useTimeBlock = () => {
     } catch (error: any) {
       console.error("Error al crear el bloqueo:", error);
       const errorMessage = error.response?.data?.message || "Ocurrió un error al bloquear el horario.";
-      toast.error(errorMessage);
+      return;
       return false; // Retornamos false si falló para que el Modal no se cierre
     } finally {
       setIsCreating(false);

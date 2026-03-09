@@ -3,13 +3,14 @@ import { useTranslations } from 'next-intl';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export function ReviewLoader() {
     const t = useTranslations('PatientReviews');
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
-            <Loader2 className="w-10 h-10 animate-spin text-medical-500 mb-4" />
+            <QhSpinner size="lg" />
             <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">
                 {t('loading_validation', { defaultValue: 'Verificando tu cita de forma segura...' })}
             </p>

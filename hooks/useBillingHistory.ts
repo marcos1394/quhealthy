@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { paymentService } from '@/services/payment.service';
 import { TransactionHistory } from '@/types/payment';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useBillingHistory = () => {
   const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
@@ -23,7 +24,7 @@ export const useBillingHistory = () => {
       setPage(data.number);
     } catch (error) {
       console.error("❌ Error al cargar historial de facturación:", error);
-      toast.error("No se pudo cargar el historial de recibos.");
+      return;
     } finally {
       setIsLoading(false);
     }

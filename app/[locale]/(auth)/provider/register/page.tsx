@@ -32,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { handleApiError } from '@/lib/handleApiError';
 
 // Types
 interface PasswordRule {
@@ -138,7 +139,7 @@ export default function ProviderSignupPage() {
     } catch (err: any) {
       setLoading(false);
       console.error("Error en registro:", err);
-      toast.error(err.message || "Error en el registro");
+      handleApiError(err);
     }
   };
 

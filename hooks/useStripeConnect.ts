@@ -4,6 +4,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { stripeConnectService } from '@/services/stripe-connect.service';
 import { StripeAccountStatus } from '@/types/payment';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useStripeConnect = () => {
   const [status, setStatus] = useState<StripeAccountStatus | null>(null);
@@ -70,9 +71,7 @@ export const useStripeConnect = () => {
       }
     } catch (error: any) {
       console.error('Error al iniciar el Onboarding de Stripe:', error);
-      toast.error('No se pudo iniciar la conexión segura con Stripe. Intenta nuevamente.', {
-        theme: 'dark',
-      });
+      return;
       setIsRedirecting(false); // Solo lo apagamos si falla, si tiene éxito se va de la página
     }
   };

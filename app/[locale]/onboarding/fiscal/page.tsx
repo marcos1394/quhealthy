@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { useFiscalOnboarding } from "@/hooks/useFiscalOnboarding";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function FiscalPage() {
     const router = useRouter();
@@ -121,7 +122,7 @@ export default function FiscalPage() {
                             <CardContent className="pt-6">
                                 <div onClick={() => !isUploading && csfInputRef.current?.click()} className={cn("h-48 w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group", isUploading ? "border-slate-300 opacity-70 cursor-not-allowed" : "border-slate-300 dark:border-slate-700 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/50 dark:hover:bg-medical-500/5")}>
                                     {isUploading ? (
-                                        <Loader2 className="w-8 h-8 text-medical-600 animate-spin mb-3" />
+                                        <QhSpinner size="md" />
                                     ) : (
                                         <div className="p-4 rounded-xl transition-colors mb-3 bg-slate-100 dark:bg-slate-800 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10">
                                             <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors" />

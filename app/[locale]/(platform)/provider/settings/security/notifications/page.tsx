@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Tipos
 interface Notification {
@@ -143,7 +144,7 @@ export default function SecurityNotificationsPage() {
         <CardContent className="p-0">
             {loading ? (
                 <div className="p-12 text-center text-gray-500 flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                    <QhSpinner size="md" />
                     <p>Cargando alertas...</p>
                 </div>
             ) : notifications.length === 0 ? (

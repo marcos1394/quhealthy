@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { onboardingService } from '@/services/onboarding.service';
 import { FiscalDataResponse, FiscalDataRequest, PersonType, FiscalRegimeOption } from '@/types/onboarding';
 
@@ -45,7 +46,7 @@ export const useFiscalOnboarding = () => {
             return true;
         } catch (error: any) {
             console.error("Error guardando datos fiscales:", error);
-            toast.error(error.response?.data?.message || "Error al guardar los datos fiscales.");
+            return;
             return false;
         } finally {
             setIsSaving(false);

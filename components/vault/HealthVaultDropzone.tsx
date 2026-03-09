@@ -4,6 +4,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { UploadCloud, FileText, Loader2, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface HealthVaultDropzoneProps {
     onUpload: (file: File) => Promise<void>;
@@ -91,7 +92,7 @@ function AnimateContent({ isUploading, isDragging, t }: { isUploading: boolean, 
             <div className="flex flex-col items-center text-medical-600 dark:text-medical-400 animate-in zoom-in duration-500">
                 <div className="relative p-5 bg-medical-50 dark:bg-medical-500/20 rounded-full mb-6">
                     <div className="absolute inset-0 border-4 border-medical-200 dark:border-medical-500/30 rounded-full animate-ping opacity-75"></div>
-                    <Loader2 className="w-10 h-10 animate-spin relative z-10" />
+                    <QhSpinner size="lg" />
                 </div>
                 <h3 className="text-xl md:text-2xl font-black tracking-tight mb-2">
                     {t('btn_uploading', { defaultValue: 'Procesando documento...' })}

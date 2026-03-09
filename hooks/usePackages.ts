@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { packageService } from '@/services/package.service';
@@ -41,7 +42,7 @@ export const usePackages = () => {
                 || t('toast_error', { defaultValue: 'No pudimos cargar tus suscripciones. Intenta de nuevo.' });
             
             setError(errorMessage);
-            toast.error(errorMessage);
+            handleApiError(err);
         } finally {
             setIsLoading(false);
         }

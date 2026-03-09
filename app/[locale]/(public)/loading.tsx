@@ -1,20 +1,9 @@
-import { Loader2 } from "lucide-react";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function Loading() {
     return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md transition-all duration-300">
-            <div className="relative flex items-center justify-center">
-                {/* Outer glowing ring */}
-                <div className="absolute w-24 h-24 rounded-full border-4 border-medical-500/20 dark:border-medical-400/20 border-t-medical-600 dark:border-t-medical-500 animate-spin"></div>
-
-                {/* Inner solid ring */}
-                <div className="absolute w-16 h-16 rounded-full border-4 border-slate-200 dark:border-slate-800 border-b-medical-500 dark:border-b-medical-400 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-
-                {/* Core animated logo placeholder */}
-                <div className="w-10 h-10 bg-gradient-to-tr from-medical-600 to-teal-400 rounded-full animate-pulse flex items-center justify-center shadow-[0_0_30px_rgba(13,148,136,0.3)]">
-                    <Loader2 className="w-5 h-5 text-white animate-spin" />
-                </div>
-            </div>
+            <QhSpinner size="lg" />
 
             {/* Loading text */}
             <div className="mt-8 space-y-2 text-center">

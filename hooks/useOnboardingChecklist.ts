@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { onboardingService } from '@/services/onboarding.service';
 import { OnboardingStepUI, OnboardingStatusResponse, StepStatus, ProviderSector, PersonType } from '@/types/onboarding';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useOnboardingChecklist = () => {
   const [steps, setSteps] = useState<OnboardingStepUI[]>([]);
@@ -29,7 +30,7 @@ export const useOnboardingChecklist = () => {
       return true;
     } catch (err: any) {
       console.error("Error al finalizar:", err);
-      toast.error(err.response?.data?.message || "Hubo un problema al finalizar tu registro.");
+      handleApiError(err);
       return false;
     } finally {
       setIsFinalizing(false);
@@ -116,7 +117,7 @@ export const useOnboardingChecklist = () => {
     } catch (err: any) {
       console.error("Error onboarding status:", err);
       setError("No pudimos cargar tu progreso. Intenta recargar.");
-      toast.error("Error al cargar el progreso");
+      handleApiError(err);
     } finally {
       setIsLoading(false);
     }

@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Esquema de Validación
 const patientProfileSchema = z.object({
@@ -67,7 +68,7 @@ export default function PatientProfilePage() {
             toast.success("Perfil actualizado con éxito");
             form.reset(data); // Limpiar estado "dirty"
         } catch (e) {
-            toast.error("Ocurrió un error al guardar");
+            handleApiError(e);
         } finally {
             setIsSaving(false);
         }

@@ -11,12 +11,13 @@ import { OperatingHoursModal } from "@/components/dashboard/OperatingHours";
 import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function CalendarLoading() {
   const t = useTranslations('DashboardCalendar');
   return (
     <div className="min-h-[60vh] w-full flex flex-col items-center justify-center">
-      <Loader2 className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin mb-3" />
+      <QhSpinner size="md" />
       <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t('loading')}</p>
     </div>
   );

@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useFamily } from '@/hooks/useFamily';
 import { DependentRequest } from '@/types/dependent';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function PatientFamilyDashboard() {
     const t = useTranslations('PatientFamilyDashboard');
@@ -64,7 +65,7 @@ export default function PatientFamilyDashboard() {
     if (isLoading) {
         return (
             <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
-                <Loader2 className="w-12 h-12 animate-spin text-medical-500" />
+                <QhSpinner size="lg" />
                 <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Cargando familia...</p>
             </div>
         );

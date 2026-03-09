@@ -9,6 +9,7 @@ import { ShieldCheck, Loader2, FolderOpen, FileText } from 'lucide-react';
 import { useHealthVault } from '@/hooks/useHealthVault';
 import { HealthVaultDropzone } from '@/components/vault/HealthVaultDropzone';
 import { HealthVaultDocumentCard } from '@/components/vault/HealthVaultDocumentCard';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function PatientVaultPage() {
     const t = useTranslations('HealthVault');
@@ -76,7 +77,7 @@ export default function PatientVaultPage() {
                         <div className="flex flex-col items-center justify-center py-32 gap-6">
                             <div className="relative p-6 bg-medical-50 dark:bg-medical-500/20 rounded-full">
                                 <div className="absolute inset-0 border-4 border-medical-200 dark:border-medical-500/30 rounded-full animate-ping opacity-75"></div>
-                                <Loader2 className="w-12 h-12 text-medical-600 dark:text-medical-400 animate-spin relative z-10" />
+                                <QhSpinner size="lg" />
                             </div>
                             <p className="text-slate-500 dark:text-slate-400 font-bold tracking-widest uppercase text-sm animate-pulse">
                                 {t('loading', { defaultValue: 'Desencriptando tu bóveda...' })}

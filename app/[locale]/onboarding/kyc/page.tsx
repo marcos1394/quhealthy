@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useKycOnboarding } from "@/hooks/useKycOnboarding";
 import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 type UiDocType = "ine" | "passport" | "acta";
 
@@ -43,7 +44,7 @@ export default function KycPage() {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: isSelfie ? "user" : "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } });
       streamRef.current = mediaStream;
       if (videoRef.current) videoRef.current.srcObject = mediaStream;
-    } catch { toast.error("Camera access denied."); setIsCameraOpen(false); }
+    } catch (e) { handleApiError(e); setIsCameraOpen(false); }
   };
 
   const stopCamera = () => { if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; } setIsCameraOpen(false); setActiveCaptureType(null); };

@@ -22,6 +22,7 @@ import { PackageCredit } from "@/types/packages";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function PatientWalletPage() {
   const t = useTranslations('PatientWallet');
@@ -80,7 +81,7 @@ export default function PatientWalletPage() {
       {/* ⏳ ESTADO DE CARGA */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <Loader2 className="w-12 h-12 animate-spin text-medical-500 mb-4" />
+          <QhSpinner size="lg" />
           <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
         </div>
       ) : packages.length === 0 ? (

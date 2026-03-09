@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useTimeBlock } from "@/hooks/useTimeBlock";
 import { useTranslations } from "next-intl";
+import { handleApiError } from '@/lib/handleApiError';
 
 interface TimeBlockModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; initialDate?: Date; }
 
@@ -68,7 +69,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
   };
 
   const handleSave = async () => {
-    if (validationError) { toast.error(validationError); return; }
+    if (validationError) { return; return; }
     setSavingStep("saving");
     const success = await createBlock({
       startDateTime: new Date(`${formData.startDate}T${formData.startTime}`).toISOString(),

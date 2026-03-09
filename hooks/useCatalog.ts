@@ -14,6 +14,7 @@ import {
   CancellationPolicy 
 } from '@/types/catalog';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 
 export const useCatalog = () => {
   const [services, setServices] = useState<UI_Service[]>([]);
@@ -112,7 +113,7 @@ export const useCatalog = () => {
 
     } catch (error) {
       console.error("Error cargando inventario", error);
-      toast.error("Hubo un error al cargar tu catálogo.");
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -142,7 +143,7 @@ export const useCatalog = () => {
       }
       return { ...service, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al guardar el servicio.");
+      return;
       return null;
     }
   };
@@ -152,7 +153,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      toast.error("Error al eliminar el servicio.");
+      return;
       return false;
     }
   };
@@ -178,7 +179,7 @@ export const useCatalog = () => {
       }
       return { ...pkg, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al guardar el paquete.");
+      return;
       return null;
     }
   };
@@ -188,7 +189,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      toast.error("Error al eliminar el paquete.");
+      return;
       return false;
     }
   };
@@ -216,7 +217,7 @@ export const useCatalog = () => {
       }
       return { ...product, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al guardar el producto.");
+      return;
       return null;
     }
   };
@@ -226,7 +227,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      toast.error("Error al eliminar el producto.");
+      return;
       return false;
     }
   };
@@ -253,7 +254,7 @@ export const useCatalog = () => {
       }
       return { ...course, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al guardar el curso.");
+      return;
       return null;
     }
   };
@@ -263,7 +264,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      toast.error("Error al eliminar el curso.");
+      return;
       return false;
     }
   };
@@ -275,7 +276,7 @@ export const useCatalog = () => {
       return response.url;
     } catch (error) {
       console.error("Error en uploadItemImage", error);
-      toast.error("Error al subir la imagen.");
+      return;
       return null;
     }
   };

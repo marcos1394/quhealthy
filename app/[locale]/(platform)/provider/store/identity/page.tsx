@@ -14,6 +14,8 @@ import { LocationData } from "@/types/location";
 
 // Hook del backend
 import { useStoreProfile } from "@/hooks/useStoreProfile";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 // Expandimos el tipo para incluir la nueva información
 type FullStoreSettings = IdentitySettings & PublicInfoSettings & {
@@ -116,7 +118,7 @@ export default function IdentitySetupPage() {
         router.push("/provider/store");
       }, 800);
     } else {
-      toast.error(t('toast_error'));
+      return;
     }
   };
 
@@ -150,7 +152,7 @@ export default function IdentitySetupPage() {
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 bg-slate-50 dark:bg-slate-950">
-        <Loader2 className="w-12 h-12 text-medical-500 animate-spin" />
+        <QhSpinner size="lg" />
         <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">{t('loading')}</p>
       </div>
     );

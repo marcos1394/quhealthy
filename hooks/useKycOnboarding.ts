@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { onboardingService } from '@/services/onboarding.service';
 import { KycDocumentType, KycDocumentResponse, PersonType } from '@/types/onboarding';
 
@@ -17,12 +18,12 @@ export const useKycOnboarding = () => {
         if (response.verificationStatus === 'APPROVED') {
           toast.success("✅ Documento verificado correctamente.");
         } else if (response.verificationStatus === 'REJECTED') {
-          toast.error(`❌ Rechazado: ${response.rejectionReason || "Documento inválido"}`);
+          return;
         }
       })
       .catch(err => {
         console.error("Polling timeout/error", err);
-        toast.error(`Tiempo de espera agotado al verificar doc. Nuestro equipo lo revisará manualmente.`);
+        handleApiError(err);
       })
       .finally(() => {
         setUploadingState(prev => ({ ...prev, [type]: false }));
@@ -79,7 +80,7 @@ export const useKycOnboarding = () => {
       if (response.verificationStatus === 'APPROVED') {
         toast.success("✅ Documento verificado correctamente.");
       } else if (response.verificationStatus === 'REJECTED') {
-        toast.error(`❌ Rechazado: ${response.rejectionReason || "Documento inválido"}`);
+        return;
       } else if (response.verificationStatus === 'PROCESSING') {
         // We leave uploadingState true intentionally until polling finishes
         startPolling(type);
@@ -89,7 +90,7 @@ export const useKycOnboarding = () => {
     } catch (error: any) {
       console.error(`Error subiendo ${type}:`, error);
       const msg = error.response?.data?.message || error.message || "Error al subir.";
-      toast.error(msg);
+      return;
       setUploadingState(prev => ({ ...prev, [type]: false }));
     }
   };

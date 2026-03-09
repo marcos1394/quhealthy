@@ -1,6 +1,7 @@
 // src/hooks/useConsultation.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
 import { 
   PatientClinicalProfile, 
@@ -44,7 +45,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       setVaultDocuments(vaultData || []);
     } catch (error) {
       console.error("Error loading patient record:", error);
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +89,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
-      toast.error(errorMsg, { theme: 'colored' });
+      return;
       return false;
     } finally {
       setIsSubmitting(false);

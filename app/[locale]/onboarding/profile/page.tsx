@@ -24,6 +24,7 @@ import { useProfileOnboarding } from "@/hooks/useProfileOnboarding";
 import { UpdateProfileRequest } from "@/types/onboarding";
 import { cn } from "@/lib/utils";
 import { googleService } from "@/services/google.service";
+import { handleApiError } from '@/lib/handleApiError';
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
@@ -131,12 +132,12 @@ export default function OnboardingProfilePage() {
       }));
       setSelectedPlaceInfo({ rating: details.rating || 0, userRatingsTotal: details.userRatingsTotal || 0 });
       toast.success("🏪 " + t("imported_ok"));
-    } catch (e) { console.error("Details error:", e); toast.error("Could not sync detailed info"); }
+    } catch (e) { console.error("Details error:", e); handleApiError(e); }
   };
 
   const handleFinish = async () => {
-    if (formData.parentCategoryId === 0 || formData.categoryId === 0) { toast.error("Please select your sector and specialty."); return; }
-    if (formData.businessName.length < 3 || formData.bio.length < 20) { toast.error("Business name and bio are required."); return; }
+    if (formData.parentCategoryId === 0 || formData.categoryId === 0) { handleApiError(e); return; }
+    if (formData.businessName.length < 3 || formData.bio.length < 20) { handleApiError(e); return; }
     const success = await saveProfile(formData);
     if (success) { toast.success("✅ Profile saved!"); router.push("/onboarding"); }
   };

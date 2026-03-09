@@ -13,6 +13,8 @@ import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { Loader2, Check, Star, Search, X, Info, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
 import { CategoryResponse, SubCategoryResponse, TagResponse } from "@/types/onboarding";
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { handleApiError } from '@/lib/handleApiError';
 
 interface CategorySelectorProps {
   categories: CategoryResponse[];
@@ -53,7 +55,7 @@ export default function CategorySelector({
       const subs = await onGetSubCategories(catId);
       setSubCategories(subs);
       toast.success(`Specialty: ${categoryName}`);
-    } catch { toast.error("Could not load subcategories."); }
+    } catch (e) { handleApiError(e); }
     finally { setIsLoadingSub(false); }
   };
 
@@ -81,7 +83,7 @@ export default function CategorySelector({
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors">
-        <Loader2 className="w-8 h-8 animate-spin text-medical-600 dark:text-medical-400 mb-3" />
+        <QhSpinner size="md" />
         <p className="text-slate-700 dark:text-slate-300 font-medium mb-1">Waiting for sector selection...</p>
         <p className="text-slate-500 text-sm font-light">Choose Health or Beauty to see options</p>
       </motion.div>
