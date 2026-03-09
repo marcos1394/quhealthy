@@ -133,9 +133,9 @@ function MarketingContent() {
             {/* Componente 1: Autorizaciones OAuth */}
             <SocialConnectionsCard refreshTrigger={connectionsRefresh} />
 
-            {/* 🚀 Componente 2: Formularios de Generación con IA (Mapeamos la data de useCatalog) */}
+            {/* 🚀 Componente 2: Formularios de Generación con IA */}
             <AiStudioForm
-              services={services.map(s => ({ id: s.id, name: s.name }))}
+              services={services.map(s => ({ id: s.id, name: s.name, description: s.description, imageUrl: s.imageUrl, category: s.category, price: s.price }))}
               onGenerationSuccess={() => setGalleryRefresh(prev => prev + 1)}
             />
 
