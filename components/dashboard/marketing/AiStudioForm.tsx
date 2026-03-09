@@ -44,6 +44,10 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
   const [textTone, setTextTone] = useState<string>('PROFESSIONAL');
   const [imagePrompt, setImagePrompt] = useState('');
   const [videoPrompt, setVideoPrompt] = useState('');
+  const [videoPlatform, setVideoPlatform] = useState<string>('INSTAGRAM');
+  const [videoTone, setVideoTone] = useState<string>('EDUCATIONAL');
+  const [videoAspectRatio, setVideoAspectRatio] = useState<string>('LANDSCAPE');
+  const [videoBaseImageUrl, setVideoBaseImageUrl] = useState<string>('');
 
   // Estados de carga
   const [isGeneratingText, setIsGeneratingText] = useState(false);
@@ -135,9 +139,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
     try {
       const response = await generateVideoApi({
         topic: videoPrompt,
-        tone: 'EDUCATIONAL',
-        targetAudience: 'Pacientes buscando información de salud',
-        platform: 'INSTAGRAM' as SocialPlatform,
+        tone: videoTone,
+        targetAudience: 'Pacientes buscando servicios de salud y bienestar',
+        platform: videoPlatform as SocialPlatform,
+        imageUrl: videoBaseImageUrl || undefined,
+        aspectRatio: videoAspectRatio as 'LANDSCAPE' | 'PORTRAIT' | 'SQUARE',
       });
       if (response?.status) {
         setVideoStatus(response.message || response.status);
@@ -463,6 +469,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     <Button
                       variant="outline"
                       onClick={() => {
+                        setVideoBaseImageUrl(generatedImageUrl);
                         setVideoPrompt(`Crear un video promocional animado basado en la imagen generada del servicio "${selectedService?.name || ''}". Animación suave y profesional.`);
                         setActiveTab('video');
                       }}
@@ -508,6 +515,19 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   <p className="text-[11px] text-indigo-700 dark:text-indigo-400">{t('video_processing_note') || 'Los videos se procesan de forma asíncrona. Recibirás una notificación cuando esté listo.'}</p>
                 </div>
 
+                {/* Imagen base (Image-to-Video) */}
+                {videoBaseImageUrl && (
+                  <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-indigo-200 dark:border-indigo-800/40">
+                    <img src={videoBaseImageUrl} alt="Base" className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700" referrerPolicy="no-referrer" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white">{t('video_base_image') || 'Imagen base para el video'}</p>
+                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400">{t('video_image_to_video') || 'Se animará esta imagen con IA'}</p>
+                    </div>
+                    <button type="button" onClick={() => setVideoBaseImageUrl('')} className="text-xs text-slate-400 hover:text-red-500 p-1" title="Quitar imagen">✕</button>
+                  </div>
+                )}
+
+                {/* Prompt del video */}
                 <div className="space-y-2">
                   <Label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t('video_prompt_label') || 'Describe tu idea de video'}</Label>
                   <Textarea
@@ -517,6 +537,67 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     placeholder={t('video_placeholder') || 'Ej: Un médico explicando los beneficios de tomar agua, con animaciones suaves...'}
                     className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[100px] resize-none text-sm focus:ring-indigo-500/20 focus:border-indigo-500"
                   />
+                </div>
+
+                {/* Selectores: Plataforma, Tono, Aspecto */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Plataforma */}
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{t('video_platform') || 'Plataforma'}</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { value: 'INSTAGRAM', label: 'Instagram' },
+                        { value: 'FACEBOOK', label: 'Facebook' },
+                        { value: 'TIKTOK', label: 'TikTok' },
+                      ].map(p => (
+                        <button key={p.value} type="button" onClick={() => setVideoPlatform(p.value)}
+                          className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoPlatform === p.value
+                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            }`}
+                        >{p.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tono */}
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{t('tone_label') || 'Tono'}</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { value: 'PROFESSIONAL', label: '👔' },
+                        { value: 'FRIENDLY', label: '😊' },
+                        { value: 'EDUCATIONAL', label: '📚' },
+                        { value: 'PROMOTIONAL', label: '🔥' },
+                      ].map(t => (
+                        <button key={t.value} type="button" onClick={() => setVideoTone(t.value)}
+                          className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoTone === t.value
+                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            }`}
+                        >{t.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Aspect Ratio */}
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{t('video_aspect_ratio') || 'Formato'}</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { value: 'LANDSCAPE', label: '16:9' },
+                        { value: 'PORTRAIT', label: '9:16' },
+                        { value: 'SQUARE', label: '1:1' },
+                      ].map(a => (
+                        <button key={a.value} type="button" onClick={() => setVideoAspectRatio(a.value)}
+                          className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoAspectRatio === a.value
+                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            }`}
+                        >{a.label}</button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <Button onClick={handleGenerateVideo} disabled={isGeneratingVideo || !videoPrompt.trim()} className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">

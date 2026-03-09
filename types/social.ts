@@ -72,9 +72,13 @@ export interface AiImageResponse {
 
 export interface AiVideoRequest {
   topic: string;
-  tone: string;
-  targetAudience: string;
-  platform: SocialPlatform;
+  sessionId?: string;
+  platform?: SocialPlatform;
+  targetAudience?: string;
+  tone?: string;
+  imageUrl?: string;
+  aspectRatio?: 'LANDSCAPE' | 'PORTRAIT' | 'SQUARE';
+  resolution?: string;
 }
 
 export interface AiVideoResponse {
