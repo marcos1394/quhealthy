@@ -2,8 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { Facebook, Linkedin, Youtube, Link as LinkIcon, CheckCircle, Loader2, ExternalLink, Calendar } from 'lucide-react';
+import { Facebook, Linkedin, Youtube, Link as LinkIcon, CheckCircle, Loader2, Calendar } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -133,12 +132,13 @@ export function SocialConnectionsCard({ refreshTrigger = 0 }: SocialConnectionsC
                   <div className="p-4 space-y-3">
                     <div className="flex items-center gap-3">
                       {connection.profileImageUrl ? (
-                        <Image
+                        <img
                           src={connection.profileImageUrl}
                           alt={connection.platformUserName}
                           width={40}
                           height={40}
-                          className="rounded-full border-2 border-emerald-200 dark:border-emerald-700 shadow-sm"
+                          className="rounded-full border-2 border-emerald-200 dark:border-emerald-700 shadow-sm object-cover"
+                          referrerPolicy="no-referrer"
                         />
                       ) : (
                         <div className={`w-10 h-10 ${network.color} rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
