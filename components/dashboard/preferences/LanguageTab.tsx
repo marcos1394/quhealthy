@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Select, 
@@ -137,7 +138,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
             {/* Language Selector */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
                   Idioma Actual
                 </h4>
                 <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
@@ -153,7 +154,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     editMode ? "hover:border-purple-500/50" : ""
                   )}
                 >
@@ -162,14 +163,14 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
                     <SelectValue />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800 text-gray-300">
+                <SelectContent className="bg-slate-900 border-slate-800 text-slate-300">
                   {languages.map(l => (
                     <SelectItem key={l.code} value={l.code}>
                       <div className="flex items-center gap-3 py-1">
                         <span className="text-xl">{l.flag}</span>
                         <div className="flex flex-col">
                           <span className="font-semibold">{l.label}</span>
-                          <span className="text-xs text-gray-500">{l.nativeName}</span>
+                          <span className="text-xs text-slate-500">{l.nativeName}</span>
                         </div>
                         {preferences.language === l.code && (
                           <Check className="w-4 h-4 text-purple-400 ml-auto" />
@@ -226,7 +227,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
             {/* Currency Selector */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
                   Moneda Actual
                 </h4>
                 <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
@@ -242,13 +243,13 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     editMode ? "hover:border-emerald-500/50" : ""
                   )}
                 >
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800 text-gray-300">
+                <SelectContent className="bg-slate-900 border-slate-800 text-slate-300">
                   {currencies.map(c => (
                     <SelectItem key={c.code} value={c.code}>
                       <div className="flex items-center gap-3 py-1">
@@ -257,7 +258,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
                         </div>
                         <div className="flex flex-col flex-1">
                           <span className="font-semibold">{c.label} ({c.code})</span>
-                          <span className="text-xs text-gray-500">Ejemplo: {c.symbol}{c.example}</span>
+                          <span className="text-xs text-slate-500">Ejemplo: {c.symbol}{c.example}</span>
                         </div>
                         {preferences.currency === c.code && (
                           <Check className="w-4 h-4 text-emerald-400" />
@@ -287,22 +288,22 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
             </AnimatePresence>
 
             {/* Price Preview - RECONOCIMIENTO VISUAL */}
-            <div className="bg-gray-950/50 border border-gray-800 rounded-xl p-4 space-y-3">
+            <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-300">
+                <p className="text-sm font-semibold text-slate-300">
                   Vista Previa de Precios
                 </p>
                 <Sparkles className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-900/50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Consulta</p>
+                <div className="bg-slate-900/50 p-3 rounded-lg">
+                  <p className="text-xs text-slate-500 mb-1">Consulta</p>
                   <p className="text-lg font-bold text-white">
                     {getCurrentCurrency()?.symbol}500.00
                   </p>
                 </div>
-                <div className="bg-gray-900/50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">Suscripción</p>
+                <div className="bg-slate-900/50 p-3 rounded-lg">
+                  <p className="text-xs text-slate-500 mb-1">Suscripción</p>
                   <p className="text-lg font-bold text-white">
                     {getCurrentCurrency()?.symbol}1,250.00
                   </p>
@@ -329,7 +330,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
             {/* Time Format Selector */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
                   Formato Actual
                 </h4>
                 <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">
@@ -345,13 +346,13 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     editMode ? "hover:border-blue-500/50" : ""
                   )}
                 >
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800 text-gray-300">
+                <SelectContent className="bg-slate-900 border-slate-800 text-slate-300">
                   {timeFormats.map(t => (
                     <SelectItem key={t.code} value={t.code}>
                       <div className="flex items-center gap-3 py-1">
@@ -360,7 +361,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
                         </div>
                         <div className="flex flex-col flex-1">
                           <span className="font-semibold">{t.label}</span>
-                          <span className="text-xs text-gray-500">Ejemplo: {t.example}</span>
+                          <span className="text-xs text-slate-500">Ejemplo: {t.example}</span>
                         </div>
                         {preferences.timeFormat === t.code && (
                           <Check className="w-4 h-4 text-blue-400" />
@@ -390,9 +391,9 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
             </AnimatePresence>
 
             {/* Live Time Preview - FEEDBACK VISUAL */}
-            <div className="bg-gray-950/50 border border-gray-800 rounded-xl p-4 space-y-3">
+            <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Hora Actual
                 </p>
@@ -404,7 +405,7 @@ export const LanguageTab: React.FC<LanguageTabProps> = ({
                 <p className="text-3xl font-black text-white tabular-nums">
                   {getCurrentTime(preferences.timeFormat)}
                 </p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-slate-500 mt-2">
                   Formato: {getCurrentTimeFormat()?.label}
                 </p>
               </div>

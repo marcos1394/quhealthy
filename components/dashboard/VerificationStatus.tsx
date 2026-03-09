@@ -269,7 +269,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                   transition={{ type: "spring", stiffness: 200 }}
                   className={cn(
                     "p-3 rounded-2xl border shadow-lg",
-                    "bg-gray-900/50",
+                    "bg-slate-900/50",
                     config.borderColor
                   )}
                 >
@@ -288,7 +288,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400 leading-relaxed">
+                  <p className="text-sm text-slate-400 leading-relaxed">
                     {config.description}
                   </p>
                 </div>
@@ -300,7 +300,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                   variant="ghost"
                   size="default"
                   onClick={onDismiss}
-                  className="text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg"
+                  className="text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -310,7 +310,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
             {/* Progress Bar - FEEDBACK VISUAL */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   Progreso de Verificación
                 </p>
                 <span className="text-xs font-bold text-purple-400">
@@ -319,7 +319,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
               </div>
               <Progress 
                 value={progress} 
-                className="h-2 bg-gray-800"
+                className="h-2 bg-slate-800"
               />
             </div>
 
@@ -339,7 +339,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                       step.isComplete ? "bg-emerald-500/5 border-emerald-500/20" : "",
                       step.isPending ? "bg-amber-500/5 border-amber-500/20" : "",
                       step.isRejected ? "bg-red-500/5 border-red-500/20" : "",
-                      !step.isComplete && !step.isPending && !step.isRejected ? "bg-gray-900/30 border-gray-800" : ""
+                      !step.isComplete && !step.isPending && !step.isRejected ? "bg-slate-900/30 border-slate-800" : ""
                     )}
                   >
                     {/* Icon */}
@@ -348,14 +348,14 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                       step.isComplete ? "bg-emerald-500/10" : "",
                       step.isPending ? "bg-amber-500/10" : "",
                       step.isRejected ? "bg-red-500/10" : "",
-                      !step.isComplete && !step.isPending && !step.isRejected ? "bg-gray-800" : ""
+                      !step.isComplete && !step.isPending && !step.isRejected ? "bg-slate-800" : ""
                     )}>
                       <StepIcon className={cn(
                         "w-4 h-4",
                         step.isComplete ? "text-emerald-400" : "",
                         step.isPending ? "text-amber-400" : "",
                         step.isRejected ? "text-red-400" : "",
-                        !step.isComplete && !step.isPending && !step.isRejected ? "text-gray-500" : ""
+                        !step.isComplete && !step.isPending && !step.isRejected ? "text-slate-500" : ""
                       )} />
                     </div>
 
@@ -364,7 +364,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
                       <div className="flex items-center gap-2 mb-1">
                         <p className={cn(
                           "text-sm font-semibold",
-                          step.isComplete ? "text-white" : "text-gray-400"
+                          step.isComplete ? "text-white" : "text-slate-400"
                         )}>
                           {step.label}
                         </p>
@@ -437,11 +437,11 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
             {/* Review Time Info - MINIMIZAR ANSIEDAD */}
             {config.type === 'pending' && (
-              <div className="bg-gray-950/50 border border-gray-800 rounded-xl p-4 mb-5">
+              <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 mb-5">
                 <div className="flex items-start gap-3">
-                  <Shield className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-gray-400">
-                    <p className="font-semibold text-gray-300 mb-1">
+                  <Shield className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-slate-400">
+                    <p className="font-semibold text-slate-300 mb-1">
                       Tiempo estimado de revisión: 24-48 horas
                     </p>
                     <p>

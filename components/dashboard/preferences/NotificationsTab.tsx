@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -222,7 +223,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
       },
       low: {
         text: 'Baja',
-        className: 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+        className: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
       }
     };
 
@@ -253,7 +254,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
             {activeChannels > 0 ? (
               <Volume2 className="w-5 h-5 text-purple-400" />
             ) : (
-              <VolumeX className="w-5 h-5 text-gray-400" />
+              <VolumeX className="w-5 h-5 text-slate-400" />
             )}
           </div>
           <div className="flex-1">
@@ -320,7 +321,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                     "relative flex items-start justify-between p-4 rounded-xl border-2 transition-all duration-300",
                     isActive 
                       ? `${channel.bgColor} ${channel.borderColor}` 
-                      : "bg-gray-950/30 border-gray-800",
+                      : "bg-slate-950/30 border-slate-800",
                     recentlyToggled === channel.id ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
                   )}
                 >
@@ -338,18 +339,18 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   <div className="flex items-start gap-3 flex-1">
                     <div className={cn(
                       "p-2 rounded-lg",
-                      isActive ? channel.bgColor : "bg-gray-800"
+                      isActive ? channel.bgColor : "bg-slate-800"
                     )}>
                       <Icon className={cn(
                         "w-5 h-5",
-                        isActive ? channel.color : "text-gray-500"
+                        isActive ? channel.color : "text-slate-500"
                       )} />
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <p className={cn(
                           "font-semibold",
-                          isActive ? "text-white" : "text-gray-400"
+                          isActive ? "text-white" : "text-slate-400"
                         )}>
                           {channel.label}
                         </p>
@@ -359,10 +360,10 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {channel.description}
                       </p>
-                      <p className="text-xs text-gray-600 flex items-center gap-1">
+                      <p className="text-xs text-slate-600 flex items-center gap-1">
                         <Sparkles className="w-3 h-3" />
                         {channel.example}
                       </p>
@@ -410,7 +411,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                     "relative flex items-start justify-between p-4 rounded-xl border-2 transition-all duration-300",
                     isActive 
                       ? "bg-purple-500/5 border-purple-500/20" 
-                      : "bg-gray-950/30 border-gray-800",
+                      : "bg-slate-950/30 border-slate-800",
                     recentlyToggled === item.id ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
                   )}
                 >
@@ -428,18 +429,18 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   <div className="flex items-start gap-3 flex-1">
                     <div className={cn(
                       "p-2 rounded-lg",
-                      isActive ? "bg-purple-500/10" : "bg-gray-800"
+                      isActive ? "bg-purple-500/10" : "bg-slate-800"
                     )}>
                       <Icon className={cn(
                         "w-5 h-5",
-                        isActive ? "text-purple-400" : "text-gray-500"
+                        isActive ? "text-purple-400" : "text-slate-500"
                       )} />
                     </div>
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className={cn(
                           "font-semibold",
-                          isActive ? "text-white" : "text-gray-400"
+                          isActive ? "text-white" : "text-slate-400"
                         )}>
                           {item.label}
                         </p>
@@ -450,12 +451,12 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-slate-400">
                         {item.description}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="flex items-center gap-2 text-xs text-slate-600">
                         <Zap className="w-3 h-3" />
-                        Frecuencia: <span className="text-gray-500">{item.frequency}</span>
+                        Frecuencia: <span className="text-slate-500">{item.frequency}</span>
                       </div>
                     </div>
                   </div>

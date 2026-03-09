@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, 
@@ -109,10 +110,10 @@ export function StaffManager({
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800 shadow-xl">
+    <Card className="bg-slate-900 border-slate-800 shadow-xl">
       
       {/* Header */}
-      <CardHeader className="flex flex-row items-center justify-between border-b border-gray-800 pb-4">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
         <div className="space-y-2">
           <CardTitle className="flex items-center gap-3 text-white text-xl">
             <motion.div
@@ -125,7 +126,7 @@ export function StaffManager({
             </motion.div>
             Equipo de Trabajo
           </CardTitle>
-          <CardDescription className="text-gray-400 flex items-center gap-2">
+          <CardDescription className="text-slate-400 flex items-center gap-2">
             Presenta a tu equipo profesional
             {isBusinessPlan && staff.length > 0 && (
               <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
@@ -147,7 +148,7 @@ export function StaffManager({
             className={cn(
               "shadow-2xl transition-all duration-300",
               !isBusinessPlan 
-                ? "bg-gray-800 text-gray-500 cursor-not-allowed hover:bg-gray-800" 
+                ? "bg-slate-800 text-slate-500 cursor-not-allowed hover:bg-slate-800" 
                 : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white"
             )}
           >
@@ -228,7 +229,7 @@ export function StaffManager({
                     "group relative rounded-2xl border transition-all duration-300",
                     member.isNew || member.hasUnsavedChanges
                       ? "bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/30 shadow-lg shadow-purple-500/10"
-                      : "bg-gray-950 border-gray-800 hover:border-gray-700 hover:shadow-xl"
+                      : "bg-slate-950 border-slate-800 hover:border-slate-700 hover:shadow-xl"
                   )}
                 >
                   <div className="p-6 space-y-5">
@@ -236,7 +237,7 @@ export function StaffManager({
                     {/* Header Actions */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <Badge className="bg-gray-800 text-gray-400 text-xs">
+                        <Badge className="bg-slate-800 text-slate-400 text-xs">
                           #{index + 1}
                         </Badge>
                         {member.role && (
@@ -263,7 +264,7 @@ export function StaffManager({
                               toast.success('Miembro eliminado del equipo');
                             }
                           }}
-                          className="h-9 w-9 text-gray-500 hover:text-red-400 hover:bg-red-900/20"
+                          className="h-9 w-9 text-slate-500 hover:text-red-400 hover:bg-red-900/20"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -279,9 +280,9 @@ export function StaffManager({
                             htmlFor={`avatar-${member.id}`}
                             className="relative group/avatar cursor-pointer block"
                           >
-                            <Avatar className="w-24 h-24 border-2 border-gray-800 group-hover/avatar:border-purple-500 transition-all group-hover/avatar:scale-105">
+                            <Avatar className="w-24 h-24 border-2 border-slate-800 group-hover/avatar:border-purple-500 transition-all group-hover/avatar:scale-105">
                               <AvatarImage src={member.imageUrl} />
-                              <AvatarFallback className="bg-gradient-to-br from-gray-800 to-gray-900 text-gray-500">
+                              <AvatarFallback className="bg-gradient-to-br from-slate-800 to-slate-900 text-slate-500">
                                 <User className="w-10 h-10" />
                               </AvatarFallback>
                             </Avatar>
@@ -308,7 +309,7 @@ export function StaffManager({
                             onChange={(e) => handleImageUpload(member.id, e)}
                           />
                         </div>
-                        <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+                        <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
                           Foto Perfil
                         </span>
                       </div>
@@ -319,7 +320,7 @@ export function StaffManager({
                         {/* Name & Specialty */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                               Nombre Completo
                             </Label>
                             <Input 
@@ -329,7 +330,7 @@ export function StaffManager({
                               }}
                               placeholder="Dr. Juan Pérez López"
                               className={cn(
-                                "bg-gray-900 border-gray-700 h-11 text-base transition-all",
+                                "bg-slate-900 border-slate-700 h-11 text-base transition-all",
                                 "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
                                 !member.name ? "border-red-500/50" :""
                               )}
@@ -337,7 +338,7 @@ export function StaffManager({
                           </div>
                           
                           <div className="space-y-2">
-                            <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                               Especialidad
                             </Label>
                             <Input 
@@ -346,16 +347,16 @@ export function StaffManager({
                                 onUpdate(member.id, 'specialty', e.target.value);
                               }}
                               placeholder="Ej: Pediatría, Nutrición, Fisioterapia..."
-                              className="bg-gray-900 border-gray-700 h-11 text-base focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                              className="bg-slate-900 border-slate-700 h-11 text-base focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
                             />
                           </div>
                         </div>
 
                         {/* Credentials (Optional) */}
                         <div className="space-y-2">
-                          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                          <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                             Credenciales
-                            <span className="text-gray-600 text-[10px] normal-case">(Opcional)</span>
+                            <span className="text-slate-600 text-[10px] normal-case">(Opcional)</span>
                           </Label>
                           <Input 
                             value={member.credentials || ''}
@@ -363,19 +364,19 @@ export function StaffManager({
                               onUpdate(member.id, 'credentials', e.target.value);
                             }}
                             placeholder="Ej: Cédula 123456, Maestría en..."
-                            className="bg-gray-900 border-gray-700 h-11 text-sm focus:border-blue-500"
+                            className="bg-slate-900 border-slate-700 h-11 text-sm focus:border-blue-500"
                           />
                         </div>
                         
                         {/* Bio */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                               Biografía Corta
                             </Label>
                             <span className={cn(
                               "text-xs font-semibold",
-                              bioLength > 150 ? "text-amber-400" : "text-gray-600"
+                              bioLength > 150 ? "text-amber-400" : "text-slate-600"
                             )}>
                               {bioLength}/200
                             </span>
@@ -388,7 +389,7 @@ export function StaffManager({
                             placeholder="Breve descripción de la experiencia, especialidad y enfoque del profesional. Ej: 10 años de experiencia en medicina familiar, enfoque preventivo..."
                             rows={3}
                             maxLength={200}
-                            className="bg-gray-900 border-gray-700 resize-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                            className="bg-slate-900 border-slate-700 resize-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
                           />
                         </div>
                       </div>
@@ -405,13 +406,13 @@ export function StaffManager({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-800 rounded-2xl bg-gray-900/50"
+            className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/50"
           >
-            <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full mb-4 border border-gray-700">
-              <Users className="w-10 h-10 text-gray-500" />
+            <div className="p-4 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full mb-4 border border-slate-700">
+              <Users className="w-10 h-10 text-slate-500" />
             </div>
             <p className="text-lg font-bold text-white mb-1">Tu equipo está vacío</p>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-slate-500 mb-6">
               Agrega profesionales para mostrar un equipo completo
             </p>
             <Button 

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,8 +80,8 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
     >
       <Card 
         className={cn(
-          "bg-gray-900/50 backdrop-blur-sm border-gray-800 shadow-lg transition-all duration-300",
-          "hover:border-gray-700 hover:shadow-xl hover:shadow-purple-500/5",
+          "bg-slate-900/50 backdrop-blur-sm border-slate-800 shadow-lg transition-all duration-300",
+          "hover:border-slate-700 hover:shadow-xl hover:shadow-purple-500/5",
           highlighted ? "border-purple-500/30 bg-purple-500/5 ring-1 ring-purple-500/20" : "",
           onClick ? "hover:border-purple-500/40" : "",
           className
@@ -160,7 +161,7 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
                       )}
                     </div>
                     
-                    <p className="text-sm md:text-base text-gray-400 mt-1.5 leading-relaxed">
+                    <p className="text-sm md:text-base text-slate-400 mt-1.5 leading-relaxed">
                       {description}
                     </p>
                   </div>
@@ -171,7 +172,7 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
                       whileHover={{ x: 3 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-purple-400 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-purple-400 transition-colors" />
                     </motion.div>
                   )}
                 </div>
@@ -182,7 +183,7 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
                 "w-full h-px transition-colors duration-300",
                 highlighted 
                   ? "bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-transparent" 
-                  : "bg-gradient-to-r from-gray-800 via-gray-700 to-transparent"
+                  : "bg-gradient-to-r from-slate-800 via-gray-700 to-transparent"
               )} />
               
               {/* Children Content */}
@@ -211,8 +212,8 @@ export const PreferenceCardCompact: React.FC<PreferenceCardProps> = (props) => {
   return (
     <Card 
       className={cn(
-        "bg-gray-900/50 border-gray-800 shadow-md transition-all duration-300",
-        "hover:border-gray-700",
+        "bg-slate-900/50 border-slate-800 shadow-md transition-all duration-300",
+        "hover:border-slate-700",
         highlighted ? "border-purple-500/30 bg-purple-500/5" : "",
         className ? "" + className : ""
       )}
@@ -236,7 +237,7 @@ export const PreferenceCardCompact: React.FC<PreferenceCardProps> = (props) => {
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-gray-500">{description}</p>
+            <p className="text-xs text-slate-500">{description}</p>
             <div className="space-y-2">
               {children}
             </div>

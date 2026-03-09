@@ -129,7 +129,7 @@ export const StatsCard: React.FC = () => {
                 </div>
 
                 {/* Label - Texto secundario, CHUNKING del significado */}
-                <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
+                <div className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">
                   {stat.label}
                 </div>
 

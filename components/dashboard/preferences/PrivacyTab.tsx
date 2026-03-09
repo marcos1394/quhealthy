@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -119,7 +120,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
       case 'all': return { icon: Globe, color: 'text-blue-400', label: 'Público' };
       case 'contacts': return { icon: UserCheck, color: 'text-emerald-400', label: 'Contactos' };
       case 'none': return { icon: Lock, color: 'text-red-400', label: 'Privado' };
-      default: return { icon: Globe, color: 'text-gray-400', label: 'Desconocido' };
+      default: return { icon: Globe, color: 'text-slate-400', label: 'Desconocido' };
     }
   };
 
@@ -187,7 +188,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               "relative p-4 rounded-xl border-2 transition-all duration-300",
               preferences.privacy.showOnlineStatus 
                 ? "bg-blue-500/5 border-blue-500/20" 
-                : "bg-gray-950/30 border-gray-800",
+                : "bg-slate-950/30 border-slate-800",
               recentlyChanged === 'showOnlineStatus' ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
             )}>
               {/* Check indicator */}
@@ -205,18 +206,18 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                 <div className="flex items-start gap-3 flex-1">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    preferences.privacy.showOnlineStatus ? "bg-blue-500/10" : "bg-gray-800"
+                    preferences.privacy.showOnlineStatus ? "bg-blue-500/10" : "bg-slate-800"
                   )}>
                     <Eye className={cn(
                       "w-5 h-5",
-                      preferences.privacy.showOnlineStatus ? "text-blue-400" : "text-gray-500"
+                      preferences.privacy.showOnlineStatus ? "text-blue-400" : "text-slate-500"
                     )} />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <p className={cn(
                         "font-semibold",
-                        preferences.privacy.showOnlineStatus ? "text-white" : "text-gray-400"
+                        preferences.privacy.showOnlineStatus ? "text-white" : "text-slate-400"
                       )}>
                         Mostrar Estado en Línea
                       </p>
@@ -226,13 +227,13 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-slate-400">
                       Permite que otros usuarios vean cuando estás activo en la plataforma
                     </p>
                     {/* Impact info */}
-                    <div className="flex items-start gap-2 text-xs bg-gray-950/50 p-2 rounded-lg">
+                    <div className="flex items-start gap-2 text-xs bg-slate-950/50 p-2 rounded-lg">
                       <Info className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-gray-500">
+                      <p className="text-slate-500">
                         {preferences.privacy.showOnlineStatus 
                           ? "Aparecerás con un punto verde cuando estés conectado"
                           : "Tu estado permanecerá oculto"}
@@ -254,7 +255,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               "relative p-4 rounded-xl border-2 transition-all duration-300",
               preferences.privacy.showLastSeen 
                 ? "bg-purple-500/5 border-purple-500/20" 
-                : "bg-gray-950/30 border-gray-800",
+                : "bg-slate-950/30 border-slate-800",
               recentlyChanged === 'showLastSeen' ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
             )}>
               {preferences.privacy.showLastSeen && (
@@ -271,18 +272,18 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                 <div className="flex items-start gap-3 flex-1">
                   <div className={cn(
                     "p-2 rounded-lg",
-                    preferences.privacy.showLastSeen ? "bg-purple-500/10" : "bg-gray-800"
+                    preferences.privacy.showLastSeen ? "bg-purple-500/10" : "bg-slate-800"
                   )}>
                     <Clock className={cn(
                       "w-5 h-5",
-                      preferences.privacy.showLastSeen ? "text-purple-400" : "text-gray-500"
+                      preferences.privacy.showLastSeen ? "text-purple-400" : "text-slate-500"
                     )} />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <p className={cn(
                         "font-semibold",
-                        preferences.privacy.showLastSeen ? "text-white" : "text-gray-400"
+                        preferences.privacy.showLastSeen ? "text-white" : "text-slate-400"
                       )}>
                         Mostrar Última Conexión
                       </p>
@@ -292,12 +293,12 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-slate-400">
                       Muestra la última vez que estuviste activo en la plataforma
                     </p>
-                    <div className="flex items-start gap-2 text-xs bg-gray-950/50 p-2 rounded-lg">
+                    <div className="flex items-start gap-2 text-xs bg-slate-950/50 p-2 rounded-lg">
                       <Info className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-gray-500">
+                      <p className="text-slate-500">
                         {preferences.privacy.showLastSeen 
                           ? 'Ejemplo: "Última vez hace 5 minutos"'
                           : "Tu última conexión no será visible"}
@@ -333,7 +334,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
             {/* Profile Visibility */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
                   ¿Quién puede ver mi perfil completo?
                 </h4>
                 <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs">
@@ -348,7 +349,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-purple-500/50"
                   )}
                 >
@@ -360,13 +361,13 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                     <SelectValue />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className="bg-slate-900 border-slate-800">
                   <SelectItem value="all">
                     <div className="flex items-center gap-3 py-1">
                       <Globe className="w-4 h-4 text-blue-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Todos (Público)</span>
-                        <span className="text-xs text-gray-500">Cualquiera puede ver tu perfil</span>
+                        <span className="text-xs text-slate-500">Cualquiera puede ver tu perfil</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -375,7 +376,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                       <UserCheck className="w-4 h-4 text-emerald-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Solo mis Contactos</span>
-                        <span className="text-xs text-gray-500">Solo personas con cita confirmada</span>
+                        <span className="text-xs text-slate-500">Solo personas con cita confirmada</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -384,7 +385,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                       <Lock className="w-4 h-4 text-red-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Nadie (Privado)</span>
-                        <span className="text-xs text-gray-500">Perfil completamente oculto</span>
+                        <span className="text-xs text-slate-500">Perfil completamente oculto</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -392,13 +393,13 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               </Select>
 
               {/* Impact preview */}
-              <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-3 text-xs">
+              <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-xs">
                 <div className="flex items-start gap-2">
                   <Sparkles className={cn(
                     "w-4 h-4 flex-shrink-0 mt-0.5",
                     getPrivacyIcon(preferences.privacy.showProfile).color
                   )} />
-                  <p className="text-gray-400">
+                  <p className="text-slate-400">
                     {preferences.privacy.showProfile === 'all' && "Tu perfil aparecerá en búsquedas y recomendaciones"}
                     {preferences.privacy.showProfile === 'contacts' && "Solo personas con citas confirmadas verán tu información completa"}
                     {preferences.privacy.showProfile === 'none' && "Tu perfil no será visible para ningún usuario"}
@@ -410,7 +411,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
             {/* Messages Permission */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
                   ¿Quién puede enviarme mensajes?
                 </h4>
                 <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
@@ -425,7 +426,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500/50"
                   )}
                 >
@@ -437,13 +438,13 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                     <SelectValue />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800">
+                <SelectContent className="bg-slate-900 border-slate-800">
                   <SelectItem value="all">
                     <div className="flex items-center gap-3 py-1">
                       <Globe className="w-4 h-4 text-blue-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Cualquiera</span>
-                        <span className="text-xs text-gray-500">Todos pueden enviarte mensajes</span>
+                        <span className="text-xs text-slate-500">Todos pueden enviarte mensajes</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -452,7 +453,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                       <UserCheck className="w-4 h-4 text-emerald-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Solo con Cita</span>
-                        <span className="text-xs text-gray-500">Personas con cita confirmada</span>
+                        <span className="text-xs text-slate-500">Personas con cita confirmada</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -461,20 +462,20 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
                       <EyeOff className="w-4 h-4 text-red-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Nadie</span>
-                        <span className="text-xs text-gray-500">Mensajes desactivados</span>
+                        <span className="text-xs text-slate-500">Mensajes desactivados</span>
                       </div>
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
 
-              <div className="bg-gray-950/50 border border-gray-800 rounded-lg p-3 text-xs">
+              <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-xs">
                 <div className="flex items-start gap-2">
                   <Zap className={cn(
                     "w-4 h-4 flex-shrink-0 mt-0.5",
                     getPrivacyIcon(preferences.privacy.allowMessages).color
                   )} />
-                  <p className="text-gray-400">
+                  <p className="text-slate-400">
                     {preferences.privacy.allowMessages === 'all' && "Podrás recibir mensajes de cualquier usuario de la plataforma"}
                     {preferences.privacy.allowMessages === 'contacts' && "Solo usuarios con citas confirmadas podrán contactarte"}
                     {preferences.privacy.allowMessages === 'none' && "No recibirás mensajes de ningún usuario"}

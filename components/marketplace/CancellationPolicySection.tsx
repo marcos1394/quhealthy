@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { 
   ShieldAlert, 
@@ -59,7 +60,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
   const charLimit = 800;
 
   return (
-    <Card className="bg-gray-900 border-gray-800 shadow-xl">
+    <Card className="bg-slate-900 border-slate-800 shadow-xl">
       <CardHeader>
         <div className="flex items-start gap-3">
           <motion.div
@@ -74,7 +75,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
             <CardTitle className="text-xl font-black text-white mb-1">
               Políticas de Cancelación
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-slate-400">
               Protege tu tiempo y reduce el ausentismo (No-shows).
             </CardDescription>
           </div>
@@ -85,7 +86,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
         
         {/* Plantillas Rápidas */}
         <div className="space-y-3">
-          <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+          <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
             Plantillas Recomendadas
           </Label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -103,14 +104,14 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
                     "flex flex-col items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 relative overflow-hidden",
                     isSelected 
                       ? `${template.bgColor} border-${template.color.split('-')[1]}-500/50 shadow-lg shadow-${template.color.split('-')[1]}-500/10` 
-                      : "bg-gray-950 border-gray-800 hover:border-gray-700"
+                      : "bg-slate-950 border-slate-800 hover:border-slate-700"
                   )}
                 >
                   <div className="flex items-center gap-2">
                     <Icon className={cn("w-5 h-5", template.color)} />
                     <span className="font-bold text-white">{template.name}</span>
                   </div>
-                  <p className="text-xs text-gray-500 line-clamp-3">
+                  <p className="text-xs text-slate-500 line-clamp-3">
                     {template.text}
                   </p>
                   {isSelected && (
@@ -133,7 +134,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
             </Label>
             <span className={cn(
               "text-xs font-semibold",
-              charCount > charLimit ? "text-red-400" : "text-gray-500"
+              charCount > charLimit ? "text-red-400" : "text-slate-500"
             )}>
               {charCount}/{charLimit}
             </span>
@@ -143,9 +144,9 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
             value={policyText || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Escribe tus políticas de cancelación, reembolsos y reprogramación aquí..."
-            className="bg-gray-950 border-gray-700 resize-none min-h-[150px] focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-gray-300 leading-relaxed"
+            className="bg-slate-950 border-slate-700 resize-none min-h-[150px] focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-slate-300 leading-relaxed"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             Este texto se mostrará a los pacientes antes de confirmar su cita y en sus correos de confirmación.
           </p>
         </div>

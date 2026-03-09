@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSessionStore } from '@/stores/SessionStore'; // 1. Importamos el store de sesión unificado
 import { motion, AnimatePresence } from 'framer-motion';
@@ -35,7 +36,8 @@ interface TrialBannerConfig {
 }
 
 // Configuración para diferentes estados de urgencia
-const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getTrialConfig = (daysLeft: number, t: any): TrialBannerConfig => {
   if (daysLeft === 0) {
     return {
       urgency: 'critical',
@@ -45,8 +47,8 @@ const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
       textColor: 'text-red-100',
       badgeStyle: 'bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-600 hover:to-orange-600',
       pulseColor: 'bg-red-400',
-      message: "🚨 Tu período de prueba termina HOY",
-      ctaText: "Actualizar Ahora"
+      message: t('expires_today'),
+      ctaText: t('upgrade_now')
     };
   } else if (daysLeft <= 3) {
     return {
@@ -57,8 +59,8 @@ const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
       textColor: 'text-orange-100',
       badgeStyle: 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600',
       pulseColor: 'bg-orange-400',
-      message: `⚡ Solo ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'} restantes`,
-      ctaText: "¡Actualizar Ya!"
+      message: t('days_left_critical', { days: daysLeft }),
+      ctaText: t('upgrade_urgent')
     };
   } else if (daysLeft <= 7) {
     return {
@@ -69,8 +71,8 @@ const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
       textColor: 'text-yellow-100',
       badgeStyle: 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:from-yellow-600 hover:to-amber-600',
       pulseColor: 'bg-yellow-400',
-      message: `⏰ ${daysLeft} días restantes de tu prueba`,
-      ctaText: "Ver Planes"
+      message: t('days_left_warning', { days: daysLeft }),
+      ctaText: t('view_plans')
     };
   } else {
     return {
@@ -81,8 +83,8 @@ const getTrialConfig = (daysLeft: number): TrialBannerConfig => {
       textColor: 'text-purple-100',
       badgeStyle: 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600',
       pulseColor: 'bg-purple-400',
-      message: `✨ ${daysLeft} días restantes de tu prueba gratuita`,
-      ctaText: "Explorar Planes"
+      message: t('days_left_normal', { days: daysLeft }),
+      ctaText: t('explore_plans')
     };
   }
 };
@@ -178,6 +180,7 @@ const shimmerVariants = {
 
 export const TrialBanner = () => {
   const { user, isLoading } = useSessionStore();
+  const t = useTranslations('TrialBanner');
   const [isDismissed, setIsDismissed] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number } | null>(null);
 
@@ -234,7 +237,7 @@ export const TrialBanner = () => {
 
   if (daysLeft < 0) return null;
 
-  const config = getTrialConfig(daysLeft);
+  const config = getTrialConfig(daysLeft, t);
 
   const handleDismiss = () => setIsDismissed(true);
 
@@ -249,7 +252,7 @@ export const TrialBanner = () => {
           <Clock className="w-4 h-4" />
           <span className="font-mono font-bold">
             {timeLeft.hours.toString().padStart(2, '0')}:
-            {timeLeft.minutes.toString().padStart(2, '0')} restantes
+            {timeLeft.minutes.toString().padStart(2, '0')} {t('remaining')}
           </span>
         </motion.div>
       );
@@ -259,9 +262,9 @@ export const TrialBanner = () => {
 
   const renderFeatureHighlight = () => {
     const features = [
-      { icon: <Crown className="w-4 h-4" />, text: "Acceso Premium" },
-      { icon: <Rocket className="w-4 h-4" />, text: "Sin Límites" },
-      { icon: <Star className="w-4 h-4" />, text: "Soporte 24/7" }
+      { icon: <Crown className="w-4 h-4" />, text: t('premium_access') },
+      { icon: <Rocket className="w-4 h-4" />, text: t('unlimited') },
+      { icon: <Star className="w-4 h-4" />, text: t('support_247') }
     ];
 
     return (
@@ -447,8 +450,8 @@ export const TrialBanner = () => {
                   />
                 </div>
                 <div className="flex justify-between text-xs mt-1 opacity-75">
-                  <span>Tiempo restante</span>
-                  <span>Expira a medianoche</span>
+                  <span>{t('time_remaining')}</span>
+                  <span>{t('expires_midnight')}</span>
                 </div>
               </motion.div>
             )}

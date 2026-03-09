@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Palette, 
@@ -137,7 +138,7 @@ export function VisualIdentitySection({
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800 shadow-xl">
+    <Card className="bg-slate-900 border-slate-800 shadow-xl">
       
       {/* Header */}
       <CardHeader>
@@ -155,7 +156,7 @@ export function VisualIdentitySection({
               <CardTitle className="text-xl font-black text-white mb-1">
                 Identidad Visual
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-slate-400">
                 Personaliza la apariencia de tu perfil público
               </CardDescription>
             </div>
@@ -182,7 +183,7 @@ export function VisualIdentitySection({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-gray-950 border border-gray-800 rounded-xl p-5 overflow-hidden"
+              className="bg-slate-950 border border-slate-800 rounded-xl p-5 overflow-hidden"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Eye className="w-4 h-4 text-purple-400" />
@@ -190,12 +191,12 @@ export function VisualIdentitySection({
               </div>
               
               {/* Banner Preview */}
-              <div className="aspect-[3/1] bg-gray-900 rounded-lg overflow-hidden mb-4 relative">
+              <div className="aspect-[3/1] bg-slate-900 rounded-lg overflow-hidden mb-4 relative">
                 {settings.bannerImageUrl ? (
                   <img src={settings.bannerImageUrl} alt="Banner" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-800">
-                    <ImageIcon className="w-12 h-12 text-gray-700" />
+                  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-slate-800">
+                    <ImageIcon className="w-12 h-12 text-slate-700" />
                   </div>
                 )}
                 
@@ -205,11 +206,11 @@ export function VisualIdentitySection({
                     <img 
                       src={settings.storeLogoUrl} 
                       alt="Logo" 
-                      className="w-20 h-20 rounded-xl border-4 border-gray-900 shadow-xl object-cover"
+                      className="w-20 h-20 rounded-xl border-4 border-slate-900 shadow-xl object-cover"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-xl border-4 border-gray-900 bg-gray-800 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-gray-600" />
+                    <div className="w-20 h-20 rounded-xl border-4 border-slate-900 bg-slate-800 flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-slate-600" />
                     </div>
                   )}
                 </div>
@@ -220,7 +221,7 @@ export function VisualIdentitySection({
                 <h3 className="text-lg font-bold text-white">
                   {settings.storeName || 'Nombre del Consultorio'}
                 </h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-slate-400">
                   quhealthy.com/{settings.storeSlug || 'tu-url'}
                 </p>
                 <Button 
@@ -240,7 +241,7 @@ export function VisualIdentitySection({
           
           {/* Store Name */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+            <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
               Nombre del Consultorio
             </Label>
             <Input 
@@ -248,12 +249,12 @@ export function VisualIdentitySection({
               value={settings.storeName}
               onChange={(e) => onChange('storeName', e.target.value)}
               className={cn(
-                "bg-gray-950 border-gray-700 h-12 text-base transition-all",
+                "bg-slate-950 border-slate-700 h-12 text-base transition-all",
                 "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
                 !settings.storeName ? "border-red-500/50":""
               )}
             />
-            <p className="text-xs text-gray-500 flex items-center gap-1">
+            <p className="text-xs text-slate-500 flex items-center gap-1">
               <Info className="w-3 h-3" />
               Este nombre aparecerá en tu perfil público y búsquedas
             </p>
@@ -261,11 +262,11 @@ export function VisualIdentitySection({
           
           {/* Store Slug */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+            <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
               URL Personalizada
             </Label>
             <div className="flex group">
-              <span className="bg-gray-800 border border-r-0 border-gray-700 rounded-l-lg px-4 py-3 text-sm text-gray-400 flex items-center group-focus-within:border-purple-500 transition-colors">
+              <span className="bg-slate-800 border border-r-0 border-slate-700 rounded-l-lg px-4 py-3 text-sm text-slate-400 flex items-center group-focus-within:border-purple-500 transition-colors">
                 quhealthy.com/
               </span>
               <Input 
@@ -273,7 +274,7 @@ export function VisualIdentitySection({
                 value={settings.storeSlug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 className={cn(
-                  "rounded-l-none bg-gray-950 border-gray-700 h-12 font-mono text-sm transition-all",
+                  "rounded-l-none bg-slate-950 border-slate-700 h-12 font-mono text-sm transition-all",
                   "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
                   slugError && "border-red-500/50"
                 )}
@@ -301,7 +302,7 @@ export function VisualIdentitySection({
           {/* Logo Upload */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+              <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
                 Logotipo
               </Label>
               <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
@@ -314,7 +315,7 @@ export function VisualIdentitySection({
                 <img 
                   src={settings.storeLogoUrl} 
                   alt="Logo" 
-                  className="w-full aspect-square object-cover rounded-xl border border-gray-800"
+                  className="w-full aspect-square object-cover rounded-xl border border-slate-800"
                 />
                 <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
@@ -343,19 +344,19 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => logoInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:bg-gray-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-gray-900/50"
+                className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'logo' ? (
                     <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-purple-400" />
+                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-purple-400" />
                   )}
                 </div>
-                <p className="text-sm text-gray-300 font-semibold group-hover:text-white transition-colors">
+                <p className="text-sm text-slate-300 font-semibold group-hover:text-white transition-colors">
                   Logo Cuadrado
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   JPG o PNG • Máx 5MB
                 </p>
               </div>
@@ -373,7 +374,7 @@ export function VisualIdentitySection({
           {/* Banner Upload */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+              <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
                 Banner de Portada
               </Label>
               <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
@@ -386,7 +387,7 @@ export function VisualIdentitySection({
                 <img 
                   src={settings.bannerImageUrl} 
                   alt="Banner" 
-                  className="w-full aspect-[3/1] object-cover rounded-xl border border-gray-800"
+                  className="w-full aspect-[3/1] object-cover rounded-xl border border-slate-800"
                 />
                 <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
@@ -415,19 +416,19 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => bannerInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:bg-gray-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-gray-900/50"
+                className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'banner' ? (
                     <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-gray-400 group-hover:text-purple-400" />
+                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-purple-400" />
                   )}
                 </div>
-                <p className="text-sm text-gray-300 font-semibold group-hover:text-white transition-colors">
+                <p className="text-sm text-slate-300 font-semibold group-hover:text-white transition-colors">
                   Banner Horizontal
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   JPG o PNG • Máx 5MB
                 </p>
               </div>
@@ -445,13 +446,13 @@ export function VisualIdentitySection({
 
         {/* Color Picker Section */}
         <div className="space-y-4">
-          <Label className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+          <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
             Color de Marca
           </Label>
 
           {/* Color Presets - SATISFICING */}
-          <div className="bg-gray-950 rounded-xl border border-gray-800 p-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <div className="bg-slate-950 rounded-xl border border-slate-800 p-4">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Colores Populares
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -465,7 +466,7 @@ export function VisualIdentitySection({
                     "w-full aspect-square rounded-lg border-2 transition-all relative",
                     settings.primaryColor === preset.value
                       ? "border-white shadow-lg scale-110"
-                      : "border-gray-700 hover:border-gray-600"
+                      : "border-slate-700 hover:border-slate-600"
                   )}
                   style={{ backgroundColor: preset.value }}
                   title={preset.name}
@@ -481,7 +482,7 @@ export function VisualIdentitySection({
           </div>
 
           {/* Custom Color Picker */}
-          <div className="p-5 bg-gray-950 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center gap-6">
+          <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center gap-6">
             
             {/* Color Display */}
             <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -500,28 +501,28 @@ export function VisualIdentitySection({
               </div>
               
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   Color Personalizado
                 </span>
                 <Input 
                   value={settings.primaryColor} 
                   onChange={(e) => onChange('primaryColor', e.target.value)}
-                  className="bg-gray-800 border-gray-700 w-32 h-9 text-xs uppercase font-mono focus:border-purple-500"
+                  className="bg-slate-800 border-slate-700 w-32 h-9 text-xs uppercase font-mono focus:border-purple-500"
                   maxLength={7}
                   placeholder="#000000"
                 />
               </div>
             </div>
 
-            <div className="hidden sm:block w-px h-16 bg-gray-800" />
+            <div className="hidden sm:block w-px h-16 bg-slate-800" />
 
             {/* Live Preview Button */}
-            <div className="flex-1 w-full bg-gray-900 rounded-lg p-4 border border-gray-800 flex items-center justify-between">
+            <div className="flex-1 w-full bg-slate-900 rounded-lg p-4 border border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-gray-500" />
+                <Sparkles className="w-5 h-5 text-slate-500" />
                 <div className="space-y-1">
-                  <div className="w-24 h-2 bg-gray-700 rounded" />
-                  <div className="w-16 h-2 bg-gray-800 rounded" />
+                  <div className="w-24 h-2 bg-slate-700 rounded" />
+                  <div className="w-16 h-2 bg-slate-800 rounded" />
                 </div>
               </div>
               <button 

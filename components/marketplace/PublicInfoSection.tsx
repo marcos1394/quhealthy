@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
@@ -88,7 +89,7 @@ export function PublicInfoSection({
   const getCharCountColor = () => {
     if (charPercent >= 90) return 'text-red-400';
     if (charPercent >= 75) return 'text-amber-400';
-    return 'text-gray-500';
+    return 'text-slate-500';
   };
 
   const getProgressColor = () => {
@@ -114,7 +115,7 @@ export function PublicInfoSection({
   const qualityScore = getQualityScore();
 
   return (
-    <Card className="bg-gray-900 border-gray-800 shadow-xl">
+    <Card className="bg-slate-900 border-slate-800 shadow-xl">
       
       {/* Header */}
       <CardHeader>
@@ -132,7 +133,7 @@ export function PublicInfoSection({
               <CardTitle className="text-xl font-black text-white mb-1">
                 Sobre Mí
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-slate-400">
                 Conecta emocionalmente con tus pacientes
               </CardDescription>
             </div>
@@ -195,7 +196,7 @@ export function PublicInfoSection({
         {/* Descripción Pública */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <Label className="text-gray-300 font-bold text-sm uppercase tracking-wider">
+            <Label className="text-slate-300 font-bold text-sm uppercase tracking-wider">
               Biografía / Descripción
             </Label>
             <div className="flex items-center gap-3">
@@ -239,13 +240,13 @@ export function PublicInfoSection({
             onChange={(e) => onChange('description', e.target.value)}
             maxLength={charLimit}
             className={cn(
-              "bg-gray-950 border-gray-700 resize-none leading-relaxed transition-all",
+              "bg-slate-950 border-slate-700 resize-none leading-relaxed transition-all",
               "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
               charPercent >= 90 ? "border-red-500/50 focus:border-red-500":""
             )}
           />
 
-          <div className="flex items-start gap-2 text-xs text-gray-500">
+          <div className="flex items-start gap-2 text-xs text-slate-500">
             <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
             <p>
               Esta información aparecerá en la parte superior de tu perfil público y en búsquedas.
@@ -262,7 +263,7 @@ export function PublicInfoSection({
             "rounded-2xl border transition-all duration-300",
             isPremium 
               ? "bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/20 shadow-lg shadow-purple-500/5" 
-              : "bg-gray-950/50 border-gray-800"
+              : "bg-slate-950/50 border-slate-800"
           )}
         >
           <div className="p-5 space-y-4">
@@ -272,22 +273,22 @@ export function PublicInfoSection({
               <div className="flex items-center gap-3">
                 <div className={cn(
                   "p-2 rounded-lg",
-                  isPremium ? "bg-purple-500/10" : "bg-gray-800"
+                  isPremium ? "bg-purple-500/10" : "bg-slate-800"
                 )}>
                   <Video className={cn(
                     "w-5 h-5",
-                    isPremium ? "text-purple-400" : "text-gray-500"
+                    isPremium ? "text-purple-400" : "text-slate-500"
                   )} />
                 </div>
                 <div>
                   <Label className={cn(
                     "font-bold text-sm",
-                    isPremium ? "text-white" : "text-gray-400"
+                    isPremium ? "text-white" : "text-slate-400"
                   )}>
                     Video de Bienvenida
                   </Label>
                   {isPremium && (
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       Aumenta conversión hasta 40%
                     </p>
                   )}
@@ -310,7 +311,7 @@ export function PublicInfoSection({
             {/* 👇 NUEVA UI DE SUBIDA DE VIDEO GCP */}
             <div className="space-y-2">
               {settings.videoUrl ? (
-                <div className="relative group rounded-xl overflow-hidden bg-black aspect-video border border-gray-800">
+                <div className="relative group rounded-xl overflow-hidden bg-black aspect-video border border-slate-800">
                   <video src={settings.videoUrl} controls className="w-full h-full object-contain" />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
@@ -329,21 +330,21 @@ export function PublicInfoSection({
                   className={cn(
                     "border-2 border-dashed rounded-xl p-8 text-center transition-all",
                     isPremium 
-                      ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 cursor-pointer bg-gray-900" 
-                      : "border-gray-800 bg-gray-950/50 cursor-not-allowed opacity-50"
+                      ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500 cursor-pointer bg-slate-900" 
+                      : "border-slate-800 bg-slate-950/50 cursor-not-allowed opacity-50"
                   )}
                 >
-                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
                     {isUploadingVideo ? (
                       <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
                     ) : (
-                      <UploadCloud className="w-8 h-8 text-gray-400" />
+                      <UploadCloud className="w-8 h-8 text-slate-400" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-300 font-semibold">
+                  <p className="text-sm text-slate-300 font-semibold">
                     Sube tu Video de Bienvenida
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">MP4 o WebM • Máx 20MB</p>
+                  <p className="text-xs text-slate-500 mt-1">MP4 o WebM • Máx 20MB</p>
                 </div>
               )}
               

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -135,7 +136,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
             {/* Theme Selector con Preview - FEEDBACK INMEDIATO */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
                   Modo de Color
                 </h4>
                 {preferences.appearance.theme !== 'system' && (
@@ -153,7 +154,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
               >
                 <SelectTrigger 
                   className={cn(
-                    "bg-gray-950/50 border-gray-700 text-white h-12 transition-all",
+                    "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
                     editMode ? "hover:border-purple-500/50" : ""
                   )}
                 >
@@ -162,13 +163,13 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                     <SelectValue />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-800 text-gray-300">
+                <SelectContent className="bg-slate-900 border-slate-800 text-slate-300">
                   <SelectItem value="light">
                     <div className="flex items-center gap-3">
                       <Sun className="w-4 h-4 text-amber-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Claro (Light)</span>
-                        <span className="text-xs text-gray-500">Fondo blanco, ideal para día</span>
+                        <span className="text-xs text-slate-500">Fondo blanco, ideal para día</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -177,7 +178,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                       <Moon className="w-4 h-4 text-purple-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Oscuro (Dark)</span>
-                        <span className="text-xs text-gray-500">Reduce fatiga visual nocturna</span>
+                        <span className="text-xs text-slate-500">Reduce fatiga visual nocturna</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -186,7 +187,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                       <Monitor className="w-4 h-4 text-blue-400" />
                       <div className="flex flex-col">
                         <span className="font-semibold">Igual al Sistema</span>
-                        <span className="text-xs text-gray-500">Sincroniza con tu dispositivo</span>
+                        <span className="text-xs text-slate-500">Sincroniza con tu dispositivo</span>
                       </div>
                     </div>
                   </SelectItem>
@@ -272,7 +273,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <ToggleLeft className="w-4 h-4 text-gray-500" />
+                    <ToggleLeft className="w-4 h-4 text-slate-500" />
                     <p className="text-white font-semibold">Reducir Movimiento</p>
                     {preferences.appearance.reduceMotion && (
                       <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
@@ -280,7 +281,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 pl-6">
+                  <p className="text-xs text-slate-500 pl-6">
                     Desactiva animaciones y transiciones para reducir mareos
                   </p>
                 </div>
@@ -315,7 +316,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <Contrast className="w-4 h-4 text-gray-500" />
+                    <Contrast className="w-4 h-4 text-slate-500" />
                     <p className="text-white font-semibold">Alto Contraste</p>
                     {preferences.appearance.highContrast && (
                       <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
@@ -323,7 +324,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 pl-6">
+                  <p className="text-xs text-slate-500 pl-6">
                     Aumenta el contraste para mejorar la legibilidad
                   </p>
                 </div>
@@ -354,12 +355,12 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
 
                   {/* Contrast preview */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 space-y-1">
-                      <p className="text-xs text-gray-500 font-medium">Contraste Normal</p>
-                      <p className="text-sm text-gray-400">Ejemplo de texto</p>
+                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-1">
+                      <p className="text-xs text-slate-500 font-medium">Contraste Normal</p>
+                      <p className="text-sm text-slate-400">Ejemplo de texto</p>
                     </div>
                     <div className="bg-black border-2 border-white rounded-lg p-3 space-y-1">
-                      <p className="text-xs text-gray-300 font-medium">Alto Contraste</p>
+                      <p className="text-xs text-slate-300 font-medium">Alto Contraste</p>
                       <p className="text-sm text-white font-semibold">Ejemplo de texto</p>
                     </div>
                   </div>
@@ -382,7 +383,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                   <p className="text-sm font-semibold text-white">
                     Cumplimiento WCAG 2.1 AA
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-slate-400">
                     {preferences.appearance.highContrast 
                       ? "Contraste de color mejorado para máxima legibilidad"
                       : "Configuración estándar de accesibilidad"

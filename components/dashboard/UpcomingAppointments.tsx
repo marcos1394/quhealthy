@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
 
 /**
@@ -93,6 +94,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
   onAppointmentClick,
   maxVisible = 5
 }) => {
+  const t = useTranslations('UpcomingAppointments');
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Helper para color de estado - PRIMING
@@ -103,7 +105,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         bgColor: 'bg-emerald-500/10',
         borderColor: 'border-emerald-500/20',
         dotColor: 'bg-emerald-500',
-        label: 'Confirmada',
+        label: t('confirmed'),
         icon: CheckCircle2
       },
       pending: {
@@ -111,7 +113,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         bgColor: 'bg-amber-500/10',
         borderColor: 'border-amber-500/20',
         dotColor: 'bg-amber-500',
-        label: 'Pendiente',
+        label: t('pending'),
         icon: AlertCircle
       },
       'in-progress': {
@@ -119,15 +121,15 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         bgColor: 'bg-blue-500/10',
         borderColor: 'border-blue-500/20',
         dotColor: 'bg-blue-500',
-        label: 'En Progreso',
+        label: t('in_progress'),
         icon: Clock3
       },
       completed: {
-        color: 'text-gray-400',
+        color: 'text-slate-400 dark:text-slate-500',
         bgColor: 'bg-gray-500/10',
         borderColor: 'border-gray-500/20',
         dotColor: 'bg-gray-500',
-        label: 'Completada',
+        label: t('completed'),
         icon: CheckCircle2
       }
     };
@@ -149,20 +151,20 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
     const link = `${window.location.origin}/book/profile`;
     navigator.clipboard.writeText(link);
     setCopiedLink(true);
-    toast.success('¡Enlace copiado al portapapeles! 📋');
+    toast.success(t('link_copied'));
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
   // Empty State - AFFORDANCE
   if (appointments.length === 0) {
     return (
-      <Card className="bg-gray-900 border-gray-800 h-full">
+      <Card className="bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-slate-800/50 h-full">
         <CardHeader>
           <CardTitle className="flex items-center text-xl text-white">
             <div className="p-2 bg-purple-500/10 rounded-lg mr-3 border border-purple-500/20">
               <Calendar className="w-5 h-5 text-purple-400"/>
             </div>
-            Próximas Citas
+            {t('title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
@@ -172,8 +174,8 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             transition={{ type: "spring", stiffness: 200 }}
             className="relative"
           >
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-full mb-4 border border-gray-700">
-              <Calendar className="w-10 h-10 text-gray-500" />
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 p-6 rounded-full mb-4 border border-slate-700 dark:border-slate-800">
+              <Calendar className="w-10 h-10 text-slate-500 dark:text-slate-600" />
             </div>
             <div className="absolute -top-1 -right-1 bg-purple-500 rounded-full p-1">
               <Sparkles className="w-4 h-4 text-white" />
@@ -181,10 +183,10 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
           </motion.div>
           
           <h3 className="font-bold text-white text-lg mb-2">
-            No tienes citas programadas
+            {t('no_appointments')}
           </h3>
-          <p className="text-sm text-gray-400 max-w-xs mb-6">
-            Comparte tu enlace de perfil para empezar a recibir reservaciones
+          <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs mb-6">
+            {t('no_appointments_desc')}
           </p>
           
           <Button 
@@ -202,7 +204,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             ) : (
               <>
                 <Copy className="w-4 h-4 mr-2" />
-                Copiar Enlace de Perfil
+                {t('copy_link')}
               </>
             )}
           </Button>
@@ -215,7 +217,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
   const nextAppointment = visibleAppointments[0]; // Primera cita es la próxima
 
   return (
-    <Card className="bg-gray-900 border-gray-800 h-full flex flex-col">
+    <Card className="bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-slate-800/50 h-full flex flex-col">
       
       {/* Header - JERARQUÍA VISUAL */}
       <CardHeader className="pb-4">
@@ -231,9 +233,9 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             </motion.div>
             <div>
               <CardTitle className="text-lg font-black text-white">
-                Próximas Citas
+                {t('title')}
               </CardTitle>
-              <CardDescription className="text-gray-400 text-xs mt-0.5">
+              <CardDescription className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
                 Agenda para hoy
               </CardDescription>
             </div>
@@ -243,7 +245,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             variant="outline" 
             className="bg-purple-500/10 text-purple-300 border-purple-500/20 font-bold"
           >
-            {appointments.length} {appointments.length === 1 ? 'cita' : 'citas'}
+            {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
           </Badge>
         </div>
       </CardHeader>
@@ -259,7 +261,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-purple-400" />
               <p className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                Próxima Cita
+                {t('next_appointment')}
               </p>
             </div>
             
@@ -273,7 +275,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 <p className="font-bold text-white text-base mb-1">
                   {nextAppointment.clientName}
                 </p>
-                <p className="text-sm text-gray-400 mb-2">
+                <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">
                   {nextAppointment.service}
                 </p>
                 
@@ -284,7 +286,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   </Badge>
                   
                   {nextAppointment.duration && (
-                    <Badge variant="outline" className="bg-gray-800 text-gray-400 border-gray-700">
+                    <Badge variant="outline" className="bg-slate-800 dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-700 dark:border-slate-800">
                       {nextAppointment.duration} min
                     </Badge>
                   )}
@@ -292,8 +294,8 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   {nextAppointment.type && (
                     <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">
                       {React.createElement(getTypeIcon(nextAppointment.type), { className: "w-3 h-3 mr-1" })}
-                      {nextAppointment.type === 'video' ? 'Virtual' : 
-                       nextAppointment.type === 'phone' ? 'Teléfono' : 'Presencial'}
+                      {nextAppointment.type === 'video' ? t('virtual') : 
+                       nextAppointment.type === 'phone' ? t('phone') : t('in_person')}
                     </Badge>
                   )}
                 </div>
@@ -323,7 +325,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   "group relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200",
                   isNext 
                     ? "bg-purple-500/5 border-purple-500/20 hover:bg-purple-500/10" 
-                    : "bg-gray-950/50 border-gray-800 hover:bg-gray-800",
+                    : "bg-slate-950/50 dark:bg-slate-950/70 border-slate-800 dark:border-slate-800/50 hover:bg-slate-800 dark:bg-slate-900",
                   onAppointmentClick ? "cursor-pointer" : ""
                 )}
               >
@@ -337,20 +339,20 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   "relative z-10 flex flex-col items-center justify-center min-w-[70px] p-2.5 rounded-lg border transition-all",
                   isNext 
                     ? "bg-purple-500/10 border-purple-500/30"
-                    : "bg-gray-900 border-gray-800 group-hover:border-purple-500/20"
+                    : "bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-slate-800/50 group-hover:border-purple-500/20"
                 )}>
                   <Clock className={cn(
                     "w-4 h-4 mb-1",
-                    isNext ? "text-purple-400" : "text-gray-500"
+                    isNext ? "text-purple-400" : "text-slate-500 dark:text-slate-600"
                   )} />
                   <span className={cn(
                     "text-xs font-bold whitespace-nowrap",
-                    isNext ? "text-white" : "text-gray-400"
+                    isNext ? "text-white" : "text-slate-400 dark:text-slate-500"
                   )}>
                     {appt.time}
                   </span>
                   {appt.duration && (
-                    <span className="text-[10px] text-gray-600">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-700">
                       {appt.duration}min
                     </span>
                   )}
@@ -361,7 +363,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   <div className="flex items-center gap-2 mb-1">
                     <p className={cn(
                       "text-sm font-bold truncate",
-                      isNext ? "text-white" : "text-gray-200"
+                      isNext ? "text-white" : "text-slate-200 dark:text-slate-300"
                     )}>
                       {appt.service}
                     </p>
@@ -372,7 +374,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
+                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 mb-1">
                     <User className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{appt.clientName}</span>
                   </div>
@@ -380,7 +382,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   {/* Type & Status */}
                   <div className="flex items-center gap-2">
                     {appt.type && (
-                      <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                      <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-600">
                         <TypeIcon className="w-3 h-3" />
                         {appt.type === 'video' && 'Virtual'}
                         {appt.type === 'phone' && 'Tel'}
@@ -405,13 +407,13 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0 }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1.5 bg-slate-800 dark:bg-slate-900 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-800 transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                           // Quick action
                         }}
                       >
-                        <MoreVertical className="w-3 h-3 text-gray-400" />
+                        <MoreVertical className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                       </motion.button>
                     )}
                   </AnimatePresence>
@@ -424,21 +426,21 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         {/* Show More Indicator */}
         {appointments.length > maxVisible && (
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">
-              + {appointments.length - maxVisible} citas más
+            <p className="text-xs text-slate-500 dark:text-slate-600">
+              {t('more_appointments', { count: appointments.length - maxVisible })}
             </p>
           </div>
         )}
       </CardContent>
       
       {/* Footer - AFFORDANCE */}
-      <div className="p-4 border-t border-gray-800 mt-auto">
+      <div className="p-4 border-t border-slate-800 dark:border-slate-800/50 mt-auto">
         <Link href="/dashboard/calendar" className="w-full">
           <Button 
             variant="ghost" 
-            className="w-full justify-between text-gray-400 hover:text-white hover:bg-gray-800 group transition-all"
+            className="w-full justify-between text-slate-400 dark:text-slate-500 hover:text-white hover:bg-slate-800 dark:bg-slate-900 group transition-all"
           >
-            <span className="font-semibold">Ver Calendario Completo</span>
+            <span className="font-semibold">{t('view_calendar')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </Link>
