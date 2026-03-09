@@ -27,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // Hooks y Stores
 import { useAuth } from '@/hooks/useAuth';
 import { useCatalog } from '@/hooks/useCatalog';
-import axiosInstance from '@/lib/axios';
 
 // 🧩 NUESTROS COMPONENTES MODULARES
 import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialConnectionsCard';
@@ -67,37 +66,22 @@ function MarketingContent() {
   const [bio, setBio] = useState('Dr. Especialista con más de 10 años de experiencia clínica. Comprometido con la salud integral de mis pacientes.');
   const profileCompleteness = 85;
 
-  // 1. Manejo de Redirección OAuth (Cuando el usuario regresa de Facebook/Google/LinkedIn)
+  // 1. Manejo de Redirección OAuth (Arquitectura SaaS)
+  // El backend ya procesó el código de Meta/Google/LinkedIn y nos redirige con el resultado.
   useEffect(() => {
-    const code = searchParams.get('code');
-    const state = searchParams.get('state'); // Puede contener el platform o provider ID
+    const isConnected = searchParams.get('facebook_connected');
     const error = searchParams.get('error');
 
-    // Si Meta/Google/LinkedIn nos devolvió un código de autorización
-    if (code && !oauthProcessed.current) {
+    if (isConnected === 'true' && !oauthProcessed.current) {
       oauthProcessed.current = true;
-
-      // Determinamos la plataforma desde el state o default a facebook
-      const platform = state?.includes('google') ? 'google-business'
-        : state?.includes('linkedin') ? 'linkedin'
-          : 'facebook';
-
-      axiosInstance.post(`/api/social/auth/${platform}/callback`, { code, state })
-        .then(() => {
-          toast.success(t('oauth_success') || '¡Cuenta vinculada exitosamente!');
-          setConnectionsRefresh(prev => prev + 1);
-          router.replace(pathname, { scroll: false });
-        })
-        .catch((err) => {
-          console.error('OAuth callback error:', err);
-          toast.error(t('oauth_error') || 'No se pudo vincular la cuenta. Intenta de nuevo.');
-          router.replace(pathname, { scroll: false });
-        });
+      toast.success(t('oauth_success') || '¡Cuenta de Meta vinculada exitosamente!');
+      setConnectionsRefresh(prev => prev + 1);
+      router.replace(pathname, { scroll: false });
     }
 
-    // Si Meta devolvió un error directamente
-    if (error) {
-      toast.error(t('oauth_error') || 'No se pudo conectar la cuenta. Intenta de nuevo.');
+    else if (error && !oauthProcessed.current) {
+      oauthProcessed.current = true;
+      toast.error(t('oauth_error') || 'No se pudo conectar la cuenta. Revisa los logs del servidor.');
       router.replace(pathname, { scroll: false });
     }
   }, [searchParams, pathname, router, t]);
