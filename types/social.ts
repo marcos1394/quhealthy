@@ -51,7 +51,9 @@ export interface AiTextRequest {
 }
 
 export interface AiTextResponse {
-  generatedContent: string;
+  generatedText: string;
+  sessionId?: string;
+  usedModel?: string;
 }
 
 export interface AiImageRequest {
@@ -62,8 +64,10 @@ export interface AiImageRequest {
 }
 
 export interface AiImageResponse {
-  generatedContent: string;
+  generatedText?: string;
   mediaUrls?: string[];
+  sessionId?: string;
+  usedModel?: string;
 }
 
 export interface AiVideoRequest {
@@ -77,6 +81,7 @@ export interface AiVideoResponse {
   videoUrl?: string;
   status: string;
   message?: string;
+  sessionId?: string;
 }
 
 export interface SchedulePostRequest {
