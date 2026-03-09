@@ -48,7 +48,9 @@ export const socialService = {
     return response.data;
   },
   generateVideo: async (data: AiVideoRequest): Promise<AiVideoResponse> => {
-    const response = await axiosInstance.post(`${BASE_URL}/ai/generate-video`, data);
+    const response = await axiosInstance.post(`${BASE_URL}/ai/generate-video`, data, {
+      timeout: 480000, // 8 minutos — la generación de video es un proceso largo
+    });
     return response.data;
   },
 
