@@ -64,8 +64,8 @@ export interface AiImageRequest {
 }
 
 export interface AiImageResponse {
+  imageUrl: string;
   generatedText?: string;
-  mediaUrls?: string[];
   sessionId?: string;
   usedModel?: string;
 }

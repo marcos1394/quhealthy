@@ -54,8 +54,9 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
   // RESULTADOS GENERADOS POR LA IA
   // ==========================================
   const [generatedText, setGeneratedText] = useState<string>('');
-  const [generatedImageUrls, setGeneratedImageUrls] = useState<string[]>([]);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
   const [generatedImageCaption, setGeneratedImageCaption] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('text');
   const [videoStatus, setVideoStatus] = useState<string>('');
   const [copied, setCopied] = useState(false);
 
@@ -95,7 +96,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
       return toast.warn(t('warn_select_service') || "Por favor, selecciona un servicio.");
     }
     setIsGeneratingImage(true);
-    setGeneratedImageUrls([]);
+    setGeneratedImageUrl('');
     setGeneratedImageCaption('');
     try {
       const topic = imagePrompt.trim()
@@ -108,8 +109,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
         targetAudience: 'Pacientes potenciales de la clínica',
         platform: 'FACEBOOK' as SocialPlatform,
       });
-      if (response?.mediaUrls && response.mediaUrls.length > 0) {
-        setGeneratedImageUrls(response.mediaUrls);
+      if (response?.imageUrl) {
+        setGeneratedImageUrl(response.imageUrl);
       }
       if (response?.generatedText) {
         setGeneratedImageCaption(response.generatedText);
@@ -208,8 +209,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     type="button"
                     onClick={() => handleSelectService(service)}
                     className={`relative flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 group ${isSelected
-                        ? 'border-medical-500 bg-medical-50/50 dark:bg-medical-950/20 dark:border-medical-500/60 ring-1 ring-medical-500/30 shadow-sm'
-                        : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/60'
+                      ? 'border-medical-500 bg-medical-50/50 dark:bg-medical-950/20 dark:border-medical-500/60 ring-1 ring-medical-500/30 shadow-sm'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/60'
                       }`}
                   >
                     {service.imageUrl ? (
@@ -258,7 +259,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
             {t('step_choose_content') || 'Elige el tipo de contenido'}
           </Label>
 
-          <Tabs defaultValue="text" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-slate-100 dark:bg-slate-800 w-full h-10 rounded-lg">
               <TabsTrigger value="text" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm rounded-md text-xs gap-1.5">
                 <FileText className="w-3.5 h-3.5" /> {t('tab_text') || 'Texto / Copy'}
@@ -294,8 +295,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         type="button"
                         onClick={() => setTextTone(tone.value)}
                         className={`px-3 py-2 rounded-lg text-xs font-medium transition-all border ${textTone === tone.value
-                            ? 'border-medical-500 bg-medical-50 text-medical-700 dark:bg-medical-950/30 dark:text-medical-300 dark:border-medical-500/60'
-                            : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                          ? 'border-medical-500 bg-medical-50 text-medical-700 dark:bg-medical-950/30 dark:text-medical-300 dark:border-medical-500/60'
+                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                           }`}
                       >
                         <span className="mr-1">{tone.emoji}</span> {tone.label}
@@ -428,29 +429,49 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
               </div>
 
               {/* ✨ RESULTADO DE IMAGEN GENERADA */}
-              {(generatedImageUrls.length > 0 || generatedImageCaption) && (
+              {generatedImageUrl && (
                 <div className="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800/40 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
-                      <ImageIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
+                        <ImageIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('result_image_title') || 'Imagen Generada'}</h4>
                     </div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('result_image_title') || 'Imagen Generada'}</h4>
+                    <Button variant="ghost" size="sm" onClick={handleGenerateImage} disabled={isGeneratingImage} className="text-xs text-slate-500 hover:text-emerald-600 h-8 px-2.5">
+                      <RotateCcw className="w-3.5 h-3.5 mr-1" /> {t('regenerate_btn') || 'Regenerar'}
+                    </Button>
                   </div>
 
-                  {generatedImageUrls.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {generatedImageUrls.map((url, i) => (
-                        <div key={i} className="relative group rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-800/40 shadow-sm">
-                          <img src={url} alt={`Generated ${i + 1}`} className="w-full aspect-square object-cover" />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <a href={url} target="_blank" rel="noopener noreferrer" download className="px-4 py-2 bg-white/90 rounded-lg text-sm font-medium text-slate-900 hover:bg-white shadow-lg">
-                              {t('download_btn') || 'Descargar'}
-                            </a>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* Imagen generada */}
+                  <div className="relative group rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-800/40 shadow-md">
+                    <img src={generatedImageUrl} alt="Generated" className="w-full rounded-xl" referrerPolicy="no-referrer" />
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a
+                      href={generatedImageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-sm transition-colors"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      {t('download_image') || 'Descargar Imagen'}
+                    </a>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setVideoPrompt(`Crear un video promocional animado basado en la imagen generada del servicio "${selectedService?.name || ''}". Animación suave y profesional.`);
+                        setActiveTab('video');
+                      }}
+                      className="h-10 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+                    >
+                      <Video className="w-4 h-4 mr-2" />
+                      {t('generate_video_from_image') || 'Generar Video con esta Imagen'}
+                    </Button>
+                  </div>
 
                   {generatedImageCaption && (
                     <div className="space-y-2">

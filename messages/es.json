@@ -1243,6 +1243,8 @@
         "result_caption": "Caption sugerido",
         "copy_caption": "Copiar caption",
         "video_in_progress": "Video en proceso",
+        "download_image": "Descargar Imagen",
+        "generate_video_from_image": "Generar Video con esta Imagen",
         "ai_studio_title": "2. Estudio Creativo IA",
         "ai_studio_desc": "Genera imágenes y videos profesionales optimizados para tu especialidad.",
         "image_placeholder": "Ej: Foto profesional de una clínica dental moderna, iluminación clara, colores relajantes...",

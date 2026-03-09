@@ -1243,6 +1243,8 @@
         "result_caption": "Suggested caption",
         "copy_caption": "Copy caption",
         "video_in_progress": "Video in progress",
+        "download_image": "Download Image",
+        "generate_video_from_image": "Generate Video from this Image",
         "ai_studio_title": "2. AI Creative Studio",
         "ai_studio_desc": "Generate professional images and videos optimized for your specialty.",
         "image_placeholder": "Example: Professional photo of a modern dental clinic, bright lighting, relaxing colors...",
