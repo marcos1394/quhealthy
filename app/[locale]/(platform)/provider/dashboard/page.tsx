@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertCircle, BarChart2, CheckCircle, Users, Sparkles, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check } from "lucide-react";
+import { enUS } from "date-fns/locale";
+import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check } from "lucide-react";
+import { useTranslations, useLocale } from 'next-intl';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,22 +24,17 @@ import { ProviderReputationCard } from "@/components/dashboard/ProviderReputatio
 
 export default function DashboardPage() {
   const router = useRouter();
+  const t = useTranslations('DashboardProviderHome');
+  const locale = useLocale();
+  const dateLocale = locale === 'es' ? es : enUS;
   const [dateRange, setDateRange] = useState("this_month");
-  
-  // Hook general para los datos financieros y de citas del Dashboard
+
   const { data, isLoading, refetch } = useDashboardData(dateRange);
 
-  // --- ESTADO 1: CARGANDO ---
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center flex-col gap-5 bg-slate-50 dark:bg-slate-950 transition-colors">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-          <Sparkles className="w-10 h-10 text-medical-600 dark:text-medical-400" />
-        </motion.div>
-        <div className="text-center space-y-1">
-          <p className="text-slate-700 dark:text-slate-300 font-medium text-lg">Cargando tu dashboard</p>
-          <p className="text-slate-500 dark:text-slate-400 text-sm animate-pulse font-light">Sincronizando información...</p>
-        </div>
+        <QhSpinner size="lg" label={t('loading_title')} />
       </div>
     );
   }
@@ -49,10 +47,10 @@ export default function DashboardPage() {
           <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400" />
         </div>
         <div className="space-y-3 max-w-md">
-          <h3 className="text-xl font-medium text-slate-900 dark:text-white">No pudimos cargar los datos</h3>
-          <p className="text-slate-500 dark:text-slate-400 font-light">Ocurrió un error al sincronizar tu información. Por favor, intenta de nuevo.</p>
+          <h3 className="text-xl font-medium text-slate-900 dark:text-white">{t('error_title')}</h3>
+          <p className="text-slate-500 dark:text-slate-400 font-light">{t('error_desc')}</p>
           <Button onClick={() => refetch()} variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-            <RefreshCw className="w-4 h-4 mr-2" />Reintentar
+            <RefreshCw className="w-4 h-4 mr-2" />{t('error_retry')}
           </Button>
         </div>
       </div>
@@ -63,21 +61,21 @@ export default function DashboardPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "SCHEDULED": return <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0">Confirmada</Badge>;
-      case "PENDING_PAYMENT": return <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0">Pago Pendiente</Badge>;
-      case "IN_PROGRESS": return <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 animate-pulse">En Progreso</Badge>;
+      case "SCHEDULED": return <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0">{t('status_confirmed')}</Badge>;
+      case "PENDING_PAYMENT": return <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0">{t('status_pending_payment')}</Badge>;
+      case "IN_PROGRESS": return <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 animate-pulse">{t('status_in_progress')}</Badge>;
       default: return <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-0">{status}</Badge>;
     }
   };
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 pb-10">
-      
+
       {/* --- HEADER & SUBSCRIPTION BANNER --- */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white tracking-tight mb-1.5">Bienvenido de vuelta 👋</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg font-light">Aquí tienes un resumen de tu negocio.</p>
+          <h1 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white tracking-tight mb-1.5">{t('welcome')}</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-lg font-light">{t('welcome_desc')}</p>
         </div>
         <div className={cn(
           "flex items-center justify-between gap-5 px-4 py-2.5 rounded-xl border transition-colors",
@@ -95,13 +93,13 @@ export default function DashboardPage() {
               <div className="flex items-center gap-1 mt-0.5">
                 <Clock className="w-3 h-3 text-slate-400" />
                 <span className={cn("text-xs font-medium", plan.daysLeft <= 3 ? "text-red-500 dark:text-red-400" : "text-slate-500 dark:text-slate-400")}>
-                  {plan.daysLeft} días restantes
+                  {plan.daysLeft} {t('days_remaining')}
                 </span>
               </div>
             </div>
           </div>
           <Button size="sm" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-lg shadow-none text-xs transition-colors">
-            Actualizar Plan
+            {t('upgrade_plan')}
           </Button>
         </div>
       </div>
@@ -117,15 +115,15 @@ export default function DashboardPage() {
                     <Store className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-0.5">Tu tienda médica está vacía</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-0.5">{t('empty_store_title')}</h3>
                     <p className="text-slate-600 dark:text-slate-400 max-w-xl font-light text-sm">
-                      Configura tus servicios, precios y horarios para que los pacientes puedan comenzar a agendar citas contigo.
+                      {t('empty_store_desc')}
                     </p>
                   </div>
                 </div>
                 <Button size="lg" onClick={() => router.push("/provider/store")}
                   className="w-full md:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-11 px-6 shadow-none rounded-xl transition-colors">
-                  Configurar mi Tienda<ArrowRight className="w-4 h-4 ml-2" />
+                  {t('setup_store')}<ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
             </Card>
@@ -135,28 +133,28 @@ export default function DashboardPage() {
 
       {/* --- KEY METRICS --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <SummaryCard title="Ingresos (Este mes)" value={analytics.monthlyRevenue.toLocaleString("es-MX", { style: "currency", currency: "MXN" })}
+        <SummaryCard title={t('revenue_title')} value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
           icon={BarChart2} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 12.5, isPositive: true, period: "mes anterior" }} />
-        <SummaryCard title="Citas Completadas" value={analytics.completedAppointments.toString()}
+          trend={{ value: 12.5, isPositive: true, period: t('previous_month') }} />
+        <SummaryCard title={t('completed_appointments')} value={analytics.completedAppointments.toString()}
           icon={CheckCircle} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 8.2, isPositive: true, period: "mes anterior" }} />
-        <SummaryCard title="Pacientes Nuevos" value={analytics.newClients.toString()}
+          trend={{ value: 8.2, isPositive: true, period: t('previous_month') }} />
+        <SummaryCard title={t('new_patients')} value={analytics.newClients.toString()}
           icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 2.1, isPositive: false, period: "mes anterior" }} />
+          trend={{ value: 2.1, isPositive: false, period: t('previous_month') }} />
       </div>
 
       {/* --- MAIN GRID: CHART & REPUTATION --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
-        
+
         {/* Gráfico Financiero */}
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[350px] flex flex-col p-6 shadow-sm transition-colors">
           <div className="flex items-center justify-between mb-2">
             <div>
               <h4 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-medical-600 dark:text-medical-400" /> Resumen Financiero
+                <BarChart2 className="w-4 h-4 text-medical-600 dark:text-medical-400" /> {t('financial_summary')}
               </h4>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">Crecimiento de ingresos últimos 6 meses</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">{t('financial_growth')}</p>
             </div>
             <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 text-xs font-semibold">
               +15% Top
@@ -167,7 +165,7 @@ export default function DashboardPage() {
 
         {/* 🚀 TARJETA DE REPUTACIÓN DEL PROVEEDOR (El componente que acabamos de arreglar) */}
         <ProviderReputationCard />
-        
+
       </div>
 
       {/* --- UPCOMING APPOINTMENTS --- */}
@@ -176,12 +174,12 @@ export default function DashboardPage() {
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-3.5">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-medical-600 dark:text-medical-400" /> Próximas Citas
+                <CalendarDays className="w-4 h-4 text-medical-600 dark:text-medical-400" /> {t('upcoming_title')}
               </CardTitle>
               {upcomingAppointments.length > 0 && (
                 <Button variant="ghost" size="sm" onClick={() => router.push("/provider/appointments")}
                   className="text-medical-600 dark:text-medical-400 hover:text-medical-700 dark:hover:text-medical-300 text-xs transition-colors">
-                  Ver todas
+                  {t('view_all')}
                 </Button>
               )}
             </div>
@@ -192,16 +190,16 @@ export default function DashboardPage() {
                 <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
                   <CalendarDays className="w-6 h-6 text-slate-400 dark:text-slate-600" />
                 </div>
-                <h4 className="text-base font-medium text-slate-700 dark:text-slate-300 mb-1">Sin citas próximas</h4>
+                <h4 className="text-base font-medium text-slate-700 dark:text-slate-300 mb-1">{t('no_appointments_title')}</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto font-light">
-                  No tienes reservaciones agendadas para los próximos días. Comparte tu perfil para recibir pacientes.
+                  {t('no_appointments_desc')}
                 </p>
               </div>
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {upcomingAppointments.map((appt) => {
                   const dateObj = parseISO(appt.startTime);
-                  const formattedDate = format(dateObj, "EEE d 'de' MMM", { locale: es });
+                  const formattedDate = format(dateObj, locale === 'es' ? "EEE d 'de' MMM" : "EEE, MMM d", { locale: dateLocale });
                   const formattedTime = format(dateObj, "h:mm a");
                   return (
                     <div key={appt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
@@ -220,12 +218,12 @@ export default function DashboardPage() {
                           </div>
                           <div className="flex items-center gap-1">
                             {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5 text-blue-500" /> : <MapPin className="w-3.5 h-3.5 text-emerald-500" />}
-                            <span className="text-xs">{appt.modality === "ONLINE" ? "Video Consulta" : "Presencial"}</span>
+                            <span className="text-xs">{appt.modality === "ONLINE" ? t('video_call') : t('in_person')}</span>
                           </div>
                         </div>
                         <Button size="sm" onClick={() => router.push(`/provider/appointments/${appt.id}`)}
                           className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-medium opacity-0 group-hover:opacity-100 transition-all rounded-lg shadow-none text-xs h-7">
-                          <Check className="w-3 h-3 mr-1" />Gestionar
+                          <Check className="w-3 h-3 mr-1" />{t('manage')}
                         </Button>
                       </div>
                     </div>

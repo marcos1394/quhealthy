@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations, useLocale } from 'next-intl';
+import { enUS } from 'date-fns/locale';
 import { toast } from 'react-toastify';
 import { Loader2, Gift, Copy, Check, Users, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
@@ -53,6 +55,9 @@ const mockReferralData: ReferralData = {
 };
 
 export default function ProviderReferralsPage() {
+  const t = useTranslations('DashboardReferrals');
+  const locale = useLocale();
+  const dateLocale = locale === 'es' ? es : enUS;
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -85,7 +90,7 @@ export default function ProviderReferralsPage() {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    toast.success("Enlace copiado al portapapeles");
+    toast.success(t('toast_copied'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -93,7 +98,7 @@ export default function ProviderReferralsPage() {
     return (
         <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
             <QhSpinner size="lg" />
-            <p className="text-gray-400">Cargando programa de referidos...</p>
+            <p className="text-gray-400">{t("loading")}</p>
         </div>
     );
   }
@@ -109,9 +114,9 @@ export default function ProviderReferralsPage() {
                     <Gift className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Invita y Gana</h1>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">{t("title")}</h1>
                     <p className="text-gray-400 mt-1 max-w-2xl">
-                        Comparte QuHealthy con tus colegas. Tú ganas <span className="text-purple-400 font-bold">$500 MXN</span> por cada profesional que se active, y ellos reciben 1 mes gratis.
+                        {t.raw('subtitle')}
                     </p>
                 </div>
             </div>
@@ -122,8 +127,8 @@ export default function ProviderReferralsPage() {
                 {/* Link Card */}
                 <Card className="bg-gray-900 border-gray-800 flex flex-col justify-center">
                     <CardHeader>
-                        <CardTitle className="text-white text-lg">Tu Enlace Único</CardTitle>
-                        <CardDescription>Comparte este enlace para rastrear tus referidos.</CardDescription>
+                        <CardTitle className="text-white text-lg">{t('link_title')}</CardTitle>
+                        <CardDescription>{t('link_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="flex gap-2">
@@ -149,14 +154,14 @@ export default function ProviderReferralsPage() {
                     <div className="absolute top-0 right-0 p-20 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
                     <CardHeader>
                         <CardTitle className="text-white text-lg flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-emerald-400" /> Ganancias Totales
+                            <Sparkles className="w-4 h-4 text-emerald-400" /> {t('total_earnings')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-4xl font-bold text-white mb-1">
                             ${referralData?.totalEarnings?.toLocaleString()} <span className="text-lg text-gray-500 font-normal">MXN</span>
                         </div>
-                        <p className="text-sm text-emerald-400 font-medium">Disponible para retiro</p>
+                        <p className="text-sm text-emerald-400 font-medium">{t('available_withdraw')}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -165,7 +170,7 @@ export default function ProviderReferralsPage() {
             <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-gray-400" /> Historial de Referidos
+                        <Users className="w-5 h-5 text-gray-400" /> {t('history_title')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -180,7 +185,7 @@ export default function ProviderReferralsPage() {
                                         </div>
                                         <div>
                                             <p className="font-medium text-white">{ref.referee.name}</p>
-                                            <p className="text-xs text-gray-500">Registrado el {format(new Date(ref.referee.createdAt), "d MMM, yyyy", { locale: es })}</p>
+                                            <p className="text-xs text-gray-500">{t('registered_on')} {format(new Date(ref.referee.createdAt), "d MMM, yyyy", { locale: dateLocale })}</p>
                                         </div>
                                     </div>
 
@@ -190,7 +195,7 @@ export default function ProviderReferralsPage() {
                                             ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' 
                                             : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10'
                                         }`}>
-                                            {ref.status === 'completed' ? 'Completado' : 'Pendiente'}
+                                            {ref.status === 'completed' ? t('status_completed') : t('status_pending')}
                                         </Badge>
                                         {ref.amount && ref.status === 'completed' && (
                                             <p className="text-sm font-bold text-white">+ ${ref.amount}</p>
@@ -205,9 +210,9 @@ export default function ProviderReferralsPage() {
                             <div className="bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700">
                                 <Users className="w-8 h-8 text-gray-500" />
                             </div>
-                            <h3 className="text-lg font-medium text-white">Aún no tienes referidos</h3>
+                            <h3 className="text-lg font-medium text-white">{t('empty_title')}</h3>
                             <p className="text-gray-400 text-sm mt-1 max-w-sm mx-auto">
-                                Comparte tu enlace en redes sociales o por correo para empezar a generar ingresos extra.
+                                {t('empty_desc')}
                             </p>
                         </div>
                     )}

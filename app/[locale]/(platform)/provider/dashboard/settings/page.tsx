@@ -24,35 +24,34 @@ import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { handleApiError } from '@/lib/handleApiError';
 
-// Esquema de Validación de Perfil
-const profileSchema = z.object({
-    fullName: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-    email: z.string().email("Correo electrónico inválido"),
-    phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
-    specialty: z.string().min(2, "Especialidad requerida"),
-    about: z.string().max(500, "Máximo 500 caracteres").optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-// Esquema de Contraseña
-const securitySchema = z.object({
-    currentPassword: z.string().min(8, "Mínimo 8 caracteres"),
-    newPassword: z.string().min(8, "Mínimo 8 caracteres"),
-    confirmPassword: z.string()
-}).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-});
-
-type SecurityFormValues = z.infer<typeof securitySchema>;
-
 export default function ProviderSettingsPage() {
-    const t = useTranslations('ProviderSettings'); // Asegúrate de tener estas keys en tus archivos de idiomas o usa textos estáticos si no están.
+    const t = useTranslations('ProviderSettings');
     const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'security'>('profile');
     const [showPassword, setShowPassword] = useState(false);
 
-    // Formularios
+    // Zod schemas (inside component to access t())
+    const profileSchema = z.object({
+        fullName: z.string().min(3, t('validation_name_min')),
+        email: z.string().email(t('validation_email')),
+        phone: z.string().min(10, t('validation_phone_min')),
+        specialty: z.string().min(2, t('validation_specialty')),
+        about: z.string().max(500, t('validation_about_max')).optional(),
+    });
+
+    type ProfileFormValues = z.infer<typeof profileSchema>;
+
+    const securitySchema = z.object({
+        currentPassword: z.string().min(8, t('validation_password_min')),
+        newPassword: z.string().min(8, t('validation_password_min')),
+        confirmPassword: z.string()
+    }).refine((data) => data.newPassword === data.confirmPassword, {
+        message: t('validation_passwords_mismatch'),
+        path: ["confirmPassword"],
+    });
+
+    type SecurityFormValues = z.infer<typeof securitySchema>;
+
+    // Forms
     const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
@@ -78,7 +77,7 @@ export default function ProviderSettingsPage() {
         try {
             // Simulación de guardado
             await new Promise(r => setTimeout(r, 1000));
-            toast.success("Perfil actualizado correctamente");
+            toast.success(t('toast_profile_success'));
         } catch (e) {
             handleApiError(e);
         }
@@ -87,7 +86,7 @@ export default function ProviderSettingsPage() {
     const onSubmitSecurity = async (data: SecurityFormValues) => {
         try {
             await new Promise(r => setTimeout(r, 1000));
-            toast.success("Contraseña actualizada con éxito");
+            toast.success(t('toast_password_success'));
             securityForm.reset();
         } catch (e) {
             handleApiError(e);
@@ -96,9 +95,9 @@ export default function ProviderSettingsPage() {
 
     // Tabs Navigator
     const tabs = [
-        { id: 'profile', icon: User, label: 'Perfil Personal', desc: 'Gestiona tu información pública y de contacto.' },
-        { id: 'notifications', icon: Bell, label: 'Notificaciones', desc: 'Personaliza cómo y cuándo te contactamos.' },
-        { id: 'security', icon: Shield, label: 'Seguridad', desc: 'Contraseña y autenticación de dos factores.' },
+        { id: 'profile', icon: User, label: t('tab_profile'), desc: t('tab_profile_desc') },
+        { id: 'notifications', icon: Bell, label: t('tab_notifications'), desc: t('tab_notifications_desc') },
+        { id: 'security', icon: Shield, label: t('tab_security'), desc: t('tab_security_desc') },
     ] as const;
 
     return (
@@ -166,8 +165,8 @@ export default function ProviderSettingsPage() {
                             {activeTab === 'profile' && (
                                 <div className="flex flex-col h-full">
                                     <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800">
-                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Información Personal</h2>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Actualiza tu foto y tus datos personales. Estos serán visibles para tus pacientes.</p>
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('profile_title')}</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t('profile_desc')}</p>
                                     </div>
 
                                     <div className="p-6 md:p-8 flex-1">
@@ -180,15 +179,15 @@ export default function ProviderSettingsPage() {
                                                         <span className="text-2xl font-bold tracking-tighter text-medical-600">JD</span>
                                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
                                                             <UploadCloud className="w-6 h-6 mb-1" />
-                                                            <span className="text-[9px] font-bold uppercase tracking-widest hidden sm:block">Subir</span>
+                                                            <span className="text-[9px] font-bold uppercase tracking-widest hidden sm:block">{t('upload')}</span>
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-semibold tracking-tight text-slate-900 dark:text-white mb-1">Foto de Perfil</h4>
-                                                        <p className="text-xs text-slate-500 mb-3">JPG, GIF o PNG. Tamaño máximo 2MB.</p>
+                                                        <h4 className="font-semibold tracking-tight text-slate-900 dark:text-white mb-1">{t('profile_photo')}</h4>
+                                                        <p className="text-xs text-slate-500 mb-3">{t('profile_photo_hint')}</p>
                                                         <div className="flex gap-2">
-                                                            <Button size="sm" type="button" variant="outline" className="border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-300">Cambiar Foto</Button>
-                                                            <Button size="sm" type="button" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10">Eliminar</Button>
+                                                            <Button size="sm" type="button" variant="outline" className="border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-300">{t('change_photo')}</Button>
+                                                            <Button size="sm" type="button" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10">{t('delete_photo')}</Button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -198,27 +197,27 @@ export default function ProviderSettingsPage() {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <FormField control={profileForm.control} name="fullName" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'fullName'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Nombre Completo</FormLabel>
-                                                            <FormControl><Input placeholder="Ej. Dr. Juan Pérez" {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('full_name')}</FormLabel>
+                                                            <FormControl><Input placeholder={t('full_name_placeholder')} {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
                                                             <FormMessage className="font-light text-xs" />
                                                         </FormItem>
                                                     )} />
 
                                                     <FormField control={profileForm.control} name="specialty" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'specialty'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Especialidad Principal</FormLabel>
-                                                            <FormControl><Input placeholder="Ej. Cardiología" {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('specialty')}</FormLabel>
+                                                            <FormControl><Input placeholder={t('specialty_placeholder')} {...field} className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" /></FormControl>
                                                             <FormMessage className="font-light text-xs" />
                                                         </FormItem>
                                                     )} />
 
                                                     <FormField control={profileForm.control} name="email" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'email'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Correo Electrónico</FormLabel>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('email')}</FormLabel>
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Mail className="w-4 h-4 absolute left-4 top-4 text-slate-400" />
-                                                                    <Input type="email" placeholder="tucorreo@ejemplo.com" {...field} className="h-12 pl-11 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" />
+                                                                    <Input type="email" placeholder={t('email_placeholder')} {...field} className="h-12 pl-11 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage className="font-light text-xs" />
@@ -227,7 +226,7 @@ export default function ProviderSettingsPage() {
 
                                                     <FormField control={profileForm.control} name="phone" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'phone'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Teléfono</FormLabel>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('phone')}</FormLabel>
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Phone className="w-4 h-4 absolute left-4 top-4 text-slate-400" />
@@ -241,9 +240,9 @@ export default function ProviderSettingsPage() {
 
                                                 <FormField control={profileForm.control} name="about" render={({ field }: { field: ControllerRenderProps<ProfileFormValues, 'about'> }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-slate-700 dark:text-slate-300">Biografía Pública (Resumen)</FormLabel>
+                                                        <FormLabel className="text-slate-700 dark:text-slate-300">{t('bio')}</FormLabel>
                                                         <FormControl>
-                                                            <Textarea placeholder="Escribe un breve resumen de tu experiencia..." {...field} className="min-h-[120px] resize-none bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" />
+                                                            <Textarea placeholder={t('bio_placeholder')} {...field} className="min-h-[120px] resize-none bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 focus:border-medical-500" />
                                                         </FormControl>
                                                         <FormMessage className="font-light text-xs" />
                                                     </FormItem>
@@ -255,7 +254,7 @@ export default function ProviderSettingsPage() {
                                                         disabled={profileForm.formState.isSubmitting}
                                                         className="bg-medical-600 hover:bg-medical-700 text-white shadow-md shadow-medical-500/20 px-8 h-12 rounded-xl"
                                                     >
-                                                        {profileForm.formState.isSubmitting ? <span className="animate-pulse">Guardando...</span> : <><CheckCircle className="w-4 h-4 mr-2" /> Guardar Cambios</>}
+                                                        {profileForm.formState.isSubmitting ? <span className="animate-pulse">{t('saving')}</span> : <><CheckCircle className="w-4 h-4 mr-2" /> {t('save_changes')}</>}
                                                     </Button>
                                                 </div>
                                             </form>
@@ -268,16 +267,16 @@ export default function ProviderSettingsPage() {
                             {activeTab === 'notifications' && (
                                 <div className="flex flex-col h-full">
                                     <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800">
-                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Preferencias de Notificación</h2>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Controla por qué canales deseas recibir alertas sobre tus citas y pacientes.</p>
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('notif_title')}</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t('notif_desc')}</p>
                                     </div>
                                     <div className="p-6 md:p-8 space-y-6">
 
                                         <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-1">
-                                                    <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2"><Mail className="w-4 h-4 text-emerald-500" /> Correos Electrónicos</h4>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Recibe resúmenes diarios y alertas de nuevas citas al correo.</p>
+                                                    <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2"><Mail className="w-4 h-4 text-emerald-500" /> {t('notif_email_title')}</h4>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{t('notif_email_desc')}</p>
                                                 </div>
                                                 <Switch defaultChecked />
                                             </div>
@@ -286,8 +285,8 @@ export default function ProviderSettingsPage() {
                                         <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-1">
-                                                    <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2"><Phone className="w-4 h-4 text-amber-500" /> SMS & WhatsApp</h4>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Recibe recordatorios en tiempo real directo a tu celular.</p>
+                                                    <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2"><Phone className="w-4 h-4 text-amber-500" /> {t('notif_sms_title')}</h4>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{t('notif_sms_desc')}</p>
                                                 </div>
                                                 <Switch />
                                             </div>
@@ -295,7 +294,7 @@ export default function ProviderSettingsPage() {
 
                                         <div className="pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                                             <Button className="bg-medical-600 hover:bg-medical-700 text-white h-11 px-8 rounded-xl shadow-md">
-                                                Actualizar Preferencias
+                                                {t('update_preferences')}
                                             </Button>
                                         </div>
 
@@ -307,8 +306,8 @@ export default function ProviderSettingsPage() {
                             {activeTab === 'security' && (
                                 <div className="flex flex-col h-full">
                                     <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800">
-                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Seguridad de la Cuenta</h2>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Actualiza tu contraseña y configura factores de autenticación adicionales.</p>
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('security_title')}</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t('security_desc')}</p>
                                     </div>
 
                                     <div className="p-6 md:p-8 space-y-8">
@@ -317,22 +316,22 @@ export default function ProviderSettingsPage() {
                                         <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 p-4 rounded-xl flex items-start gap-3">
                                             <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                                             <div>
-                                                <h4 className="font-semibold text-amber-800 dark:text-amber-400 text-sm">Autenticación de Dos Factores Inactiva</h4>
-                                                <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1 leading-relaxed">Te recomendamos activar el 2FA para agregar una capa extra de seguridad a tus datos médicos.</p>
-                                                <Button variant="outline" size="sm" className="mt-3 bg-white hover:bg-amber-50 text-amber-700 border-amber-200 h-8">Configurar 2FA</Button>
+                                                <h4 className="font-semibold text-amber-800 dark:text-amber-400 text-sm">{t('2fa_warning_title')}</h4>
+                                                <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1 leading-relaxed">{t('2fa_warning_desc')}</p>
+                                                <Button variant="outline" size="sm" className="mt-3 bg-white hover:bg-amber-50 text-amber-700 border-amber-200 h-8">{t('setup_2fa')}</Button>
                                             </div>
                                         </div>
 
                                         <Form {...securityForm}>
                                             <form onSubmit={securityForm.handleSubmit(onSubmitSecurity)} className="space-y-6">
                                                 <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <Lock className="w-5 h-5 text-medical-500" /> Cambiar Contraseña
+                                                    <Lock className="w-5 h-5 text-medical-500" /> {t('change_password')}
                                                 </h3>
 
                                                 <div className="grid grid-cols-1 gap-5 max-w-md">
                                                     <FormField control={securityForm.control} name="currentPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'currentPassword'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Contraseña Actual</FormLabel>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('current_password')}</FormLabel>
                                                             <FormControl>
                                                                 <Input type="password" {...field} className="h-11 bg-slate-50 dark:bg-slate-900/50 border-slate-200" />
                                                             </FormControl>
@@ -342,7 +341,7 @@ export default function ProviderSettingsPage() {
 
                                                     <FormField control={securityForm.control} name="newPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'newPassword'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Nueva Contraseña</FormLabel>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('new_password')}</FormLabel>
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Input type={showPassword ? 'text' : 'password'} {...field} className="h-11 bg-slate-50 dark:bg-slate-900/50 border-slate-200" />
@@ -357,7 +356,7 @@ export default function ProviderSettingsPage() {
 
                                                     <FormField control={securityForm.control} name="confirmPassword" render={({ field }: { field: ControllerRenderProps<SecurityFormValues, 'confirmPassword'> }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-slate-700 dark:text-slate-300">Confirmar Nueva Contraseña</FormLabel>
+                                                            <FormLabel className="text-slate-700 dark:text-slate-300">{t('confirm_password')}</FormLabel>
                                                             <FormControl>
                                                                 <Input type="password" {...field} className="h-11 bg-slate-50 dark:bg-slate-900/50 border-slate-200" />
                                                             </FormControl>
@@ -372,7 +371,7 @@ export default function ProviderSettingsPage() {
                                                         disabled={securityForm.formState.isSubmitting}
                                                         className="bg-medical-600 hover:bg-medical-700 text-white px-8 h-11 rounded-xl shadow-md shadow-medical-500/20"
                                                     >
-                                                        {securityForm.formState.isSubmitting ? "Actualizando..." : "Actualizar Contraseña"}
+                                                        {securityForm.formState.isSubmitting ? t('updating') : t('update_password')}
                                                     </Button>
                                                 </div>
                                             </form>

@@ -43,7 +43,7 @@ function MarketingLoading() {
     <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
       <QhSpinner size="lg" />
       <p className="text-slate-500 dark:text-slate-400 animate-pulse">
-        {t('loading_studio') || 'Cargando tu estudio...'}
+        {t('loading_studio')}
       </p>
     </div>
   );
@@ -76,7 +76,7 @@ function MarketingContent() {
 
     if (isConnected === 'true' && !oauthProcessed.current) {
       oauthProcessed.current = true;
-      toast.success(t('oauth_success') || '¡Cuenta de Meta vinculada exitosamente!');
+      toast.success(t('oauth_success'));
       setConnectionsRefresh(prev => prev + 1);
       router.replace(pathname, { scroll: false });
     }
@@ -104,10 +104,10 @@ function MarketingContent() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-              {t('title') || 'Marketing y Pacientes'}
+              {t('title')}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1">
-              {t('subtitle') || 'Atrae, conecta y gestiona pacientes en todas tus redes sociales.'}
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@ function MarketingContent() {
                     </div>
                     <div className="flex justify-end">
                       <Button className="bg-medical-600 hover:bg-medical-700 text-white">
-                        <CheckCircle className="w-4 h-4 mr-2" /> Guardar Cambios
+                        <CheckCircle className="w-4 h-4 mr-2" /> {t('save_changes')}
                       </Button>
                     </div>
                   </CardContent>

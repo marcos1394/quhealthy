@@ -6,6 +6,7 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Building2, Phone, ArrowRight, Loader2, MapPin, Sparkles, AlertCircle, CheckCircle2, Star, User, Info, Lock, Zap, ChevronRight, Shield, Trophy, Check, Navigation, Stethoscope, Scissors } from "lucide-react";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 
@@ -136,18 +137,15 @@ export default function OnboardingProfilePage() {
   };
 
   const handleFinish = async () => {
-    if (formData.parentCategoryId === 0 || formData.categoryId === 0) { handleApiError(e); return; }
-    if (formData.businessName.length < 3 || formData.bio.length < 20) { handleApiError(e); return; }
+    if (formData.parentCategoryId === 0 || formData.categoryId === 0) { return; }
+    if (formData.businessName.length < 3 || formData.bio.length < 20) { return; }
     const success = await saveProfile(formData);
     if (success) { toast.success("✅ Profile saved!"); router.push("/onboarding"); }
   };
 
   if (pageLoading) return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center flex-col gap-4 transition-colors">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-        <Sparkles className="w-10 h-10 text-medical-600 dark:text-medical-400" />
-      </motion.div>
-      <p className="text-slate-500 dark:text-slate-400 text-sm animate-pulse font-light">{t("loading")}</p>
+      <QhSpinner size="lg" label={t("loading")} />
     </div>
   );
 
