@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 import { useSocial } from '@/hooks/useSocial';
-import { AiModelType, SocialPlatform } from '@/types/social';
+import { SocialPlatform } from '@/types/social';
 
 // Interfaz para la prop de servicios (viene de tu catálogo)
 interface ServiceOption {
@@ -27,12 +27,12 @@ interface AiStudioFormProps {
 
 export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProps) {
   const t = useTranslations('DashboardMarketing');
-  const { generateContent } = useSocial();
+  const { generateImage: generateImageApi, generateVideo: generateVideoApi } = useSocial();
 
   // Estados locales para los formularios
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [videoPrompt, setVideoPrompt] = useState('');
-  
+
   // Separamos los estados de carga para UX fluida
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
@@ -48,12 +48,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
 
     try {
       // 🚀 Llamada real al backend usando el hook
-      await generateContent({
+      await generateImageApi({
         topic: `Promocionar el servicio médico de: ${selectedService?.name}`,
         tone: 'PROFESSIONAL',
         targetAudience: 'Pacientes potenciales de la clínica',
-        platform: 'FACEBOOK' as SocialPlatform, // Por defecto, se puede cambiar al programar
-        modelType: 'IMAGE' as AiModelType
+        platform: 'FACEBOOK' as SocialPlatform,
       });
 
       toast.success(t('generate_success') || "¡Contenido generado con éxito!");
@@ -76,12 +75,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
 
     try {
       // 🚀 Llamada real al backend para video
-      await generateContent({
+      await generateVideoApi({
         topic: videoPrompt,
         tone: 'EDUCATIONAL',
         targetAudience: 'Pacientes buscando información de salud',
         platform: 'INSTAGRAM' as SocialPlatform,
-        modelType: 'VIDEO' as AiModelType
       });
 
       toast.success(t('generate_video_success') || "¡Video en proceso de generación!");
@@ -110,7 +108,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
       </CardHeader>
 
       <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
-        
+
         {/* BLOQUE 1: Generador de Imagen (Gemini) */}
         <div className="flex flex-col space-y-5 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">

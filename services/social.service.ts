@@ -4,8 +4,12 @@ import {
   SpringPage,
   SocialConnectionDTO,
   AuthUrlResponse,
-  GeneratePostRequest,
-  GeneratePostResponse,
+  AiTextRequest,
+  AiTextResponse,
+  AiImageRequest,
+  AiImageResponse,
+  AiVideoRequest,
+  AiVideoResponse,
   SchedulePostRequest,
   ScheduledPostDTO,
   ConversationDTO,
@@ -21,24 +25,36 @@ export const socialService = {
   // 1. CONEXIONES OAUTH
   // ==========================================
   getActiveConnections: async (): Promise<SocialConnectionDTO[]> => {
-    const response = await axiosInstance.get(`${BASE_URL}/connections`);
+    const response = await axiosInstance.get(`${BASE_URL}/auth/connections`);
     return response.data;
   },
   getAuthUrl: async (platform: string): Promise<AuthUrlResponse> => {
-    const response = await axiosInstance.get(`${BASE_URL}/${platform}/url`);
+    const response = await axiosInstance.get(`${BASE_URL}/auth/${platform}/url`);
     return response.data;
   },
   disconnectPlatform: async (platform: string): Promise<void> => {
-    await axiosInstance.delete(`${BASE_URL}/${platform}`);
+    await axiosInstance.delete(`${BASE_URL}/auth/${platform}`);
   },
 
   // ==========================================
-  // 2. CREACIÓN IA Y SCHEDULER
+  // 2. GENERACIÓN CON IA (Alineado con AiController)
   // ==========================================
-  generateContent: async (data: GeneratePostRequest): Promise<GeneratePostResponse> => {
-    const response = await axiosInstance.post(`${BASE_URL}/posts/generate`, data);
+  generateText: async (data: AiTextRequest): Promise<AiTextResponse> => {
+    const response = await axiosInstance.post(`${BASE_URL}/ai/generate-text`, data);
     return response.data;
   },
+  generateImage: async (data: AiImageRequest): Promise<AiImageResponse> => {
+    const response = await axiosInstance.post(`${BASE_URL}/ai/generate-image`, data);
+    return response.data;
+  },
+  generateVideo: async (data: AiVideoRequest): Promise<AiVideoResponse> => {
+    const response = await axiosInstance.post(`${BASE_URL}/ai/generate-video`, data);
+    return response.data;
+  },
+
+  // ==========================================
+  // 3. SCHEDULER DE POSTS
+  // ==========================================
   schedulePost: async (data: SchedulePostRequest): Promise<ScheduledPostDTO> => {
     const response = await axiosInstance.post(`${BASE_URL}/posts`, data);
     return response.data;
@@ -52,7 +68,7 @@ export const socialService = {
   },
 
   // ==========================================
-  // 3. CRM OMNICANAL
+  // 4. CRM OMNICANAL
   // ==========================================
   getConversations: async (page = 0, size = 20): Promise<SpringPage<ConversationDTO>> => {
     const response = await axiosInstance.get(`${BASE_URL}/crm/conversations`, { params: { page, size } });
@@ -68,7 +84,7 @@ export const socialService = {
   },
 
   // ==========================================
-  // 4. ANALÍTICAS DE MARKETING
+  // 5. ANALÍTICAS DE MARKETING
   // ==========================================
   getAnalyticsDashboard: async (): Promise<AnalyticsDashboardDTO> => {
     const response = await axiosInstance.get(`${BASE_URL}/analytics/dashboard`);

@@ -41,19 +41,42 @@ export interface AuthUrlResponse {
 }
 
 // =================================================================
-// 2. CONTENIDO E IA (Scheduler)
+// 2. GENERACIÓN CON IA (Alineado con AiController)
 // =================================================================
-export interface GeneratePostRequest {
+export interface AiTextRequest {
   topic: string;
   tone: string;
   targetAudience: string;
   platform: SocialPlatform;
-  modelType: AiModelType;
 }
 
-export interface GeneratePostResponse {
+export interface AiTextResponse {
+  generatedContent: string;
+}
+
+export interface AiImageRequest {
+  topic: string;
+  tone: string;
+  targetAudience: string;
+  platform: SocialPlatform;
+}
+
+export interface AiImageResponse {
   generatedContent: string;
   mediaUrls?: string[];
+}
+
+export interface AiVideoRequest {
+  topic: string;
+  tone: string;
+  targetAudience: string;
+  platform: SocialPlatform;
+}
+
+export interface AiVideoResponse {
+  videoUrl?: string;
+  status: string;
+  message?: string;
 }
 
 export interface SchedulePostRequest {

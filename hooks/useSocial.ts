@@ -5,8 +5,12 @@ import { useSessionStore } from '@/stores/SessionStore';
 import {
   SocialConnectionDTO,
   AuthUrlResponse,
-  GeneratePostRequest,
-  GeneratePostResponse,
+  AiTextRequest,
+  AiTextResponse,
+  AiImageRequest,
+  AiImageResponse,
+  AiVideoRequest,
+  AiVideoResponse,
   SchedulePostRequest,
   ScheduledPostDTO,
   ConversationDTO,
@@ -35,9 +39,11 @@ export interface UseSocialReturn {
   disconnectPlatform: (platform: string) => Promise<void>;
 
   // ==========================================
-  // MÉTODOS IA Y SCHEDULER
+  // MÉTODOS IA (Separados por tipo)
   // ==========================================
-  generateContent: (data: GeneratePostRequest) => Promise<GeneratePostResponse>;
+  generateText: (data: AiTextRequest) => Promise<AiTextResponse>;
+  generateImage: (data: AiImageRequest) => Promise<AiImageResponse>;
+  generateVideo: (data: AiVideoRequest) => Promise<AiVideoResponse>;
   schedulePost: (data: SchedulePostRequest) => Promise<ScheduledPostDTO>;
   getScheduledPosts: (page?: number, size?: number) => Promise<SpringPage<ScheduledPostDTO>>;
   cancelPost: (id: string) => Promise<void>;
@@ -110,11 +116,25 @@ export const useSocial = (): UseSocialReturn => {
   };
 
   // ==========================================
-  // 2. CREACIÓN IA Y SCHEDULER
+  // 2. GENERACIÓN CON IA (3 endpoints separados)
   // ==========================================
-  const generateContent = async (data: GeneratePostRequest) => {
+  const generateText = async (data: AiTextRequest) => {
     setLoading(true); setError(null);
-    try { return await socialService.generateContent(data); }
+    try { return await socialService.generateText(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const generateImage = async (data: AiImageRequest) => {
+    setLoading(true); setError(null);
+    try { return await socialService.generateImage(data); }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const generateVideo = async (data: AiVideoRequest) => {
+    setLoading(true); setError(null);
+    try { return await socialService.generateVideo(data); }
     catch (err) { return handleError(err); }
     finally { setLoading(false); }
   };
@@ -284,7 +304,9 @@ export const useSocial = (): UseSocialReturn => {
     getActiveConnections,
     getAuthUrl,
     disconnectPlatform,
-    generateContent,
+    generateText,
+    generateImage,
+    generateVideo,
     schedulePost,
     getScheduledPosts,
     cancelPost,
