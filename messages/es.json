@@ -1200,6 +1200,7 @@
         "disconnect_error": "Error al desconectar",
         "oauth_success": "¡Cuenta vinculada exitosamente!",
         "oauth_error": "No se pudo vincular la cuenta. Intenta de nuevo.",
+        "connected_since": "Conectado el",
         "ai_studio_title": "2. Estudio Creativo IA",
         "ai_studio_desc": "Genera imágenes y videos profesionales optimizados para tu especialidad.",
         "image_generator_title": "Generador de Imágenes",

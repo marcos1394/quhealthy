@@ -1200,6 +1200,7 @@
         "disconnect_error": "Error disconnecting",
         "oauth_success": "Account linked successfully!",
         "oauth_error": "Could not link account. Please try again.",
+        "connected_since": "Connected on",
         "ai_studio_title": "2. AI Creative Studio",
         "ai_studio_desc": "Generate professional images and videos optimized for your specialty.",
         "image_generator_title": "Image Generator",

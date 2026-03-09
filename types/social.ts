@@ -30,7 +30,9 @@ export interface SocialConnectionDTO {
   id: string;
   platform: SocialPlatform;
   platformUserName: string;
-  isActive: boolean;
+  profileImageUrl?: string;
+  connected: boolean;
+  connectedAt?: string;
   tokenExpiresAt?: string;
 }
 
