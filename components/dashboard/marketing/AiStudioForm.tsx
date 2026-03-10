@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Sparkles, Video, Image as ImageIcon, Loader2, FileText,
-  ChevronRight, Clock, Tag, Copy, Check, Send, RotateCcw
+  ChevronRight, Clock, Tag, Copy, Check, Send, RotateCcw, Download, Trash2
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -36,7 +36,7 @@ interface AiStudioFormProps {
 
 export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProps) {
   const t = useTranslations('DashboardMarketing');
-  const { generateText: generateTextApi, generateImage: generateImageApi, generateVideo: generateVideoApi } = useSocial();
+  const { generateText: generateTextApi, generateImage: generateImageApi, generateVideo: generateVideoApi, sseVideoUrl, clearSseVideoUrl } = useSocial();
 
   // Servicio seleccionado
   const [selectedService, setSelectedService] = useState<ServiceOption | null>(null);
@@ -63,7 +63,19 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
   const [generatedImageCaption, setGeneratedImageCaption] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('text');
   const [videoStatus, setVideoStatus] = useState<string>('');
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
+
+  // 🎬 Cuando el backend empuja VIDEO_READY por SSE, mostramos el video
+  useEffect(() => {
+    if (sseVideoUrl) {
+      setGeneratedVideoUrl(sseVideoUrl);
+      setVideoStatus('');
+      setIsGeneratingVideo(false);
+      clearSseVideoUrl();
+      toast.success(t('video_ready') || '¡Tu video está listo!');
+    }
+  }, [sseVideoUrl, clearSseVideoUrl, t]);
 
   const handleSelectService = (service: ServiceOption) => {
     setSelectedService(service);
@@ -553,8 +565,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       ].map(p => (
                         <button key={p.value} type="button" onClick={() => setVideoPlatform(p.value)}
                           className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoPlatform === p.value
-                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
-                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                            : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                         >{p.label}</button>
                       ))}
@@ -573,8 +585,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       ].map(t => (
                         <button key={t.value} type="button" onClick={() => setVideoTone(t.value)}
                           className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoTone === t.value
-                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
-                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                            : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                         >{t.label}</button>
                       ))}
@@ -592,8 +604,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       ].map(a => (
                         <button key={a.value} type="button" onClick={() => setVideoAspectRatio(a.value)}
                           className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${videoAspectRatio === a.value
-                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
-                              : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                            : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                         >{a.label}</button>
                       ))}
@@ -607,17 +619,57 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                 </Button>
               </div>
 
-              {/* ✨ ESTADO DEL VIDEO */}
-              {videoStatus && (
-                <div className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 rounded-xl border border-indigo-200 dark:border-indigo-800/40 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* ✨ ESTADO DEL VIDEO: En proceso */}
+              {videoStatus && !generatedVideoUrl && (
+                <div className="p-4 bg-gradient-to-br from-medical-50 to-medical-100/50 dark:from-medical-950/20 dark:to-medical-900/10 rounded-xl border border-medical-200 dark:border-medical-800/40 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg animate-pulse">
-                      <Video className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="p-2 bg-medical-100 dark:bg-medical-500/20 rounded-lg animate-pulse">
+                      <Video className="w-5 h-5 text-medical-600 dark:text-medical-400" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('video_in_progress') || 'Video en proceso'}</h4>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400">{videoStatus}</p>
+                      <p className="text-[10px] text-medical-600 dark:text-medical-400 mt-1 font-medium">{t('video_sse_hint') || 'El video aparecerá aquí automáticamente cuando esté listo...'}</p>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 🎬 VIDEO RENDERIZADO: Reproductor */}
+              {generatedVideoUrl && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-black">
+                    <video
+                      src={generatedVideoUrl}
+                      controls
+                      autoPlay
+                      className="w-full aspect-video object-contain"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const a = document.createElement('a');
+                        a.href = generatedVideoUrl;
+                        a.download = 'quhealthy-video.mp4';
+                        a.target = '_blank';
+                        a.click();
+                      }}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {t('download_video') || 'Descargar Video'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setGeneratedVideoUrl('')}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      {t('discard') || 'Descartar'}
+                    </Button>
                   </div>
                 </div>
               )}

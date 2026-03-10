@@ -32,6 +32,12 @@ export interface UseSocialReturn {
   activeConversationId: string | null;
 
   // ==========================================
+  // SSE: Video Ready
+  // ==========================================
+  sseVideoUrl: string | null;
+  clearSseVideoUrl: () => void;
+
+  // ==========================================
   // MÉTODOS OAUTH (Conexiones)
   // ==========================================
   getActiveConnections: () => Promise<SocialConnectionDTO[]>;
@@ -69,6 +75,10 @@ export const useSocial = (): UseSocialReturn => {
   const [conversations, setConversations] = useState<ConversationDTO[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageDTO[]>([]);
+
+  // SSE: Video generado por el backend
+  const [sseVideoUrl, setSseVideoUrl] = useState<string | null>(null);
+  const clearSseVideoUrl = useCallback(() => setSseVideoUrl(null), []);
 
   // 🚀 Obtenemos el token directamente del store de Zustand
   const token = useSessionStore((state) => state.token);
@@ -276,6 +286,19 @@ export const useSocial = (): UseSocialReturn => {
       });
     });
 
+    // 🎬 VIDEO_READY: El backend terminó de renderizar el video
+    eventSource.addEventListener('VIDEO_READY', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('🎬 VIDEO_READY recibido:', data);
+        if (data.videoUrl) {
+          setSseVideoUrl(data.videoUrl);
+        }
+      } catch (e) {
+        console.warn('[SSE] Error parsing VIDEO_READY:', e);
+      }
+    });
+
     eventSource.onerror = () => {
       retryCount++;
       if (retryCount >= MAX_RETRIES) {
@@ -299,6 +322,10 @@ export const useSocial = (): UseSocialReturn => {
     conversations,
     messages,
     activeConversationId,
+
+    // SSE: Video Ready
+    sseVideoUrl,
+    clearSseVideoUrl,
 
     // Métodos
     getActiveConnections,
