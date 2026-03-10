@@ -85,18 +85,22 @@ const RETRY_DELAY_MS = 3000;
 // HOOK
 // =================================================================
 
-export const useSocial = (): UseSocialReturn => {
+import React, { createContext, useContext } from 'react';
+
+const SocialContext = createContext<UseSocialReturn | undefined>(undefined);
+
+export const SocialProvider = ({ children }: { children: React.ReactNode }) => {
 
   // ── Estado general ──────────────────────────────────────────────
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // ── Conexiones ──────────────────────────────────────────────────
   const [connections, setConnections] = useState<SocialConnectionDTO[]>([]);
 
   // ── CRM ─────────────────────────────────────────────────────────
-  const [conversations, setConversations]           = useState<ConversationDTO[]>([]);
-  const [messages, setMessages]                     = useState<MessageDTO[]>([]);
+  const [conversations, setConversations] = useState<ConversationDTO[]>([]);
+  const [messages, setMessages] = useState<MessageDTO[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
   // ── SSE ─────────────────────────────────────────────────────────
@@ -483,47 +487,60 @@ export const useSocial = (): UseSocialReturn => {
   }, [token]);
 
   // =================================================================
-  // RETORNO PÚBLICO DEL HOOK
+  // PROVEER EL CONTEXTO
   // =================================================================
 
-  return {
+  return (
+    <SocialContext.Provider value= {{
     loading,
-    error,
+      error,
 
-    // Conexiones
-    connections,
-    loadConnections,
-    getAuthUrl,
-    disconnectConnection,
+      // Conexiones
+      connections,
+      loadConnections,
+      getAuthUrl,
+      disconnectConnection,
 
-    // Estado reactivo CRM
-    conversations,
-    messages,
-    activeConversationId,
+      // Estado reactivo CRM
+      conversations,
+      messages,
+      activeConversationId,
 
-    // SSE
-    sseVideoUrl,
-    clearSseVideoUrl,
+      // SSE
+      sseVideoUrl,
+      clearSseVideoUrl,
 
-    // IA
-    generateText,
-    generateImage,
-    generateVideo,
+      // IA
+      generateText,
+      generateImage,
+      generateVideo,
 
-    // Scheduler
-    schedulePost,
-    getScheduledPosts,
-    cancelPost,
+      // Scheduler
+      schedulePost,
+      getScheduledPosts,
+      cancelPost,
 
-    // CRM
-    loadConversations,
-    loadMessages,
-    sendMessage,
+      // CRM
+      loadConversations,
+      loadMessages,
+      sendMessage,
 
-    // Sugerencias IA CRM
-    getAiReplySuggestions,
+      // Sugerencias IA CRM
+      getAiReplySuggestions,
 
-    // Analíticas
-    getAnalyticsDashboard,
-  };
+      // Analíticas
+      getAnalyticsDashboard,
+    }
+}>
+  { children }
+  </SocialContext.Provider>
+  );
+};
+
+export const useSocial = (): UseSocialReturn => {
+  const context = useContext(SocialContext);
+  if (!context) {
+    throw new Error('useSocial debe ser usado dentro de un SocialProvider');
+  }
+  return context;
 };

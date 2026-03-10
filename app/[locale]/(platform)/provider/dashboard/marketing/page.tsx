@@ -16,22 +16,25 @@ import {
 } from 'lucide-react';
 
 // ShadCN UI
-import { Button }                                              from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label }                                               from '@/components/ui/label';
-import { Textarea }                                            from '@/components/ui/textarea';
-import { Badge }                                               from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger }            from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Hooks
 import { useCatalog } from '@/hooks/useCatalog';
 
 // Componentes modulares
 import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialConnectionsCard';
-import { AiStudioForm }          from '@/components/dashboard/marketing/AiStudioForm';
-import { ContentGallery }        from '@/components/dashboard/marketing/ContentGallery';
-import SocialInbox               from '@/components/dashboard/marketing/SocialInbox'; // ✅ default export
-import { QhSpinner }             from '@/components/ui/QhSpinner';
+import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
+import { ContentGallery } from '@/components/dashboard/marketing/ContentGallery';
+import SocialInbox from '@/components/dashboard/marketing/SocialInbox'; // ✅ default export
+import { QhSpinner } from '@/components/ui/QhSpinner';
+
+// Contexto Global de Redes Sociales
+import { SocialProvider } from '@/hooks/useSocial';
 
 // ── Fallback de carga ──────────────────────────────────────────────────────────
 
@@ -50,8 +53,8 @@ function MarketingLoading() {
 // ── Contenido principal ────────────────────────────────────────────────────────
 
 function MarketingContent() {
-  const t       = useTranslations('DashboardMarketing');
-  const router   = useRouter();
+  const t = useTranslations('DashboardMarketing');
+  const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -73,7 +76,7 @@ function MarketingContent() {
     if (oauthProcessed.current) return;
 
     const isConnected = searchParams.get('facebook_connected');
-    const error       = searchParams.get('error');
+    const error = searchParams.get('error');
 
     if (isConnected === 'true') {
       oauthProcessed.current = true;
@@ -153,12 +156,12 @@ function MarketingContent() {
             {/* Generación IA */}
             <AiStudioForm
               services={services.map((s) => ({
-                id:          s.id,
-                name:        s.name,
+                id: s.id,
+                name: s.name,
                 description: s.description,
-                imageUrl:    s.imageUrl,
-                category:    s.category,
-                price:       s.price,
+                imageUrl: s.imageUrl,
+                category: s.category,
+                price: s.price,
               }))}
               onGenerationSuccess={() => setGalleryRefresh((prev) => prev + 1)}
             />
@@ -347,8 +350,10 @@ function MarketingContent() {
 
 export default function MarketingPage() {
   return (
-    <Suspense fallback={<MarketingLoading />}>
-      <MarketingContent />
-    </Suspense>
+    <SocialProvider>
+      <Suspense fallback={<MarketingLoading />}>
+        <MarketingContent />
+      </Suspense>
+    </SocialProvider>
   );
 }
