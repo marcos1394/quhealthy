@@ -158,7 +158,7 @@ export default function PatientDetailPage() {
                     <Button
                         variant="ghost"
                         onClick={() => router.back()}
-                        className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl pl-2 pr-4 gap-2 mb-2 transition-colors"
+                        className="pl-2 pr-4 gap-2 mb-2"
                     >
                         <ArrowLeft className="w-4 h-4" /> {t("back_to_list")}
                     </Button>
@@ -216,7 +216,7 @@ export default function PatientDetailPage() {
                                 </div>
                             )}
 
-                            <Button variant="outline" className="w-full border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 mt-6 rounded-xl shadow-sm">
+                            <Button variant="outline" className="w-full mt-6">
                                 {t("edit_profile")}
                             </Button>
                         </CardContent>

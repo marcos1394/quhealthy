@@ -184,13 +184,9 @@ export default function StoreSetupPage() {
                 <Button
                   onClick={handlePublishStore}
                   disabled={isPublishing || profile?.marketplaceVisible}
+                  variant={profile?.marketplaceVisible ? "success" : "default"}
                   size="lg"
-                  className={cn(
-                    "h-14 px-8 text-base font-bold shadow-lg transition-all group",
-                    profile?.marketplaceVisible
-                      ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
-                      : ""
-                  )}
+                  className="h-14 px-8 text-base font-bold shadow-lg transition-all group"
                 >
                   {isPublishing ? (
                     <>
