@@ -89,7 +89,7 @@ export function SocialConnectionsCard({ refreshTrigger = 0 }: SocialConnectionsC
   // Una plataforma puede tener como mucho una conexión activa.
   // Filtramos por isConnected (✅ campo corregido desde 'connected')
   const getConnectionForPlatform = (platformId: SocialPlatform): SocialConnectionDTO | undefined =>
-    connections.find((c) => c.platform === platformId && c.isConnected);
+    connections.find((c) => c.platform === platformId && c.connected);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 

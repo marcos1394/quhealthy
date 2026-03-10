@@ -42,7 +42,7 @@ export interface SocialConnectionDTO {
   platform: SocialPlatform;
   platformUserName: string;
   profileImageUrl?: string;
-  isConnected: boolean;          // ✅ era 'connected' — el backend devuelve 'isConnected'
+  connected: boolean;          // ✅ era 'connected' — el backend devuelve 'isConnected'
   connectedAt?: string;          // ISO-8601
 }
 
