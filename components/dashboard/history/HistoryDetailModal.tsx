@@ -210,12 +210,12 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
 
         {/* Footer */}
         <DialogFooter className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex-col sm:flex-row gap-2">
-          <Button onClick={() => onOpenChange(false)}
-            className="flex-1 sm:flex-none border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm bg-transparent border">
+          <Button variant="outline" onClick={() => onOpenChange(false)}
+            className="flex-1 sm:flex-none">
             {t("close")}
           </Button>
           {role === "paciente" && !entry.rating && (
-            <Button className="flex-1 sm:flex-none bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl font-semibold text-sm shadow-none">
+            <Button className="flex-1 sm:flex-none">
               <Star className="w-4 h-4 mr-2" />{t("rate_service")}
             </Button>
           )}

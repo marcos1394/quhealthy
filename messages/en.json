@@ -1130,7 +1130,15 @@
         "empty_search": "No results for \"{term}\"",
         "empty_list": "Your list is empty. Patients will appear here when they book their first appointment.",
         "clear_search": "Clear search",
-        "error_loading": "Could not load patient list."
+        "error_loading": "Could not load patient list.",
+        "sheet_title": "Patient Profile",
+        "sheet_desc": "Manage patient details and records securely.",
+        "contact_info": "Contact Info",
+        "no_address": "No address on file",
+        "history": "History",
+        "total_visits": "Total Visits",
+        "last_visit": "Last Visit",
+        "view_medical_record": "View Full Medical Record"
     },
     "DashboardPatientDetail": {
         "back_to_list": "Back to list",

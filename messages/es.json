@@ -1130,7 +1130,15 @@
         "empty_search": "No hay resultados para \"{term}\"",
         "empty_list": "Tu lista está vacía. Los pacientes aparecerán aquí cuando agenden su primera cita.",
         "clear_search": "Limpiar búsqueda",
-        "error_loading": "No se pudo cargar la lista de pacientes."
+        "error_loading": "No se pudo cargar la lista de pacientes.",
+        "sheet_title": "Perfil del Paciente",
+        "sheet_desc": "Administra los detalles y expedientes del paciente de forma segura.",
+        "contact_info": "Información de Contacto",
+        "no_address": "Sin dirección registrada",
+        "history": "Historial",
+        "total_visits": "Total de Visitas",
+        "last_visit": "Última Visita",
+        "view_medical_record": "Ver Expediente Médico Completo"
     },
     "DashboardPatientDetail": {
         "back_to_list": "Volver a lista",

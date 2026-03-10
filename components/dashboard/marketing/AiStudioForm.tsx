@@ -330,7 +330,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   </div>
                 )}
 
-                <Button onClick={handleGenerateText} disabled={isGeneratingText || !selectedService} className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+                <Button onClick={handleGenerateText} disabled={isGeneratingText || !selectedService} className="w-full h-11 bg-medical-600 hover:bg-medical-700 text-white shadow-sm">
                   {isGeneratingText ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <Sparkles className="w-4 h-4 mr-2" />}
                   {isGeneratingText ? (t('generating') || 'Generando texto...') : (t('generate_text_btn') || 'Generar Texto con IA')}
                 </Button>
@@ -381,7 +381,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   <div className="flex items-center gap-3">
                     <Button
                       onClick={() => handleCopyText(generatedText)}
-                      className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                      className="flex-1 h-10 bg-medical-600 hover:bg-medical-700 text-white shadow-sm"
                     >
                       <Copy className="w-4 h-4 mr-2" />
                       {t('copy_and_use') || 'Copiar y Usar'}
@@ -601,7 +601,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   </div>
                 </div>
 
-                <Button onClick={handleGenerateVideo} disabled={isGeneratingVideo || !videoPrompt.trim()} className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+                <Button onClick={handleGenerateVideo} disabled={isGeneratingVideo || !videoPrompt.trim()} className="w-full h-11 bg-medical-600 hover:bg-medical-700 text-white shadow-sm">
                   {isGeneratingVideo ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <Video className="w-4 h-4 mr-2" />}
                   {isGeneratingVideo ? (t('generating') || 'Procesando video...') : (t('generate_video_btn') || 'Generar Video con IA')}
                 </Button>

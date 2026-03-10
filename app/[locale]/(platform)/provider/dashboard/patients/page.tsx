@@ -250,9 +250,9 @@ export default function ProviderPatientsPage() {
                     {selectedPatient && (
                         <>
                             <SheetHeader className="pb-6 border-b border-slate-100 dark:border-slate-800">
-                                <SheetTitle className="text-left text-slate-900 dark:text-white">Patient Profile</SheetTitle>
+                                <SheetTitle className="text-left text-slate-900 dark:text-white">{t('sheet_title')}</SheetTitle>
                                 <SheetDescription className="text-left font-light text-slate-500">
-                                    Manage patient details and records securely.
+                                    {t('sheet_desc')}
                                 </SheetDescription>
                             </SheetHeader>
                             <div className="py-6 space-y-8">
@@ -270,7 +270,7 @@ export default function ProviderPatientsPage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">Contact Info</h3>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">{t('contact_info')}</h3>
                                     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 space-y-3">
                                         <div className="flex items-center gap-3">
                                             <Mail className="w-4 h-4 text-slate-400" />
@@ -282,31 +282,31 @@ export default function ProviderPatientsPage() {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <MapPin className="w-4 h-4 text-slate-400" />
-                                            <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">No address on file</span>
+                                            <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">{t('no_address')}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">History</h3>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">{t('history')}</h3>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4">
                                             <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400 mb-2" />
                                             <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">{selectedPatient.totalAppointments}</p>
-                                            <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 uppercase tracking-wider font-semibold">Total Visits</p>
+                                            <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 uppercase tracking-wider font-semibold">{t('total_visits')}</p>
                                         </div>
                                         <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20 rounded-xl p-4">
                                             <Calendar className="w-5 h-5 text-medical-600 dark:text-medical-400 mb-2" />
                                             <p className="text-base font-bold text-medical-700 dark:text-medical-400 leading-tight">
                                                 {format(new Date(selectedPatient.lastAppointmentDate), "MMM d", { locale: es })}
                                             </p>
-                                            <p className="text-[10px] text-medical-600/80 dark:text-medical-400/80 uppercase tracking-wider font-semibold mt-0.5">Last Visit</p>
+                                            <p className="text-[10px] text-medical-600/80 dark:text-medical-400/80 uppercase tracking-wider font-semibold mt-0.5">{t('last_visit')}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <Button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl font-semibold shadow-sm text-sm py-5">
-                                    View Full Medical Record
+                                <Button className="w-full" size="lg">
+                                    {t('view_medical_record')}
                                 </Button>
                             </div>
                         </>

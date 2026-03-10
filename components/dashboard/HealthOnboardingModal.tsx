@@ -52,7 +52,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -73,7 +73,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
 
         {/* Barra de Progreso */}
         <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5">
-          <div 
+          <div
             className="bg-medical-500 h-1.5 transition-all duration-500 ease-out"
             style={{ width: `${(step / totalSteps) * 100}%` }}
           />
@@ -90,25 +90,25 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
               transition={{ duration: 0.2 }}
               className="flex-1 space-y-6"
             >
-              
+
               {/* PASO 1: Biometría */}
               {step === 1 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t('step1_title')}</h3>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('weight_label')}</label>
-                    <input 
-                      type="number" 
-                      value={formData.weightKg} 
+                    <input
+                      type="number"
+                      value={formData.weightKg}
                       onChange={(e) => updateForm('weightKg', parseFloat(e.target.value))}
                       className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-medical-500 focus:outline-none transition-shadow"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('height_label')}</label>
-                    <input 
-                      type="number" 
-                      value={formData.heightCm} 
+                    <input
+                      type="number"
+                      value={formData.heightCm}
                       onChange={(e) => updateForm('heightCm', parseFloat(e.target.value))}
                       className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-medical-500 focus:outline-none transition-shadow"
                     />
@@ -121,8 +121,8 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                 <div className="space-y-4">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t('step2_title')}</h3>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('activity_label')}</label>
-                  <select 
-                    value={formData.activityLevel} 
+                  <select
+                    value={formData.activityLevel}
                     onChange={(e) => updateForm('activityLevel', e.target.value as ActivityLevel)}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-medical-500 focus:outline-none appearance-none"
                   >
@@ -148,9 +148,9 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                   </div>
                   <div className="pt-4">
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('water_label')} ({formData.waterIntakeLiters}L)</label>
-                    <input 
-                      type="range" min="0" max="5" step="0.5" 
-                      value={formData.waterIntakeLiters} 
+                    <input
+                      type="range" min="0" max="5" step="0.5"
+                      value={formData.waterIntakeLiters}
                       onChange={(e) => updateForm('waterIntakeLiters', parseFloat(e.target.value))}
                       className="w-full accent-medical-500"
                     />
@@ -164,18 +164,18 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t('step4_title')}</h3>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('stress_label')}: {formData.stressLevel}</label>
-                    <input 
-                      type="range" min="1" max="10" step="1" 
-                      value={formData.stressLevel} 
+                    <input
+                      type="range" min="1" max="10" step="1"
+                      value={formData.stressLevel}
                       onChange={(e) => updateForm('stressLevel', parseInt(e.target.value))}
                       className="w-full accent-medical-500"
                     />
                   </div>
                   <div className="pt-4">
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t('sleep_label')} ({formData.sleepHoursAvg}h)</label>
-                    <input 
-                      type="range" min="3" max="12" step="0.5" 
-                      value={formData.sleepHoursAvg} 
+                    <input
+                      type="range" min="3" max="12" step="0.5"
+                      value={formData.sleepHoursAvg}
                       onChange={(e) => updateForm('sleepHoursAvg', parseFloat(e.target.value))}
                       className="w-full accent-medical-500"
                     />
@@ -189,9 +189,9 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
 
         {/* Footer Actions */}
         <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            onClick={handleBack} 
+          <Button
+            variant="ghost"
+            onClick={handleBack}
             disabled={step === 1 || isSubmitting}
             className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           >
@@ -199,12 +199,12 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
           </Button>
 
           {step < totalSteps ? (
-            <Button onClick={handleNext} className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 font-bold rounded-xl px-6">
+            <Button onClick={handleNext} className="px-6">
               {t('btn_next')} <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={isSubmitting}
               className="bg-medical-500 hover:bg-medical-600 text-white font-bold rounded-xl px-8 shadow-lg shadow-medical-500/30"
             >
