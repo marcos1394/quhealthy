@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Users, 
-  Plus, 
-  Trash2, 
-  User, 
-  Crown, 
+import {
+  Users,
+  Plus,
+  Trash2,
+  User,
+  Crown,
   Upload,
   Camera,
   Check,
@@ -56,34 +56,34 @@ interface StaffManagerProps {
   onUpgrade?: () => void;
 }
 
-export function StaffManager({ 
-  staff, 
-  onAdd, 
-  onUpdate, 
+export function StaffManager({
+  staff,
+  onAdd,
+  onUpdate,
   onDelete,
   onImageUpload,
   isBusinessPlan = false,
-  onUpgrade 
+  onUpgrade
 }: StaffManagerProps) {
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
 
   // Helper para role badge - PRIMING
   const getRoleBadge = (role?: string) => {
     const roles = {
-      lead: { 
-        label: 'Director', 
+      lead: {
+        label: 'Director',
         color: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-        icon: Award 
+        icon: Award
       },
-      specialist: { 
-        label: 'Especialista', 
+      specialist: {
+        label: 'Especialista',
         color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        icon: Star 
+        icon: Star
       },
-      assistant: { 
-        label: 'Asistente', 
+      assistant: {
+        label: 'Asistente',
         color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        icon: User 
+        icon: User
       }
     };
     return roles[role as keyof typeof roles] || roles.specialist;
@@ -111,7 +111,7 @@ export function StaffManager({
 
   return (
     <Card className="bg-slate-900 border-slate-800 shadow-xl">
-      
+
       {/* Header */}
       <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4">
         <div className="space-y-2">
@@ -135,30 +135,30 @@ export function StaffManager({
             )}
           </CardDescription>
         </div>
-        
+
         <div className="flex items-center gap-3">
           {!isBusinessPlan && (
             <Badge variant="outline" className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 text-orange-400 border-orange-500/20 hidden sm:flex gap-1">
               <Crown className="w-3 h-3" /> Plan Business
             </Badge>
           )}
-          <Button 
-            onClick={onAdd} 
+          <Button
+            onClick={onAdd}
             disabled={!isBusinessPlan}
             className={cn(
               "shadow-2xl transition-all duration-300",
-              !isBusinessPlan 
-                ? "bg-slate-800 text-slate-500 cursor-not-allowed hover:bg-slate-800" 
-                : "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600 text-white"
+              !isBusinessPlan
+                ? "bg-slate-800 text-slate-500 cursor-not-allowed hover:bg-slate-800"
+                : ""
             )}
           >
             <Plus className="w-4 h-4 mr-2" /> Agregar Miembro
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6 pt-6">
-        
+
         {/* Upsell Message - FEATURE GATING SUAVE */}
         {!isBusinessPlan && staff.length === 0 && (
           <motion.div
@@ -175,7 +175,7 @@ export function StaffManager({
                   Presenta a tu Equipo Completo
                 </h4>
                 <p className="text-sm text-orange-200/80 mb-4">
-                  Con el <strong>Plan Business</strong> puedes agregar múltiples especialistas, 
+                  Con el <strong>Plan Business</strong> puedes agregar múltiples especialistas,
                   gestionar sus agendas individuales y aumentar la confianza de tus pacientes.
                 </p>
 
@@ -197,7 +197,7 @@ export function StaffManager({
                 {onUpgrade && (
                   <Button
                     onClick={onUpgrade}
-                    className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-500 hover:to-yellow-500 text-white font-bold shadow-xl"
+                    className="w-full sm:w-auto"
                   >
                     <Crown className="w-4 h-4 mr-2" />
                     Actualizar a Business
@@ -233,7 +233,7 @@ export function StaffManager({
                   )}
                 >
                   <div className="p-6 space-y-5">
-                    
+
                     {/* Header Actions */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export function StaffManager({
                       </div>
 
                       <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                        <Button 
+                        <Button
                           size="default"
                           variant="ghost"
                           onClick={() => {
@@ -272,11 +272,11 @@ export function StaffManager({
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-6">
-                      
+
                       {/* Avatar Upload Section - AFFORDANCE */}
                       <div className="flex flex-col items-center gap-3">
                         <div className="relative">
-                          <label 
+                          <label
                             htmlFor={`avatar-${member.id}`}
                             className="relative group/avatar cursor-pointer block"
                           >
@@ -286,7 +286,7 @@ export function StaffManager({
                                 <User className="w-10 h-10" />
                               </AvatarFallback>
                             </Avatar>
-                            
+
                             {/* Upload Overlay */}
                             <div className="absolute inset-0 bg-black/70 rounded-full flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all">
                               {uploadingImage === member.id ? (
@@ -316,14 +316,14 @@ export function StaffManager({
 
                       {/* Form Fields */}
                       <div className="flex-1 space-y-4">
-                        
+
                         {/* Name & Specialty */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                               Nombre Completo
                             </Label>
-                            <Input 
+                            <Input
                               value={member.name}
                               onChange={(e) => {
                                 onUpdate(member.id, 'name', e.target.value);
@@ -332,16 +332,16 @@ export function StaffManager({
                               className={cn(
                                 "bg-slate-900 border-slate-700 h-11 text-base transition-all",
                                 "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-                                !member.name ? "border-red-500/50" :""
+                                !member.name ? "border-red-500/50" : ""
                               )}
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                               Especialidad
                             </Label>
-                            <Input 
+                            <Input
                               value={member.specialty}
                               onChange={(e) => {
                                 onUpdate(member.id, 'specialty', e.target.value);
@@ -358,7 +358,7 @@ export function StaffManager({
                             Credenciales
                             <span className="text-slate-600 text-[10px] normal-case">(Opcional)</span>
                           </Label>
-                          <Input 
+                          <Input
                             value={member.credentials || ''}
                             onChange={(e) => {
                               onUpdate(member.id, 'credentials', e.target.value);
@@ -367,7 +367,7 @@ export function StaffManager({
                             className="bg-slate-900 border-slate-700 h-11 text-sm focus:border-blue-500"
                           />
                         </div>
-                        
+
                         {/* Bio */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
@@ -381,7 +381,7 @@ export function StaffManager({
                               {bioLength}/200
                             </span>
                           </div>
-                          <Textarea 
+                          <Textarea
                             value={member.bio}
                             onChange={(e) => {
                               onUpdate(member.id, 'bio', e.target.value.slice(0, 200));
@@ -415,9 +415,9 @@ export function StaffManager({
             <p className="text-sm text-slate-500 mb-6">
               Agrega profesionales para mostrar un equipo completo
             </p>
-            <Button 
+            <Button
               onClick={onAdd}
-              className="bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600"
+
             >
               <Plus className="w-4 h-4 mr-2" />
               Agregar Primer Miembro

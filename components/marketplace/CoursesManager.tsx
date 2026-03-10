@@ -34,7 +34,7 @@ export function CoursesManager({
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Vende acceso a tus videoclases, talleres pregrabados o PDFs.</p>
         </div>
-        <Button onClick={onAdd} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm whitespace-nowrap">
+        <Button onClick={onAdd} className="whitespace-nowrap">
           <Plus className="w-4 h-4 mr-2" /> Agregar Curso
         </Button>
       </div>

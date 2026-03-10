@@ -131,7 +131,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     <X className="w-3 h-3 mr-1" />Cancel
                   </Button>
                   <Button onClick={onFileUpload}
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none text-xs">
+                    className="text-xs">
                     <CheckCircle2 className="w-3 h-3 mr-1" />Upload
                   </Button>
                 </motion.div>

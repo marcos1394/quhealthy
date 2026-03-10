@@ -171,11 +171,11 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ doc, i
           )}
           <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="outline" onClick={onClose}
-              className="flex-1 sm:flex-none border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm">
+              className="flex-1 sm:flex-none">
               Close
             </Button>
             <Button onClick={handleDownload} disabled={isDownloading}
-              className="flex-1 sm:flex-none bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none text-sm">
+              className="flex-1 sm:flex-none">
               {isDownloading ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Downloading...</> : <><Download className="w-3.5 h-3.5 mr-1.5" />Download</>}
             </Button>
           </div>

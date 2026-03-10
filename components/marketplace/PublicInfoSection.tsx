@@ -3,9 +3,9 @@
 import React, { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FileText, 
-  Crown, 
+import {
+  FileText,
+  Crown,
   Video,
   Sparkles,
   Info,
@@ -46,13 +46,13 @@ interface PublicInfoSectionProps {
   onVideoDelete?: () => void;
 }
 
-export function PublicInfoSection({ 
-  settings, 
-  onChange, 
+export function PublicInfoSection({
+  settings,
+  onChange,
   isPremium = false,
   onUpgrade,
   onVideoDelete,
-  onVideoUpload 
+  onVideoUpload
 }: PublicInfoSectionProps) {
   const [showPreviewTips, setShowPreviewTips] = useState(false);
   const [videoUrlError, setVideoUrlError] = useState<string>('');
@@ -103,12 +103,12 @@ export function PublicInfoSection({
   const getQualityScore = () => {
     let score = 0;
     const desc = settings.description;
-    
+
     if (desc.length > 100) score += 25;
     if (desc.length > 200) score += 25;
     if (desc.includes('.') || desc.includes('!')) score += 25;
     if (desc.split(' ').length > 30) score += 25;
-    
+
     return score;
   };
 
@@ -116,7 +116,7 @@ export function PublicInfoSection({
 
   return (
     <Card className="bg-slate-900 border-slate-800 shadow-xl">
-      
+
       {/* Header */}
       <CardHeader>
         <div className="flex items-start justify-between">
@@ -151,9 +151,9 @@ export function PublicInfoSection({
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6 pt-2">
-        
+
         {/* Writing Tips - RECONOCIMIENTO */}
         <AnimatePresence>
           {showPreviewTips && (
@@ -202,21 +202,21 @@ export function PublicInfoSection({
             <div className="flex items-center gap-3">
               {/* Quality Score */}
               {charCount > 50 && (
-                <Badge 
+                <Badge
                   variant="outline"
                   className={cn(
                     "text-xs",
                     qualityScore >= 75 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                    qualityScore >= 50 ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                    "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                      qualityScore >= 50 ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                        "bg-amber-500/10 text-amber-400 border-amber-500/20"
                   )}
                 >
-                  {qualityScore >= 75 ? '✓ Completa' : 
-                   qualityScore >= 50 ? 'Buena' : 
-                   'Básica'}
+                  {qualityScore >= 75 ? '✓ Completa' :
+                    qualityScore >= 50 ? 'Buena' :
+                      'Básica'}
                 </Badge>
               )}
-              
+
               {/* Character Counter */}
               <span className={cn(
                 "text-xs font-bold",
@@ -228,13 +228,13 @@ export function PublicInfoSection({
           </div>
 
           {/* Progress Bar - FEEDBACK VISUAL */}
-          <Progress 
-            value={charPercent} 
+          <Progress
+            value={charPercent}
             className={cn("h-1", getProgressColor())}
           />
 
-          <Textarea 
-            placeholder="Ejemplo: Hola, soy el Dr. Marcos López, médico cirujano con 10 años de experiencia en medicina general y preventiva. Me apasiona brindar atención integral y personalizada, escuchando las necesidades de cada paciente para ofrecer el mejor tratamiento posible..." 
+          <Textarea
+            placeholder="Ejemplo: Hola, soy el Dr. Marcos López, médico cirujano con 10 años de experiencia en medicina general y preventiva. Me apasiona brindar atención integral y personalizada, escuchando las necesidades de cada paciente para ofrecer el mejor tratamiento posible..."
             rows={6}
             value={settings.description}
             onChange={(e) => onChange('description', e.target.value)}
@@ -242,7 +242,7 @@ export function PublicInfoSection({
             className={cn(
               "bg-slate-950 border-slate-700 resize-none leading-relaxed transition-all",
               "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
-              charPercent >= 90 ? "border-red-500/50 focus:border-red-500":""
+              charPercent >= 90 ? "border-red-500/50 focus:border-red-500" : ""
             )}
           />
 
@@ -261,13 +261,13 @@ export function PublicInfoSection({
           transition={{ delay: 0.2 }}
           className={cn(
             "rounded-2xl border transition-all duration-300",
-            isPremium 
-              ? "bg-gradient-to-br from-medical-500/5 to-medical-600/5 border-purple-500/20 shadow-lg shadow-purple-500/5" 
+            isPremium
+              ? "bg-gradient-to-br from-medical-500/5 to-medical-600/5 border-purple-500/20 shadow-lg shadow-purple-500/5"
               : "bg-slate-950/50 border-slate-800"
           )}
         >
           <div className="p-5 space-y-4">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -325,12 +325,12 @@ export function PublicInfoSection({
                   </div>
                 </div>
               ) : (
-                <div 
+                <div
                   onClick={() => isPremium && videoInputRef.current?.click()}
                   className={cn(
                     "border-2 border-dashed rounded-xl p-8 text-center transition-all",
-                    isPremium 
-                      ? "border-purple-500/30 hover:bg-medical-500/10 hover:border-purple-500 cursor-pointer bg-slate-900" 
+                    isPremium
+                      ? "border-purple-500/30 hover:bg-medical-500/10 hover:border-purple-500 cursor-pointer bg-slate-900"
                       : "border-slate-800 bg-slate-950/50 cursor-not-allowed opacity-50"
                   )}
                 >
@@ -347,7 +347,7 @@ export function PublicInfoSection({
                   <p className="text-xs text-slate-500 mt-1">MP4 o WebM • Máx 20MB</p>
                 </div>
               )}
-              
+
               <input
                 ref={videoInputRef}
                 type="file"
@@ -368,7 +368,7 @@ export function PublicInfoSection({
                       Plataformas compatibles:
                     </p>
                     <p>
-                      YouTube, Vimeo. Los perfiles con video tienen <strong>40% más conversión</strong> y 
+                      YouTube, Vimeo. Los perfiles con video tienen <strong>40% más conversión</strong> y
                       generan mayor confianza en los pacientes.
                     </p>
                   </div>
@@ -402,7 +402,7 @@ export function PublicInfoSection({
                 {onUpgrade && (
                   <Button
                     onClick={onUpgrade}
-                    className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-bold shadow-xl"
+                    className="w-full"
                   >
                     <Crown className="w-4 h-4 mr-2" />
                     Actualizar a Premium

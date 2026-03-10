@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
+import {
+  Calendar,
+  Clock,
+  User,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
@@ -89,7 +89,7 @@ interface UpcomingAppointmentsProps {
   maxVisible?: number;
 }
 
-export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({ 
+export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
   appointments,
   onAppointmentClick,
   maxVisible = 5
@@ -162,7 +162,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center text-xl text-white">
             <div className="p-2 bg-purple-500/10 rounded-lg mr-3 border border-purple-500/20">
-              <Calendar className="w-5 h-5 text-purple-400"/>
+              <Calendar className="w-5 h-5 text-purple-400" />
             </div>
             {t('title')}
           </CardTitle>
@@ -181,15 +181,15 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
               <Sparkles className="w-4 h-4 text-white" />
             </div>
           </motion.div>
-          
+
           <h3 className="font-bold text-white text-lg mb-2">
             {t('no_appointments')}
           </h3>
           <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs mb-6">
             {t('no_appointments_desc')}
           </p>
-          
-          <Button 
+
+          <Button
             onClick={handleCopyLink}
             className={cn(
               "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-500 hover:to-medical-600 text-white transition-all duration-300",
@@ -218,7 +218,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
 
   return (
     <Card className="bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-slate-800/50 h-full flex flex-col">
-      
+
       {/* Header - JERARQUÍA VISUAL */}
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
@@ -229,7 +229,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
               transition={{ type: "spring", stiffness: 200 }}
               className="p-2 bg-gradient-to-br from-medical-500/10 to-medical-600/10 rounded-xl border border-purple-500/20"
             >
-              <Calendar className="w-5 h-5 text-purple-400"/>
+              <Calendar className="w-5 h-5 text-purple-400" />
             </motion.div>
             <div>
               <CardTitle className="text-lg font-black text-white">
@@ -240,9 +240,9 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
               </CardDescription>
             </div>
           </div>
-          
-          <Badge 
-            variant="outline" 
+
+          <Badge
+            variant="outline"
             className="bg-purple-500/10 text-purple-300 border-purple-500/20 font-bold"
           >
             {appointments.length} {appointments.length === 1 ? t('appointment') : t('appointments')}
@@ -264,13 +264,13 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 {t('next_appointment')}
               </p>
             </div>
-            
+
             <div className="flex items-start gap-3">
               {/* Avatar Placeholder */}
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-medical-500 to-medical-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                 {nextAppointment.clientName.charAt(0).toUpperCase()}
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-white text-base mb-1">
                   {nextAppointment.clientName}
@@ -278,24 +278,24 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">
                   {nextAppointment.service}
                 </p>
-                
+
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
                     <Clock className="w-3 h-3 mr-1" />
                     {nextAppointment.time}
                   </Badge>
-                  
+
                   {nextAppointment.duration && (
                     <Badge variant="outline" className="bg-slate-800 dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-700 dark:border-slate-800">
                       {nextAppointment.duration} min
                     </Badge>
                   )}
-                  
+
                   {nextAppointment.type && (
                     <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">
                       {React.createElement(getTypeIcon(nextAppointment.type), { className: "w-3 h-3 mr-1" })}
-                      {nextAppointment.type === 'video' ? t('virtual') : 
-                       nextAppointment.type === 'phone' ? t('phone') : t('in_person')}
+                      {nextAppointment.type === 'video' ? t('virtual') :
+                        nextAppointment.type === 'phone' ? t('phone') : t('in_person')}
                     </Badge>
                   )}
                 </div>
@@ -315,7 +315,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
             const isNext = index === 0;
 
             return (
-              <motion.li 
+              <motion.li
                 key={appt.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -323,8 +323,8 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 onClick={() => onAppointmentClick?.(appt)}
                 className={cn(
                   "group relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200",
-                  isNext 
-                    ? "bg-purple-500/5 border-purple-500/20 hover:bg-medical-500/10" 
+                  isNext
+                    ? "bg-purple-500/5 border-purple-500/20 hover:bg-medical-500/10"
                     : "bg-slate-950/50 dark:bg-slate-950/70 border-slate-800 dark:border-slate-800/50 hover:bg-slate-800 dark:bg-slate-900",
                   onAppointmentClick ? "cursor-pointer" : ""
                 )}
@@ -337,7 +337,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                 {/* Time Block */}
                 <div className={cn(
                   "relative z-10 flex flex-col items-center justify-center min-w-[70px] p-2.5 rounded-lg border transition-all",
-                  isNext 
+                  isNext
                     ? "bg-purple-500/10 border-purple-500/30"
                     : "bg-slate-900 dark:bg-slate-950 border-slate-800 dark:border-slate-800/50 group-hover:border-purple-500/20"
                 )}>
@@ -357,7 +357,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                     </span>
                   )}
                 </div>
-                
+
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -373,7 +373,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                       </Badge>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 mb-1">
                     <User className="w-3 h-3 flex-shrink-0" />
                     <span className="truncate">{appt.clientName}</span>
@@ -399,7 +399,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                     statusConfig.dotColor,
                     "shadow-[0_0_8px_currentColor]"
                   )} />
-                  
+
                   {/* Quick Actions on Hover */}
                   <AnimatePresence>
                     {onAppointmentClick && (
@@ -432,13 +432,13 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
           </div>
         )}
       </CardContent>
-      
+
       {/* Footer - AFFORDANCE */}
       <div className="p-4 border-t border-slate-800 dark:border-slate-800/50 mt-auto">
         <Link href="/dashboard/calendar" className="w-full">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-between text-slate-400 dark:text-slate-500 hover:text-white hover:bg-slate-800 dark:bg-slate-900 group transition-all"
+          <Button
+            variant="ghost"
+            className="w-full justify-between text-slate-400 dark:text-slate-500 hover:text-white hover:bg-slate-800 dark:hover:bg-slate-800 group transition-all"
           >
             <span className="font-semibold">{t('view_calendar')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

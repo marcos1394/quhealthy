@@ -137,7 +137,7 @@ export default function ProviderPatientsPage() {
                             </p>
                         </div>
                     </div>
-                    <Button className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl shadow-sm transition-all focus:ring-2 focus:ring-medical-500/20">
+                    <Button >
                         <UserPlus className="w-4 h-4 mr-2" />
                         {t("new_patient")}
                     </Button>

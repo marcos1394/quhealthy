@@ -189,7 +189,7 @@ export default function StoreSetupPage() {
                     "h-14 px-8 text-base font-bold shadow-lg transition-all group",
                     profile?.marketplaceVisible
                       ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
-                      : "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800 shadow-medical-500/20 hover:scale-105"
+                      : ""
                   )}
                 >
                   {isPublishing ? (
@@ -421,7 +421,7 @@ export default function StoreSetupPage() {
                     onClick={handlePublishStore}
                     disabled={isPublishing}
                     size="lg"
-                    className="bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800 text-white font-bold px-12 py-6 text-lg shadow-lg shadow-medical-500/20 h-16 group"
+                    className="px-12 py-6 text-lg h-16 group"
                   >
                     {isPublishing ? (
                       <>

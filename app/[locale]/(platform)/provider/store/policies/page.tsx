@@ -75,7 +75,7 @@ export default function PoliciesSetupPage() {
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold px-8 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
+            className="px-8"
           >
             {isSaving ? (
               <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('btn_saving')}</>

@@ -11,10 +11,10 @@ interface UpgradeModalProps {
   featureName?: string;
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  featureName = "esta función avanzada" 
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({
+  isOpen,
+  onClose,
+  featureName = "esta función avanzada"
 }) => {
   const router = useRouter();
 
@@ -52,9 +52,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           initial={{ scale: 0.85, opacity: 0, y: 40 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.85, opacity: 0, y: 40 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 320, 
+          transition={{
+            type: "spring",
+            stiffness: 320,
             damping: 28,
             duration: 0.4
           }}
@@ -64,7 +64,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           {/* Decorative background elements */}
           <div className="absolute -top-4 -left-4 w-24 h-24 bg-purple-500/20 rounded-full blur-xl animate-pulse" />
           <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-500/20 rounded-full blur-xl animate-pulse delay-1000" />
-          
+
           {/* Main modal container */}
           <div className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             {/* Header with gradient */}
@@ -93,7 +93,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
               </motion.div>
 
               {/* Title */}
-              <motion.h2 
+              <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -101,9 +101,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
               >
                 Desbloquea tu Potencial
               </motion.h2>
-              
+
               {/* Subtitle */}
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
@@ -154,12 +154,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <Button
                   onClick={handleUpgrade}
                   size="lg"
-                  className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] group"
+                  className="w-full h-12 text-base font-semibold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] group"
                 >
                   <span>Ver Planes y Precios</span>
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   onClick={onClose}
