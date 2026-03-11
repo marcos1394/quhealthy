@@ -38,11 +38,21 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
   // ── Fetch ───────────────────────────────────────────────────────────────────
 
-  const fetchPosts = useCallback(async () => {
+ const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getScheduledPosts(0, 20);
-      setPosts(data?.content ?? []);
+      // 🚀 Hacemos un cast a 'any' temporalmente para que TypeScript no se queje
+      const data = await getScheduledPosts(0, 20) as any;
+      
+      // 🚀 Verificamos la forma real de los datos que llegaron
+      if (Array.isArray(data)) {
+        // Si el backend mandó un Array directo (nuestro caso actual)
+        setPosts(data);
+      } else {
+        // Si en el futuro el backend manda una página (SpringPage)
+        setPosts(data?.content ?? []);
+      }
+      
     } catch {
       // error ya manejado en el hook
     } finally {
