@@ -80,6 +80,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https' as const,
         hostname: 'images.unsplash.com',
+      },
+      // ✅ ADDED: Necesario para servir imágenes almacenadas en Google Cloud Storage (marketing)
+      {
+        protocol: 'https' as const,
+        hostname: 'storage.googleapis.com',
       }
     ],
   },
