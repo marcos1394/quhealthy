@@ -210,11 +210,8 @@ export const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* LOGO - Minimalista */}
+        {/* LOGO - Solo Texto */}
         <Link href="/" className="flex items-center gap-2 relative z-50">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-medical-600">
-            <Heart className="w-4 h-4 text-white" />
-          </div>
           <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
             QuHealthy
           </span>
