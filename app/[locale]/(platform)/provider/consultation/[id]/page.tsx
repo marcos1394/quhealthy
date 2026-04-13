@@ -17,28 +17,55 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { appointmentService } from "@/services/appointment.service"; // 🚀 Importamos el servicio de citas
 
 export default function ConsultationRoomPage() {
-  const t = useTranslations('EHR');
+ const t = useTranslations('EHR');
   const params = useParams();
   const router = useRouter();
   
   // En un caso real, el consumerId vendría de la cita. Aquí lo mockeamos para el ejemplo.
   const appointmentId = Number(params.id);
-  const consumerId = 1; // Deberías obtener esto del detalle de la cita
-  
+// 🚀 ESTADO REAL PARA EL PACIENTE
+  const [consumerId, setConsumerId] = useState<number | null>(null);
+  const [loadingAppointment, setLoadingAppointment] = useState(true); 
+
+ // Instanciamos el hook (le pasamos 0 temporalmente hasta tener el ID real, no te preocupes, no hará fetch automático si lo controlamos)
   const {
     patientProfile, vaultDocuments, isLoading, isSubmitting,
     soapNotes, prescription, loadPatientRecord, updateSoapNote,
     addPrescriptionItem, removePrescriptionItem, completeConsultation
-  } = useConsultation(appointmentId, consumerId);
+  } = useConsultation(appointmentId, consumerId || 0);
 
   // Estado local para el formulario de nuevo medicamento
   const [newRx, setNewRx] = useState({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
 
+  // 🚀 1. PRIMERO OBTENEMOS LA CITA PARA SABER QUIÉN ES EL PACIENTE
   useEffect(() => {
-    loadPatientRecord(t('toast_load_error'));
-  }, [loadPatientRecord, t]);
+    const fetchAppointmentDetails = async () => {
+      try {
+        const appointment = await appointmentService.getAppointmentById(appointmentId);
+        // Supongamos que tu backend devuelve el ID del paciente en appointment.consumerId o appointment.patientId
+        setConsumerId(appointment.consumerId); 
+      } catch (error) {
+        console.error("Error al obtener la cita", error);
+      } finally {
+        setLoadingAppointment(false);
+      }
+    };
+
+    if (appointmentId) {
+      fetchAppointmentDetails();
+    }
+  }, [appointmentId]);
+
+  // 🚀 2. UNA VEZ QUE SABEMOS QUIÉN ES, CARGAMOS SU EXPEDIENTE
+  useEffect(() => {
+    if (consumerId) {
+      loadPatientRecord(t('toast_load_error'));
+    }
+  }, [consumerId, loadPatientRecord, t]);
+
 
   const handleAddRx = () => {
     if (!newRx.medicationName || !newRx.dosage) return;
@@ -53,7 +80,8 @@ export default function ConsultationRoomPage() {
     }
   };
 
-  if (isLoading) {
+ // Mostramos loading mientras buscamos la cita O mientras cargamos el expediente
+  if (loadingAppointment || isLoading || !consumerId) {
     return <div className="flex justify-center items-center h-screen"><Activity className="w-12 h-12 animate-spin text-medical-500" /></div>;
   }
 

@@ -1,4 +1,4 @@
-// src/hooks/useConsultation.ts
+// Ubicación: src/hooks/useConsultation.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
@@ -9,7 +9,7 @@ import {
   SoapNotes, 
   PrescriptionItem 
 } from '@/types/ehr';
-import { v4 as uuidv4 } from 'uuid'; // Asegúrate de tener npm install uuid
+import { v4 as uuidv4 } from 'uuid'; 
 
 export const useConsultation = (appointmentId: number, consumerId: number) => {
   // Estados de datos
@@ -45,6 +45,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       setVaultDocuments(vaultData || []);
     } catch (error) {
       console.error("Error loading patient record:", error);
+      // Opcional: handleApiError(error) si quieres mostrar un toast de error al cargar
       return;
     } finally {
       setIsLoading(false);
@@ -72,14 +73,19 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
 
   /**
    * 🏁 Finalizar Consulta
+   * 🚀 FIX FF-004: Payload estructurado basado en CompleteConsultationRequest.java
    */
   const completeConsultation = async (successMsg: string, errorMsg: string): Promise<boolean> => {
     setIsSubmitting(true);
     try {
-      // Preparamos el payload. El backend puede recibir las notas como un JSON stringificado
-      // o puedes adaptar esto si tu backend prefiere un formato específico.
+      // Construimos el JSON anidado que espera Spring Boot
       const payload = {
-        notes: JSON.stringify(soapNotes), 
+        clinicalNotes: {
+          subjective: soapNotes.subjective,
+          objective: soapNotes.objective,
+          assessment: soapNotes.assessment,
+          plan: soapNotes.plan
+        },
         // Filtramos el ID temporal de React antes de enviar al backend
         prescriptionItems: prescription.map(({ id, ...rest }) => rest),
         sendPrescriptionToVault: prescription.length > 0
@@ -89,6 +95,9 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
+      console.error(error);
+      handleApiError(error); // Manejo estandarizado de errores
+      toast.error(errorMsg, { theme: 'colored' });
       return false;
     } finally {
       setIsSubmitting(false);
