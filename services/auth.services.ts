@@ -17,9 +17,9 @@ import {
   RecoveryResetPasswordRequest,
   ValidateResetTokenRequest,
   // ConfirmResetPasswordRequest eliminado
-  RefreshTokenRequest,
+  // RefreshTokenRequest eliminado
   RefreshTokenResponse,
-  LogoutRequest,
+  // LogoutRequest eliminado
   RegisterDeviceTokenRequest,
   MessageResponse,
 } from '@/types/auth';
@@ -66,7 +66,6 @@ export const authService = {
    * 🚀 FIX FF-002: Enrutamiento dinámico para Google y Apple
    */
   socialLogin: async (data: SocialLoginRequest): Promise<AuthResponse> => {
-    // 1. Determinamos el endpoint según el provider que venga de la UI
     const endpoint = data.provider === 'APPLE' 
       ? `${BASE_AUTH}/social/apple` 
       : `${BASE_AUTH}/social/google`;
@@ -76,8 +75,6 @@ export const authService = {
       {
         token: data.token,
         role: data.role,
-        // Nota: data.provider no se envía en el body porque la ruta ya lo define, 
-        // a menos que tu backend explícitamente pida el campo 'provider' en el JSON.
       },
       { withCredentials: true } 
     );
@@ -85,7 +82,7 @@ export const authService = {
   },
 
   // =================================================================
-  // 🛡 3. SESIÓN Y REFRESH
+  // 🛡 3. SESIÓN Y REFRESH (FIX FS-001 y FS-002)
   // =================================================================
 
   validateSession: async (): Promise<AuthResponse> => {
@@ -96,19 +93,21 @@ export const authService = {
     return response.data;
   },
 
-  refreshToken: async (data: RefreshTokenRequest): Promise<RefreshTokenResponse> => {
+  // 🚀 El body viaja vacío ({}) porque el RefreshToken ahora es una cookie HttpOnly
+  refreshToken: async (): Promise<RefreshTokenResponse> => {
     const response = await axiosInstance.post<RefreshTokenResponse>(
       `${BASE_AUTH}/refresh-token`,
-      data,
+      {},
       { withCredentials: true } 
     );
     return response.data;
   },
 
-  logout: async (data: LogoutRequest): Promise<MessageResponse> => {
+  // 🚀 El body viaja vacío ({}) por la misma razón
+  logout: async (): Promise<MessageResponse> => {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/logout`,
-      data,
+      {},
       { withCredentials: true } 
     );
     return response.data;
@@ -165,7 +164,6 @@ export const authService = {
 
   sendRecoveryCode: async (data: ForgotPasswordRequest): Promise<MessageResponse> => {
     try {
-      // 🚀 Endpoint y Payload alineados al backend
       const response = await axiosInstance.post<MessageResponse>(
         `${BASE_AUTH}/forgot-password`, 
         { 
@@ -175,7 +173,6 @@ export const authService = {
       );
       return response.data;
     } catch (error: any) {
-      // 🛡️ Manejo del Rate Limiting
       if (error.response?.status === 429) {
         throw new Error('Has superado el límite de intentos (3 por hora). Por favor, intenta más tarde.');
       }
@@ -194,7 +191,6 @@ export const authService = {
       );
       return response.data;
     } catch (error: any) {
-      // 🛡️ Manejo del Rate Limiting
       if (error.response?.status === 429) {
         throw new Error('Demasiados intentos fallidos. Intente más tarde.');
       }
@@ -203,7 +199,6 @@ export const authService = {
   },
 
   recoveryResetPassword: async (data: RecoveryResetPasswordRequest): Promise<MessageResponse> => {
-    // 🚀 Endpoint unificado para establecer nueva contraseña
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/reset-password`,
       {
@@ -227,7 +222,4 @@ export const authService = {
     );
     return response.data;
   },
-
-  // 🚀 confirmResetPassword eliminado (usamos recoveryResetPassword en su lugar)
-
 };

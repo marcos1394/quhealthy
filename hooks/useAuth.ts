@@ -1,7 +1,8 @@
-// Ubicación: src/hooks/useAuth.ts (o la ruta donde lo tengas)
+// Ubicación: src/hooks/useAuth.ts
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify'; // 🚀 Añadido para FS-002
 import { authService } from '@/services/auth.services';
 import { useSessionStore } from '@/stores/SessionStore';
 import {
@@ -34,7 +35,7 @@ interface UseAuthReturn {
   login: (data: LoginRequest) => Promise<AuthResponse>;
   loginWithGoogle: (data: SocialLoginRequest) => Promise<AuthResponse>;
   checkSession: () => Promise<AuthResponse | null>;
-  logout: () => void;
+  logout: () => Promise<void>; // 🚀 FS-002: Ahora es una promesa
 
   // Verificación
   verifyEmail: (token: string) => Promise<MessageResponse>;
@@ -115,11 +116,25 @@ export const useAuth = (): UseAuthReturn => {
     }
   };
 
-  const logout = () => {
-    const { refreshToken } = useSessionStore.getState();
-    authService.logout({ refreshToken: refreshToken || '' }).catch(() => { });
-    useSessionStore.getState().clearSession();
-    router.push('/login');
+  // ==========================================
+  // 🛡️ FIX FS-002: LOGOUT ROBUSTO
+  // ==========================================
+  const logout = async () => {
+    try {
+      // Intentamos invalidar la sesión en el servidor.
+      // OJO: Ya no pasamos { refreshToken } en el body porque viaja en la cookie (FS-001)
+      await authService.logout();
+    } catch (err) {
+      // Si el servidor falla (ej: sin internet), logueamos y avisamos al usuario.
+      console.error('[Auth] Error en logout del servidor:', err);
+      toast.warn('Sesión cerrada localmente. Hubo un problema con el servidor.', {
+        theme: 'colored'
+      });
+    } finally {
+      // Pase lo que pase, SIEMPRE matamos la sesión local y expulsamos al usuario
+      useSessionStore.getState().clearSession();
+      router.push('/login');
+    }
   };
 
   const verifyEmail = async (token: string) => {
