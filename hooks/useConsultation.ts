@@ -1,5 +1,5 @@
 // Ubicación: src/hooks/useConsultation.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
@@ -12,15 +12,12 @@ import {
 import { v4 as uuidv4 } from 'uuid'; 
 
 export const useConsultation = (appointmentId: number, consumerId: number) => {
-  // Estados de datos
   const [patientProfile, setPatientProfile] = useState<PatientClinicalProfile | null>(null);
   const [vaultDocuments, setVaultDocuments] = useState<VaultDocument[]>([]);
   
-  // Estados de carga y envío
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Estado del Formulario SOAP
   const [soapNotes, setSoapNotes] = useState<SoapNotes>({
     subjective: '',
     objective: '',
@@ -28,12 +25,22 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     plan: ''
   });
 
-  // Estado de la Receta Digital
   const [prescription, setPrescription] = useState<PrescriptionItem[]>([]);
 
-  /**
-   * 📥 Carga el Expediente y la Bóveda en paralelo
-   */
+  // 🚀 PLUS FU-003: RECUPERAR RESPALDO LOCAL AL MONTAR (Opcional pero recomendado)
+  useEffect(() => {
+    const draft = localStorage.getItem(`draft_consultation_${appointmentId}`);
+    if (draft) {
+      try {
+        const parsedDraft = JSON.parse(draft);
+        if (parsedDraft.clinicalNotes) setSoapNotes(parsedDraft.clinicalNotes);
+        toast.info("Se ha recuperado un borrador no guardado de esta consulta.", { autoClose: 5000 });
+      } catch (e) {
+        console.error("Error al parsear el borrador local", e);
+      }
+    }
+  }, [appointmentId]);
+
   const loadPatientRecord = useCallback(async (errorMsg: string) => {
     setIsLoading(true);
     try {
@@ -45,16 +52,11 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       setVaultDocuments(vaultData || []);
     } catch (error) {
       console.error("Error loading patient record:", error);
-      // Opcional: handleApiError(error) si quieres mostrar un toast de error al cargar
-      return;
     } finally {
       setIsLoading(false);
     }
   }, [consumerId]);
 
-  /**
-   * 💊 Manejo de la Receta
-   */
   const addPrescriptionItem = (item: Omit<PrescriptionItem, 'id'>) => {
     const newItem: PrescriptionItem = { ...item, id: uuidv4() };
     setPrescription(prev => [...prev, newItem]);
@@ -64,41 +66,57 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     setPrescription(prev => prev.filter(item => item.id !== id));
   };
 
-  /**
-   * 📝 Manejo de Notas SOAP
-   */
   const updateSoapNote = (field: keyof SoapNotes, value: string) => {
     setSoapNotes(prev => ({ ...prev, [field]: value }));
   };
 
-  /**
-   * 🏁 Finalizar Consulta
-   * 🚀 FIX FF-004: Payload estructurado basado en CompleteConsultationRequest.java
-   */
   const completeConsultation = async (successMsg: string, errorMsg: string): Promise<boolean> => {
     setIsSubmitting(true);
-    try {
-      // Construimos el JSON anidado que espera Spring Boot
-      const payload = {
-        clinicalNotes: {
-          subjective: soapNotes.subjective,
-          objective: soapNotes.objective,
-          assessment: soapNotes.assessment,
-          plan: soapNotes.plan
-        },
-        // Filtramos el ID temporal de React antes de enviar al backend
-        prescriptionItems: prescription.map(({ id, ...rest }) => rest),
-        sendPrescriptionToVault: prescription.length > 0
-      };
+    
+    // 1. Armamos el payload estructurado (Logro de la FF-004)
+    const payload = {
+      clinicalNotes: {
+        subjective: soapNotes.subjective,
+        objective: soapNotes.objective,
+        assessment: soapNotes.assessment,
+        plan: soapNotes.plan
+      },
+      prescriptionItems: prescription.map(({ id, ...rest }) => rest),
+      sendPrescriptionToVault: prescription.length > 0
+    };
 
+    // 2. 🛡️ FIX FU-003: RESPALDO DE EMERGENCIA EN LOCALSTORAGE ANTES DE ENVIAR
+    try {
+      localStorage.setItem(`draft_consultation_${appointmentId}`, JSON.stringify(payload));
+    } catch (storageError) {
+      console.warn("No se pudo guardar el respaldo local:", storageError);
+    }
+
+    try {
+      // 3. Intento de envío al Backend
       await ehrService.completeConsultation(appointmentId, payload);
+      
+      // 4. Si el backend responde 200 OK, borramos el respaldo de emergencia
+      localStorage.removeItem(`draft_consultation_${appointmentId}`);
+      
       toast.success(successMsg, { theme: 'colored' });
       return true;
+
     } catch (error) {
       console.error(error);
-      handleApiError(error); // Manejo estandarizado de errores
-      toast.error(errorMsg, { theme: 'colored' });
-      return false;
+      handleApiError(error); 
+      
+      // 🚨 FIX FU-003: MENSAJE CRÍTICO PERSISTENTE
+      toast.error(
+        'Error crítico al guardar la consulta. NO CIERRES ESTA PANTALLA. Por favor, revisa tu conexión e intenta de nuevo.', 
+        { 
+          theme: 'colored', 
+          autoClose: false, // El mensaje se queda pegado hasta que el doctor lo cierre
+          closeOnClick: false,
+          draggable: false
+        }
+      );
+      return false; // El doctor se queda en la pantalla
     } finally {
       setIsSubmitting(false);
     }
