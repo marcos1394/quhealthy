@@ -1,4 +1,5 @@
 // Ubicación: src/stores/SessionStore.ts
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
@@ -6,7 +7,7 @@ import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 
 interface SessionState {
   // Estado
-  token: string | null;       // 🚀 Ahora vive solo en RAM
+  token: string | null;       // 🚀 Ahora vive solo en RAM (FS-001)
   user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
   status: AuthStatus | null;
@@ -77,9 +78,7 @@ export const useSessionStore = create<SessionState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       // =========================================================================
-      // 🚀 RESTAURAR SESIÓN AL RECARGAR (FIX FS-001)
-      // Si estamos en RAM, seguimos. Si se recargó la página (RAM vacía),
-      // pedimos un nuevo access token a la API usando la cookie HttpOnly.
+      // 🚀 RESTAURAR SESIÓN AL RECARGAR (FIX FS-001 & FS-005)
       // =========================================================================
       initializeSession: async () => {
         const state = get();
@@ -94,11 +93,10 @@ export const useSessionStore = create<SessionState>()(
         set({ isLoading: true });
 
         try {
-          // 🛑 OJO: Quitamos el body { refreshToken }. 
-          // El backend debe leer el refresh token desde la cookie de la petición (withCredentials: true).
+          // 🛑 OJO: El backend lee el refresh token desde la cookie (withCredentials: true).
           const response = await axios.post<AuthResponse>(
             `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
-            {}, // Body vacío, confiamos en la cookie
+            {}, // Body vacío
             { withCredentials: true } 
           );
 
@@ -124,6 +122,14 @@ export const useSessionStore = create<SessionState>()(
             isAuthenticated: false,
             isLoading: false,
           });
+
+          // 🛡️ FIX FS-005: Mitigación del riesgo. 
+          // Si el servidor rechazó el refresh token, la cookie es basura o ha sido revocada.
+          // Forzamos su eliminación y redirigimos.
+          if (typeof window !== 'undefined') {
+            document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/api/auth; domain=quhealthy.org; SameSite=None; Secure";
+            window.location.href = '/login'; 
+          }
         }
       },
     }),
