@@ -1,3 +1,5 @@
+// Ubicación: src/hooks/useAuth.ts (o la ruta donde lo tengas)
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/auth.services';
@@ -13,7 +15,7 @@ import {
   VerifyRecoveryCodeRequest,
   RecoveryResetPasswordRequest,
   ValidateResetTokenRequest,
-  ConfirmResetPasswordRequest,
+  // 🚀 Eliminado: ConfirmResetPasswordRequest
   AuthResponse,
   ProviderRegistrationResponse,
   ConsumerRegistrationResponse,
@@ -39,14 +41,15 @@ interface UseAuthReturn {
   verifyPhone: (data: VerifyPhoneRequest) => Promise<MessageResponse>;
   resendVerification: (data: ResendVerificationRequest) => Promise<MessageResponse>;
 
-  // Recovery Flow (Multi-step)
+  // Recovery Flow (Flujo Unificado)
   sendRecoveryCode: (data: ForgotPasswordRequest) => Promise<MessageResponse>;
   verifyRecoveryCode: (data: VerifyRecoveryCodeRequest) => Promise<MessageResponse>;
   recoveryResetPassword: (data: RecoveryResetPasswordRequest) => Promise<MessageResponse>;
 
-  // Reset Password (token-based)
+  // Reset Password (token-based check)
   validateResetToken: (data: ValidateResetTokenRequest) => Promise<MessageResponse>;
-  confirmResetPassword: (data: ConfirmResetPasswordRequest) => Promise<MessageResponse>;
+  
+  // 🚀 Eliminado: confirmResetPassword (usamos recoveryResetPassword)
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -55,6 +58,7 @@ export const useAuth = (): UseAuthReturn => {
   const router = useRouter();
 
   const handleError = (err: any): never => {
+    // 🚀 Este bloque atrapará perfectamente el "Error 429" lanzado por auth.services.ts
     const msg = err.response?.data?.message ||
       err.response?.data?.error ||
       err.message ||
@@ -139,6 +143,10 @@ export const useAuth = (): UseAuthReturn => {
     finally { setLoading(false); }
   };
 
+  // ==========================================
+  // FLUJO DE RECUPERACIÓN (Alineado a FF-001)
+  // ==========================================
+
   const sendRecoveryCode = async (data: ForgotPasswordRequest) => {
     setLoading(true); setError(null);
     try { return await authService.sendRecoveryCode(data); }
@@ -167,12 +175,7 @@ export const useAuth = (): UseAuthReturn => {
     finally { setLoading(false); }
   };
 
-  const confirmResetPassword = async (data: ConfirmResetPasswordRequest) => {
-    setLoading(true); setError(null);
-    try { return await authService.confirmResetPassword(data); }
-    catch (err) { return handleError(err); }
-    finally { setLoading(false); }
-  };
+  // 🚀 Eliminada la función confirmResetPassword
 
   return {
     loading,
@@ -190,6 +193,6 @@ export const useAuth = (): UseAuthReturn => {
     verifyRecoveryCode,
     recoveryResetPassword,
     validateResetToken,
-    confirmResetPassword
+    // 🚀 Eliminado confirmResetPassword del return
   };
 };

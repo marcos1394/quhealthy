@@ -89,7 +89,6 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
-      return;
       return false;
     } finally {
       setIsSubmitting(false);

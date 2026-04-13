@@ -1,3 +1,5 @@
+// Ubicación: src/services/auth.services.ts
+
 import axiosInstance from '@/lib/axios';
 
 import {
@@ -14,7 +16,7 @@ import {
   VerifyRecoveryCodeRequest,
   RecoveryResetPasswordRequest,
   ValidateResetTokenRequest,
-  ConfirmResetPasswordRequest,
+  // ConfirmResetPasswordRequest eliminado
   RefreshTokenRequest,
   RefreshTokenResponse,
   LogoutRequest,
@@ -55,7 +57,7 @@ export const authService = {
     const response = await axiosInstance.post<AuthResponse>(
       `${BASE_AUTH}/login`,
       data,
-      { withCredentials: true } // 🚀 PERMITE GUARDAR LA COOKIE
+      { withCredentials: true } 
     );
     return response.data;
   },
@@ -67,7 +69,7 @@ export const authService = {
         token: data.token,
         role: data.role,
       },
-      { withCredentials: true } // 🚀 PERMITE GUARDAR LA COOKIE
+      { withCredentials: true } 
     );
     return response.data;
   },
@@ -79,7 +81,7 @@ export const authService = {
   validateSession: async (): Promise<AuthResponse> => {
     const response = await axiosInstance.get<AuthResponse>(
       `${BASE_AUTH}/session`,
-      { withCredentials: true } // 🚀 ENVÍA LA COOKIE
+      { withCredentials: true } 
     );
     return response.data;
   },
@@ -88,7 +90,7 @@ export const authService = {
     const response = await axiosInstance.post<RefreshTokenResponse>(
       `${BASE_AUTH}/refresh-token`,
       data,
-      { withCredentials: true } // 🚀 ENVÍA LA COOKIE PARA OBTENER UN NUEVO TOKEN
+      { withCredentials: true } 
     );
     return response.data;
   },
@@ -97,7 +99,7 @@ export const authService = {
     const response = await axiosInstance.post<MessageResponse>(
       `${BASE_AUTH}/logout`,
       data,
-      { withCredentials: true } // 🚀 ENVÍA LA COOKIE PARA DESTRUIRLA EN EL BACKEND
+      { withCredentials: true } 
     );
     return response.data;
   },
@@ -148,34 +150,54 @@ export const authService = {
   },
 
   // =================================================================
-  // 🔄 6. RECUPERACIÓN DE CONTRASEÑA (OTP MULTI-STEP)
+  // 🔄 6. RECUPERACIÓN DE CONTRASEÑA (Flujo Unificado: OTP / Link)
   // =================================================================
 
   sendRecoveryCode: async (data: ForgotPasswordRequest): Promise<MessageResponse> => {
-    const endpoint = data.method === 'EMAIL'
-      ? `${BASE_AUTH}/recovery/send-email`
-      : `${BASE_AUTH}/recovery/send-sms`;
-    const response = await axiosInstance.post<MessageResponse>(endpoint, { contact: data.contact });
-    return response.data;
+    try {
+      // 🚀 Endpoint y Payload alineados al backend
+      const response = await axiosInstance.post<MessageResponse>(
+        `${BASE_AUTH}/forgot-password`, 
+        { 
+          email: data.email, 
+          deliveryMethod: data.deliveryMethod 
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // 🛡️ Manejo del Rate Limiting
+      if (error.response?.status === 429) {
+        throw new Error('Has superado el límite de intentos (3 por hora). Por favor, intenta más tarde.');
+      }
+      throw error;
+    }
   },
 
   verifyRecoveryCode: async (data: VerifyRecoveryCodeRequest): Promise<MessageResponse> => {
-    const response = await axiosInstance.post<MessageResponse>(
-      `${BASE_AUTH}/recovery/verify-code`,
-      {
-        contact: data.contact,
-        code: data.code,
+    try {
+      const response = await axiosInstance.post<MessageResponse>(
+        `${BASE_AUTH}/recovery/verify-code`,
+        {
+          email: data.email,
+          code: data.code,
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // 🛡️ Manejo del Rate Limiting
+      if (error.response?.status === 429) {
+        throw new Error('Demasiados intentos fallidos. Intente más tarde.');
       }
-    );
-    return response.data;
+      throw error;
+    }
   },
 
   recoveryResetPassword: async (data: RecoveryResetPasswordRequest): Promise<MessageResponse> => {
+    // 🚀 Endpoint unificado para establecer nueva contraseña
     const response = await axiosInstance.post<MessageResponse>(
-      `${BASE_AUTH}/recovery/reset-password`,
+      `${BASE_AUTH}/reset-password`,
       {
-        contact: data.contact,
-        code: data.code,
+        token: data.token,
         newPassword: data.newPassword,
       }
     );
@@ -196,15 +218,6 @@ export const authService = {
     return response.data;
   },
 
-  confirmResetPassword: async (data: ConfirmResetPasswordRequest): Promise<MessageResponse> => {
-    const response = await axiosInstance.post<MessageResponse>(
-      `${BASE_AUTH}/reset-password/confirm`,
-      {
-        token: data.token,
-        newPassword: data.newPassword,
-      }
-    );
-    return response.data;
-  },
+  // 🚀 confirmResetPassword eliminado (usamos recoveryResetPassword en su lugar)
 
 };

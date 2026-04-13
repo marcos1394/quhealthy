@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown } from "lucide-react";
 import { useSocial } from "@/hooks/useSocial";
-import type { SocialConnectionResponse, ScheduledPostDTO } from "@/types/social";
+import type { SocialConnectionDTO, ScheduledPostDTO } from "@/types/social";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

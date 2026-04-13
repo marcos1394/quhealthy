@@ -1,3 +1,5 @@
+// Ubicación: src/types/auth.ts
+
 // ================================
 // ENUMS & TYPES
 // ================================
@@ -92,44 +94,40 @@ export interface SocialLoginRequest {
   role: 'CONSUMER' | 'PROVIDER';  // ADMIN nunca desde este flujo
 }
 
-// ================================
-// RECUPERACIÓN DE CONTRASEÑA (FORGOT PASSWORD)
-// ================================
+// ==========================================================
+// 🚀 RECUPERACIÓN DE CONTRASEÑA (ALINEADO AL BACKEND)
+// ==========================================================
 
 export interface ForgotPasswordRequest {
-  contact: string;            // email o número de teléfono
-  method: 'EMAIL' | 'SMS';
+  email: string; // 🚀 Cambiado de 'contact' a 'email'
+  deliveryMethod: 'LINK' | 'OTP_EMAIL' | 'OTP_SMS'; // 🚀 Cambiado a las opciones de Java
 }
 
 export interface VerifyRecoveryCodeRequest {
-  contact: string;
-  code: string;               // 6 dígitos
+  email: string; // 🚀 Cambiado de 'contact' a 'email'
+  code: string;  // 6 dígitos
 }
 
 export interface RecoveryResetPasswordRequest {
-  contact: string;
-  code: string;               // mismo PIN verificado
+  token: string; // 🚀 El token que devuelve el verifyRecoveryCode o el link
   newPassword: string;
 }
 
-// ================================
-// RESET PASSWORD (VÍA LINK)
-// ================================
+// ==========================================================
+// 🔗 RESET PASSWORD (VÍA LINK)
+// ==========================================================
 
 export interface ValidateResetTokenRequest {
-  token: string;              // viene del query param de la URL
+  token: string; // Viene del query param de la URL
 }
 
-export interface ConfirmResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
+// 🚀 NOTA: ConfirmResetPasswordRequest fue eliminado porque 
+// RecoveryResetPasswordRequest ahora cumple esa misma función para ambos flujos.
 
 // ================================
 // VERIFICACIÓN DE IDENTIDAD (EMAIL & PHONE)
 // ================================
 
-// Verify Email: GET con query param, no necesita interface de request
 export interface VerifyEmailResponse {
   message: string;
 }
