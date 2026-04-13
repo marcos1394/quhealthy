@@ -1,4 +1,6 @@
+// Ubicación: src/hooks/useBookingCheckout.ts
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 🚀 Importante para la redirección
 import { appointmentService } from '@/services/appointment.service';
 import { paymentService } from '@/services/payment.service';
 import { CheckoutParams } from '@/types/booking';
@@ -8,6 +10,7 @@ import { handleApiError } from '@/lib/handleApiError';
 
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const router = useRouter(); // 🚀 Instanciamos el router
 
   const processCheckout = async ({
     providerId,
@@ -17,7 +20,7 @@ export const useBookingCheckout = () => {
     selectedTime,
     cart,
     consumerSymptoms,
-    shippingAddress // 🚀 Añadido para productos físicos
+    shippingAddress
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -26,17 +29,13 @@ export const useBookingCheckout = () => {
         throw new Error("El carrito está vacío.");
       }
 
-      // 1. 🛠️ MAPEO INTELIGENTE DEL CARRITO
+      // 1. 🛠️ MAPEO DEL CARRITO
       const cartItems = cart.map(item => {
         let startTimeIso: string | null = null;
         let appointmentType = 'IN_PERSON';
 
-        // Validar modalidades
-        if (item.modality === 'ONLINE') {
-          appointmentType = 'ONLINE';
-        }
+        if (item.modality === 'ONLINE') appointmentType = 'ONLINE';
 
-        // Si es Servicio o Paquete, asignamos la fecha elegida
         if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
           if (selectedDate && selectedTime) {
             const [hours, minutes] = selectedTime.split(':');
@@ -44,21 +43,20 @@ export const useBookingCheckout = () => {
             startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
             startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
           } else {
-             // Fallback de seguridad por si falla la UI
              startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
           }
         }
 
         return {
           catalogItemId: item.id,
-          itemType: item.type || 'SERVICE', // SERVICE, PRODUCT, COURSE, PACKAGE
+          itemType: item.type || 'SERVICE', 
           quantity: item.quantity || 1,
           startTime: startTimeIso,
           appointmentType: appointmentType
         };
       });
 
-      // 2. 📦 PASO 1: PREPARAR ORDEN EN BACKEND
+      // 2. 📦 PREPARAR ORDEN
       const preparePayload = {
         providerId,
         consumerId,
@@ -71,11 +69,9 @@ export const useBookingCheckout = () => {
 
       const preparedOrder = await appointmentService.prepareHybridOrder(preparePayload);
 
-      if (!preparedOrder) {
-        throw new Error("No se pudo preparar la orden en el servidor.");
-      }
+      if (!preparedOrder) throw new Error("No se pudo preparar la orden.");
 
-      // 3. 💳 PASO 2: SOLICITAR LINK DE PAGO A STRIPE
+      // 3. 💳 SOLICITAR LINK DE PAGO
       const paymentPayload = {
         appointmentIds: preparedOrder.createdAppointmentIds,
         orderId: preparedOrder.createdOrderId,
@@ -86,28 +82,39 @@ export const useBookingCheckout = () => {
 
       const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
 
-      // 4. 🚀 REDIRECCIÓN FINAL
+      // 4. 🚀 REDIRECCIÓN
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
-        throw new Error("No se pudo generar la sesión de pago de Stripe.");
+        throw new Error("No se pudo generar la sesión de pago.");
       }
 
     } catch (error: any) {
       console.error("❌ Checkout Error:", error);
-
       const errorData = error.response?.data;
 
+      // 🚀 FIX FU-002: Retroalimentación visible y manejo de sesión
       if (errorData?.code === "VALIDATION_ERROR") {
-        const validationMsgs = Object.values(errorData.errors).join(", ");
+        // Extraemos todos los mensajes de error del objeto del backend
+        const validationMsgs = Object.values(errorData.errors || {}).join(", ");
+        toast.error(`Error de validación: ${validationMsgs}`, { theme: "colored" });
         return;
-      } else if (error.response?.status === 401) {
-        return;
-      } else {
-        const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
+      } 
+      
+      if (error.response?.status === 401) {
+        // Redirigimos al login con el flag de sesión expirada
+        toast.warning("Tu sesión ha expirado.");
+        router.push('/login?expired=true');
         return;
       }
 
+      // Error genérico o de red
+      const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
+      toast.error(errorMsg, { theme: "colored" });
+      handleApiError(error);
+
+    } finally {
+      // 🚀 FIX FU-001: Siempre liberamos el estado de carga
       setIsProcessing(false);
     }
   };
