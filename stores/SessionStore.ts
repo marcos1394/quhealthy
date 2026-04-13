@@ -1,4 +1,4 @@
-// src/stores/SessionStore.ts
+// Ubicación: src/stores/SessionStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
@@ -6,9 +6,7 @@ import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 
 interface SessionState {
   // Estado
-  token: string | null;
-  refreshToken: string | null;
-  expiresAt: number | null;
+  token: string | null;       // 🚀 Ahora vive solo en RAM
   user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
   status: AuthStatus | null;
@@ -32,15 +30,13 @@ export const useSessionStore = create<SessionState>()(
     (set, get) => ({
       // Estado Inicial
       token: null,
-      refreshToken: null,
-      expiresAt: null,
       user: null,
       role: null,
       status: null,
       isAuthenticated: false,
-      isLoading: true,
+      isLoading: true, // 🚀 Importante que inicie en true para el Layout
 
-      // Hidratación: indica si el store ya cargó del localStorage
+      // Hidratación
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
 
@@ -48,8 +44,6 @@ export const useSessionStore = create<SessionState>()(
       setSession: (response) => {
         set({
           token: response.token,
-          refreshToken: response.refreshToken || null,
-          expiresAt: response.expiresIn ? Date.now() + response.expiresIn * 1000 : null,
           user: response.user,
           role: response.role,
           status: response.status,
@@ -61,8 +55,6 @@ export const useSessionStore = create<SessionState>()(
       updateToken: (payload) => {
         set((state) => ({
           token: payload.token !== undefined ? payload.token : state.token,
-          refreshToken: payload.refreshToken !== undefined ? payload.refreshToken : state.refreshToken,
-          expiresAt: payload.expiresIn ? Date.now() + payload.expiresIn * 1000 : state.expiresAt,
           role: payload.role !== undefined ? payload.role : state.role,
           user: payload.user !== undefined ? payload.user : state.user,
           status: payload.status !== undefined ? payload.status : state.status,
@@ -74,8 +66,6 @@ export const useSessionStore = create<SessionState>()(
       clearSession: () => {
         set({
           token: null,
-          refreshToken: null,
-          expiresAt: null,
           user: null,
           role: null,
           status: null,
@@ -87,78 +77,69 @@ export const useSessionStore = create<SessionState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       // =========================================================================
-      // RESTAURAR SESIÓN AL RECARGAR
-      // Primero verifica si hay datos persistidos válidos en localStorage.
-      // Si el token está por expirar o ya expiró, intenta renovar vía refresh.
+      // 🚀 RESTAURAR SESIÓN AL RECARGAR (FIX FS-001)
+      // Si estamos en RAM, seguimos. Si se recargó la página (RAM vacía),
+      // pedimos un nuevo access token a la API usando la cookie HttpOnly.
       // =========================================================================
       initializeSession: async () => {
         const state = get();
 
-        // Si ya tenemos token y no ha expirado, simplemente marcamos como listo
-        if (state.token && state.expiresAt && state.expiresAt > Date.now()) {
+        // 1. Navegación tipo SPA (El token sigue vivo en la RAM)
+        if (state.token) {
           set({ isAuthenticated: true, isLoading: false });
-          console.log('✅ [Auth] Sesión restaurada desde almacenamiento local');
           return;
         }
 
-        // Si tenemos refreshToken, intentamos renovar el access token
-        const refreshTokenValue = state.refreshToken;
-        if (refreshTokenValue) {
-          try {
-            const response = await axios.post<AuthResponse>(
-              `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
-              { refreshToken: refreshTokenValue },
-              { withCredentials: true }
-            );
+        // 2. Hard Refresh (F5) - La RAM se limpió. Intentamos recuperar vía Cookie HttpOnly
+        set({ isLoading: true });
 
-            set({
-              token: response.data.token,
-              refreshToken: response.data.refreshToken || refreshTokenValue,
-              expiresAt: response.data.expiresIn ? Date.now() + response.data.expiresIn * 1000 : null,
-              user: response.data.user || state.user,
-              role: response.data.role || state.role,
-              status: response.data.status || state.status,
-              isAuthenticated: true,
-              isLoading: false,
-            });
+        try {
+          // 🛑 OJO: Quitamos el body { refreshToken }. 
+          // El backend debe leer el refresh token desde la cookie de la petición (withCredentials: true).
+          const response = await axios.post<AuthResponse>(
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+            {}, // Body vacío, confiamos en la cookie
+            { withCredentials: true } 
+          );
 
-            console.log('✅ [Auth] Token renovado exitosamente vía refresh token');
-            return;
-          } catch {
-            console.log('⚠️ [Auth] Refresh token expirado o inválido');
-          }
+          set({
+            token: response.data.token,
+            user: response.data.user || state.user,
+            role: response.data.role || state.role,
+            status: response.data.status || state.status,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+
+          console.log('✅ [Auth] Token recuperado de la memoria (Cookie HttpOnly)');
+          
+        } catch (error) {
+          console.log('⚠️ [Auth] No hay sesión activa o cookie expirada. Requiere login.');
+          
+          set({
+            token: null,
+            user: null,
+            role: null,
+            status: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
         }
-
-        // Si no se pudo restaurar ni renovar, limpiar sesión
-        console.log('ℹ️ [Auth] No hay sesión activa. Usuario debe loguearse.');
-        set({
-          token: null,
-          refreshToken: null,
-          expiresAt: null,
-          user: null,
-          role: null,
-          status: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
       },
     }),
     {
-      name: 'quhealthy-session', // clave en localStorage
+      name: 'quhealthy-session',
       storage: createJSONStorage(() => localStorage),
 
-      // Solo persistimos los datos de sesión, NO el loading ni las funciones
+      // 🛡️ FIX FS-001: SOLO persistimos info no sensible.
+      // ¡El token ya no está aquí!
       partialize: (state) => ({
-        token: state.token,
-        refreshToken: state.refreshToken,
-        expiresAt: state.expiresAt,
         user: state.user,
         role: state.role,
         status: state.status,
         isAuthenticated: state.isAuthenticated,
       }),
 
-      // Callback que se ejecuta cuando el store se hidrata del localStorage
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.setHasHydrated(true);
