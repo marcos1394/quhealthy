@@ -17,8 +17,6 @@ export const appointmentService = {
   
   /**
    * 📅 Obtiene el historial y próximas citas del Paciente (Consumer)
-   * Retorna el objeto completo de paginación (PageResponse) para soportar 
-   * scroll infinito o botones "Siguiente" en el futuro.
    */
   getMyAppointments: async (page = 0, size = 500): Promise<PageResponse<AppointmentResponse>> => {
     const response = await axiosInstance.get<PageResponse<AppointmentResponse>>(
@@ -43,7 +41,6 @@ export const appointmentService = {
 
   /**
    * 🆕 Crea una nueva reserva (Booking)
-   * El payload debe cumplir con los requisitos del backend (serviceId, startTime, etc.)
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createAppointment: async (payload: any): Promise<AppointmentResponse> => {
@@ -53,12 +50,11 @@ export const appointmentService = {
 
   /**
    * ❌ Cancela una cita
-   * Soporta el envío de un motivo (reason) como parámetro de consulta
    */
   cancelAppointment: async (id: number, reason: string): Promise<AppointmentResponse> => {
     const response = await axiosInstance.patch<AppointmentResponse>(
       `${BASE_URL}/${id}/cancel`, 
-      null, // Body vacío porque va por query param en el backend
+      null, 
       { params: { reason } }
     );
     return response.data;
@@ -74,7 +70,6 @@ export const appointmentService = {
 
   /**
    * ✅ Finaliza una cita (Solo para Providers)
-   * Permite adjuntar notas clínicas o de seguimiento.
    */
   completeAppointment: async (id: number, notes: string): Promise<AppointmentResponse> => {
     const response = await axiosInstance.patch<AppointmentResponse>(`${BASE_URL}/${id}/complete`, { notes });
@@ -83,7 +78,6 @@ export const appointmentService = {
 
   /**
    * 📄 Descarga el recibo de la cita en formato PDF
-   * Retorna un Blob que el navegador puede convertir en descarga o vista previa.
    */
   downloadInvoice: async (id: string | number): Promise<Blob> => {
     const response = await axiosInstance.get(`${BASE_URL}/${id}/invoice-pdf`, {
@@ -119,16 +113,17 @@ export const appointmentService = {
       return response.data;
     } catch (error) {
       console.error('Error al obtener tasas de cambio:', error);
-      // Fallback estático de seguridad para evitar bloqueos en la UI de pago
       return { MXN: 1, USD: 0.058, EUR: 0.054 }; 
     }
   },
 
-  // 🚀 NUEVO: Método para preparar la orden híbrida
+  /**
+   * 🚀 NUEVO: Método para preparar la orden híbrida
+   * FIX FF-003: Removida la barra duplicada en la interpolación de la ruta.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareHybridOrder: async (payload: any): Promise<any> => {
-    // Apunta al nuevo controlador que creamos en Java
-    const response = await axiosInstance.post(`/${BASE_URL}/checkout/prepare`, payload);
+    const response = await axiosInstance.post(`${BASE_URL}/checkout/prepare`, payload);
     return response.data;
   }
 };

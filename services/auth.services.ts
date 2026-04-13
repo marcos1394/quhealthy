@@ -62,12 +62,22 @@ export const authService = {
     return response.data;
   },
 
+ /**
+   * 🚀 FIX FF-002: Enrutamiento dinámico para Google y Apple
+   */
   socialLogin: async (data: SocialLoginRequest): Promise<AuthResponse> => {
+    // 1. Determinamos el endpoint según el provider que venga de la UI
+    const endpoint = data.provider === 'APPLE' 
+      ? `${BASE_AUTH}/social/apple` 
+      : `${BASE_AUTH}/social/google`;
+
     const response = await axiosInstance.post<AuthResponse>(
-      `${BASE_AUTH}/social/google`,
+      endpoint,
       {
         token: data.token,
         role: data.role,
+        // Nota: data.provider no se envía en el body porque la ruta ya lo define, 
+        // a menos que tu backend explícitamente pida el campo 'provider' en el JSON.
       },
       { withCredentials: true } 
     );
