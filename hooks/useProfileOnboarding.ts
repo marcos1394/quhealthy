@@ -1,3 +1,5 @@
+// Ubicación: src/hooks/useProfileOnboarding.ts
+
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { onboardingService } from '@/services/onboarding.service';
@@ -22,7 +24,6 @@ export const useProfileOnboarding = () => {
     setError(null);
 
     try {
-      // Cargamos estado global y perfil simultáneamente
       const [statusData, profileData] = await Promise.all([
         onboardingService.getOnboardingStatus().catch(() => null),
         onboardingService.getProfile().catch(e => {
@@ -45,11 +46,11 @@ export const useProfileOnboarding = () => {
     setIsSaving(true);
     try {
       const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Mexico_City";
-
-      // El sector se deriva del parentCategoryId seleccionado en la UI
       const derivedSector = Number(formData.parentCategoryId) === 1 ? 'HEALTH' : 'BEAUTY';
 
-      const payload: UpdateProfileRequest = {
+      // 🚀 FIX: Construimos el payload con el arreglo 'locations' obligatorio
+      // Usamos "any" aquí temporalmente si tu interfaz de TS no está actualizada
+      const payload: any = {
         businessName: formData.businessName.trim(),
         bio: formData.bio.trim(),
         sector: derivedSector,
@@ -58,15 +59,24 @@ export const useProfileOnboarding = () => {
         categoryId: Number(formData.categoryId),
         subCategoryId: Number(formData.subCategoryId),
         timeZone: detectedTimeZone,
-        address: formData.address,
-        latitude: Number(formData.latitude),
-        longitude: Number(formData.longitude),
-        placeId: formData.placeId || null,
         contactEmail: formData.contactEmail.trim(),
         contactPhone: formData.contactPhone?.trim() || "",
         websiteUrl: formData.websiteUrl?.trim() || null,
         profileImageUrl: formData.profileImageUrl || null,
         tagIds: Array.isArray(formData.tagIds) ? formData.tagIds.map((id: any) => Number(id)) : [],
+        
+        // 📍 LA ESTRUCTURA RELACIONAL CORRECTA PARA JAVA
+        locations: [
+          {
+            name: "Consultorio Principal",
+            address: formData.address,
+            latitude: Number(formData.latitude),
+            longitude: Number(formData.longitude),
+            placeId: formData.placeId || null,
+            timeZone: detectedTimeZone,
+            isMain: true
+          }
+        ]
       };
 
       await onboardingService.updateProfile(payload);
@@ -77,9 +87,10 @@ export const useProfileOnboarding = () => {
 
     } catch (error: any) {
       console.error("Error al guardar perfil:", error);
-      const msg = error.response?.data?.message || "No se pudo guardar la información.";
-      return;
-      return false;
+      // Extraemos el mensaje de validación si existe
+      const msg = error.response?.data?.errors?.locations || error.response?.data?.message || "No se pudo guardar la información.";
+      toast.error(msg);
+      return false; // 🚀 FIX: Quitamos el "return;" huérfano para que devuelva false correctamente
     } finally {
       setIsSaving(false);
     }
