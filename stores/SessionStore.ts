@@ -1,5 +1,3 @@
-// Ubicación: src/stores/SessionStore.ts
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
@@ -7,7 +5,7 @@ import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 
 interface SessionState {
   // Estado
-  token: string | null;       // 🚀 Ahora vive solo en RAM (FS-001)
+  token: string | null;
   user: AuthUser | null;
   role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
   status: AuthStatus | null;
@@ -35,7 +33,7 @@ export const useSessionStore = create<SessionState>()(
       role: null,
       status: null,
       isAuthenticated: false,
-      isLoading: true, // 🚀 Importante que inicie en true para el Layout
+      isLoading: true, 
 
       // Hidratación
       _hasHydrated: false,
@@ -78,7 +76,7 @@ export const useSessionStore = create<SessionState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       // =========================================================================
-      // 🚀 RESTAURAR SESIÓN AL RECARGAR 
+      // RESTAURAR SESIÓN AL RECARGAR 
       // =========================================================================
       initializeSession: async () => {
         const state = get();
@@ -93,7 +91,6 @@ export const useSessionStore = create<SessionState>()(
         set({ isLoading: true });
 
         try {
-          // 🛑 OJO: El backend lee el refresh token desde la cookie (withCredentials: true).
           const response = await axios.post<AuthResponse>(
             `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
             {}, // Body vacío
@@ -123,10 +120,17 @@ export const useSessionStore = create<SessionState>()(
             isLoading: false,
           });
 
-          // 🛡️ FIX BUCLE: Como JavaScript no puede borrar cookies HttpOnly,
-          // mandamos una señal de auxilio al servidor de Next.js para que lo haga.
+          // 🛡️ FIX BUCLE DEFINITIVO: Evaluamos dónde estamos parados
           if (typeof window !== 'undefined') {
-            window.location.href = '/login?clear_session=true'; 
+            const currentPath = window.location.pathname;
+            
+            // Solo lanzamos la señal de auxilio si estamos en una ruta PRIVADA
+            if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+              window.location.href = '/login?clear_session=true'; 
+            } else {
+              // Si ya estamos en el login, borramos la cookie localmente por las dudas
+              document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=quhealthy.org; SameSite=None; Secure";
+            }
           }
         }
       },
@@ -135,7 +139,7 @@ export const useSessionStore = create<SessionState>()(
       name: 'quhealthy-session',
       storage: createJSONStorage(() => localStorage),
 
-      // 🛡️ FIX FS-001: SOLO persistimos info no sensible.
+      // SOLO persistimos info no sensible.
       partialize: (state) => ({
         user: state.user,
         role: state.role,

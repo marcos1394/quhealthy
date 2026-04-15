@@ -5,9 +5,6 @@ import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
-// 🚀 IMPORTAMOS NUESTRO GUARDIÁN DE SEGURIDAD
-import AuthProvider from '@/components/providers/AuthProvider';
-
 // Vercel Pro Observability
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -93,10 +90,8 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <CustomProvider>
 
-            {/* 🚀 ENVOLVEMOS LA APP CON EL AUTH PROVIDER AQUÍ EN LA RAÍZ */}
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            {/* 🚀 ELIMINADO EL AUTHPROVIDER DE AQUÍ PARA EVITAR EL BUCLE EN PÁGINAS PÚBLICAS */}
+            {children}
 
             {/* Componente de notificaciones global (auto dark/light + i18n errors) */}
             <ToastProvider />
