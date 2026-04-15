@@ -5,6 +5,7 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import { useSessionStore } from '@/stores/SessionStore';
+import { isInitialRefreshInProgress, initialRefreshPromise } from '@/stores/SessionStore';
 import { UserRole } from '@/types/auth';
 
 // Estructura de error esperada desde Spring Boot
@@ -67,6 +68,8 @@ axiosInstance.interceptors.request.use(
 
 // =========================================================================
 // 4. INTERCEPTOR DE RESPUESTA — Auto-refresh en 401
+//    🚀 FIX BUG-5: Ahora coordina con initializeSession() para evitar
+//    race conditions que disparen falsos Replay Attacks.
 // =========================================================================
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
@@ -93,7 +96,18 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(buildCustomError(error));
       }
 
-      // Si ya hay un refresh en curso → encolar este request
+      // 🚀 FIX BUG-5: Si initializeSession() ya está haciendo refresh,
+      // esperamos su resultado en vez de hacer otro refresh que rompería la rotación
+      if (isInitialRefreshInProgress && initialRefreshPromise) {
+        return initialRefreshPromise.then((newToken) => {
+          if (newToken && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return axiosInstance(originalRequest);
+        }).catch(() => Promise.reject(buildCustomError(error)));
+      }
+
+      // Si ya hay un refresh en curso (desde otro 401) → encolar este request
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -113,7 +127,6 @@ axiosInstance.interceptors.response.use(
       try {
         // ✅ FIX CRÍTICO: body vacío — el refreshToken viaja exclusivamente en
         //    la cookie HttpOnly (withCredentials: true la envía automáticamente).
-        //    Antes se mandaba { refreshToken: undefined } causando el 403.
         const refreshRes = await axios.post<{
           token: string;
           refreshToken?: string;

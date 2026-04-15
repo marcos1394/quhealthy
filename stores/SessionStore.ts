@@ -3,6 +3,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 
+// 🚀 FIX BUG-5: Mutex compartido con axios.ts para prevenir race condition en token rotation
+// Exportamos este flag para que el interceptor de axios sepa si initializeSession ya está en progreso
+export let isInitialRefreshInProgress = false;
+export let initialRefreshPromise: Promise<string | null> | null = null;
+
 interface SessionState {
   // Estado
   token: string | null;
@@ -61,7 +66,7 @@ export const useSessionStore = create<SessionState>()(
         }));
       },
 
-      // Acción: Cerrar Sesión
+      // 🚀 FIX BUG-3: Acción de Cerrar Sesión — ahora también limpia localStorage
       clearSession: () => {
         set({
           token: null,
@@ -71,12 +76,19 @@ export const useSessionStore = create<SessionState>()(
           isAuthenticated: false,
           isLoading: false,
         });
+
+        // Borrar explícitamente la data persistida de Zustand en localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('quhealthy-session');
+        }
       },
 
       setLoading: (loading) => set({ isLoading: loading }),
 
       // =========================================================================
       // RESTAURAR SESIÓN AL RECARGAR 
+      // 🚀 FIX BUG-5: Ahora usa un mutex global para que el interceptor de axios
+      //    no intente un refresh paralelo que dispare un falso Replay Attack
       // =========================================================================
       initializeSession: async () => {
         const state = get();
@@ -90,61 +102,78 @@ export const useSessionStore = create<SessionState>()(
         // 2. Hard Refresh (F5) - La RAM se limpió. Intentamos recuperar vía Cookie HttpOnly
         set({ isLoading: true });
 
-        try {
-          const response = await axios.post<AuthResponse>(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
-            {}, // Body vacío
-            { withCredentials: true } 
-          );
+        // Activar el mutex global — el interceptor de axios lo leerá y esperará
+        isInitialRefreshInProgress = true;
 
-          set({
-            token: response.data.token,
-            user: response.data.user || state.user,
-            role: response.data.role || state.role,
-            status: response.data.status || state.status,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+        initialRefreshPromise = (async (): Promise<string | null> => {
+          try {
+            const response = await axios.post<AuthResponse>(
+              `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+              {}, // Body vacío
+              { withCredentials: true } 
+            );
 
-          console.log('✅ [Auth] Token recuperado de la memoria (Cookie HttpOnly)');
-          
-        } catch (error) {
-          console.log('⚠️ [Auth] No hay sesión activa o cookie expirada. Requiere login.');
-          
-          set({
-            token: null,
-            user: null,
-            role: null,
-            status: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
+            const newToken = response.data.token;
 
-          // 🛡️ FIX BUCLE DEFINITIVO: Evaluamos dónde estamos parados
-          if (typeof window !== 'undefined') {
-            const currentPath = window.location.pathname;
+            set({
+              token: newToken,
+              user: response.data.user || state.user,
+              role: response.data.role || state.role,
+              status: response.data.status || state.status,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+
+            console.log('✅ [Auth] Token recuperado de la memoria (Cookie HttpOnly)');
+            return newToken;
             
-            // Solo lanzamos la señal de auxilio si estamos en una ruta PRIVADA
-            if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
-              window.location.href = '/login?clear_session=true'; 
-            } else {
-              // Si ya estamos en el login, borramos la cookie localmente por las dudas
-              document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=quhealthy.org; SameSite=None; Secure";
+          } catch (error) {
+            console.log('⚠️ [Auth] No hay sesión activa o cookie expirada. Requiere login.');
+            
+            set({
+              token: null,
+              user: null,
+              role: null,
+              status: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+
+            // Limpiar localStorage para evitar estado stale
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('quhealthy-session');
             }
+
+            // Solo redirigir si estamos en una ruta protegida
+            if (typeof window !== 'undefined') {
+              const currentPath = window.location.pathname;
+              if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+                window.location.href = '/login?clear_session=true'; 
+              }
+            }
+
+            return null;
+
+          } finally {
+            isInitialRefreshInProgress = false;
+            initialRefreshPromise = null;
           }
-        }
+        })();
+
+        await initialRefreshPromise;
       },
     }),
     {
       name: 'quhealthy-session',
       storage: createJSONStorage(() => localStorage),
 
-      // SOLO persistimos info no sensible.
+      // 🚀 FIX BUG-8: NO persistimos isAuthenticated para evitar estado stale
+      // Al rehidratar, isAuthenticated será false hasta que initializeSession valide la cookie
       partialize: (state) => ({
         user: state.user,
         role: state.role,
         status: state.status,
-        isAuthenticated: state.isAuthenticated,
+        // isAuthenticated REMOVIDO — se deriva del token al rehidratar
       }),
 
       onRehydrateStorage: () => (state) => {

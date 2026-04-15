@@ -17,15 +17,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // === 3. REVERSE PROXY PARA LA API ===
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://api.quhealthy.org/api/:path*',
-      },
-    ];
-  },
+  // === 3. REVERSE PROXY REMOVIDO ===
+  // 🚀 FIX BUG-1: Se eliminó el rewrite proxy porque Next.js NO retransmite
+  // los headers Set-Cookie del backend al navegador. Ahora el frontend habla
+  // directamente al backend vía NEXT_PUBLIC_API_URL y el CORS ya lo permite.
 
   // === 4. CABECERAS DE SEGURIDAD (CSP) ===
   async headers() {

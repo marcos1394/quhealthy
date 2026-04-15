@@ -12,9 +12,8 @@ import {
 import { useSessionStore } from '@/stores/SessionStore';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
-import { handleApiError } from '@/lib/handleApiError';
 
 const sidebarVariants = {
   expanded: { width: 280, transition: { duration: 0.3, ease: "easeOut" } },
@@ -31,7 +30,8 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
   const router = useRouter();
   const t = useTranslations('SidebarNav');
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { user, isLoading, clearSession } = useSessionStore();
+  const { user, isLoading } = useSessionStore();
+  const { logout } = useAuth();
 
   const navItems = [
     { name: t('dashboard'), href: '/quhealthy/provider/dashboard', icon: LayoutDashboard },
@@ -44,16 +44,11 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
     { name: t('settings'), href: '/quhealthy/provider/settings', icon: Settings },
   ];
 
+  // 🚀 FIX BUG-2: Ahora usamos useAuth().logout() que usa axiosInstance con baseURL,
+  // interceptores y headers correctos. Antes usábamos axios crudo que no tenía configuración.
   const handleLogout = async () => {
-    try {
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
-      clearSession();
-      toast.success(t('logout_success'));
-      router.push('/');
-    } catch (error) {
-      clearSession();
-      router.push('/');
-    }
+    await logout();
+    toast.success(t('logout_success'));
   };
 
   useEffect(() => {
