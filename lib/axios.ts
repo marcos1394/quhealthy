@@ -2,9 +2,10 @@ import axios, {
   AxiosInstance,
   InternalAxiosRequestConfig,
   AxiosError,
-  AxiosResponse
+  AxiosResponse,
 } from 'axios';
 import { useSessionStore } from '@/stores/SessionStore';
+import { UserRole } from '@/types/auth';
 
 // Estructura de error esperada desde Spring Boot
 interface ApiErrorResponse {
@@ -14,119 +15,135 @@ interface ApiErrorResponse {
   timestamp?: string;
 }
 
-// 1. Creación de la instancia
+// =========================================================================
+// 1. INSTANCIA BASE
+// =========================================================================
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org',
   timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
-  withCredentials: true, // Importante para enviar automáticamente el refreshToken (httpOnly cookie) al backend
+  // ✅ Crítico: envía automáticamente la cookie HttpOnly "refreshToken" al backend
+  withCredentials: true,
 });
 
-// Variables para manejar la cola de requests rotos (Token Refresh Auto)
+// =========================================================================
+// 2. COLA DE REQUESTS FALLIDOS (Token Refresh Auto)
+//    Mientras se renueva el token, los requests 401 quedan en cola y se
+//    reintentan con el nuevo access token en cuanto el refresh termina.
+// =========================================================================
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
+  resolve: (token: string) => void;
+  reject: (reason: unknown) => void;
 }> = [];
 
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
+const processQueue = (error: AxiosError | null, token: string | null = null): void => {
+  failedQueue.forEach((promise) => {
+    if (error || token === null) {
+      promise.reject(error);
     } else {
-      prom.resolve(token);
+      promise.resolve(token);
     }
   });
   failedQueue = [];
 };
 
-// 2. Interceptor de Solicitud (Request)
+// =========================================================================
+// 3. INTERCEPTOR DE SOLICITUD — Inyecta el Bearer token
+// =========================================================================
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Leer el token directamente desde memoria (Zustand)
     const token = useSessionStore.getState().token;
-
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
 
-// 3. Interceptor de Respuesta (Response)
+// =========================================================================
+// 4. INTERCEPTOR DE RESPUESTA — Auto-refresh en 401
+// =========================================================================
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  async (error: AxiosError<ApiErrorResponse>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+  (response: AxiosResponse) => response,
 
-    // Si es 404, lo dejamos pasar
-    if (error.response && error.response.status === 404) {
-      return Promise.reject(error);
+  async (error: AxiosError<ApiErrorResponse>) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    // ── 404: lo pasamos directo al componente ────────────────────────────
+    if (error.response?.status === 404) {
+      return Promise.reject(buildCustomError(error));
     }
 
-    // =========================================================================
-    //  INTERCEPTOR 401: AUTO-REFRESH TOKEN (Implementado según requerimiento)
-    // =========================================================================
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-
-      // Prevenir bucle infinito si falla el propio endpoint de login o refresh
-      if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/refresh-token')) {
-        return Promise.reject(error);
+    // ── 401: intentamos renovar el token ─────────────────────────────────
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
+      // Evitamos bucle infinito si el propio login o refresh devuelve 401
+      const url = originalRequest.url ?? '';
+      if (url.includes('/api/auth/login') || url.includes('/api/auth/refresh-token')) {
+        return Promise.reject(buildCustomError(error));
       }
 
-      // Si ya hay alguien haciendo refresh, encolar el request actual
+      // Si ya hay un refresh en curso → encolar este request
       if (isRefreshing) {
-        return new Promise(function (resolve, reject) {
+        return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(token => {
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          return axiosInstance(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
+        })
+          .then((newToken) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        // Enviamos el refreshToken almacenado en Zustand
-        const storedRefreshToken = useSessionStore.getState().refreshToken;
-        const refreshRes = await axios.post('/api/auth/refresh-token',
-          { refreshToken: storedRefreshToken },
+        // ✅ FIX CRÍTICO: body vacío — el refreshToken viaja exclusivamente en
+        //    la cookie HttpOnly (withCredentials: true la envía automáticamente).
+        //    Antes se mandaba { refreshToken: undefined } causando el 403.
+        const refreshRes = await axios.post<{
+          token: string;
+          refreshToken?: string;
+          role?: string;
+          user?: unknown;
+          status?: string;
+          expiresIn?: number;
+        }>(
+          '/api/auth/refresh-token',
+          {}, // ← body vacío intencional
           {
             baseURL: axiosInstance.defaults.baseURL,
-            withCredentials: true
+            withCredentials: true, // ← la cookie se adjunta aquí
           }
         );
 
         const newToken = refreshRes.data.token;
 
-        // Actualizar token en Zustand (persistido en localStorage)
+        // Actualizar store con el nuevo access token (y refresh si el backend lo rota)
         useSessionStore.getState().updateToken({
           token: newToken,
-          refreshToken: refreshRes.data.refreshToken,
-          role: refreshRes.data.role,
-          user: refreshRes.data.user,
-          status: refreshRes.data.status,
-          expiresIn: refreshRes.data.expiresIn
+          role: refreshRes.data.role as UserRole | undefined,
+          user: refreshRes.data.user as never,
+          status: refreshRes.data.status as never,
         });
 
-        // Procesar todos los pendientes con el nuevo token
+        // Despachar todos los requests encolados con el nuevo token
         processQueue(null, newToken);
 
-        // Reintentamos el request original que disparó este 401
+        // Reintentar el request original que disparó el 401
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
@@ -134,50 +151,59 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
 
       } catch (refreshError) {
-        // Falló el refresh (expiro o cookie inválida), limpiar y desloguear
+        // El refresh falló (cookie expirada / revocada) → logout forzado
         processQueue(refreshError as AxiosError, null);
-
         useSessionStore.getState().clearSession();
 
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        if (
+          typeof window !== 'undefined' &&
+          !window.location.pathname.includes('/login')
+        ) {
           window.location.href = '/login?expired=true';
         }
 
         return Promise.reject(refreshError);
+
       } finally {
         isRefreshing = false;
       }
     }
 
-    // =========================================================================
-    //  MANEJO GENÉRICO DE ERRORES HTTP (usa diccionario i18n)
-    // =========================================================================
-    const { getErrorMessage } = await import('@/lib/handleApiError');
-
-    let errorMessage: string;
-
-    if (error.response) {
-      // Prefer server-provided message if specific
-      const serverMsg = error.response.data?.message || error.response.data?.error;
-      if (serverMsg && !serverMsg.startsWith('Request failed')) {
-        errorMessage = serverMsg;
-      } else {
-        errorMessage = getErrorMessage(error.response.status);
-      }
-    } else if (error.code === 'ECONNABORTED') {
-      errorMessage = getErrorMessage('timeout');
-    } else if (error.code === 'ERR_NETWORK' || !error.request) {
-      errorMessage = getErrorMessage('network');
-    } else {
-      errorMessage = getErrorMessage('unknown');
-    }
-
-    const customError = new Error(errorMessage);
-    (customError as any).status = error.response?.status;
-    (customError as any).originalError = error.response?.data;
-
-    return Promise.reject(customError);
+    // ── Resto de errores HTTP ─────────────────────────────────────────────
+    return Promise.reject(await buildCustomError(error));
   }
 );
+
+// =========================================================================
+// 5. HELPER: Construye un Error enriquecido con mensaje legible
+// =========================================================================
+async function buildCustomError(error: AxiosError<ApiErrorResponse>): Promise<Error> {
+  const { getErrorMessage } = await import('@/lib/handleApiError');
+
+  let message: string;
+
+  if (error.response) {
+    const serverMsg = error.response.data?.message || error.response.data?.error;
+    message =
+      serverMsg && !serverMsg.startsWith('Request failed')
+        ? serverMsg
+        : getErrorMessage(error.response.status);
+  } else if (error.code === 'ECONNABORTED') {
+    message = getErrorMessage('timeout');
+  } else if (error.code === 'ERR_NETWORK' || !error.request) {
+    message = getErrorMessage('network');
+  } else {
+    message = getErrorMessage('unknown');
+  }
+
+  const customError = new Error(message) as Error & {
+    status?: number;
+    originalError?: unknown;
+  };
+  customError.status = error.response?.status;
+  customError.originalError = error.response?.data;
+
+  return customError;
+}
 
 export default axiosInstance;
