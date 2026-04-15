@@ -7,7 +7,7 @@ import type { NextRequest } from 'next/server';
 // 1. Inicializamos tu middleware de internacionalización original
 const intlMiddleware = createMiddleware(routing);
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 2. Leemos la cookie HttpOnly de sesión
