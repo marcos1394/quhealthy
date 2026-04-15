@@ -17,6 +17,10 @@ import { handleApiError } from '@/lib/handleApiError';
 
 interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
 
+// 🚀 TODO: Reemplazar con un selector de sede cuando se implemente la UI multi-sede.
+// Por ahora usamos la sede principal del proveedor (1 = primera sede de la lista).
+const DEFAULT_LOCATION_ID = 1;
+
 const daysOfWeek = [
   { id: 1, key: "monday", short: "Mon" }, { id: 2, key: "tuesday", short: "Tue" }, { id: 3, key: "wednesday", short: "Wed" },
   { id: 4, key: "thursday", short: "Thu" }, { id: 5, key: "friday", short: "Fri" }, { id: 6, key: "saturday", short: "Sat" }, { id: 0, key: "sunday", short: "Sun" }
@@ -52,7 +56,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   useEffect(() => {
     if (isOpen) {
       const load = async () => {
-        const data = await fetchSchedules();
+        const data = await fetchSchedules(DEFAULT_LOCATION_ID);
         const merged = daysOfWeek.map(d => data.find(h => h.dayOfWeek === d.id) || { dayOfWeek: d.id, isActive: false, openTime: "09:00", closeTime: "17:00" });
         setSchedules(merged); setOriginalSchedules(merged); setSavingStep("idle"); setValidationErrors({});
       };
@@ -85,7 +89,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   const handleSave = async () => {
     if (Object.keys(validationErrors).length > 0) { return; return; }
     setSavingStep("saving");
-    const success = await saveSchedules(schedules);
+    const success = await saveSchedules(DEFAULT_LOCATION_ID, schedules);
     if (success) { setSavingStep("success"); toast.success(t('save_success')); setTimeout(() => { onSaveSuccess(); onClose(); }, 1000); }
     else setSavingStep("idle");
   };

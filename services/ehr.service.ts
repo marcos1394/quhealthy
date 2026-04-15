@@ -3,7 +3,8 @@ import axiosInstance from '@/lib/axios';
 import { 
   PatientClinicalProfile, 
   VaultDocument, 
-  CompleteConsultationPayload 
+  CompleteConsultationPayload,
+  ClinicalNotesDto
 } from '@/types/ehr';
 
 export const ehrService = {
@@ -27,10 +28,28 @@ export const ehrService = {
   },
 
   /**
+   * 📖 Obtiene las notas clínicas (borrador o finalizadas) de una cita
+   * GET /api/appointments/{id}/clinical-notes
+   */
+  getClinicalNotes: async (appointmentId: number): Promise<ClinicalNotesDto> => {
+    const response = await axiosInstance.get<ClinicalNotesDto>(`/api/appointments/${appointmentId}/clinical-notes`);
+    return response.data;
+  },
+
+  /**
+   * 📝 Guarda un borrador de notas clínicas SOAP sin finalizar la consulta
+   * PATCH /api/appointments/{id}/clinical-notes
+   */
+  saveClinicalNotesDraft: async (appointmentId: number, notes: ClinicalNotesDto): Promise<void> => {
+    await axiosInstance.patch(`/api/appointments/${appointmentId}/clinical-notes`, notes);
+  },
+
+  /**
    * ✅ Finaliza la consulta médica. Guarda las notas SOAP y genera la Receta Digital.
-   * Utiliza el tipado estricto que definimos en la FF-004.
+   * 🚀 FIX RUTA CRÍTICA: Antes llamaba a /{id}/complete (AppointmentController).
+   * El endpoint correcto del ConsultationController es /{id}/consultation.
    */
   completeConsultation: async (appointmentId: number, payload: CompleteConsultationPayload): Promise<void> => {
-    await axiosInstance.patch(`/api/appointments/${appointmentId}/complete`, payload);
+    await axiosInstance.patch(`/api/appointments/${appointmentId}/consultation`, payload);
   }
 };

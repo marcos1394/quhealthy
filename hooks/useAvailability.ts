@@ -10,7 +10,7 @@ export const useAvailability = () => {
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   // Consulta al servicio los horarios libres reales para una fecha exacta
-  const fetchAvailableSlots = useCallback(async (providerId: number, date: Date, durationMinutes: number) => {
+  const fetchAvailableSlots = useCallback(async (providerId: number, locationId: number, date: Date, durationMinutes: number) => {
     setIsLoadingSlots(true);
     setAvailableSlots([]); // Limpiamos los slots de la fecha anterior mientras carga
 
@@ -18,9 +18,10 @@ export const useAvailability = () => {
       // Formateamos la fecha al estándar ISO (YYYY-MM-DD) para Spring Boot
       const formattedDate = format(date, 'yyyy-MM-dd'); 
       
-      // Llamamos al servicio. Pasamos el mismo día como inicio y fin para buscar en un solo día
+      // 🚀 FIX: Ahora pasamos locationId como query param requerido
       const slots = await scheduleService.getAvailableSlots(
         providerId,
+        locationId,
         formattedDate,
         formattedDate,
         durationMinutes

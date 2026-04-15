@@ -125,5 +125,49 @@ export const appointmentService = {
   prepareHybridOrder: async (payload: any): Promise<any> => {
     const response = await axiosInstance.post(`${BASE_URL}/checkout/prepare`, payload);
     return response.data;
+  },
+
+  /**
+   * 📱 Obtiene el QR de Check-in con JWT para el paciente
+   * GET /api/appointments/{id}/qr-code
+   */
+  getCheckInQrCode: async (id: number): Promise<Blob> => {
+    const response = await axiosInstance.get(`${BASE_URL}/${id}/qr-code`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  /**
+   * 🏥 Procesa el check-in clínico escaneando el QR del paciente (Solo Doctor/Recepción)
+   * POST /api/appointments/{id}/checkin?token=
+   */
+  processCheckIn: async (id: number, token: string): Promise<{ status: string; message: string; appointmentId: string }> => {
+    const response = await axiosInstance.post<{ status: string; message: string; appointmentId: string }>(
+      `${BASE_URL}/${id}/checkin`,
+      null,
+      { params: { token } }
+    );
+    return response.data;
+  },
+
+  /**
+   * 🛒 Obtiene el historial de compras/órdenes del paciente
+   * GET /api/consumer/orders
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getConsumerOrders: async (): Promise<any[]> => {
+    const response = await axiosInstance.get('/api/consumer/orders');
+    return response.data;
+  },
+
+  /**
+   * 📋 Obtiene el historial médico del paciente
+   * GET /api/patients/me/medical-history
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getPatientMedicalHistory: async (): Promise<any> => {
+    const response = await axiosInstance.get('/api/patients/me/medical-history');
+    return response.data;
   }
 };

@@ -65,7 +65,10 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
     setSelectedDate(date);
     setSelectedTime(null);
     if (providerId) {
-      fetchAvailableSlots(providerId, date, getTotalDuration());
+      // 🚀 TODO: Reemplazar con el locationId de la sede seleccionada por el paciente
+      // cuando se implemente la UI de selección de sede en el flujo de booking.
+      const locationId = 1; // Sede principal del proveedor por defecto
+      fetchAvailableSlots(providerId, locationId, date, getTotalDuration());
     }
   };
 

@@ -18,10 +18,10 @@ export const useOperatingHours = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   // 1. OBTENER Y TRANSFORMAR DATOS (Back -> Front)
-  const fetchSchedules = useCallback(async (): Promise<UIDaySchedule[]> => {
+  const fetchSchedules = useCallback(async (locationId: number): Promise<UIDaySchedule[]> => {
     setIsLoading(true);
     try {
-      const data = await scheduleService.getMySchedule();
+      const data = await scheduleService.getMySchedule(locationId);
       
       // Transformamos ProviderSchedule a UIDaySchedule
       return data.map(schedule => ({
@@ -40,7 +40,7 @@ export const useOperatingHours = () => {
   }, []);
 
   // 2. TRANSFORMAR Y GUARDAR DATOS (Front -> Back)
-  const saveSchedules = async (uiSchedules: UIDaySchedule[]): Promise<boolean> => {
+  const saveSchedules = async (locationId: number, uiSchedules: UIDaySchedule[]): Promise<boolean> => {
     setIsSaving(true);
     try {
       // Filtrar solo los activos y transformarlos al modelo de Java
@@ -55,7 +55,7 @@ export const useOperatingHours = () => {
           breakEnd: null
         }));
 
-      await scheduleService.updateSchedule(payload);
+      await scheduleService.updateSchedule(locationId, payload);
       return true;
     } catch (error: any) {
       console.error("Error guardando horarios:", error);

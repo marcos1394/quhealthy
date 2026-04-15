@@ -6,23 +6,25 @@ const BASE_URL = '/api/appointments/schedules'; // 🚀 Ajustado
 
 export const scheduleService = {
   /**
-   * Obtiene la configuración de la semana laboral del doctor (GET /api/schedules)
+   * Obtiene la configuración de la semana laboral del doctor para una sede
+   * 🚀 FIX: Ahora pasa locationId como path param (GET /schedules/{locationId})
    */
-  getMySchedule: async (): Promise<ProviderSchedule[]> => {
-    const response = await axiosInstance.get<ProviderSchedule[]>(BASE_URL);
+  getMySchedule: async (locationId: number): Promise<ProviderSchedule[]> => {
+    const response = await axiosInstance.get<ProviderSchedule[]>(`${BASE_URL}/${locationId}`);
     return response.data;
   },
 
   /**
-   * Actualiza (Wipe & Replace) la configuración de la semana laboral (PUT /api/schedules)
+   * Actualiza (Wipe & Replace) la configuración de la semana laboral por sede
+   * 🚀 FIX: Ahora pasa locationId como path param (PUT /schedules/{locationId})
    */
-  updateSchedule: async (schedules: ProviderSchedule[]): Promise<ProviderSchedule[]> => {
-    const response = await axiosInstance.put<ProviderSchedule[]>(BASE_URL, schedules);
+  updateSchedule: async (locationId: number, schedules: ProviderSchedule[]): Promise<ProviderSchedule[]> => {
+    const response = await axiosInstance.put<ProviderSchedule[]>(`${BASE_URL}/${locationId}`, schedules);
     return response.data;
   },
 
   /**
-   * Crea un bloqueo temporal en la agenda (POST /api/schedules/blocks)
+   * Crea un bloqueo temporal en la agenda (POST /schedules/blocks)
    */
   createTimeBlock: async (data: CreateTimeBlockPayload): Promise<TimeBlock> => {
     const response = await axiosInstance.post<TimeBlock>(`${BASE_URL}/blocks`, data);
@@ -30,11 +32,13 @@ export const scheduleService = {
   },
 
   /**
-   * 📅 PÚBLICO: Obtiene los horarios disponibles reales para un doctor
+   * 📅 PÚBLICO: Obtiene los horarios disponibles reales para un doctor en una sede
    * Cruza la agenda base con Google Calendar y citas existentes.
+   * 🚀 FIX: Ahora pasa locationId como query param requerido
    */
   getAvailableSlots: async (
     providerId: number,
+    locationId: number,
     startDate: string,
     endDate: string,
     durationMinutes: number
@@ -43,6 +47,7 @@ export const scheduleService = {
       `${BASE_URL}/${providerId}/available-slots`,
       {
         params: {
+          locationId,
           startDate,
           endDate,
           durationMinutes

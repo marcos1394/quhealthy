@@ -15,6 +15,12 @@ export const dependentService = {
         return response.data;
     },
 
+    // 🚀 NUEVO: Conecta con PUT /api/auth/me/dependents/{id}
+    updateDependent: async (dependentId: number, data: DependentRequest): Promise<Dependent> => {
+        const response = await axiosInstance.put<Dependent>(`${BASE_URL}/${dependentId}`, data);
+        return response.data;
+    },
+
     deleteDependent: async (dependentId: number): Promise<void> => {
         await axiosInstance.delete(`${BASE_URL}/${dependentId}`);
     }

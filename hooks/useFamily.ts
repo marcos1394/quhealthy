@@ -42,6 +42,22 @@ export const useFamily = () => {
         }
     };
 
+    // 🚀 NUEVO: Conecta con PUT /api/auth/me/dependents/{id}
+    const updateMember = async (id: number, data: DependentRequest, onSuccess?: () => void) => {
+        setIsSubmitting(true);
+        try {
+            const updated = await dependentService.updateDependent(id, data);
+            setFamily(prev => prev.map(member => member.id === id ? updated : member));
+            toast.success("Familiar actualizado con éxito.");
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error("Error actualizando familiar:", error);
+            return;
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const removeMember = async (id: number) => {
         try {
             await dependentService.deleteDependent(id);
@@ -53,5 +69,5 @@ export const useFamily = () => {
         }
     };
 
-    return { family, isLoading, isSubmitting, addMember, removeMember, refetch: fetchFamily };
+    return { family, isLoading, isSubmitting, addMember, updateMember, removeMember, refetch: fetchFamily };
 };
