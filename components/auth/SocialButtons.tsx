@@ -1,3 +1,4 @@
+// Ubicación: src/components/auth/SocialAuthButtons.tsx (o su ruta correspondiente)
 "use client";
 
 import React, { useState } from 'react';
@@ -7,6 +8,7 @@ import { toast } from 'react-toastify';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation'; // 🚀 ADDED: Para poder redirigir al usuario
 
 // ✅ Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
@@ -22,8 +24,33 @@ export default function SocialAuthButtons({
   onSuccess
 }: SocialAuthButtonsProps) {
 
+  const router = useRouter(); // 🚀 ADDED
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const { loginWithGoogle } = useAuth(); // Este hook llama internamente al service que ya rutea /apple o /google
+
+  // ==========================================
+  // 🚀 LÓGICA DE ENRUTAMIENTO (EL EMBUDO)
+  // ==========================================
+  const handleRedirection = (response: AuthResponse) => {
+    const { status, role: userRole, user } = response;
+
+    if (!status.emailVerified) {
+      router.push('/verify-email');
+      return;
+    }
+
+    if (!status.onboardingComplete) {
+      router.push('/onboarding');
+      return;
+    }
+
+    // Si todo está completo, lo mandamos a su panel
+    if (userRole === 'PROVIDER') {
+      router.push('/provider/dashboard');
+    } else {
+      router.push('/patient/dashboard');
+    }
+  };
 
   // ==========================================
   // 1. CONFIGURACIÓN GOOGLE
@@ -40,11 +67,17 @@ export default function SocialAuthButtons({
           role: role as "CONSUMER" | "PROVIDER"
         });
 
-        toast.success(`¡Bienvenido! Sesión iniciada.`);
+        toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
         if (onSuccess) onSuccess(response);
+
+        // 🚀 Ejecutamos el embudo de redirección
+        handleRedirection(response);
+
       } catch (error: any) {
         // El error ya lo maneja el interceptor/hook, aquí solo detenemos el loading
       } finally {
+        // En un flujo real no detienes el loading si vas a redirigir (para evitar parpadeos),
+        // pero lo dejamos por si la redirección falla o hay error.
         setLoadingProvider(null);
       }
     },
@@ -56,22 +89,23 @@ export default function SocialAuthButtons({
   // ==========================================
   const handleAppleSignIn = async () => {
     // Nota: Aquí integrarías la librería 'react-apple-login' o el script de Apple.
-    // Lo importante para la FF-002 es la llamada al backend:
     try {
       setLoadingProvider('apple');
       
-      // Simulamos la obtención del token de Apple (id_token)
       const appleToken = "TOKEN_RECIBIDO_DE_APPLE"; 
 
-      // Enviamos provider: "APPLE" para que el service use /api/auth/social/apple
       const response = await loginWithGoogle({
         provider: "APPLE",
         token: appleToken,
         role: role as "CONSUMER" | "PROVIDER"
       });
 
-      toast.success(`¡Bienvenido! Sesión iniciada con Apple.`);
+      toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
       if (onSuccess) onSuccess(response);
+
+      // 🚀 Ejecutamos el embudo de redirección
+      handleRedirection(response);
+
     } catch (error: any) {
        // Manejo de error
     } finally {

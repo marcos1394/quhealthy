@@ -1,3 +1,4 @@
+// Ubicación: next.config.ts
 import type { NextConfig } from "next";
 import withPWAInit from "next-pwa";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
@@ -8,10 +9,10 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
 
-  // === 1. CONFIGURACIÓN TURBOPACK (SILENCIA EL ERROR) ===
+  // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},
 
-  // === 2. BYPASS DE ERRORES (ACTUALIZADO PARA NEXT 16) ===
+  // === 2. BYPASS DE ERRORES ===
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -28,7 +29,6 @@ const nextConfig: NextConfig = {
 
   // === 4. CABECERAS DE SEGURIDAD (CSP) ===
   async headers() {
-    // ⚠️ AQUÍ ESTABA EL BLOQUEO. HEMOS AGREGADO GOOGLE.
     const cspHeader = `
       default-src 'self';
       
@@ -45,7 +45,6 @@ const nextConfig: NextConfig = {
       
       connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();
-    // Nota: Agregué https://api.quhealthy.org en connect-src para permitir llamadas directas a tu API si Axios las hace.
 
     return [
       {
@@ -56,6 +55,8 @@ const nextConfig: NextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+          // 🚀 ADDED: Permite al popup de Google cerrarse y comunicarse con tu página
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
     ];
@@ -72,7 +73,6 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: 'xqejlzevtuknggchvyfa.supabase.co',
       },
-      // ✅ ADDED: Necesario para mostrar la foto de perfil de Google si decides mostrarla
       {
         protocol: 'https' as const,
         hostname: '*.googleusercontent.com',
@@ -81,7 +81,6 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: 'images.unsplash.com',
       },
-      // ✅ ADDED: Necesario para servir imágenes almacenadas en Google Cloud Storage (marketing)
       {
         protocol: 'https' as const,
         hostname: 'storage.googleapis.com',
