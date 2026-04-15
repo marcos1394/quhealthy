@@ -60,7 +60,7 @@ export default function LicensePage() {
     </div>
   );
 
-  if (license?.status === "APPROVED") {
+  if (license?.verificationStatus === "APPROVED") {
     const IconComponent = config.icon;
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
@@ -75,8 +75,8 @@ export default function LicensePage() {
                 <p className="text-slate-500 dark:text-slate-400 font-light">{t("approved_desc")}</p>
               </div>
               <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-5 text-left border border-slate-200 dark:border-slate-700 space-y-3">
-                <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("license_number")}</p><p className="text-slate-900 dark:text-white font-semibold text-lg">{license.licenseNumber}</p></div>
-                {('careerName' in license && license.careerName) && <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("specialty")}</p><p className="text-slate-900 dark:text-white font-medium">{license.careerName}</p></div>}
+                <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("license_number")}</p><p className="text-slate-900 dark:text-white font-semibold text-lg">{license.extractedData?.licenseNumber || '—'}</p></div>
+                {license.extractedData?.careerName && <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("specialty")}</p><p className="text-slate-900 dark:text-white font-medium">{license.extractedData.careerName}</p></div>}
               </div>
               <Button onClick={() => router.push("/onboarding")} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
                 <CheckCircle2 className="w-5 h-5 mr-2" />{t("continue_onboarding")}
@@ -88,7 +88,7 @@ export default function LicensePage() {
     );
   }
 
-  if (license?.status === "PENDING") return (
+  if (license?.verificationStatus === "PENDING" || license?.verificationStatus === "PROCESSING") return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
         <Card className="w-full max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
@@ -126,7 +126,7 @@ export default function LicensePage() {
         </div>
 
         <AnimatePresence>
-          {license?.status === "REJECTED" && (
+          {license?.verificationStatus === "REJECTED" && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200">
                 <AlertTriangle className="h-5 w-5" />

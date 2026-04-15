@@ -1,14 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { onboardingService } from '@/services/onboarding.service';
-import { LicenseResponse, ProviderSector } from '@/types/onboarding';
+import { KycDocumentResponse, ProviderSector } from '@/types/onboarding';
 
+/**
+ * 🚀 Hook refactorizado: La cédula profesional ahora se gestiona como un
+ * documento KYC más, usando el endpoint unificado POST /api/onboarding/kyc/upload.
+ * Ya no existen endpoints separados de License en el backend.
+ */
 export const useLicenseOnboarding = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
   const [sector, setSector] = useState<ProviderSector>('HEALTH');
-  const [license, setLicense] = useState<LicenseResponse | null>(null);
+  const [license, setLicense] = useState<KycDocumentResponse | null>(null);
 
   const loadLicense = useCallback(async () => {
     try {
@@ -16,12 +21,9 @@ export const useLicenseOnboarding = () => {
       const status = await onboardingService.getOnboardingStatus();
       if (status.sector) {
         setSector(status.sector);
-        try {
-          const data = await onboardingService.getLicense(status.sector);
-          setLicense(data);
-        } catch (err) {
-          console.error("No license found yet");
-        }
+        // Buscamos el documento PROFESSIONAL_LICENSE en la lista KYC
+        const doc = await onboardingService.getKycDocumentByType('PROFESSIONAL_LICENSE');
+        setLicense(doc);
       }
     } catch (error) {
       console.error("Error cargando status", error);
@@ -39,34 +41,25 @@ export const useLicenseOnboarding = () => {
     const toastId = toast.loading("Analizando tu documento con IA... esto puede tardar unos segundos.");
 
     try {
-      const response = await onboardingService.uploadLicense(file, sector);
+      // 🚀 Usamos el endpoint unificado de KYC con type='PROFESSIONAL_LICENSE'
+      const response = await onboardingService.uploadKycDocument(file, 'PROFESSIONAL_LICENSE');
       setLicense(response);
 
-      if (response.status === 'APPROVED') {
-        if (sector === 'HEALTH' && response.licenseNumber) {
-          toast.update(toastId, { render: "Validando cédula con RENAMECC...", type: "info" });
-          try {
-            const validation = await onboardingService.validateProfessionalLicense(response.licenseNumber);
-            if (!validation.isValid) {
-              toast.update(toastId, {
-                render: "❌ La cédula no fue encontrada o es inválida en RENAMECC",
-                type: "error", isLoading: false, autoClose: 5000
-              });
-              return;
-            }
-          } catch (authError) {
-            console.warn("RENAMECC validation error", authError);
-          }
-        }
-
+      if (response.verificationStatus === 'APPROVED') {
         toast.update(toastId, {
-          render: `✅ Documento verificado${('careerName' in response && response.careerName) ? `: ${response.careerName}` : ''}`,
+          render: `✅ Cédula profesional verificada exitosamente`,
           type: "success", isLoading: false, autoClose: 5000
         });
-      } else {
+      } else if (response.verificationStatus === 'REJECTED') {
         toast.update(toastId, {
           render: `❌ No aprobada: ${response.rejectionReason || "Documento no válido"}`,
           type: "error", isLoading: false, autoClose: 5000
+        });
+      } else {
+        // PROCESSING o MANUAL_REVIEW_NEEDED
+        toast.update(toastId, {
+          render: "📋 Documento recibido, en proceso de verificación...",
+          type: "info", isLoading: false, autoClose: 5000
         });
       }
     } catch (error: any) {

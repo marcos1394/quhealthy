@@ -7,13 +7,8 @@ import {
   SubCategoryResponse,
   TagResponse,
   UpdateProfileRequest,
-  LicenseResponse,
   MessageResponse,
   KycDocumentType,
-  ProviderSector,
-  FiscalDataResponse,
-  FiscalDataRequest,
-  FiscalRegimeOption
 } from '@/types/onboarding';
 
 export const onboardingService = {
@@ -51,8 +46,12 @@ export const onboardingService = {
   },
 
   // =================================================================
-  // 📸 KYC E IDENTIDAD (Paso 2)
+  // 📸 KYC E IDENTIDAD (Paso 2 + Licencia + Fiscal)
   // =================================================================
+  // 🚀 El backend unifica todos los documentos bajo el KycController.
+  // Para cédula profesional: type = 'PROFESSIONAL_LICENSE'
+  // Para constancia fiscal:  type = 'TAX_CERTIFICATE'
+  // Para acta constitutiva:  type = 'ACTA_CONSTITUTIVA'
 
   async uploadKycDocument(file: File, type: KycDocumentType): Promise<KycDocumentResponse> {
     const formData = new FormData();
@@ -75,6 +74,15 @@ export const onboardingService = {
     return response.data;
   },
 
+  /**
+   * Helper: Obtiene un documento KYC específico por tipo.
+   * Útil para consultar el estado de la cédula o constancia fiscal.
+   */
+  async getKycDocumentByType(type: KycDocumentType): Promise<KycDocumentResponse | null> {
+    const documents = await onboardingService.getKycDocuments();
+    return documents.find(d => d.documentType === type) || null;
+  },
+
   async pollKycDocumentStatus(
     type: KycDocumentType,
     intervalMs: number = 5000,
@@ -85,7 +93,6 @@ export const onboardingService = {
       const interval = setInterval(async () => {
         attempts++;
         try {
-          // Use 'this' gently or call directly the exported method
           const documents = await onboardingService.getKycDocuments();
           const doc = documents.find(d => d.documentType === type);
           if (doc && doc.verificationStatus !== 'PROCESSING') {
@@ -102,98 +109,6 @@ export const onboardingService = {
         }
       }, intervalMs);
     });
-  },
-
-  // =================================================================
-  // 🎓 CÉDULA / LICENCIA COMERCIAL (Paso 3)
-  // =================================================================
-
-  async getLicense(sector: ProviderSector): Promise<LicenseResponse | null> {
-    try {
-      const endpoint = sector === 'HEALTH'
-        ? '/api/onboarding/license/professional'
-        : '/api/onboarding/license/business';
-      const response = await axiosInstance.get(endpoint);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null;
-      }
-      throw error;
-    }
-  },
-
-  async uploadLicense(file: File, sector: ProviderSector): Promise<LicenseResponse> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('sector', sector);
-
-    const response = await axiosInstance.post(
-      '/api/onboarding/license/upload',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000,
-      }
-    );
-    return response.data;
-  },
-
-  async validateProfessionalLicense(licenseNumber: string): Promise<{
-    isValid: boolean;
-    holderName: string | null;
-    career: string | null;
-    institution: string | null;
-    graduationYear: number | null;
-  }> {
-    const response = await axiosInstance.post(
-      '/api/onboarding/license/validate-renamecc',
-      { licenseNumber }
-    );
-    return response.data;
-  },
-
-  // =================================================================
-  // 🏛️ FISCAL (Paso 4)
-  // =================================================================
-
-  async getFiscalData(): Promise<FiscalDataResponse | null> {
-    try {
-      const response = await axiosInstance.get('/api/onboarding/fiscal');
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null;
-      }
-      throw error;
-    }
-  },
-
-  async saveFiscalData(data: FiscalDataRequest): Promise<void> {
-    await axiosInstance.put('/api/onboarding/fiscal', data);
-  },
-
-  async uploadFiscalDocument(
-    file: File,
-    docType: 'TAX_CERTIFICATE' | 'ACTA_CONSTITUTIVA'
-  ): Promise<{
-    fileUrl: string;
-    extractedRfc: string | null;
-    extractedLegalName: string | null;
-  }> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('docType', docType);
-
-    const response = await axiosInstance.post(
-      '/api/onboarding/fiscal/upload',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 30000,
-      }
-    );
-    return response.data;
   },
 
   // =================================================================
@@ -216,9 +131,4 @@ export const onboardingService = {
     const response = await axiosInstance.get('/api/onboarding/catalogs/tags');
     return response.data;
   },
-
-  async getFiscalRegimes(): Promise<FiscalRegimeOption[]> {
-    const response = await axiosInstance.get('/api/onboarding/catalogs/fiscal-regimes');
-    return response.data;
-  }
 };

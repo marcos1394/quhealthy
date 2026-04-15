@@ -89,6 +89,9 @@ export type KycDocumentType =
   | 'INE_BACK'
   | 'PASSPORT'
   | 'SELFIE'
+  | 'PROFESSIONAL_LICENSE'
+  | 'TAX_CERTIFICATE'
+  | 'PROOF_OF_ADDRESS'
   | 'ACTA_CONSTITUTIVA';
 
 export type KycVerificationStatus =

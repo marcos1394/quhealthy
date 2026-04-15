@@ -51,5 +51,16 @@ export const ehrService = {
    */
   completeConsultation: async (appointmentId: number, payload: CompleteConsultationPayload): Promise<void> => {
     await axiosInstance.patch(`/api/appointments/${appointmentId}/consultation`, payload);
+  },
+
+  /**
+   * 🔗 Obtiene la URL temporal segura de un documento del paciente (vista Doctor)
+   * GET /api/onboarding/consumer/vault/{consumerId}/document/{documentId}/url
+   */
+  getPatientDocumentUrl: async (consumerId: number, documentId: string): Promise<string> => {
+    const response = await axiosInstance.get<{ url: string }>(
+      `/api/onboarding/consumer/vault/${consumerId}/document/${documentId}/url`
+    );
+    return response.data.url;
   }
 };

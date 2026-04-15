@@ -1,30 +1,40 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { handleApiError } from '@/lib/handleApiError';
 import { onboardingService } from '@/services/onboarding.service';
-import { FiscalDataResponse, FiscalDataRequest, PersonType, FiscalRegimeOption } from '@/types/onboarding';
+import { KycDocumentResponse, PersonType } from '@/types/onboarding';
 
+/**
+ * 🚀 Hook refactorizado: Los documentos fiscales ahora se gestionan como
+ * documentos KYC, usando el endpoint unificado POST /api/onboarding/kyc/upload.
+ * type = 'TAX_CERTIFICATE' para Constancia Fiscal
+ * type = 'ACTA_CONSTITUTIVA' para Acta Constitutiva (Persona Moral)
+ *
+ * Ya no existen endpoints separados de Fiscal/License en el backend.
+ * El estado fiscal se obtiene del OnboardingStatus (fiscalStatus).
+ */
 export const useFiscalOnboarding = () => {
     const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     const [personType, setPersonType] = useState<PersonType>('FISICA');
-    const [fiscalData, setFiscalData] = useState<FiscalDataResponse | null>(null);
-    const [regimes, setRegimes] = useState<FiscalRegimeOption[]>([]);
+    const [taxCertificate, setTaxCertificate] = useState<KycDocumentResponse | null>(null);
+    const [actaConstitutiva, setActaConstitutiva] = useState<KycDocumentResponse | null>(null);
 
     const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const [status, data, catalog] = await Promise.all([
+            const [status, documents] = await Promise.all([
                 onboardingService.getOnboardingStatus(),
-                onboardingService.getFiscalData(),
-                onboardingService.getFiscalRegimes()
+                onboardingService.getKycDocuments(),
             ]);
 
             setPersonType(status.personType || 'FISICA');
-            setFiscalData(data);
-            setRegimes(catalog);
+
+            // Buscamos los documentos fiscales en la lista KYC
+            const taxDoc = documents.find(d => d.documentType === 'TAX_CERTIFICATE') || null;
+            const actaDoc = documents.find(d => d.documentType === 'ACTA_CONSTITUTIVA') || null;
+            setTaxCertificate(taxDoc);
+            setActaConstitutiva(actaDoc);
         } catch (error) {
             console.error("Error cargando datos fiscales", error);
         } finally {
@@ -36,52 +46,36 @@ export const useFiscalOnboarding = () => {
         loadData();
     }, [loadData]);
 
-    const saveFiscalInfo = async (data: FiscalDataRequest) => {
-        setIsSaving(true);
-        try {
-            await onboardingService.saveFiscalData(data);
-            toast.success("✅ Datos fiscales guardados correctamente.");
-            // Refresh to ensure we have the latest payload from server
-            await loadData();
-            return true;
-        } catch (error: any) {
-            console.error("Error guardando datos fiscales:", error);
-            return;
-            return false;
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
     const uploadDocument = async (file: File, docType: 'TAX_CERTIFICATE' | 'ACTA_CONSTITUTIVA') => {
         setIsUploading(true);
         const toastId = toast.loading("Analizando tu documento con IA... esto puede tardar unos segundos.");
 
         try {
-            const response = await onboardingService.uploadFiscalDocument(file, docType);
+            // 🚀 Usamos el endpoint unificado de KYC
+            const response = await onboardingService.uploadKycDocument(file, docType);
 
-            // Update local state with the newly extracted data
-            if (response.extractedRfc || response.extractedLegalName) {
-                setFiscalData(prev => prev ? {
-                    ...prev,
-                    rfc: response.extractedRfc || prev.rfc,
-                    legalName: response.extractedLegalName || prev.legalName
-                } : {
-                    personType: personType,
-                    rfc: response.extractedRfc || '',
-                    legalName: response.extractedLegalName || '',
-                    fiscalRegime: '',
-                    taxCertificateUrl: null,
-                    actaConstitutivaUrl: null,
-                    status: 'PENDING',
-                    rejectionReason: null
-                });
+            if (docType === 'TAX_CERTIFICATE') {
+                setTaxCertificate(response);
+            } else {
+                setActaConstitutiva(response);
             }
 
-            toast.update(toastId, {
-                render: `✅ Documento verificado correctamente`,
-                type: "success", isLoading: false, autoClose: 5000
-            });
+            if (response.verificationStatus === 'APPROVED') {
+                toast.update(toastId, {
+                    render: `✅ Documento fiscal verificado correctamente`,
+                    type: "success", isLoading: false, autoClose: 5000
+                });
+            } else if (response.verificationStatus === 'REJECTED') {
+                toast.update(toastId, {
+                    render: `❌ Documento rechazado: ${response.rejectionReason || "No válido"}`,
+                    type: "error", isLoading: false, autoClose: 5000
+                });
+            } else {
+                toast.update(toastId, {
+                    render: "📋 Documento recibido, en proceso de verificación...",
+                    type: "info", isLoading: false, autoClose: 5000
+                });
+            }
             return response;
         } catch (error: any) {
             console.error("Error subiendo documento:", error);
@@ -90,22 +84,18 @@ export const useFiscalOnboarding = () => {
                 render: `Error: ${msg}`,
                 type: "error", isLoading: false, autoClose: 4000
             });
-            return false;
+            return null;
         } finally {
             setIsUploading(false);
-            // Ensure we trigger a reload to get the newly updated file urls from server (if needed)
-            loadData();
         }
     };
 
     return {
-        fiscalData,
+        taxCertificate,
+        actaConstitutiva,
         personType,
-        regimes,
         isLoading,
-        isSaving,
         isUploading,
-        saveFiscalInfo,
         uploadDocument,
         refetch: loadData
     };

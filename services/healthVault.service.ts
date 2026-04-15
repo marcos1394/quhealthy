@@ -15,20 +15,72 @@ export const healthVaultService = {
   },
 
   /**
-   * Sube un nuevo documento clínico (Laboratorio, Receta, etc.)
+   * 🚀 Paso 1: Generar URL firmada de GCP para subida segura.
+   * El frontend sube directamente a GCP usando esta URL.
+   */
+  generateUploadUrl: async (
+    fileName: string,
+    contentType: string,
+    sizeInBytes: number,
+    documentType: string = 'GENERAL'
+  ): Promise<{ uploadUrl: string; fileKey: string }> => {
+    const response = await axiosInstance.post<{ uploadUrl: string; fileKey: string }>(
+      `${BASE_URL}/upload-url`,
+      { fileName, contentType, sizeInBytes, documentType }
+    );
+    return response.data;
+  },
+
+  /**
+   * 🚀 Paso 2: Confirmar que el archivo fue subido a GCP.
+   * El backend lo registra en BD y lanza procesamiento con IA.
+   */
+  confirmUpload: async (
+    fileKey: string,
+    originalFileName: string,
+    contentType: string,
+    fileSizeBytes: number,
+    documentType: string = 'GENERAL'
+  ): Promise<ConsumerDocument> => {
+    const response = await axiosInstance.post<ConsumerDocument>(
+      `${BASE_URL}/confirm`,
+      { fileKey, originalFileName, contentType, fileSizeBytes, documentType }
+    );
+    return response.data;
+  },
+
+  /**
+   * Flujo completo de subida en 2 pasos:
+   * 1. Obtener URL firmada del backend
+   * 2. Subir archivo directamente a GCP
+   * 3. Confirmar subida al backend
    */
   uploadDocument: async (file: File, documentType: string = 'GENERAL'): Promise<ConsumerDocument> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('documentType', documentType);
+    // Paso 1: Generar URL firmada
+    const { uploadUrl, fileKey } = await healthVaultService.generateUploadUrl(
+      file.name,
+      file.type,
+      file.size,
+      documentType
+    );
 
-    // Axios configura el 'boundary' automáticamente, pero es buena práctica indicarle el Content-Type
-    const response = await axiosInstance.post<ConsumerDocument>(BASE_URL, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    // Paso 2: Subir directamente a GCP usando la URL firmada
+    await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
     });
-    return response.data;
+
+    // Paso 3: Confirmar al backend que la subida fue exitosa
+    const savedDoc = await healthVaultService.confirmUpload(
+      fileKey,
+      file.name,
+      file.type,
+      file.size,
+      documentType
+    );
+
+    return savedDoc;
   },
 
   /**

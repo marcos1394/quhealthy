@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { FileText, UploadCloud, X, Loader2, CheckCircle2, ArrowLeft, Building2, User, Landmark, Shield, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
+import { UploadCloud, Loader2, CheckCircle2, ArrowLeft, Building2, User, Landmark, Shield, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { useFiscalOnboarding } from "@/hooks/useFiscalOnboarding";
 import { useTranslations } from "next-intl";
@@ -19,65 +16,26 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 export default function FiscalPage() {
     const router = useRouter();
     const t = useTranslations("OnboardingFiscal");
-    const { fiscalData, personType, regimes, isLoading, isSaving, isUploading, saveFiscalInfo, uploadDocument } = useFiscalOnboarding();
+    const { taxCertificate, actaConstitutiva, personType, isLoading, isUploading, uploadDocument } = useFiscalOnboarding();
 
-    const [formData, setFormData] = useState({ rfc: "", legalName: "", fiscalRegime: "" });
-    const [validationError, setValidationError] = useState("");
     const csfInputRef = useRef<HTMLInputElement>(null);
+    const actaInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        if (fiscalData) {
-            setFormData({
-                rfc: fiscalData.rfc || "",
-                legalName: fiscalData.legalName || "",
-                fiscalRegime: fiscalData.fiscalRegime || ""
-            });
-        }
-    }, [fiscalData]);
-
-    const validateRFC = (rfc: string, pType: string) => {
-        const rfcRegexFisica = /^([A-ZÑ&]{4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
-        const rfcRegexMoral = /^([A-ZÑ&]{3}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
-        if (pType === 'FISICA') return rfcRegexFisica.test(rfc);
-        return rfcRegexMoral.test(rfc);
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValidationError("");
-        const { name, value } = e.target;
-        // RFC siempre en mayúsculas
-        const finalValue = name === 'rfc' ? value.toUpperCase() : value;
-        setFormData(prev => ({ ...prev, [name]: finalValue }));
-    };
-
-    const handleRegimeChange = (value: string) => {
-        setFormData(prev => ({ ...prev, fiscalRegime: value }));
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCsfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         await uploadDocument(file, 'TAX_CERTIFICATE');
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!validateRFC(formData.rfc, personType)) {
-            setValidationError(personType === 'FISICA' ? "RFC de persona física inválido (13 caracteres)." : "RFC de persona moral inválido (12 caracteres).");
-            return;
-        }
-
-        const success = await saveFiscalInfo({
-            personType: personType as any,
-            rfc: formData.rfc,
-            legalName: formData.legalName,
-            fiscalRegime: formData.fiscalRegime
-        });
-
-        if (success) {
-            router.push("/onboarding");
-        }
+    const handleActaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        await uploadDocument(file, 'ACTA_CONSTITUTIVA');
     };
+
+    const allDone =
+        taxCertificate?.verificationStatus === 'APPROVED' &&
+        (personType === 'FISICA' || actaConstitutiva?.verificationStatus === 'APPROVED');
 
     if (isLoading) return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors">
@@ -85,6 +43,27 @@ export default function FiscalPage() {
                 <Loader2 className="w-10 h-10 text-medical-600 dark:text-medical-400" />
             </motion.div>
             <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">Cargando datos fiscales...</p>
+        </div>
+    );
+
+    if (allDone) return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                <Card className="w-full max-w-md bg-white dark:bg-slate-900 border-medical-200 dark:border-medical-500/20 shadow-sm">
+                    <CardContent className="pt-10 pb-8 text-center space-y-6">
+                        <div className="mx-auto bg-medical-50 dark:bg-medical-500/10 p-5 rounded-xl w-fit border border-medical-200 dark:border-medical-500/20">
+                            <CheckCircle2 className="w-16 h-16 text-medical-600 dark:text-medical-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-medium mb-2 text-slate-900 dark:text-white">Datos fiscales verificados</h2>
+                            <p className="text-slate-500 dark:text-slate-400 font-light">Tus documentos fiscales fueron aprobados correctamente.</p>
+                        </div>
+                        <Button onClick={() => router.push("/onboarding")} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
+                            <CheckCircle2 className="w-5 h-5 mr-2" />Continuar Onboarding
+                        </Button>
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     );
 
@@ -107,92 +86,108 @@ export default function FiscalPage() {
                     </div>
                     <h1 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white tracking-tight">Información Fiscal</h1>
                     <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
-                        Paso final. Requerido para emitir comprobantes a tus pacientes y verificar tu identidad tributaria.
+                        Sube tus documentos fiscales para verificar tu identidad tributaria.
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    {/* Upload Zone */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm sticky top-8">
-                            <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5">
-                                <CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">Constancia Fiscal</CardTitle>
-                                <CardDescription className="font-light">Sube tu CSF (PDF o IMAGEN) para autocompletar.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <div onClick={() => !isUploading && csfInputRef.current?.click()} className={cn("h-48 w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group", isUploading ? "border-slate-300 opacity-70 cursor-not-allowed" : "border-slate-300 dark:border-slate-700 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/50 dark:hover:bg-medical-500/5")}>
-                                    {isUploading ? (
-                                        <QhSpinner size="md" />
-                                    ) : (
-                                        <div className="p-4 rounded-xl transition-colors mb-3 bg-slate-100 dark:bg-slate-800 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10">
-                                            <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors" />
-                                        </div>
-                                    )}
-                                    <p className="text-slate-600 dark:text-slate-300 font-medium text-sm text-center px-4">
-                                        {isUploading ? "Analizando documento..." : "Haz clic para subir"}
-                                    </p>
-                                </div>
-                                <input type="file" ref={csfInputRef} className="hidden" accept=".pdf,image/png,image/jpeg" onChange={handleFileChange} />
-                            </CardContent>
-                        </Card>
-                    </div>
+                <div className="flex items-center gap-2 justify-center">
+                    <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800 flex items-center gap-1.5 py-1">
+                        {personType === 'FISICA' ? <User className="w-3.5 h-3.5 text-medical-600" /> : <Building2 className="w-3.5 h-3.5 text-medical-600" />}
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{personType === 'FISICA' ? 'Persona Física' : 'Persona Moral'}</span>
+                    </Badge>
+                </div>
 
-                    {/* Form Zone */}
-                    <div className="lg:col-span-3">
-                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-                            <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5 flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">Tus Datos</CardTitle>
-                                    <CardDescription className="font-light">Verifica que estén correctos.</CardDescription>
+                {/* Constancia Fiscal */}
+                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                    <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5">
+                        <CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">Constancia de Situación Fiscal</CardTitle>
+                        <CardDescription className="font-light">Sube tu CSF del SAT (PDF o Imagen).</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        {taxCertificate?.verificationStatus === 'APPROVED' ? (
+                            <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl">
+                                <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-emerald-700 dark:text-emerald-300 font-medium">Constancia fiscal verificada</span>
+                            </div>
+                        ) : taxCertificate?.verificationStatus === 'REJECTED' ? (
+                            <div className="space-y-4">
+                                <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200 p-3">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    <AlertDescription className="text-sm font-medium ml-2">{taxCertificate.rejectionReason || "Documento rechazado, intenta de nuevo."}</AlertDescription>
+                                </Alert>
+                                <UploadZone isUploading={isUploading} inputRef={csfInputRef} onChange={handleCsfUpload} />
+                            </div>
+                        ) : (
+                            <UploadZone isUploading={isUploading} inputRef={csfInputRef} onChange={handleCsfUpload} />
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Acta Constitutiva (solo Persona Moral) */}
+                {personType === 'MORAL' && (
+                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                        <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5">
+                            <CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">Acta Constitutiva</CardTitle>
+                            <CardDescription className="font-light">Requerida para personas morales.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            {actaConstitutiva?.verificationStatus === 'APPROVED' ? (
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl">
+                                    <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                    <span className="text-emerald-700 dark:text-emerald-300 font-medium">Acta constitutiva verificada</span>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800 flex items-center gap-1.5 py-1">
-                                        {personType === 'FISICA' ? <User className="w-3.5 h-3.5 text-medical-600" /> : <Building2 className="w-3.5 h-3.5 text-medical-600" />}
-                                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{personType === 'FISICA' ? 'Física' : 'Moral'}</span>
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-6 space-y-5">
-                                {validationError && (
+                            ) : actaConstitutiva?.verificationStatus === 'REJECTED' ? (
+                                <div className="space-y-4">
                                     <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200 p-3">
                                         <AlertTriangle className="h-4 w-4" />
-                                        <AlertDescription className="text-sm font-medium ml-2">{validationError}</AlertDescription>
+                                        <AlertDescription className="text-sm font-medium ml-2">{actaConstitutiva.rejectionReason || "Documento rechazado, intenta de nuevo."}</AlertDescription>
                                     </Alert>
-                                )}
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Nombre Completo o Razón Social</Label>
-                                        <Input name="legalName" value={formData.legalName} onChange={handleChange} placeholder="Ej: Juan Pérez o Clínica S.A." className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 h-11" />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-700 dark:text-slate-300 font-medium">RFC</Label>
-                                            <Input name="rfc" value={formData.rfc} onChange={handleChange} maxLength={13} placeholder={personType === 'FISICA' ? "XXXX000000XXX (13)" : "XXX000000XXX (12)"} className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 h-11 uppercase" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-700 dark:text-slate-300 font-medium">Régimen Fiscal</Label>
-                                        <Select value={formData.fiscalRegime} onValueChange={handleRegimeChange}>
-                                            <SelectTrigger className="border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 h-11 w-full">
-                                                <SelectValue placeholder="Selecciona tu régimen fiscal" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {regimes.map(r => (
-                                                    <SelectItem value={r.key} key={r.key}>{r.satCode} - {r.label}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                    <UploadZone isUploading={isUploading} inputRef={actaInputRef} onChange={handleActaUpload} />
                                 </div>
+                            ) : (
+                                <UploadZone isUploading={isUploading} inputRef={actaInputRef} onChange={handleActaUpload} />
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
-                                <Button onClick={handleSubmit} disabled={isSaving || !formData.rfc || !formData.legalName || !formData.fiscalRegime} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl mt-4">
-                                    {isSaving ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Guardando...</> : <><CheckCircle2 className="w-5 h-5 mr-2" />Completar y Guardar</>}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                <Button onClick={() => router.push("/onboarding")} variant="outline" className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 h-11 rounded-xl">
+                    <ArrowLeft className="w-4 h-4 mr-2" />Volver al Onboarding
+                </Button>
             </div>
         </div>
+    );
+}
+
+/** Componente reutilizable para zona de carga */
+function UploadZone({ isUploading, inputRef, onChange }: {
+    isUploading: boolean;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+    return (
+        <>
+            <div
+                onClick={() => !isUploading && inputRef.current?.click()}
+                className={cn(
+                    "h-48 w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group",
+                    isUploading
+                        ? "border-slate-300 opacity-70 cursor-not-allowed"
+                        : "border-slate-300 dark:border-slate-700 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/50 dark:hover:bg-medical-500/5"
+                )}
+            >
+                {isUploading ? (
+                    <QhSpinner size="md" />
+                ) : (
+                    <div className="p-4 rounded-xl transition-colors mb-3 bg-slate-100 dark:bg-slate-800 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10">
+                        <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors" />
+                    </div>
+                )}
+                <p className="text-slate-600 dark:text-slate-300 font-medium text-sm text-center px-4">
+                    {isUploading ? "Analizando documento..." : "Haz clic para subir"}
+                </p>
+            </div>
+            <input type="file" ref={inputRef} className="hidden" accept=".pdf,image/png,image/jpeg" onChange={onChange} />
+        </>
     );
 }
