@@ -78,7 +78,7 @@ export const useSessionStore = create<SessionState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       // =========================================================================
-      // 🚀 RESTAURAR SESIÓN AL RECARGAR (FIX FS-001 & FS-005)
+      // 🚀 RESTAURAR SESIÓN AL RECARGAR 
       // =========================================================================
       initializeSession: async () => {
         const state = get();
@@ -123,12 +123,10 @@ export const useSessionStore = create<SessionState>()(
             isLoading: false,
           });
 
-          // 🛡️ FIX FS-005: Mitigación del riesgo. 
-          // Si el servidor rechazó el refresh token, la cookie es basura o ha sido revocada.
-          // Forzamos su eliminación y redirigimos.
+          // 🛡️ FIX BUCLE: Como JavaScript no puede borrar cookies HttpOnly,
+          // mandamos una señal de auxilio al servidor de Next.js para que lo haga.
           if (typeof window !== 'undefined') {
-            document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/api/auth; domain=quhealthy.org; SameSite=None; Secure";
-            window.location.href = '/login'; 
+            window.location.href = '/login?clear_session=true'; 
           }
         }
       },
@@ -138,7 +136,6 @@ export const useSessionStore = create<SessionState>()(
       storage: createJSONStorage(() => localStorage),
 
       // 🛡️ FIX FS-001: SOLO persistimos info no sensible.
-      // ¡El token ya no está aquí!
       partialize: (state) => ({
         user: state.user,
         role: state.role,
