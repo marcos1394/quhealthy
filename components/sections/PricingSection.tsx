@@ -5,9 +5,12 @@ import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useTranslations } from "next-intl";
+import { useSessionStore } from "@/stores/SessionStore";
+import Link from "next/link";
 
 const PricingSection: React.FC = () => {
   const t = useTranslations('Pricing');
+  const { isAuthenticated, role } = useSessionStore();
   const [isAnnual, setIsAnnual] = useState(true);
 
   const plans = [
@@ -167,8 +170,8 @@ const PricingSection: React.FC = () => {
                 </ul>
 
                 {/* Botón CTA */}
-                <a
-                  href="#"
+                <Link
+                  href={isAuthenticated && role === 'PROVIDER' ? '/provider/settings/subscription' : '/provider/register'}
                   className={cn(
                     "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
                     plan.isPopular
@@ -177,7 +180,7 @@ const PricingSection: React.FC = () => {
                   )}
                 >
                   {plan.buttonText}
-                </a>
+                </Link>
 
               </motion.div>
             );
