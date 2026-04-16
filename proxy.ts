@@ -32,11 +32,14 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
+  // 🛡️ 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
   // =========================================================================
-  // 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
-  // =========================================================================
-  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname);
-  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password)/.test(pathname);
+  const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
+
+  // Todo bajo /patient, /provider o /admin está protegido, EXCEPTO /provider/register
+  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname) && !isProviderRegisterRoute;
+  
+  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register)/.test(pathname);
 
   const localeMatch = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
