@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { onboardingService } from '@/services/onboarding.service';
+import { useSessionStore } from '@/stores/SessionStore';
 import { OnboardingStepUI, OnboardingStatusResponse, StepStatus, ProviderSector, PersonType } from '@/types/onboarding';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
@@ -27,6 +28,19 @@ export const useOnboardingChecklist = () => {
     setIsFinalizing(true);
     try {
       await onboardingService.finalizeOnboarding();
+      
+      // FIX Redirection Loop: Mutate local Auth session state to 
+      // instantly reflect that onboarding is complete.
+      const sessionStore = useSessionStore.getState();
+      if (sessionStore.status) {
+        sessionStore.updateToken({
+          status: {
+            ...sessionStore.status,
+            onboardingComplete: true
+          }
+        });
+      }
+
       return true;
     } catch (err: any) {
       console.error("Error al finalizar:", err);
