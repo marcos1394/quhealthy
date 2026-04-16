@@ -273,11 +273,39 @@ export const Navbar: React.FC = () => {
                   {t('buttons.login')}
                 </Button>
               </Link>
-              <Link href="/register">
-                <Button className="bg-medical-600 text-white hover:bg-medical-700 font-medium h-9 px-5 rounded-md border-0 transition-colors">
-                  {t('buttons.register')}
-                </Button>
-              </Link>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="bg-medical-600 text-white hover:bg-medical-700 font-medium h-9 px-5 rounded-md border-0 transition-colors">
+                    {t('buttons.register')}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xl rounded-xl p-1">
+                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg p-2.5">
+                    <Link href="/provider/register" className="flex items-center gap-2.5 w-full">
+                      <div className="w-8 h-8 rounded-full bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center text-medical-600 dark:text-medical-400">
+                        <Store size={16} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-white">Como Especialista</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">Ofrece tus servicios</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+                  <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg p-2.5">
+                    <Link href="/register" className="flex items-center gap-2.5 w-full">
+                      <div className="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                        <UserIcon size={16} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm text-slate-900 dark:text-white">Como Paciente</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">Agenda tus citas</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
         </div>
@@ -337,13 +365,24 @@ export const Navbar: React.FC = () => {
                   <LogOut className="mr-2 h-4 w-4" /> {t('user_menu.logout')}
                 </Button>
               ) : (
-                <div className="grid grid-cols-2 gap-3 mt-2">
+                <div className="flex flex-col gap-3 mt-2">
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">{t('buttons.login')}</Button>
+                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 h-11">{t('buttons.login')}</Button>
                   </Link>
-                  <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-medical-600 text-white hover:bg-medical-700">{t('buttons.create_account')}</Button>
-                  </Link>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <Link href="/provider/register" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 h-14 flex-col gap-1 rounded-xl">
+                        <Store size={16} />
+                        <span className="text-[10px] uppercase font-bold tracking-wider">Profesional</span>
+                      </Button>
+                    </Link>
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-medical-600 text-white hover:bg-medical-700 h-14 flex-col gap-1 rounded-xl">
+                        <UserIcon size={16} />
+                        <span className="text-[10px] uppercase font-bold tracking-wider">Paciente</span>
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
