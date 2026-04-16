@@ -20,7 +20,8 @@ export const onboardingService = {
     return response.data;
   },
 
-    });
+  async finalizeOnboarding(): Promise<void> {
+    const response = await axiosInstance.post('/api/onboarding/finalize');
     return response.data;
   },
 
