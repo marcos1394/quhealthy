@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface HealthVaultDropzoneProps {
-    onUpload: (file: File) => Promise<void>;
+    onUpload: (file: File) => Promise<unknown>;
     isUploading: boolean;
 }
 
