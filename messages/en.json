@@ -618,6 +618,9 @@
         "security_footer": "Your documents are encrypted and protected",
         "loading": "Loading information..."
     },
+    "OnboardingFiscal": {
+        "back": "Back"
+    },
     "OnboardingKyc": {
         "badge": "Step 2 of 4",
         "ai_badge": "AI Verification",

@@ -63,7 +63,7 @@ export const onboardingService = {
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000,
+        timeout: 180000, // 🚀 3 minutos (Extracción ML en OCR puede ser muy lenta)
       }
     );
     return response.data;
