@@ -5,7 +5,7 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import { useSessionStore } from '@/stores/SessionStore';
-import { isInitialRefreshInProgress, initialRefreshPromise } from '@/stores/SessionStore';
+import { isInitialRefreshInProgress, initialRefreshPromise, nukeCookies } from '@/stores/SessionStore';
 import { UserRole } from '@/types/auth';
 
 // Estructura de error esperada desde Spring Boot
@@ -92,7 +92,11 @@ axiosInstance.interceptors.response.use(
     ) {
       // Evitamos bucle infinito si el propio login o refresh devuelve 401
       const url = originalRequest.url ?? '';
-      if (url.includes('/api/auth/login') || url.includes('/api/auth/refresh-token')) {
+      if (
+        url.includes('/api/auth/login') ||
+        url.includes('/api/auth/refresh-token') ||
+        url.includes('/api/auth/logout')
+      ) {
         return Promise.reject(buildCustomError(error));
       }
 
@@ -166,7 +170,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         // El refresh falló (cookie expirada / revocada) → logout forzado
         processQueue(refreshError as AxiosError, null);
-        useSessionStore.getState().clearSession();
+        useSessionStore.getState().clearSession(); // clearSession ya llama nukeCookies()
 
         if (
           typeof window !== 'undefined' &&

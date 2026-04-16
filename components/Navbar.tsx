@@ -88,8 +88,8 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     toast.info(t('toast.logout'));
     setMobileMenuOpen(false);
   };

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -14,7 +14,8 @@ import {
   Stethoscope,
   ArrowRight,
   Shield,
-  Check
+  Check,
+  AlertTriangle
 } from "lucide-react";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { toast } from "react-toastify";
@@ -34,14 +35,17 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
 import { handleApiError } from '@/lib/handleApiError';
+import { nukeCookies } from '@/stores/SessionStore';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('Auth');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
 
@@ -50,6 +54,19 @@ export default function LoginPage() {
     password: "",
     rememberMe: false
   });
+
+  // 🛡️ ENTERPRISE: Detectar sesión expirada y limpiar cookies residuales
+  useEffect(() => {
+    const expired = searchParams.get('expired');
+    if (expired === 'true') {
+      setSessionExpired(true);
+      nukeCookies();
+      // Limpiar el param de la URL sin recargar
+      const url = new URL(window.location.href);
+      url.searchParams.delete('expired');
+      window.history.replaceState({}, '', url.pathname);
+    }
+  }, [searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -240,6 +257,32 @@ export default function LoginPage() {
                 </span>
               </div>
             </div>
+
+            {/* Expired Session Banner */}
+            <AnimatePresence>
+              {sessionExpired && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6 overflow-hidden"
+                >
+                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Tu sesión ha expirado</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">Por tu seguridad, inicia sesión de nuevo.</p>
+                    </div>
+                    <button
+                      onClick={() => setSessionExpired(false)}
+                      className="ml-auto text-amber-400 hover:text-amber-600 dark:hover:text-amber-200 transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Error Alert */}
             <AnimatePresence>

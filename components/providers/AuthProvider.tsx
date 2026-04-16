@@ -4,6 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { initializeSession, isLoading, _hasHydrated } = useSessionStore();
@@ -21,6 +22,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       initializeSession();
     }
   }, [_hasHydrated, initializeSession]);
+
+  // 🛡️ ENTERPRISE: Idle timeout — auto-logout tras 30min de inactividad
+  useSessionTimeout();
 
   // =========================================================================
   // 🛡️ EL FRENO DE MANO (BLOQUEO CRÍTICO)

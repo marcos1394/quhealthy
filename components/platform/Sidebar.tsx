@@ -120,7 +120,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
   const currentLinks = isConsumer ? patientLinks : providerLinks;
   const currentSettingsLinks = isConsumer ? patientSettingsLinks : providerSettingsLinks;
 
-  const handleLogout = () => { toast.info("Session closed successfully", { autoClose: 2000 }); logout(); };
+  const handleLogout = async () => { await logout(); toast.info("Session closed successfully", { autoClose: 2000 }); };
 
   return (
     <motion.aside animate={{ width: isCollapsed ? 80 : 280 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}

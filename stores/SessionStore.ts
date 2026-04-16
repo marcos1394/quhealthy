@@ -8,6 +8,34 @@ import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
 export let isInitialRefreshInProgress = false;
 export let initialRefreshPromise: Promise<string | null> | null = null;
 
+// =========================================================================
+// 🧹 NUCLEAR COOKIE CLEANUP
+// Borra TODAS las cookies accesibles desde JS (las HttpOnly las borra el
+// backend con Set-Cookie: Max-Age=0 en POST /logout).
+// Se ejecuta en CADA path de cierre de sesión.
+// =========================================================================
+export function nukeCookies(): void {
+  if (typeof document === 'undefined') return;
+
+  const cookies = document.cookie.split(';');
+  const domains = [window.location.hostname, `.${window.location.hostname}`, ''];
+  const paths = ['/', window.location.pathname];
+
+  for (const cookie of cookies) {
+    const name = cookie.split('=')[0].trim();
+    if (!name) continue;
+    for (const domain of domains) {
+      for (const path of paths) {
+        const domainPart = domain ? `;domain=${domain}` : '';
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}${domainPart}`;
+        document.cookie = `${name}=;max-age=0;path=${path}${domainPart}`;
+      }
+    }
+  }
+
+  console.log('🧹 [Auth] Cookies nucleadas.');
+}
+
 interface SessionState {
   // Estado
   token: string | null;
@@ -66,7 +94,7 @@ export const useSessionStore = create<SessionState>()(
         }));
       },
 
-      // 🚀 FIX BUG-3: Acción de Cerrar Sesión — ahora también limpia localStorage
+      // 🚀 ENTERPRISE: Acción de Cerrar Sesión — limpia state + localStorage + cookies
       clearSession: () => {
         set({
           token: null,
@@ -77,9 +105,11 @@ export const useSessionStore = create<SessionState>()(
           isLoading: false,
         });
 
-        // Borrar explícitamente la data persistida de Zustand en localStorage
         if (typeof window !== 'undefined') {
+          // 1. Borrar la data persistida de Zustand en localStorage
           localStorage.removeItem('quhealthy-session');
+          // 2. Nuclear: borrar TODAS las cookies accesibles
+          nukeCookies();
         }
       },
 
@@ -139,16 +169,21 @@ export const useSessionStore = create<SessionState>()(
               isLoading: false,
             });
 
-            // Limpiar localStorage para evitar estado stale
             if (typeof window !== 'undefined') {
+              // Limpieza total: localStorage + cookies
               localStorage.removeItem('quhealthy-session');
-            }
+              nukeCookies();
 
-            // Solo redirigir si estamos en una ruta protegida
-            if (typeof window !== 'undefined') {
+              // Solo redirigir si estamos en una ruta protegida
               const currentPath = window.location.pathname;
-              if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
-                window.location.href = '/login?clear_session=true'; 
+              const isPublicRoute = currentPath.includes('/login') ||
+                currentPath.includes('/register') ||
+                currentPath.includes('/forgot-password') ||
+                currentPath.includes('/reset-password') ||
+                currentPath.includes('/verify-');
+
+              if (!isPublicRoute) {
+                window.location.href = '/login?expired=true';
               }
             }
 
