@@ -9,6 +9,8 @@ import {
   UpdateProfileRequest,
   MessageResponse,
   KycDocumentType,
+  FiscalDataRequest,
+  FiscalDataResponse,
 } from '@/types/onboarding';
 
 export const onboardingService = {
@@ -18,9 +20,6 @@ export const onboardingService = {
     return response.data;
   },
 
-  async finalizeOnboarding(): Promise<MessageResponse> {
-    const response = await axiosInstance.post('/api/onboarding/finalize', null, {
-      headers: { 'Accept': 'application/json' }
     });
     return response.data;
   },

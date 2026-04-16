@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { useFiscalOnboarding } from "@/hooks/useFiscalOnboarding";
+import { onboardingService } from "@/services/onboarding.service";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
@@ -31,6 +32,17 @@ export default function FiscalPage() {
         const file = e.target.files?.[0];
         if (!file) return;
         await uploadDocument(file, 'ACTA_CONSTITUTIVA');
+    };
+
+    const handleContinue = async () => {
+        try {
+            // Self-healing: Forzamos la sincronización final
+            await onboardingService.finalizeOnboarding();
+        } catch (error) {
+            console.error("Error sincronizando estados finales", error);
+        } finally {
+            router.push("/onboarding");
+        }
     };
 
     const allDone =
@@ -58,7 +70,7 @@ export default function FiscalPage() {
                             <h2 className="text-2xl font-medium mb-2 text-slate-900 dark:text-white">Datos fiscales verificados</h2>
                             <p className="text-slate-500 dark:text-slate-400 font-light">Tus documentos fiscales fueron aprobados correctamente.</p>
                         </div>
-                        <Button onClick={() => router.push("/onboarding")} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
+                        <Button onClick={handleContinue} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
                             <CheckCircle2 className="w-5 h-5 mr-2" />Continuar Onboarding
                         </Button>
                     </CardContent>
