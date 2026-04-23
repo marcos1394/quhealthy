@@ -21,43 +21,43 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { subscriptionService, CurrentSubscription } from "@/services/subscription.service";
+import { useTranslations } from "next-intl";
 
+// 🔑 Las keys referencian el diccionario SidebarNav de es.json / en.json
 const providerLinks = [
-  { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "Calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: { count: 3, color: "blue" } },
-  { label: "Patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
-  { label: "Store", href: "/provider/store", icon: BriefcaseMedical, badge: null },
-  { label: "Billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
-    { label: "Orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
-    { label: "Appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
-    { label: "Referrals", href: "/provider/dashboard/referrals", icon: Handshake, badge: null },
-    { label: "History", href: "/provider/dashboard/history", icon: History, badge: null },
-    { label: "Marketing", href: "/provider/dashboard/marketing", icon: BadgeX, badge: null },
-
+  { key: "dashboard", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: null },
+  { key: "patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
+  { key: "store", href: "/provider/store", icon: BriefcaseMedical, badge: null },
+  { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
+  { key: "orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
+  { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
+  { key: "referrals", href: "/provider/dashboard/referrals", icon: Handshake, badge: null },
+  { key: "history", href: "/provider/dashboard/history", icon: History, badge: null },
+  { key: "marketing", href: "/provider/dashboard/marketing", icon: BadgeX, badge: null },
 ];
 
 const providerSettingsLinks = [
-  { label: "Public Profile", href: "/provider/profile", icon: UserCircle, badge: null },
-  { label: "Settings", href: "/provider/settings", icon: Settings, badge: null },
+  { key: "public_profile", href: "/provider/profile", icon: UserCircle, badge: null },
+  { key: "settings", href: "/provider/settings", icon: Settings, badge: null },
 ];
 
 const patientLinks = [
-  { label: "Overview", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "Appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
-  { label: "Discover", href: "/patient/discover", icon: Sparkles, badge: null },
-  { label: "Vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
-  { label: "Messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
-  { label: "Packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
-  { label: "Reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
-  { label: "Favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
-  { label: "Dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
-  { label: "Wallet", href: "/patient/dashboard/wallet", icon: CreditCard, badge: null },
-
+  { key: "dashboard", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
+  { key: "discover", href: "/patient/discover", icon: Sparkles, badge: null },
+  { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
+  { key: "messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
+  { key: "packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
+  { key: "reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
+  { key: "favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
+  { key: "dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
+  { key: "wallet", href: "/patient/dashboard/wallet", icon: CreditCard, badge: null },
 ];
 
 const patientSettingsLinks = [
-  { label: "Profile", href: "/patient/profile", icon: UserCircle, badge: null },
-  { label: "Settings", href: "/patient/settings", icon: Settings, badge: null },
+  { key: "profile", href: "/patient/profile", icon: UserCircle, badge: null },
+  { key: "settings", href: "/patient/settings", icon: Settings, badge: null },
 ];
 
 const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
@@ -116,6 +116,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
   const { logout } = useAuth();
   const { role } = useSessionStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
+  const t = useTranslations('SidebarNav');
 
   const isConsumer = role === 'CONSUMER';
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
@@ -131,7 +132,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
     }
   }, [isConsumer]);
 
-  const handleLogout = async () => { await logout(); toast.info("Session closed successfully", { autoClose: 2000 }); };
+  const handleLogout = async () => { await logout(); toast.info(t('logout_success'), { autoClose: 2000 }); };
 
   return (
     <motion.aside animate={{ width: isCollapsed ? 80 : 280 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -175,10 +176,10 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-medical-600 dark:text-medical-400 whitespace-nowrap">
-                    {subscription?.planName || 'Sin Plan'}
+                    {subscription?.planName || t('no_plan')}
                   </p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 font-light">
-                    {subscription?.gateway === 'FREE' ? 'Mejora tu plan' : (subscription ? 'Gestionar plan' : 'Activar plan')}
+                    {subscription?.gateway === 'FREE' ? t('upgrade_plan') : (subscription ? t('manage_plan') : t('activate_plan'))}
                   </p>
                 </div>
               </div>
@@ -194,14 +195,14 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             {!isCollapsed && (
               <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1.5">
-                Platform
+                {t('platform')}
               </motion.h3>
             )}
           </AnimatePresence>
           <div className="space-y-1">
             {currentLinks.map((link, index) => (
               <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
-                <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
+                <NavItem href={link.href} icon={link.icon} label={t(link.key)} badge={link.badge} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
             ))}
           </div>
@@ -214,14 +215,14 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             {!isCollapsed && (
               <motion.h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1.5">
-                Settings
+                {t('settings_section')}
               </motion.h3>
             )}
           </AnimatePresence>
           <div className="space-y-1">
             {currentSettingsLinks.map((link, index) => (
               <motion.div key={link.href} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
-                <NavItem {...link} isCollapsed={isCollapsed} pathname={pathname} />
+                <NavItem href={link.href} icon={link.icon} label={t(link.key)} badge={link.badge} isCollapsed={isCollapsed} pathname={pathname} />
               </motion.div>
             ))}
           </div>
@@ -234,7 +235,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
           {!isCollapsed && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="overflow-hidden">
               <Button variant="ghost" className="w-full justify-start gap-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 transition-all group">
-                <HelpCircle className="w-4 h-4 flex-shrink-0" /><span className="text-sm font-medium whitespace-nowrap">Support</span>
+                <HelpCircle className="w-4 h-4 flex-shrink-0" /><span className="text-sm font-medium whitespace-nowrap">{t('support')}</span>
               </Button>
             </motion.div>
           )}
@@ -244,12 +245,12 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
             "flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl transition-all group overflow-hidden",
             "text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10",
             isCollapsed ? "justify-center" : ""
-          )} title={isCollapsed ? "Log Out" : ""}>
+          )} title={isCollapsed ? t('logout') : ""}>
           <LogOut className="w-4 h-4 flex-shrink-0" />
           <AnimatePresence>
             {!isCollapsed && (
               <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                className="text-sm font-medium whitespace-nowrap">Log Out</motion.span>
+                className="text-sm font-medium whitespace-nowrap">{t('logout')}</motion.span>
             )}
           </AnimatePresence>
         </motion.button>
