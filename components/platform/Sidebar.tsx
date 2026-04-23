@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, CalendarDays, Users, CreditCard, 
-  Settings, LogOut, ChevronRight, HelpCircle, Crown, ChevronLeft, 
+  Settings, LogOut, HelpCircle, Crown, 
   BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, 
   Star, HeartIcon, Menu, Package, ClipboardIcon, 
   Handshake,
@@ -19,7 +19,8 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
-import { Label } from "recharts";
+import { NotificationBell } from "@/components/ui/NotificationBell";
+import { subscriptionService, CurrentSubscription } from "@/services/subscription.service";
 
 const providerLinks = [
   { label: "Overview", href: "/provider/dashboard", icon: LayoutDashboard, badge: null },
@@ -114,11 +115,21 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout } = useAuth();
   const { role } = useSessionStore();
+  const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
 
   const isConsumer = role === 'CONSUMER';
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
   const currentLinks = isConsumer ? patientLinks : providerLinks;
   const currentSettingsLinks = isConsumer ? patientSettingsLinks : providerSettingsLinks;
+
+  // 📊 Cargar plan del provider
+  useEffect(() => {
+    if (!isConsumer) {
+      subscriptionService.getCurrentSubscription()
+        .then(setSubscription)
+        .catch(() => setSubscription(null));
+    }
+  }, [isConsumer]);
 
   const handleLogout = async () => { await logout(); toast.info("Session closed successfully", { autoClose: 2000 }); };
 
@@ -142,28 +153,37 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
           )}
         </AnimatePresence>
 
-        <Button variant="outline" size="icon" onClick={() => setIsCollapsed(!isCollapsed)}
-          className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 w-10 flex-shrink-0 shadow-sm transition-all ml-auto">
-          <Menu className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1.5 ml-auto">
+          <NotificationBell isCollapsed={isCollapsed} />
+          <Button variant="outline" size="icon" onClick={() => setIsCollapsed(!isCollapsed)}
+            className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 w-10 flex-shrink-0 shadow-sm transition-all">
+            <Menu className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Plan Banner (Only for Provider) */}
       <AnimatePresence>
         {!isCollapsed && !isConsumer && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            className="mx-4 mt-4 p-3 bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-xl overflow-hidden relative group cursor-pointer hover:border-medical-500/50 transition-all">
-            <div className="absolute top-1 right-1"><Sparkles className="w-3 h-3 text-medical-400 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-medical-100 dark:bg-medical-500/10 rounded-lg">
-                <Crown className="w-4 h-4 text-medical-600 dark:text-medical-400 flex-shrink-0" />
+          <Link href="/provider/settings/subscription">
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="mx-4 mt-4 p-3 bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-xl overflow-hidden relative group cursor-pointer hover:border-medical-500/50 transition-all">
+              <div className="absolute top-1 right-1"><Sparkles className="w-3 h-3 text-medical-400 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-medical-100 dark:bg-medical-500/10 rounded-lg">
+                  <Crown className="w-4 h-4 text-medical-600 dark:text-medical-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-medical-600 dark:text-medical-400 whitespace-nowrap">
+                    {subscription?.planName || 'Sin Plan'}
+                  </p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-light">
+                    {subscription?.gateway === 'FREE' ? 'Mejora tu plan' : (subscription ? 'Gestionar plan' : 'Activar plan')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-medical-600 dark:text-medical-400 whitespace-nowrap">Basic Plan</p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-light">Upgrade your plan</p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </Link>
         )}
       </AnimatePresence>
 
