@@ -47,9 +47,11 @@ export default function IdentitySetupPage() {
     longitude: null
   });
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Pre-llenar con datos del backend (Incluyendo los copiados del Onboarding)
   useEffect(() => {
-    if (profile) {
+    if (profile && !isInitialized) {
       setSettings({
         storeName: profile.displayName || "",
         storeSlug: profile.slug || "",
@@ -64,11 +66,16 @@ export default function IdentitySetupPage() {
         latitude: profile.latitude || null,
         longitude: profile.longitude || null
       });
+      setIsInitialized(true);
     }
-  }, [profile]);
+  }, [profile, isInitialized]);
 
   const handleChange = (key: keyof FullStoreSettings, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+    // Auto-save silently critical interactions like color 
+    if (key === 'primaryColor') {
+       try { updateProfile({ primaryColor: value }); } catch (e) {}
+    }
   };
 
   // Manejador del componente de Google Maps
