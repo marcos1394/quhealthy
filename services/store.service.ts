@@ -1,4 +1,5 @@
 // services/store.service.ts
+import axios from 'axios';
 import axiosInstance from '@/lib/axios';
 import { StoreProfile, StoreMediaType, UploadMediaResponse } from '@/types/store';
 
@@ -24,23 +25,38 @@ export const storeService = {
   },
 
   /**
-   * Sube un archivo multimedia (Logo, Banner, Video, etc) directo al bucket de GCP.
+   * Sube un archivo multimedia (Logo, Banner, Video, etc) directo al bucket de GCP 
+   * usando la Arquitectura Enterprise (Firmas temporales).
    */
   uploadMedia: async (file: File, type: StoreMediaType): Promise<UploadMediaResponse> => {
-    const formData = new FormData();
-    formData.append('file', file);
+    // 1. Solicitar URL firmada al backend
+    const signResponse = await axiosInstance.post<{
+      message: string;
+      uploadUrl: string;
+      publicUrl: string;
+    }>(`${BASE_URL_MEDIA}/upload-url`, {
+      fileName: file.name,
+      contentType: file.type,
+      mediaType: type,
+      sizeInBytes: file.size,
+    });
 
-    const response = await axiosInstance.post<UploadMediaResponse>(
-      `${BASE_URL_MEDIA}/upload?type=${type}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        // Aumentamos el timeout a 60s porque los videos pesados (ej. preview_video) tardan más en subir
-        timeout: 60000 
-      }
-    );
-    return response.data;
+    const { uploadUrl, publicUrl } = signResponse.data;
+
+    // 2. Subir directamente a GCP Storage usando la URL firmada
+    // Usamos axios puro sin interceptores para no enviar el Authorization header a Google
+    await axios.put(uploadUrl, file, {
+      headers: {
+        'Content-Type': file.type,
+      },
+      // Timeout largo para videos o archivos pesados
+      timeout: 60000, 
+    });
+
+    // 3. Devolver la URL pública asumiendo éxito
+    return {
+      message: 'Archivo subido exitosamente',
+      url: publicUrl,
+    };
   }
 };
