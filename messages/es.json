@@ -1720,7 +1720,7 @@
         "location_desc": "Verifica o ajusta el pin. Esta es la dirección que verán los pacientes en el Marketplace para encontrarte.",
         "toast_success": "¡Perfil guardado con éxito!",
         "toast_error": "Hubo un problema al guardar. Intenta de nuevo.",
-        "toast_name_required": "El nombre del consultorio y la URL son obligatorios",
+        "toast_name_required": "El nombre de la tienda y la URL son obligatorios",
         "toast_location_required": "Por favor confirma tu ubicación en el mapa",
         "toast_image_uploaded": "Imagen subida a la nube correctamente",
         "toast_video_uploaded": "Video procesado y guardado",

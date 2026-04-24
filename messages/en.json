@@ -1720,7 +1720,7 @@
         "location_desc": "Verify or adjust the pin. This is the address patients will see on the Marketplace to find you.",
         "toast_success": "Profile saved successfully!",
         "toast_error": "There was a problem saving. Please try again.",
-        "toast_name_required": "Practice name and URL are required",
+        "toast_name_required": "Store name and URL are required",
         "toast_location_required": "Please confirm your location on the map",
         "toast_image_uploaded": "Image uploaded to the cloud successfully",
         "toast_video_uploaded": "Video processed and saved",

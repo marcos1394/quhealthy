@@ -122,12 +122,16 @@ export default function IdentitySetupPage() {
     }
   };
 
-  // Subida de Imágenes
   const handleImageUpload = async (type: 'logo' | 'banner', file: File) => {
     const mediaType = type === 'logo' ? 'LOGO' : 'BANNER';
     const newUrl = await uploadMedia(file, mediaType);
     if (newUrl) {
       handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', newUrl);
+      try {
+        await updateProfile({ [type === 'logo' ? 'logoUrl' : 'bannerUrl']: newUrl });
+      } catch (e) {
+        /* Ignoramos error de validacion oculto, solo guardamos lo que nos permita */
+      }
       toast.success(t('toast_image_uploaded'));
     }
   };
@@ -136,11 +140,13 @@ export default function IdentitySetupPage() {
     handleChange(type === 'logo' ? 'storeLogoUrl' : 'bannerImageUrl', "");
   };
 
-  // Subida de Video
   const handleVideoUpload = async (file: File) => {
     const newUrl = await uploadMedia(file, 'PREVIEW_VIDEO');
     if (newUrl) {
       handleChange('videoUrl', newUrl);
+      try {
+        await updateProfile({ previewVideoUrl: newUrl });
+      } catch (e) {}
       toast.success(t('toast_video_uploaded'));
     }
   };

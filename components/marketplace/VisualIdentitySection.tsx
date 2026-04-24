@@ -211,7 +211,7 @@ export function VisualIdentitySection({
               {/* Profile Info Preview */}
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {settings.storeName || 'Nombre del Consultorio'}
+                  {settings.storeName || 'Nombre de la Tienda'}
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   quhealthy.com/{settings.storeSlug || 'tu-url'}
@@ -234,10 +234,10 @@ export function VisualIdentitySection({
           {/* Store Name */}
           <div className="space-y-3">
             <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Nombre del Consultorio
+              Nombre de la Tienda
             </Label>
             <Input 
-              placeholder="Ej: Dr. Marcos Wellness Center" 
+              placeholder="Ej: QuHealthy Centro Médico / Dr. Marcos" 
               value={settings.storeName}
               onChange={(e) => onChange('storeName', e.target.value)}
               className={cn(
@@ -498,7 +498,11 @@ export function VisualIdentitySection({
                 </span>
                 <Input 
                   value={settings.primaryColor} 
-                  onChange={(e) => onChange('primaryColor', e.target.value)}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val && !val.startsWith('#')) val = '#' + val;
+                    onChange('primaryColor', val);
+                  }}
                   className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-32 h-9 text-xs uppercase font-mono focus:border-medical-500 text-slate-900 dark:text-white"
                   maxLength={7}
                   placeholder="#000000"
