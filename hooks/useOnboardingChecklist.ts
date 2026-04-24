@@ -109,16 +109,16 @@ export const useOnboardingChecklist = () => {
         rejectionReason: data.rejectionReasons?.license
       };
 
-      // --- PASO 4: FISCAL ---
+      // --- PASO 4: FISCAL (OPCIONAL) ---
       const fiscalStep: OnboardingStepUI = {
-        id: 'fiscal', // Se mapeará a 'plan' provisoriamente en OnboardingStepUI si no editaste el tipo UI, pero usemos 'fiscal' si se permite
+        id: 'fiscal',
         title: 'Datos Fiscales',
-        description: 'RFC, Constancia de Situación Fiscal y Régimen',
+        description: 'RFC, Constancia de Situación Fiscal y CSD (Opcional)',
         status: data.fiscalStatus,
-        statusText: getStatusText(data.fiscalStatus),
+        statusText: data.fiscalStatus === 'APPROVED' ? 'Completado' : getStatusText(data.fiscalStatus),
         isComplete: data.fiscalStatus === 'APPROVED',
-        isLocked: data.licenseStatus !== 'APPROVED', // Se desbloquea al aprobar la licencia/cédula
-        isRequired: true, // Asumimos obligatorio para emitir facturas
+        isLocked: false, // Nunca bloqueado — siempre accesible
+        isRequired: false, // Opcional — no afecta el porcentaje ni bloquea el dashboard
         actionPath: '/onboarding/fiscal',
         rejectionReason: data.rejectionReasons?.fiscal
       };
