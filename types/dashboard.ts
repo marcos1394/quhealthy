@@ -10,6 +10,9 @@ export interface DashboardAnalytics {
   monthlyRevenue: number;
   completedAppointments: number;
   newClients: number;
+  revenueGrowth: number;
+  appointmentsGrowth: number;
+  clientsGrowth: number;
 }
 
 export interface UpcomingAppointmentDto {

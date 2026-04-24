@@ -135,13 +135,13 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <SummaryCard title={t('revenue_title')} value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
           icon={BarChart2} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 12.5, isPositive: true, period: t('previous_month') }} />
+          trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month') }} />
         <SummaryCard title={t('completed_appointments')} value={analytics.completedAppointments.toString()}
           icon={CheckCircle} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 8.2, isPositive: true, period: t('previous_month') }} />
+          trend={{ value: Math.abs(analytics.appointmentsGrowth || 0), isPositive: (analytics.appointmentsGrowth || 0) >= 0, period: t('previous_month') }} />
         <SummaryCard title={t('new_patients')} value={analytics.newClients.toString()}
           icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: 2.1, isPositive: false, period: t('previous_month') }} />
+          trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0, period: t('previous_month') }} />
       </div>
 
       {/* --- MAIN GRID: CHART & REPUTATION --- */}
@@ -156,9 +156,14 @@ export default function DashboardPage() {
               </h4>
               <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">{t('financial_growth')}</p>
             </div>
-            <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 text-xs font-semibold">
-              +15% Top
-            </Badge>
+            <div className={cn(
+              "px-2.5 py-1 rounded-md text-xs font-semibold border",
+              (analytics.revenueGrowth || 0) >= 0 
+                ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20"
+            )}>
+              {(analytics.revenueGrowth || 0) > 0 ? '+' : ''}{analytics.revenueGrowth || 0}% Top
+            </div>
           </div>
           <RevenueChart />
         </Card>
