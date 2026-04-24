@@ -14,6 +14,7 @@ import Confetti from "react-confetti";
 
 import { useOnboardingChecklist } from "@/hooks/useOnboardingChecklist";
 import { OnboardingStepUI } from "@/types/onboarding";
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -244,10 +245,7 @@ export default function OnboardingChecklistPage() {
 
   if (isLoading) return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-        <Sparkles className="w-12 h-12 text-medical-600 dark:text-medical-400" />
-      </motion.div>
-      <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t("loading")}</p>
+      <QhSpinner size="lg" label={t("loading")} />
     </div>
   );
 

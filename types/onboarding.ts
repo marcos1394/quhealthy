@@ -92,7 +92,9 @@ export type KycDocumentType =
   | 'PROFESSIONAL_LICENSE'
   | 'TAX_CERTIFICATE'
   | 'PROOF_OF_ADDRESS'
-  | 'ACTA_CONSTITUTIVA';
+  | 'ACTA_CONSTITUTIVA'
+  | 'CSD_CERTIFICATE'
+  | 'CSD_KEY';
 
 export type KycVerificationStatus =
   | 'PENDING'

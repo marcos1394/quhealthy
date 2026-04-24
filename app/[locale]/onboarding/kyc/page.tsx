@@ -16,6 +16,7 @@ import { useKycOnboarding } from "@/hooks/useKycOnboarding";
 import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
 import { useTranslations } from "next-intl";
 import { handleApiError } from '@/lib/handleApiError';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 type UiDocType = "ine" | "passport" | "acta";
 
@@ -146,8 +147,7 @@ export default function KycPage() {
 
   if (isInitialLoading) return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Shield className="w-12 h-12 text-medical-600 dark:text-medical-400" /></motion.div>
-      <p className="text-slate-500 dark:text-slate-400 animate-pulse font-light">{t("loading")}</p>
+      <QhSpinner size="lg" label={t("loading")} />
     </div>
   );
 

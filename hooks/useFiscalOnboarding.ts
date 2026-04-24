@@ -8,6 +8,8 @@ import { KycDocumentResponse, PersonType } from '@/types/onboarding';
  * documentos KYC, usando el endpoint unificado POST /api/onboarding/kyc/upload.
  * type = 'TAX_CERTIFICATE' para Constancia Fiscal
  * type = 'ACTA_CONSTITUTIVA' para Acta Constitutiva (Persona Moral)
+ * type = 'CSD_CERTIFICATE' para Certificado de Sello Digital (.cer)
+ * type = 'CSD_KEY' para Llave Privada del CSD (.key)
  *
  * Ya no existen endpoints separados de Fiscal/License en el backend.
  * El estado fiscal se obtiene del OnboardingStatus (fiscalStatus).
@@ -19,6 +21,8 @@ export const useFiscalOnboarding = () => {
     const [personType, setPersonType] = useState<PersonType>('FISICA');
     const [taxCertificate, setTaxCertificate] = useState<KycDocumentResponse | null>(null);
     const [actaConstitutiva, setActaConstitutiva] = useState<KycDocumentResponse | null>(null);
+    const [csdCertificate, setCsdCertificate] = useState<KycDocumentResponse | null>(null);
+    const [csdKey, setCsdKey] = useState<KycDocumentResponse | null>(null);
 
     const loadData = useCallback(async () => {
         try {
@@ -33,8 +37,12 @@ export const useFiscalOnboarding = () => {
             // Buscamos los documentos fiscales en la lista KYC
             const taxDoc = documents.find(d => d.documentType === 'TAX_CERTIFICATE') || null;
             const actaDoc = documents.find(d => d.documentType === 'ACTA_CONSTITUTIVA') || null;
+            const csdCerDoc = documents.find(d => d.documentType === 'CSD_CERTIFICATE') || null;
+            const csdKeyDoc = documents.find(d => d.documentType === 'CSD_KEY') || null;
             setTaxCertificate(taxDoc);
             setActaConstitutiva(actaDoc);
+            setCsdCertificate(csdCerDoc);
+            setCsdKey(csdKeyDoc);
         } catch (error) {
             console.error("Error cargando datos fiscales", error);
         } finally {
@@ -46,28 +54,34 @@ export const useFiscalOnboarding = () => {
         loadData();
     }, [loadData]);
 
-    const uploadDocument = async (file: File, docType: 'TAX_CERTIFICATE' | 'ACTA_CONSTITUTIVA') => {
+    const uploadDocument = async (file: File, docType: 'TAX_CERTIFICATE' | 'ACTA_CONSTITUTIVA' | 'CSD_CERTIFICATE' | 'CSD_KEY') => {
         setIsUploading(true);
-        const toastId = toast.loading("Analizando tu documento con IA... esto puede tardar unos segundos.");
+        const isCsd = docType === 'CSD_CERTIFICATE' || docType === 'CSD_KEY';
+        const toastId = toast.loading(
+            isCsd ? "Validando archivo CSD..." : "Analizando tu documento con IA... esto puede tardar unos segundos."
+        );
 
         try {
-            // 🚀 Usamos el endpoint unificado de KYC
             const response = await onboardingService.uploadKycDocument(file, docType);
 
             if (docType === 'TAX_CERTIFICATE') {
                 setTaxCertificate(response);
-            } else {
+            } else if (docType === 'ACTA_CONSTITUTIVA') {
                 setActaConstitutiva(response);
+            } else if (docType === 'CSD_CERTIFICATE') {
+                setCsdCertificate(response);
+            } else {
+                setCsdKey(response);
             }
 
             if (response.verificationStatus === 'APPROVED') {
                 toast.update(toastId, {
-                    render: `✅ Documento fiscal verificado correctamente`,
+                    render: isCsd ? `✅ Archivo CSD verificado correctamente` : `✅ Documento fiscal verificado correctamente`,
                     type: "success", isLoading: false, autoClose: 5000
                 });
             } else if (response.verificationStatus === 'REJECTED') {
                 toast.update(toastId, {
-                    render: `❌ Documento rechazado: ${response.rejectionReason || "No válido"}`,
+                    render: `❌ Archivo rechazado: ${response.rejectionReason || "No válido"}`,
                     type: "error", isLoading: false, autoClose: 5000
                 });
             } else {
@@ -93,6 +107,8 @@ export const useFiscalOnboarding = () => {
     return {
         taxCertificate,
         actaConstitutiva,
+        csdCertificate,
+        csdKey,
         personType,
         isLoading,
         isUploading,
