@@ -24,6 +24,15 @@ export const dashboardService = {
   getRetentionMetrics: async (): Promise<any> => {
     const response = await axiosInstance.get(`${BASE_URL}/retention`);
     return response.data;
+  },
+
+  /**
+   * 📊 Obtiene la serie de tiempo financiera (ingresos mensuales)
+   * GET /api/appointments/dashboard/financial
+   */
+  getFinancialTimeseries: async (months: number = 6): Promise<{ name: string, revenue: number }[]> => {
+    const response = await axiosInstance.get(`${BASE_URL}/financial`, { params: { months } });
+    return response.data;
   }
   
 };

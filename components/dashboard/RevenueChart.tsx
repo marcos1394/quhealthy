@@ -3,27 +3,35 @@
 import React, { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useTranslations } from "next-intl";
-
-const mockData = [
-    { name: "Jan", revenue: 4000 },
-    { name: "Feb", revenue: 5500 },
-    { name: "Mar", revenue: 4800 },
-    { name: "Apr", revenue: 7000 },
-    { name: "May", revenue: 8600 },
-    { name: "Jun", revenue: 10200 },
-    { name: "Jul", revenue: 9500 },
-    { name: "Aug", revenue: 12500 }
-];
+import { useFinancialData } from "@/hooks/useFinancialData";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export const RevenueChart = () => {
     // Assuming you might want to switch translation context later, currently unused
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const { data, isLoading, error } = useFinancialData(6);
+
+    if (isLoading) {
+        return (
+            <div className="w-full h-[300px] mt-4 flex items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl">
+                <QhSpinner size="md" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="w-full h-[300px] mt-4 flex items-center justify-center">
+                <p className="text-sm text-red-500">{error}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-[300px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                    data={mockData}
+                    data={data}
                     margin={{
                         top: 10,
                         right: 10,
