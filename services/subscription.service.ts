@@ -19,7 +19,7 @@ export const subscriptionService = {
    * Retorna null si el provider no tiene suscripción activa (204 No Content).
    */
   getCurrentSubscription: async (): Promise<CurrentSubscription | null> => {
-    const response = await axiosInstance.get('/api/subscriptions/current', {
+    const response = await axiosInstance.get('/api/payments/subscriptions/current', {
       validateStatus: (status) => status === 200 || status === 204,
     });
     if (response.status === 204 || !response.data) {
