@@ -50,7 +50,6 @@ export interface IdentitySettings {
 interface VisualIdentitySectionProps {
   settings: IdentitySettings;
   onChange: (key: keyof IdentitySettings, value: string) => void;
-  // 👇 Le agregamos Promise<void> para que el componente espere al servidor
   onImageUpload?: (type: 'logo' | 'banner', file: File) => Promise<void>; 
   onImageDelete?: (type: 'logo' | 'banner') => void;
 }
@@ -68,7 +67,7 @@ export function VisualIdentitySection({
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // Validate slug - MINIMIZAR ERRORES
+  // Validate slug
   const validateSlug = (slug: string) => {
     if (!slug) {
       setSlugError('La URL es requerida');
@@ -90,47 +89,40 @@ export function VisualIdentitySection({
     return true;
   };
 
-  // Handle slug change - FEEDBACK INMEDIATO
+  // Handle slug change
   const handleSlugChange = (value: string) => {
     const sanitized = value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-');
     onChange('storeSlug', sanitized);
     validateSlug(sanitized);
   };
 
- // 👇 Agregamos async aquí
   const handleImageUpload = async (type: 'logo' | 'banner', event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
       return;
-      return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       return;
-      return;
     }
 
-    setUploadingType(type); // ⏳ Activa el spinner
+    setUploadingType(type);
 
     if (onImageUpload) {
       try {
-        // 👇 AWAIT: Espera a que termine la subida real a GCP
         await onImageUpload(type, file); 
-        // Nota: Quitamos el toast de éxito de aquí, porque el Hook ya lanza uno.
       } catch (error) {
         console.error("Error en componente al subir imagen", error);
       }
     }
 
-    setUploadingType(null); // ✅ Apaga el spinner cuando termina
-    
-    // 👇 Limpia el input por si el usuario borra la imagen y quiere volver a subir la misma
+    setUploadingType(null);
     event.target.value = ''; 
   };
 
-  // Get image specs - CREDIBILIDAD
+  // Get image specs
   const getImageSpecs = (type: 'logo' | 'banner') => {
     return type === 'logo' 
       ? { size: '400x400px', aspect: 'Cuadrado 1:1' }
@@ -138,7 +130,7 @@ export function VisualIdentitySection({
   };
 
   return (
-    <Card className="bg-slate-900 border-slate-800 shadow-xl">
+    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
       
       {/* Header */}
       <CardHeader>
@@ -148,15 +140,15 @@ export function VisualIdentitySection({
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-gradient-to-br from-medical-500/10 to-medical-600/10 rounded-xl border border-purple-500/20"
+              className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20"
             >
-              <Palette className="w-5 h-5 text-purple-400" />
+              <Palette className="w-5 h-5 text-medical-600 dark:text-medical-400" />
             </motion.div>
             <div>
-              <CardTitle className="text-xl font-black text-white mb-1">
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-white mb-1">
                 Identidad Visual
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-500 dark:text-slate-400">
                 Personaliza la apariencia de tu perfil público
               </CardDescription>
             </div>
@@ -166,7 +158,7 @@ export function VisualIdentitySection({
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
-            className="border-purple-500/30 text-purple-400 hover:bg-medical-500/10"
+            className="border-medical-200 dark:border-medical-500/30 text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10"
           >
             <Eye className="w-4 h-4 mr-2" />
             {showPreview ? 'Ocultar' : 'Ver'} Preview
@@ -176,27 +168,27 @@ export function VisualIdentitySection({
       
       <CardContent className="space-y-8 pt-2">
         
-        {/* Live Preview - FEEDBACK VISUAL */}
+        {/* Live Preview */}
         <AnimatePresence>
           {showPreview && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-slate-950 border border-slate-800 rounded-xl p-5 overflow-hidden"
+              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 overflow-hidden"
             >
               <div className="flex items-center gap-2 mb-4">
-                <Eye className="w-4 h-4 text-purple-400" />
-                <p className="text-sm font-semibold text-purple-400">Vista Previa del Perfil</p>
+                <Eye className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                <p className="text-sm font-semibold text-medical-600 dark:text-medical-400">Vista Previa del Perfil</p>
               </div>
               
               {/* Banner Preview */}
-              <div className="aspect-[3/1] bg-slate-900 rounded-lg overflow-hidden mb-4 relative">
+              <div className="aspect-[3/1] bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden mb-4 relative">
                 {settings.bannerImageUrl ? (
                   <img src={settings.bannerImageUrl} alt="Banner" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-slate-800">
-                    <ImageIcon className="w-12 h-12 text-slate-700" />
+                  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                    <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-700" />
                   </div>
                 )}
                 
@@ -206,11 +198,11 @@ export function VisualIdentitySection({
                     <img 
                       src={settings.storeLogoUrl} 
                       alt="Logo" 
-                      className="w-20 h-20 rounded-xl border-4 border-slate-900 shadow-xl object-cover"
+                      className="w-20 h-20 rounded-xl border-4 border-white dark:border-slate-900 shadow-xl object-cover"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-xl border-4 border-slate-900 bg-slate-800 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-slate-600" />
+                    <div className="w-20 h-20 rounded-xl border-4 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-slate-400 dark:text-slate-600" />
                     </div>
                   )}
                 </div>
@@ -218,10 +210,10 @@ export function VisualIdentitySection({
 
               {/* Profile Info Preview */}
               <div className="space-y-3">
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   {settings.storeName || 'Nombre del Consultorio'}
                 </h3>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   quhealthy.com/{settings.storeSlug || 'tu-url'}
                 </p>
                 <Button 
@@ -241,7 +233,7 @@ export function VisualIdentitySection({
           
           {/* Store Name */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+            <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Nombre del Consultorio
             </Label>
             <Input 
@@ -249,8 +241,8 @@ export function VisualIdentitySection({
               value={settings.storeName}
               onChange={(e) => onChange('storeName', e.target.value)}
               className={cn(
-                "bg-slate-950 border-slate-700 h-12 text-base transition-all",
-                "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
+                "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 text-base transition-all text-slate-900 dark:text-white",
+                "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
                 !settings.storeName ? "border-red-500/50":""
               )}
             />
@@ -262,11 +254,11 @@ export function VisualIdentitySection({
           
           {/* Store Slug */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+            <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               URL Personalizada
             </Label>
             <div className="flex group">
-              <span className="bg-slate-800 border border-r-0 border-slate-700 rounded-l-lg px-4 py-3 text-sm text-slate-400 flex items-center group-focus-within:border-purple-500 transition-colors">
+              <span className="bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-200 dark:border-slate-700 rounded-l-lg px-4 py-3 text-sm text-slate-500 dark:text-slate-400 flex items-center group-focus-within:border-medical-500 transition-colors">
                 quhealthy.com/
               </span>
               <Input 
@@ -274,21 +266,21 @@ export function VisualIdentitySection({
                 value={settings.storeSlug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 className={cn(
-                  "rounded-l-none bg-slate-950 border-slate-700 h-12 font-mono text-sm transition-all",
-                  "focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
+                  "rounded-l-none bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 font-mono text-sm transition-all text-slate-900 dark:text-white",
+                  "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
                   slugError && "border-red-500/50"
                 )}
               />
             </div>
             
-            {/* Slug Validation Feedback - FEEDBACK INMEDIATO */}
+            {/* Slug Validation Feedback */}
             {slugError ? (
-              <p className="text-xs text-red-400 flex items-center gap-1">
+              <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {slugError}
               </p>
             ) : settings.storeSlug && (
-              <p className="text-xs text-emerald-400 flex items-center gap-1">
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <Check className="w-3 h-3" />
                 URL disponible
               </p>
@@ -302,10 +294,10 @@ export function VisualIdentitySection({
           {/* Logo Upload */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Logotipo
               </Label>
-              <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
+              <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-500/20 text-xs">
                 {getImageSpecs('logo').size}
               </Badge>
             </div>
@@ -315,7 +307,7 @@ export function VisualIdentitySection({
                 <img 
                   src={settings.storeLogoUrl} 
                   alt="Logo" 
-                  className="w-full aspect-square object-cover rounded-xl border border-slate-800"
+                  className="w-full aspect-square object-cover rounded-xl border border-slate-200 dark:border-slate-800"
                 />
                 <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
@@ -344,16 +336,16 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => logoInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
+                className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-medical-300 dark:hover:border-medical-500/50 transition-all cursor-pointer group bg-white dark:bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'logo' ? (
-                    <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+                    <RefreshCw className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin" />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-purple-400" />
+                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400" />
                   )}
                 </div>
-                <p className="text-sm text-slate-300 font-semibold group-hover:text-white transition-colors">
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                   Logo Cuadrado
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
@@ -374,10 +366,10 @@ export function VisualIdentitySection({
           {/* Banner Upload */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Banner de Portada
               </Label>
-              <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
+              <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-500/20 text-xs">
                 {getImageSpecs('banner').size}
               </Badge>
             </div>
@@ -387,7 +379,7 @@ export function VisualIdentitySection({
                 <img 
                   src={settings.bannerImageUrl} 
                   alt="Banner" 
-                  className="w-full aspect-[3/1] object-cover rounded-xl border border-slate-800"
+                  className="w-full aspect-[3/1] object-cover rounded-xl border border-slate-200 dark:border-slate-800"
                 />
                 <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
@@ -416,16 +408,16 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => bannerInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center hover:bg-slate-800/50 hover:border-purple-500/50 transition-all cursor-pointer group bg-slate-900/50"
+                className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-medical-300 dark:hover:border-medical-500/50 transition-all cursor-pointer group bg-white dark:bg-slate-900/50"
               >
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
                   {uploadingType === 'banner' ? (
-                    <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+                    <RefreshCw className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin" />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-purple-400" />
+                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400" />
                   )}
                 </div>
-                <p className="text-sm text-slate-300 font-semibold group-hover:text-white transition-colors">
+                <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                   Banner Horizontal
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
@@ -446,12 +438,12 @@ export function VisualIdentitySection({
 
         {/* Color Picker Section */}
         <div className="space-y-4">
-          <Label className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+          <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             Color de Marca
           </Label>
 
-          {/* Color Presets - SATISFICING */}
-          <div className="bg-slate-950 rounded-xl border border-slate-800 p-4">
+          {/* Color Presets */}
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Colores Populares
             </p>
@@ -465,8 +457,8 @@ export function VisualIdentitySection({
                   className={cn(
                     "w-full aspect-square rounded-lg border-2 transition-all relative",
                     settings.primaryColor === preset.value
-                      ? "border-white shadow-lg scale-110"
-                      : "border-slate-700 hover:border-slate-600"
+                      ? "border-slate-900 dark:border-white shadow-lg scale-110"
+                      : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
                   )}
                   style={{ backgroundColor: preset.value }}
                   title={preset.name}
@@ -482,13 +474,13 @@ export function VisualIdentitySection({
           </div>
 
           {/* Custom Color Picker */}
-          <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center gap-6">
+          <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-6">
             
             {/* Color Display */}
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <div className="relative">
                 <div 
-                  className="w-20 h-20 rounded-xl border-2 border-white/10 shadow-xl cursor-pointer relative overflow-hidden transition-transform hover:scale-105"
+                  className="w-20 h-20 rounded-xl border-2 border-slate-200 dark:border-white/10 shadow-xl cursor-pointer relative overflow-hidden transition-transform hover:scale-105"
                   style={{ backgroundColor: settings.primaryColor }}
                 >
                   <input 
@@ -501,28 +493,28 @@ export function VisualIdentitySection({
               </div>
               
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Color Personalizado
                 </span>
                 <Input 
                   value={settings.primaryColor} 
                   onChange={(e) => onChange('primaryColor', e.target.value)}
-                  className="bg-slate-800 border-slate-700 w-32 h-9 text-xs uppercase font-mono focus:border-purple-500"
+                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-32 h-9 text-xs uppercase font-mono focus:border-medical-500 text-slate-900 dark:text-white"
                   maxLength={7}
                   placeholder="#000000"
                 />
               </div>
             </div>
 
-            <div className="hidden sm:block w-px h-16 bg-slate-800" />
+            <div className="hidden sm:block w-px h-16 bg-slate-200 dark:bg-slate-800" />
 
             {/* Live Preview Button */}
-            <div className="flex-1 w-full bg-slate-900 rounded-lg p-4 border border-slate-800 flex items-center justify-between">
+            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-slate-500" />
+                <Sparkles className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                 <div className="space-y-1">
-                  <div className="w-24 h-2 bg-slate-700 rounded" />
-                  <div className="w-16 h-2 bg-slate-800 rounded" />
+                  <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded" />
+                  <div className="w-16 h-2 bg-slate-100 dark:bg-slate-800 rounded" />
                 </div>
               </div>
               <button 
@@ -539,15 +531,15 @@ export function VisualIdentitySection({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"
+          className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-4"
         >
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <Info className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-emerald-400 mb-2">
+              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">
                 💡 Mejores Prácticas de Identidad Visual
               </p>
-              <ul className="space-y-1.5 text-xs text-emerald-300/80">
+              <ul className="space-y-1.5 text-xs text-emerald-600 dark:text-emerald-300/80">
                 <li className="flex items-start gap-2">
                   <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
                   <span>Usa imágenes de alta calidad y profesionales</span>
