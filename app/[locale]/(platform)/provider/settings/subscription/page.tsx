@@ -46,25 +46,47 @@ export default function BillingPage() {
   const buildFeaturesForPlan = (planName: string, isYearly: boolean) => {
     const nameLower = planName.toLowerCase();
     
+    if (nameLower.includes("gratis") || nameLower.includes("gratuito")) {
+      return [
+        { title: "Perfil Médico Base" },
+        { title: "Sin Comisiones Mensuales" },
+        { title: "15% Cargo Extra por Transacción" }
+      ];
+    }
     if (nameLower.includes("básico") || nameLower.includes("basic")) {
       return [
-        { title: "Agenda de Citas" },
-        { title: "Hasta 50 Pacientes" },
-        { title: "Soporte Básico" }
+        { title: "50 Citas Mensuales" },
+        { title: "Catálogo Básico (5 Servicios / 10 Productos)" },
+        { title: "Soporte Estándar" }
       ];
     }
-    if (nameLower.includes("empresarial") || nameLower.includes("business")) {
+    if (nameLower.includes("estándar") || nameLower.includes("standard")) {
       return [
-        { title: "Múltiples Doctores (5)" },
-        { title: "Analíticas Avanzadas" },
-        { title: "Gerente de Cuenta" }
+        { title: "150 Citas Mensuales", highlighted: true },
+        { title: "Acceso a QUMarket" },
+        { title: "Catálogo Extendido (15 Servicios / 30 Productos)" }
       ];
     }
-    // Profesional por defecto
+    if (nameLower.includes("premium")) {
+      return [
+        { title: "500 Citas Mensuales", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
+        { title: "Reportes Avanzados e IA (QUBlocks)" },
+        { title: "Comisión Reducida (10%)" }
+      ];
+    }
+    if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) {
+      return [
+        { title: "Citas y Servicios Ilimitados", icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, highlighted: true },
+        { title: "Soporte y Marketing Nivel 4 (VIP)" },
+        { title: "Sin Comisiones por Transacción Fija (0%)" }
+      ];
+    }
+    
+    // Por defecto fallback a profesional/estándar
     return [
-      { title: "Pacientes Ilimitados", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
-      { title: "Recordatorios WhatsApp" },
-      { title: "Facturación Electrónica" }
+      { title: "Agenda Completa" },
+      { title: "Perfil Especializado" },
+      { title: "Gestión de Catálogo" }
     ];
   };
 
