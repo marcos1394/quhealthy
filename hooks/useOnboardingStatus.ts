@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 // --- DEFINICIÓN DE TIPOS ---
 // Estos tipos reflejan lo que tu Backend debería devolver.
@@ -82,9 +82,7 @@ export const useOnboardingStatus = () => {
     setError(null);
     try {
       // Intentamos llamar a la API real
-      const response = await axios.get<OnboardingStatusResponse>('/api/auth/provider/status', {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.get<OnboardingStatusResponse>('/api/auth/provider/status');
       setData(response.data);
     } catch (err: any) {
       console.warn("API de estado no disponible, usando Mock Data para desarrollo.");

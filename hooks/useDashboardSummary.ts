@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 // Define la estructura de los datos que el dashboard espera
 // Esto debe coincidir con la respuesta de tu endpoint
@@ -34,9 +34,7 @@ export const useDashboardSummary = () => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get<DashboardData>('/api/auth/provider/dashboard-summary', {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.get<DashboardData>('/api/auth/provider/dashboard-summary');
       setData(response.data);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

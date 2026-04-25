@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-toastify';
 import { ShieldCheck, CreditCard, CheckCircle2, Zap } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 
@@ -95,7 +95,7 @@ export default function BillingPage() {
     const fetchPlans = async () => {
       setIsLoading(true);
       try {
-        const { data } = await axios.get<BackendPlan[]>('/api/payments/plans', { withCredentials: true });
+        const { data } = await axiosInstance.get<BackendPlan[]>('/api/payments/plans');
         setRawPlans(data);
       } catch (err) {
         console.error("Error cargando planes:", err);
@@ -145,10 +145,9 @@ export default function BillingPage() {
     toast.info(t('toast_processing'));
 
     try {
-      const { data } = await axios.post('/api/payments/subscriptions/checkout',
+      const { data } = await axiosInstance.post('/api/payments/subscriptions/checkout',
         // Ojo: subscription API espera priceId de Stripe como planId
-        { priceId: selectedPlan.id },
-        { withCredentials: true }
+        { priceId: selectedPlan.id }
       );
 
       // Si el backend te da sessionId, usa redirectToCheckout de Stripe

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 // Define la estructura de los datos de analíticas
 export interface AnalyticsData {
@@ -19,9 +19,7 @@ export const useDashboardAnalytics = () => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get<AnalyticsData>('/api/provider/dashboard/analytics', {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.get<AnalyticsData>('/api/provider/dashboard/analytics');
       setData(response.data);
     } catch (err) {
       setError("No se pudieron cargar las analíticas.");
