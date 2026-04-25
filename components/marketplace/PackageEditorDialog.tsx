@@ -85,7 +85,7 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 max-w-5xl p-0 overflow-hidden rounded-[2rem] shadow-2xl">
+      <DialogContent className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 w-[95vw] max-w-[1400px] p-0 overflow-hidden rounded-[2rem] shadow-2xl">
         
         {/* Encabezado Espacioso */}
         <DialogHeader className="px-8 pt-8 pb-6 border-b border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 relative z-10">
