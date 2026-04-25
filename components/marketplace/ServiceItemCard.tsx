@@ -13,7 +13,8 @@ import {
   Save,
   Trash2,
   Info,
-  Camera
+  Camera,
+  Globe
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -303,6 +304,15 @@ export function ServiceItemCard({
                 )}
               >
                 <MapPin className="w-3.5 h-3.5" /> Presencial
+              </button>
+              <button
+                onClick={() => onUpdate(service.id, { serviceDeliveryType: 'hybrid', hasUnsavedChanges: true })}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all",
+                  service.serviceDeliveryType === 'hybrid' ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700'
+                )}
+              >
+                <Globe className="w-3.5 h-3.5" /> Ambas
               </button>
               <button
                 onClick={() => onUpdate(service.id, { serviceDeliveryType: 'video_call', hasUnsavedChanges: true })}
