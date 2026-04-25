@@ -18,109 +18,103 @@ import { handleApiError } from '@/lib/handleApiError';
 export type UserRole = "paciente" | "proveedor";
 export type BillingCycle = "monthly" | "yearly";
 
+// Tipado del Plan desde Backend (Java)
+interface BackendPlan {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  interval: "MONTH" | "YEAR";
+  currency: string;
+  stripePriceId: string;
+}
+
 // Configuración de Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-// --- MOCK DATA ---
-// En producción, esto vendría de tu API /api/plans
-const PLANS_DATA: Record<UserRole, Record<BillingCycle, Plan[]>> = {
-  proveedor: {
-    monthly: [
-      {
-        id: "price_basic_mo",
-        name: "Básico",
-        description: "Lo esencial para empezar.",
-        price: 299,
-        duration: "monthly",
-        features: [
-          { title: "Agenda de Citas" },
-          { title: "Hasta 50 Pacientes" },
-          { title: "Soporte Básico" }
-        ]
-      },
-      {
-        id: "price_pro_mo",
-        name: "Profesional",
-        description: "Para escalar tu consultorio.",
-        price: 599,
-        duration: "monthly",
-        features: [
-          { title: "Pacientes Ilimitados", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
-          { title: "Recordatorios WhatsApp" },
-          { title: "Facturación Electrónica" }
-        ],
-        isPopular: true
-      },
-      {
-        id: "price_biz_mo",
-        name: "Empresarial",
-        description: "Poder total para clínicas.",
-        price: 1299,
-        duration: "monthly",
-        features: [
-          { title: "Múltiples Doctores (5)" },
-          { title: "Analíticas Avanzadas" },
-          { title: "Gerente de Cuenta" }
-        ]
-      }
-    ],
-    yearly: [
-      {
-        id: "price_basic_yr",
-        name: "Básico Anual",
-        description: "Lo esencial para empezar.",
-        price: 2990,
-        duration: "yearly",
-        savings: 598,
-        features: [{ title: "Agenda" }, { title: "50 Pacientes" }, { title: "Soporte" }]
-      },
-      {
-        id: "price_pro_yr",
-        name: "Profesional Anual",
-        description: "Para escalar tu consultorio.",
-        price: 5990,
-        duration: "yearly",
-        savings: 1198,
-        features: [
-          { title: "Pacientes Ilimitados", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
-          { title: "WhatsApp" },
-          { title: "Facturación" }
-        ],
-        isPopular: true
-      },
-      {
-        id: "price_biz_yr",
-        name: "Empresarial Anual",
-        description: "Poder total para clínicas.",
-        price: 12990,
-        duration: "yearly",
-        savings: 2598,
-        features: [{ title: "5 Doctores" }, { title: "Analíticas" }, { title: "Gerente VIP" }]
-      }
-    ]
-  },
-  paciente: { monthly: [], yearly: [] }
-};
-
 export default function BillingPage() {
   const t = useTranslations('SettingsSubscription');
-  const role: UserRole = "proveedor"; // Esto debería venir de tu useSessionStore o similar
+  const role: UserRole = "proveedor"; 
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
+  const [displayPlans, setDisplayPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Efecto para cargar planes
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setPlans(PLANS_DATA[role][billingCycle] || []);
-      setIsLoading(false);
-    }, 400); // Simulando carga
+  // Mapear features visuales según el nombre del plan para mantener i18n
+  const buildFeaturesForPlan = (planName: string, isYearly: boolean) => {
+    const nameLower = planName.toLowerCase();
+    
+    if (nameLower.includes("básico") || nameLower.includes("basic")) {
+      return [
+        { title: "Agenda de Citas" },
+        { title: "Hasta 50 Pacientes" },
+        { title: "Soporte Básico" }
+      ];
+    }
+    if (nameLower.includes("empresarial") || nameLower.includes("business")) {
+      return [
+        { title: "Múltiples Doctores (5)" },
+        { title: "Analíticas Avanzadas" },
+        { title: "Gerente de Cuenta" }
+      ];
+    }
+    // Profesional por defecto
+    return [
+      { title: "Pacientes Ilimitados", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
+      { title: "Recordatorios WhatsApp" },
+      { title: "Facturación Electrónica" }
+    ];
+  };
 
-    return () => clearTimeout(timer);
-  }, [billingCycle, role]);
+  // Cargar planes del backend
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setIsLoading(true);
+      try {
+        const { data } = await axios.get<BackendPlan[]>('/api/payments/plans', { withCredentials: true });
+        setRawPlans(data);
+      } catch (err) {
+        console.error("Error cargando planes:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  // Filtrar y convertir Backend -> Frontend UI
+  useEffect(() => {
+    if (rawPlans.length === 0) return;
+
+    const currentInterval = billingCycle === "monthly" ? "MONTH" : "YEAR";
+    const filtered = rawPlans.filter(p => p.interval === currentInterval);
+
+    const uiPlans: Plan[] = filtered.map(bp => {
+      // Cálculo de ahorros hipotético si es anual y existe un precio base
+      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.interval === "MONTH");
+      const baseMonthlyPrice = matchingMonthly ? matchingMonthly.price : bp.price / 12;
+      const savings = (currentInterval === "YEAR" && baseMonthlyPrice > 0) 
+          ? (baseMonthlyPrice * 12) - bp.price 
+          : undefined;
+
+      const isPopular = bp.name.toLowerCase().includes("prof");
+
+      return {
+        id: bp.stripePriceId || `plan_${bp.id}`,
+        name: bp.name,
+        description: bp.description || "Potencia tu consultorio.",
+        price: bp.price,
+        duration: billingCycle,
+        savings: savings && savings > 0 ? savings : undefined,
+        isPopular: isPopular,
+        features: buildFeaturesForPlan(bp.name, currentInterval === "YEAR")
+      };
+    });
+
+    setDisplayPlans(uiPlans);
+  }, [billingCycle, rawPlans]);
 
   // Manejo del pago
   const handleCheckout = async () => {
@@ -129,22 +123,29 @@ export default function BillingPage() {
     toast.info(t('toast_processing'));
 
     try {
-      const { data } = await axios.post('/api/payments/stripe/create-checkout-session',
-        { planId: selectedPlan.id },
+      const { data } = await axios.post('/api/payments/subscriptions/checkout',
+        // Ojo: subscription API espera priceId de Stripe como planId
+        { priceId: selectedPlan.id },
         { withCredentials: true }
       );
 
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error(t('error_stripe'));
+      // Si el backend te da sessionId, usa redirectToCheckout de Stripe
+      // Si te da URL directo (Stripe Hosted Checkout), un simple window.location funciona
+      if (data.url) {
+         window.location.href = data.url;
+         return;
+      }
 
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-
-      if (error) return;
+      if (data.sessionId) {
+        const stripe = await stripePromise;
+        if (!stripe) throw new Error(t('error_stripe'));
+        const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+        if (error) throw error;
+      }
 
     } catch (err: any) {
       console.error(err);
+      handleApiError(err);
       toast.success(t('toast_demo', { planName: selectedPlan.name }));
       setTimeout(() => setSelectedPlan(null), 2000);
     } finally {
@@ -171,7 +172,7 @@ export default function BillingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
-            {plans.map((plan, index) => (
+            {displayPlans.map((plan, index) => (
               <div key={plan.id} className="h-full">
                 <PricingCard
                   plan={plan}
