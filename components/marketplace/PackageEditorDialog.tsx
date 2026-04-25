@@ -104,8 +104,8 @@ export function PackageEditorDialog({
           </div>
         </DialogHeader>
 
-        {/* ScrollArea expandida */}
-        <ScrollArea className="max-h-[85vh] md:max-h-[80vh] bg-slate-50 dark:bg-slate-950">
+        {/* ScrollArea ajustada para no desbordar la pantalla verticalmente */}
+        <ScrollArea className="max-h-[60vh] bg-slate-50 dark:bg-slate-950">
           <div className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               
