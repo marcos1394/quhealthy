@@ -23,27 +23,28 @@ export function ProductsManager({
   products, onAdd, onUpdate, onSave, onDelete, onImageUpload
 }: ProductsManagerProps) {
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
-  const t = useTranslations('Marketplace');
+  const t = useTranslations('StoreCatalog.products');
+  const tGlobal = useTranslations('StoreCatalog.actions');
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-indigo-500" /> Farmacia y Productos
+            <ShoppingBag className="w-5 h-5 text-indigo-500" /> {t('title')}
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Vende suplementos, cremas o equipo médico con control de inventario.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
         </div>
         <Button onClick={onAdd} className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl shadow-sm whitespace-nowrap">
-          <Plus className="w-4 h-4 mr-2" /> Agregar Producto
+          <Plus className="w-4 h-4 mr-2" /> {t('btn_add')}
         </Button>
       </div>
 
       <div className="space-y-4">
         {products.length === 0 && (
           <div className="text-center py-12 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900">
-            <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No tienes productos físicos registrados.</p>
+            <ShoppingBag className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 font-medium">{t('empty_state')}</p>
           </div>
         )}
 
@@ -65,10 +66,10 @@ export function ProductsManager({
                     {product.imageUrl ? (
                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
                     ) : (
-                      <ImagePlus className="w-8 h-8 text-slate-400" />
+                      <ImagePlus className="w-8 h-8 text-slate-400 dark:text-slate-600" />
                     )}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-xs font-bold">Cambiar</span>
+                      <span className="text-white text-xs font-bold">{t('change_image')}</span>
                     </div>
                   </div>
                   <input
@@ -88,51 +89,51 @@ export function ProductsManager({
                 <div className="flex-1 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nombre del Producto</label>
-                      <Input value={product.name} onChange={e => onUpdate(product.id, { name: e.target.value })} placeholder="Ej. Crema Hidratante" className="font-bold border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('label_name')}</label>
+                      <Input value={product.name} onChange={e => onUpdate(product.id, { name: e.target.value })} placeholder={t('placeholder_name')} className="font-bold border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Precio ($)</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('label_price')}</label>
                         <Input type="number" min="0" value={product.price} onChange={e => onUpdate(product.id, { price: parseFloat(e.target.value) || 0 })} className="border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center"><Tag className="w-3 h-3 mr-1" /> Categoría</label>
-                        <Input value={product.category} onChange={e => onUpdate(product.id, { category: e.target.value })} placeholder="Ej. Skincare" className="border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center"><Tag className="w-3 h-3 mr-1" /> {t('label_category')}</label>
+                        <Input value={product.category} onChange={e => onUpdate(product.id, { category: e.target.value })} placeholder={t('placeholder_category')} className="border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Descripción Breve</label>
-                    <Input value={product.description} onChange={e => onUpdate(product.id, { description: e.target.value })} placeholder="Beneficios e instrucciones de uso..." className="border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('label_desc')}</label>
+                    <Input value={product.description} onChange={e => onUpdate(product.id, { description: e.target.value })} placeholder={t('placeholder_desc')} className="border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center"><Box className="w-3 h-3 mr-1" /> Stock (Unidades)</label>
-                      <Input type="number" min="0" value={product.stockQuantity} onChange={e => onUpdate(product.id, { stockQuantity: parseInt(e.target.value) || 0 })} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700" />
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center"><Box className="w-3 h-3 mr-1" /> {t('label_stock')}</label>
+                      <Input type="number" min="0" value={product.stockQuantity} onChange={e => onUpdate(product.id, { stockQuantity: parseInt(e.target.value) || 0 })} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-indigo-500" />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center"><Barcode className="w-3 h-3 mr-1" /> SKU / Código</label>
-                      <Input value={product.sku || ''} onChange={e => onUpdate(product.id, { sku: e.target.value })} placeholder="Opcional" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700" />
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center"><Barcode className="w-3 h-3 mr-1" /> {t('label_sku')}</label>
+                      <Input value={product.sku || ''} onChange={e => onUpdate(product.id, { sku: e.target.value })} placeholder={t('placeholder_sku')} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-indigo-500" />
                     </div>
                   </div>
 
                   {/* Acciones */}
                   <div className="flex items-center justify-end gap-3 pt-2">
                     <Button variant="ghost" onClick={() => onDelete(product.id)} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
-                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                      <Trash2 className="w-4 h-4 mr-2" /> {tGlobal('delete')}
                     </Button>
                     <Button
                       onClick={() => onSave(product)}
                       disabled={!product.hasUnsavedChanges && !product.isNew}
                       className={cn(
                         "rounded-xl shadow-sm transition-all",
-                        product.hasUnsavedChanges || product.isNew ? "bg-medical-600 hover:bg-medical-700 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800"
+                        product.hasUnsavedChanges || product.isNew ? "bg-medical-600 hover:bg-medical-700 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
                       )}
                     >
-                      <Save className="w-4 h-4 mr-2" /> {product.isNew ? 'Guardar Nuevo' : 'Guardar Cambios'}
+                      <Save className="w-4 h-4 mr-2" /> {product.isNew ? tGlobal('save_new') : tGlobal('save_changes')}
                     </Button>
                   </div>
                 </div>

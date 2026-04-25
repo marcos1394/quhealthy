@@ -78,7 +78,7 @@ export function PackagesManager({
             {t('description', { defaultValue: 'Agrupa servicios y ofrece promociones.' })}
             <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 shadow-sm font-medium">
               <TrendingUp className="w-3 h-3 mr-1" />
-              Potenciador de Ventas
+              {t('conversion_badge')}
             </Badge>
           </CardDescription>
         </div>
@@ -86,7 +86,7 @@ export function PackagesManager({
           onClick={() => handleOpenDialog()} 
           className="bg-medical-600 hover:bg-medical-700 text-white shadow-md hover:shadow-lg transition-all rounded-xl h-11 font-bold"
         >
-          <Plus className="w-4 h-4 mr-2" /> Nuevo Paquete
+          <Plus className="w-4 h-4 mr-2" /> {t('create_package')}
         </Button>
       </CardHeader>
       
@@ -104,14 +104,14 @@ export function PackagesManager({
             </div>
             <p className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('empty_title', { defaultValue: 'No tienes paquetes' })}</p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-md text-center">
-              Aumenta tus ingresos agrupando consultas de seguimiento o valoraciones con tratamientos.
+              {t('empty_desc')}
             </p>
             <Button 
               onClick={() => handleOpenDialog()}
               className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-12 font-bold px-8 shadow-lg shadow-medical-500/20"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Crear mi primer paquete
+              {t('create_first')}
             </Button>
           </motion.div>
         ) : (
@@ -143,10 +143,10 @@ export function PackagesManager({
             </div>
             <div className="text-sm text-blue-700 dark:text-blue-300/80">
               <p className="font-bold text-blue-600 dark:text-blue-400 mb-1.5 text-base">
-                Estrategia de Ventas
+                {t('tip_title')}
               </p>
               <p className="leading-relaxed">
-                Los pacientes son 60% más propensos a reservar si les ofreces un paquete que incluye la consulta inicial más una cita de seguimiento con al menos 15% de descuento.
+                {t('tip_desc')}
               </p>
             </div>
           </motion.div>

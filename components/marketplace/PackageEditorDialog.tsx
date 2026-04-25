@@ -84,7 +84,7 @@ export function PackageEditorDialog({
                 {pkg.isNew ? t('dialog_create', { defaultValue: 'Crear Paquete' }) : t('dialog_edit', { defaultValue: 'Editar Paquete' })}
               </DialogTitle>
               <DialogDescription className="text-slate-500 dark:text-slate-400">
-                Agrupa servicios y ofrece un descuento atractivo para aumentar tus ventas.
+                {t('dialog_desc')}
               </DialogDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -101,15 +101,15 @@ export function PackageEditorDialog({
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-medical-50 dark:bg-medical-500/5 border border-medical-100 dark:border-medical-500/20 rounded-3xl p-6">
                 <div className="grid grid-cols-3 gap-6 text-center divide-x divide-medical-200 dark:divide-medical-800/50">
                   <div>
-                    <p className="text-[10px] text-medical-600 dark:text-medical-400 uppercase font-bold tracking-wider mb-1">Valor Original</p>
+                    <p className="text-[10px] text-medical-600 dark:text-medical-400 uppercase font-bold tracking-wider mb-1">{t('real_value')}</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white">${realValue}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-medical-600 dark:text-medical-400 uppercase font-bold tracking-wider mb-1">Precio Paquete</p>
+                    <p className="text-[10px] text-medical-600 dark:text-medical-400 uppercase font-bold tracking-wider mb-1">{t('your_price')}</p>
                     <p className="text-2xl font-black text-medical-600 dark:text-medical-400">${pkg.price}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-wider mb-1">El Paciente Ahorra</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-wider mb-1">{t('saving')}</p>
                     <p className="text-2xl font-black text-emerald-500">${savings}</p>
                   </div>
                 </div>
@@ -132,7 +132,7 @@ export function PackageEditorDialog({
                       ) : (
                         <>
                           <Camera className="w-6 h-6 text-slate-400 mb-2" />
-                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Foto</span>
+                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{t('photo')}</span>
                         </>
                       )}
                     </div>
@@ -141,26 +141,26 @@ export function PackageEditorDialog({
                   {/* Inputs */}
                   <div className="flex-1 space-y-4">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Nombre del Paquete</Label>
-                      <Input value={pkg.name} onChange={(e) => setPkg({ ...pkg, name: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-900 h-11" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('name_label')}</Label>
+                      <Input placeholder={t('name_placeholder')} value={pkg.name} onChange={(e) => setPkg({ ...pkg, name: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-11" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Categoría</Label>
-                      <Input value={pkg.category} onChange={(e) => setPkg({ ...pkg, category: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-900 h-11" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('category_label')}</Label>
+                      <Input placeholder={t('category_placeholder')} value={pkg.category} onChange={(e) => setPkg({ ...pkg, category: e.target.value })} className="rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-11" />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Descripción</Label>
-                  <Textarea value={pkg.description} onChange={(e) => setPkg({ ...pkg, description: e.target.value })} rows={3} className="rounded-xl bg-slate-50 dark:bg-slate-900 resize-none" />
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('desc_label')}</Label>
+                  <Textarea placeholder={t('desc_placeholder')} value={pkg.description} onChange={(e) => setPkg({ ...pkg, description: e.target.value })} rows={3} className="rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 resize-none" />
                 </div>
 
                 {/* Motor de Precios */}
                 {pkg.serviceIds.length > 0 && (
                   <div className="space-y-5 pt-6 border-t border-slate-100 dark:border-slate-800">
                     <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                      <Percent className="w-4 h-4 text-emerald-500" /> Descuento Inteligente ({discountPercent}%)
+                      <Percent className="w-4 h-4 text-emerald-500" /> {t('apply_discount', { percent: discountPercent })}
                     </Label>
                     
                     <Slider 
@@ -178,7 +178,7 @@ export function PackageEditorDialog({
                     </div>
 
                     <div className="space-y-1.5 relative">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Precio Manual</Label>
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('manual_price')}</Label>
                       <DollarSign className="absolute left-3 top-[28px] w-5 h-5 text-slate-400" />
                       <Input 
                         type="number" min="0" value={pkg.price || ''}
@@ -197,14 +197,14 @@ export function PackageEditorDialog({
               {/* Columna Derecha: Selección de Servicios */}
               <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col h-full">
                 <Label className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                  <ShoppingCart className="w-4 h-4 text-medical-500" /> Servicios Disponibles
+                  <ShoppingCart className="w-4 h-4 text-medical-500" /> {t('included_services')}
                 </Label>
                 
                 {availableServices.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                     <AlertCircle className="w-8 h-8 text-amber-500 mb-3" />
-                    <p className="text-sm font-bold">No hay servicios</p>
-                    <p className="text-xs text-slate-500">Crea servicios primero para poder agruparlos.</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{t('no_services')}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{t('no_services_desc')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -235,9 +235,9 @@ export function PackageEditorDialog({
         </ScrollArea>
 
         <DialogFooter className="px-8 py-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-          <Button variant="outline" onClick={onClose} className="rounded-xl border-slate-200 dark:border-slate-700">Cancelar</Button>
+          <Button variant="outline" onClick={onClose} className="rounded-xl border-slate-200 dark:border-slate-700">{t('cancel')}</Button>
           <Button onClick={() => onSave(pkg)} disabled={!isValid} className="rounded-xl bg-medical-600 hover:bg-medical-700 text-white font-bold px-8">
-            <Zap className="w-4 h-4 mr-2" /> Guardar Paquete
+            <Zap className="w-4 h-4 mr-2" /> {t('save_package')}
           </Button>
         </DialogFooter>
       </DialogContent>
