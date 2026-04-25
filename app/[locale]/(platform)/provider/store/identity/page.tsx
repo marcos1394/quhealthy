@@ -220,15 +220,17 @@ export default function IdentitySetupPage() {
 
         <div className="space-y-10">
           {/* Sección 1: Identidad Visual */}
-          <VisualIdentitySection
-            settings={{
-              storeName: settings.storeName,
-              storeSlug: settings.storeSlug,
-              primaryColor: settings.primaryColor,
-              storeLogoUrl: settings.storeLogoUrl,
-              bannerImageUrl: settings.bannerImageUrl
-            }}
+          <VisualIdentitySection 
+            settings={settings}
             onChange={handleChange}
+            onSaveField={async (key, value) => {
+              try {
+                await updateProfile({ [key === 'storeName' ? 'displayName' : 'slug']: value });
+                toast.success('Cambios guardados silenciosamente');
+              } catch (e) {
+                console.error("Error auto-saving", e);
+              }
+            }}
             onImageUpload={handleImageUpload}
             onImageDelete={handleImageDelete}
           />

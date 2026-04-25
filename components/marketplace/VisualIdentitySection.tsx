@@ -50,6 +50,7 @@ export interface IdentitySettings {
 interface VisualIdentitySectionProps {
   settings: IdentitySettings;
   onChange: (key: keyof IdentitySettings, value: string) => void;
+  onSaveField?: (key: keyof IdentitySettings, value: string) => void;
   onImageUpload?: (type: 'logo' | 'banner', file: File) => Promise<void>; 
   onImageDelete?: (type: 'logo' | 'banner') => void;
 }
@@ -57,6 +58,7 @@ interface VisualIdentitySectionProps {
 export function VisualIdentitySection({ 
   settings, 
   onChange,
+  onSaveField,
   onImageUpload,
   onImageDelete 
 }: VisualIdentitySectionProps) {
@@ -240,6 +242,7 @@ export function VisualIdentitySection({
               placeholder="Ej: QuHealthy Centro Médico / Dr. Marcos" 
               value={settings.storeName}
               onChange={(e) => onChange('storeName', e.target.value)}
+              onBlur={() => onSaveField && onSaveField('storeName', settings.storeName)}
               className={cn(
                 "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 text-base transition-all text-slate-900 dark:text-white",
                 "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
@@ -265,6 +268,7 @@ export function VisualIdentitySection({
                 placeholder="mi-clinica" 
                 value={settings.storeSlug}
                 onChange={(e) => handleSlugChange(e.target.value)}
+                onBlur={() => !slugError && onSaveField && onSaveField('storeSlug', settings.storeSlug)}
                 className={cn(
                   "rounded-l-none bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 font-mono text-sm transition-all text-slate-900 dark:text-white",
                   "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
