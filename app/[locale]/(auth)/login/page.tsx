@@ -95,12 +95,7 @@ export default function LoginPage() {
       router.push("/admin/dashboard");
     }
     else if (role === 'PROVIDER') {
-      const isOnboardingComplete = response.status?.onboardingComplete;
-      if (isOnboardingComplete) {
-        router.push("/provider/dashboard");
-      } else {
-        router.push("/onboarding");
-      }
+      router.push("/provider/dashboard");
     }
     else {
       router.push("/patient/discover");
