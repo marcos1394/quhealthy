@@ -85,7 +85,7 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 w-[95vw] max-w-[1400px] p-0 overflow-hidden rounded-[2rem] shadow-2xl">
+      <DialogContent className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-[2rem] shadow-2xl">
         
         {/* Encabezado Espacioso */}
         <DialogHeader className="px-8 pt-8 pb-6 border-b border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 relative z-10">
@@ -105,12 +105,12 @@ export function PackageEditorDialog({
         </DialogHeader>
 
         {/* ScrollArea expandida */}
-        <ScrollArea className="max-h-[85vh] md:max-h-[75vh] bg-slate-50 dark:bg-slate-950">
+        <ScrollArea className="max-h-[85vh] md:max-h-[80vh] bg-slate-50 dark:bg-slate-950">
           <div className="p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               
-              {/* Columna Izquierda: Identidad Visual y Detalles (7 columnas) */}
-              <div className="lg:col-span-7 space-y-8">
+              {/* Columna Izquierda: Identidad Visual y Detalles */}
+              <div className="space-y-8">
                 
                 {/* Fotografía Panorámica */}
                 <div className="space-y-3">
@@ -169,8 +169,8 @@ export function PackageEditorDialog({
                 </div>
               </div>
 
-              {/* Columna Derecha: Configuración Estratégica (5 columnas) */}
-              <div className="lg:col-span-5 flex flex-col gap-6">
+              {/* Columna Derecha: Configuración Estratégica */}
+              <div className="flex flex-col gap-6">
                 
                 {/* 1. SELECCIÓN DE SERVICIOS */}
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col flex-1">
