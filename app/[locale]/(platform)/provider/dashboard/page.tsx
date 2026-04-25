@@ -98,7 +98,8 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <Button size="sm" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-lg shadow-none text-xs transition-colors">
+          <Button size="sm" onClick={() => router.push("/provider/settings/subscription")}
+            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-lg shadow-none text-xs transition-colors">
             {t('upgrade_plan')}
           </Button>
         </div>
