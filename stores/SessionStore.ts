@@ -33,6 +33,9 @@ export function nukeCookies(): void {
     }
   }
 
+  // 🚀 FIX: Aseguramos borrar la cookie de rol específicamente
+  document.cookie = "userRole=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+
   console.log('🧹 [Auth] Cookies nucleadas.');
 }
 

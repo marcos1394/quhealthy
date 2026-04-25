@@ -53,6 +53,17 @@ export function proxy(request: NextRequest) {
 
   // 🛡️ Lógica Anti-rebote (Con token intentando ir a Login/Registro)
   if (isAuthRoute && hasToken) {
+    const userRole = request.cookies.get('userRole')?.value;
+    
+    // 🚀 Redirigir según el rol guardado en la cookie
+    if (userRole === 'PROVIDER') {
+      return NextResponse.redirect(new URL(`${currentLocale}/provider/dashboard`, request.url));
+    }
+    if (userRole === 'ADMIN') {
+      return NextResponse.redirect(new URL(`${currentLocale}/admin/dashboard`, request.url));
+    }
+    
+    // Default para CONSUMER o si no hay cookie
     return NextResponse.redirect(new URL(`${currentLocale}/patient/dashboard`, request.url));
   }
 
