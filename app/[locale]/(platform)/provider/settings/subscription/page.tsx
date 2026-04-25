@@ -24,7 +24,7 @@ interface BackendPlan {
   name: string;
   description: string;
   price: number;
-  interval: "MONTH" | "YEAR";
+  interval: "MONTHLY" | "YEARLY";
   currency: string;
   stripePriceId: string;
 }
@@ -110,14 +110,14 @@ export default function BillingPage() {
   useEffect(() => {
     if (rawPlans.length === 0) return;
 
-    const currentInterval = billingCycle === "monthly" ? "MONTH" : "YEAR";
+   const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
     const filtered = rawPlans.filter(p => p.interval === currentInterval);
 
     const uiPlans: Plan[] = filtered.map(bp => {
       // Cálculo de ahorros hipotético si es anual y existe un precio base
-      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.interval === "MONTH");
+      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.interval === "MONTHLY");
       const baseMonthlyPrice = matchingMonthly ? matchingMonthly.price : bp.price / 12;
-      const savings = (currentInterval === "YEAR" && baseMonthlyPrice > 0) 
+      const savings = (currentInterval === "YEARLY" && baseMonthlyPrice > 0) 
           ? (baseMonthlyPrice * 12) - bp.price 
           : undefined;
 
@@ -131,7 +131,7 @@ export default function BillingPage() {
         duration: billingCycle,
         savings: savings && savings > 0 ? savings : undefined,
         isPopular: isPopular,
-        features: buildFeaturesForPlan(bp.name, currentInterval === "YEAR")
+        features: buildFeaturesForPlan(bp.name, currentInterval === "YEARLY")
       };
     });
 
