@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 // Importamos los Managers
 import { ServicesManager } from "@/components/marketplace/ServicesManager";
@@ -65,7 +66,7 @@ export default function CatalogSetupPage() {
     const saved = await saveService(service);
     if (saved) {
       setServices(prev => prev.map(s => s.id === service.id ? saved : s));
-      toast.success(t('toast_service_saved', { name: saved.name }));
+      toast.success(t('toasts.service_saved', { name: saved.name }));
     }
   };
 
@@ -78,7 +79,7 @@ export default function CatalogSetupPage() {
 
     if (await deleteService(id)) {
       setServices(prev => prev.filter(s => s.id !== id));
-      toast.success(t('toast_service_deleted', { defaultValue: 'Servicio eliminado' }));
+      toast.success(t('toasts.service_deleted', { defaultValue: 'Servicio eliminado' }));
     }
   };
 
@@ -98,7 +99,7 @@ export default function CatalogSetupPage() {
     if (saved) {
       if (pkg.isNew) setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
       else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
-      toast.success(t('toast_package_saved', { defaultValue: 'Paquete guardado' }));
+      toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
     }
   };
 
@@ -109,7 +110,7 @@ export default function CatalogSetupPage() {
 
     if (await deletePackage(id)) {
       setPackages(prev => prev.filter(p => p.id !== id));
-      toast.success(t('toast_package_deleted', { defaultValue: 'Paquete eliminado' }));
+      toast.success(t('toasts.package_deleted', { defaultValue: 'Paquete eliminado' }));
     }
   };
 
@@ -131,7 +132,7 @@ export default function CatalogSetupPage() {
     const saved = await saveProduct(product);
     if (saved) {
       setProducts(prev => prev.map(p => p.id === product.id ? saved : p));
-      toast.success("Producto guardado");
+      toast.success(t('toasts.product_saved', { defaultValue: 'Producto guardado' }));
     }
   };
 
@@ -141,7 +142,7 @@ export default function CatalogSetupPage() {
     if (p.isNew) return setProducts(prev => prev.filter(p => p.id !== id));
     if (await deleteProduct(id)) {
       setProducts(prev => prev.filter(p => p.id !== id));
-      toast.success("Producto eliminado");
+      toast.success(t('toasts.product_deleted', { defaultValue: 'Producto eliminado' }));
     }
   };
 
@@ -163,7 +164,7 @@ export default function CatalogSetupPage() {
     const saved = await saveCourse(course);
     if (saved) {
       setCourses(prev => prev.map(c => c.id === course.id ? saved : c));
-      toast.success("Curso guardado");
+      toast.success(t('toasts.course_saved', { defaultValue: 'Curso guardado' }));
     }
   };
 
@@ -173,7 +174,7 @@ export default function CatalogSetupPage() {
     if (c.isNew) return setCourses(prev => prev.filter(c => c.id !== id));
     if (await deleteCourse(id)) {
       setCourses(prev => prev.filter(c => c.id !== id));
-      toast.success("Curso eliminado");
+      toast.success(t('toasts.course_deleted', { defaultValue: 'Curso eliminado' }));
     }
   };
 
@@ -193,7 +194,7 @@ export default function CatalogSetupPage() {
     } else if (type === 'COURSES') {
       handleUpdateCourse(id, { imageUrl: newUrl });
     }
-    toast.success(t('toast_image_uploaded', { defaultValue: 'Imagen subida correctamente' }));
+    toast.success(t('toasts.image_uploaded', { defaultValue: 'Imagen subida correctamente' }));
   };
 
   // ==========================================
@@ -202,9 +203,7 @@ export default function CatalogSetupPage() {
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6 bg-slate-50 dark:bg-slate-950">
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-          <Sparkles className="w-16 h-16 text-medical-500" />
-        </motion.div>
+        <QhSpinner size="lg" />
         <div className="text-center space-y-2">
           <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">{t('loading_title', { defaultValue: 'Cargando Catálogo' })}</p>
           <p className="text-slate-500 dark:text-slate-400 animate-pulse">{t('loading_subtitle', { defaultValue: 'Preparando tu inventario...' })}</p>
