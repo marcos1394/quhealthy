@@ -1820,14 +1820,37 @@
         "toast_upgrade": "Redirecting to plans..."
     },
     "StorePolicies": {
-        "title": "Ground Rules",
-        "subtitle": "Set clear rules for your patients. A good agreement prevents last-minute cancellations.",
-        "back": "Back to My Store",
-        "btn_save": "Save Policies",
-        "btn_saving": "Saving...",
-        "loading": "Loading settings...",
-        "toast_too_short": "The policy is too short. Be clear to avoid misunderstandings."
+  "loading": "Loading policies...",
+  "back": "Back to My Store",
+  "btn_saving": "Saving...",
+  "btn_save": "Save Changes",
+  "title": "Cancellation Policies",
+  "subtitle": "Define the rules for your patients when booking an appointment.",
+  "Section": {
+    "title": "Cancellation Policies",
+    "description": "Protect your time and reduce no-shows.",
+    "templates_label": "Recommended Templates",
+    "templates": {
+      "flexible": {
+        "name": "Flexible",
+        "text": "Cancellations or reschedules are free of charge if made at least 24 hours prior to the scheduled appointment. Cancellations with less than 24 hours notice may be subject to a 50% charge of the consultation fee to cover the reserved time."
+      },
+      "moderate": {
+        "name": "Moderate",
+        "text": "A minimum of 48 hours notice is required to cancel or reschedule without charge. Cancellations made between 24 and 48 hours before the appointment will incur a 50% penalty. Cancellations with less than 24 hours notice or no-shows will be charged at 100%."
+      },
+      "strict": {
+        "name": "Strict",
+        "text": "All appointments require a non-refundable deposit at the time of booking. If you need to reschedule, you must do so 72 hours in advance for your deposit to be transferred to the new date. No-shows will automatically forfeit the deposit."
+      }
     },
+    "editor_label": "Legal Text Visible to the Patient",
+    "editor_placeholder": "Write your cancellation, refund, and rescheduling policies here...",
+    "editor_hint": "This text will be shown to patients before confirming their appointment and in their confirmation emails.",
+    "tip_title": "💡 Did you know...",
+    "tip_desc": "Having a clear cancellation policy visible at the time of booking <strong>reduces no-shows by up to 80%</strong>. Be sure to be firm but empathetic."
+  }
+},
     "StorePublic": {
         "loading": "Preparing the store...",
         "error_title": "Store unavailable",

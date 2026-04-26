@@ -1820,14 +1820,38 @@
         "toast_upgrade": "Redirigiendo a planes..."
     },
     "StorePolicies": {
-        "title": "Reglas del Juego",
-        "subtitle": "Establece las reglas claras para tus pacientes. Un buen acuerdo previene cancelaciones de último minuto.",
-        "back": "Volver a Mi Tienda",
-        "btn_save": "Guardar Políticas",
-        "btn_saving": "Guardando...",
-        "loading": "Cargando configuraciones...",
-        "toast_too_short": "La política es muy corta. Sé claro para evitar malentendidos."
+  "loading": "Cargando políticas...",
+  "back": "Volver a Mi Tienda",
+  "btn_saving": "Guardando...",
+  "btn_save": "Guardar Cambios",
+  "title": "Políticas de Cancelación",
+  "subtitle": "Define las reglas para tus pacientes al momento de agendar.",
+  "Section": {
+    "title": "Políticas de Cancelación",
+    "description": "Protege tu tiempo y reduce el ausentismo (No-shows).",
+    "templates_label": "Plantillas Recomendadas",
+    "templates": {
+      "flexible": {
+        "name": "Flexible",
+        "text": "Las cancelaciones o reprogramaciones son gratuitas si se realizan con al menos 24 horas de anticipación a la cita programada. Las cancelaciones con menos de 24 horas de aviso podrían estar sujetas a un cargo del 50% del costo de la consulta para cubrir el tiempo reservado."
+      },
+      "moderate": {
+        "name": "Moderada",
+        "text": "Se requiere un aviso mínimo de 48 horas para cancelar o reprogramar sin costo. Las cancelaciones realizadas entre 24 y 48 horas antes tendrán una penalización del 50%. Las cancelaciones con menos de 24 horas o inasistencias (no-shows) se cobrarán al 100%."
+      },
+      "strict": {
+        "name": "Estricta",
+        "text": "Todas las citas requieren un depósito no reembolsable al momento de la reserva. Si necesitas reprogramar, debes hacerlo con 72 horas de anticipación para que tu depósito sea transferido a la nueva fecha. Las inasistencias perderán el depósito automáticamente."
+      }
     },
+    "editor_label": "Texto Legal Visible para el Paciente",
+    "editor_placeholder": "Escribe tus políticas de cancelación, reembolsos y reprogramación aquí...",
+    "editor_hint": "Este texto se mostrará a los pacientes antes de confirmar su cita y en sus correos de confirmación.",
+    "tip_title": "💡 Sabías que...",
+    "tip_desc": "Tener una política de cancelación clara visible al momento de agendar <strong>reduce el ausentismo (no-shows) hasta en un 80%</strong>. Asegúrate de ser firme pero empático."
+  }
+},
+
     "StorePublic": {
         "loading": "Preparando la tienda...",
         "error_title": "Tienda no disponible",
