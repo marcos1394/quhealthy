@@ -166,7 +166,7 @@ export default function BillingPage() {
 
     // 2. Preparar las URLs de redirección dinámicamente
     const baseUrl = window.location.origin;
-    const successUrl = `${baseUrl}/dashboard/settings/billing?session_id={CHECKOUT_SESSION_ID}`;
+    const successUrl = `${baseUrl}/dashboard/settings/billing/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/dashboard/settings/billing?status=cancelled`;
 
     try {
