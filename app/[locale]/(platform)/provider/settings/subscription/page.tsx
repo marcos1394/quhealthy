@@ -110,7 +110,7 @@ export default function BillingPage() {
   useEffect(() => {
     if (rawPlans.length === 0) return;
 
-   const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
+    const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
     const filtered = rawPlans.filter(p => p.interval === currentInterval);
 
     const uiPlans: Plan[] = filtered.map(bp => {
@@ -121,7 +121,7 @@ export default function BillingPage() {
           ? (baseMonthlyPrice * 12) - bp.price 
           : undefined;
 
-      const isPopular = bp.name.toLowerCase().includes("prof");
+      const isPopular = bp.name.toLowerCase().includes("prof") || bp.name.toLowerCase().includes("estándar");
 
       return {
         id: bp.stripePriceId || `plan_${bp.id}`,
@@ -142,24 +142,45 @@ export default function BillingPage() {
   const handleCheckout = async () => {
     if (!selectedPlan) return;
     setIsProcessing(true);
-    toast.info(t('toast_processing'));
+    toast.info(t('toast_processing') || "Procesando petición...");
+
+    // 1. Encontrar el Plan numérico original usando el stripePriceId
+    const matchingBackendPlan = rawPlans.find(bp => 
+      (bp.stripePriceId || `plan_${bp.id}`) === selectedPlan.id
+    );
+
+    if (!matchingBackendPlan) {
+      toast.error("Error identificando el plan en la base de datos.");
+      setIsProcessing(false);
+      return;
+    }
+
+    // 2. Preparar las URLs de redirección dinámicamente
+    const baseUrl = window.location.origin;
+    const successUrl = `${baseUrl}/dashboard/settings/billing?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/dashboard/settings/billing?status=cancelled`;
 
     try {
-      const { data } = await axiosInstance.post('/api/payments/subscriptions/checkout',
-        // Ojo: subscription API espera priceId de Stripe como planId
-        { priceId: selectedPlan.id }
-      );
+      // 3. 🚀 Enviar la estructura exacta que pide el DTO en Java
+      const payload = {
+        planId: matchingBackendPlan.id, // Número entero (ej: 1, 2, 3...)
+        successUrl: successUrl,
+        cancelUrl: cancelUrl,
+        gateway: "STRIPE" 
+      };
 
-      // Si el backend te da sessionId, usa redirectToCheckout de Stripe
-      // Si te da URL directo (Stripe Hosted Checkout), un simple window.location funciona
+      const { data } = await axiosInstance.post('/api/payments/subscriptions/checkout', payload);
+
+      // Si el backend devuelve la URL directo de Stripe (Stripe Hosted Checkout)
       if (data.url) {
          window.location.href = data.url;
          return;
       }
 
+      // Si el backend devuelve el sessionId, redirigimos usando la librería de Stripe de React
       if (data.sessionId) {
         const stripe = await stripePromise;
-        if (!stripe) throw new Error(t('error_stripe'));
+        if (!stripe) throw new Error(t('error_stripe') || "Error cargando pasarela de pago.");
         const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
         if (error) throw error;
       }
@@ -167,7 +188,6 @@ export default function BillingPage() {
     } catch (err: any) {
       console.error(err);
       handleApiError(err);
-      toast.success(t('toast_demo', { planName: selectedPlan.name }));
       setTimeout(() => setSelectedPlan(null), 2000);
     } finally {
       setIsProcessing(false);
@@ -189,7 +209,7 @@ export default function BillingPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
             <div className="w-10 h-10 border-4 border-medical-200 border-t-medical-600 rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-medium animate-pulse">{t('loading')}</p>
+            <p className="text-slate-500 font-medium animate-pulse">{t('loading') || "Cargando planes..."}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
@@ -215,15 +235,15 @@ export default function BillingPage() {
         >
           <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
             <ShieldCheck className="w-5 h-5 text-emerald-500" />
-            <span>{t('secure_payments')}</span>
+            <span>{t('secure_payments') || "Pagos Seguros"}</span>
           </div>
           <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
             <CreditCard className="w-5 h-5 text-blue-500" />
-            <span>{t('accept_cards')}</span>
+            <span>{t('accept_cards') || "Aceptamos todas las tarjetas"}</span>
           </div>
           <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
             <CheckCircle2 className="w-5 h-5 text-medical-500" />
-            <span>{t('cancel_anytime')}</span>
+            <span>{t('cancel_anytime') || "Cancela cuando quieras"}</span>
           </div>
         </motion.div>
 
