@@ -83,7 +83,7 @@ export default function StaffSetupPage() {
     // Validar que todos los que tengan cambios tengan al menos un nombre
     const invalidMembers = staff.filter(m => (m.isNew || m.hasUnsavedChanges) && !m.name);
     if (invalidMembers.length > 0) {
-      return;
+      toast.warning(t('toast_invalid_name'));
       return;
     }
 
@@ -102,11 +102,13 @@ export default function StaffSetupPage() {
         toast.success(t('toast_success'));
         router.push("/provider/store");
       } else {
+        toast.warning(t('toast_partial_success'));
         // En caso de fallos parciales, recargamos de la BD para sincronizar
         fetchStaff();
       }
     } catch (error) {
-      return;
+      handleApiError(error);
+      toast.error(t('toast_error'));
     } finally {
       setIsSavingAll(false);
     }
@@ -117,7 +119,9 @@ export default function StaffSetupPage() {
     return (
       <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 bg-slate-50 dark:bg-slate-950">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">{t('loading')}</p>
+        <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">
+          {t('loading')}
+        </p>
       </div>
     );
   }
@@ -171,12 +175,11 @@ export default function StaffSetupPage() {
 
         {/* Integración del Componente Visual */}
         <StaffManager
-          // @ts-ignore
           staff={staff}
           onAdd={handleAddMember}
           onUpdate={handleUpdateMember}
           onDelete={handleDeleteMember}
-          onImageUpload={handleImageUpload} // Aquí le pasamos la magia de GCP
+          onImageUpload={handleImageUpload}
           isBusinessPlan={isBusinessPlan}
           onUpgrade={() => toast.info(t('toast_upgrade'))}
         />
