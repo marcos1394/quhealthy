@@ -1373,6 +1373,21 @@
         "profile_share_copy_btn": "Copiar Enlace"
     },
     "SettingsSubscription": {
+        "Success": {
+    "title": "¡Pago procesado con éxito!",
+    "subtitle": "Tu suscripción ha sido actualizada. Ya tienes acceso a todos los beneficios de tu nuevo plan.",
+    "next_steps": "¿Qué sigue ahora?",
+    "step1_title": "Nuevas funciones desbloqueadas",
+    "step1_desc": "Tu cuenta ya fue actualizada en nuestros servidores y tienes acceso inmediato a tus nuevas herramientas.",
+    "step2_title": "Recibo enviado",
+    "step2_desc": "Hemos enviado la confirmación de pago y tu factura al correo electrónico registrado.",
+    "step3_title": "Configura tu consultorio",
+    "step3_desc": "Aprovecha al máximo tu nuevo catálogo, agenda médica y reportes avanzados.",
+    "btn_dashboard": "Ir al Dashboard",
+    "btn_billing": "Ver mi Facturación"
+  },
+
+
         "title": "Suscripción",
         "subtitle": "Gestiona tu plan de QuHealthy",
         "loading": "Cargando planes...",

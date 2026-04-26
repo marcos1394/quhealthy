@@ -1373,6 +1373,20 @@
         "profile_share_copy_btn": "Copy Link"
     },
     "SettingsSubscription": {
+        "Success": {
+    "title": "Payment processed successfully!",
+    "subtitle": "Your subscription has been updated. You now have access to all the benefits of your new plan.",
+    "next_steps": "What's next?",
+    "step1_title": "New features unlocked",
+    "step1_desc": "Your account has been updated on our servers, granting immediate access to your new tools.",
+    "step2_title": "Receipt sent",
+    "step2_desc": "We have sent the payment confirmation and your invoice to your registered email address.",
+    "step3_title": "Set up your practice",
+    "step3_desc": "Make the most out of your new catalog, schedule, and advanced reports.",
+    "btn_dashboard": "Go to Dashboard",
+    "btn_billing": "View Billing"
+  },
+
         "title": "Subscription",
         "subtitle": "Manage your QuHealthy plan",
         "loading": "Loading plans...",
