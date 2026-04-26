@@ -13,6 +13,7 @@ import { PlansHeader } from '@/components/dashboard/subscription/PlansHeader';
 import { PricingCard, Plan } from '@/components/dashboard/subscription/PricingCard';
 import { ConfirmationModal } from '@/components/dashboard/subscription/ConfirmationModal';
 import { handleApiError } from '@/lib/handleApiError';
+import { useParams } from 'next/navigation';
 
 // Tipos adicionales locales para la data
 export type UserRole = "paciente" | "proveedor";
@@ -34,6 +35,8 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 
 export default function BillingPage() {
   const t = useTranslations('SettingsSubscription');
+  const params = useParams();
+  const locale = params.locale; // Obtiene 'es', 'en', etc.
   const role: UserRole = "proveedor"; 
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -165,9 +168,12 @@ export default function BillingPage() {
     }
 
     // 2. Preparar las URLs de redirección dinámicamente
+
     const baseUrl = window.location.origin;
-    const successUrl = `${baseUrl}/dashboard/settings/billing/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${baseUrl}/dashboard/settings/billing?status=cancelled`;
+    // ✨ FIX: Incluimos el locale y el segmento /provider
+    const successUrl = `${baseUrl}/${locale}/provider/dashboard/settings/billing/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/${locale}/provider/dashboard/settings/billing?status=cancelled`;
+
 
     try {
       // 3. 🚀 Enviar la estructura exacta que pide el DTO en Java
