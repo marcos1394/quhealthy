@@ -2776,7 +2776,10 @@
   "desc_placeholder": "Describe brevemente el servicio...",
   "delivery_type": "Tipo de Atención",
   "cancellation": "Política de Cancelación",
-  "follow_up": "Requiere Seguimiento"
+  "follow_up": "Requiere Seguimiento",
+  "duplicate": "Duplicar",
+"save": "Guardar",
+"photo": "Foto del Servicio"
 },
   "packages": {
     "title": "Paquetes Especiales",

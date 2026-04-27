@@ -2769,7 +2769,10 @@
   "desc_placeholder": "Briefly describe the service...",
   "delivery_type": "Delivery Type",
   "cancellation": "Cancellation Policy",
-  "follow_up": "Requires Follow-up"
+  "follow_up": "Requires Follow-up",
+  "duplicate": "Duplicate",
+"save": "Save",
+"photo": "Service Photo"
 },
 
 
