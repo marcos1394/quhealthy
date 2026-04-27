@@ -8,7 +8,8 @@ import {
   AlertCircle,
   TrendingUp,
   Sparkles,
-  Tag
+  Tag,
+  Info
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
@@ -17,6 +18,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // Subcomponentes refactorizados
 import { ServiceItemCard } from "./ServiceItemCard";
@@ -33,6 +35,10 @@ interface ServicesManagerProps {
   onSave: (service: UI_Service) => void;
   onDuplicate?: (service: UI_Service) => void;
   onImageUpload?: (id: number, file: File) => void;
+  // 🚀 Nuevas props de negocio para límites de plan
+  canAdd?: boolean;
+  currentUsage?: number;
+  maxLimit?: number;
 }
 
 export function ServicesManager({
@@ -42,7 +48,10 @@ export function ServicesManager({
   onDelete, 
   onSave,
   onDuplicate,
-  onImageUpload 
+  onImageUpload,
+  canAdd = true, // Default true por seguridad
+  currentUsage,
+  maxLimit
 }: ServicesManagerProps) {
   const t = useTranslations('Marketplace.services'); 
   const [showTemplates, setShowTemplates] = useState(false);
@@ -51,12 +60,17 @@ export function ServicesManager({
 
   // Manejador para aplicar una plantilla rápida
   const handleApplyTemplate = (template: { name: string; duration: number; price: number; type: ServiceDeliveryType }) => {
+    // 🛡️ Validación de negocio: Bloquear si no tiene espacio en su plan
+    if (!canAdd) {
+      toast.warning(t('limit_reached_msg', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
+
     onAdd();
     // Como React actualiza el estado asíncronamente, usamos un pequeño delay 
-    // o confiamos en que el nuevo servicio será el primero en la lista (índice 0)
     setTimeout(() => {
-      // Asumiendo que onAdd pone el nuevo servicio al principio del array:
-      const newService = services[0]; // O ajusta si lo pones al final
+      // Asumiendo que onAdd pone el nuevo servicio al principio del array (índice 0):
+      const newService = services[0]; 
       if (newService) {
         onUpdate(newService.id, {
           name: template.name,
@@ -90,10 +104,24 @@ export function ServicesManager({
           </CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-3 text-base">
             {t('description', { defaultValue: 'Gestiona los servicios médicos que ofreces.' })}
+            
+            {/* 🚀 Indicador de ítems activos */}
             {services.length > 0 && (
               <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 shadow-sm font-medium">
                 <Sparkles className="w-3 h-3 mr-1" />
-                {services.length} {services.length === 1 ? 'Servicio' : 'Servicios'}
+                {services.length} {services.length === 1 ? t('service_single', { defaultValue: 'Servicio' }) : t('service_plural', { defaultValue: 'Servicios' })}
+              </Badge>
+            )}
+
+            {/* 🚀 Indicador de Límite de Plan (Contrato de Consumo) */}
+            {typeof currentUsage === 'number' && typeof maxLimit === 'number' && (
+              <Badge variant="outline" className={cn(
+                "font-medium shadow-sm",
+                canAdd 
+                  ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20" 
+                  : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
+              )}>
+                {currentUsage} / {maxLimit} {t('usage_limit', { defaultValue: 'usados' })}
               </Badge>
             )}
           </CardDescription>
@@ -103,17 +131,31 @@ export function ServicesManager({
           <Button 
             variant="outline"
             onClick={() => setShowTemplates(!showTemplates)}
-            className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 h-11 rounded-xl"
+            disabled={!canAdd} // 🚀 Deshabilita abrir plantillas si no hay espacio
+            className={cn(
+              "h-11 rounded-xl transition-colors",
+              !canAdd 
+                ? "bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700 cursor-not-allowed" 
+                : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+            )}
           >
             <Tag className="w-4 h-4 mr-2" />
             {t('templates', { defaultValue: 'Plantillas' })}
           </Button>
           
+          {/* 🚀 Botón protegido por regla de negocio */}
           <Button 
             onClick={onAdd} 
-            className="bg-medical-600 hover:bg-medical-700 text-white shadow-md hover:shadow-lg transition-all rounded-xl h-11 font-bold"
+            disabled={!canAdd}
+            className={cn(
+              "shadow-md transition-all rounded-xl h-11 font-bold",
+              canAdd 
+                ? "bg-medical-600 hover:bg-medical-700 text-white hover:shadow-lg" 
+                : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700"
+            )}
           >
-            <Plus className="w-4 h-4 mr-2" /> {t('new_service', { defaultValue: 'Nuevo Servicio' })}
+            <Plus className="w-4 h-4 mr-2" /> 
+            {!canAdd ? t('limit_reached_btn', { defaultValue: 'Límite Lleno' }) : t('new_service', { defaultValue: 'Nuevo Servicio' })}
           </Button>
         </div>
       </CardHeader>
@@ -122,11 +164,35 @@ export function ServicesManager({
         
         {/* --- PANEL DE PLANTILLAS --- */}
         <AnimatePresence>
-          {showTemplates && (
+          {showTemplates && canAdd && (
             <ServiceTemplates 
               onApply={handleApplyTemplate} 
               onClose={() => setShowTemplates(false)} 
             />
+          )}
+        </AnimatePresence>
+
+        {/* --- ALERTA DE LÍMITE (Feedback UX) --- */}
+        <AnimatePresence>
+          {!canAdd && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-3xl p-5 flex items-center gap-4 shadow-sm"
+            >
+              <div className="p-2 bg-red-100 dark:bg-red-500/20 rounded-xl">
+                <Info className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-red-800 dark:text-red-300 font-bold mb-1">
+                  {t('limit_alert_title', { defaultValue: 'Has llenado tu capacidad' })}
+                </p>
+                <p className="text-xs text-red-700 dark:text-red-300/80">
+                  {t('limit_alert_desc', { defaultValue: 'Archiva o elimina servicios antiguos para liberar espacio, o actualiza tu plan en la sección de facturación.' })}
+                </p>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -154,7 +220,7 @@ export function ServicesManager({
           )}
         </AnimatePresence>
 
-        {/* --- LISTA DE SERVICIOS (TARJETAS AISLADAS) --- */}
+        {/* --- LISTA DE SERVICIOS --- */}
         <AnimatePresence mode="popLayout">
           {services.map((service, index) => (
             <ServiceItemCard 
@@ -190,15 +256,18 @@ export function ServicesManager({
               <Button 
                 variant="outline" 
                 onClick={() => setShowTemplates(true)}
-                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 h-12 rounded-xl"
+                disabled={!canAdd}
+                className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 h-12 rounded-xl disabled:opacity-50"
               >
                 <Tag className="w-4 h-4 mr-2" /> Ver {t('templates', { defaultValue: 'Plantillas' })}
               </Button>
               <Button 
                 onClick={onAdd}
-                className="bg-medical-600 hover:bg-medical-700 shadow-lg shadow-medical-500/20 h-12 font-bold rounded-xl text-white"
+                disabled={!canAdd}
+                className="bg-medical-600 hover:bg-medical-700 shadow-lg shadow-medical-500/20 h-12 font-bold rounded-xl text-white disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 disabled:shadow-none"
               >
-                <Plus className="w-4 h-4 mr-2" /> {t('create_first', { defaultValue: 'Crear mi primer servicio' })}
+                <Plus className="w-4 h-4 mr-2" /> 
+                {!canAdd ? t('limit_reached_btn') : t('create_first', { defaultValue: 'Crear mi primer servicio' })}
               </Button>
             </div>
           </motion.div>

@@ -21,6 +21,7 @@ import { CoursesManager } from "@/components/marketplace/CoursesManager";
 
 // Importamos el Hook y los Tipos
 import { useCatalog } from "@/hooks/useCatalog";
+import { usePlanLimits } from "@/hooks/usePlanLimits"; // 🚀 Nuevo Hook de límites
 import { UI_Service, UI_Package, UI_Product, UI_Course } from "@/types/catalog";
 import { cn } from "@/lib/utils";
 import { handleApiError } from '@/lib/handleApiError';
@@ -33,14 +34,24 @@ export default function CatalogSetupPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('SERVICES');
 
-  // Hook central
+  // Hook central de Catálogo
   const {
     services, setServices, saveService, deleteService,
     packages, setPackages, savePackage, deletePackage,
-    products, setProducts, saveProduct, deleteProduct, // 🚀 NUEVO
-    courses, setCourses, saveCourse, deleteCourse,     // 🚀 NUEVO
+    products, setProducts, saveProduct, deleteProduct,
+    courses, setCourses, saveCourse, deleteCourse,
     isLoading, fetchInventory, uploadItemImage
   } = useCatalog();
+
+  // 🚀 Hook central de Límites de Plan
+  const { usage, isLoadingLimits, refreshLimits } = usePlanLimits();
+
+  // 🚀 REGLAS DE NEGOCIO DINÁMICAS (Si el backend no lo envía, asumimos true para no bloquear por error)
+  const canAddService = usage?.metrics?.services?.canAdd ?? true;
+  const canAddPackage = usage?.metrics?.packages?.canAdd ?? true;
+  // Nota: Si luego agregas "products" y "courses" al backend, esto los leerá automáticamente
+  const canAddProduct = usage?.metrics?.products?.canAdd ?? true;
+  const canAddCourse = usage?.metrics?.courses?.canAdd ?? true;
 
   useEffect(() => {
     fetchInventory();
@@ -50,6 +61,10 @@ export default function CatalogSetupPage() {
   // HANDLERS: SERVICIOS
   // ==========================================
   const handleAddService = () => {
+    if (!canAddService) {
+      toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
     const newService: UI_Service = {
       id: Date.now(), name: "", description: "", category: "", duration: 30, price: 0,
       serviceDeliveryType: "in_person", cancellationPolicy: "flexible", isNew: true, hasUnsavedChanges: true,
@@ -66,6 +81,7 @@ export default function CatalogSetupPage() {
     const saved = await saveService(service);
     if (saved) {
       setServices(prev => prev.map(s => s.id === service.id ? saved : s));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.service_saved', { name: saved.name }));
     }
   };
@@ -79,11 +95,16 @@ export default function CatalogSetupPage() {
 
     if (await deleteService(id)) {
       setServices(prev => prev.filter(s => s.id !== id));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.service_deleted', { defaultValue: 'Servicio eliminado' }));
     }
   };
 
   const handleDuplicateService = (service: UI_Service) => {
+    if (!canAddService) {
+      toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
     const duplicated: UI_Service = { ...service, id: Date.now(), name: `${service.name} (Copia)`, imageUrl: undefined, isNew: true, hasUnsavedChanges: true };
     const index = services.findIndex(s => s.id === service.id);
     const newServices = [...services];
@@ -94,11 +115,23 @@ export default function CatalogSetupPage() {
   // ==========================================
   // HANDLERS: PAQUETES
   // ==========================================
+  const handleAddPackage = () => {
+    if (!canAddPackage) {
+      toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
+    const newPackage: UI_Package = {
+      id: Date.now(), name: "", description: "", price: 0, serviceIds: [], isNew: true, hasUnsavedChanges: true,
+    };
+    setPackages([newPackage, ...packages]);
+  };
+
   const handleSavePackage = async (pkg: UI_Package) => {
     const saved = await savePackage(pkg);
     if (saved) {
       if (pkg.isNew) setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
       else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
     }
   };
@@ -110,6 +143,7 @@ export default function CatalogSetupPage() {
 
     if (await deletePackage(id)) {
       setPackages(prev => prev.filter(p => p.id !== id));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.package_deleted', { defaultValue: 'Paquete eliminado' }));
     }
   };
@@ -118,6 +152,10 @@ export default function CatalogSetupPage() {
   // HANDLERS: PRODUCTOS
   // ==========================================
   const handleAddProduct = () => {
+    if (!canAddProduct) {
+      toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
     const newProduct: UI_Product = {
       id: Date.now(), name: "", description: "", category: "", price: 0, stockQuantity: 1, isNew: true, hasUnsavedChanges: true,
     };
@@ -132,6 +170,7 @@ export default function CatalogSetupPage() {
     const saved = await saveProduct(product);
     if (saved) {
       setProducts(prev => prev.map(p => p.id === product.id ? saved : p));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.product_saved', { defaultValue: 'Producto guardado' }));
     }
   };
@@ -142,6 +181,7 @@ export default function CatalogSetupPage() {
     if (p.isNew) return setProducts(prev => prev.filter(p => p.id !== id));
     if (await deleteProduct(id)) {
       setProducts(prev => prev.filter(p => p.id !== id));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.product_deleted', { defaultValue: 'Producto eliminado' }));
     }
   };
@@ -150,6 +190,10 @@ export default function CatalogSetupPage() {
   // HANDLERS: CURSOS
   // ==========================================
   const handleAddCourse = () => {
+    if (!canAddCourse) {
+      toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
+      return;
+    }
     const newCourse: UI_Course = {
       id: Date.now(), name: "", description: "", category: "", price: 0, contentUrl: "", isNew: true, hasUnsavedChanges: true,
     };
@@ -164,6 +208,7 @@ export default function CatalogSetupPage() {
     const saved = await saveCourse(course);
     if (saved) {
       setCourses(prev => prev.map(c => c.id === course.id ? saved : c));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.course_saved', { defaultValue: 'Curso guardado' }));
     }
   };
@@ -174,6 +219,7 @@ export default function CatalogSetupPage() {
     if (c.isNew) return setCourses(prev => prev.filter(c => c.id !== id));
     if (await deleteCourse(id)) {
       setCourses(prev => prev.filter(c => c.id !== id));
+      refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.course_deleted', { defaultValue: 'Curso eliminado' }));
     }
   };
@@ -198,9 +244,9 @@ export default function CatalogSetupPage() {
   };
 
   // ==========================================
-  // RENDER: LOADING STATE
+  // RENDER: LOADING STATE (Sincronizado)
   // ==========================================
-  if (isLoading) {
+  if (isLoading || isLoadingLimits) {
     return (
       <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6 bg-slate-50 dark:bg-slate-950">
         <QhSpinner size="lg" />
@@ -291,7 +337,7 @@ export default function CatalogSetupPage() {
           ))}
         </div>
 
-        {/* 🚀 CONTENIDO DE LAS PESTAÑAS */}
+        {/* 🚀 CONTENIDO DE LAS PESTAÑAS (Enviando Banderas) */}
         <div className="pt-4">
           <AnimatePresence mode="wait">
 
@@ -306,6 +352,10 @@ export default function CatalogSetupPage() {
                   onDelete={handleDeleteService}
                   onDuplicate={handleDuplicateService}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'SERVICES')}
+                  // 🚀 Props de negocio agregadas
+                  canAdd={canAddService}
+                  currentUsage={usage?.metrics?.services?.current}
+                  maxLimit={usage?.metrics?.services?.limit}
                 />
               </motion.div>
             )}
@@ -317,9 +367,14 @@ export default function CatalogSetupPage() {
                   packages={packages}
                   // @ts-ignore
                   availableServices={availableServicesForPackages}
+                  onAdd={handleAddPackage} // Aseguramos inyectar onAdd
                   onSave={handleSavePackage}
                   onDelete={handleDeletePackage}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'PACKAGES')}
+                  // 🚀 Props de negocio agregadas
+                  canAdd={canAddPackage}
+                  currentUsage={usage?.metrics?.packages?.current}
+                  maxLimit={usage?.metrics?.packages?.limit}
                 />
               </motion.div>
             )}
@@ -334,6 +389,10 @@ export default function CatalogSetupPage() {
                   onSave={handleSaveProduct}
                   onDelete={handleDeleteProduct}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'PRODUCTS')}
+                  // 🚀 Props de negocio agregadas
+                  canAdd={canAddProduct}
+                  currentUsage={usage?.metrics?.products?.current ?? 0}
+                  maxLimit={usage?.metrics?.products?.limit ?? undefined}
                 />
               </motion.div>
             )}
@@ -348,6 +407,10 @@ export default function CatalogSetupPage() {
                   onSave={handleSaveCourse}
                   onDelete={handleDeleteCourse}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'COURSES')}
+                  // 🚀 Props de negocio agregadas
+                  canAdd={canAddCourse}
+                  currentUsage={usage?.metrics?.courses?.current ?? 0}
+                  maxLimit={usage?.metrics?.courses?.limit ?? undefined}
                 />
               </motion.div>
             )}
