@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Plus, Loader2, Settings, Link as LinkIcon, CheckCircle, RefreshCcw, CalendarDays, Sparkles, AlertCircle } from "lucide-react";
+import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -10,7 +14,6 @@ import { CalendarView } from "@/components/dashboard/CalendarView";
 import { OperatingHoursModal } from "@/components/dashboard/OperatingHours";
 import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
-import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function CalendarLoading() {
@@ -27,8 +30,34 @@ function CalendarContent() {
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  
   const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } = useCalendarIntegration();
   const t = useTranslations('DashboardCalendar');
+
+  // 🚀 LÓGICA DE CAPTURA DE ERRORES/ÉXITO DE OAUTH
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const status = searchParams.get("calendar_status");
+    const code = searchParams.get("code");
+
+    if (status === "error") {
+      // Lanzamos la alerta al usuario con el error específico
+      toast.error(
+        code === "AUTH_FAILED" 
+          ? t('toast_auth_failed', { defaultValue: "No pudimos conectar con Google. Verifica tus permisos y vuelve a intentarlo." })
+          : t('toast_auth_error', { defaultValue: "Ocurrió un error al intentar vincular tu calendario." })
+      );
+      
+      // Limpiamos la URL para que no vuelva a saltar el error si el usuario recarga la página
+      router.replace("/provider/dashboard/calendar", { scroll: false });
+    } else if (status === "success") {
+      // Si la conexión fue exitosa, también le avisamos
+      toast.success(t('toast_auth_success', { defaultValue: "¡Calendario vinculado exitosamente!" }));
+      router.replace("/provider/dashboard/calendar", { scroll: false });
+    }
+  }, [searchParams, router, t]);
 
   return (
     <div className="space-y-6 pb-10">
