@@ -1,71 +1,40 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'react-toastify';
 import { 
     Users, UserPlus, ArrowRight, Search, FileText, 
-    Calendar, Activity, Phone, Mail, MapPin, 
-    Filter, MoreHorizontal, History 
+    Calendar, Activity, Phone, Mail, Filter, MoreHorizontal, History 
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations } from 'next-intl';
 
 // Infra & UI
-import axiosInstance from '@/lib/axios';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import {
-    Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
-} from "@/components/ui/sheet";
-import { 
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { QhSpinner } from '@/components/ui/QhSpinner';
-import { handleApiError } from '@/lib/handleApiError';
 import { cn } from '@/lib/utils';
 
-interface Client {
-    id: number;
-    totalAppointments: number;
-    lastAppointmentDate: string;
-    status: 'active' | 'inactive';
-    consumer: {
-        id: number;
-        name: string;
-        email: string;
-        phone?: string;
-        profileImageUrl: string | null;
-        address?: string;
-    };
-}
+// 🚀 Nuestra nueva arquitectura importada
+import { usePatientDirectory } from '@/hooks/usePatientDirectory';
+import { PatientClient } from '@/types/patient';
 
 export default function ProviderPatientsPage() {
     const t = useTranslations("DashboardPatients");
-    const [clients, setClients] = useState<Client[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    
+    // 🚀 Usamos el Custom Hook
+    const { clients, isLoading, fetchClients } = usePatientDirectory();
+    
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedPatient, setSelectedPatient] = useState<Client | null>(null);
+    const [selectedPatient, setSelectedPatient] = useState<PatientClient | null>(null);
 
-    const fetchClients = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            // 🚀 LLAMADA REAL AL BACKEND
-            const { data } = await axiosInstance.get('/api/appointments/provider/clients');
-            setClients(data);
-        } catch (error) {
-            handleApiError(error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
+    // Cargar pacientes al montar
     useEffect(() => {
         fetchClients();
     }, [fetchClients]);
