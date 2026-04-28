@@ -20,6 +20,7 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // 🚀 Hook de Arquitectura
 import { usePatientDetail } from '@/hooks/usePatientDetail';
+import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 
 export default function PatientDetailPage() {
     const params = useParams();
@@ -30,6 +31,7 @@ export default function PatientDetailPage() {
     
     // 🚀 Extraemos los datos reales
     const { profile, history, isLoading, hasAccessError } = usePatientDetail(patientDirectoryId);
+    const { requestAccess } = usePatientDirectory();
 
     if (isLoading) {
         return (
@@ -122,7 +124,12 @@ export default function PatientDetailPage() {
                                         <p className="text-slate-500 dark:text-slate-400 font-light max-w-sm mx-auto mt-2">
                                             Este paciente utiliza la plataforma QuHealthy. Debes solicitar su consentimiento para ver su historial médico completo.
                                         </p>
-                                        <Button className="mt-6 bg-red-600 hover:bg-red-700 text-white rounded-xl">Solicitar Acceso al Paciente</Button>
+                                        <Button
+                                            onClick={() => requestAccess(profile.consumerId)}
+                                            className="mt-6 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                                        >
+                                            Solicitar Acceso al Paciente
+                                        </Button>
                                     </div>
                                 ) : history?.timeline && history.timeline.length > 0 ? (
                                     <div className="relative border-l-2 border-slate-100 dark:border-slate-800 ml-3 space-y-8 py-2">

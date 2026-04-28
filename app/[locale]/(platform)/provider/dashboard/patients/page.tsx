@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { cn } from '@/lib/utils';
+import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
 
 // 🚀 Nuestra nueva arquitectura importada
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
@@ -33,6 +34,7 @@ export default function ProviderPatientsPage() {
     
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPatient, setSelectedPatient] = useState<PatientClient | null>(null);
+    const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
 
     // Cargar pacientes al montar
     useEffect(() => {
@@ -81,7 +83,10 @@ export default function ProviderPatientsPage() {
                             </div>
                         </div>
                     </div>
-                    <Button className="bg-medical-600 hover:bg-medical-700 text-white shadow-lg shadow-medical-500/20 rounded-xl h-11 px-6 transition-all active:scale-95">
+                    <Button
+                        onClick={() => setIsNewPatientModalOpen(true)}
+                        className="bg-medical-600 hover:bg-medical-700 text-white shadow-lg shadow-medical-500/20 rounded-xl h-11 px-6 transition-all active:scale-95"
+                    >
                         <UserPlus className="w-4 h-4 mr-2" />
                         {t("new_patient")}
                     </Button>
@@ -289,6 +294,11 @@ export default function ProviderPatientsPage() {
                     )}
                 </SheetContent>
             </Sheet>
+
+            <NewPatientModal
+                isOpen={isNewPatientModalOpen}
+                onClose={() => setIsNewPatientModalOpen(false)}
+            />
         </div>
     );
 }

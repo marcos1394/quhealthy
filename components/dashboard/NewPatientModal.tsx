@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
-import { toast } from 'react-toastify';
 
 export function NewPatientModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
     const { createPatient, isSubmitting } = usePatientDirectory();
