@@ -298,6 +298,9 @@ export default function ProviderPatientsPage() {
             <NewPatientModal
                 isOpen={isNewPatientModalOpen}
                 onClose={() => setIsNewPatientModalOpen(false)}
+                onSuccess={async () => {
+                    await fetchClients();
+                }}
             />
         </div>
     );
