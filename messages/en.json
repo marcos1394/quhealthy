@@ -1154,6 +1154,7 @@
   "email_label": "Email",
   "phone_label": "Phone",
   "birth_date_label": "Birth Date",
+  "birth_date_placeholder": "Select date",
   "gender_label": "Gender",
   "gender_placeholder": "Select gender",
   "gender_male": "Male",

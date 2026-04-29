@@ -1153,6 +1153,7 @@
   "email_label": "Correo Electrónico",
   "phone_label": "Teléfono",
   "birth_date_label": "Fecha de Nacimiento",
+  "birth_date_placeholder": "Selecciona fecha",
   "gender_label": "Género",
   "gender_placeholder": "Selecciona género",
   "gender_male": "Masculino",
