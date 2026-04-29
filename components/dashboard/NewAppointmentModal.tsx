@@ -425,6 +425,15 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   <SelectItem value="CREDIT_CARD" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
                     {t('new_appointment_modal.payment_credit_card')}
                   </SelectItem>
+                  <SelectItem value="DEBIT_CARD" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_debit_card')}
+                  </SelectItem>
+                  <SelectItem value="INSURANCE" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_insurance')}
+                  </SelectItem>
+                  <SelectItem value="PACKAGE_BALANCE" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_package_balance')}
+                  </SelectItem>
                   <SelectItem value="BANK_TRANSFER" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
                     {t('new_appointment_modal.payment_bank_transfer')}
                   </SelectItem>
