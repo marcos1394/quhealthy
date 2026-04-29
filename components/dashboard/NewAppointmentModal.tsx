@@ -165,19 +165,28 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
     const results = await searchPatients(query);
     const normalizedName = `${payload.firstName} ${payload.lastName}`.toLowerCase();
     const createdPatient = results.find((patient) =>
-      patient.consumer.email?.toLowerCase() === payload.email?.toLowerCase() ||
-      patient.consumer.name.toLowerCase() === normalizedName
+      getPatientDisplayEmail(patient).toLowerCase() === payload.email?.toLowerCase() ||
+      getPatientDisplayName(patient).toLowerCase() === normalizedName
     );
 
     if (createdPatient) {
       setSelectedPatient(createdPatient);
-      setPatientQuery(createdPatient.consumer.name);
+      setPatientQuery(getPatientDisplayName(createdPatient));
     }
   };
 
   const supportedTypes = selectedService
     ? modalityOptions[selectedService.serviceDeliveryType] || ['IN_PERSON']
     : ['IN_PERSON'];
+
+  const getPatientDisplayName = (patient: PatientClient) =>
+    patient.consumer?.name || (patient as PatientClient & { name?: string }).name || t('new_appointment_modal.unknown_patient');
+
+  const getPatientDisplayEmail = (patient: PatientClient) =>
+    patient.consumer?.email || (patient as PatientClient & { email?: string }).email || '';
+
+  const getPatientDisplayPhone = (patient: PatientClient) =>
+    patient.consumer?.phone || (patient as PatientClient & { phone?: string }).phone || '';
 
   return (
     <>
@@ -203,52 +212,56 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                       type="button"
                       variant="outline"
                       role="combobox"
-                      className="w-full justify-between rounded-xl border-slate-200 dark:border-slate-700"
+                      className="w-full justify-between rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                     >
                       <span className="truncate text-left">
-                        {selectedPatient ? selectedPatient.consumer.name : t('new_appointment_modal.patient_placeholder')}
+                        {selectedPatient ? getPatientDisplayName(selectedPatient) : t('new_appointment_modal.patient_placeholder')}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[420px] p-0 border-slate-200 dark:border-slate-800">
-                    <Command>
+                  <PopoverContent
+                    className="z-[90] w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
+                    align="start"
+                    sideOffset={8}
+                  >
+                    <Command className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                       <CommandInput
                         placeholder={t('new_appointment_modal.patient_search_placeholder')}
                         value={patientQuery}
                         onValueChange={setPatientQuery}
                       />
-                      <CommandList>
+                      <CommandList className="max-h-[280px]">
                         {isSearching ? (
-                          <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500">
+                          <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
                             <Loader2 className="w-4 h-4 animate-spin" />
                             {t('new_appointment_modal.searching_patients')}
                           </div>
                         ) : null}
                         {!isSearching && patientQuery.trim().length < 2 ? (
-                          <div className="px-3 py-4 text-sm text-slate-500">
+                          <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
                             {t('new_appointment_modal.min_search_length')}
                           </div>
                         ) : null}
                         <CommandEmpty>{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
-                        <CommandGroup>
+                        <CommandGroup className="p-2">
                           {searchResults.map((patient) => (
                             <CommandItem
                               key={patient.id}
-                              value={`${patient.consumer.name} ${patient.consumer.email || ''} ${patient.consumer.phone || ''}`}
+                              value={`${getPatientDisplayName(patient)} ${getPatientDisplayEmail(patient)} ${getPatientDisplayPhone(patient)}`}
                               onSelect={() => {
                                 setSelectedPatient(patient);
-                                setPatientQuery(patient.consumer.name);
+                                setPatientQuery(getPatientDisplayName(patient));
                                 setPatientPickerOpen(false);
                               }}
-                              className="flex items-center justify-between gap-3"
+                              className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-slate-900 dark:text-white aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 aria-selected:text-slate-900 dark:aria-selected:text-white"
                             >
                               <div className="min-w-0">
                                 <p className="font-medium text-slate-900 dark:text-white truncate">
-                                  {patient.consumer.name}
+                                  {getPatientDisplayName(patient)}
                                 </p>
-                                <p className="text-xs text-slate-500 truncate">
-                                  {patient.consumer.email || patient.consumer.phone || t('new_appointment_modal.patient_record_id', { id: patient.id })}
+                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                  {getPatientDisplayEmail(patient) || getPatientDisplayPhone(patient) || t('new_appointment_modal.patient_record_id', { id: patient.id })}
                                 </p>
                               </div>
                               <Check
@@ -277,9 +290,9 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
               </div>
               {selectedPatient ? (
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 px-4 py-3">
-                  <p className="font-medium text-slate-900 dark:text-white">{selectedPatient.consumer.name}</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{getPatientDisplayName(selectedPatient)}</p>
                   <p className="text-sm text-slate-500">
-                    {selectedPatient.consumer.email || t('new_appointment_modal.no_email')} {selectedPatient.consumer.phone ? `• ${selectedPatient.consumer.phone}` : ''}
+                    {getPatientDisplayEmail(selectedPatient) || t('new_appointment_modal.no_email')} {getPatientDisplayPhone(selectedPatient) ? `• ${getPatientDisplayPhone(selectedPatient)}` : ''}
                   </p>
                 </div>
               ) : null}

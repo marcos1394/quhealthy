@@ -783,6 +783,7 @@
             "patient_record_id": "Expediente #{id}",
             "new_patient_button": "Nuevo",
             "no_email": "Sin correo",
+            "unknown_patient": "Paciente sin nombre",
             "service_label": "Servicio",
             "service_placeholder": "Selecciona un servicio",
             "loading_services": "Cargando servicios...",

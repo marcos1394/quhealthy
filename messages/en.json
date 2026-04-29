@@ -783,6 +783,7 @@
             "patient_record_id": "Record #{id}",
             "new_patient_button": "New",
             "no_email": "No email",
+            "unknown_patient": "Unnamed patient",
             "service_label": "Service",
             "service_placeholder": "Select a service",
             "loading_services": "Loading services...",
