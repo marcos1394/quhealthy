@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import { PatientClient, PatientRegistrationPayload } from '@/types/patient';
+import { PatientClient, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
 
 export const patientDirectoryService = {
   /**
@@ -17,6 +17,25 @@ export const patientDirectoryService = {
    */
   createOfflinePatient: async (payload: PatientRegistrationPayload): Promise<void> => {
     await axiosInstance.post('/api/appointments/provider/directory', payload);
+  },
+
+  /**
+   * ✏️ Actualiza los datos de contacto de un paciente offline
+   * PUT /api/appointments/provider/directory/{id}
+   */
+  updateOfflinePatient: async (patientDirectoryId: number, payload: PatientUpdatePayload): Promise<void> => {
+    await axiosInstance.put(`/api/appointments/provider/directory/${patientDirectoryId}`, payload);
+  },
+
+  /**
+   * 🔎 Busca pacientes dentro del directorio del proveedor
+   * GET /api/appointments/provider/directory/search?q=
+   */
+  searchPatients: async (query: string): Promise<PatientClient[]> => {
+    const response = await axiosInstance.get<PatientClient[]>('/api/appointments/provider/directory/search', {
+      params: { q: query }
+    });
+    return response.data;
   },
 
   /**

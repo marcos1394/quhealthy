@@ -13,6 +13,7 @@ import { CompletionModal } from "@/components/dashboard/CompletionModal";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarView } from "@/components/dashboard/CalendarView";
+import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
@@ -26,6 +27,7 @@ export default function ProviderAppointmentsPage() {
   const t = useTranslations('DashboardAppointments');
 
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<ProviderAppointment | null>(null);
   const [cancelModalState, setCancelModalState] = useState<{ isOpen: boolean; appointment: ProviderAppointment | null }>({ isOpen: false, appointment: null });
   const [isCanceling, setIsCanceling] = useState(false);
@@ -104,7 +106,10 @@ export default function ProviderAppointmentsPage() {
           <p className="text-slate-500 dark:text-slate-400 mt-1 font-light">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none">
+          <Button
+            onClick={() => setIsNewAppointmentModalOpen(true)}
+            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-xl shadow-none"
+          >
             <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
           </Button>
         </div>
@@ -246,6 +251,11 @@ export default function ProviderAppointmentsPage() {
         onConfirm={handleConfirmCancel} title="Cancel Appointment"
         message="Are you sure you want to cancel this appointment? The patient will be notified and a refund will be processed if applicable. This action is irreversible."
         isLoading={isCanceling} variant="destructive" />
+      <NewAppointmentModal
+        isOpen={isNewAppointmentModalOpen}
+        onClose={() => setIsNewAppointmentModalOpen(false)}
+        onCreated={refetch}
+      />
     </div>
   );
 }

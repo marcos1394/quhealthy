@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { patientDirectoryService } from '@/services/patientDirectory.service';
-import { PatientClient, PatientRegistrationPayload } from '@/types/patient';
+import { PatientClient, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
 import { handleApiError } from '@/lib/handleApiError';
 import { useTranslations } from 'next-intl';
 
@@ -38,6 +38,30 @@ export const usePatientDirectory = () => {
     }
   };
 
+  const updatePatient = async (patientDirectoryId: number, payload: PatientUpdatePayload) => {
+    setIsSubmitting(true);
+    try {
+      await patientDirectoryService.updateOfflinePatient(patientDirectoryId, payload);
+      toast.success(t('toast_patient_updated', { defaultValue: 'Paciente actualizado exitosamente' }));
+      await fetchClients();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const searchPatients = useCallback(async (query: string) => {
+    try {
+      return await patientDirectoryService.searchPatients(query);
+    } catch (error) {
+      handleApiError(error);
+      return [];
+    }
+  }, []);
+
   const requestAccess = async (consumerId: number) => {
     try {
       await patientDirectoryService.requestConsent(consumerId);
@@ -53,6 +77,8 @@ export const usePatientDirectory = () => {
     isSubmitting,
     fetchClients,
     createPatient,
+    updatePatient,
+    searchPatients,
     requestAccess
   };
 };

@@ -3,15 +3,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
+import { PatientRegistrationPayload } from '@/types/patient';
 
-export function NewPatientModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+interface NewPatientModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess?: (payload: PatientRegistrationPayload) => void;
+}
+
+export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalProps) {
     const { createPatient, isSubmitting } = usePatientDirectory();
     const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '' });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const success = await createPatient(formData);
+        const payload = { ...formData };
+        const success = await createPatient(payload);
         if (success) {
+            onSuccess?.(payload);
             onClose();
             setFormData({ firstName: '', lastName: '', email: '', phone: '' }); // Limpiar
         }

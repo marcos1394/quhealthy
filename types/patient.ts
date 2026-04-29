@@ -22,3 +22,8 @@ export interface PatientRegistrationPayload {
   birthDate?: string; // YYYY-MM-DD
   gender?: 'MALE' | 'FEMALE' | 'OTHER';
 }
+
+export interface PatientUpdatePayload {
+  email?: string;
+  phone?: string;
+}

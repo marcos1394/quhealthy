@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
-    Calendar, ArrowLeft, Mail, Phone, MapPin, 
+    Calendar, ArrowLeft, Mail, Phone,
     FileText, Clock, Lock, Download
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 
 // 🚀 Hook de Arquitectura
 import { usePatientDetail } from '@/hooks/usePatientDetail';
@@ -30,8 +31,9 @@ export default function PatientDetailPage() {
     const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
     
     // 🚀 Extraemos los datos reales
-    const { profile, history, isLoading, hasAccessError } = usePatientDetail(patientDirectoryId);
+    const { profile, history, isLoading, hasAccessError, refetch } = usePatientDetail(patientDirectoryId);
     const { requestAccess } = usePatientDirectory();
+    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
     if (isLoading) {
         return (
@@ -97,7 +99,14 @@ export default function PatientDetailPage() {
                                     <span>{profile.phone || 'Sin teléfono'}</span>
                                 </div>
                             </div>
-                            <Button variant="outline" className="w-full mt-6">{t("edit_profile", { defaultValue: 'Editar Perfil' })}</Button>
+                            <Button
+                                variant="outline"
+                                className="w-full mt-6"
+                                onClick={() => setIsEditModalOpen(true)}
+                                disabled={profile.isPlatformUser}
+                            >
+                                {t("edit_profile", { defaultValue: 'Editar Perfil' })}
+                            </Button>
                         </CardContent>
                     </Card>
 
@@ -125,7 +134,8 @@ export default function PatientDetailPage() {
                                             Este paciente utiliza la plataforma QuHealthy. Debes solicitar su consentimiento para ver su historial médico completo.
                                         </p>
                                         <Button
-                                            onClick={() => requestAccess(profile.consumerId)}
+                                            onClick={() => profile.consumerId && requestAccess(profile.consumerId)}
+                                            disabled={!profile.consumerId}
                                             className="mt-6 bg-red-600 hover:bg-red-700 text-white rounded-xl"
                                         >
                                             Solicitar Acceso al Paciente
@@ -191,6 +201,13 @@ export default function PatientDetailPage() {
                 </div>
 
             </motion.div>
+
+            <EditPatientModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                patient={profile}
+                onUpdated={refetch}
+            />
         </div>
     );
 }
