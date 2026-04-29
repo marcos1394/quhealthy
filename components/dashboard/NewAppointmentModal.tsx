@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CalendarPlus, Check, ChevronsUpDown, Loader2, PlusCircle, UserPlus } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
   const { user } = useSessionStore();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { searchPatients } = usePatientDirectory();
+  const t = useTranslations('DashboardAppointments');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -131,11 +133,11 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
       };
 
       await appointmentService.createAppointment(payload);
-      toast.success('Cita creada exitosamente.');
+      toast.success(t('toast_appointment_created'));
       onCreated?.();
       handleClose();
     } catch (error) {
-      handleApiError(error, 'No se pudo crear la cita.');
+      handleApiError(error, t('toast_appointment_failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -167,16 +169,16 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarPlus className="w-5 h-5 text-medical-600" />
-              Nueva cita
+              {t('new_appointment_modal.title')}
             </DialogTitle>
             <DialogDescription>
-              Selecciona un paciente del directorio o créalo al momento para vincular la cita.
+              {t('new_appointment_modal.description')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-5 mt-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 uppercase">Paciente *</label>
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.patient_label')} *</label>
               <div className="flex gap-2">
                 <Popover open={patientPickerOpen} onOpenChange={setPatientPickerOpen}>
                   <PopoverTrigger asChild>
@@ -187,7 +189,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                       className="w-full justify-between rounded-xl border-slate-200 dark:border-slate-700"
                     >
                       <span className="truncate text-left">
-                        {selectedPatient ? selectedPatient.consumer.name : 'Buscar paciente en el directorio'}
+                        {selectedPatient ? selectedPatient.consumer.name : t('new_appointment_modal.patient_placeholder')}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -195,7 +197,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                   <PopoverContent className="w-[420px] p-0 border-slate-200 dark:border-slate-800">
                     <Command>
                       <CommandInput
-                        placeholder="Escribe nombre, correo o teléfono..."
+                        placeholder={t('new_appointment_modal.patient_search_placeholder')}
                         value={patientQuery}
                         onValueChange={setPatientQuery}
                       />
@@ -203,15 +205,15 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                         {isSearching ? (
                           <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Buscando pacientes...
+                            {t('new_appointment_modal.searching_patients')}
                           </div>
                         ) : null}
                         {!isSearching && patientQuery.trim().length < 2 ? (
                           <div className="px-3 py-4 text-sm text-slate-500">
-                            Escribe al menos 2 caracteres para buscar.
+                            {t('new_appointment_modal.min_search_length')}
                           </div>
                         ) : null}
-                        <CommandEmpty>No encontramos pacientes con ese criterio.</CommandEmpty>
+                        <CommandEmpty>{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
                         <CommandGroup>
                           {searchResults.map((patient) => (
                             <CommandItem
@@ -229,7 +231,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                                   {patient.consumer.name}
                                 </p>
                                 <p className="text-xs text-slate-500 truncate">
-                                  {patient.consumer.email || patient.consumer.phone || `Expediente #${patient.id}`}
+                                  {patient.consumer.email || patient.consumer.phone || t('new_appointment_modal.patient_record_id', { id: patient.id })}
                                 </p>
                               </div>
                               <Check
@@ -253,14 +255,14 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                   className="rounded-xl border-slate-200 dark:border-slate-700"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Nuevo
+                  {t('new_appointment_modal.new_patient_button')}
                 </Button>
               </div>
               {selectedPatient ? (
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 px-4 py-3">
                   <p className="font-medium text-slate-900 dark:text-white">{selectedPatient.consumer.name}</p>
                   <p className="text-sm text-slate-500">
-                    {selectedPatient.consumer.email || 'Sin correo'} {selectedPatient.consumer.phone ? `• ${selectedPatient.consumer.phone}` : ''}
+                    {selectedPatient.consumer.email || t('new_appointment_modal.no_email')} {selectedPatient.consumer.phone ? `• ${selectedPatient.consumer.phone}` : ''}
                   </p>
                 </div>
               ) : null}
@@ -268,13 +270,13 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 uppercase">Servicio *</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.service_label')} *</label>
                 <Select
                   value={formData.serviceId}
                   onValueChange={(value) => setFormData({ ...formData, serviceId: value })}
                 >
                   <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-700">
-                    <SelectValue placeholder={isLoadingCatalog ? 'Cargando servicios...' : 'Selecciona un servicio'} />
+                    <SelectValue placeholder={isLoadingCatalog ? t('new_appointment_modal.loading_services') : t('new_appointment_modal.service_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {services.map((service: UI_Service) => (
@@ -287,19 +289,19 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 uppercase">Modalidad *</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.modality_label')} *</label>
                 <Select
                   value={formData.appointmentType}
                   onValueChange={(value) => setFormData({ ...formData, appointmentType: value })}
                   disabled={!selectedService || supportedTypes.length === 1}
                 >
                   <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-700">
-                    <SelectValue placeholder="Selecciona modalidad" />
+                    <SelectValue placeholder={t('new_appointment_modal.modality_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {supportedTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type === 'ONLINE' ? 'Videollamada' : 'Presencial'}
+                        {type === 'ONLINE' ? t('card.online') : t('card.in_person')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -309,7 +311,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 uppercase">Fecha *</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.date_label')} *</label>
                 <Input
                   type="date"
                   required
@@ -318,7 +320,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 uppercase">Hora *</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.time_label')} *</label>
                 <Input
                   type="time"
                   required
@@ -329,18 +331,18 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 uppercase">Notas</label>
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.notes_label')}</label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Motivo de consulta, observaciones o síntomas iniciales"
+                placeholder={t('new_appointment_modal.notes_placeholder')}
                 className="min-h-[110px] rounded-xl border-slate-200 dark:border-slate-700"
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <Button type="button" variant="outline" onClick={handleClose} className="rounded-xl">
-                Cancelar
+                {t('new_appointment_modal.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -354,7 +356,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
                 className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
-                Crear cita
+                {isSubmitting ? t('new_appointment_modal.creating') : t('new_appointment_modal.create')}
               </Button>
             </div>
           </form>

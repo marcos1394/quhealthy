@@ -8,8 +8,8 @@ import {
     FileText, Clock, Lock, Download
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { useTranslations } from 'next-intl';
+import { enUS, es } from 'date-fns/locale';
+import { useLocale, useTranslations } from 'next-intl';
 
 // ShadCN UI
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ export default function PatientDetailPage() {
     const params = useParams();
     const router = useRouter();
     const t = useTranslations("DashboardPatientDetail");
+    const locale = useLocale();
+    const dateLocale = locale === 'es' ? es : enUS;
 
     const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
     
@@ -74,9 +76,9 @@ export default function PatientDetailPage() {
                             
                             <div className="flex gap-2 mt-2">
                                 {profile.isPlatformUser ? (
-                                    <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-none">App User</Badge>
+                                    <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-none">{t("app_user")}</Badge>
                                 ) : (
-                                    <Badge variant="outline" className="text-slate-500">Offline</Badge>
+                                    <Badge variant="outline" className="text-slate-500 dark:text-slate-400">{t("offline")}</Badge>
                                 )}
                             </div>
 
@@ -90,13 +92,13 @@ export default function PatientDetailPage() {
                                     <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-md shrink-0 border border-slate-200 dark:border-slate-700">
                                         <Mail className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                     </div>
-                                    <span className="truncate">{profile.email || 'Sin correo'}</span>
+                                    <span className="truncate">{profile.email || t("no_email")}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
                                     <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-md shrink-0 border border-slate-200 dark:border-slate-700">
                                         <Phone className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                     </div>
-                                    <span>{profile.phone || 'Sin teléfono'}</span>
+                                    <span>{profile.phone || t("no_phone")}</span>
                                 </div>
                             </div>
                             <Button
@@ -129,16 +131,16 @@ export default function PatientDetailPage() {
                                         <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl inline-block mb-3 shadow-sm">
                                             <Lock className="w-8 h-8 text-red-500" />
                                         </div>
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Acceso Restringido</h3>
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("access_restricted_title")}</h3>
                                         <p className="text-slate-500 dark:text-slate-400 font-light max-w-sm mx-auto mt-2">
-                                            Este paciente utiliza la plataforma QuHealthy. Debes solicitar su consentimiento para ver su historial médico completo.
+                                            {t("access_restricted_description")}
                                         </p>
                                         <Button
                                             onClick={() => profile.consumerId && requestAccess(profile.consumerId)}
                                             disabled={!profile.consumerId}
                                             className="mt-6 bg-red-600 hover:bg-red-700 text-white rounded-xl"
                                         >
-                                            Solicitar Acceso al Paciente
+                                            {t("request_access")}
                                         </Button>
                                     </div>
                                 ) : history?.timeline && history.timeline.length > 0 ? (
@@ -154,18 +156,18 @@ export default function PatientDetailPage() {
                                                             <h4 className="font-semibold text-slate-900 dark:text-white text-lg group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">{appt.serviceName}</h4>
                                                             <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1 font-light">
                                                                 <Clock className="w-3.5 h-3.5" />
-                                                                {format(new Date(appt.date), "EEEE d 'de' MMMM, yyyy", { locale: es })}
+                                                                {format(new Date(appt.date), "EEEE d MMMM, yyyy", { locale: dateLocale })}
                                                             </p>
                                                         </div>
                                                         <div className="shrink-0">
-                                                            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 font-medium">Completada</Badge>
+                                                            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 font-medium">{t("status_completed")}</Badge>
                                                         </div>
                                                     </div>
 
                                                     {/* Notas Clínicas Compartidas */}
                                                     {appt.publicNotes && (
                                                         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                                                            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Indicaciones</p>
+                                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider mb-2">{t("instructions")}</p>
                                                             <p className="text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 font-light leading-relaxed shadow-sm">
                                                                 {appt.publicNotes}
                                                             </p>
@@ -177,7 +179,7 @@ export default function PatientDetailPage() {
                                                         <div className="mt-4 flex gap-2 flex-wrap">
                                                             {appt.prescriptions.map(doc => (
                                                                 <Button key={doc.documentId} variant="outline" size="sm" className="text-xs rounded-lg border-medical-200 text-medical-700 bg-medical-50 hover:bg-medical-100">
-                                                                    <FileText className="w-3.5 h-3.5 mr-1.5" /> Receta / Documento <Download className="w-3 h-3 ml-2 opacity-50"/>
+                                                                    <FileText className="w-3.5 h-3.5 mr-1.5" /> {t("prescription_document")} <Download className="w-3 h-3 ml-2 opacity-50"/>
                                                                 </Button>
                                                             ))}
                                                         </div>

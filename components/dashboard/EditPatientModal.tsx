@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ interface EditPatientModalProps {
 
 export function EditPatientModal({ isOpen, onClose, patient, onUpdated }: EditPatientModalProps) {
   const { updatePatient, isSubmitting } = usePatientDirectory();
+  const t = useTranslations('DashboardPatientDetail');
   const [formData, setFormData] = useState({ email: '', phone: '' });
 
   useEffect(() => {
@@ -46,15 +48,15 @@ export function EditPatientModal({ isOpen, onClose, patient, onUpdated }: EditPa
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle>Editar perfil del paciente</DialogTitle>
+          <DialogTitle>{t('edit_modal_title')}</DialogTitle>
           <DialogDescription>
-            Actualiza el correo o teléfono del expediente local.
+            {t('edit_modal_description')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-500 uppercase">Correo Electrónico</label>
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('email_label')}</label>
             <Input
               type="email"
               value={formData.email}
@@ -63,7 +65,7 @@ export function EditPatientModal({ isOpen, onClose, patient, onUpdated }: EditPa
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-500 uppercase">Teléfono</label>
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('phone_label')}</label>
             <Input
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -71,7 +73,7 @@ export function EditPatientModal({ isOpen, onClose, patient, onUpdated }: EditPa
           </div>
 
           <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            {isSubmitting ? t('saving') : t('save_changes')}
           </Button>
         </form>
       </DialogContent>
