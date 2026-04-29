@@ -285,12 +285,8 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                             <CommandItem
                               key={patient.id}
                               value={`${getPatientDisplayName(patient)} ${getPatientDisplayEmail(patient)} ${getPatientDisplayPhone(patient)}`}
-                              onMouseDown={(event) => {
-                                event.preventDefault();
-                                handleSelectPatient(patient);
-                              }}
-                              onClick={() => handleSelectPatient(patient)}
-                              className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-slate-900 dark:text-white aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 aria-selected:text-slate-900 dark:aria-selected:text-white"
+                              onSelect={() => handleSelectPatient(patient)}
+                              className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-3 text-slate-900 dark:text-white aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 aria-selected:text-slate-900 dark:aria-selected:text-white"
                             >
                               <div className="min-w-0">
                                 <p className="font-medium text-slate-900 dark:text-white truncate">
