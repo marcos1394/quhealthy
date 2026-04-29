@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Users, UserPlus, ArrowRight, Search, FileText, 
-    Calendar, Activity, Phone, Mail, Filter, MoreHorizontal, History 
+    Calendar, Activity, Phone, Mail, Filter, MoreHorizontal, Edit
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 // Infra & UI
@@ -21,13 +22,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { cn } from '@/lib/utils';
 import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
+import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 
 // 🚀 Nuestra nueva arquitectura importada
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 import { PatientClient } from '@/types/patient';
+import { PatientDirectoryProfile } from '@/types/medicalHistory';
 
 export default function ProviderPatientsPage() {
     const t = useTranslations("DashboardPatients");
+    const router = useRouter();
     
     // 🚀 Usamos el Custom Hook
     const { clients, isLoading, fetchClients } = usePatientDirectory();
@@ -35,6 +39,7 @@ export default function ProviderPatientsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPatient, setSelectedPatient] = useState<PatientClient | null>(null);
     const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
+    const [patientToEdit, setPatientToEdit] = useState<PatientDirectoryProfile | null>(null);
 
     // Cargar pacientes al montar
     useEffect(() => {
@@ -185,11 +190,35 @@ export default function ProviderPatientsPage() {
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
-                                                        <DropdownMenuItem onClick={() => setSelectedPatient(client)} className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer">
-                                                            <Activity className="w-3.5 h-3.5 mr-2" /> {t("view_profile")}
+                                                        <DropdownMenuItem
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                router.push(`/provider/dashboard/patients/${client.id}`);
+                                                            }}
+                                                            className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer"
+                                                        >
+                                                            <Activity className="w-3.5 h-3.5 mr-2" /> {t("view_full_record")}
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer">
-                                                            <History className="w-3.5 h-3.5 mr-2" /> {t("appointment_history")}
+                                                        <DropdownMenuItem
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const nameParts = client.consumer.name.trim().split(/\s+/);
+                                                                setPatientToEdit({
+                                                                    id: client.id,
+                                                                    consumerId: client.consumer.id,
+                                                                    firstName: nameParts[0] || '',
+                                                                    lastName: nameParts.slice(1).join(' '),
+                                                                    email: client.consumer.email || null,
+                                                                    phone: client.consumer.phone || null,
+                                                                    birthDate: null,
+                                                                    gender: null,
+                                                                    isPlatformUser: client.consumer.id !== null,
+                                                                    createdAt: client.lastAppointmentDate
+                                                                });
+                                                            }}
+                                                            className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5 mr-2" /> {t("edit_contact")}
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -285,7 +314,10 @@ export default function ProviderPatientsPage() {
                             </div>
 
                             <div className="p-8 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                                <Button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 h-14 rounded-2xl font-bold text-base hover:scale-[1.02] transition-transform active:scale-95 shadow-xl shadow-slate-900/10">
+                                <Button
+                                    onClick={() => router.push(`/provider/dashboard/patients/${selectedPatient.id}`)}
+                                    className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 h-14 rounded-2xl font-bold text-base hover:scale-[1.02] transition-transform active:scale-95 shadow-xl shadow-slate-900/10"
+                                >
                                     {t('view_medical_record')}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </Button>
@@ -300,6 +332,16 @@ export default function ProviderPatientsPage() {
                 onClose={() => setIsNewPatientModalOpen(false)}
                 onSuccess={async () => {
                     await fetchClients();
+                }}
+            />
+
+            <EditPatientModal
+                isOpen={!!patientToEdit}
+                patient={patientToEdit}
+                onClose={() => setPatientToEdit(null)}
+                onUpdated={async () => {
+                    await fetchClients();
+                    setPatientToEdit(null);
                 }}
             />
         </div>

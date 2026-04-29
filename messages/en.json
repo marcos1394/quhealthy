@@ -1176,6 +1176,8 @@
   "status_inactive": "Inactive",
   "view_profile": "View Profile",
   "appointment_history": "Appointment History",
+  "view_full_record": "View Full Record",
+  "edit_contact": "Edit Contact",
   "empty_title": "No patients yet",
   "empty_list": "Your patients will appear here as soon as they book their first appointment.",
   "empty_search": "We couldn't find any patients matching your search.",

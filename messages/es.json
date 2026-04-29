@@ -1175,6 +1175,8 @@
   "status_inactive": "Inactivo",
   "view_profile": "Ver Perfil",
   "appointment_history": "Historial de Citas",
+  "view_full_record": "Ver Expediente Completo",
+  "edit_contact": "Editar Contacto",
   "empty_title": "Sin pacientes aún",
   "empty_list": "Tus pacientes aparecerán aquí en cuanto agenden su primera cita.",
   "empty_search": "No encontramos pacientes que coincidan con tu búsqueda.",
