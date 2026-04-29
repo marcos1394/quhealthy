@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
+import { EditHealthProfileModal } from '@/components/dashboard/EditHealthProfileModal';
 
 // 🚀 Hook de Arquitectura
 import { usePatientDetail } from '@/hooks/usePatientDetail';
@@ -46,9 +47,10 @@ export default function PatientDetailPage() {
     const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
     
     // 🚀 Extraemos los datos reales
-    const { profile, history, healthProfile, isLoading, hasAccessError, refetch } = usePatientDetail(patientDirectoryId);
+    const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, refetch } = usePatientDetail(patientDirectoryId);
     const { requestAccess } = usePatientDirectory();
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+    const [isEditHealthModalOpen, setIsEditHealthModalOpen] = React.useState(false);
 
     if (isLoading) {
         return (
@@ -224,7 +226,7 @@ export default function PatientDetailPage() {
                                     <CardHeader className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 flex flex-row justify-between items-center">
                                         <CardTitle className="text-lg text-slate-900 dark:text-white">{t("medical_background", { defaultValue: 'Antecedentes Médicos' })}</CardTitle>
                                         {!profile.isPlatformUser ? (
-                                            <Button variant="outline" size="sm" disabled>
+                                            <Button variant="outline" size="sm" onClick={() => setIsEditHealthModalOpen(true)}>
                                                 {t("edit_background", { defaultValue: 'Editar Antecedentes' })}
                                             </Button>
                                         ) : null}
@@ -300,6 +302,13 @@ export default function PatientDetailPage() {
                 onClose={() => setIsEditModalOpen(false)}
                 patient={profile}
                 onUpdated={refetch}
+            />
+            <EditHealthProfileModal
+                isOpen={isEditHealthModalOpen}
+                onClose={() => setIsEditHealthModalOpen(false)}
+                initialData={healthProfile}
+                isSubmitting={isUpdating}
+                onSave={updateHealthProfile}
             />
         </div>
     );
