@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import { PatientClient, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
+import { PatientClient, PatientDirectorySearchResult, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
 
 export const patientDirectoryService = {
   /**
@@ -31,8 +31,8 @@ export const patientDirectoryService = {
    * 🔎 Busca pacientes dentro del directorio del proveedor
    * GET /api/appointments/provider/directory/search?q=
    */
-  searchPatients: async (query: string): Promise<PatientClient[]> => {
-    const response = await axiosInstance.get<PatientClient[]>('/api/appointments/provider/directory/search', {
+  searchPatients: async (query: string): Promise<PatientDirectorySearchResult[]> => {
+    const response = await axiosInstance.get<PatientDirectorySearchResult[]>('/api/appointments/provider/directory/search', {
       params: { q: query }
     });
     return response.data;

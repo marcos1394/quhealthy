@@ -27,3 +27,17 @@ export interface PatientUpdatePayload {
   email?: string;
   phone?: string;
 }
+
+export interface PatientDirectorySearchResult {
+  id: number;
+  providerId: number;
+  consumerId: number | null;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  phone: string | null;
+  birthDate: string | null;
+  gender: 'MALE' | 'FEMALE' | 'OTHER' | null;
+  createdAt: string;
+  platformUser: boolean;
+}

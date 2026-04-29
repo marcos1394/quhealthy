@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { patientDirectoryService } from '@/services/patientDirectory.service';
-import { PatientClient, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
+import { PatientClient, PatientDirectorySearchResult, PatientRegistrationPayload, PatientUpdatePayload } from '@/types/patient';
 import { handleApiError } from '@/lib/handleApiError';
 import { useTranslations } from 'next-intl';
 
@@ -53,7 +53,7 @@ export const usePatientDirectory = () => {
     }
   };
 
-  const searchPatients = useCallback(async (query: string) => {
+  const searchPatients = useCallback(async (query: string): Promise<PatientDirectorySearchResult[]> => {
     try {
       return await patientDirectoryService.searchPatients(query);
     } catch (error) {

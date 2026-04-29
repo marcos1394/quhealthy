@@ -17,7 +17,7 @@ import { appointmentService } from '@/services/appointment.service';
 import { useSessionStore } from '@/stores/SessionStore';
 import { handleApiError } from '@/lib/handleApiError';
 import { cn } from '@/lib/utils';
-import { PatientClient, PatientRegistrationPayload } from '@/types/patient';
+import { PatientClient, PatientDirectorySearchResult, PatientRegistrationPayload } from '@/types/patient';
 import { UI_Service } from '@/types/catalog';
 import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
 
@@ -46,8 +46,8 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
   const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
   const [patientQuery, setPatientQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<PatientClient[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<PatientClient | null>(null);
+  const [searchResults, setSearchResults] = useState<PatientDirectorySearchResult[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<PatientDirectorySearchResult | null>(null);
   const [formData, setFormData] = useState({
     serviceId: '',
     appointmentDate: '',
@@ -179,14 +179,22 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
     ? modalityOptions[selectedService.serviceDeliveryType] || ['IN_PERSON']
     : ['IN_PERSON'];
 
-  const getPatientDisplayName = (patient: PatientClient) =>
-    patient.consumer?.name || (patient as PatientClient & { name?: string }).name || t('new_appointment_modal.unknown_patient');
+  const getPatientDisplayName = (patient: PatientDirectorySearchResult | PatientClient) => {
+    if ('firstName' in patient || 'lastName' in patient) {
+      const firstName = 'firstName' in patient ? patient.firstName : '';
+      const lastName = 'lastName' in patient ? patient.lastName : '';
+      const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+      return fullName || t('new_appointment_modal.unknown_patient');
+    }
 
-  const getPatientDisplayEmail = (patient: PatientClient) =>
-    patient.consumer?.email || (patient as PatientClient & { email?: string }).email || '';
+    return patient.consumer?.name || t('new_appointment_modal.unknown_patient');
+  };
 
-  const getPatientDisplayPhone = (patient: PatientClient) =>
-    patient.consumer?.phone || (patient as PatientClient & { phone?: string }).phone || '';
+  const getPatientDisplayEmail = (patient: PatientDirectorySearchResult | PatientClient) =>
+    ('email' in patient ? patient.email : patient.consumer?.email) || '';
+
+  const getPatientDisplayPhone = (patient: PatientDirectorySearchResult | PatientClient) =>
+    ('phone' in patient ? patient.phone : patient.consumer?.phone) || '';
 
   return (
     <>
