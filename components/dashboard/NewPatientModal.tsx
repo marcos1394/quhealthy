@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 import { PatientRegistrationPayload } from '@/types/patient';
 
@@ -15,16 +16,37 @@ interface NewPatientModalProps {
 export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalProps) {
     const { createPatient, isSubmitting } = usePatientDirectory();
     const t = useTranslations('DashboardPatients');
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '' });
+    const [formData, setFormData] = useState<PatientRegistrationPayload>({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        birthDate: '',
+        gender: undefined
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = { ...formData };
+        const payload: PatientRegistrationPayload = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email?.trim() || undefined,
+            phone: formData.phone?.trim() || undefined,
+            birthDate: formData.birthDate || undefined,
+            gender: formData.gender
+        };
         const success = await createPatient(payload);
         if (success) {
             onSuccess?.(payload);
             onClose();
-            setFormData({ firstName: '', lastName: '', email: '', phone: '' }); // Limpiar
+            setFormData({
+                firstName: '',
+                lastName: '',
+                email: '',
+                phone: '',
+                birthDate: '',
+                gender: undefined
+            });
         }
     };
 
@@ -53,6 +75,32 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
                     <div className="space-y-2">
                         <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('phone_label')}</label>
                         <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('birth_date_label')}</label>
+                            <Input
+                                type="date"
+                                value={formData.birthDate || ''}
+                                onChange={e => setFormData({...formData, birthDate: e.target.value})}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('gender_label')}</label>
+                            <Select
+                                value={formData.gender}
+                                onValueChange={(value: 'MALE' | 'FEMALE' | 'OTHER') => setFormData({...formData, gender: value})}
+                            >
+                                <SelectTrigger className="border-slate-200 dark:border-slate-700">
+                                    <SelectValue placeholder={t('gender_placeholder')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="MALE">{t('gender_male')}</SelectItem>
+                                    <SelectItem value="FEMALE">{t('gender_female')}</SelectItem>
+                                    <SelectItem value="OTHER">{t('gender_other')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
                         {isSubmitting ? t('saving') : t('save_patient')}
