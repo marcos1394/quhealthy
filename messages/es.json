@@ -1219,6 +1219,7 @@
         "base_background": "Antecedentes Base",
         "medical_background": "Antecedentes Médicos",
         "edit_background": "Editar Antecedentes",
+        "create_background": "Crear Antecedentes",
         "blood_type": "Tipo de Sangre",
         "height": "Estatura",
         "weight": "Peso",

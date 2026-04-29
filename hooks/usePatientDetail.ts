@@ -23,20 +23,29 @@ export const usePatientDetail = (patientDirectoryId: number) => {
       const profileData = await patientDetailService.getPatientProfile(patientDirectoryId);
       setProfile(profileData);
 
-      // Intentamos cargar el historial (puede fallar si no hay consentimiento)
-      try {
-        const [historyData, healthData] = await Promise.all([
-          patientDetailService.getMedicalHistory(patientDirectoryId),
-          patientDetailService.getHealthProfile(patientDirectoryId)
-        ]);
-        setHistory(historyData);
-        setHealthProfile(healthData);
-      } catch (historyError: any) {
-        if (historyError.response?.status === 403 || historyError.response?.status === 401) {
-          setHasAccessError(true); // El candado de seguridad bloqueó la petición
-        } else {
-          throw historyError;
+      const [historyResult, healthResult] = await Promise.allSettled([
+        patientDetailService.getMedicalHistory(patientDirectoryId),
+        patientDetailService.getHealthProfile(patientDirectoryId)
+      ]);
+
+      if (historyResult.status === 'fulfilled') {
+        setHistory(historyResult.value);
+      } else {
+        const error = historyResult.reason;
+        if (error?.response?.status === 403 || error?.response?.status === 401) {
+          setHasAccessError(true);
         }
+        setHistory({
+          consumerId: profileData.consumerId,
+          totalConsultations: 0,
+          timeline: []
+        });
+      }
+
+      if (healthResult.status === 'fulfilled') {
+        setHealthProfile(healthResult.value);
+      } else {
+        setHealthProfile(null);
       }
     } catch (error) {
       handleApiError(error);
@@ -50,7 +59,7 @@ export const usePatientDetail = (patientDirectoryId: number) => {
     try {
       const updated = await patientDetailService.updateHealthProfile(patientDirectoryId, payload);
       setHealthProfile(updated);
-      toast.success('Ficha clínica actualizada exitosamente');
+      toast.success('Informacion clinica actualizada');
       return true;
     } catch (error) {
       handleApiError(error);

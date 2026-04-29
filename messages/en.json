@@ -1221,6 +1221,7 @@
         "base_background": "Base Background",
         "medical_background": "Medical Background",
         "edit_background": "Edit Background",
+        "create_background": "Create Background",
         "blood_type": "Blood Type",
         "height": "Height",
         "weight": "Weight",

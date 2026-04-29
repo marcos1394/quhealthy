@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
     Calendar, ArrowLeft, Mail, Phone,
-    FileText, Clock, Lock, Download, Activity, ClipboardList
+    FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
@@ -51,6 +51,16 @@ export default function PatientDetailPage() {
     const { requestAccess } = usePatientDirectory();
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
     const [isEditHealthModalOpen, setIsEditHealthModalOpen] = React.useState(false);
+    const hasHealthData = Boolean(
+        healthProfile && (
+            healthProfile.bloodType ||
+            (healthProfile.allergies?.length ?? 0) > 0 ||
+            (healthProfile.chronicConditions?.length ?? 0) > 0 ||
+            (healthProfile.currentMedications?.length ?? 0) > 0 ||
+            healthProfile.surgicalHistory ||
+            healthProfile.familyHistory
+        )
+    );
 
     if (isLoading) {
         return (
@@ -226,8 +236,11 @@ export default function PatientDetailPage() {
                                     <CardHeader className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 flex flex-row justify-between items-center">
                                         <CardTitle className="text-lg text-slate-900 dark:text-white">{t("medical_background", { defaultValue: 'Antecedentes Médicos' })}</CardTitle>
                                         {!profile.isPlatformUser ? (
-                                            <Button variant="outline" size="sm" onClick={() => setIsEditHealthModalOpen(true)}>
-                                                {t("edit_background", { defaultValue: 'Editar Antecedentes' })}
+                                            <Button variant="outline" size="sm" onClick={() => setIsEditHealthModalOpen(true)} className="gap-2">
+                                                {hasHealthData ? <Edit3 className="w-3 h-3" /> : <PlusCircle className="w-3 h-3" />}
+                                                {hasHealthData
+                                                    ? t("edit_background", { defaultValue: 'Editar Antecedentes' })
+                                                    : t("create_background", { defaultValue: 'Crear Antecedentes' })}
                                             </Button>
                                         ) : null}
                                     </CardHeader>
