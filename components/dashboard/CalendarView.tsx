@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 
 export const CalendarView: React.FC = () => {
   const { fetchAppointments, reschedule, cancel, isLoading } = useAppointments();
@@ -25,6 +26,8 @@ export const CalendarView: React.FC = () => {
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isNewApptModalOpen, setIsNewApptModalOpen] = useState(false);
+  const [selectedDateSlot, setSelectedDateSlot] = useState<Date | null>(null);
 
   const loadEvents = useCallback(async () => { const data = await fetchAppointments(); setEvents(data); }, [fetchAppointments]);
   useEffect(() => { loadEvents(); }, [loadEvents]);
@@ -109,6 +112,16 @@ export const CalendarView: React.FC = () => {
             height="100%" allDaySlot={false} slotMinTime="07:00:00" slotMaxTime="22:00:00"
             expandRows={true} stickyHeaderDates={true} nowIndicator={true}
             events={processedEvents as any} editable={true} droppable={true} selectable={true} dayMaxEvents={4}
+            businessHours={{
+              daysOfWeek: [1, 2, 3, 4, 5],
+              startTime: "09:00",
+              endTime: "18:00",
+            }}
+            selectConstraint="businessHours"
+            dateClick={(info) => {
+              setSelectedDateSlot(info.date);
+              setIsNewApptModalOpen(true);
+            }}
             eventDrop={handleEventDrop}
             eventClick={(info) => { const ev = events.find(e => String(e.id) === String(info.event.id)); if (ev) setSelectedEvent(ev); }}
             viewDidMount={(info) => setCurrentView(info.view.type as any)}
@@ -276,6 +289,18 @@ export const CalendarView: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {isNewApptModalOpen && (
+        <NewAppointmentModal
+          isOpen={isNewApptModalOpen}
+          onClose={() => {
+            setIsNewApptModalOpen(false);
+            setSelectedDateSlot(null);
+          }}
+          initialDate={selectedDateSlot}
+          onSuccess={loadEvents}
+        />
+      )}
     </div>
   );
 };

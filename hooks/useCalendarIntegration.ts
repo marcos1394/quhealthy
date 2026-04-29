@@ -36,12 +36,14 @@ export const useCalendarIntegration = () => {
     if (syncStatus === 'success') {
       toast.success("¡Google Calendar conectado exitosamente! 🎉", { theme: "dark" });
       setIsGoogleConnected(true);
-      router.replace('/provider/dashboard/calendar'); // Limpiamos la URL
+      checkStatus().finally(() => {
+        router.replace('/provider/dashboard/calendar'); // Limpiamos la URL
+      });
     } else if (syncStatus === 'error') {
-      return;
+      toast.error("Error al conectar con Google. Intenta de nuevo.", { theme: "dark" });
       router.replace('/provider/dashboard/calendar');
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, checkStatus]);
 
   // 4. Acción para el botón "Vincular Google"
   const handleGoogleConnect = async () => {

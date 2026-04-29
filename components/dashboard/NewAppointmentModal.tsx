@@ -25,6 +25,8 @@ interface NewAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated?: () => void;
+  onSuccess?: () => void;
+  initialDate?: Date | null;
 }
 
 const modalityOptions = {
@@ -33,7 +35,7 @@ const modalityOptions = {
   hybrid: ['IN_PERSON', 'ONLINE']
 } as const;
 
-export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointmentModalProps) {
+export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, initialDate }: NewAppointmentModalProps) {
   const { user } = useSessionStore();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { searchPatients } = usePatientDirectory();
@@ -59,6 +61,20 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
       fetchInventory();
     }
   }, [fetchInventory, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !initialDate) return;
+    const year = initialDate.getFullYear();
+    const month = `${initialDate.getMonth() + 1}`.padStart(2, '0');
+    const day = `${initialDate.getDate()}`.padStart(2, '0');
+    const hours = `${initialDate.getHours()}`.padStart(2, '0');
+    const minutes = `${initialDate.getMinutes()}`.padStart(2, '0');
+    setFormData((current) => ({
+      ...current,
+      appointmentDate: `${year}-${month}-${day}`,
+      appointmentTime: `${hours}:${minutes}`
+    }));
+  }, [initialDate, isOpen]);
 
   const selectedService = useMemo(
     () => services.find((service) => String(service.id) === formData.serviceId) || null,
@@ -135,6 +151,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
       await appointmentService.createProviderAppointment(payload);
       toast.success(t('toast_appointment_created'));
       onCreated?.();
+      onSuccess?.();
       handleClose();
     } catch (error) {
       handleApiError(error, t('toast_appointment_failed'));
