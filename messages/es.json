@@ -779,6 +779,7 @@
             "patient_search_placeholder": "Escribe nombre, correo o teléfono...",
             "searching_patients": "Buscando pacientes...",
             "min_search_length": "Escribe al menos 2 caracteres para buscar.",
+            "no_patients_available": "No hay pacientes disponibles en tu directorio.",
             "no_patients_found": "No encontramos pacientes con ese criterio.",
             "patient_record_id": "Expediente #{id}",
             "new_patient_button": "Nuevo",

@@ -38,7 +38,7 @@ const modalityOptions = {
 export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, initialDate }: NewAppointmentModalProps) {
   const { user } = useSessionStore();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
-  const { searchPatients } = usePatientDirectory();
+  const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations('DashboardAppointments');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,8 +59,9 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   useEffect(() => {
     if (isOpen) {
       fetchInventory();
+      fetchClients();
     }
-  }, [fetchInventory, isOpen]);
+  }, [fetchClients, fetchInventory, isOpen]);
 
   useEffect(() => {
     if (!isOpen || !initialDate) return;
@@ -161,6 +162,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   };
 
   const handlePatientCreated = async (payload: PatientRegistrationPayload) => {
+    await fetchClients();
     const query = payload.email || `${payload.firstName} ${payload.lastName}`;
     const results = await searchPatients(query);
     const normalizedName = `${payload.firstName} ${payload.lastName}`.toLowerCase();
@@ -178,6 +180,26 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   const supportedTypes = selectedService
     ? modalityOptions[selectedService.serviceDeliveryType] || ['IN_PERSON']
     : ['IN_PERSON'];
+
+  const defaultPatients = useMemo<PatientDirectorySearchResult[]>(
+    () =>
+      clients.map((client) => ({
+        id: client.id,
+        providerId: user?.id || 0,
+        consumerId: client.consumer.id ?? null,
+        firstName: client.consumer.name,
+        lastName: '',
+        email: client.consumer.email || null,
+        phone: client.consumer.phone || null,
+        birthDate: null,
+        gender: null,
+        createdAt: '',
+        platformUser: true
+      })),
+    [clients, user?.id]
+  );
+
+  const displayedPatients = patientQuery.trim().length < 2 ? defaultPatients : searchResults;
 
   const getPatientDisplayName = (patient: PatientDirectorySearchResult | PatientClient) => {
     if ('firstName' in patient || 'lastName' in patient) {
@@ -233,7 +255,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                     align="start"
                     sideOffset={8}
                   >
-                    <Command className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                    <Command shouldFilter={false} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                       <CommandInput
                         placeholder={t('new_appointment_modal.patient_search_placeholder')}
                         value={patientQuery}
@@ -246,14 +268,14 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                             {t('new_appointment_modal.searching_patients')}
                           </div>
                         ) : null}
-                        {!isSearching && patientQuery.trim().length < 2 ? (
+                        {!isSearching && displayedPatients.length === 0 && patientQuery.trim().length < 2 ? (
                           <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
-                            {t('new_appointment_modal.min_search_length')}
+                            {t('new_appointment_modal.no_patients_available')}
                           </div>
                         ) : null}
                         <CommandEmpty>{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
                         <CommandGroup className="p-2">
-                          {searchResults.map((patient) => (
+                          {displayedPatients.map((patient) => (
                             <CommandItem
                               key={patient.id}
                               value={`${getPatientDisplayName(patient)} ${getPatientDisplayEmail(patient)} ${getPatientDisplayPhone(patient)}`}
