@@ -133,6 +133,12 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
     onClose();
   };
 
+  const handleSelectPatient = (patient: PatientDirectorySearchResult) => {
+    setSelectedPatient(patient);
+    setPatientQuery(getPatientDisplayName(patient));
+    setPatientPickerOpen(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id || !selectedPatient || !selectedService) return;
@@ -279,11 +285,11 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                             <CommandItem
                               key={patient.id}
                               value={`${getPatientDisplayName(patient)} ${getPatientDisplayEmail(patient)} ${getPatientDisplayPhone(patient)}`}
-                              onSelect={() => {
-                                setSelectedPatient(patient);
-                                setPatientQuery(getPatientDisplayName(patient));
-                                setPatientPickerOpen(false);
+                              onMouseDown={(event) => {
+                                event.preventDefault();
+                                handleSelectPatient(patient);
                               }}
+                              onClick={() => handleSelectPatient(patient)}
                               className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-slate-900 dark:text-white aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 aria-selected:text-slate-900 dark:aria-selected:text-white"
                             >
                               <div className="min-w-0">
@@ -312,7 +318,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   type="button"
                   variant="outline"
                   onClick={() => setIsNewPatientModalOpen(true)}
-                  className="rounded-xl border-slate-200 dark:border-slate-700"
+                  className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   {t('new_appointment_modal.new_patient_button')}
@@ -335,12 +341,16 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   value={formData.serviceId}
                   onValueChange={(value) => setFormData({ ...formData, serviceId: value })}
                 >
-                  <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-700">
+                  <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
                     <SelectValue placeholder={isLoadingCatalog ? t('new_appointment_modal.loading_services') : t('new_appointment_modal.service_placeholder')} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
                     {services.map((service: UI_Service) => (
-                      <SelectItem key={service.id} value={String(service.id)}>
+                      <SelectItem
+                        key={service.id}
+                        value={String(service.id)}
+                        className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white"
+                      >
                         {service.name}
                       </SelectItem>
                     ))}
@@ -355,12 +365,16 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   onValueChange={(value) => setFormData({ ...formData, appointmentType: value })}
                   disabled={!selectedService || supportedTypes.length === 1}
                 >
-                  <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-700">
+                  <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
                     <SelectValue placeholder={t('new_appointment_modal.modality_placeholder')} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
                     {supportedTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
+                      <SelectItem
+                        key={type}
+                        value={type}
+                        className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white"
+                      >
                         {type === 'ONLINE' ? t('card.online') : t('card.in_person')}
                       </SelectItem>
                     ))}
