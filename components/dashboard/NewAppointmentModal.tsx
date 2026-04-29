@@ -132,7 +132,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated }: NewAppointme
         consumerSymptoms: formData.notes || undefined
       };
 
-      await appointmentService.createAppointment(payload);
+      await appointmentService.createProviderAppointment(payload);
       toast.success(t('toast_appointment_created'));
       onCreated?.();
       handleClose();

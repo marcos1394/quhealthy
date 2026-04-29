@@ -41,10 +41,21 @@ export const appointmentService = {
 
   /**
    * 🆕 Crea una nueva reserva (Booking)
+   * Flujo de paciente (Consumer) -> POST /api/appointments/create
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createAppointment: async (payload: any): Promise<AppointmentResponse> => {
     const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/create`, payload);
+    return response.data;
+  },
+
+  /**
+   * 🩺 Crea una cita desde dashboard del doctor
+   * Flujo de provider -> POST /api/appointments/provider/create
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createProviderAppointment: async (payload: any): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/provider/create`, payload);
     return response.data;
   },
 
