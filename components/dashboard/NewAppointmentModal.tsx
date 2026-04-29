@@ -53,6 +53,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
     appointmentDate: '',
     appointmentTime: '',
     appointmentType: 'IN_PERSON',
+    paymentMethod: 'CASH',
     notes: ''
   });
 
@@ -124,6 +125,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
       appointmentDate: '',
       appointmentTime: '',
       appointmentType: 'IN_PERSON',
+      paymentMethod: 'CASH',
       notes: ''
     });
   };
@@ -151,7 +153,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
         serviceId: selectedService.id,
         startTime: `${formData.appointmentDate}T${formData.appointmentTime}:00`,
         appointmentType: formData.appointmentType,
-        paymentMethod: 'CASH',
+        paymentMethod: formData.paymentMethod,
         consumerSymptoms: formData.notes || undefined
       };
 
@@ -405,6 +407,29 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   onChange={(e) => setFormData({ ...formData, appointmentTime: e.target.value })}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.payment_method_label')}</label>
+              <Select
+                value={formData.paymentMethod}
+                onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
+                  <SelectValue placeholder={t('new_appointment_modal.payment_method_placeholder')} />
+                </SelectTrigger>
+                <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+                  <SelectItem value="CASH" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_cash')}
+                  </SelectItem>
+                  <SelectItem value="CREDIT_CARD" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_credit_card')}
+                  </SelectItem>
+                  <SelectItem value="BANK_TRANSFER" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                    {t('new_appointment_modal.payment_bank_transfer')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
