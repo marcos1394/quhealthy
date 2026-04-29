@@ -68,6 +68,19 @@ export const CalendarView: React.FC = () => {
     return icons[status || ""] || <AlertCircle className="w-3 h-3" />;
   };
 
+  const getModalityTheme = (modality?: string) => {
+    if (modality === "ONLINE") {
+      return {
+        label: t("event_detail.online"),
+        className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30"
+      };
+    }
+    return {
+      label: t("event_detail.in_office"),
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30"
+    };
+  };
+
   const stats = {
     confirmed: events.filter(e => e.extendedProps?.status === "confirmed").length,
     pending: events.filter(e => e.extendedProps?.status === "pending").length,
@@ -157,6 +170,11 @@ export const CalendarView: React.FC = () => {
                     {getStatusIcon(eventInfo.event.extendedProps?.status)}
                   </div>
                   <div className="text-xs font-semibold leading-tight truncate text-slate-900 dark:text-white mb-0.5">{eventInfo.event.title}</div>
+                  {eventInfo.event.extendedProps?.modality && (
+                    <span className={cn("w-fit text-[9px] leading-none px-1.5 py-0.5 rounded-md border font-semibold mb-0.5", getModalityTheme(eventInfo.event.extendedProps.modality).className)}>
+                      {getModalityTheme(eventInfo.event.extendedProps.modality).label}
+                    </span>
+                  )}
                   {eventInfo.event.extendedProps?.clientName && (
                     <div className="flex items-center gap-1 text-[10px] font-medium" style={{ color: theme.text }}>
                       <User className="w-2.5 h-2.5 shrink-0" /><span className="truncate">{eventInfo.event.extendedProps.clientName}</span>
@@ -307,6 +325,18 @@ export const CalendarView: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {!isLoading && events.length === 0 && (
+        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/60 p-8 text-center">
+          <CalendarIcon className="w-8 h-8 mx-auto text-slate-400 dark:text-slate-500 mb-3" />
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            {t("empty_title")}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {t("empty_description")}
+          </p>
+        </div>
+      )}
 
       {isNewApptModalOpen && (
         <NewAppointmentModal

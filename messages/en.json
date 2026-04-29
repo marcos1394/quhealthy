@@ -910,7 +910,9 @@
             "notes": "Patient Notes",
             "cancel_appointment": "Cancel Appointment",
             "close": "Close"
-        }
+        },
+        "empty_title": "No appointments scheduled",
+        "empty_description": "Click any time slot on the calendar to create your first appointment."
     },
     "DashboardOperatingHours": {
         "title": "Operating Hours",

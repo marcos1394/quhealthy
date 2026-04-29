@@ -910,7 +910,9 @@
             "notes": "Notas del Paciente",
             "cancel_appointment": "Cancelar Cita",
             "close": "Cerrar"
-        }
+        },
+        "empty_title": "No hay citas registradas",
+        "empty_description": "Haz clic en un horario del calendario para crear tu primera cita."
     },
     "DashboardOperatingHours": {
         "title": "Horario de Atención",
