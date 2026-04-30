@@ -11,6 +11,7 @@ import {
 
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
+import { QhSpinner } from '@/components/ui/QhSpinner'; // 🚀 SPINNER OFICIAL IMPORTADO
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,12 +28,14 @@ export default function ConsultationRoomPage() {
   
   const appointmentId = Number(params.id);
   const [consumerId, setConsumerId] = useState<number | null>(null);
+  const [isOfflinePatient, setIsOfflinePatient] = useState(false); // 🚀 ESTADO PARA PACIENTES SIN CUENTA
+  const [patientName, setPatientName] = useState<string>("Paciente"); // 🚀 NOMBRE DE RESPALDO
   const [appointmentType, setAppointmentType] = useState<string>('in_person');
   const [loadingAppointment, setLoadingAppointment] = useState(true); 
 
   const {
     patientProfile, vaultDocuments, isLoading, isSubmitting,
-    soapNotes, prescription, loadPatientRecord, updateSoapNote, setSoapNotes, // 🚀 Asegúrate de exportar setSoapNotes desde tu hook
+    soapNotes, setSoapNotes, prescription, loadPatientRecord, updateSoapNote, 
     addPrescriptionItem, removePrescriptionItem, completeConsultation
   } = useConsultation(appointmentId, consumerId || 0);
 
@@ -47,7 +50,17 @@ export default function ConsultationRoomPage() {
     const fetchAppointmentDetails = async () => {
       try {
         const appointment = await appointmentService.getAppointmentById(appointmentId);
-        setConsumerId(appointment.consumerId); 
+        
+        // 🚀 FIX PACIENTES OFFLINE: Validamos si tiene cuenta o no
+        if (appointment.consumerId) {
+          setConsumerId(appointment.consumerId);
+          setIsOfflinePatient(false);
+        } else {
+          setIsOfflinePatient(true);
+          // Si es offline, tomamos el nombre del snapshot de la cita
+          setPatientName(appointment.consumer?.name || "Paciente de Directorio");
+        }
+        
         setAppointmentType(appointment.type?.toLowerCase() || 'in_person');
       } catch (error) {
         console.error("Error al obtener la cita", error);
@@ -59,12 +72,12 @@ export default function ConsultationRoomPage() {
     if (appointmentId) fetchAppointmentDetails();
   }, [appointmentId]);
 
-  // 2. CARGAR EXPEDIENTE
+  // 2. CARGAR EXPEDIENTE (Solo si tiene cuenta)
   useEffect(() => {
-    if (consumerId) {
+    if (consumerId && !isOfflinePatient) {
       loadPatientRecord(t('toast_load_error'));
     }
-  }, [consumerId, loadPatientRecord, t]);
+  }, [consumerId, isOfflinePatient, loadPatientRecord, t]);
 
   const handleAddRx = () => {
     if (!newRx.medicationName || !newRx.dosage) return;
@@ -75,19 +88,16 @@ export default function ConsultationRoomPage() {
   const handleComplete = async () => {
     const success = await completeConsultation(t('toast_success'), t('toast_error'));
     if (success) {
-      router.push('/dashboard/appointments'); // 🚀 Redirigir de vuelta al Kanban
+      router.push('/dashboard/appointments'); // Redirigir de vuelta al Kanban
     }
   };
 
-  // 🚀 FUNCIÓN DEL COPILOTO IA
   const handleToggleRecording = () => {
     if (isRecording) {
       setIsRecording(false);
       setIsTranscribing(true);
-      // Simular procesamiento de IA
       setTimeout(() => {
         setIsTranscribing(false);
-        // Actualizamos los campos SOAP con los datos extraídos
         if (setSoapNotes) {
           setSoapNotes({
             ...soapNotes,
@@ -103,9 +113,20 @@ export default function ConsultationRoomPage() {
     }
   };
 
-  if (loadingAppointment || isLoading || !consumerId) {
-    return <div className="flex justify-center items-center h-screen"><Activity className="w-12 h-12 animate-spin text-medical-500" /></div>;
+  // 🚀 FIX DE SPINNER Y PANTALLA DE CARGA
+  // Ahora no nos bloqueamos si el consumerId es nulo (paciente offline)
+  if (loadingAppointment || (isLoading && !isOfflinePatient)) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-slate-50">
+        <QhSpinner size="lg" />
+        <p className="mt-4 text-slate-500 font-medium">Preparando entorno clínico...</p>
+      </div>
+    );
   }
+
+  // Variables dinámicas para la UI (Dependiendo si es Offline o App)
+  const displayFullName = isOfflinePatient ? patientName : (patientProfile?.fullName || patientName);
+  const displayInitial = displayFullName.charAt(0).toUpperCase();
 
   return (
     <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
@@ -120,7 +141,10 @@ export default function ConsultationRoomPage() {
             <h1 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
               <Stethoscope className="w-5 h-5 text-medical-600" /> {t('title_consultation')}
             </h1>
-            <p className="text-xs text-slate-500 font-medium">Cita #{appointmentId} • {patientProfile?.fullName}</p>
+            <p className="text-xs text-slate-500 font-medium flex items-center gap-2">
+              Cita #{appointmentId} • {displayFullName}
+              {isOfflinePatient && <Badge variant="secondary" className="text-[10px] h-4">Offline</Badge>}
+            </p>
           </div>
         </div>
         
@@ -154,38 +178,48 @@ export default function ConsultationRoomPage() {
           
           <div className="text-center">
             <div className="w-20 h-20 bg-medical-100 rounded-full mx-auto flex items-center justify-center mb-3">
-              <span className="text-2xl font-bold text-medical-700">{patientProfile?.fullName?.charAt(0) || 'P'}</span>
+              <span className="text-2xl font-bold text-medical-700">{displayInitial}</span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900">{patientProfile?.fullName}</h3>
-            <p className="text-sm text-slate-500 mt-1">{patientProfile?.gender} • {patientProfile?.bloodType || 'Sangre N/D'}</p>
+            <h3 className="text-lg font-bold text-slate-900">{displayFullName}</h3>
+            {!isOfflinePatient ? (
+              <p className="text-sm text-slate-500 mt-1">{patientProfile?.gender} • {patientProfile?.bloodType || 'Sangre N/D'}</p>
+            ) : (
+              <p className="text-sm text-amber-600 mt-1 font-medium flex items-center justify-center gap-1">
+                <AlertTriangle className="w-4 h-4" /> Paciente no registrado en App
+              </p>
+            )}
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center shadow-sm">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('qu_score')}</p>
-            <div className="text-3xl font-black text-medical-600 leading-none mb-2">{patientProfile?.quScore || '--'}</div>
-            <Badge variant="outline" className="border-medical-200 text-medical-700">{patientProfile?.quScoreBand || 'Sin calcular'}</Badge>
-          </div>
+          {!isOfflinePatient && (
+            <>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center shadow-sm">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('qu_score')}</p>
+                <div className="text-3xl font-black text-medical-600 leading-none mb-2">{patientProfile?.quScore || '--'}</div>
+                <Badge variant="outline" className="border-medical-200 text-medical-700">{patientProfile?.quScoreBand || 'Sin calcular'}</Badge>
+              </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> {t('allergies')}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {patientProfile?.allergies?.length ? patientProfile.allergies.map(a => <Badge key={a} variant="secondary" className="bg-red-50 text-red-700">{a}</Badge>) : <span className="text-xs text-slate-400">{t('no_data')}</span>}
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> {t('allergies')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {patientProfile?.allergies?.length ? patientProfile.allergies.map(a => <Badge key={a} variant="secondary" className="bg-red-50 text-red-700">{a}</Badge>) : <span className="text-xs text-slate-400">{t('no_data')}</span>}
+                  </div>
+                </div>
+                <Separator />
+                <div>
+                  <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ShieldAlert className="w-3.5 h-3.5 text-blue-500" /> {t('conditions')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {patientProfile?.chronicConditions?.length ? patientProfile.chronicConditions.map(c => <Badge key={c} variant="outline" className="text-xs">{c}</Badge>) : <span className="text-xs text-slate-400">{t('no_data')}</span>}
+                  </div>
+                </div>
               </div>
-            </div>
-            <Separator />
-            <div>
-              <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><ShieldAlert className="w-3.5 h-3.5 text-blue-500" /> {t('conditions')}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {patientProfile?.chronicConditions?.length ? patientProfile.chronicConditions.map(c => <Badge key={c} variant="outline" className="text-xs">{c}</Badge>) : <span className="text-xs text-slate-400">{t('no_data')}</span>}
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </aside>
 
         {/* 🟨 COLUMNA CENTRAL: Bóveda / Video / Receta */}
         <section className="flex-1 bg-slate-50/50 p-4 flex flex-col min-w-0 border-r border-slate-200">
-          <Tabs defaultValue="vault" className="flex-1 flex flex-col h-full">
+          <Tabs defaultValue="prescription" className="flex-1 flex flex-col h-full">
             <TabsList className="grid w-full grid-cols-3 mb-4 bg-slate-100">
               <TabsTrigger value="vault"><History className="w-4 h-4 mr-2"/> {t('tab_history')}</TabsTrigger>
               <TabsTrigger value="prescription"><Pill className="w-4 h-4 mr-2"/> {t('tab_prescription')}</TabsTrigger>
@@ -195,7 +229,15 @@ export default function ConsultationRoomPage() {
             </TabsList>
 
             <TabsContent value="vault" className="flex-1 overflow-y-auto custom-scrollbar m-0">
-              {vaultDocuments.length === 0 ? (
+              {isOfflinePatient ? (
+                <div className="h-full flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 rounded-xl bg-slate-100/50">
+                  <div className="text-center">
+                    <ShieldAlert className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                    <p className="font-medium text-slate-700">Bóveda no disponible</p>
+                    <p className="text-sm">El paciente necesita crear una cuenta para guardar documentos.</p>
+                  </div>
+                </div>
+              ) : vaultDocuments.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 rounded-xl">{t('vault_empty')}</div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
@@ -305,7 +347,7 @@ export default function ConsultationRoomPage() {
                   variant={isRecording ? 'outline' : 'default'}
                 >
                   {isTranscribing ? (
-                     <><Activity className="w-5 h-5 mr-2 animate-spin" /> Procesando audio...</>
+                     <><QhSpinner size="sm" className="mr-2 text-indigo-600"/> Procesando audio...</>
                   ) : isRecording ? (
                     <><Square className="w-5 h-5 mr-2 fill-current" /> Detener Grabación</>
                   ) : (
