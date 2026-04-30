@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { Check, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck, Filter } from "lucide-react";
 import { format } from "date-fns"; // 🚀 Usamos format simple en lugar de formatInTimeZone
 import { es } from "date-fns/locale";
+import Link from 'next/link'; // 🚀 Asegúrate de importar Link arriba
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CompletionModal } from "@/components/dashboard/CompletionModal";

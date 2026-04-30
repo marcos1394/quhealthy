@@ -76,7 +76,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       setIsLoading(false);
     }
   }, [consumerId]);
-  
+
   const addPrescriptionItem = (item: Omit<PrescriptionItem, 'id'>) => {
     const newItem: PrescriptionItem = { ...item, id: uuidv4() };
     setPrescription(prev => [...prev, newItem]);
@@ -149,6 +149,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     isSubmitting,
     soapNotes,
     prescription,
+    setSoapNotes,
     loadPatientRecord,
     updateSoapNote,
     addPrescriptionItem,

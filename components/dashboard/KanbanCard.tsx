@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { ProviderAppointment } from "@/types/appointments";
+import Link from "next/link";
 
 // =====================================================================
 // ⏱️ 1. COMPONENTE INTERNO: Cronómetro en vivo con Semáforo
@@ -125,15 +126,18 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       </div>
       
       {/* Botón de finalizar consulta */}
+     {/* Botón de Iniciar/Abrir Monitor Clínico */}
       {columnId === "IN_PROGRESS" && (
-        <Button 
-          size="sm" 
-          onClick={() => onOpenCompletionModal(appt)} 
-          className="w-full h-8 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-none"
-        >
-          <Check className="w-4 h-4 mr-1.5" /> Finalizar Consulta
-        </Button>
+        <Link href={`/dashboard/consultation/${appt.id}`} passHref className="w-full mt-2 block">
+          <Button 
+            size="sm" 
+            className="w-full h-8 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-none"
+          >
+            <PlayCircle className="w-4 h-4 mr-1.5" /> Abrir Monitor Clínico
+          </Button>
+        </Link>
       )}
+      
     </div>
   );
 };
