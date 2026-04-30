@@ -138,7 +138,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       {/* Botón de finalizar consulta */}
      {/* Botón de Iniciar/Abrir Monitor Clínico */}
       {columnId === "IN_PROGRESS" && (
-        <Link href={`provider/dashboard/consultation/${appt.id}`} passHref className="w-full mt-2 block">
+        <Link href={`/provider/consultation/${appt.id}`} passHref className="w-full mt-2 block">
           <Button 
             size="sm" 
             className="w-full h-8 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-none"

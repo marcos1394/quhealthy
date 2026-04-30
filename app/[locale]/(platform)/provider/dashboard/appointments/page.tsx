@@ -61,20 +61,33 @@ export default function ProviderAppointmentsPage() {
     finally { setIsCanceling(false); }
   };
 
-  // 🚀 Optimización del Kanban (Optimistic UI)
- // 🚀 Optimización del Kanban (Optimistic UI) con TypeScript Fix
+// 🚀 Optimización del Kanban (Optimistic UI) con Inyección de Tiempos
   const handleUpdateStatus = async (appointmentId: string | number, newStatus: string) => {
+    // Capturamos el instante exacto en que se movió la tarjeta
+    const nowLocalIso = new Date().toISOString(); 
+
     // 1. Cambio Visual Inmediato (Para que no parpadee ni se pierda)
-    // Usamos "as any" o aserción de tipo para evitar el choque con el Enum estricto de TS
-    setAppointments(prev => prev.map(appt => 
-      appt.id === appointmentId ? { ...appt, status: newStatus as any } : appt
-    ));
+    setAppointments(prev => prev.map(appt => {
+      if (appt.id === appointmentId) {
+        const updatedAppt = { ...appt, status: newStatus as any };
+        
+        // ⏱️ INYECTOR DE TIMERS: Si no tenía tiempo asignado, se lo ponemos AHORA MISMO
+        if (newStatus === "WAITING_ROOM" && !appt.arrivedAt) {
+          updatedAppt.arrivedAt = nowLocalIso;
+        }
+        if (newStatus === "IN_PROGRESS" && !appt.startedAt) {
+          updatedAppt.startedAt = nowLocalIso;
+        }
+        
+        return updatedAppt;
+      }
+      return appt;
+    }));
 
     try {
       // 2. Llamada en segundo plano al backend
       await appointmentService.updateStatus(appointmentId, newStatus);
       toast.success(`Cita actualizada a ${newStatus}`);
-      // refetch(); // Opcional
     } catch (error) {
       // Si falla, revertimos recargando
       handleApiError(error);
@@ -82,7 +95,10 @@ export default function ProviderAppointmentsPage() {
     }
   };
 
-  const handleOpenCompletionModal = (appointment: ProviderAppointment) => { setSelectedAppointment(appointment); setIsCompleteModalOpen(true); };
+  const handleOpenCompletionModal = (appointment: ProviderAppointment) => { 
+    setSelectedAppointment(appointment); 
+    setIsCompleteModalOpen(true); 
+  };
 
   const handleDragStart = (e: React.DragEvent, id: number | string) => {
     setDraggedApptId(id);
@@ -95,12 +111,12 @@ export default function ProviderAppointmentsPage() {
       const idToMove = draggedApptId;
       setDraggedApptId(null); // Limpiamos el estado de arrastre
       
-      // Actualizamos el estado en BD
+      // Actualizamos el estado en BD y disparamos el timer localmente
       await handleUpdateStatus(idToMove, newStatus);
       
-      // 🚀 NUEVO: Si soltó la tarjeta en la columna "En Consulta", lo mandamos al Workspace
+      // 🚀 REDIRECCIÓN CORREGIDA: Ruta absoluta exacta
       if (newStatus === "IN_PROGRESS") {
-        router.push(`provider/dashboard/consultation/${idToMove}`);
+        router.push(`/provider/consultation/${idToMove}`);
       }
     }
   };
@@ -113,7 +129,6 @@ export default function ProviderAppointmentsPage() {
   // 🚀 FIX DE HORAS: Función segura para interpretar la hora localmente
   const formatLocalTime = (dateString: string, formatStr: string) => {
     try {
-      // Si la fecha ya viene como "2026-04-30T09:00" la interpretamos tal cual
       const date = new Date(dateString);
       return format(date, formatStr, { locale: es });
     } catch (e) {
