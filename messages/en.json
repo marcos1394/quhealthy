@@ -742,9 +742,15 @@
             "in_person": "In Office",
             "status": "Status",
             "confirmed": "Confirmed",
+            "scheduled": "Confirmed",
             "pending": "Pending",
+            "pending_payment": "Payment Pending",
             "completed": "Completed",
             "cancelled": "Cancelled",
+            "cancelled_by_patient": "Cancelled (Patient)",
+            "cancelled_by_you": "Cancelled (You)",
+            "waiting_room": "In Waiting Room",
+            "in_progress": "In Consultation",
             "no_show": "No Show",
             "payment": "Payment",
             "paid": "Paid",
@@ -756,7 +762,13 @@
             "cancel": "Cancel",
             "reschedule": "Reschedule",
             "video_call": "Start Video Call",
-            "view_details": "View Details"
+            "view_details": "View Details",
+            "enter": "Enter",
+            "arrived": "Arrived",
+            "start": "Start",
+            "finish": "Finish",
+            "call": "Call",
+            "view_history": "View History"
         },
         "empty": {
             "title": "No appointments",
@@ -769,6 +781,8 @@
             "new_appointment": "New Appointment"
         },
         "loading": "Loading appointments...",
+        "toast_cancelled_success": "Appointment cancelled successfully.",
+        "toast_status_updated": "Appointment updated to {status}.",
         "toast_appointment_created": "Appointment created successfully.",
         "toast_appointment_failed": "The appointment could not be created.",
         "new_appointment_modal": {

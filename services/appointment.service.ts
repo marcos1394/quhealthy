@@ -88,6 +88,18 @@ export const appointmentService = {
   },
 
   /**
+   * 🔄 Actualiza el estado operativo de una cita
+   */
+  updateStatus: async (id: string | number, status: string): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.patch<AppointmentResponse>(
+      `${BASE_URL}/${id}/status`,
+      null,
+      { params: { status } }
+    );
+    return response.data;
+  },
+
+  /**
    * 📄 Descarga el recibo de la cita en formato PDF
    */
   downloadInvoice: async (id: string | number): Promise<Blob> => {

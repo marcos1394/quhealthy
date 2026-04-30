@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { Check, Loader2, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award } from "lucide-react";
+import { Check, Loader2, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck } from "lucide-react";
 import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -39,51 +39,67 @@ export default function ProviderAppointmentsPage() {
     setIsCanceling(true);
     try {
       await appointmentService.cancelAppointment(cancelModalState.appointment.id, "Canceled by doctor from agenda");
-      toast.success("Appointment canceled successfully.");
-      setAppointments(prev => prev.map(a => a.id === cancelModalState.appointment?.id ? { ...a, status: "canceled_by_provider" } : a));
+      toast.success(t('toast_cancelled_success'));
+      setAppointments(prev => prev.map(a => a.id === cancelModalState.appointment?.id ? { ...a, status: "CANCELED_BY_PROVIDER" } : a));
       setCancelModalState({ isOpen: false, appointment: null });
     } catch (error) { console.error(error); handleApiError(error); }
     finally { setIsCanceling(false); }
   };
 
+  const handleUpdateStatus = async (appointmentId: string | number, newStatus: string) => {
+    try {
+      await appointmentService.updateStatus(appointmentId, newStatus);
+      toast.success(t('toast_status_updated', { status: newStatus }));
+      refetch();
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
   const handleOpenCompletionModal = (appointment: ProviderAppointment) => { setSelectedAppointment(appointment); setIsCompleteModalOpen(true); };
 
-  const getStatusBadgeStyle = (status: ProviderAppointment["status"]) => {
-    switch (status) {
-      case "completed": return "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0";
-      case "confirmed": return "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0";
-      case "canceled_by_consumer":
-      case "canceled_by_provider": return "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-0";
+  const getStatusBadgeStyle = (status: string) => {
+    switch (status.toUpperCase()) {
+      case "COMPLETED": return "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0";
+      case "SCHEDULED": return "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0";
+      case "WAITING_ROOM": return "bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300 border-0";
+      case "IN_PROGRESS": return "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border-0 animate-pulse";
+      case "CANCELED_BY_CONSUMER":
+      case "CANCELED_BY_PROVIDER": return "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-0";
       default: return "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0";
     }
   };
 
-  const getStatusIcon = (status: ProviderAppointment["status"]) => {
-    switch (status) {
-      case "completed": return <CheckCircle2 className="w-3.5 h-3.5" />;
-      case "confirmed": return <Check className="w-3.5 h-3.5" />;
-      case "pending": return <Timer className="w-3.5 h-3.5" />;
+  const getStatusIcon = (status: string) => {
+    switch (status.toUpperCase()) {
+      case "COMPLETED": return <CheckCircle2 className="w-3.5 h-3.5" />;
+      case "SCHEDULED": return <Calendar className="w-3.5 h-3.5" />;
+      case "WAITING_ROOM": return <UserCheck className="w-3.5 h-3.5" />;
+      case "IN_PROGRESS": return <PlayCircle className="w-3.5 h-3.5" />;
+      case "PENDING_PAYMENT": return <Timer className="w-3.5 h-3.5" />;
       default: return <XCircle className="w-3.5 h-3.5" />;
     }
   };
 
-  const getStatusText = (status: ProviderAppointment["status"]) => {
-    switch (status) {
-      case "completed": return t('card.completed');
-      case "confirmed": return t('card.confirmed');
-      case "pending": return t('card.pending');
-      case "canceled_by_consumer": return t('card.cancelled') + " (Client)";
-      case "canceled_by_provider": return t('card.cancelled') + " (You)";
+  const getStatusText = (status: string) => {
+    switch (status.toUpperCase()) {
+      case "COMPLETED": return t('card.completed');
+      case "SCHEDULED": return t('card.scheduled');
+      case "WAITING_ROOM": return t('card.waiting_room');
+      case "IN_PROGRESS": return t('card.in_progress');
+      case "PENDING_PAYMENT": return t('card.pending_payment');
+      case "CANCELED_BY_CONSUMER": return t('card.cancelled_by_patient');
+      case "CANCELED_BY_PROVIDER": return t('card.cancelled_by_you');
       default: return status;
     }
   };
 
   const stats = {
     total: appointments.length,
-    pending: appointments.filter(a => a.status === "pending").length,
-    confirmed: appointments.filter(a => a.status === "confirmed").length,
-    completed: appointments.filter(a => a.status === "completed").length,
-    canceled: appointments.filter(a => a.status.includes("canceled")).length
+    pending: appointments.filter(a => a.status.toUpperCase() === "PENDING_PAYMENT").length,
+    confirmed: appointments.filter(a => ["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS"].includes(a.status.toUpperCase())).length,
+    completed: appointments.filter(a => a.status.toUpperCase() === "COMPLETED").length,
+    canceled: appointments.filter(a => a.status.toUpperCase().includes("CANCELED")).length
   };
 
   if (isLoading) {
@@ -119,8 +135,8 @@ export default function ProviderAppointmentsPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
           { label: "Total", value: stats.total, color: "text-slate-900 dark:text-white", icon: Activity, bg: "bg-slate-100 dark:bg-slate-800", border: "border-slate-200 dark:border-slate-700" },
-          { label: t('card.pending'), value: stats.pending, color: "text-amber-600 dark:text-amber-400", icon: Timer, bg: "bg-amber-50 dark:bg-amber-500/5", border: "border-amber-200 dark:border-amber-500/20" },
-          { label: t('card.confirmed'), value: stats.confirmed, color: "text-blue-600 dark:text-blue-400", icon: CheckCircle2, bg: "bg-blue-50 dark:bg-blue-500/5", border: "border-blue-200 dark:border-blue-500/20" },
+          { label: t('card.pending_payment'), value: stats.pending, color: "text-amber-600 dark:text-amber-400", icon: Timer, bg: "bg-amber-50 dark:bg-amber-500/5", border: "border-amber-200 dark:border-amber-500/20" },
+          { label: t('card.scheduled'), value: stats.confirmed, color: "text-blue-600 dark:text-blue-400", icon: CheckCircle2, bg: "bg-blue-50 dark:bg-blue-500/5", border: "border-blue-200 dark:border-blue-500/20" },
           { label: t('card.completed'), value: stats.completed, color: "text-emerald-600 dark:text-emerald-400", icon: Award, bg: "bg-emerald-50 dark:bg-emerald-500/5", border: "border-emerald-200 dark:border-emerald-500/20" },
           { label: t('card.cancelled'), value: stats.canceled, color: "text-red-600 dark:text-red-400", icon: XCircle, bg: "bg-red-50 dark:bg-red-500/5", border: "border-red-200 dark:border-red-500/20" },
         ].map((stat, i) => (
@@ -187,38 +203,48 @@ export default function ProviderAppointmentsPage() {
                         <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1 h-7`}>
                           <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
                         </Badge>
-                        {appt.service.serviceDeliveryType === "video_call" && (appt.status === "confirmed" || appt.status === "pending") && (
+                        {appt.service.serviceDeliveryType === "video_call" && ["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS"].includes(appt.status.toUpperCase()) && (
                           <Button size="sm" onClick={() => router.push(`/video-call/${appt.id}`)}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-none text-xs h-7">
-                            <Video className="w-3.5 h-3.5 mr-1.5" />Join
+                            <Video className="w-3.5 h-3.5 mr-1.5" />{t('actions.enter')}
                           </Button>
                         )}
-                        {appt.status === "confirmed" && !isPast && (
+                        {["SCHEDULED", "WAITING_ROOM"].includes(appt.status.toUpperCase()) && !isPast && (
                           <Button size="sm" variant="ghost" onClick={() => handleOpenCancelModal(appt)}
                             className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-xs h-7">
-                            <X className="w-3.5 h-3.5" /><span className="hidden sm:inline ml-1">Cancel</span>
+                            <X className="w-3.5 h-3.5" /><span className="hidden sm:inline ml-1">{t('actions.cancel')}</span>
                           </Button>
                         )}
-                        {appt.status === "confirmed" && (
-                          <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} disabled={!isCompletable}
-                            className={`rounded-lg shadow-none text-xs h-7 ${isCompletable ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700"
-                              }`}
-                            title={!isCompletable ? "You can complete when the appointment time arrives" : "Finish service"}>
-                            <Check className="w-3.5 h-3.5 mr-1" />Complete
+                        {appt.status.toUpperCase() === "SCHEDULED" && isCompletable && (
+                          <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")}
+                            className="bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-500/20 dark:text-violet-300 rounded-lg shadow-none text-xs h-7">
+                            <UserCheck className="w-3.5 h-3.5 mr-1" />{t('actions.arrived')}
+                          </Button>
+                        )}
+                        {["SCHEDULED", "WAITING_ROOM"].includes(appt.status.toUpperCase()) && isCompletable && (
+                          <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")}
+                            className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 rounded-lg shadow-none text-xs h-7">
+                            <PlayCircle className="w-3.5 h-3.5 mr-1" />{t('actions.start')}
+                          </Button>
+                        )}
+                        {appt.status.toUpperCase() === "IN_PROGRESS" && (
+                          <Button size="sm" onClick={() => handleOpenCompletionModal(appt)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-none text-xs h-7">
+                            <Check className="w-3.5 h-3.5 mr-1" />{t('actions.finish')}
                           </Button>
                         )}
                       </div>
                     </div>
-                    {["confirmed", "pending"].includes(appt.status) && (
+                    {["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS", "PENDING_PAYMENT"].includes(appt.status.toUpperCase()) && (
                       <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-5 text-xs font-medium text-slate-500 dark:text-slate-400">
                         <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
-                          <Phone className="w-3 h-3" />Call
+                          <Phone className="w-3 h-3" />{t('actions.call')}
                         </button>
                         <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
                           <MessageSquare className="w-3 h-3" />WhatsApp
                         </button>
                         <button className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 transition-colors">
-                          <Star className="w-3 h-3" />View History
+                          <Star className="w-3 h-3" />{t('actions.view_history')}
                         </button>
                       </div>
                     )}

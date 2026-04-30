@@ -742,9 +742,15 @@
             "in_person": "Presencial",
             "status": "Estado",
             "confirmed": "Confirmada",
+            "scheduled": "Confirmada",
             "pending": "Pendiente",
+            "pending_payment": "Pago Pendiente",
             "completed": "Completada",
             "cancelled": "Cancelada",
+            "cancelled_by_patient": "Cancelada (Paciente)",
+            "cancelled_by_you": "Cancelada (Tú)",
+            "waiting_room": "En Sala de Espera",
+            "in_progress": "En Consulta",
             "no_show": "No asistió",
             "payment": "Pago",
             "paid": "Pagado",
@@ -756,7 +762,13 @@
             "cancel": "Cancelar",
             "reschedule": "Reagendar",
             "video_call": "Iniciar Videollamada",
-            "view_details": "Ver Detalles"
+            "view_details": "Ver Detalles",
+            "enter": "Entrar",
+            "arrived": "Llegó",
+            "start": "Iniciar",
+            "finish": "Finalizar",
+            "call": "Llamar",
+            "view_history": "Ver Historial"
         },
         "empty": {
             "title": "Sin citas",
@@ -769,6 +781,8 @@
             "new_appointment": "Nueva Cita"
         },
         "loading": "Cargando citas...",
+        "toast_cancelled_success": "Cita cancelada exitosamente.",
+        "toast_status_updated": "Cita actualizada a {status}.",
         "toast_appointment_created": "Cita creada exitosamente.",
         "toast_appointment_failed": "No se pudo crear la cita.",
         "new_appointment_modal": {
