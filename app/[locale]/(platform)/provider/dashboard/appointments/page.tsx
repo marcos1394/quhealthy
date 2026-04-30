@@ -17,6 +17,7 @@ import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal"
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
+import { KanbanCard } from "@/components/dashboard/KanbanCard";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
@@ -268,6 +269,9 @@ export default function ProviderAppointmentsPage() {
         </TabsContent>
 
         {/* VISTA KANBAN */}
+        {/* ========================================== */}
+        {/* VISTA KANBAN (DRAG & DROP GLOBAL) */}
+        {/* ========================================== */}
         <TabsContent value="kanban" className="m-0 overflow-x-auto pb-4">
           <div className="flex gap-4 min-w-[1000px] items-start">
             {[
@@ -282,6 +286,7 @@ export default function ProviderAppointmentsPage() {
                 onDragOver={handleDragOver}
                 className="flex-1 min-w-[250px] bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 flex flex-col h-[650px]"
               >
+                {/* Cabecera de la Columna */}
                 <div className={`p-3 border-b border-slate-200 ${column.bg} rounded-t-2xl border-t-2 ${column.color}`}>
                   <h3 className="font-semibold text-sm text-slate-900 flex justify-between items-center">
                     {column.title}
@@ -291,33 +296,24 @@ export default function ProviderAppointmentsPage() {
                   </h3>
                 </div>
 
+                {/* Zona de Arrastre / Contenido */}
                 <div className="flex-1 p-3 overflow-y-auto space-y-3">
                   {filteredAppointments
                     .filter(appt => normalizeStatus(appt.status) === column.id)
                     .map(appt => (
-                      <div
+                      
+                      // 🚀 AQUI USAMOS EL NUEVO COMPONENTE
+                      <KanbanCard 
                         key={appt.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, appt.id)}
-                        className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <p className="font-semibold text-sm text-slate-900 truncate">{appt.consumer?.name || "Paciente"}</p>
-                          <span className="text-xs font-medium bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
-                            {/* 🚀 FIX: Usamos el formateo local */}
-                            {formatLocalTime(appt.startTime, "d MMM, HH:mm")}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 truncate mb-3">{appt.service?.name || "Cita"}</p>
-                        
-                        {column.id === "IN_PROGRESS" && (
-                          <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} className="w-full h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">
-                            Finalizar Consulta
-                          </Button>
-                        )}
-                      </div>
+                        appt={appt}
+                        columnId={column.id}
+                        onDragStart={handleDragStart}
+                        onOpenCompletionModal={handleOpenCompletionModal}
+                      />
+
                     ))}
                   
+                  {/* Mensaje vacío si no hay tarjetas */}
                   {filteredAppointments.filter(appt => normalizeStatus(appt.status) === column.id).length === 0 && (
                     <div className="h-full flex items-center justify-center text-xs text-slate-400 border-2 border-dashed border-slate-200 rounded-xl p-4 text-center">
                       Arrastra citas aquí

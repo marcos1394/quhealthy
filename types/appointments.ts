@@ -117,9 +117,11 @@ export type AppointmentResponse = Appointment;
  */
 export interface ProviderAppointment {
   id: number;
-  status: AppointmentStatus;
+  status: AppointmentStatus; // O string, dependiendo de cómo manejes el enum en TS
   startTime: string; 
-  endTime: string;   
+  endTime: string;
+  arrivedAt?: string; // 🚀 NUEVO: Hora en la que llegó a sala de espera
+  startedAt?: string; // 🚀 NUEVO: Hora en la que inició la consulta
   provider: { 
     name: string; 
   };
