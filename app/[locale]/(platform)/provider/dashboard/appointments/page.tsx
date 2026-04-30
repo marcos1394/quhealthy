@@ -168,8 +168,7 @@ export default function ProviderAppointmentsPage() {
               appointments.map((appt, index) => {
                 const appointmentDate = new Date(appt.startTime);
                 const isToday = appointmentDate.toDateString() === new Date().toDateString();
-                const isCompletable = new Date() >= new Date(appt.startTime);
-                const isPast = new Date() > new Date(appt.endTime);
+                const currentStatus = appt.status.toUpperCase();
 
                 return (
                   <motion.div key={appt.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ delay: index * 0.03 }}
@@ -203,31 +202,37 @@ export default function ProviderAppointmentsPage() {
                         <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1 h-7`}>
                           <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
                         </Badge>
-                        {appt.service.serviceDeliveryType === "video_call" && ["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS"].includes(appt.status.toUpperCase()) && (
+                        {appt.service.serviceDeliveryType === "video_call" && ["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS"].includes(currentStatus) && (
                           <Button size="sm" onClick={() => router.push(`/video-call/${appt.id}`)}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-none text-xs h-7">
                             <Video className="w-3.5 h-3.5 mr-1.5" />{t('actions.enter')}
                           </Button>
                         )}
-                        {["SCHEDULED", "WAITING_ROOM"].includes(appt.status.toUpperCase()) && !isPast && (
+                        {["SCHEDULED", "PENDING_PAYMENT"].includes(currentStatus) && (
+                          <Button size="sm" variant="outline" onClick={() => toast.info(t('toast_reschedule_pending'))}
+                            className="text-slate-600 dark:text-slate-300 rounded-lg text-xs h-7">
+                            <Clock className="w-3.5 h-3.5 mr-1" />{t('actions.reschedule')}
+                          </Button>
+                        )}
+                        {["SCHEDULED", "WAITING_ROOM", "PENDING_PAYMENT"].includes(currentStatus) && (
                           <Button size="sm" variant="ghost" onClick={() => handleOpenCancelModal(appt)}
                             className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-xs h-7">
                             <X className="w-3.5 h-3.5" /><span className="hidden sm:inline ml-1">{t('actions.cancel')}</span>
                           </Button>
                         )}
-                        {appt.status.toUpperCase() === "SCHEDULED" && isCompletable && (
+                        {currentStatus === "SCHEDULED" && (
                           <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")}
                             className="bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-500/20 dark:text-violet-300 rounded-lg shadow-none text-xs h-7">
                             <UserCheck className="w-3.5 h-3.5 mr-1" />{t('actions.arrived')}
                           </Button>
                         )}
-                        {["SCHEDULED", "WAITING_ROOM"].includes(appt.status.toUpperCase()) && isCompletable && (
+                        {["SCHEDULED", "WAITING_ROOM"].includes(currentStatus) && (
                           <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")}
                             className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 rounded-lg shadow-none text-xs h-7">
                             <PlayCircle className="w-3.5 h-3.5 mr-1" />{t('actions.start')}
                           </Button>
                         )}
-                        {appt.status.toUpperCase() === "IN_PROGRESS" && (
+                        {currentStatus === "IN_PROGRESS" && (
                           <Button size="sm" onClick={() => handleOpenCompletionModal(appt)}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-none text-xs h-7">
                             <Check className="w-3.5 h-3.5 mr-1" />{t('actions.finish')}
@@ -235,7 +240,7 @@ export default function ProviderAppointmentsPage() {
                         )}
                       </div>
                     </div>
-                    {["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS", "PENDING_PAYMENT"].includes(appt.status.toUpperCase()) && (
+                    {["SCHEDULED", "WAITING_ROOM", "IN_PROGRESS", "PENDING_PAYMENT"].includes(currentStatus) && (
                       <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex gap-5 text-xs font-medium text-slate-500 dark:text-slate-400">
                         <button className="hover:text-medical-600 dark:hover:text-medical-400 flex items-center gap-1.5 transition-colors">
                           <Phone className="w-3 h-3" />{t('actions.call')}

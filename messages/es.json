@@ -781,6 +781,7 @@
             "new_appointment": "Nueva Cita"
         },
         "loading": "Cargando citas...",
+        "toast_reschedule_pending": "Función de reagendar en construcción.",
         "toast_cancelled_success": "Cita cancelada exitosamente.",
         "toast_status_updated": "Cita actualizada a {status}.",
         "toast_appointment_created": "Cita creada exitosamente.",

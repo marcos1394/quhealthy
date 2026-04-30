@@ -781,6 +781,7 @@
             "new_appointment": "New Appointment"
         },
         "loading": "Loading appointments...",
+        "toast_reschedule_pending": "Reschedule feature is under construction.",
         "toast_cancelled_success": "Appointment cancelled successfully.",
         "toast_status_updated": "Appointment updated to {status}.",
         "toast_appointment_created": "Appointment created successfully.",
