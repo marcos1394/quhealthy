@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { Check, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck, Filter } from "lucide-react";
-import { formatInTimeZone } from "date-fns-tz";
+import { format } from "date-fns"; // 🚀 Usamos format simple en lugar de formatInTimeZone
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,15 +32,16 @@ export default function ProviderAppointmentsPage() {
   const [cancelModalState, setCancelModalState] = useState<{ isOpen: boolean; appointment: ProviderAppointment | null }>({ isOpen: false, appointment: null });
   const [isCanceling, setIsCanceling] = useState(false);
   
-  // 🚀 ESTADO PARA FILTROS Y KANBAN
   const [dateFilter, setDateFilter] = useState<'ALL' | 'TODAY' | 'UPCOMING'>('ALL');
   const [draggedApptId, setDraggedApptId] = useState<number | string | null>(null);
 
-  // Normalizador de estados (Para que tus citas de prueba viejas funcionen)
+  // 🚀 FIX: Este normalizador es VITAL porque tu endpoint de Agenda devuelve "pending/confirmed" 
+  // pero la lógica del drag&drop funciona con "SCHEDULED/WAITING_ROOM".
   const normalizeStatus = (status: string) => {
+    if (!status) return "SCHEDULED";
     const s = status.toUpperCase();
-    if (s === "CONFIRMED") return "SCHEDULED";
-    if (s === "PENDING") return "PENDING_PAYMENT";
+    if (s === "CONFIRMED") return "SCHEDULED"; // Mapeo de legacy
+    if (s === "PENDING") return "SCHEDULED"; // 🚀 Forzamos 'pending' a SCHEDULED para que aparezca en el Kanban
     return s;
   };
 
@@ -58,23 +59,34 @@ export default function ProviderAppointmentsPage() {
     finally { setIsCanceling(false); }
   };
 
+  // 🚀 Optimización del Kanban (Optimistic UI)
+ // 🚀 Optimización del Kanban (Optimistic UI) con TypeScript Fix
   const handleUpdateStatus = async (appointmentId: string | number, newStatus: string) => {
+    // 1. Cambio Visual Inmediato (Para que no parpadee ni se pierda)
+    // Usamos "as any" o aserción de tipo para evitar el choque con el Enum estricto de TS
+    setAppointments(prev => prev.map(appt => 
+      appt.id === appointmentId ? { ...appt, status: newStatus as any } : appt
+    ));
+
     try {
+      // 2. Llamada en segundo plano al backend
       await appointmentService.updateStatus(appointmentId, newStatus);
       toast.success(`Cita actualizada a ${newStatus}`);
-      refetch();
+      // refetch(); // Opcional
     } catch (error) {
+      // Si falla, revertimos recargando
       handleApiError(error);
+      refetch();
     }
   };
 
   const handleOpenCompletionModal = (appointment: ProviderAppointment) => { setSelectedAppointment(appointment); setIsCompleteModalOpen(true); };
 
-  // Funciones de Drag & Drop para el Kanban
   const handleDragStart = (e: React.DragEvent, id: number | string) => {
     setDraggedApptId(id);
     e.dataTransfer.effectAllowed = "move";
   };
+
   const handleDrop = (e: React.DragEvent, newStatus: string) => {
     e.preventDefault();
     if (draggedApptId) {
@@ -82,9 +94,21 @@ export default function ProviderAppointmentsPage() {
       setDraggedApptId(null);
     }
   };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+  };
+
+  // 🚀 FIX DE HORAS: Función segura para interpretar la hora localmente
+  const formatLocalTime = (dateString: string, formatStr: string) => {
+    try {
+      // Si la fecha ya viene como "2026-04-30T09:00" la interpretamos tal cual
+      const date = new Date(dateString);
+      return format(date, formatStr, { locale: es });
+    } catch (e) {
+      return "--:--";
+    }
   };
 
   const getStatusBadgeStyle = (status: string) => {
@@ -123,7 +147,6 @@ export default function ProviderAppointmentsPage() {
     }
   };
 
-  // Filtrado Lógico Global
   const filteredAppointments = appointments.filter(appt => {
     if (dateFilter === 'ALL') return true;
     const apptDate = new Date(appt.startTime).toDateString();
@@ -158,10 +181,8 @@ export default function ProviderAppointmentsPage() {
         </div>
       </div>
 
-      {/* Selector de Vistas y Filtros */}
       <Tabs defaultValue="list" className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800">
-          
           <TabsList className="bg-transparent space-x-1">
             <TabsTrigger value="list" className="rounded-xl data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800">Lista</TabsTrigger>
             <TabsTrigger value="kanban" className="rounded-xl data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800">Tablero Kanban</TabsTrigger>
@@ -176,15 +197,12 @@ export default function ProviderAppointmentsPage() {
           </div>
         </div>
 
-        {/* ========================================== */}
         {/* VISTA DE LISTA */}
-        {/* ========================================== */}
         <TabsContent value="list" className="space-y-3 m-0">
           <AnimatePresence mode="popLayout">
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((appt, index) => {
                 const currentStatus = normalizeStatus(appt.status);
-                const isPast = new Date() > new Date(appt.endTime);
 
                 return (
                   <motion.div key={appt.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -195,19 +213,19 @@ export default function ProviderAppointmentsPage() {
                           <User className="w-5 h-5 text-slate-500" />
                         </div>
                         <div>
-                          <h3 className="text-base font-semibold text-slate-900">{appt.service.name}</h3>
+                          <h3 className="text-base font-semibold text-slate-900">{appt.service?.name || "Cita Médica"}</h3>
                           <div className="flex flex-wrap items-center gap-2 text-slate-500 text-sm">
-                            <span className="text-slate-900 font-medium">{appt.consumer.name}</span>
+                            <span className="text-slate-900 font-medium">{appt.consumer?.name || "Paciente"}</span>
                             <span>•</span>
                             <span className="flex items-center gap-1 text-medical-600">
                               <Clock className="w-3 h-3" />
-                              {formatInTimeZone(new Date(appt.startTime), "UTC", "d MMM, HH:mm", { locale: es })}
+                              {/* 🚀 FIX: Usamos el formateo local */}
+                              {formatLocalTime(appt.startTime, "d MMM, HH:mm")}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* 🚀 BOTONES ACTIVOS PARA TODOS LOS ESTADOS */}
                       <div className="flex flex-wrap items-center justify-end gap-2">
                         <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1`}>
                           <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
@@ -249,9 +267,7 @@ export default function ProviderAppointmentsPage() {
           </AnimatePresence>
         </TabsContent>
 
-        {/* ========================================== */}
-        {/* VISTA KANBAN (DRAG & DROP GLOBAL) */}
-        {/* ========================================== */}
+        {/* VISTA KANBAN */}
         <TabsContent value="kanban" className="m-0 overflow-x-auto pb-4">
           <div className="flex gap-4 min-w-[1000px] items-start">
             {[
@@ -286,12 +302,13 @@ export default function ProviderAppointmentsPage() {
                         className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <p className="font-semibold text-sm text-slate-900 truncate">{appt.consumer.name}</p>
+                          <p className="font-semibold text-sm text-slate-900 truncate">{appt.consumer?.name || "Paciente"}</p>
                           <span className="text-xs font-medium bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
-                            {formatInTimeZone(new Date(appt.startTime), "UTC", "d MMM, HH:mm", { locale: es })}
+                            {/* 🚀 FIX: Usamos el formateo local */}
+                            {formatLocalTime(appt.startTime, "d MMM, HH:mm")}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 truncate mb-3">{appt.service.name}</p>
+                        <p className="text-xs text-slate-500 truncate mb-3">{appt.service?.name || "Cita"}</p>
                         
                         {column.id === "IN_PROGRESS" && (
                           <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} className="w-full h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">
