@@ -13,11 +13,21 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   useEffect(() => {
-    const calculate = () => {
+   const calculate = () => {
       try {
-        const start = new Date(startTime).getTime();
+        // 🚀 FIX: Limpiamos los microsegundos de Java (.603643) que crashean el Date de JS
+        const cleanTime = startTime.includes('.') ? startTime.split('.')[0] : startTime;
+        
+        const start = new Date(cleanTime).getTime();
         const now = new Date().getTime();
-        const diff = Math.floor((now - start) / 60000);
+        
+        // Si por alguna razón la fecha sigue siendo inválida, abortamos
+        if (isNaN(start)) {
+          setElapsedMinutes(0);
+          return;
+        }
+
+        const diff = Math.floor((now - start) / 60000); // Diferencia en minutos
         setElapsedMinutes(diff > 0 ? diff : 0);
       } catch (e) {
         setElapsedMinutes(0);

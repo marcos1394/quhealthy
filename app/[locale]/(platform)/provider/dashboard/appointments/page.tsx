@@ -89,11 +89,19 @@ export default function ProviderAppointmentsPage() {
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDrop = (e: React.DragEvent, newStatus: string) => {
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
     e.preventDefault();
     if (draggedApptId) {
-      handleUpdateStatus(draggedApptId, newStatus);
-      setDraggedApptId(null);
+      const idToMove = draggedApptId;
+      setDraggedApptId(null); // Limpiamos el estado de arrastre
+      
+      // Actualizamos el estado en BD
+      await handleUpdateStatus(idToMove, newStatus);
+      
+      // 🚀 NUEVO: Si soltó la tarjeta en la columna "En Consulta", lo mandamos al Workspace
+      if (newStatus === "IN_PROGRESS") {
+        router.push(`/dashboard/consultation/${idToMove}`);
+      }
     }
   };
 
