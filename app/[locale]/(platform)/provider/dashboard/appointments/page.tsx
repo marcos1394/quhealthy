@@ -100,7 +100,7 @@ export default function ProviderAppointmentsPage() {
       
       // 🚀 NUEVO: Si soltó la tarjeta en la columna "En Consulta", lo mandamos al Workspace
       if (newStatus === "IN_PROGRESS") {
-        router.push(`/dashboard/consultation/${idToMove}`);
+        router.push(`provider/dashboard/consultation/${idToMove}`);
       }
     }
   };
