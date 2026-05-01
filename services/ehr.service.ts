@@ -28,6 +28,15 @@ export const ehrService = {
   },
 
   /**
+   * 📂 Obtiene el historial médico de un paciente OFFLINE (Directorio Local)
+   * GET /api/appointments/provider/directory/{patientDirectoryId}/medical-history
+   */
+  getDirectoryPatientHistory: async (patientDirectoryId: number): Promise<any> => {
+    const response = await axiosInstance.get(`/api/appointments/provider/directory/${patientDirectoryId}/medical-history`);
+    return response.data;
+  },
+
+  /**
    * 📖 Obtiene las notas clínicas (borrador o finalizadas) de una cita
    * GET /api/appointments/{id}/clinical-notes
    */

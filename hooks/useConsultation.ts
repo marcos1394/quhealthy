@@ -41,40 +41,67 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     }
   }, [appointmentId]);
 
-// 🚀 FIX FU-004: Separación de errores críticos y no críticos
-  const loadPatientRecord = useCallback(async (errorMsg: string) => {
+  // 🚀 FIX: Soporte para pacientes Offline a través del Directorio Local
+  const loadPatientRecord = useCallback(async (errorMsg: string, patientDirId?: number | null) => {
     setIsLoading(true);
     
-    // Lanzamos ambas peticiones al mismo tiempo para no perder velocidad
-    const profilePromise = ehrService.getPatientProfile(consumerId);
-    const vaultPromise = ehrService.getPatientVault(consumerId);
+    // CASO 1: PACIENTE CON CUENTA EN LA APP
+    if (consumerId) {
+      const profilePromise = ehrService.getPatientProfile(consumerId);
+      const vaultPromise = ehrService.getPatientVault(consumerId);
 
-    // 1. 🩸 PERFIL CLÍNICO (CRÍTICO)
-    try {
-      const profileData = await profilePromise;
-      setPatientProfile(profileData);
-    } catch (profileError) {
-      console.error("Error loading patient profile:", profileError);
-      // Usamos el errorMsg del parámetro. autoClose: false para asegurarnos de que el doctor lo vea.
-      toast.error(`Error crítico: ${errorMsg}`, { theme: 'colored', autoClose: false });
+      try {
+        const profileData = await profilePromise;
+        setPatientProfile(profileData);
+      } catch (error) {
+        toast.error(`Error crítico: ${errorMsg}`, { autoClose: false });
+      }
+
+      try {
+        const vaultData = await vaultPromise;
+        setVaultDocuments(vaultData || []);
+      } catch (error) {
+        setVaultDocuments([]);
+      }
+    } 
+    // CASO 2: PACIENTE OFFLINE (CATÁLOGO LOCAL)
+    else if (patientDirId) {
+      try {
+        const historyData = await ehrService.getDirectoryPatientHistory(patientDirId);
+        
+        // 🚀 "Disfrazamos" los datos del directorio para que nuestra UI los entienda
+        setPatientProfile({
+          consumerId: 0, // Mock for offline patients
+          dateOfBirth: historyData.dateOfBirth || "N/D",
+          fullName: historyData.patientName || "Paciente Local", 
+          gender: historyData.gender || "N/D",
+          bloodType: historyData.bloodType || "N/D",
+          allergies: historyData.allergies || [],
+          chronicConditions: historyData.chronicConditions || [],
+          quScore: 0, 
+          quScoreBand: "Directorio"
+        } as PatientClinicalProfile);
+
+        // Si el backend te devuelve consultas pasadas, las mapeamos para que se vean en la "Bóveda"
+        if (historyData.pastAppointments && Array.isArray(historyData.pastAppointments)) {
+          const mappedHistory = historyData.pastAppointments.map((appt: any) => ({
+            id: appt.id.toString(),
+            fileName: `Consulta - ${appt.serviceName || 'General'}`,
+            documentType: 'CONSULTA_PREVIA',
+            uploadDate: appt.startTime || new Date().toISOString()
+          }));
+          setVaultDocuments(mappedHistory);
+        } else {
+          setVaultDocuments([]);
+        }
+
+      } catch (error) {
+        console.error("Error al cargar historial del directorio:", error);
+        toast.warning("No se pudo cargar el historial previo de este paciente local.");
+      }
     }
 
-    // 2. 🗂️ BÓVEDA DE SALUD (NO CRÍTICO)
-    try {
-      const vaultData = await vaultPromise;
-      setVaultDocuments(vaultData || []);
-    } catch (vaultError) {
-      console.error("Error loading vault documents:", vaultError);
-      // Mostramos un warning, pero permitimos que el estado de vault sea vacío
-      toast.warning(
-        "No se pudieron cargar los documentos previos del paciente (Bóveda). La consulta puede continuar.", 
-        { theme: 'colored' }
-      );
-      setVaultDocuments([]);
-    } finally {
-      // 3. 🏁 FINALIZAR CARGA
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   }, [consumerId]);
 
   const addPrescriptionItem = (item: Omit<PrescriptionItem, 'id'>) => {

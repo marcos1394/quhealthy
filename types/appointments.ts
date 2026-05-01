@@ -43,6 +43,7 @@ export interface Appointment {
   // Actores
   providerId: number;
   consumerId: number;
+  patientDirectoryId?: number; // 🚀 NUEVO: ID del paciente en el directorio local del doctor
   
   // Servicio (Snapshot)
   serviceId: number;

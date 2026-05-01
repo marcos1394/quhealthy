@@ -58,9 +58,7 @@ export default function ConsultationRoomPage() {
 
   const handleAddRx = () => {
     if (newRx.medicationName && newRx.dosage) {
-      // @ts-ignore - Assuming addPrescriptionItem expects this structure based on the newRx state
       addPrescriptionItem({
-        id: Date.now().toString(),
         medicationName: newRx.medicationName,
         dosage: newRx.dosage,
         frequency: newRx.frequency,
@@ -82,7 +80,7 @@ export default function ConsultationRoomPage() {
           setIsOfflinePatient(false);
         } else {
           setIsOfflinePatient(true);
-          setPatientDirectoryId(appointment.patientDirectoryId); // ID del catálogo local
+          setPatientDirectoryId(appointment.patientDirectoryId ?? null); // ID del catálogo local
           setPatientName(appointment.consumer?.name || t('patient_directory_placeholder'));
         }
         
@@ -97,12 +95,17 @@ export default function ConsultationRoomPage() {
     if (appointmentId) fetchAppointmentDetails();
   }, [appointmentId]);
 
+  // 2. CARGAR EXPEDIENTE (App u Offline)
   useEffect(() => {
-    // Si tiene cuenta en la app, cargamos su expediente global
+    // Si tiene cuenta en la app
     if (consumerId && !isOfflinePatient) {
       loadPatientRecord(t('toast_load_error'));
+    } 
+    // 🚀 NUEVO: Si es paciente offline y ya tenemos su ID del directorio
+    else if (isOfflinePatient && patientDirectoryId) {
+      loadPatientRecord(t('toast_load_error'), patientDirectoryId);
     }
-  }, [consumerId, isOfflinePatient, loadPatientRecord, t]);
+  }, [consumerId, isOfflinePatient, patientDirectoryId, loadPatientRecord, t]);
 
   const handleComplete = async () => {
     const success = await completeConsultation(t('toast_success'), t('toast_error'));
