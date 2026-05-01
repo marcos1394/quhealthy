@@ -3088,7 +3088,13 @@
     "not_available": "N/A",
     "view_btn": "View",
     "no_history": "No history",
-    "no_past_consultations_local": "You have no past consultations registered with this patient in your local directory."
+    "no_past_consultations_local": "You have no past consultations registered with this patient in your local directory.",
+    "no_medications_registered": "No medications registered.",
+    "no_surgeries_registered": "No surgeries registered.",
+    "no_family_history_registered": "No family history registered.",
+    "current_medication": "Current Medication",
+    "surgical_history": "Surgical History",
+    "family_history": "Family History"
   },
   "Errors": {
     "400": "Invalid request. Please check the information and try again.",

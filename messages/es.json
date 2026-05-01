@@ -3093,7 +3093,13 @@
     "not_available": "N/D",
     "view_btn": "Ver",
     "no_history": "Sin historial",
-    "no_past_consultations_local": "No tienes consultas pasadas registradas con este paciente en tu directorio local."
+    "no_past_consultations_local": "No tienes consultas pasadas registradas con este paciente en tu directorio local.",
+    "no_medications_registered": "Sin medicamentos registrados.",
+    "no_surgeries_registered": "Sin cirugías registradas.",
+    "no_family_history_registered": "Sin antecedentes familiares registrados.",
+    "current_medication": "Medicación Actual",
+    "surgical_history": "Historial Quirúrgico",
+    "family_history": "Antecedentes Familiares"
   },
   "Errors": {
     "400": "Solicitud inválida. Revisa la información e intenta de nuevo.",

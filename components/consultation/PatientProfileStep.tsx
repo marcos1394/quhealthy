@@ -1,14 +1,17 @@
 import React from 'react';
 import { useTranslations } from "next-intl";
-import { User, ShieldAlert, History, FileCheck, AlertTriangle, ArrowRight, BookOpen } from "lucide-react";
+import { 
+  User, ShieldAlert, History, FileCheck, AlertTriangle, 
+  ArrowRight, BookOpen, Activity, Pill, Users 
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PatientClinicalProfile, VaultDocument } from '@/types/ehr';
+import { VaultDocument } from '@/types/ehr';
 
 interface PatientProfileStepProps {
-  patientProfile: PatientClinicalProfile | null;
+  patientProfile: any; // Usamos any temporalmente para aceptar los nuevos campos
   vaultDocuments: VaultDocument[];
   isOfflinePatient: boolean;
   displayFullName: string;
@@ -27,6 +30,17 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   const t = useTranslations('EHR');
   const displayInitial = displayFullName.charAt(0).toUpperCase();
 
+  // Función auxiliar para renderizar arrays o texto de historial
+  const renderHistoryData = (data: any, fallbackText: string) => {
+    if (!data || data === "Ninguno") return <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+    if (Array.isArray(data)) {
+      return data.length && data[0] !== "Ninguno" ? (
+        data.map((item, idx) => <Badge key={idx} variant="outline" className="dark:border-slate-700 dark:text-slate-300">{item}</Badge>)
+      ) : <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+    }
+    return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{data}</span>;
+  };
+
   return (
     <div className="h-full flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       
@@ -43,12 +57,15 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
             
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">{displayFullName}</h2>
             
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              {patientProfile?.gender || t('not_available')} • {patientProfile?.bloodType || t('blood_type_na')}
-            </p>
+            {/* 🚀 FIX: Datos antropométricos y de sangre precisos */}
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-2 text-sm text-slate-600 dark:text-slate-300 font-medium">
+               {patientProfile?.bloodType && <span>🩸 {patientProfile.bloodType}</span>}
+               {patientProfile?.weightKg && <span>• {patientProfile.weightKg} kg</span>}
+               {patientProfile?.heightCm && <span>• {patientProfile.heightCm} cm</span>}
+            </div>
 
             {isOfflinePatient && (
-              <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-800">
+              <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-800">
                 <BookOpen className="w-3.5 h-3.5" />
                 {t('local_directory_patient')}
               </div>
@@ -56,43 +73,69 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
           </CardContent>
         </Card>
 
-        {/* ⚠️ ALERGIAS Y SIGNOS */}
-        <Card className="border-slate-200 dark:border-slate-800 shadow-sm flex-1 bg-white dark:bg-slate-900">
+        {/* ⚠️ ALERGIAS Y SIGNOS (Enriquecido) */}
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm flex-1 bg-white dark:bg-slate-900 overflow-y-auto custom-scrollbar max-h-[500px]">
           <CardContent className="p-5 space-y-5">
-            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">{t('qu_score')}</span>
-              <Badge variant="outline" className="border-medical-200 text-medical-700 dark:border-medical-800 dark:text-medical-400 font-bold text-base bg-white dark:bg-slate-900">
-                {patientProfile?.quScore || '--'}
-              </Badge>
-            </div>
+            
+            {!isOfflinePatient && (
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">{t('qu_score')}</span>
+                <Badge variant="outline" className="border-medical-200 text-medical-700 dark:border-medical-800 dark:text-medical-400 font-bold text-base bg-white dark:bg-slate-900">
+                  {patientProfile?.quScore || '--'}
+                </Badge>
+              </div>
+            )}
 
             <div>
               <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
                 <AlertTriangle className="w-4 h-4 text-amber-500" /> {t('allergies')}
               </h4>
               <div className="flex flex-wrap gap-2">
-                {patientProfile?.allergies?.length ? (
-                  patientProfile.allergies.map(a => <Badge key={a} variant="secondary" className="bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50 border border-transparent">{a}</Badge>)
-                ) : (
-                  <span className="text-sm text-slate-500 dark:text-slate-400 italic">{t('no_allergies_registered')}</span>
-                )}
+                {renderHistoryData(patientProfile?.allergies, t('no_allergies_registered'))}
               </div>
             </div>
 
-            <Separator className="bg-slate-200 dark:bg-slate-800" />
+            <Separator className="bg-slate-100 dark:bg-slate-800" />
 
             <div>
               <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
                 <ShieldAlert className="w-4 h-4 text-medical-500" /> {t('conditions')}
               </h4>
               <div className="flex flex-wrap gap-2">
-                {patientProfile?.chronicConditions?.length ? (
-                  patientProfile.chronicConditions.map(c => <Badge key={c} variant="outline" className="dark:border-slate-700 dark:text-slate-300">{c}</Badge>)
-                ) : (
-                  <span className="text-sm text-slate-500 dark:text-slate-400 italic">{t('no_chronic_conditions')}</span>
-                )}
+                {renderHistoryData(patientProfile?.chronicConditions, t('no_chronic_conditions'))}
               </div>
             </div>
+
+            {/* 🚀 NUEVAS SECCIONES DEL ENDPOINT */}
+            <Separator className="bg-slate-100 dark:bg-slate-800" />
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
+                <Pill className="w-4 h-4 text-indigo-500" /> {t('current_medication')}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {renderHistoryData(patientProfile?.currentMedications, t('no_medications_registered'))}
+              </div>
+            </div>
+
+            <Separator className="bg-slate-100 dark:bg-slate-800" />
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-teal-500" /> {t('surgical_history')}
+              </h4>
+              {renderHistoryData(patientProfile?.surgicalHistory, t('no_surgeries_registered'))}
+            </div>
+
+            <Separator className="bg-slate-100 dark:bg-slate-800" />
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-medical-500" /> {t('family_history')}
+              </h4>
+              {renderHistoryData(patientProfile?.familyHistory, t('no_family_history_registered'))}
+            </div>
+
           </CardContent>
         </Card>
       </div>
