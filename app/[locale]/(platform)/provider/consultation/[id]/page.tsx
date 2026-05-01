@@ -44,6 +44,33 @@ export default function ConsultationRoomPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      setIsTranscribing(true);
+      setTimeout(() => {
+        setIsTranscribing(false);
+      }, 1500);
+    } else {
+      setIsRecording(true);
+    }
+  };
+
+  const handleAddRx = () => {
+    if (newRx.medicationName && newRx.dosage) {
+      // @ts-ignore - Assuming addPrescriptionItem expects this structure based on the newRx state
+      addPrescriptionItem({
+        id: Date.now().toString(),
+        medicationName: newRx.medicationName,
+        dosage: newRx.dosage,
+        frequency: newRx.frequency,
+        duration: newRx.duration,
+        instructions: newRx.instructions
+      });
+      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
+    }
+  };
+
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       try {
