@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
+import { aiService } from '@/services/ai.service';
 import { 
   PatientClinicalProfile, 
   VaultDocument, 
@@ -178,6 +179,24 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     } finally {
       setIsSubmitting(false);
     }
+  const processAudioWithAi = async (audioBase64: string) => {
+    try {
+      const generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64);
+      
+      // Actualizamos el estado con lo que devolvió Gemini
+      // Mantenemos lo que el doctor ya hubiera escrito manualmente (si es que había algo)
+      setSoapNotes(prevNotes => ({
+        subjective: generatedSoap.subjective || prevNotes.subjective,
+        objective: generatedSoap.objective || prevNotes.objective,
+        assessment: generatedSoap.assessment || prevNotes.assessment,
+        plan: generatedSoap.plan || prevNotes.plan
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error("Error al generar notas con IA:", error);
+      throw error;
+    }
   };
 
   return {
@@ -192,6 +211,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     updateSoapNote,
     addPrescriptionItem,
     removePrescriptionItem,
-    completeConsultation
+    completeConsultation,
+    processAudioWithAi
   };
 };

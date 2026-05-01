@@ -38,7 +38,7 @@ export default function ConsultationRoomPage() {
   const {
     patientProfile, vaultDocuments, isLoading, isSubmitting,
     soapNotes, setSoapNotes, prescription, loadPatientRecord, updateSoapNote, 
-    addPrescriptionItem, removePrescriptionItem, completeConsultation
+    addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
 
   const [newRx, setNewRx] = useState({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
@@ -96,31 +96,18 @@ export default function ConsultationRoomPage() {
             const base64Data = base64AudioString.split(',')[1];
 
             try {
-              // 🚀 AQUÍ LLAMAREMOS AL FUTURO ENDPOINT DE SPRING BOOT
-              console.log("Enviando audio a Gemini... Tamaño (bytes):", base64Data.length);
+              // 🚀 AQUÍ ESTÁ LA CONEXIÓN REAL
+              console.log("Enviando audio real a Gemini...");
               
-              // Simulación temporal hasta tener el endpoint de Java:
-              setTimeout(() => {
-                setSoapNotes({
-                  subjective: "El paciente refiere un cuadro de fatiga y sed constante...",
-                  objective: "Peso: 80kg. Presión arterial dentro de parámetros normales.",
-                  assessment: "Posible desajuste en el control glucémico.",
-                  plan: "Ajustar dosis de medicamento. Solicitar química sanguínea de 6 elementos."
-                });
-                setIsTranscribing(false);
-                toast.success(t('ai_scribe_success'));
-              }, 3000);
-
-              /* Código real para cuando esté listo el backend:
-              const response = await aiService.generateSoapNotes(appointmentId, base64Data);
-              setSoapNotes(response.data);
+              await processAudioWithAi(base64Data);
+              
               setIsTranscribing(false);
-              */
+              toast.success(t('ai_scribe_success') || "¡Notas clínicas generadas exitosamente!"); 
 
             } catch (error) {
               console.error("Error al procesar el audio con IA", error);
               setIsTranscribing(false);
-              toast.error("Hubo un error procesando el audio.");
+              toast.error("Hubo un error procesando el audio. Intenta de nuevo.");
             }
           };
         };
