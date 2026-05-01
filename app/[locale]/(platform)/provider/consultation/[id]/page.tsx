@@ -101,11 +101,11 @@ export default function ConsultationRoomPage() {
     if (consumerId && !isOfflinePatient) {
       loadPatientRecord(t('toast_load_error'));
     } 
-    // 🚀 NUEVO: Si es paciente offline y ya tenemos su ID del directorio
+    // 🚀 NUEVO: Si es paciente offline, le pasamos ID y Nombre
     else if (isOfflinePatient && patientDirectoryId) {
-      loadPatientRecord(t('toast_load_error'), patientDirectoryId);
+      loadPatientRecord(t('toast_load_error'), patientDirectoryId, patientName);
     }
-  }, [consumerId, isOfflinePatient, patientDirectoryId, loadPatientRecord, t]);
+  }, [consumerId, isOfflinePatient, patientDirectoryId, patientName, loadPatientRecord, t]);
 
   const handleComplete = async () => {
     const success = await completeConsultation(t('toast_success'), t('toast_error'));

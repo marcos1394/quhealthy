@@ -41,8 +41,8 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     }
   }, [appointmentId]);
 
-  // 🚀 FIX: Soporte para pacientes Offline a través del Directorio Local
-  const loadPatientRecord = useCallback(async (errorMsg: string, patientDirId?: number | null) => {
+  // 🚀 FIX: Llamamos a ambos endpoints (Perfil Clínico y Línea de Tiempo) para pacientes locales
+  const loadPatientRecord = useCallback(async (errorMsg: string, patientDirId?: number | null, fallbackName: string = "Paciente Local") => {
     setIsLoading(true);
     
     // CASO 1: PACIENTE CON CUENTA EN LA APP
@@ -67,28 +67,36 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     // CASO 2: PACIENTE OFFLINE (CATÁLOGO LOCAL)
     else if (patientDirId) {
       try {
-        const historyData = await ehrService.getDirectoryPatientHistory(patientDirId);
-        
-        // 🚀 "Disfrazamos" los datos del directorio para que nuestra UI los entienda
+        // Ejecutamos ambas peticiones en paralelo para mayor velocidad
+        const historyPromise = ehrService.getDirectoryPatientHistory(patientDirId);
+        const healthProfilePromise = ehrService.getDirectoryPatientHealthProfile(patientDirId);
+
+        const [historyData, healthProfileData] = await Promise.all([
+          historyPromise,
+          healthProfilePromise
+        ]);
+
+        // 1. Mapeamos los datos del Health Profile (Alergias, Sangre, Condiciones)
         setPatientProfile({
           consumerId: 0, // Mock for offline patients
-          dateOfBirth: historyData.dateOfBirth || "N/D",
-          fullName: historyData.patientName || "Paciente Local", 
-          gender: historyData.gender || "N/D",
-          bloodType: historyData.bloodType || "N/D",
-          allergies: historyData.allergies || [],
-          chronicConditions: historyData.chronicConditions || [],
+          dateOfBirth: healthProfileData.dateOfBirth || "N/D",
+          fullName: fallbackName,
+          gender: "N/D", // Ajusta si tu catálogo guarda el género
+          // Formateamos "AB_POSITIVE" a "AB POSITIVE"
+          bloodType: healthProfileData.bloodType ? healthProfileData.bloodType.replace('_', ' ') : "N/D",
+          allergies: healthProfileData.allergies || [],
+          chronicConditions: healthProfileData.chronicConditions || [],
           quScore: 0, 
           quScoreBand: "Directorio"
         } as PatientClinicalProfile);
 
-        // Si el backend te devuelve consultas pasadas, las mapeamos para que se vean en la "Bóveda"
-        if (historyData.pastAppointments && Array.isArray(historyData.pastAppointments)) {
-          const mappedHistory = historyData.pastAppointments.map((appt: any) => ({
-            id: appt.id.toString(),
-            fileName: `Consulta - ${appt.serviceName || 'General'}`,
+        // 2. Mapeamos la línea de tiempo a la Bóveda de Historial
+        if (historyData.timeline && Array.isArray(historyData.timeline)) {
+          const mappedHistory = historyData.timeline.map((appt: any) => ({
+            id: appt.appointmentId?.toString() || Math.random().toString(),
+            fileName: `Consulta Médica`,
             documentType: 'CONSULTA_PREVIA',
-            uploadDate: appt.startTime || new Date().toISOString()
+            uploadDate: appt.date || new Date().toISOString()
           }));
           setVaultDocuments(mappedHistory);
         } else {
@@ -96,8 +104,8 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         }
 
       } catch (error) {
-        console.error("Error al cargar historial del directorio:", error);
-        toast.warning("No se pudo cargar el historial previo de este paciente local.");
+        console.error("Error al cargar datos del directorio:", error);
+        toast.warning("No se pudo cargar el expediente completo de este paciente local.");
       }
     }
 

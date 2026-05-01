@@ -37,6 +37,15 @@ export const ehrService = {
   },
 
   /**
+   * ❤️ Obtiene el perfil de salud (Alergias, Condiciones) de un paciente OFFLINE
+   * GET /api/appointments/provider/directory/{patientDirectoryId}/health-profile
+   */
+  getDirectoryPatientHealthProfile: async (patientDirectoryId: number): Promise<any> => {
+    const response = await axiosInstance.get(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile`);
+    return response.data;
+  },
+
+  /**
    * 📖 Obtiene las notas clínicas (borrador o finalizadas) de una cita
    * GET /api/appointments/{id}/clinical-notes
    */
