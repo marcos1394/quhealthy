@@ -38,10 +38,10 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         <div className="w-full lg:w-1/3 flex flex-col gap-4">
           
           {/* Escriba IA */}
-          <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm bg-indigo-50/50 dark:bg-indigo-950/20 flex-1 flex flex-col justify-center">
+          <Card className="border-teal-100 dark:border-teal-900/50 shadow-sm bg-teal-50/50 dark:bg-teal-950/20 flex-1 flex flex-col justify-center">
             <CardContent className="p-8 text-center flex flex-col items-center justify-center h-full">
-              <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 shadow-sm border border-indigo-100 dark:border-indigo-900">
-                <Sparkles className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+              <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 shadow-sm border border-teal-100 dark:border-teal-900">
+                <Sparkles className="w-10 h-10 text-teal-600 dark:text-teal-400" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('clinical_copilot')}</h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 max-w-xs mx-auto">
@@ -55,12 +55,12 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
                 className={`w-full rounded-full h-14 text-base font-medium shadow-md transition-all ${
                   isRecording 
                     ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50' 
-                    : 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white'
+                    : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white'
                 }`}
                 variant={isRecording ? 'outline' : 'default'}
               >
                 {isTranscribing ? (
-                  <><QhSpinner size="sm" className="mr-3 text-indigo-600 dark:text-indigo-400"/> {t('processing_audio')}</>
+                  <><QhSpinner size="sm" className="mr-3 text-teal-600 dark:text-teal-400"/> {t('processing_audio')}</>
                 ) : isRecording ? (
                   <><Square className="w-5 h-5 mr-3 fill-current" /> {t('stop_listening')}</>
                 ) : (
@@ -153,7 +153,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         <Button variant="outline" onClick={onBack} className="h-12 px-6 rounded-xl border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft className="w-5 h-5 mr-2" /> {t('btn_back')}
         </Button>
-        <Button onClick={onNext} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white h-12 px-8 rounded-xl text-base shadow-lg shadow-indigo-600/20">
+        <Button onClick={onNext} className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white h-12 px-8 rounded-xl text-base shadow-lg shadow-teal-600/20">
           {t('btn_continue_treatment')} <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
       </div>

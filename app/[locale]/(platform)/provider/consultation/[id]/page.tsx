@@ -141,7 +141,7 @@ export default function ConsultationRoomPage() {
           <Button 
             variant={currentStep === 'evaluation' ? 'default' : 'ghost'} 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'evaluation' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 rounded-lg h-10 ${currentStep === 'evaluation' ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
           >
             <Stethoscope className="w-4 h-4 mr-2" /> {t('step_evaluation')}
           </Button>
