@@ -3080,7 +3080,20 @@
     "note": "Nota: {instructions}",
     "use_finish_button": "Utiliza el botón",
     "finish_and_charge_btn": "Finalizar y Cobrar",
-    "of_top_bar": "de la barra superior."
+    "of_top_bar": "de la barra superior.",
+    "local_directory_patient": "Paciente de Directorio Local",
+    "no_allergies_registered": "No hay alergias registradas.",
+    "no_chronic_conditions": "Sin condiciones crónicas registradas.",
+    "local_consultation_history": "Historial de Consultas Locales",
+    "internal_record": "Expediente Interno",
+    "view_full_history": "Ver Historial Completo",
+    "medical_consultation": "Consulta Médica",
+    "continue_to_evaluation": "Continuar a Evaluación Clínica",
+    "blood_type_na": "Sangre N/D",
+    "not_available": "N/D",
+    "view_btn": "Ver",
+    "no_history": "Sin historial",
+    "no_past_consultations_local": "No tienes consultas pasadas registradas con este paciente en tu directorio local."
   },
   "Errors": {
     "400": "Solicitud inválida. Revisa la información e intenta de nuevo.",
