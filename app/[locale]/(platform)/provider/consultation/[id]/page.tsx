@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { toast } from 'react-toastify';
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Mic } from "lucide-react";
@@ -43,16 +44,95 @@ export default function ConsultationRoomPage() {
   const [newRx, setNewRx] = useState({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  
+  // Referencias para manejar el micrófono sin causar re-renders innecesarios
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
-  const handleToggleRecording = () => {
+  // 🎙️ FUNCIÓN PARA INICIAR/DETENER GRABACIÓN BATCH
+  const handleToggleRecording = async () => {
+    // SI ESTÁ GRABANDO -> DETENEMOS Y PROCESAMOS
     if (isRecording) {
       setIsRecording(false);
       setIsTranscribing(true);
-      setTimeout(() => {
-        setIsTranscribing(false);
-      }, 1500);
-    } else {
-      setIsRecording(true);
+
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+        
+        // Apagamos el micrófono para que desaparezca el icono rojo del navegador
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      }
+    } 
+    // SI NO ESTÁ GRABANDO -> INICIAMOS
+    else {
+      try {
+        // 1. Pedimos permiso para usar el micrófono
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // 2. Configuramos el grabador
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        // 3. Vamos guardando los pedacitos de audio en memoria
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            audioChunksRef.current.push(e.data);
+          }
+        };
+
+        // 4. Qué hacer cuando se detiene la grabación (Aquí ocurre la magia Batch)
+        mediaRecorder.onstop = async () => {
+          // Unimos todos los pedazos en un solo archivo de audio webm
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          
+          // Lo convertimos a Base64 para poder mandarlo por JSON a Spring Boot
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = async () => {
+            const base64AudioString = reader.result as string;
+            
+            // Limpiamos el string para quitar el prefijo (ej. "data:audio/webm;base64,")
+            const base64Data = base64AudioString.split(',')[1];
+
+            try {
+              // 🚀 AQUÍ LLAMAREMOS AL FUTURO ENDPOINT DE SPRING BOOT
+              console.log("Enviando audio a Gemini... Tamaño (bytes):", base64Data.length);
+              
+              // Simulación temporal hasta tener el endpoint de Java:
+              setTimeout(() => {
+                setSoapNotes({
+                  subjective: "El paciente refiere un cuadro de fatiga y sed constante...",
+                  objective: "Peso: 80kg. Presión arterial dentro de parámetros normales.",
+                  assessment: "Posible desajuste en el control glucémico.",
+                  plan: "Ajustar dosis de medicamento. Solicitar química sanguínea de 6 elementos."
+                });
+                setIsTranscribing(false);
+                toast.success(t('ai_scribe_success'));
+              }, 3000);
+
+              /* Código real para cuando esté listo el backend:
+              const response = await aiService.generateSoapNotes(appointmentId, base64Data);
+              setSoapNotes(response.data);
+              setIsTranscribing(false);
+              */
+
+            } catch (error) {
+              console.error("Error al procesar el audio con IA", error);
+              setIsTranscribing(false);
+              toast.error("Hubo un error procesando el audio.");
+            }
+          };
+        };
+
+        // 5. ¡A grabar!
+        mediaRecorder.start();
+        setIsRecording(true);
+
+      } catch (error) {
+        console.error("Error accediendo al micrófono:", error);
+        toast.error("Por favor, permite el acceso al micrófono en tu navegador.");
+      }
     }
   };
 
