@@ -80,8 +80,9 @@ export default function ConsultationRoomPage() {
           setIsOfflinePatient(false);
         } else {
           setIsOfflinePatient(true);
-          setPatientDirectoryId(appointment.patientDirectoryId ?? null); // ID del catálogo local
-          setPatientName(appointment.consumer?.name || t('patient_directory_placeholder'));
+          setPatientDirectoryId(appointment.patientDirectoryId ?? null); 
+          // 🚀 FIX: Leemos el Snapshot porque el consumer es nulo
+          setPatientName(appointment.consumerNameSnapshot || appointment.consumer?.name || t('patient_directory_placeholder'));
         }
         
         setAppointmentType(appointment.type?.toLowerCase() || 'in_person');

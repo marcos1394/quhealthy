@@ -76,19 +76,22 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
           healthProfilePromise
         ]);
 
-        // 1. Mapeamos los datos del Health Profile (Alergias, Sangre, Condiciones)
+        // 1. Mapeamos los datos del Health Profile (Alergias, Sangre, Condiciones + Nuevos)
         setPatientProfile({
-          consumerId: 0, // Mock for offline patients
-          dateOfBirth: healthProfileData.dateOfBirth || "N/D",
           fullName: fallbackName,
-          gender: "N/D", // Ajusta si tu catálogo guarda el género
-          // Formateamos "AB_POSITIVE" a "AB POSITIVE"
-          bloodType: healthProfileData.bloodType ? healthProfileData.bloodType.replace('_', ' ') : "N/D",
+          gender: null, // Lo dejamos nulo para no mostrar "N/D"
+          bloodType: healthProfileData.bloodType ? healthProfileData.bloodType.replace('_', ' ') : null,
           allergies: healthProfileData.allergies || [],
           chronicConditions: healthProfileData.chronicConditions || [],
-          quScore: 0, 
-          quScoreBand: "Directorio"
-        } as PatientClinicalProfile);
+          quScore: "--", 
+          quScoreBand: "Directorio",
+          // 🚀 NUEVOS CAMPOS DEL PAYLOAD
+          heightCm: healthProfileData.heightCm,
+          weightKg: healthProfileData.weightKg,
+          currentMedications: healthProfileData.currentMedications || [],
+          surgicalHistory: healthProfileData.surgicalHistory,
+          familyHistory: healthProfileData.familyHistory
+        } as any);
 
         // 2. Mapeamos la línea de tiempo a la Bóveda de Historial
         if (historyData.timeline && Array.isArray(historyData.timeline)) {
