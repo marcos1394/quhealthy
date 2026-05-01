@@ -179,6 +179,8 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
   const processAudioWithAi = async (audioBase64: string) => {
     try {
       const generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64);
