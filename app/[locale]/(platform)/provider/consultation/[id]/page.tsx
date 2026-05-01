@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge";
 
 // Importaremos los pasos (crearemos el primero abajo)
 import { PatientProfileStep } from "@/components/consultation/PatientProfileStep";
-// import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
-// import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
+import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
+import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 
 type PipelineStep = 'profile' | 'evaluation' | 'treatment';
 
@@ -171,13 +171,27 @@ export default function ConsultationRoomPage() {
           )}
 
           {currentStep === 'evaluation' && (
-             // Aquí irá el <ClinicalEvaluationStep /> que te pasaré a continuación
-             <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">{t('loading_step', { step: 2 })}</div>
+             <ClinicalEvaluationStep 
+                soapNotes={soapNotes}
+                updateSoapNote={updateSoapNote}
+                isRecording={isRecording}
+                isTranscribing={isTranscribing}
+                handleToggleRecording={handleToggleRecording}
+                appointmentType={appointmentType}
+                onBack={() => setCurrentStep('profile')}
+                onNext={() => setCurrentStep('treatment')}
+             />
           )}
 
           {currentStep === 'treatment' && (
-             // Aquí irá el <TreatmentCheckoutStep />
-             <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">{t('loading_step', { step: 3 })}</div>
+             <TreatmentCheckoutStep 
+                prescription={prescription}
+                newRx={newRx}
+                setNewRx={setNewRx}
+                handleAddRx={handleAddRx}
+                removePrescriptionItem={removePrescriptionItem}
+                onBack={() => setCurrentStep('evaluation')}
+             />
           )}
 
         </div>
