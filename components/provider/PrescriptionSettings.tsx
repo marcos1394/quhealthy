@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { UpdatePrescriptionPreferencesRequest } from '@/types/onboarding';
 import { onboardingService } from '@/services/onboarding.service';
@@ -10,13 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Palette, Image as ImageIcon, PenTool, FileText, Loader2 } from 'lucide-react';
+import { Palette, Image as ImageIcon, PenTool, FileText, Loader2, Upload, Eraser, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const PrescriptionSettings = () => {
   const t = useTranslations('PrescriptionSettings');
 
   const [formData, setFormData] = useState<UpdatePrescriptionPreferencesRequest>({
-    prescriptionColor: '#8B5CF6', // Default fallback color
+    prescriptionColor: '#8B5CF6',
     prescriptionLogoUrl: '',
     signatureUrl: '',
     prescriptionFooterNote: '',
@@ -26,6 +27,11 @@ export const PrescriptionSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingSignature, setIsUploadingSignature] = useState(false);
+
+  // 🚀 NUEVO: Estados para el modo de firma y el Canvas
+  const [signatureMode, setSignatureMode] = useState<'upload' | 'draw'>('upload');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawing = useRef(false);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -63,8 +69,7 @@ export const PrescriptionSettings = () => {
     setIsUploadingLogo(true);
     try {
       const response = await onboardingService.uploadPrescriptionMedia(file, 'LOGO');
-      const realUrl = response.url;
-      setFormData((prev) => ({ ...prev, prescriptionLogoUrl: realUrl }));
+      setFormData((prev) => ({ ...prev, prescriptionLogoUrl: response.url }));
       toast.success(t('success_logo_upload', { fallback: 'Logotipo subido exitosamente.' }));
     } catch (error) {
       console.error('Error subiendo logo:', error);
@@ -78,21 +83,107 @@ export const PrescriptionSettings = () => {
   const handleSignatureUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    await processSignatureFile(file);
+    e.target.value = '';
+  };
 
+  // Función separada para procesar el archivo (usada tanto por input file como por el canvas)
+  const processSignatureFile = async (file: File) => {
     setIsUploadingSignature(true);
     try {
       const response = await onboardingService.uploadPrescriptionMedia(file, 'SIGNATURE');
-      const realUrl = response.url;
-      setFormData((prev) => ({ ...prev, signatureUrl: realUrl }));
-      toast.success(t('success_signature_upload', { fallback: 'Firma digital subida y protegida exitosamente.' }));
+      setFormData((prev) => ({ ...prev, signatureUrl: response.url }));
+      toast.success(t('success_signature_upload', { fallback: 'Firma digital guardada y protegida exitosamente.' }));
     } catch (error) {
       console.error('Error subiendo firma:', error);
       toast.error(t('error_signature_upload', { fallback: 'Hubo un problema al subir la firma digital.' }));
     } finally {
       setIsUploadingSignature(false);
-      e.target.value = '';
     }
   };
+
+  // ====================================================================
+  // ✍️ LÓGICA DEL CANVAS TÁCTIL (Dibujar Firma)
+  // ====================================================================
+
+  const getCanvasCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Escala para evitar que el trazo se desfase en pantallas retina
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    let clientX, clientY;
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = (e as React.MouseEvent).clientX;
+      clientY = (e as React.MouseEvent).clientY;
+    }
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    isDrawing.current = true;
+    draw(e);
+  };
+
+  const stopDrawing = () => {
+    isDrawing.current = false;
+    const ctx = canvasRef.current?.getContext('2d');
+    if (ctx) ctx.beginPath(); // Resetea el trazo para no unir letras
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawing.current || !canvasRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+    const coords = getCanvasCoordinates(e);
+    if (!ctx || !coords) return;
+
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0f172a'; // Tinta oscura
+
+    ctx.lineTo(coords.x, coords.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(coords.x, coords.y);
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  const saveDrawnSignature = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Convertimos el dibujo a un archivo PNG
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        toast.error("El lienzo está vacío o ocurrió un error.");
+        return;
+      }
+      const file = new File([blob], `signature-${Date.now()}.png`, { type: 'image/png' });
+      processSignatureFile(file);
+    }, 'image/png');
+  };
+
+  // ====================================================================
+  // GUARDAR PREFERENCIAS GLOBALES
+  // ====================================================================
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -171,23 +262,83 @@ export const PrescriptionSettings = () => {
           </div>
         </div>
 
-        {/* Upload Signature */}
-        <div className="space-y-3">
+        {/* 🚀 NUEVA SECCIÓN DE FIRMA (Upload vs Draw) */}
+        <div className="space-y-4">
           <div className="flex items-center gap-2">
             <PenTool className="w-4 h-4 text-emerald-500" />
             <Label className="text-slate-700 dark:text-slate-300 font-medium">
               {t('digital_signature_optional', { fallback: 'Firma Digital (Opcional)' })}
             </Label>
           </div>
-          <div className="ml-6">
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleSignatureUpload}
-              disabled={isUploadingSignature}
-              className="cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-500/10 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-500/20 transition-all text-slate-500 dark:text-slate-400"
-            />
-            {isUploadingSignature && <p className="text-xs text-emerald-500 mt-2 flex items-center"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> {t('uploading_signature', { fallback: 'Subiendo firma...' })}</p>}
+
+          <div className="ml-6 space-y-4">
+            {/* Toggle de Pestañas */}
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg w-full max-w-sm">
+              <button
+                onClick={() => setSignatureMode('upload')}
+                className={cn("flex-1 py-1.5 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-all", 
+                  signatureMode === 'upload' ? "bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400")}
+              >
+                <Upload className="w-3 h-3" /> Subir Archivo
+              </button>
+              <button
+                onClick={() => setSignatureMode('draw')}
+                className={cn("flex-1 py-1.5 text-xs font-medium rounded-md flex items-center justify-center gap-2 transition-all", 
+                  signatureMode === 'draw' ? "bg-white dark:bg-slate-900 shadow-sm text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400")}
+              >
+                <PenTool className="w-3 h-3" /> Dibujar Firma
+              </button>
+            </div>
+
+            {/* Panel de Subida */}
+            {signatureMode === 'upload' && (
+              <div className="animate-in fade-in">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSignatureUpload}
+                  disabled={isUploadingSignature}
+                  className="cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-500/10 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-500/20 transition-all text-slate-500 dark:text-slate-400"
+                />
+                {isUploadingSignature && <p className="text-xs text-emerald-500 mt-2 flex items-center"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Subiendo firma...</p>}
+              </div>
+            )}
+
+            {/* Panel de Dibujo */}
+            {signatureMode === 'draw' && (
+              <div className="space-y-3 animate-in fade-in">
+                <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 relative">
+                  {/* El touch-action: none evita que la pantalla se mueva en celulares mientras dibujan */}
+                  <canvas
+                    ref={canvasRef}
+                    width={400}
+                    height={200}
+                    className="w-full h-40 cursor-crosshair touch-none"
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={stopDrawing}
+                  />
+                  {isUploadingSignature && (
+                    <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 flex items-center justify-center backdrop-blur-sm">
+                      <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={clearCanvas} disabled={isUploadingSignature} className="h-8 text-xs text-slate-500">
+                    <Eraser className="w-3 h-3 mr-1.5" /> Limpiar
+                  </Button>
+                  <Button size="sm" onClick={saveDrawnSignature} disabled={isUploadingSignature} className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-none">
+                    <Check className="w-3 h-3 mr-1.5" /> Usar este dibujo
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -227,7 +378,6 @@ export const PrescriptionSettings = () => {
 
       {/* LIVE PREVIEW (Derecha) */}
       <div className="w-full lg:w-1/2 flex justify-center items-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        {/* Esqueleto A5 */}
         <div
           className="w-full max-w-[400px] aspect-[1/1.414] bg-white dark:bg-slate-900 shadow-xl rounded-sm p-6 flex flex-col justify-between transition-all duration-300 relative overflow-hidden"
           style={{ borderTop: `8px solid ${formData.prescriptionColor}` }}
@@ -251,7 +401,7 @@ export const PrescriptionSettings = () => {
             </div>
           </div>
 
-          {/* Body de la Receta (Simulación de texto) */}
+          {/* Body de la Receta (Simulación) */}
           <div className="flex-1 py-6 space-y-4">
             <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-sm transition-colors"></div>
             <div className="w-11/12 h-3 bg-slate-100 dark:bg-slate-800 rounded-sm transition-colors"></div>
@@ -267,7 +417,7 @@ export const PrescriptionSettings = () => {
             {/* Firma Preview */}
             <div className="w-32 h-16 mb-2 border-b border-slate-200 dark:border-slate-700 flex items-end justify-center overflow-hidden transition-colors">
               {formData.signatureUrl ? (
-                <img src={formData.signatureUrl} alt="Firma" className="max-h-full object-contain" />
+                <img src={formData.signatureUrl} alt="Firma" className="max-h-full object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white rounded-sm" />
               ) : (
                 <span className="text-xs text-slate-300 dark:text-slate-600 pb-1 transition-colors">
                   {t('digital_signature_placeholder', { fallback: 'Firma digital' })}
