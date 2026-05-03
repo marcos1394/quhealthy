@@ -34,5 +34,11 @@ export const paymentService = {
       payload
     );
     return response.data.checkoutUrl;
+  },
+
+  // 🚀 NUEVO: Método para procesar pago en efectivo en caja
+  processCashCheckout: async (data: { appointmentId: number; totalAmount: number; amountReceived: number; description?: string }) => {
+    const response = await axiosInstance.post('/api/payments/cash/checkout', data);
+    return response.data;
   }
 };

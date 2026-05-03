@@ -18,6 +18,9 @@ import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvalua
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; // 🚀 NUEVO
 
+// 🚀 NUEVO: Importamos el Modal de Caja
+import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
+
 // 🚀 Añadimos 'success' al final del pipeline
 type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
 
@@ -36,6 +39,12 @@ export default function ConsultationRoomPage() {
   const [patientName, setPatientName] = useState<string>("");
   const [appointmentType, setAppointmentType] = useState<string>('in_person');
   const [loadingAppointment, setLoadingAppointment] = useState(true); 
+
+  // 🚀 NUEVOS ESTADOS FINANCIEROS
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [paymentStatus, setPaymentStatus] = useState<string>('');
+  const [showCashModal, setShowCashModal] = useState(false);
 
   const {
     patientProfile, vaultDocuments, isLoading, isSubmitting,
@@ -155,6 +164,11 @@ export default function ConsultationRoomPage() {
         }
         
         setAppointmentType(appointment.type?.toLowerCase() || 'in_person');
+        
+        // 🚀 NUEVO: Guardamos los datos financieros
+        setTotalPrice(appointment.totalPrice || 0);
+        setPaymentMethod(appointment.paymentMethod || 'CASH');
+        setPaymentStatus(appointment.paymentStatus || 'PENDING');
       } catch (error) {
         console.error("Error al obtener la cita", error);
       } finally {
@@ -177,12 +191,20 @@ export default function ConsultationRoomPage() {
     }
   }, [consumerId, isOfflinePatient, patientDirectoryId, patientName, loadPatientRecord, t]);
 
-  const handleComplete = async () => {
-    // Esto llama a tu servicio, guarda el SOAP, la receta y genera el PDF en GCP
+  // 🚀 INTERCEPTOR: Decidimos si abrimos la caja o finalizamos directo
+  const handleCompleteClick = () => {
+    // Si la cita cuesta dinero, es en efectivo, y aún no está liquidada (SETTLED)
+    if (totalPrice > 0 && paymentMethod === 'CASH' && paymentStatus !== 'SETTLED') {
+      setShowCashModal(true);
+    } else {
+      executeClinicalCompletion();
+    }
+  };
+
+  // 🚀 COMPLETAR CLÍNICA (El guardado final de SOAP/PDF)
+  const executeClinicalCompletion = async () => {
     const success = await completeConsultation(t('toast_success'), t('toast_error'));
-    
     if (success) {
-      // 🚀 En lugar de sacarlo de la pantalla, mostramos el modal de distribución
       setCurrentStep('success'); 
     }
   };
@@ -213,8 +235,22 @@ export default function ConsultationRoomPage() {
 
   // 🚀 RETURN NORMAL DEL PIPELINE (Se mantiene igual que el tuyo)
   return (
-    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
       
+      {/* 🚀 NUEVO: Renderizamos el Modal de Caja (Flota encima de todo) */}
+      <CashCheckoutModal 
+        isOpen={showCashModal}
+        onClose={() => setShowCashModal(false)}
+        onSuccess={() => {
+          setShowCashModal(false);
+          // Si el cobro fue exitoso, forzamos el guardado del expediente
+          executeClinicalCompletion();
+        }}
+        appointmentId={appointmentId}
+        totalAmount={totalPrice}
+        patientName={displayFullName}
+      />
+
       {/* 🚀 HEADER Y PIPELINE (STEPPER) */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col gap-4 shadow-sm z-10 shrink-0">
         
@@ -239,9 +275,9 @@ export default function ConsultationRoomPage() {
             <Button variant="outline" className="text-slate-600 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-10 hidden md:flex">
               <Save className="w-4 h-4 mr-2" /> {t('save_draft')}
             </Button>
-            {/* El botón final solo se habilita en el último paso */}
+            {/* 🚀 CAMBIO: Ahora llama a handleCompleteClick */}
             {currentStep === 'treatment' && (
-              <Button onClick={handleComplete} disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white h-10 px-6">
+              <Button onClick={handleCompleteClick} disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white h-10 px-6">
                 <CheckCircle className="w-4 h-4 mr-2" /> {t('finish_and_charge')}
               </Button>
             )}
