@@ -16,8 +16,10 @@ import { Badge } from "@/components/ui/badge";
 import { PatientProfileStep } from "@/components/consultation/PatientProfileStep";
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
+import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; // 🚀 NUEVO
 
-type PipelineStep = 'profile' | 'evaluation' | 'treatment';
+// 🚀 Añadimos 'success' al final del pipeline
+type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
   const t = useTranslations('EHR');
@@ -176,8 +178,13 @@ export default function ConsultationRoomPage() {
   }, [consumerId, isOfflinePatient, patientDirectoryId, patientName, loadPatientRecord, t]);
 
   const handleComplete = async () => {
+    // Esto llama a tu servicio, guarda el SOAP, la receta y genera el PDF en GCP
     const success = await completeConsultation(t('toast_success'), t('toast_error'));
-    if (success) router.push('/dashboard/appointments'); 
+    
+    if (success) {
+      // 🚀 En lugar de sacarlo de la pantalla, mostramos el modal de distribución
+      setCurrentStep('success'); 
+    }
   };
 
   if (loadingAppointment || (isLoading && !isOfflinePatient)) {
@@ -191,6 +198,20 @@ export default function ConsultationRoomPage() {
 
   const displayFullName = isOfflinePatient ? patientName : (patientProfile?.fullName || patientName || t('patient_placeholder'));
 
+  // 🚀 NUEVO: Si la consulta terminó, renderizamos la vista de éxito a pantalla completa
+  if (currentStep === 'success') {
+    return (
+      <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
+        <ConsultationSuccessStep 
+          appointmentId={appointmentId}
+          patientPhone={patientProfile?.phone} // O la propiedad donde guardes el teléfono en tu BD
+          onClose={() => router.push('/dashboard/appointments')} // Volver al dashboard al terminar
+        />
+      </div>
+    );
+  }
+
+  // 🚀 RETURN NORMAL DEL PIPELINE (Se mantiene igual que el tuyo)
   return (
     <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
       
