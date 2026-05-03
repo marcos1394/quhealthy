@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
 import { aiService } from '@/services/ai.service';
+import { appointmentService } from '@/services/appointment.service';
 import { 
   PatientClinicalProfile, 
   VaultDocument, 
@@ -130,52 +131,25 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   };
 
   const completeConsultation = async (successMsg: string, errorMsg: string): Promise<boolean> => {
-    setIsSubmitting(true);
-    
-    // 1. Armamos el payload estructurado (Logro de la FF-004)
-    const payload = {
-      clinicalNotes: {
-        subjective: soapNotes.subjective,
-        objective: soapNotes.objective,
-        assessment: soapNotes.assessment,
-        plan: soapNotes.plan
-      },
-      prescriptionItems: prescription.map(({ id, ...rest }) => rest),
-      sendPrescriptionToVault: prescription.length > 0
-    };
-
-    // 2. 🛡️ FIX FU-003: RESPALDO DE EMERGENCIA EN LOCALSTORAGE ANTES DE ENVIAR
     try {
-      localStorage.setItem(`draft_consultation_${appointmentId}`, JSON.stringify(payload));
-    } catch (storageError) {
-      console.warn("No se pudo guardar el respaldo local:", storageError);
-    }
-
-    try {
-      // 3. Intento de envío al Backend
-      await ehrService.completeConsultation(appointmentId, payload);
+      setIsSubmitting(true);
       
-      // 4. Si el backend responde 200 OK, borramos el respaldo de emergencia
-      localStorage.removeItem(`draft_consultation_${appointmentId}`);
-      
-      toast.success(successMsg, { theme: 'colored' });
-      return true;
+      // 🚀 1. ARMAMOS EL PAYLOAD EXACTAMENTE COMO LO ESPERA SPRING BOOT
+      const payload = {
+        clinicalNotes: soapNotes,
+        prescriptionItems: prescription,
+        sendPrescriptionToVault: true // 🚀 ESTO ES CLAVE PARA QUE JAVA GENERE EL PDF
+      };
 
+      // 🚀 2. USAMOS EL NUEVO MÉTODO DEL SERVICIO (Asegúrate de importarlo)
+      await appointmentService.completeClinicalConsultation(appointmentId, payload);
+      
+      toast.success(successMsg);
+      return true; // Retornamos true para que el componente avance al paso 'success'
     } catch (error) {
-      console.error(error);
-      handleApiError(error); 
-      
-      // 🚨 FIX FU-003: MENSAJE CRÍTICO PERSISTENTE
-      toast.error(
-        'Error crítico al guardar la consulta. NO CIERRES ESTA PANTALLA. Por favor, revisa tu conexión e intenta de nuevo.', 
-        { 
-          theme: 'colored', 
-          autoClose: false, // El mensaje se queda pegado hasta que el doctor lo cierre
-          closeOnClick: false,
-          draggable: false
-        }
-      );
-      return false; // El doctor se queda en la pantalla
+      console.error("Error al finalizar consulta:", error);
+      toast.error(errorMsg);
+      return false;
     } finally {
       setIsSubmitting(false);
     }
