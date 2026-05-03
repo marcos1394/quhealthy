@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { enUS } from "date-fns/locale";
-import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check } from "lucide-react";
+import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { onboardingService } from "@/services/onboarding.service";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,28 @@ export default function DashboardPage() {
   const [dateRange, setDateRange] = useState("this_month");
 
   const { data, isLoading, refetch } = useDashboardData(dateRange);
+
+  // 🚀 NUEVO ESTADO: ¿Necesita configurar su receta?
+  const [needsPrescriptionSetup, setNeedsPrescriptionSetup] = useState(false);
+
+  // 🚀 EFECTO SILENCIOSO: Verificar si ya tiene logo o color
+  useEffect(() => {
+    const checkPrescriptionSetup = async () => {
+      try {
+        const status = await onboardingService.getOnboardingStatus();
+        // Lógica: Si su color es el por defecto (o nulo) y NO tiene logo subido...
+        if (
+          (!status.prescriptionColor || status.prescriptionColor.toUpperCase() === '#8B5CF6' || status.prescriptionColor.toUpperCase() === '#10B981') &&
+          !status.prescriptionLogoUrl
+        ) {
+          setNeedsPrescriptionSetup(true);
+        }
+      } catch (error) {
+        console.error("No se pudo verificar la configuración de la receta", error);
+      }
+    };
+    checkPrescriptionSetup();
+  }, []);
 
   if (isLoading) {
     return (
@@ -104,6 +127,35 @@ export default function DashboardPage() {
           </Button>
         </div>
       </div>
+
+      {/* --- CTA: CONFIGURE PRESCRIPTION (Receta Médica) --- */}
+      <AnimatePresence>
+        {needsPrescriptionSetup && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-6">
+            <Card className="bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20 shadow-sm overflow-hidden relative group transition-colors">
+              <CardContent className="p-5 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 dark:bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileSignature className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-0.5">
+                      {t('setup_prescription_title', { fallback: 'Personaliza tu Receta Médica' })}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400 max-w-xl font-light text-sm">
+                      {t('setup_prescription_desc', { fallback: 'Sube tu logotipo, firma digital y configura tus colores institucionales para emitir recetas verdaderamente profesionales.' })}
+                    </p>
+                  </div>
+                </div>
+                <Button size="lg" onClick={() => router.push("/provider/settings/prescription")}
+                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 px-6 shadow-none rounded-xl transition-colors">
+                  {t('setup_prescription_cta', { fallback: 'Configurar ahora' })} <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* --- CTA: CONFIGURE STORE --- */}
       <AnimatePresence>
