@@ -3132,6 +3132,9 @@
     "welcome_desc": "Here's a summary of your business.",
     "days_remaining": "days remaining",
     "upgrade_plan": "Upgrade Plan",
+    "setup_prescription_title": "Customize your Medical Prescription",
+    "setup_prescription_desc": "Upload your logo, digital signature, and configure your institutional colors to issue truly professional prescriptions.",
+    "setup_prescription_cta": "Configure now",
     "empty_store_title": "Your medical store is empty",
     "empty_store_desc": "Set up your services, pricing, and hours so patients can start booking with you.",
     "setup_store": "Set up my Store",
@@ -3358,5 +3361,27 @@
     "upload_logo": "Upload Logo",
     "public_title": "Public Information",
     "public_desc": "Information displayed on your public profile."
+  },
+  "PrescriptionSettings": {
+    "title": "Customize Your Prescription",
+    "description": "Adjust colors and add your logo to give a more professional image to your patients.",
+    "primary_color": "Primary Color",
+    "logo_recommended": "Logo (Recommended)",
+    "uploading_logo": "Uploading logo...",
+    "digital_signature_optional": "Digital Signature (Optional)",
+    "uploading_signature": "Uploading signature...",
+    "footer_note": "Prescription Footer Note",
+    "footer_note_placeholder": "E.g. If you experience adverse effects, suspend the medication and contact immediately.",
+    "saving": "Saving...",
+    "save_preferences": "Save Preferences",
+    "digital_signature_placeholder": "Digital signature",
+    "error_loading": "Could not load preferences.",
+    "success_logo_upload": "Logo uploaded successfully.",
+    "error_logo_upload": "There was a problem uploading the logo.",
+    "success_signature_upload": "Digital signature uploaded and protected successfully.",
+    "error_signature_upload": "There was a problem uploading the digital signature.",
+    "success_save": "Prescription preferences saved successfully.",
+    "error_save": "There was a problem saving preferences.",
+    "loading_preferences": "Loading preferences..."
   }
 }

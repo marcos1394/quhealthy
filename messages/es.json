@@ -3137,6 +3137,9 @@
     "welcome_desc": "Aquí tienes un resumen de tu negocio.",
     "days_remaining": "días restantes",
     "upgrade_plan": "Actualizar Plan",
+    "setup_prescription_title": "Personaliza tu Receta Médica",
+    "setup_prescription_desc": "Sube tu logotipo, firma digital y configura tus colores institucionales para emitir recetas verdaderamente profesionales.",
+    "setup_prescription_cta": "Configurar ahora",
     "empty_store_title": "Tu tienda médica está vacía",
     "empty_store_desc": "Configura tus servicios, precios y horarios para que los pacientes puedan comenzar a agendar citas contigo.",
     "setup_store": "Configurar mi Tienda",
@@ -3363,5 +3366,27 @@
     "upload_logo": "Subir Logo",
     "public_title": "Información Pública",
     "public_desc": "Información mostrada en tu perfil público."
+  },
+  "PrescriptionSettings": {
+    "title": "Personaliza tu Receta",
+    "description": "Ajusta los colores y añade tu logotipo para dar una imagen más profesional a tus pacientes.",
+    "primary_color": "Color Principal",
+    "logo_recommended": "Logotipo (Recomendado)",
+    "uploading_logo": "Subiendo logo...",
+    "digital_signature_optional": "Firma Digital (Opcional)",
+    "uploading_signature": "Subiendo firma...",
+    "footer_note": "Nota al pie de la receta",
+    "footer_note_placeholder": "Ej. Si presenta efectos adversos, suspenda el medicamento y comuníquese inmediatamente.",
+    "saving": "Guardando...",
+    "save_preferences": "Guardar Preferencias",
+    "digital_signature_placeholder": "Firma digital",
+    "error_loading": "No se pudieron cargar las preferencias.",
+    "success_logo_upload": "Logotipo subido exitosamente.",
+    "error_logo_upload": "Hubo un problema al subir el logotipo.",
+    "success_signature_upload": "Firma digital subida y protegida exitosamente.",
+    "error_signature_upload": "Hubo un problema al subir la firma digital.",
+    "success_save": "Preferencias de receta guardadas con éxito.",
+    "error_save": "Hubo un problema al guardar las preferencias.",
+    "loading_preferences": "Cargando preferencias..."
   }
 }
