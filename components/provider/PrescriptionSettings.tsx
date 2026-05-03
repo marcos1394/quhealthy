@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { UpdatePrescriptionPreferencesRequest } from '@/types/onboarding';
 import { onboardingService } from '@/services/onboarding.service';
@@ -10,11 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Palette, Image as ImageIcon, PenTool, FileText, Loader2, Upload, Eraser, Check, ShieldCheck } from 'lucide-react';
+import { Palette, Image as ImageIcon, PenTool, FileText, Loader2, Upload, Eraser, Check, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const PrescriptionSettings = () => {
   const t = useTranslations('PrescriptionSettings');
+  const router = useRouter();
 
   const [formData, setFormData] = useState<UpdatePrescriptionPreferencesRequest>({
     prescriptionColor: '#8B5CF6',
@@ -27,6 +29,7 @@ export const PrescriptionSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingSignature, setIsUploadingSignature] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // 🚀 NUEVO: Estados para el modo de firma y el Canvas
   const [signatureMode, setSignatureMode] = useState<'upload' | 'draw'>('upload');
@@ -196,9 +199,16 @@ export const PrescriptionSettings = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
+    setShowSuccess(false);
     try {
       await onboardingService.updatePrescriptionPreferences(formData);
       toast.success(t('success_save', { fallback: 'Preferencias de receta guardadas con éxito.' }));
+      setShowSuccess(true);
+      
+      // Regresar al dashboard después de 1.5 segundos
+      setTimeout(() => {
+        router.push('/provider/dashboard');
+      }, 1500);
     } catch (error) {
       console.error('Error saving:', error);
       toast.error(t('error_save', { fallback: 'Hubo un problema al guardar las preferencias.' }));
@@ -220,13 +230,18 @@ export const PrescriptionSettings = () => {
     <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl mx-auto">
       {/* CONTROLES (Izquierda) */}
       <div className="w-full lg:w-1/2 space-y-8 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
-        <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-2">
-            {t('title', { fallback: 'Personaliza tu Receta' })}
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
-            {t('description', { fallback: 'Ajusta los colores y añade tu logotipo para dar una imagen más profesional a tus pacientes.' })}
-          </p>
+        <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-start gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/provider/dashboard')} className="w-8 h-8 mt-1 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-2">
+              {t('title', { fallback: 'Personaliza tu Receta' })}
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
+              {t('description', { fallback: 'Ajusta los colores y añade tu logotipo para dar una imagen más profesional a tus pacientes.' })}
+            </p>
+          </div>
         </div>
 
         {/* Color Picker */}
@@ -375,12 +390,17 @@ export const PrescriptionSettings = () => {
         <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
           <Button
             onClick={handleSave}
-            disabled={isSaving}
-            className="w-full text-white font-medium hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: formData.prescriptionColor }}
+            disabled={isSaving || showSuccess}
+            className="w-full text-white font-medium hover:opacity-90 transition-all duration-300"
+            style={{ backgroundColor: showSuccess ? '#10B981' : formData.prescriptionColor }}
           >
-            {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {isSaving ? t('saving', { fallback: 'Guardando...' }) : t('save_preferences', { fallback: 'Guardar Preferencias' })}
+            {isSaving ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('saving', { fallback: 'Guardando...' })}</>
+            ) : showSuccess ? (
+              <><Check className="w-4 h-4 mr-2" /> {t('success_save', { fallback: 'Guardado exitosamente' })}</>
+            ) : (
+              t('save_preferences', { fallback: 'Guardar Preferencias' })
+            )}
           </Button>
         </div>
       </div>
