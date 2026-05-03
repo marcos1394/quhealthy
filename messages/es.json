@@ -3099,7 +3099,8 @@
     "no_family_history_registered": "Sin antecedentes familiares registrados.",
     "current_medication": "Medicación Actual",
     "surgical_history": "Historial Quirúrgico",
-    "family_history": "Antecedentes Familiares"
+    "family_history": "Antecedentes Familiares",
+    "ai_scribe_success": "¡Notas clínicas generadas exitosamente con el Copiloto IA!"
   },
   "Errors": {
     "400": "Solicitud inválida. Revisa la información e intenta de nuevo.",

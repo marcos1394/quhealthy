@@ -3094,7 +3094,8 @@
     "no_family_history_registered": "No family history registered.",
     "current_medication": "Current Medication",
     "surgical_history": "Surgical History",
-    "family_history": "Family History"
+    "family_history": "Family History",
+    "ai_scribe_success": "Clinical notes successfully generated with AI Copilot!"
   },
   "Errors": {
     "400": "Invalid request. Please check the information and try again.",
