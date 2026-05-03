@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Palette, Image as ImageIcon, PenTool, FileText, Loader2, Upload, Eraser, Check } from 'lucide-react';
+import { Palette, Image as ImageIcon, PenTool, FileText, Loader2, Upload, Eraser, Check, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const PrescriptionSettings = () => {
@@ -32,6 +32,9 @@ export const PrescriptionSettings = () => {
   const [signatureMode, setSignatureMode] = useState<'upload' | 'draw'>('upload');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
+  
+  // 🚀 NUEVO: Guarda el preview temporal de la firma sin pedirlo a internet
+  const [localSignaturePreview, setLocalSignaturePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -92,7 +95,13 @@ export const PrescriptionSettings = () => {
     setIsUploadingSignature(true);
     try {
       const response = await onboardingService.uploadPrescriptionMedia(file, 'SIGNATURE');
+      
+      // 1. Guardamos el File Key interno (providers/29/...) para la Base de Datos
       setFormData((prev) => ({ ...prev, signatureUrl: response.url }));
+      
+      // 2. 🚀 Creamos un preview visual local para el "Live Preview"
+      setLocalSignaturePreview(URL.createObjectURL(file));
+      
       toast.success(t('success_signature_upload', { fallback: 'Firma digital guardada y protegida exitosamente.' }));
     } catch (error) {
       console.error('Error subiendo firma:', error);
@@ -416,9 +425,17 @@ export const PrescriptionSettings = () => {
           <div className="pt-4 flex flex-col items-center">
             {/* Firma Preview */}
             <div className="w-32 h-16 mb-2 border-b border-slate-200 dark:border-slate-700 flex items-end justify-center overflow-hidden transition-colors">
-              {formData.signatureUrl ? (
-                <img src={formData.signatureUrl} alt="Firma" className="max-h-full object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white rounded-sm" />
+              {localSignaturePreview ? (
+                // A) Si acaba de dibujarla/subirla, mostramos el trazo fresco local
+                <img src={localSignaturePreview} alt="Firma" className="max-h-full object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white rounded-sm" />
+              ) : formData.signatureUrl ? (
+                // B) Si ya venía de la BD (es el File Key privado), mostramos el escudo de seguridad
+                <div className="flex flex-col items-center justify-end h-full pb-1 text-emerald-600 dark:text-emerald-500 opacity-80">
+                  <ShieldCheck className="w-5 h-5 mb-1" />
+                  <span className="text-[9px] font-semibold tracking-wider uppercase">Firma Protegida</span>
+                </div>
               ) : (
+                // C) Si no hay firma del todo
                 <span className="text-xs text-slate-300 dark:text-slate-600 pb-1 transition-colors">
                   {t('digital_signature_placeholder', { fallback: 'Firma digital' })}
                 </span>
