@@ -3100,7 +3100,14 @@
     "current_medication": "Medicación Actual",
     "surgical_history": "Historial Quirúrgico",
     "family_history": "Antecedentes Familiares",
-    "ai_scribe_success": "¡Notas clínicas generadas exitosamente con el Copiloto IA!"
+    "ai_scribe_success": "¡Notas clínicas generadas exitosamente con el Copiloto IA!",
+    "consultation_finished": "Consulta Finalizada",
+    "consultation_finished_desc": "El expediente clínico y la receta se han procesado exitosamente. ¿Cómo deseas entregar la receta al paciente?",
+    "send_by_whatsapp": "Enviar por WhatsApp",
+    "generating_pdf": "Generando PDF...",
+    "print_prescription_pdf": "Imprimir Receta (PDF)",
+    "back_to_home": "Volver al Inicio",
+    "wa_prescription_msg": "Hola! Soy tu especialista de QuHealthy. 🩺\n\nAquí tienes el enlace a tu receta médica digital y las indicaciones de tu consulta de hoy.\n\nSi te receté productos, podrás adquirirlos directamente desde este enlace:\n{patientPortalUrl}\n\n¡Que te mejores pronto!"
   },
   "Errors": {
     "400": "Solicitud inválida. Revisa la información e intenta de nuevo.",

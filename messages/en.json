@@ -3095,7 +3095,14 @@
     "current_medication": "Current Medication",
     "surgical_history": "Surgical History",
     "family_history": "Family History",
-    "ai_scribe_success": "Clinical notes successfully generated with AI Copilot!"
+    "ai_scribe_success": "Clinical notes successfully generated with AI Copilot!",
+    "consultation_finished": "Consultation Finished",
+    "consultation_finished_desc": "The clinical record and prescription have been successfully processed. How would you like to deliver the prescription to the patient?",
+    "send_by_whatsapp": "Send via WhatsApp",
+    "generating_pdf": "Generating PDF...",
+    "print_prescription_pdf": "Print Prescription (PDF)",
+    "back_to_home": "Back to Home",
+    "wa_prescription_msg": "Hi! I am your QuHealthy specialist. 🩺\n\nHere is the link to your digital medical prescription and the indications from today's consultation.\n\nIf I prescribed products, you can purchase them directly from this link:\n{patientPortalUrl}\n\nGet well soon!"
   },
   "Errors": {
     "400": "Invalid request. Please check the information and try again.",

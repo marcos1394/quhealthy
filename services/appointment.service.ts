@@ -88,6 +88,26 @@ export const appointmentService = {
   },
 
   /**
+   * 📝 Finaliza la consulta clínica con notas SOAP y Receta (NUEVO FLUJO)
+   * PATCH /api/appointments/{id}/consultation
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  completeClinicalConsultation: async (id: number, payload: any): Promise<void> => {
+    await axiosInstance.patch(`${BASE_URL}/${id}/consultation`, payload);
+  },
+
+  /**
+   * 🖨️ Descarga el PDF de la receta médica de una cita finalizada
+   * GET /api/appointments/{id}/prescription/pdf
+   */
+  downloadPrescriptionPdf: async (id: number | string): Promise<Blob> => {
+    const response = await axiosInstance.get(`${BASE_URL}/${id}/prescription/pdf`, {
+      responseType: 'blob', // 🚀 CRÍTICO para que el PDF no se rompa
+    });
+    return response.data;
+  },
+
+  /**
    * 🔄 Actualiza el estado operativo de una cita
    */
   updateStatus: async (id: string | number, status: string): Promise<AppointmentResponse> => {
