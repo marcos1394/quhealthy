@@ -40,6 +40,18 @@ export interface OnboardingStatusResponse {
     license?: string;
     fiscal?: string;
   } | null;
+
+  prescriptionColor?: string;
+  prescriptionLogoUrl?: string;
+  signatureUrl?: string;
+  prescriptionFooterNote?: string;
+}
+
+export interface UpdatePrescriptionPreferencesRequest {
+  prescriptionColor?: string;
+  prescriptionLogoUrl?: string;
+  signatureUrl?: string;
+  prescriptionFooterNote?: string;
 }
 
 export interface ProfileResponse {

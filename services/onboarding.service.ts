@@ -46,6 +46,29 @@ export const onboardingService = {
   },
 
   // =================================================================
+  // 🎨 PREFERENCIAS DE RECETA (PDF) Y MEDIA
+  // =================================================================
+  async updatePrescriptionPreferences(data: UpdatePrescriptionPreferencesRequest): Promise<void> {
+    await axiosInstance.patch('/api/onboarding/prescription-preferences', data);
+  },
+
+  // 🚀 NUEVA FUNCIÓN: Sube Logo o Firma a GCP
+  async uploadPrescriptionMedia(file: File, type: 'LOGO' | 'SIGNATURE'): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('mediaType', type);
+
+    const response = await axiosInstance.post(
+      '/api/onboarding/media/upload',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    return response.data; // El backend nos devuelve { url: "https://..." }
+  },
+
+  // =================================================================
   // 📸 KYC E IDENTIDAD (Paso 2 + Licencia + Fiscal)
   // =================================================================
   // 🚀 El backend unifica todos los documentos bajo el KycController.

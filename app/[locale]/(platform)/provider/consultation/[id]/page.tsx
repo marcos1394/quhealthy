@@ -205,7 +205,7 @@ export default function ConsultationRoomPage() {
         <ConsultationSuccessStep 
           appointmentId={appointmentId}
           patientPhone={patientProfile?.phone} // O la propiedad donde guardes el teléfono en tu BD
-          onClose={() => router.push('/dashboard/appointments')} // Volver al dashboard al terminar
+          onClose={() => router.push('/provider/dashboard/appointments')} // Volver al dashboard al terminar
         />
       </div>
     );
