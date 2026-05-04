@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from "next/navigation"; // 🚀 Para obtener el 'locale' actual (es/en)
 import { useTranslations } from "next-intl";
 import { Printer, MessageCircle, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,15 +9,21 @@ import { toast } from 'react-toastify';
 interface ConsultationSuccessStepProps {
   appointmentId: number;
   patientPhone?: string; // Teléfono del paciente para WhatsApp (opcional)
+  doctorName?: string;
+  clinicName?: string;
   onClose: () => void; // Función para cerrar el modal y volver al dashboard
 }
 
 export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = ({ 
   appointmentId, 
   patientPhone,
+  doctorName = "Dr. Especialista",
+  clinicName = "QuHealthy",
   onClose 
 }) => {
   const t = useTranslations('EHR');
+  const params = useParams();
+  const currentLocale = (params?.locale as string) || 'es';
   const [isPrinting, setIsPrinting] = useState(false);
 
   // 🖨️ Función para Imprimir / Ver PDF
@@ -43,18 +50,40 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
 
   // 💬 Función para Compartir por WhatsApp
   const handleWhatsAppShare = () => {
-    // 🚀 URL real del portal de pacientes de QuHealthy donde podrán ver y comprar la receta
-    const patientPortalUrl = `https://app.quhealthy.com/paciente/recetas/${appointmentId}`;
+    // 1. Formateo de Fecha y Hora
+    const now = new Date();
+    const dateFormatted = now.toLocaleDateString(currentLocale === 'es' ? 'es-MX' : 'en-US', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+    const timeFormatted = now.toLocaleTimeString(currentLocale === 'es' ? 'es-MX' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    // 2. 🚀 URL INTERNACIONALIZADA (Corregida a /patient/prescription)
+    const patientPortalUrl = `https://www.quhealthy.org/${currentLocale}/patient/prescription/${appointmentId}`;
     
-    const message = t('wa_prescription_msg', { patientPortalUrl });
+    // 3. MENSAJE ESTRUCTURADO Y PERSONALIZADO
+    const message = `¡Hola! Soy el ${doctorName} de ${clinicName}. 🏥\n\n` +
+      `📄 Aquí tienes el enlace a tu receta médica digital de nuestra consulta de hoy:\n\n` +
+      `🗓️ Fecha: ${dateFormatted}\n` +
+      `⏰ Hora: ${timeFormatted}\n\n` +
+      `🔗 Enlace: ${patientPortalUrl}\n\n` +
+      `🔐 Por tu seguridad, para abrir el archivo se te solicitarán los *últimos 4 dígitos de tu teléfono celular* registrado.\n\n` +
+      `Si te receté productos, podrás adquirirlos directamente en el enlace anterior.\n\n` +
+      `¡Que te mejores pronto! ✨`;
     
     const encodedMessage = encodeURIComponent(message);
     
-    // Si tenemos el teléfono, abre el chat directo. Si no, abre la app para seleccionar el contacto.
-    const waUrl = patientPhone 
-      ? `https://wa.me/${patientPhone}?text=${encodedMessage}`
+    // 4. Limpieza de teléfono (Regex para dejar solo números)
+    const cleanPhone = patientPhone ? patientPhone.replace(/\D/g, '') : '';
+    
+    const waUrl = cleanPhone 
+      ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
       : `https://wa.me/?text=${encodedMessage}`;
-      
+        
     window.open(waUrl, '_blank');
   };
 
