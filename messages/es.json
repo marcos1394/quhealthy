@@ -1297,6 +1297,8 @@
     "link_title": "Tu Enlace Único",
     "link_desc": "Comparte este enlace para rastrear tus referidos.",
     "toast_copied": "Enlace copiado al portapapeles",
+    "copy": "Copiar Enlace",
+    "copied": "Copiado",
     "total_earnings": "Ganancias Totales",
     "available_withdraw": "Disponible para retiro"
   },

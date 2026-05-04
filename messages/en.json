@@ -1297,6 +1297,8 @@
     "link_title": "Your Unique Link",
     "link_desc": "Share this link to track your referrals.",
     "toast_copied": "Link copied to clipboard",
+    "copy": "Copy Link",
+    "copied": "Copied",
     "total_earnings": "Total Earnings",
     "available_withdraw": "Available for withdrawal"
   },

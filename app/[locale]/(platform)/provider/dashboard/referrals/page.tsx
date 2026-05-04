@@ -79,7 +79,7 @@ export default function ProviderReferralsPage() {
             </div>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl font-light leading-relaxed">
-            {t('subtitle', { defaultValue: 'Invita a otros colegas a unirse a QuHealthy y recibe beneficios exclusivos o créditos en plataforma cuando activen su suscripción.' })}
+            {t.rich('subtitle', { strong: (chunks) => <strong className="font-semibold text-slate-900 dark:text-white">{chunks}</strong> })}
           </p>
         </div>
 
