@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react'; // 🚀 NUEVO: Importar useState
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
     Calendar, ArrowLeft, Mail, Phone,
-    FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle
+    FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle, Loader2 // 🚀 NUEVO: Importar Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
@@ -21,9 +21,11 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 import { EditHealthProfileModal } from '@/components/dashboard/EditHealthProfileModal';
 
-// 🚀 Hook de Arquitectura
+// 🚀 Hook de Arquitectura y Servicios
 import { usePatientDetail } from '@/hooks/usePatientDetail';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
+import { appointmentService } from '@/services/appointment.service'; // 🚀 NUEVO: Importar el servicio
+import { toast } from 'react-toastify'; // 🚀 NUEVO: Importar Toast
 
 const BLOOD_TYPE_LABELS: Record<string, string> = {
     A_POSITIVE: 'A+',
@@ -49,8 +51,12 @@ export default function PatientDetailPage() {
     // 🚀 Extraemos los datos reales
     const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, refetch } = usePatientDetail(patientDirectoryId);
     const { requestAccess } = usePatientDirectory();
+    
+    // 🚀 Estados para Modales y Descargas
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
     const [isEditHealthModalOpen, setIsEditHealthModalOpen] = React.useState(false);
+    const [downloadingAppointmentId, setDownloadingAppointmentId] = useState<number | null>(null); // 🚀 NUEVO: Control de descarga
+
     const hasHealthData = Boolean(
         healthProfile && (
             healthProfile.bloodType ||
@@ -61,6 +67,29 @@ export default function PatientDetailPage() {
             healthProfile.familyHistory
         )
     );
+
+    // 🚀 NUEVO: Función para descargar y ver la receta (Copiada del ConsultationSuccessStep)
+    const handlePrintPdf = async (appointmentId: number) => {
+        try {
+            setDownloadingAppointmentId(appointmentId);
+            const pdfBlob = await appointmentService.downloadPrescriptionPdf(appointmentId);
+            
+            // Creamos una URL temporal en la memoria del navegador
+            const fileURL = URL.createObjectURL(pdfBlob);
+            
+            // Abrimos el PDF en una pestaña nueva
+            window.open(fileURL, '_blank');
+            
+            // Limpiamos la URL de la memoria después de unos segundos
+            setTimeout(() => URL.revokeObjectURL(fileURL), 10000);
+        } catch (error) {
+            console.error("Error al descargar PDF de la receta:", error);
+            // Usamos un texto por defecto en caso de que la traducción falle en este namespace
+            toast.error(t('error_download_pdf', { defaultValue: "Error al descargar el PDF de la receta." }));
+        } finally {
+            setDownloadingAppointmentId(null);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -208,11 +237,30 @@ export default function PatientDetailPage() {
 
                                                             {appt.prescriptions && appt.prescriptions.length > 0 && (
                                                                 <div className="mt-4 flex gap-2 flex-wrap">
-                                                                    {appt.prescriptions.map(doc => (
-                                                                        <Button key={doc.documentId} variant="outline" size="sm" className="text-xs rounded-lg border-medical-200 text-medical-700 bg-medical-50 hover:bg-medical-100">
-                                                                            <FileText className="w-3.5 h-3.5 mr-1.5" /> {t("prescription_document")} <Download className="w-3 h-3 ml-2 opacity-50"/>
+                                                                    {appt.prescriptions.map(doc => {
+                                                                        // 🚀 NUEVO: Comprobamos si esta receta se está descargando
+                                                                        const isThisPrinting = downloadingAppointmentId === appt.appointmentId;
+                                                                        
+                                                                        return (
+                                                                        <Button 
+                                                                            key={doc.documentId} 
+                                                                            variant="outline" 
+                                                                            size="sm" 
+                                                                            className="text-xs rounded-lg border-medical-200 text-medical-700 bg-medical-50 hover:bg-medical-100"
+                                                                            disabled={downloadingAppointmentId !== null} // Bloqueamos si hay alguna descarga activa
+                                                                            onClick={() => handlePrintPdf(appt.appointmentId)} // 🚀 NUEVO: Evento Click
+                                                                        >
+                                                                            {isThisPrinting ? (
+                                                                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                                                            ) : (
+                                                                                <FileText className="w-3.5 h-3.5 mr-1.5" />
+                                                                            )}
+                                                                            
+                                                                            {t("prescription_document", { defaultValue: 'Receta Médica' })} 
+                                                                            
+                                                                            {!isThisPrinting && <Download className="w-3 h-3 ml-2" />}
                                                                         </Button>
-                                                                    ))}
+                                                                    )})}
                                                                 </div>
                                                             )}
                                                         </div>
