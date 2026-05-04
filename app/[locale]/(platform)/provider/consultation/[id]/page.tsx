@@ -52,7 +52,10 @@ export default function ConsultationRoomPage() {
     addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
 
-  const [newRx, setNewRx] = useState({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
+  // 🚀 CAMBIO 1: Agregamos 'price' al estado inicial
+  const [newRx, setNewRx] = useState({ 
+    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '' 
+  });
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   
@@ -134,16 +137,19 @@ export default function ConsultationRoomPage() {
     }
   };
 
+  // 🚀 CAMBIO 2: Pasamos el precio al hook y aflojamos la regla de "dosage"
   const handleAddRx = () => {
-    if (newRx.medicationName && newRx.dosage) {
+    if (newRx.medicationName) { // Quitamos la restricción de dosage aquí también
       addPrescriptionItem({
         medicationName: newRx.medicationName,
         dosage: newRx.dosage,
         frequency: newRx.frequency,
         duration: newRx.duration,
-        instructions: newRx.instructions
+        instructions: newRx.instructions,
+        price: Number(newRx.price) || 0 // 🚀 INYECTAMOS EL PRECIO A LA RECETA FINAL
       });
-      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '' });
+      // Limpiamos todo incluyendo el precio
+      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '' });
     }
   };
 

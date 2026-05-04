@@ -10,7 +10,8 @@ import { UI_Product } from '@/types/catalog'; // 🚀 Importamos el tipo que usa
 
 interface TreatmentCheckoutStepProps {
   prescription: PrescriptionItem[];
-  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number };
+  // 🚀 AÑADIDO: price y catalogItemId en la definición
+  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number; price?: string | number };
   setNewRx: (rx: any) => void;
   handleAddRx: () => void;
   removePrescriptionItem: (id: string) => void;
@@ -58,7 +59,8 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
     setNewRx({ 
       ...newRx, 
       medicationName: product.name, 
-      catalogItemId: product.id // ID real de base de datos
+      catalogItemId: product.id, // ID real de base de datos
+      price: product.price || 0 // 🚀 MAGIA: Extraemos el precio del catálogo
     });
     setShowDropdown(false);
   };
@@ -177,7 +179,8 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
               </div>
             </div>
 
-            <Button onClick={handleAddRx} disabled={!newRx.medicationName || !newRx.dosage} className="w-full mt-2 h-10 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white">
+            {/* 🚀 CAMBIO: Quitamos el !newRx.dosage del disabled */}
+            <Button onClick={handleAddRx} disabled={!newRx.medicationName} className="w-full mt-2 h-10 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white">
               <Plus className="w-4 h-4 mr-2" /> {t('rx_add_item')}
             </Button>
           </div>
