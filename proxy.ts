@@ -35,9 +35,15 @@ export function proxy(request: NextRequest) {
   // 🛡️ 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
   // =========================================================================
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
+  
+  // 🚀 NUEVO: Identificamos la ruta pública de la receta para excluirla
+  const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
 
-  // Todo bajo /patient, /provider o /admin está protegido, EXCEPTO /provider/register
-  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname) && !isProviderRegisterRoute;
+  // Todo bajo /patient, /provider o /admin está protegido, 
+  // EXCEPTO /provider/register y la Bóveda de Recetas (/patient/prescription/...)
+  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname) 
+    && !isProviderRegisterRoute 
+    && !isPublicPrescriptionRoute; // 🚀 AÑADIMOS LA EXCEPCIÓN AQUÍ
   
   const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register)/.test(pathname);
 
