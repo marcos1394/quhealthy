@@ -191,10 +191,24 @@ export default function ConsultationRoomPage() {
     }
   }, [consumerId, isOfflinePatient, patientDirectoryId, patientName, loadPatientRecord, t]);
 
-  // 🚀 INTERCEPTOR: Decidimos si abrimos la caja o finalizamos directo
+  // 🚀 NUEVO: Calculamos el Gran Total (Consulta + Productos)
+  const getGrandTotal = () => {
+    // Sumamos el precio de cada item en la receta (si no tiene precio, suma 0)
+    const productsTotal = prescription.reduce((sum, item) => {
+      // Usamos item.price o asume 0 si no existe
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return sum + (Number((item as any).price) || 0); 
+    }, 0);
+    
+    return totalPrice + productsTotal; // totalPrice es el costo base de la consulta
+  };
+
+  // 🚀 INTERCEPTOR ACTUALIZADO
   const handleCompleteClick = () => {
-    // Si la cita cuesta dinero, es en efectivo, y aún no está liquidada (SETTLED)
-    if (totalPrice > 0 && paymentMethod === 'CASH' && paymentStatus !== 'SETTLED') {
+    const finalAmount = getGrandTotal();
+
+    // Validamos usando el Gran Total en lugar del totalPrice estático
+    if (finalAmount > 0 && paymentMethod === 'CASH' && paymentStatus !== 'SETTLED') {
       setShowCashModal(true);
     } else {
       executeClinicalCompletion();
@@ -247,7 +261,7 @@ export default function ConsultationRoomPage() {
           executeClinicalCompletion();
         }}
         appointmentId={appointmentId}
-        totalAmount={totalPrice}
+        totalAmount={getGrandTotal()} // 🚀 AQUÍ inyectamos el total dinámico
         patientName={displayFullName}
       />
 
