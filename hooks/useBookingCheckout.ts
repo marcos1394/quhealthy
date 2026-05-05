@@ -1,6 +1,6 @@
 // Ubicación: src/hooks/useBookingCheckout.ts
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // 🚀 Importante para la redirección
+import { useRouter } from 'next/navigation'; 
 import { appointmentService } from '@/services/appointment.service';
 import { paymentService } from '@/services/payment.service';
 import { CheckoutParams } from '@/types/booking';
@@ -10,7 +10,7 @@ import { handleApiError } from '@/lib/handleApiError';
 
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const router = useRouter(); // 🚀 Instanciamos el router
+  const router = useRouter(); 
 
   const processCheckout = async ({
     providerId,
@@ -29,92 +29,129 @@ export const useBookingCheckout = () => {
         throw new Error("El carrito está vacío.");
       }
 
-      // 1. 🛠️ MAPEO DEL CARRITO
-      const cartItems = cart.map(item => {
-        let startTimeIso: string | null = null;
-        let appointmentType = 'IN_PERSON';
+      // 🧠 1. IDENTIFICAR EL TIPO DE ORDEN
+      // Es cita única si solo hay 1 ítem y es de tipo SERVICIO
+      const isSingleAppointment = cart.length === 1 && cart[0].type === 'SERVICE';
 
-        if (item.modality === 'ONLINE') appointmentType = 'ONLINE';
-
-        if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
-          if (selectedDate && selectedTime) {
-            const [hours, minutes] = selectedTime.split(':');
-            const startDateTime = new Date(selectedDate);
-            startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-            startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
-          } else {
-             startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
-          }
+      if (isSingleAppointment) {
+        // =======================================================
+        // 🩺 FLUJO A: CITA MÉDICA ÚNICA (Bypass al error Híbrido)
+        // =======================================================
+        const item = cart[0];
+        let startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
+        
+        if (selectedDate && selectedTime) {
+          const [hours, minutes] = selectedTime.split(':');
+          const startDateTime = new Date(selectedDate);
+          startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+          startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
         }
 
-        return {
+        const appointmentPayload = {
+          providerId,
+          consumerId,
+          dependentId,
           catalogItemId: item.id,
-          itemType: item.type || 'SERVICE', 
-          quantity: item.quantity || 1,
           startTime: startTimeIso,
-          appointmentType: appointmentType
+          appointmentType: item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON',
+          consumerSymptoms: consumerSymptoms || "Reserva de servicio médico",
+          paymentMethod: 'CREDIT_CARD'
         };
-      });
 
-      // 2. 📦 PREPARAR ORDEN
-      const preparePayload = {
-        providerId,
-        consumerId,
-        dependentId,
-        paymentMethod: 'CREDIT_CARD',
-        consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
-        shippingAddress,
-        cartItems
-      };
+        // 1. Crear Cita Normal (Backend Java: /api/appointments/create)
+        const createdAppointment = await appointmentService.createAppointment(appointmentPayload);
 
-      const preparedOrder = await appointmentService.prepareHybridOrder(preparePayload);
+        // 2. 🚀 AJUSTE EXACTO: Usamos createCheckoutSession y le pasamos solo el ID
+        const checkoutUrl = await paymentService.createCheckoutSession(createdAppointment.id);
 
-      if (!preparedOrder) throw new Error("No se pudo preparar la orden.");
+        // 3. Redirigir a Stripe
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        } else {
+          throw new Error("No se pudo generar la sesión de pago de la cita.");
+        }
 
-      // 3. 💳 SOLICITAR LINK DE PAGO
-      const paymentPayload = {
-        appointmentIds: preparedOrder.createdAppointmentIds,
-        orderId: preparedOrder.createdOrderId,
-        providerId: providerId,
-        totalAmount: preparedOrder.totalAmount,
-        currency: preparedOrder.currency || "MXN"
-      };
-
-      const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
-
-      // 4. 🚀 REDIRECCIÓN
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
       } else {
-        throw new Error("No se pudo generar la sesión de pago.");
+        // =======================================================
+        // 🛒 FLUJO B: ORDEN HÍBRIDA (Productos, Paquetes o Múltiples)
+        // =======================================================
+        const cartItems = cart.map(item => {
+          let startTimeIso: string | null = null;
+          let appointmentType = item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON';
+
+          if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
+            if (selectedDate && selectedTime) {
+              const [hours, minutes] = selectedTime.split(':');
+              const startDateTime = new Date(selectedDate);
+              startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+              startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+            } else {
+               startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
+            }
+          }
+
+          return {
+            catalogItemId: item.id,
+            itemType: item.type || 'SERVICE', 
+            quantity: item.quantity || 1,
+            startTime: startTimeIso,
+            appointmentType: appointmentType
+          };
+        });
+
+        const preparePayload = {
+          providerId,
+          consumerId,
+          dependentId,
+          paymentMethod: 'CREDIT_CARD',
+          consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
+          shippingAddress,
+          cartItems
+        };
+
+        const preparedOrder = await appointmentService.prepareHybridOrder(preparePayload);
+
+        if (!preparedOrder) throw new Error("No se pudo preparar la orden híbrida.");
+
+        // 🚀 AJUSTE EXACTO: El payload que espera createHybridCheckout
+        const paymentPayload = {
+          appointmentIds: preparedOrder.createdAppointmentIds,
+          orderId: preparedOrder.createdOrderId,
+          providerId: providerId,
+          totalAmount: preparedOrder.totalAmount,
+          currency: preparedOrder.currency || "MXN"
+        };
+
+        const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
+
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        } else {
+          throw new Error("No se pudo generar la sesión de pago híbrida.");
+        }
       }
 
     } catch (error: any) {
       console.error("❌ Checkout Error:", error);
       const errorData = error.response?.data;
 
-      // 🚀 FIX FU-002: Retroalimentación visible y manejo de sesión
       if (errorData?.code === "VALIDATION_ERROR") {
-        // Extraemos todos los mensajes de error del objeto del backend
         const validationMsgs = Object.values(errorData.errors || {}).join(", ");
         toast.error(`Error de validación: ${validationMsgs}`, { theme: "colored" });
         return;
       } 
       
       if (error.response?.status === 401) {
-        // Redirigimos al login con el flag de sesión expirada
         toast.warning("Tu sesión ha expirado.");
         router.push('/login?expired=true');
         return;
       }
 
-      // Error genérico o de red
       const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
       toast.error(errorMsg, { theme: "colored" });
       handleApiError(error);
 
     } finally {
-      // 🚀 FIX FU-001: Siempre liberamos el estado de carga
       setIsProcessing(false);
     }
   };
