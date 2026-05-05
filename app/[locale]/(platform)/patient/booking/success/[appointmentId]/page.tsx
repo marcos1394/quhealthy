@@ -61,7 +61,18 @@ export default function BookingSuccessPage() {
 
   const generateShareText = () => {
     if (!appointment) return '';
-    const dateStr = formatInTimeZone(new Date(appointment.startTime), 'UTC', "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", { locale: es });
+    
+    // Mismo Fix para el texto de compartir
+    const utcDateString = appointment.startTime.endsWith('Z') 
+      ? appointment.startTime 
+      : `${appointment.startTime}Z`;
+
+    const dateStr = formatInTimeZone(
+      new Date(utcDateString), 
+      Intl.DateTimeFormat().resolvedOptions().timeZone, 
+      "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", 
+      { locale: es }
+    );
     return t('share_text', { 
       service: appointment.serviceNameSnapshot || appointment.serviceName || 'Servicio Médico', 
       provider: appointment.providerNameSnapshot || 'Especialista', 
@@ -113,7 +124,18 @@ export default function BookingSuccessPage() {
   // ✨ RENDERIZADO PRINCIPAL (ÉXITO)
   // ==========================================
   
-  const formattedDateTime = formatInTimeZone(new Date(appointment.startTime), 'UTC', "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", { locale: es });
+  // 1. Aseguramos que JavaScript trate la cadena que llega del backend como UTC puro agregando 'Z'
+  const utcDateStringGlobal = appointment.startTime.endsWith('Z') 
+    ? appointment.startTime 
+    : `${appointment.startTime}Z`;
+
+  // 2. Lo formateamos. Al no pasarle 'UTC', date-fns lo renderiza en la hora local del paciente.
+  const formattedDateTime = formatInTimeZone(
+    new Date(utcDateStringGlobal),
+    Intl.DateTimeFormat().resolvedOptions().timeZone, // Usa la zona horaria del navegador del paciente
+    "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", 
+    { locale: es }
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8 pb-32 font-sans selection:bg-medical-500/30">
