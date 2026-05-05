@@ -12,28 +12,23 @@ import { HistoryTable, HistoryEntry } from "@/components/dashboard/history/Histo
 import { HistoryDetailModal } from "@/components/dashboard/history/HistoryDetailModal";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
+// 🚀 1. Importamos nuestro hook del catálogo
+import { useCatalog } from "@/hooks/useCatalog";
+
 type UserRole = "paciente" | "proveedor";
 
+// 🚧 DUMMY DATA: Lo dejamos temporalmente para que la tabla renderice algo
+// en lo que conectamos la API de transacciones en el siguiente paso.
 const DUMMY_HISTORY: HistoryEntry[] = [
   {
-    id: 1, date: new Date().toISOString(), type: "Consulta General", status: "completed", duration: "30 min",
-    notes: "Paciente presentó síntomas leves de gripe. Se recetó descanso.",
-    client: { name: "Ana López" }, provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
+    id: 1, date: new Date().toISOString(), type: "Consulta Nutricion Diabeticos", status: "completed", duration: "45 min",
+    notes: "Paciente presentó síntomas leves. Se recetó descanso.",
+    client: { name: "Ana López" }, provider: { name: "Dr. Marcos", specialty: "Nutrición" }
   },
   {
-    id: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), type: "Fisioterapia", status: "completed", duration: "45 min",
-    notes: "Sesión de rehabilitación de hombro.",
-    client: { name: "Carlos Rivera" }, provider: { name: "Fisio María Gómez", specialty: "Fisioterapia" }
-  },
-  {
-    id: 3, date: new Date(Date.now() - 86400000 * 10).toISOString(), type: "Limpieza Dental", status: "cancelled", duration: "60 min",
-    notes: "Cancelada por el paciente con 24h de antelación.",
-    client: { name: "Marta Sánchez" }, provider: { name: "Dr. Luis Martínez", specialty: "Odontología" }
-  },
-  {
-    id: 4, date: new Date(Date.now() + 86400000 * 2).toISOString(), type: "Seguimiento", status: "rescheduled", duration: "15 min",
-    notes: "Reprogramada por conflicto de horario.",
-    client: { name: "Ana López" }, provider: { name: "Dr. Juan Pérez", specialty: "Medicina General" }
+    id: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), type: "Insulina", status: "completed", duration: "-",
+    notes: "Venta directa de producto.",
+    client: { name: "Carlos Rivera" }, provider: { name: "Dr. Marcos", specialty: "Nutrición" }
   }
 ];
 
@@ -41,19 +36,44 @@ export default function ProviderHistoryPage() {
   const role: UserRole = "proveedor";
   const t = useTranslations("DashboardHistory");
 
+  // 🚀 2. Instanciamos el Hook del Catálogo
+  const { 
+    services, 
+    packages, 
+    products, 
+    courses, 
+    fetchInventory, 
+    isLoading: catalogLoading 
+  } = useCatalog();
+
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({ dateRange: "all", type: "all", status: "all" });
 
-  const serviceTypes = useMemo(() => Array.from(new Set(DUMMY_HISTORY.map(item => item.type))), []);
-
+  // 🚀 3. Disparamos la carga del catálogo al montar la página
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => { setHistory(DUMMY_HISTORY); setLoading(false); }, 800);
-  }, []);
+    fetchInventory();
+    
+    // Simulamos la carga de la tabla (Esto volará cuando usemos useHistory)
+    setTimeout(() => { setHistory(DUMMY_HISTORY); setLoadingHistory(false); }, 800);
+  }, [fetchInventory]);
 
+  // 🚀 4. REEMPLAZO MAGISTRAL: Construimos las opciones del filtro dinámicamente
+  // Juntamos los nombres de TODOS tus items (Servicios, Productos, Paquetes, Cursos)
+  const serviceTypes = useMemo(() => {
+    const allNames = [
+      ...services.map(s => s.name),
+      ...packages.map(p => p.name),
+      ...products.map(p => p.name),
+      ...courses.map(c => c.name)
+    ];
+    // Quitamos duplicados por si acaso
+    return Array.from(new Set(allNames));
+  }, [services, packages, products, courses]);
+
+  // Lógica de filtrado (Se queda igual)
   const filteredHistory = useMemo(() => {
     return history.filter(entry => {
       const lowerSearch = searchTerm.toLowerCase();
@@ -96,11 +116,12 @@ export default function ProviderHistoryPage() {
   const cancelledCount = filteredHistory.filter(e => e.status === "cancelled").length;
   const rescheduledCount = filteredHistory.filter(e => e.status === "rescheduled").length;
 
-  if (loading) {
+  // 🚀 5. Esperamos a que ambas cosas carguen (Catálogo + Historial)
+  if (loadingHistory || catalogLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
         <QhSpinner size="md" />
-        <p className="text-slate-500 dark:text-slate-400 font-light">{t("loading")}</p>
+        <p className="text-slate-500 dark:text-slate-400 font-light mt-4">{t("loading", { defaultValue: "Cargando tu historial..." })}</p>
       </div>
     );
   }
