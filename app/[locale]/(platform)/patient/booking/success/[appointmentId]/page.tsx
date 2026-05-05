@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -62,14 +62,9 @@ export default function BookingSuccessPage() {
   const generateShareText = () => {
     if (!appointment) return '';
     
-    // Mismo Fix para el texto de compartir
-    const utcDateString = appointment.startTime.endsWith('Z') 
-      ? appointment.startTime 
-      : `${appointment.startTime}Z`;
-
-    const dateStr = formatInTimeZone(
-      new Date(utcDateString), 
-      Intl.DateTimeFormat().resolvedOptions().timeZone, 
+    // Simplemente leemos la fecha tal cual viene del backend
+    const dateStr = format(
+      new Date(appointment.startTime), 
       "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", 
       { locale: es }
     );
@@ -124,15 +119,9 @@ export default function BookingSuccessPage() {
   // ✨ RENDERIZADO PRINCIPAL (ÉXITO)
   // ==========================================
   
-  // 1. Aseguramos que JavaScript trate la cadena que llega del backend como UTC puro agregando 'Z'
-  const utcDateStringGlobal = appointment.startTime.endsWith('Z') 
-    ? appointment.startTime 
-    : `${appointment.startTime}Z`;
-
-  // 2. Lo formateamos. Al no pasarle 'UTC', date-fns lo renderiza en la hora local del paciente.
-  const formattedDateTime = formatInTimeZone(
-    new Date(utcDateStringGlobal),
-    Intl.DateTimeFormat().resolvedOptions().timeZone, // Usa la zona horaria del navegador del paciente
+  // Leemos y formateamos la hora local tal como la mandó la base de datos
+  const formattedDateTime = format(
+    new Date(appointment.startTime),
     "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", 
     { locale: es }
   );
