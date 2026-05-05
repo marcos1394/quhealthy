@@ -59,10 +59,14 @@ export const useBookingCheckout = () => {
         };
 
         // 1. Crear Cita Normal (Backend Java: /api/appointments/create)
-        const createdAppointment = await appointmentService.createAppointment(appointmentPayload);
+        const createdResponse = await appointmentService.createAppointment(appointmentPayload);
 
-        // 2. 🚀 AJUSTE EXACTO: Usamos createCheckoutSession y le pasamos solo el ID
-        const checkoutUrl = await paymentService.createCheckoutSession(createdAppointment.id);
+        // 🚀 FIX EXACTO: Como el backend responde con una lista [ {id: 44} ], sacamos el primer elemento.
+        // Lo hacemos con un ternario por seguridad, por si en algún momento el backend devuelve un objeto directo.
+        const appointmentId = Array.isArray(createdResponse) ? createdResponse[0].id : createdResponse.id;
+
+        // 2. Crear Checkout de Stripe para 1 Cita
+        const checkoutUrl = await paymentService.createCheckoutSession(appointmentId);
 
         // 3. Redirigir a Stripe
         if (checkoutUrl) {
