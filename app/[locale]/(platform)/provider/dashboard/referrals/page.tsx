@@ -100,10 +100,14 @@ export default function ProviderReferralsPage() {
                   <Input 
                     readOnly 
                     value={referralLink} 
-                    className="h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 pr-24 text-slate-600 dark:text-slate-300 font-mono text-sm"
+                    // 🚀 FIX: pr-36 da más espacio, truncate corta limpiamente
+                    className="h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 pr-36 text-slate-600 dark:text-slate-300 font-mono text-sm truncate"
                   />
-                  <div className="absolute right-0 top-0 h-full flex items-center pr-4 pointer-events-none bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent pl-8">
-                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">REF: {userReferralCode}</span>
+                  {/* 🚀 FIX: Fondo sólido en los bordes interiores para que no se mezclen las letras */}
+                  <div className="absolute right-1 top-1 bottom-1 flex items-center pr-2 pl-4 pointer-events-none bg-slate-50 dark:bg-slate-950 rounded-r-md">
+                    <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-500/20 px-2.5 py-1.5 rounded-md border border-purple-200 dark:border-purple-500/30 uppercase tracking-wider">
+                      {userReferralCode}
+                    </span>
                   </div>
                 </div>
                 <Button 
