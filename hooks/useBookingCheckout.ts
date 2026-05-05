@@ -51,7 +51,7 @@ export const useBookingCheckout = () => {
           providerId,
           consumerId,
           dependentId,
-          catalogItemId: item.id,
+          serviceId: item.id, // 🚀 FIX: Cambiado de catalogItemId a serviceId
           startTime: startTimeIso,
           appointmentType: item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON',
           consumerSymptoms: consumerSymptoms || "Reserva de servicio médico",
