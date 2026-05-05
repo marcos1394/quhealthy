@@ -31,7 +31,7 @@ export default function PublicStorePage() {
   const t = useTranslations('StorePublic');
 
   const [activeTab, setActiveTab] = useState<TabType>('servicios');
-  const { cart, addToCart, setProvider, getTotalPrice } = useBookingStore();
+  const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
 
   const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
@@ -243,9 +243,24 @@ export default function PublicStorePage() {
                          {service.compareAtPrice && service.compareAtPrice > service.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through mb-0.5">${service.compareAtPrice}</span>}
                          <span className="text-2xl font-bold text-slate-900 dark:text-white leading-none">${service.price}</span>
                        </div>
-                       <Button onClick={() => handleAddToCart(service)} className="rounded-xl px-6 w-full font-bold text-white transition-all transform hover:scale-105 shadow-lg hover:brightness-110" style={{ backgroundColor: safePrimaryColor, boxShadow: `0 8px 25px -5px rgba(${primaryRgb}, 0.4)` }}>
-                         {t('btn_book')} <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
-                       </Button>
+                       {(() => {
+                         const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
+                         return (
+                           <Button 
+                             onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
+                             variant={isInCart ? "outline" : "default"}
+                             className={cn(
+                               "rounded-xl px-6 w-full font-bold transition-all transform shadow-sm hover:scale-105",
+                               isInCart 
+                                 ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20" 
+                                 : "text-white shadow-lg hover:brightness-110"
+                             )} 
+                             style={!isInCart ? { backgroundColor: safePrimaryColor, boxShadow: `0 8px 25px -5px rgba(${primaryRgb}, 0.4)` } : {}}
+                           >
+                             {isInCart ? 'Quitar del carrito' : t('btn_book')} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
+                           </Button>
+                         );
+                       })()}
                      </div>
                    </div>
                  </div>
@@ -283,9 +298,24 @@ export default function PublicStorePage() {
                           {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through block mb-1">${pkg.compareAtPrice}</span>}
                           <span className="text-3xl font-bold bg-clip-text text-transparent leading-none" style={{ backgroundImage: `linear-gradient(to right, ${safePrimaryColor}, #333)` }}>${pkg.price}</span>
                         </div>
-                        <Button onClick={() => handleAddToCart(pkg)} className="rounded-xl px-8 py-6 text-base font-bold text-white shadow-xl transition-transform hover:scale-105 hover:brightness-110" style={{ backgroundColor: safePrimaryColor, boxShadow: `0 0 30px -5px rgba(${primaryRgb}, 0.5)` }}>
-                          {t('btn_promo')}
-                        </Button>
+                        {(() => {
+                          const isInCart = cart.some(c => c.id === pkg.id && c.type === pkg.type);
+                          return (
+                            <Button 
+                              onClick={() => isInCart ? removeFromCart(pkg.id) : handleAddToCart(pkg)} 
+                              variant={isInCart ? "outline" : "default"}
+                              className={cn(
+                                "rounded-xl px-8 py-6 text-base font-bold transition-transform shadow-xl hover:scale-105 hover:brightness-110",
+                                isInCart 
+                                  ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
+                                  : "text-white"
+                              )} 
+                              style={!isInCart ? { backgroundColor: safePrimaryColor, boxShadow: `0 0 30px -5px rgba(${primaryRgb}, 0.5)` } : {}}
+                            >
+                              {isInCart ? 'Quitar' : t('btn_promo')}
+                            </Button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -318,9 +348,24 @@ export default function PublicStorePage() {
                         <p className="text-sm text-slate-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
                         <div className="flex items-center justify-between mt-auto">
                           <span className="text-2xl font-black text-slate-900 dark:text-white">${product.price}</span>
-                          <Button onClick={() => handleAddToCart(product)} className="rounded-xl text-white shadow-md hover:scale-105 transition-transform" style={{ backgroundColor: safePrimaryColor }}>
-                            Agregar
-                          </Button>
+                          {(() => {
+                            const isInCart = cart.some(c => c.id === product.id && c.type === product.type);
+                            return (
+                              <Button 
+                                onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)} 
+                                variant={isInCart ? "outline" : "default"}
+                                className={cn(
+                                  "rounded-xl shadow-md hover:scale-105 transition-transform",
+                                  isInCart 
+                                    ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
+                                    : "text-white"
+                                )} 
+                                style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
+                              >
+                                {isInCart ? 'Quitar' : 'Agregar'}
+                              </Button>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -362,9 +407,24 @@ export default function PublicStorePage() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto border-t border-slate-100 dark:border-white/5 pt-4">
                         <span className="text-2xl font-black text-slate-900 dark:text-white">${course.price}</span>
-                        <Button onClick={() => handleAddToCart(course)} className="rounded-xl w-full sm:w-auto font-bold text-white shadow-lg transition-transform hover:scale-105" style={{ backgroundColor: safePrimaryColor }}>
-                          Comprar Acceso
-                        </Button>
+                        {(() => {
+                          const isInCart = cart.some(c => c.id === course.id && c.type === course.type);
+                          return (
+                            <Button 
+                              onClick={() => isInCart ? removeFromCart(course.id) : handleAddToCart(course)} 
+                              variant={isInCart ? "outline" : "default"}
+                              className={cn(
+                                "rounded-xl w-full sm:w-auto font-bold shadow-lg transition-transform hover:scale-105",
+                                isInCart 
+                                  ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
+                                  : "text-white"
+                              )} 
+                              style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
+                            >
+                              {isInCart ? 'Quitar' : 'Comprar Acceso'}
+                            </Button>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -389,7 +449,15 @@ export default function PublicStorePage() {
             <div className="max-w-2xl mx-auto bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-[2rem] shadow-2xl p-3 flex items-center justify-between">
               <div className="flex flex-col pl-4">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('cart_summary')}</span>
-                <span className="font-bold text-lg">{cart.length} Ítems • ${totalCart}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-lg">{cart.length} Ítems • ${totalCart}</span>
+                  <button 
+                    onClick={clearCart}
+                    className="text-xs text-slate-400 hover:text-rose-500 underline transition-colors ml-2"
+                  >
+                    Vaciar
+                  </button>
+                </div>
               </div>
               <Button onClick={() => router.push(`/patient/booking/${slug}`)} className="rounded-full px-8 py-6 font-bold text-base shadow-xl hover:scale-105" style={{ backgroundColor: safePrimaryColor, color: '#fff' }}>
                 {t('btn_continue')} <ChevronRight className="w-5 h-5 ml-2" />
