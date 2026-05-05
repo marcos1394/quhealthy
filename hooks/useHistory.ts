@@ -29,12 +29,17 @@ export const useHistory = () => {
       const mappedHistory: HistoryEntry[] = appointments.map((app: any) => ({
         id: app.id,
         date: app.startTime, 
-        type: app.serviceNameSnapshot || 'Consulta', 
+        type: app.serviceName || 'Consulta General', 
         status: mapStatus(app.status), 
         duration: `${app.durationMinutes || 30} min`,
         notes: app.consumerSymptoms || app.clinicalNotes || 'Sin notas adicionales',
-        client: { name: app.consumerName || 'Paciente Nuevo' },
-        provider: { name: app.providerName || 'Especialista', specialty: 'General' }
+        client: { name: app.consumerNameSnapshot || 'Paciente Desconocido' },
+        provider: { 
+          name: app.providerNameSnapshot || 'Especialista', 
+          specialty: app.providerSpecialty || 'General' 
+        },
+        priceAtBooking: app.price,
+        cost: app.amountPaid
       }));
 
       setHistoryData(mappedHistory);
