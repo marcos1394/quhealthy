@@ -14,29 +14,16 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // 🚀 1. Importamos nuestro hook del catálogo
 import { useCatalog } from "@/hooks/useCatalog";
+// 🚀 1. Importamos el nuevo Hook
+import { useHistory } from "@/hooks/useHistory";
 
 type UserRole = "paciente" | "proveedor";
-
-// 🚧 DUMMY DATA: Lo dejamos temporalmente para que la tabla renderice algo
-// en lo que conectamos la API de transacciones en el siguiente paso.
-const DUMMY_HISTORY: HistoryEntry[] = [
-  {
-    id: 1, date: new Date().toISOString(), type: "Consulta Nutricion Diabeticos", status: "completed", duration: "45 min",
-    notes: "Paciente presentó síntomas leves. Se recetó descanso.",
-    client: { name: "Ana López" }, provider: { name: "Dr. Marcos", specialty: "Nutrición" }
-  },
-  {
-    id: 2, date: new Date(Date.now() - 86400000 * 3).toISOString(), type: "Insulina", status: "completed", duration: "-",
-    notes: "Venta directa de producto.",
-    client: { name: "Carlos Rivera" }, provider: { name: "Dr. Marcos", specialty: "Nutrición" }
-  }
-];
 
 export default function ProviderHistoryPage() {
   const role: UserRole = "proveedor";
   const t = useTranslations("DashboardHistory");
 
-  // 🚀 2. Instanciamos el Hook del Catálogo
+  // 🚀 2. Hooks de carga de datos
   const { 
     services, 
     packages, 
@@ -45,20 +32,17 @@ export default function ProviderHistoryPage() {
     fetchInventory, 
     isLoading: catalogLoading 
   } = useCatalog();
+  const { historyData, isLoadingHistory, fetchHistory } = useHistory();
 
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({ dateRange: "all", type: "all", status: "all" });
 
-  // 🚀 3. Disparamos la carga del catálogo al montar la página
+  // 🚀 3. Disparamos la carga de todo
   useEffect(() => {
     fetchInventory();
-    
-    // Simulamos la carga de la tabla (Esto volará cuando usemos useHistory)
-    setTimeout(() => { setHistory(DUMMY_HISTORY); setLoadingHistory(false); }, 800);
-  }, [fetchInventory]);
+    fetchHistory();
+  }, [fetchInventory, fetchHistory]);
 
   // 🚀 4. REEMPLAZO MAGISTRAL: Construimos las opciones del filtro dinámicamente
   // Juntamos los nombres de TODOS tus items (Servicios, Productos, Paquetes, Cursos)
@@ -75,15 +59,16 @@ export default function ProviderHistoryPage() {
 
   // Lógica de filtrado (Se queda igual)
   const filteredHistory = useMemo(() => {
-    return history.filter(entry => {
+    return historyData.filter(entry => {
       const lowerSearch = searchTerm.toLowerCase();
       const matchesSearch =
-        entry.type.toLowerCase().includes(lowerSearch) ||
-        entry.client?.name.toLowerCase().includes(lowerSearch) ||
+        entry.type?.toLowerCase().includes(lowerSearch) ||
+        entry.client?.name?.toLowerCase().includes(lowerSearch) ||
         entry.notes?.toLowerCase().includes(lowerSearch);
 
       const matchesDateRange = () => {
         if (filters.dateRange === "all") return true;
+        if (!entry.date) return false;
         const entryDate = parseISO(entry.date);
         const now = new Date();
         if (filters.dateRange === "today") return isToday(entryDate);
@@ -97,7 +82,7 @@ export default function ProviderHistoryPage() {
       const matchesStatus = filters.status === "all" || entry.status === filters.status;
       return matchesSearch && matchesDateRange() && matchesType && matchesStatus;
     });
-  }, [history, searchTerm, filters]);
+  }, [historyData, searchTerm, filters]);
 
   const handleExport = () => {
     const csvContent = "data:text/csv;charset=utf-8,"
@@ -117,7 +102,7 @@ export default function ProviderHistoryPage() {
   const rescheduledCount = filteredHistory.filter(e => e.status === "rescheduled").length;
 
   // 🚀 5. Esperamos a que ambas cosas carguen (Catálogo + Historial)
-  if (loadingHistory || catalogLoading) {
+  if (isLoadingHistory || catalogLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
         <QhSpinner size="md" />
