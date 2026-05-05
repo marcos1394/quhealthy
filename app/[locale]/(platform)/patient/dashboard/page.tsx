@@ -89,7 +89,7 @@ export default function ConsumerDashboardPage() {
           <NextAppointmentHero 
             appointment={nextAppointment}
             onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
-            onSearch={() => router.push('/search')}
+            onSearch={() => router.push('/patient/discover')}
           />
 
           <div className="h-full">

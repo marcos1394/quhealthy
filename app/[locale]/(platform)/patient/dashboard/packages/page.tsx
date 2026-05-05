@@ -54,7 +54,7 @@ export default function ConsumerPackagesPage() {
                         </div>
                     </div>
                     <Button 
-                        onClick={() => router.push('/search')} 
+                        onClick={() => router.push('/patient/discover')} 
                         className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-xl transition-all h-12 px-6 rounded-xl font-semibold"
                     >
                         <Sparkles className="w-4 h-4 mr-2" />
