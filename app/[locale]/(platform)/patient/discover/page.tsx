@@ -216,7 +216,7 @@ const MapProviderCard = ({
               style={isSelected ? { backgroundColor: provider.color, boxShadow: `0 4px 20px -5px ${provider.color}` } : {}}
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(`/provider/store/${provider.slug}`);
+                router.push(`/store/${provider.slug}`);
               }}
             >
               {t('btn_view_store', { defaultValue: 'Ver Tienda' })} <ChevronRight className="w-3 h-3 ml-1" />

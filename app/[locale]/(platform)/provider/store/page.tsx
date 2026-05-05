@@ -78,7 +78,7 @@ export default function StoreSetupPage() {
     setIsPublishing(true);
     const success = await updateProfile({ marketplaceVisible: true });
     if (success) {
-      window.open(`/provider/store/${profile?.slug}`, '_blank');
+      window.open(`/store/${profile?.slug}`, '_blank');
     }
     setIsPublishing(false);
   };

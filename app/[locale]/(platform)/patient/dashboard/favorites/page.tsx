@@ -125,7 +125,7 @@ export default function PatientFavoritesDashboard() {
                                                 <Button 
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => router.push(`/provider/store/${provider.slug}`)}
+                                                    onClick={() => router.push(`/store/${provider.slug}`)}
                                                     className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
                                                 >
                                                     {t('view_profile')} <ChevronRight className="w-3 h-3 ml-1" />
