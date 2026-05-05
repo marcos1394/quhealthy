@@ -200,7 +200,8 @@ export const appointmentService = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConsumerOrders: async (): Promise<any[]> => {
-    const response = await axiosInstance.get('/api/consumer/orders');
+    // 🚀 FIX: Actualizada la URL para coincidir con el controlador
+    const response = await axiosInstance.get('/api/appointments/consumer/orders');
     return response.data;
   },
 

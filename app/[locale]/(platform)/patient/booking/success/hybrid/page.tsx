@@ -61,9 +61,9 @@ export default function HybridSuccessPage() {
       try {
         const ordersList = await appointmentService.getConsumerOrders();
         
-        if (ordersList && ordersList.length > 0) {
-          // Asumimos que la orden más reciente es la primera de la lista
-          setOrder(ordersList[0]);
+        // 🚀 FIX: Leemos .content porque Spring Boot devuelve un objeto Page
+        if (ordersList && ordersList.content && ordersList.content.length > 0) {
+          setOrder(ordersList.content[0]);
         } else {
           setOrder(null);
         }
