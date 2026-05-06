@@ -1,4 +1,4 @@
-// hooks/useProviderOrders.ts
+// Ubicación: src/hooks/useProviderOrders.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
@@ -16,7 +16,9 @@ export const useProviderOrders = () => {
       const data = await providerOrderService.getOrders(page, size);
       setOrders(data.content || []);
     } catch (error) {
-      return;
+      handleApiError(error);
+      // 🚀 FIX: Mostramos el mensaje visualmente
+      toast.error(errorMsg, { theme: 'colored' });
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +37,9 @@ export const useProviderOrders = () => {
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
-      return;
+      handleApiError(error);
+      // 🚀 FIX: Retorno falso explícito con notificación de error
+      toast.error(errorMsg, { theme: 'colored' });
       return false;
     } finally {
       setIsSubmitting(false);
@@ -52,7 +56,9 @@ export const useProviderOrders = () => {
       setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
       toast.success(successMsg, { theme: 'colored' });
     } catch (error) {
-      return;
+      handleApiError(error);
+      // 🚀 FIX: Notificación de error activa
+      toast.error(errorMsg, { theme: 'colored' });
     }
   };
 

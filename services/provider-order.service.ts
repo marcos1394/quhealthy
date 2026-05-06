@@ -3,7 +3,8 @@ import axiosInstance from '@/lib/axios';
 import { PageResponse } from '@/types/appointments'; // Reutilizamos tu tipo de paginación
 import { OrderResponseDto, ShipOrderRequest } from '@/types/order';
 
-const BASE_URL = '/api/provider/orders';
+// 🚀 FIX: Ruta actualizada para coincidir con el microservicio a través del Gateway
+const BASE_URL = '/api/appointments/provider/orders';
 
 export const providerOrderService = {
   
