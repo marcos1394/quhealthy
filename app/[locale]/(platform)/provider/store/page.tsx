@@ -1,3 +1,4 @@
+// Ubicación: src/app/[locale]/(platform)/provider/store/page.tsx
 "use client";
 
 import React, { useEffect } from "react";
@@ -18,10 +19,16 @@ import {
   Trophy,
   Info,
   ExternalLink,
-  ShoppingBag // 🚀 Importamos un icono más de E-commerce
+  ShoppingBag,
+  Eye,
+  Settings,
+  Pill,
+  GraduationCap,
+  Stethoscope,
+  Package
 } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -43,36 +50,34 @@ export default function StoreSetupPage() {
   // ==========================================
   const { profile, isLoading: loadingProfile, updateProfile } = useStoreProfile();
 
-  // 🚀 AHORA TRAEMOS TODO EL INVENTARIO
   const { services, packages, products, courses, fetchInventory, isLoading: loadingCatalog } = useCatalog();
   const { staff, fetchStaff, isLoading: loadingStaff } = useStaff();
   const [isPublishing, setIsPublishing] = React.useState(false);
 
-  // Disparamos las llamadas al montar la página
   useEffect(() => {
     fetchInventory();
     fetchStaff();
   }, [fetchInventory, fetchStaff]);
 
-  // Estado de carga global
   const isGlobalLoading = loadingProfile || loadingCatalog || loadingStaff;
 
   // ==========================================
-  // 2. LÓGICA DE PROGRESO REAL
+  // 2. LÓGICA DE PROGRESO Y MÉTRICAS
   // ==========================================
   const isIdentityComplete = !!profile?.displayName && !!profile?.slug;
 
-  // 🚀 CALCULAMOS EL TOTAL DEL CATÁLOGO (Ignorando los que están en modo edición/isNew)
-  const realCatalogCount =
-    services.filter(s => !s.isNew).length +
-    packages.filter(p => !p.isNew).length +
-    products.filter(p => !p.isNew).length +
-    courses.filter(c => !c.isNew).length;
-
+  const activeServices = services.filter(s => !s.isNew).length;
+  const activePackages = packages.filter(p => !p.isNew).length;
+  const activeProducts = products.filter(p => !p.isNew).length;
+  const activeCourses = courses.filter(c => !c.isNew).length;
+  
+  const realCatalogCount = activeServices + activePackages + activeProducts + activeCourses;
   const isCatalogComplete = realCatalogCount > 0;
 
   const isPoliciesComplete = !!profile?.cancellationPolicy;
-  const isStaffComplete = staff.filter(s => !s.isNew).length > 0;
+  
+  const activeStaffCount = staff.filter(s => !s.isNew).length;
+  const isStaffComplete = activeStaffCount > 0;
 
   const handlePublishStore = async () => {
     setIsPublishing(true);
@@ -80,6 +85,12 @@ export default function StoreSetupPage() {
     if (success) {
       window.open(`/store/${profile?.slug}`, '_blank');
     }
+    setIsPublishing(false);
+  };
+
+  const handleToggleVisibility = async () => {
+    setIsPublishing(true);
+    await updateProfile({ marketplaceVisible: !profile?.marketplaceVisible });
     setIsPublishing(false);
   };
 
@@ -97,12 +108,12 @@ export default function StoreSetupPage() {
       color: "medical"
     },
     {
-      id: "catalog", // 🚀 RENOMBRAMOS EL PASO
+      id: "catalog",
       title: t('steps.catalog.title', { defaultValue: 'Catálogo y Precios' }),
       description: t('steps.catalog.desc', { defaultValue: 'Servicios, productos y cursos' }),
-      icon: ShoppingBag, // 🚀 CAMBIAMOS EL ICONO
+      icon: ShoppingBag,
       isComplete: isCatalogComplete,
-      path: "/provider/store/catalog", // 🚀 NUEVA RUTA UNIFICADA
+      path: "/provider/store/catalog",
       badge: realCatalogCount > 0 ? `${realCatalogCount} ítems` : null,
       color: "blue"
     },
@@ -128,7 +139,7 @@ export default function StoreSetupPage() {
 
   const completedCount = steps.filter(s => s.isComplete).length;
   const progressPercentage = Math.round((completedCount / steps.length) * 100);
-  const isStoreReady = completedCount === steps.length;
+  const isStoreReady = completedCount === steps.length; // 🚀 MODO: True = Centro de Mando, False = Asistente
 
   // ==========================================
   // LOADING STATE
@@ -145,6 +156,158 @@ export default function StoreSetupPage() {
     );
   }
 
+  // ============================================================================
+  // 🚀 MODO 1: CENTRO DE MANDO (Cuando la tienda ya está configurada)
+  // ============================================================================
+  if (isStoreReady) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
+        <div className="max-w-6xl mx-auto space-y-8 pb-10">
+          
+          {/* Header del Centro de Mando */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-inner">
+                <Store className="w-10 h-10 text-medical-600 dark:text-medical-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    Centro de Mando
+                  </h1>
+                  <Badge variant={profile?.marketplaceVisible ? "success" : "secondary"} className="uppercase tracking-wider text-xs">
+                    {profile?.marketplaceVisible ? "Tienda Pública" : "Tienda Oculta"}
+                  </Badge>
+                </div>
+                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                  Gestiona tu catálogo, identidad y equipo desde aquí.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={handleToggleVisibility} 
+                variant="outline" 
+                disabled={isPublishing}
+                className="h-12 rounded-xl font-bold border-slate-200 dark:border-slate-700"
+              >
+                {isPublishing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Settings className="w-4 h-4 mr-2" />}
+                {profile?.marketplaceVisible ? "Ocultar Tienda" : "Publicar Tienda"}
+              </Button>
+              
+              <Button 
+                onClick={() => window.open(`/store/${profile?.slug}`, '_blank')}
+                disabled={!profile?.marketplaceVisible}
+                className="h-12 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 shadow-md"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Ver Tienda en Vivo
+              </Button>
+            </div>
+          </div>
+
+          {/* Grid de Gestión */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Tarjeta: Catálogo (La más importante) */}
+            <Card className="lg:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <ShoppingBag className="w-6 h-6 text-emerald-500" />
+                  Catálogo e Inventario
+                </CardTitle>
+                <Button variant="ghost" onClick={() => router.push("/provider/store/catalog")} className="text-medical-600 dark:text-medical-400 font-bold">
+                  Gestionar <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                    <Stethoscope className="w-8 h-8 mx-auto mb-2 text-indigo-500" />
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeServices}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Servicios</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                    <Pill className="w-8 h-8 mx-auto mb-2 text-rose-500" />
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeProducts}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Productos</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                    <GraduationCap className="w-8 h-8 mx-auto mb-2 text-amber-500" />
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeCourses}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Cursos</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                    <Package className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activePackages}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Paquetes</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tarjeta: Equipo Médico */}
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-xl flex items-center justify-between">
+                  <span className="flex items-center gap-2"><Users className="w-6 h-6 text-pink-500" /> Personal</span>
+                  <Badge className="bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300">{activeStaffCount} activos</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Profesionales que brindan los servicios en tu clínica o de forma online.
+                </p>
+                <Button onClick={() => router.push("/provider/store/staff")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                  Administrar Equipo
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Tarjeta: Identidad */}
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Palette className="w-6 h-6 text-medical-500" /> Identidad Visual
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Logo, colores de marca, imágenes de portada y biografía de la tienda.
+                </p>
+                <Button onClick={() => router.push("/provider/store/identity")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                  Editar Identidad
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Tarjeta: Políticas */}
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <ShieldCheck className="w-6 h-6 text-amber-500" /> Políticas y Legal
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Políticas de cancelación, reembolsos y términos de venta para tus pacientes.
+                </p>
+                <Button onClick={() => router.push("/provider/store/policies")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                  Actualizar Políticas
+                </Button>
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // 🚀 MODO 2: ASISTENTE DE CONFIGURACIÓN
+  // ============================================================================
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
       <div className="max-w-5xl mx-auto space-y-8 pb-10">
