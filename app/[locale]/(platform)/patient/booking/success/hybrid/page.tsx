@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -11,75 +11,73 @@ import { toast } from 'react-toastify';
 import { Home, ShoppingBag, Truck, ReceiptText, Package, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 import { useBookingStore } from '@/hooks/useBookingStore';
-import { appointmentService } from '@/services/appointment.service';
+import { paymentService } from '@/services/payment.service'; // 🚀 Usamos el PaymentService
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Componentes modulares (Reutilizados de tu vista de éxito de citas)
+// Componentes modulares
 import { BackgroundEffects, Confetti } from '@/components/booking/success/SuccessEffects';
 
-// Interfaz temporal para la orden (Ajusta los campos según lo que devuelva tu backend)
-interface OrderItem {
-  id: number;
-  name?: string;
-  serviceName?: string;
-  itemName?: string; // 🚀 NUEVO: Lo que manda tu backend
+// 🚀 NUEVAS INTERFACES ENTERPRISE (Alineadas con tu backend Java)
+interface ReceiptItemDto {
   quantity: number;
-  price: number;
-  itemType: string;
+  name: string;
+  type: string; // 'SERVICE', 'PRODUCT', 'COURSE'
 }
 
-interface OrderResponse {
-  id: number;
-  totalAmount: number;
+interface UnifiedReceiptResponse {
+  transactionId: string;
+  date: string; // Timestamp de Stripe en segundos
+  totalPaid: number;
   currency: string;
-  status: string;
+  paymentMethod: string;
+  customerName: string;
   shippingAddress?: string;
-  createdAt: string;
-  items?: OrderItem[];
-  productsToDeliver?: string; // Por si tu backend manda los productos en un string JSON
+  items: ReceiptItemDto[];
 }
 
 export default function HybridSuccessPage() {
   const router = useRouter();
-  const t = useTranslations('PatientBookingSuccess'); // Puedes usar el mismo archivo de traducciones
+  const searchParams = useSearchParams(); 
+  const sessionId = searchParams.get('session_id'); // 🚀 Leemos el ID de Stripe de la URL
+
+  const t = useTranslations('PatientBookingSuccess');
   const clearCart = useBookingStore((state) => state.clearCart);
 
-  const [order, setOrder] = useState<OrderResponse | null>(null);
+  const [receipt, setReceipt] = useState<UnifiedReceiptResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
-    // 1. Apagar el confetti después de 5 segundos
+    // 1. Apagar confetti después de 5s
     const timer = setTimeout(() => setShowConfetti(false), 5000);
 
-    // 2. Limpiar el carrito de compras (Ya se pagó, no lo necesitamos)
+    // 2. Vaciamos el carrito (ya no lo necesitamos para leer, solo para limpiar)
     clearCart();
 
-    // 3. Obtener la orden desde el backend
-    const fetchOrder = async () => {
+    // 3. Consultar el recibo unificado al Backend Enterprise
+    const fetchReceipt = async () => {
+      if (!sessionId) {
+        setIsLoading(false);
+        return; // Si no hay ID en la URL, se mostrará el estado de error
+      }
+
       try {
-        const ordersList = await appointmentService.getConsumerOrders();
-        
-        // 🚀 FIX: Leemos .content porque Spring Boot devuelve un objeto Page
-        if (ordersList && ordersList.content && ordersList.content.length > 0) {
-          setOrder(ordersList.content[0]);
-        } else {
-          setOrder(null);
-        }
+        const data = await paymentService.getUnifiedReceipt(sessionId);
+        setReceipt(data);
       } catch (error) {
-        console.error("Error al obtener la orden:", error);
-        toast.error("Hubo un problema al cargar los detalles de tu orden.");
+        console.error("Error al obtener el recibo unificado:", error);
+        toast.error("Hubo un problema al cargar el detalle de tu recibo.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchOrder();
+    fetchReceipt();
 
     return () => clearTimeout(timer);
-  }, [clearCart]);
+  }, [sessionId, clearCart]);
 
 
   // ==========================================
@@ -90,20 +88,20 @@ export default function HybridSuccessPage() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 mt-4 font-medium">Buscando tu orden...</p>
+        <p className="text-slate-500 mt-4 font-medium">Generando tu recibo detallado...</p>
       </div>
     );
   }
 
-  if (!order) {
+  if (!receipt) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-red-50 dark:bg-red-500/10 p-5 rounded-full mb-6">
           <ShoppingBag className="w-12 h-12 text-red-500" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">No encontramos tu recibo</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Recibo no encontrado</h2>
         <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8 max-w-sm mx-auto">
-          No pudimos localizar los detalles de esta orden. Sin embargo, si tu pago fue exitoso, recibirás un comprobante en tu correo electrónico.
+          No pudimos localizar la transacción <br/><span className="text-xs break-all">{sessionId}</span>
         </p>
         <Button onClick={() => router.push("/patient/dashboard")} className="h-12 px-8 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
           Ir a mis compras
@@ -116,20 +114,14 @@ export default function HybridSuccessPage() {
   // ✨ RENDERIZADO PRINCIPAL (TICKET DE COMPRA)
   // ==========================================
 
-  // Formatear el precio
   const formattedTotal = new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: order.currency || 'MXN',
-  }).format(order.totalAmount || 0);
+    currency: receipt.currency || 'MXN',
+  }).format(receipt.totalPaid || 0);
 
-  // 🚀 FIX: Aseguramos que JavaScript sepa que el createdAt viene en UTC
-  const utcCreatedAt = order.createdAt.endsWith('Z') 
-    ? order.createdAt 
-    : `${order.createdAt}Z`;
-
-  // Formatear la fecha
+  // 🚀 FIX DE FECHA: Stripe manda el tiempo en Segundos (UNIX). Multiplicamos por 1000 para Milisegundos en JS.
   const formattedDate = format(
-    new Date(utcCreatedAt),
+    new Date(parseInt(receipt.date) * 1000), 
     "EEEE, d 'de' MMMM yyyy 'a las' HH:mm 'hrs'", 
     { locale: es }
   );
@@ -142,7 +134,6 @@ export default function HybridSuccessPage() {
       <div className="max-w-2xl mx-auto relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           
-          {/* HEADER DEL ÉXITO */}
           <div className="text-center mb-10">
             <motion.div 
               initial={{ scale: 0 }} 
@@ -156,82 +147,74 @@ export default function HybridSuccessPage() {
               ¡Pago Exitoso!
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed font-medium">
-              Tu orden ha sido procesada correctamente. Hemos enviado un recibo a tu correo electrónico.
+              Tu compra híbrida ha sido procesada correctamente. Hemos enviado el comprobante a tu correo electrónico.
             </p>
           </div>
 
-          {/* TICKET DE COMPRA */}
           <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden rounded-3xl relative">
-            
-            {/* Adorno superior (estilo ticket impreso) */}
             <div className="h-2 w-full bg-repeating-linear-gradient from-transparent to-transparent bg-[length:20px_20px] bg-gradient-to-r from-emerald-400 to-teal-500" />
             
             <CardContent className="p-8">
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-dashed border-slate-200 dark:border-slate-700">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-dashed border-slate-200 dark:border-slate-700 gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Orden #</p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white">{order.id.toString().padStart(6, '0')}</p>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Transacción</p>
+                  <p className="text-xs font-mono font-medium text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                    {receipt.transactionId.replace('cs_test_', '***').substring(0, 15)}
+                  </p>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Fecha</p>
                   <p className="text-sm font-medium text-slate-900 dark:text-white capitalize">{formattedDate}</p>
                 </div>
               </div>
 
-              {/* DIRECCIÓN DE ENVÍO (Si existe) */}
-              {order.shippingAddress && (
+              {receipt.shippingAddress && (
                 <div className="mb-8 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2 mb-2">
                     <Truck className="w-5 h-5 text-medical-500" />
                     <h3 className="font-bold text-slate-900 dark:text-white">Dirección de Envío</h3>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-7">
-                    {order.shippingAddress}
+                    {receipt.shippingAddress}
                   </p>
                 </div>
               )}
 
-              {/* LISTA DE ÍTEMS O DESCRIPCIÓN */}
               <div className="mb-8">
                 <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
                   <Package className="w-5 h-5 text-slate-400" /> Detalle de Compra
                 </h3>
                 
-                {/* 
-                  Aquí mostramos los ítems. Si tu backend guarda un string, mostramos el string.
-                  Si guarda un array de objetos, los iteramos.
-                */}
                 <div className="space-y-4">
-                  {order.items && order.items.length > 0 ? (
-                    order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300">
-                        <span className="flex items-center gap-2">
-                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs">{item.quantity}x</span>
-                          {item.itemName || item.name || item.serviceName || 'Producto/Servicio'}
+                  {receipt.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/50 pb-3 last:border-0 last:pb-0">
+                      <span className="flex items-center gap-3">
+                        <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold px-2.5 py-1 rounded-md text-xs">
+                          {item.quantity}x
                         </span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-slate-600 dark:text-slate-400 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                      {order.productsToDeliver || 'Artículos de tu carrito híbrido'}
+                        <span>
+                          {item.name}
+                          <span className="block text-xs text-slate-400 font-normal mt-0.5">
+                            {item.type === 'SERVICE' ? 'Cita Médica' : 
+                             item.type === 'PRODUCT' ? 'Producto Físico' : 'Contenido Digital'}
+                          </span>
+                        </span>
+                      </span>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
 
-              {/* TOTAL */}
               <div className="pt-6 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-between items-center">
                 <span className="text-lg font-bold text-slate-500">Total Pagado</span>
                 <span className="text-3xl font-black text-slate-900 dark:text-white">{formattedTotal}</span>
               </div>
             </CardContent>
 
-            {/* Adorno inferior (recortes circulares de ticket) */}
             <div className="absolute -left-4 top-[50%] w-8 h-8 bg-slate-50 dark:bg-slate-950 rounded-full" />
             <div className="absolute -right-4 top-[50%] w-8 h-8 bg-slate-50 dark:bg-slate-950 rounded-full" />
           </Card>
 
-          {/* BOTONES DE ACCIÓN */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={() => router.push("/patient/dashboard/orders")} 

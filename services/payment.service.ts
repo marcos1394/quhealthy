@@ -40,5 +40,14 @@ export const paymentService = {
   processCashCheckout: async (data: { appointmentId: number; totalAmount: number; amountReceived: number; description?: string }) => {
     const response = await axiosInstance.post('/api/payments/cash/checkout', data);
     return response.data;
+  },
+
+  /**
+   * 🧾 Obtiene el recibo unificado (Citas + Productos) directamente desde Stripe y la BD
+   * GET /api/payments/receipt/{sessionId}
+   */
+  getUnifiedReceipt: async (sessionId: string): Promise<any> => {
+    const response = await axiosInstance.get(`/api/payments/receipt/${sessionId}`);
+    return response.data;
   }
 };
