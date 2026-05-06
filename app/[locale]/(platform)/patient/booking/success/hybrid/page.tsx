@@ -24,6 +24,7 @@ interface OrderItem {
   id: number;
   name?: string;
   serviceName?: string;
+  itemName?: string; // 🚀 NUEVO: Lo que manda tu backend
   quantity: number;
   price: number;
   itemType: string;
@@ -121,9 +122,14 @@ export default function HybridSuccessPage() {
     currency: order.currency || 'MXN',
   }).format(order.totalAmount || 0);
 
+  // 🚀 FIX: Aseguramos que JavaScript sepa que el createdAt viene en UTC
+  const utcCreatedAt = order.createdAt.endsWith('Z') 
+    ? order.createdAt 
+    : `${order.createdAt}Z`;
+
   // Formatear la fecha
   const formattedDate = format(
-    new Date(order.createdAt),
+    new Date(utcCreatedAt),
     "EEEE, d 'de' MMMM yyyy 'a las' HH:mm 'hrs'", 
     { locale: es }
   );
@@ -201,7 +207,7 @@ export default function HybridSuccessPage() {
                       <div key={idx} className="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300">
                         <span className="flex items-center gap-2">
                           <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs">{item.quantity}x</span>
-                          {item.name || item.serviceName || 'Producto/Servicio'}
+                          {item.itemName || item.name || item.serviceName || 'Producto/Servicio'}
                         </span>
                       </div>
                     ))
