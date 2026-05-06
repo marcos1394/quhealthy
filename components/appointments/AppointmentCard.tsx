@@ -169,7 +169,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
 
               <Button
                 variant="outline"
-                onClick={() => router.push(`/appointments/${appt.id}`)}
+                onClick={() => router.push(`/patient/appointments/${appt.id}`)}
                 className="w-full border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <Eye className="w-4 h-4 mr-2" />
