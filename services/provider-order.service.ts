@@ -34,7 +34,10 @@ export const providerOrderService = {
   // 🚀 NUEVO: Descargar Packing Slip
   downloadPackingSlip: async (orderId: number): Promise<Blob> => {
     const response = await axiosInstance.get(`${BASE_URL}/${orderId}/packing-slip`, {
-      responseType: 'blob' // Fundamental para que no se corrompa el PDF
+      responseType: 'blob', // Fundamental para que no se corrompa el PDF
+      headers: {
+        'Accept': 'application/pdf' // 🚀 FIX: Le decimos a Spring que sí queremos un PDF
+      }
     });
     return response.data;
   }
