@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImagePlus, X, Zap, Percent, DollarSign, ShoppingCart, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -33,6 +33,7 @@ export function PackageEditorDialog({
   
   const [pkg, setPkg] = useState<UI_Package | null>(null);
   const [discountPercent, setDiscountPercent] = useState(15);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && initialData) {
@@ -72,6 +73,18 @@ export function PackageEditorDialog({
   const manualPriceChange = (newPrice: number) => {
     setPkg({ ...pkg, price: newPrice });
     setDiscountPercent(realValue > 0 ? Math.max(0, Math.min(100, Math.round(((realValue - newPrice) / realValue) * 100))) : 0);
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !pkg) return;
+    // Preview local inmediato
+    const objectUrl = URL.createObjectURL(file);
+    setPkg({ ...pkg, imageUrl: objectUrl });
+    // Llama al upload handler si está disponible
+    if (onImageUpload) onImageUpload(pkg.id, file);
+    // Limpia el input para permitir re-seleccionar el mismo archivo
+    e.target.value = '';
   };
 
   const suggestedDiscounts = [
@@ -117,10 +130,23 @@ export function PackageEditorDialog({
                   <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
                      {t('photo', { defaultValue: 'Portada del Paquete' })}
                   </Label>
-                  <div className={cn(
-                    "w-full aspect-[21/9] rounded-3xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-white dark:bg-slate-900 group",
-                    pkg.imageUrl ? "border-transparent shadow-lg" : "border-dashed border-slate-300 dark:border-slate-700 hover:border-medical-400 hover:bg-medical-50/50 dark:hover:bg-medical-500/5 hover:scale-[1.01]"
-                  )}>
+
+                  {/* Input oculto que abre el explorador de archivos */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleBannerChange}
+                  />
+
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      "w-full aspect-[21/9] rounded-3xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-white dark:bg-slate-900 group",
+                      pkg.imageUrl ? "border-transparent shadow-lg" : "border-dashed border-slate-300 dark:border-slate-700 hover:border-medical-400 hover:bg-medical-50/50 dark:hover:bg-medical-500/5 hover:scale-[1.01]"
+                    )}
+                  >
                     {pkg.imageUrl ? (
                       <img src={pkg.imageUrl} alt="Paquete" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
                     ) : (
