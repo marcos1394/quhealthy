@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { es } from "date-fns/locale"; // 💡 Tip: Puedes hacer esto dinámico según el locale del usuario
 import {
-  Package, Truck, CheckCircle2, Loader2, MapPin, XCircle
+  Package, Truck, CheckCircle2, Loader2, MapPin, XCircle, Printer
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
@@ -29,7 +29,7 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 export default function ProviderOrdersPage() {
   const t = useTranslations('ProviderOrders');
   const {
-    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered, cancelOrder
+    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip
   } = useProviderOrders();
 
   // Estados de la UI (Modal)
@@ -190,11 +190,24 @@ export default function ProviderOrdersPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+                            className="w-full justify-start border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
                             onClick={() => markAsDelivered(order.id, t('toast_deliver_success'), t('toast_deliver_error'))}
                           >
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             {t('btn_deliver')}
+                          </Button>
+                        )}
+
+                        {/* 🚀 NUEVO BOTÓN: Imprimir Ticket (Aparece en Processing y Shipped por si necesitan reimprimir) */}
+                        {(order.orderStatus === 'PROCESSING' || order.orderStatus === 'SHIPPED') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full justify-start border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            onClick={() => downloadSlip(order.id, 'Hoja de empaque descargada', 'Error al descargar la hoja')}
+                          >
+                            <Printer className="w-4 h-4 mr-2" />
+                            Imprimir Ticket
                           </Button>
                         )}
                       </td>

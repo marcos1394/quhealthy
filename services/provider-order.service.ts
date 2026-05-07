@@ -29,5 +29,13 @@ export const providerOrderService = {
   cancelAndRefundOrder: async (orderId: number): Promise<void> => {
     // Fíjate que la ruta apunta a /payments, no a /appointments
     await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/cancel`);
+  },
+
+  // 🚀 NUEVO: Descargar Packing Slip
+  downloadPackingSlip: async (orderId: number): Promise<Blob> => {
+    const response = await axiosInstance.get(`${BASE_URL}/${orderId}/packing-slip`, {
+      responseType: 'blob' // Fundamental para que no se corrompa el PDF
+    });
+    return response.data;
   }
 };

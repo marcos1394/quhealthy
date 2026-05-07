@@ -85,6 +85,28 @@ export const useProviderOrders = () => {
     }
   };
 
+  // 🚀 NUEVA FUNCIÓN en useProviderOrders
+  const downloadSlip = async (orderId: number, successMsg: string, errorMsg: string) => {
+    try {
+      // Usamos isSubmitting global o puedes crear un estado específico isDownloading
+      const blob = await providerOrderService.downloadPackingSlip(orderId);
+      
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `hoja-empaque-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(successMsg, { theme: 'colored' });
+    } catch (error) {
+      handleApiError(error);
+      toast.error(errorMsg, { theme: 'colored' });
+    }
+  };
+
   return {
     orders,
     isLoading,
@@ -92,6 +114,7 @@ export const useProviderOrders = () => {
     fetchOrders,
     shipOrder,
     markAsDelivered,
-    cancelOrder
+    cancelOrder,
+    downloadSlip
   };
 };
