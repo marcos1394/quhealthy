@@ -228,7 +228,7 @@ export default function ProviderOrdersPage() {
         {!isLoading && orders.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             {(["PROCESSING", "SHIPPED"] as OrderStatus[]).map((s) => {
-              const count = orders.filter(o => normalizeStatus(o.orderStatus, ORDER_STATUSES) === s).length;
+              const count = orders.filter(o => getOrderStatus(o.orderStatus) === s).length;
               if (!count) return null;
               const cfg = ORDER_STATUS_CONFIG[s];
               const Icon = cfg.icon;
