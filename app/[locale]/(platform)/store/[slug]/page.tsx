@@ -333,43 +333,78 @@ export default function PublicStorePage() {
             <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               {store.products && store.products.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {store.products.map((product) => (
-                    <div key={product.id} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden hover:shadow-lg transition-all group flex flex-col">
-                      <div className="h-48 bg-slate-100 dark:bg-zinc-800 relative overflow-hidden flex items-center justify-center">
-                        {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                          <Box className="w-12 h-12 text-slate-300 dark:text-zinc-600" />
-                        )}
-                      </div>
-                      <div className="p-5 flex flex-col flex-1">
-                        <Badge className="w-fit bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-none mb-2 text-[10px] uppercase">{product.category || 'Producto'}</Badge>
-                        <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-1 mb-1">{product.name}</h3>
-                        <p className="text-sm text-slate-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="text-2xl font-black text-slate-900 dark:text-white">${product.price}</span>
-                          {(() => {
-                            const isInCart = cart.some(c => c.id === product.id && c.type === product.type);
-                            return (
-                              <Button 
-                                onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)} 
-                                variant={isInCart ? "outline" : "default"}
-                                className={cn(
-                                  "rounded-xl shadow-md hover:scale-105 transition-transform",
-                                  isInCart 
-                                    ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
-                                    : "text-white"
-                                )} 
-                                style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
-                              >
-                                {isInCart ? 'Quitar' : 'Agregar'}
-                              </Button>
-                            );
-                          })()}
+                  {store.products.map((product) => {
+                    // 🚀 REGLAS DE NEGOCIO DE INVENTARIO
+                    const isOutOfStock = product.stockQuantity === 0 && !product.isDigital;
+                    const isLowStock = !product.isDigital && product.stockQuantity != null && product.stockQuantity > 0 && product.stockQuantity <= 5;
+
+                    return (
+                      <div key={product.id} className={cn("bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden transition-all group flex flex-col", isOutOfStock ? "opacity-75 grayscale-[0.5]" : "hover:shadow-lg")}>
+                        <div className="h-48 bg-slate-100 dark:bg-zinc-800 relative overflow-hidden flex items-center justify-center">
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <Box className="w-12 h-12 text-slate-300 dark:text-zinc-600" />
+                          )}
+
+                          {/* 🚀 ETIQUETA FLOTANTE DE AGOTADO */}
+                          {isOutOfStock && (
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
+                              <Badge className="bg-rose-500 text-white border-none text-sm px-3 py-1 uppercase tracking-widest">Agotado</Badge>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-5 flex flex-col flex-1 relative z-20">
+                          <div className="flex justify-between items-start mb-2">
+                            <Badge className="w-fit bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-none text-[10px] uppercase">
+                              {product.category || 'Producto'}
+                            </Badge>
+                            {/* 🚀 ALERTA DE POCO STOCK */}
+                            {isLowStock && (
+                              <span className="text-[10px] font-bold text-rose-500 dark:text-rose-400 flex items-center animate-pulse">
+                                <AlertCircle className="w-3 h-3 mr-1" /> ¡Solo quedan {product.stockQuantity}!
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-1 mb-1">{product.name}</h3>
+                          <p className="text-sm text-slate-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
+
+                          <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100 dark:border-white/5">
+                            <div className="flex flex-col">
+                              {/* 🚀 PRECIO TACHADO PARA PRODUCTOS */}
+                              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                                <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through mb-0.5">${product.compareAtPrice}</span>
+                              )}
+                              <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">${product.price}</span>
+                            </div>
+
+                            {(() => {
+                              const isInCart = cart.some(c => c.id === product.id && c.type === product.type);
+                              return (
+                                <Button
+                                  disabled={isOutOfStock}
+                                  onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)}
+                                  variant={isInCart ? "outline" : "default"}
+                                  className={cn(
+                                    "rounded-xl shadow-md transition-transform",
+                                    !isOutOfStock && "hover:scale-105",
+                                    isInCart
+                                      ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none"
+                                      : (isOutOfStock ? "bg-slate-200 text-slate-400 dark:bg-white/5 dark:text-zinc-600 cursor-not-allowed shadow-none" : "text-white")
+                                  )}
+                                  style={!isInCart && !isOutOfStock ? { backgroundColor: safePrimaryColor } : {}}
+                                >
+                                  {isOutOfStock ? 'Agotado' : (isInCart ? 'Quitar' : 'Agregar')}
+                                </Button>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-16 border border-slate-200 dark:border-white/5 rounded-3xl bg-white dark:bg-white/5 shadow-sm">

@@ -20,7 +20,7 @@ export interface StorefrontItem {
 
   // 📦 NUEVOS CAMPOS: Productos Físicos (Farmacia)
   sku?: string;
-  stockQuantity?: number;
+  stockQuantity?: number | null;
   isDigital?: boolean;
 
   // 🎓 NUEVOS CAMPOS: Cursos y Contenido Digital
