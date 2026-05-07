@@ -68,15 +68,30 @@ const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { label: string; className: s
 };
 
 // ─────────────────────────────────────────────
-// HELPER: normaliza el status por si el backend lo devuelve diferente
+// HELPER: normaliza el status (comparación directa de strings)
 // ─────────────────────────────────────────────
-function normalizeStatus<T extends string>(value: string, keys: readonly T[]): T | null {
-  const upper = value?.toUpperCase() as T;
-  return keys.includes(upper) ? upper : null;
+function getOrderStatus(raw: string): OrderStatus | null {
+  const upper = raw?.toUpperCase?.();
+  const map: Record<string, OrderStatus> = {
+    PENDING_PAYMENT: 'PENDING_PAYMENT',
+    PROCESSING: 'PROCESSING',
+    SHIPPED: 'SHIPPED',
+    DELIVERED: 'DELIVERED',
+    CANCELLED: 'CANCELLED',
+  };
+  return map[upper] ?? null;
 }
 
-const ORDER_STATUSES = ['PENDING_PAYMENT', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const;
-const PAYMENT_STATUSES = ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'] as const;
+function getPaymentStatus(raw: string): PaymentStatus | null {
+  const upper = raw?.toUpperCase?.();
+  const map: Record<string, PaymentStatus> = {
+    PENDING: 'PENDING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    REFUNDED: 'REFUNDED',
+  };
+  return map[upper] ?? null;
+}
 
 export default function ProviderOrdersPage() {
   const t = useTranslations("ProviderOrders");
@@ -106,7 +121,7 @@ export default function ProviderOrdersPage() {
 
   // ── Badge renders ──────────────────────────────────────────────────────────
   const renderOrderBadge = (raw: string) => {
-    const status = normalizeStatus(raw, ORDER_STATUSES);
+    const status = getOrderStatus(raw);
     if (!status) return <Badge variant="outline" className="text-xs">{raw}</Badge>;
     const cfg = ORDER_STATUS_CONFIG[status];
     const Icon = cfg.icon;
@@ -119,7 +134,7 @@ export default function ProviderOrdersPage() {
   };
 
   const renderPaymentBadge = (raw: string) => {
-    const status = normalizeStatus(raw, PAYMENT_STATUSES);
+    const status = getPaymentStatus(raw);
     if (!status) return <Badge variant="outline" className="text-xs">{raw}</Badge>;
     const cfg = PAYMENT_STATUS_CONFIG[status];
     return (
@@ -131,10 +146,14 @@ export default function ProviderOrdersPage() {
 
   // ── Action buttons logic ───────────────────────────────────────────────────
   const renderActions = (order: OrderResponseDto) => {
-    const status = normalizeStatus(order.orderStatus, ORDER_STATUSES);
+    // Usamos comparación directa con el mapa de strings para máxima compatibilidad
+    const status = getOrderStatus(order.orderStatus);
+    const isProcessing = status === 'PROCESSING';
+    const isShipped = status === 'SHIPPED';
+
     return (
-      <div className="flex flex-col gap-2 min-w-[140px]">
-        {status === "PROCESSING" && (
+      <div className="flex flex-col gap-2 min-w-[148px]">
+        {isProcessing && (
           <>
             <Button
               size="sm"
@@ -156,7 +175,7 @@ export default function ProviderOrdersPage() {
           </>
         )}
 
-        {status === "SHIPPED" && (
+        {isShipped && (
           <Button
             size="sm"
             variant="outline"
@@ -168,7 +187,7 @@ export default function ProviderOrdersPage() {
           </Button>
         )}
 
-        {(status === "PROCESSING" || status === "SHIPPED") && (
+        {(isProcessing || isShipped) && (
           <Button
             size="sm"
             variant="outline"
