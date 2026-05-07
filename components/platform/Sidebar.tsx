@@ -52,7 +52,8 @@ const patientLinks = [
   { key: "reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
   { key: "favorites", href: "/patient/dashboard/favorites", icon: HeartIcon, badge: null },
   { key: "dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
-  { key: "wallet", href: "/patient/dashboard/wallet", icon: CreditCard, badge: null },
+  { key: "wallet",     href: "/patient/dashboard/wallet",   icon: CreditCard, badge: null },
+  { key: "orders",     href: "/patient/dashboard/orders",   icon: Package,    badge: null },
 ];
 
 const patientSettingsLinks = [
