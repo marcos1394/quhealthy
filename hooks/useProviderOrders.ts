@@ -62,12 +62,36 @@ export const useProviderOrders = () => {
     }
   };
 
+  const cancelOrder = async (
+    orderId: number, 
+    successMsg: string, 
+    errorMsg: string
+  ): Promise<boolean> => {
+    setIsSubmitting(true);
+    try {
+      await providerOrderService.cancelAndRefundOrder(orderId);
+      // Como el endpoint no devuelve la orden completa, actualizamos el estado localmente
+      setOrders(prev => prev.map(o => 
+        o.id === orderId ? { ...o, orderStatus: 'CANCELLED', paymentStatus: 'REFUNDED' } : o
+      ));
+      toast.success(successMsg, { theme: 'colored' });
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      toast.error(errorMsg, { theme: 'colored' });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     orders,
     isLoading,
     isSubmitting,
     fetchOrders,
     shipOrder,
-    markAsDelivered
+    markAsDelivered,
+    cancelOrder
   };
 };

@@ -23,5 +23,11 @@ export const providerOrderService = {
   markAsDelivered: async (orderId: number): Promise<OrderResponseDto> => {
     const response = await axiosInstance.patch<OrderResponseDto>(`${BASE_URL}/${orderId}/deliver`);
     return response.data;
+  },
+
+  // 🚀 NUEVO: Llama al payment_service para cancelar y reembolsar
+  cancelAndRefundOrder: async (orderId: number): Promise<void> => {
+    // Fíjate que la ruta apunta a /payments, no a /appointments
+    await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/cancel`);
   }
 };

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { es } from "date-fns/locale"; // 💡 Tip: Puedes hacer esto dinámico según el locale del usuario
 import {
-  Package, Truck, CheckCircle2, Loader2, MapPin
+  Package, Truck, CheckCircle2, Loader2, MapPin, XCircle
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
@@ -29,11 +29,12 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 export default function ProviderOrdersPage() {
   const t = useTranslations('ProviderOrders');
   const {
-    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered
+    orders, isLoading, isSubmitting, fetchOrders, shipOrder, markAsDelivered, cancelOrder
   } = useProviderOrders();
 
   // Estados de la UI (Modal)
   const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
+  const [orderToCancel, setOrderToCancel] = useState<OrderResponseDto | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
 
   useEffect(() => {
@@ -161,16 +162,29 @@ export default function ProviderOrdersPage() {
                       </td>
 
                       {/* 5. Acciones */}
-                      <td className="px-6 py-4 align-top text-right">
+                      <td className="px-6 py-4 align-top text-right space-y-2">
                         {order.orderStatus === 'PROCESSING' && (
-                          <Button
-                            size="sm"
-                            className="bg-medical-600 hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
-                            onClick={() => setSelectedOrder(order)}
-                          >
-                            <Truck className="w-4 h-4 mr-2" />
-                            {t('btn_ship')}
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              className="bg-medical-600 w-full justify-start hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
+                              onClick={() => setSelectedOrder(order)}
+                            >
+                              <Truck className="w-4 h-4 mr-2" />
+                              {t('btn_ship')}
+                            </Button>
+                            
+                            {/* 🚀 NUEVO BOTÓN DE CANCELAR */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                              onClick={() => setOrderToCancel(order)}
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Cancelar y Reembolsar
+                            </Button>
+                          </>
                         )}
                         {order.orderStatus === 'SHIPPED' && (
                           <Button
@@ -233,6 +247,51 @@ export default function ProviderOrdersPage() {
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
               {t('btn_confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 🛑 MODAL DE CONFIRMACIÓN DE REEMBOLSO */}
+      <Dialog open={!!orderToCancel} onOpenChange={(open) => !open && setOrderToCancel(null)}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-red-200 dark:border-red-900/50">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <XCircle className="w-5 h-5" /> Confirmar Cancelación
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 dark:text-slate-300 pt-2">
+              Estás a punto de cancelar la Orden <strong>#{orderToCancel?.id}</strong> de {orderToCancel?.consumerName}. 
+              Esta acción deducirá <strong>${orderToCancel?.totalAmount} {orderToCancel?.currency}</strong> de tu balance y los devolverá a la tarjeta del paciente.
+              <br/><br/>
+              <strong className="text-red-500">Esta acción no se puede deshacer.</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOrderToCancel(null)}
+              disabled={isSubmitting}
+            >
+              Mantener Pedido
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isSubmitting}
+              onClick={async () => {
+                if (orderToCancel) {
+                  const success = await cancelOrder(
+                    orderToCancel.id, 
+                    "Orden cancelada y dinero reembolsado al paciente.", 
+                    "No se pudo procesar el reembolso."
+                  );
+                  if (success) setOrderToCancel(null);
+                }
+              }}
+            >
+              {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Sí, Reembolsar Dinero
             </Button>
           </DialogFooter>
         </DialogContent>
