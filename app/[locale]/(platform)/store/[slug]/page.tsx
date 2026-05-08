@@ -229,7 +229,7 @@ export default function PublicStorePage() {
                store.services.map((service) => (
                  <div key={service.id} className="group relative bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl p-6 transition-all duration-300 overflow-hidden shadow-sm">
                    <div className="absolute top-4 right-4 z-20">
-                     <FavoriteButton entityType="SERVICE" entityId={service.id} initialIsFavorite={favoriteServiceIds.has(service.id)} className="bg-slate-100/50 dark:bg-black/20 hover:bg-slate-200 dark:hover:bg-black/50 backdrop-blur-md border-none" />
+                     <FavoriteButton entityType="SERVICE" entityId={service.id} initialIsFavorite={favoriteServiceIds.has(service.id)} className="bg-slate-100 dark:bg-black/20 hover:bg-slate-200 dark:hover:bg-black/50 backdrop-blur-md border-slate-200 dark:border-white/10 text-slate-400 dark:text-white" />
                    </div>
                    <div className="absolute inset-0 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at right top, ${safePrimaryColor}, transparent 50%)` }} />
                    <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start pr-10">
@@ -292,7 +292,7 @@ export default function PublicStorePage() {
                 store.packages.map((pkg) => (
                   <div key={pkg.id} className="relative bg-gradient-to-br from-white/80 dark:from-white/10 to-slate-50 dark:to-white/5 border border-slate-200 dark:border-white/20 rounded-[2rem] p-1 transition-all shadow-lg overflow-hidden group">
                     <div className="absolute top-5 right-5 z-20">
-                      <FavoriteButton entityType="PACKAGE" entityId={pkg.id} initialIsFavorite={favoritePackageIds.has(pkg.id)} className="bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/50 backdrop-blur-md" />
+                      <FavoriteButton entityType="PACKAGE" entityId={pkg.id} initialIsFavorite={favoritePackageIds.has(pkg.id)} className="bg-white/80 dark:bg-black/20 hover:bg-white dark:hover:bg-black/50 backdrop-blur-md text-slate-400 dark:text-white border-slate-200 dark:border-white/20" />
                     </div>
                     <div className="absolute inset-0 opacity-10 dark:opacity-20 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity duration-700 blur-xl" style={{ backgroundColor: safePrimaryColor }} />
                     <div className="relative bg-white/95 dark:bg-[#09090b]/90 backdrop-blur-2xl rounded-[1.8rem] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 justify-between items-center z-10 border border-slate-100 dark:border-white/5">
@@ -360,7 +360,7 @@ export default function PublicStorePage() {
                           )}
 
                           <div className="absolute top-3 right-3 z-20">
-                            <FavoriteButton entityType="PRODUCT" entityId={product.id} initialIsFavorite={favoriteProductIds.has(product.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-none" />
+                            <FavoriteButton entityType="PRODUCT" entityId={product.id} initialIsFavorite={favoriteProductIds.has(product.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-slate-200 dark:border-white/20 text-slate-400 dark:text-white" />
                           </div>
 
                           {/* 🚀 ETIQUETA FLOTANTE DE AGOTADO */}
@@ -445,7 +445,7 @@ export default function PublicStorePage() {
                         <div className="w-full h-full flex items-center justify-center"><PlayCircle className="w-12 h-12 text-slate-300 dark:text-zinc-600" /></div>
                       )}
                       <div className="absolute top-3 right-3 sm:left-3 sm:right-auto z-20">
-                        <FavoriteButton entityType="COURSE" entityId={course.id} initialIsFavorite={favoriteCourseIds.has(course.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-none" />
+                        <FavoriteButton entityType="COURSE" entityId={course.id} initialIsFavorite={favoriteCourseIds.has(course.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-slate-200 dark:border-white/20 text-slate-400 dark:text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <PlayCircle className="w-12 h-12 text-white drop-shadow-lg" />
