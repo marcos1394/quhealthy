@@ -236,27 +236,50 @@ export function ProductsManager({
                               Sube o toma una foto de la caja del medicamento y llenaremos los datos por ti.
                             </p>
                           </div>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            capture="environment" 
-                            ref={el => { aiCameraRefs.current[product.id] = el; }}
-                            className="hidden" 
-                            onChange={(e) => handleAiScan(e, product.id)} 
-                          />
-                          <Button 
-                            type="button"
-                            size="sm"
-                            onClick={() => aiCameraRefs.current[product.id]?.click()}
-                            disabled={scanningProductId === product.id}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full sm:w-auto rounded-xl shadow-md"
-                          >
-                            {scanningProductId === product.id ? (
-                              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analizando...</>
-                            ) : (
-                              <><Camera className="w-4 h-4 mr-2" /> Escanear Caja</>
-                            )}
-                          </Button>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            {/* Input para CÁMARA */}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              capture="environment" 
+                              ref={el => { aiCameraRefs.current[product.id] = el; }}
+                              className="hidden" 
+                              onChange={(e) => handleAiScan(e, product.id)} 
+                            />
+                            {/* Input para GALERÍA */}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              ref={el => { fileInputRefs.current[`ai_gallery_${product.id}` as any] = el as any; }}
+                              className="hidden" 
+                              onChange={(e) => handleAiScan(e, product.id)} 
+                            />
+
+                            <Button 
+                              type="button"
+                              size="sm"
+                              onClick={() => aiCameraRefs.current[product.id]?.click()}
+                              disabled={scanningProductId === product.id}
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md flex-1 sm:flex-none"
+                            >
+                              {scanningProductId === product.id ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> ...</>
+                              ) : (
+                                <><Camera className="w-4 h-4 mr-2" /> Cámara</>
+                              )}
+                            </Button>
+
+                            <Button 
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => (fileInputRefs.current[`ai_gallery_${product.id}` as any] as any)?.click()}
+                              disabled={scanningProductId === product.id}
+                              className="border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl flex-1 sm:flex-none"
+                            >
+                              <ImagePlus className="w-4 h-4 mr-2" /> Galería
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Campos Básicos */}
