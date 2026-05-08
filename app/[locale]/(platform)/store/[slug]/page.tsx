@@ -502,10 +502,13 @@ export default function PublicStorePage() {
               </div>
               <Button
                 onClick={() => {
+                  const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
                   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
                   const needsPrescription = cart.some(i => i.requiresPrescription === true);
                   
-                  if (!hasPhysical && !needsPrescription) {
+                  if (requiresScheduling) {
+                    router.push(`/patient/booking/${slug}`);
+                  } else if (!hasPhysical && !needsPrescription) {
                     processCheckout({
                       providerId: store!.providerId,
                       consumerId: userId ?? undefined,
