@@ -42,6 +42,9 @@ export default function PublicStorePage() {
 
   const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
   const { favoriteIds: favoritePackageIds } = useMyFavorites('PACKAGE');
+  const { favoriteIds: favoriteServiceIds } = useMyFavorites('SERVICE');
+  const { favoriteIds: favoriteProductIds } = useMyFavorites('PRODUCT');
+  const { favoriteIds: favoriteCourseIds } = useMyFavorites('COURSE');
 
   const { store, isLoading, isError } = useStorefront(slug);
 
@@ -225,8 +228,11 @@ export default function PublicStorePage() {
              {store.services && store.services.length > 0 ? (
                store.services.map((service) => (
                  <div key={service.id} className="group relative bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl p-6 transition-all duration-300 overflow-hidden shadow-sm">
+                   <div className="absolute top-4 right-4 z-20">
+                     <FavoriteButton entityType="SERVICE" entityId={service.id} initialIsFavorite={favoriteServiceIds.has(service.id)} className="bg-slate-100/50 dark:bg-black/20 hover:bg-slate-200 dark:hover:bg-black/50 backdrop-blur-md border-none" />
+                   </div>
                    <div className="absolute inset-0 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at right top, ${safePrimaryColor}, transparent 50%)` }} />
-                   <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start">
+                   <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start pr-10">
                      <div className="space-y-3 flex-1">
                        <div className="flex flex-wrap items-center gap-2 mb-1">
                          {service.category && <Badge className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-none px-2 py-0.5 text-[10px] uppercase tracking-wider">{service.category}</Badge>}
@@ -353,6 +359,10 @@ export default function PublicStorePage() {
                             <Box className="w-12 h-12 text-slate-300 dark:text-zinc-600" />
                           )}
 
+                          <div className="absolute top-3 right-3 z-20">
+                            <FavoriteButton entityType="PRODUCT" entityId={product.id} initialIsFavorite={favoriteProductIds.has(product.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-none" />
+                          </div>
+
                           {/* 🚀 ETIQUETA FLOTANTE DE AGOTADO */}
                           {isOutOfStock && (
                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
@@ -434,6 +444,9 @@ export default function PublicStorePage() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><PlayCircle className="w-12 h-12 text-slate-300 dark:text-zinc-600" /></div>
                       )}
+                      <div className="absolute top-3 right-3 sm:left-3 sm:right-auto z-20">
+                        <FavoriteButton entityType="COURSE" entityId={course.id} initialIsFavorite={favoriteCourseIds.has(course.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-none" />
+                      </div>
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <PlayCircle className="w-12 h-12 text-white drop-shadow-lg" />
                       </div>

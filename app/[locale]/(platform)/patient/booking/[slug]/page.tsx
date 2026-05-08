@@ -22,6 +22,7 @@ import { CalendarDay } from "@/components/booking/CalendarDay";
 import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
+import { CheckoutModal } from "@/components/store/CheckoutModal";
 
 import {
   format, addMonths, subMonths, startOfMonth, endOfMonth,
@@ -44,11 +45,13 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   // --- NUEVO: ESTADOS DE E-COMMERCE ---
-  const [shippingAddress, setShippingAddress] = useState("");
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [pendingSymptoms, setPendingSymptoms] = useState("");
 
   // 🧠 CEREBRO DEL CHECKOUT HÍBRIDO
   const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
-  const requiresShipping = cart.some(item => item.type === 'PRODUCT' && !item.isDigital);
+  const requiresShipping = cart.some(item => item.type === 'PRODUCT' && item.isDigital !== true);
+  const needsPrescription = cart.some(item => item.requiresPrescription === true);
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
 
   useEffect(() => {
@@ -75,20 +78,25 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const handleCheckout = async (symptomsText: string) => {
     // Validaciones extra para E-commerce
     if (requiresScheduling && (!selectedDate || !selectedTime)) {
-      return; // El componente BookingSummary probablemente ya bloquea esto, pero por si acaso.
+      return; 
     }
 
-    if (providerId) {
-      await processCheckout({
-        providerId,
-        // Si no requiere agendar, mandamos valores nulos
-        selectedDate: requiresScheduling ? selectedDate : null,
-        selectedTime: requiresScheduling ? selectedTime : null,
-        cart,
-        dependentId: requiresScheduling ? dependentId : undefined, 
-        consumerSymptoms: symptomsText,
-        shippingAddress: requiresShipping ? shippingAddress : undefined // 🚀 Nueva inyección
-      });
+    if (requiresShipping || needsPrescription) {
+      // Abrimos modal para que suba receta / ponga dirección
+      setPendingSymptoms(symptomsText);
+      setShowCheckoutModal(true);
+    } else {
+      // Todo digital y sin receta, procedemos
+      if (providerId) {
+        await processCheckout({
+          providerId,
+          selectedDate: requiresScheduling ? selectedDate : null,
+          selectedTime: requiresScheduling ? selectedTime : null,
+          cart,
+          dependentId: requiresScheduling ? dependentId : undefined, 
+          consumerSymptoms: symptomsText,
+        });
+      }
     }
   };
 
@@ -251,48 +259,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
             </>
           )}
 
-          {/* 📦 LÓGICA DE PRODUCTOS (Dirección de Envío) */}
-          {requiresShipping && (
-            <AnimatePresence>
-              {(!requiresScheduling || (requiresScheduling && selectedTime)) && (
-                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center border-2 border-amber-200 dark:border-amber-500/30">
-                      <span className="font-bold text-lg text-amber-600 dark:text-amber-400">{stepCounter++}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        Dirección de Envío <Truck className="w-6 h-6 text-amber-500" />
-                      </h2>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                        Has agregado productos físicos. Indícanos a dónde enviarlos.
-                      </p>
-                    </div>
-                  </div>
-
-                  <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                    <div className="h-1 w-full bg-gradient-to-r from-amber-400 to-orange-500" />
-                    <CardContent className="p-6 md:p-8 space-y-4">
-                      <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-slate-400" /> Domicilio Completo
-                      </Label>
-                      <Textarea 
-                        value={shippingAddress}
-                        onChange={(e) => setShippingAddress(e.target.value)}
-                        placeholder="Calle, Número, Colonia, Ciudad, Código Postal..."
-                        className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 min-h-[100px] resize-none focus:ring-amber-500 focus:border-amber-500"
-                      />
-                      <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium bg-amber-50 dark:bg-amber-900/10 p-2 rounded-lg inline-flex">
-                        <Zap className="w-3 h-3" /> Los gastos de envío se calcularán y acordarán directamente con el especialista.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.section>
-              )}
-            </AnimatePresence>
-          )}
-
-        </div>
+          {/* La sección de dirección física fue movida al CheckoutModal */}        </div>
 
         {/* Summary Sidebar */}
         <BookingSummary
@@ -307,6 +274,28 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           // Puedes usar requiresScheduling en tu BookingSummary para ocultar los labels de Fecha/Hora si deseas
         />
       </div>
+
+      <CheckoutModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        cart={cart}
+        isProcessing={isProcessing}
+        onConfirm={(shippingAddress, prescriptionUrls) => {
+          setShowCheckoutModal(false);
+          if (providerId) {
+            processCheckout({
+              providerId,
+              selectedDate: requiresScheduling ? selectedDate : null,
+              selectedTime: requiresScheduling ? selectedTime : null,
+              cart,
+              dependentId: requiresScheduling ? dependentId : undefined,
+              consumerSymptoms: pendingSymptoms,
+              shippingAddress,
+              prescriptionUrls,
+            });
+          }
+        }}
+      />
     </div>
   );
 }
