@@ -27,4 +27,5 @@ export interface OrderResponseDto {
 
 export interface ShipOrderRequest {
   trackingNumber: string;
+  shippingCarrier?: string;
 }

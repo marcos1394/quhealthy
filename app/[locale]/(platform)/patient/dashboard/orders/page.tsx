@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, Truck, CheckCircle2, Clock,
-  MapPin, AlertCircle, Check,
+  MapPin, AlertCircle, Check, ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -165,39 +165,64 @@ export default function PatientOrdersPage() {
                         </div>
                       )}
 
-                      {/* CTA: confirmar recepción */}
+                      {/* 🚀 LOGÍSTICA: BOTONES DE RASTREO Y CIERRE DE CICLO */}
                       {isShipped && (
-                        <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20 rounded-2xl p-5">
-                          <h4 className="font-bold text-medical-800 dark:text-medical-300 mb-2 flex items-center">
-                            <Truck className="w-5 h-5 mr-2" /> ¡Tu paquete está en camino!
-                          </h4>
-                          <p className="text-sm text-medical-600 dark:text-medical-400/80 mb-4">
-                            Por favor, ayúdanos confirmando en cuanto lo tengas en tus manos.
-                          </p>
-                          <Button
-                            onClick={() => handleMarkAsDelivered(order.id)}
-                            disabled={isUpdating === order.id}
-                            className="w-full font-bold bg-medical-600 hover:bg-medical-700 text-white shadow-lg"
-                          >
-                            {isUpdating === order.id ? (
-                              <QhSpinner size="sm" className="mr-2" />
-                            ) : (
-                              <Check className="w-4 h-4 mr-2" />
+                        <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20 rounded-2xl p-5 space-y-4">
+                          <div>
+                            <h4 className="font-bold text-medical-800 dark:text-medical-300 mb-1 flex items-center">
+                              <Truck className="w-5 h-5 mr-2" /> ¡Tu paquete está en camino!
+                            </h4>
+                            <p className="text-sm text-medical-600 dark:text-medical-400/80">
+                              {order.shippingCarrier && (
+                                <>Enviado vía <span className="font-bold uppercase">{order.shippingCarrier.replace('_', ' ')}</span>{' '}</>
+                              )}
+                              {order.trackingNumber && `• Guía: ${order.trackingNumber}`}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            {/* Botón: Rastrear en web oficial */}
+                            {order.trackingUrl && (
+                              <Button
+                                variant="outline"
+                                className="flex-1 bg-white dark:bg-[#18181b] border-medical-200 dark:border-medical-500/30 text-medical-700 dark:text-medical-400 hover:bg-medical-100 dark:hover:bg-medical-500/20"
+                                onClick={() => window.open(order.trackingUrl, '_blank')}
+                              >
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Rastrear Paquete
+                              </Button>
                             )}
-                            Ya recibí mi paquete
-                          </Button>
+
+                            {/* Botón: Confirmar recepción */}
+                            <Button
+                              onClick={() => handleMarkAsDelivered(order.id)}
+                              disabled={isUpdating === order.id}
+                              className="flex-1 font-bold bg-medical-600 hover:bg-medical-700 text-white shadow-md"
+                            >
+                              {isUpdating === order.id ? (
+                                <QhSpinner size="sm" className="mr-2" />
+                              ) : (
+                                <Check className="w-4 h-4 mr-2" />
+                              )}
+                              Ya lo recibí
+                            </Button>
+                          </div>
                         </div>
                       )}
 
                       {/* Estado entregado */}
                       {isDelivered && (
                         <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-4 flex items-center gap-3">
-                          <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-full">
+                          <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-full flex-shrink-0">
                             <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                           </div>
                           <div>
                             <h4 className="font-bold text-emerald-800 dark:text-emerald-300">¡Entrega Confirmada!</h4>
-                            <p className="text-xs text-emerald-600 dark:text-emerald-400/80">Disfruta tus productos QuHealthy.</p>
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400/80">
+                              {order.shippingCarrier
+                                ? `Entregado vía ${order.shippingCarrier.replace('_', ' ')}. Disfruta tus productos.`
+                                : 'Disfruta tus productos QuHealthy.'}
+                            </p>
                           </div>
                         </div>
                       )}

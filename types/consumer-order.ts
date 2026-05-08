@@ -4,8 +4,8 @@ export interface ConsumerOrderItem {
   id: number;
   catalogItemId: number;
   name: string;
-  quantity: number;
   unitPrice: number;
+  quantity: number;
   isDigital: boolean;
 }
 
@@ -16,7 +16,13 @@ export interface ConsumerOrder {
   orderStatus: 'PENDING_PAYMENT' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   totalAmount: number;
   shippingAddress: string;
+
+  // 🚀 CAMPOS LOGÍSTICOS
   trackingNumber?: string;
+  shippingCarrier?: string;
+  trackingUrl?: string;
+
   createdAt: string;
   items: ConsumerOrderItem[];
 }
+

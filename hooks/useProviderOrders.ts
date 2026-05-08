@@ -28,17 +28,17 @@ export const useProviderOrders = () => {
     orderId: number, 
     trackingNumber: string, 
     successMsg: string, 
-    errorMsg: string
+    errorMsg: string,
+    shippingCarrier = 'OTHER'
   ): Promise<boolean> => {
     setIsSubmitting(true);
     try {
-      const updatedOrder = await providerOrderService.shipOrder(orderId, { trackingNumber });
+      const updatedOrder = await providerOrderService.shipOrder(orderId, { trackingNumber, shippingCarrier });
       setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
       toast.success(successMsg, { theme: 'colored' });
       return true;
     } catch (error) {
       handleApiError(error);
-      // 🚀 FIX: Retorno falso explícito con notificación de error
       toast.error(errorMsg, { theme: 'colored' });
       return false;
     } finally {

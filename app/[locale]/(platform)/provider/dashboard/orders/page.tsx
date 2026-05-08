@@ -57,6 +57,17 @@ function getPaymentStatus(raw: string): PaymentStatus | null {
   return map[raw?.toUpperCase?.()] ?? null;
 }
 
+// ── Carriers ──────────────────────────────────────────────────────────────────
+const CARRIERS = [
+  { value: 'DHL',        label: 'DHL Express' },
+  { value: 'FEDEX',      label: 'FedEx' },
+  { value: 'ESTAFETA',   label: 'Estafeta' },
+  { value: 'REDPACK',    label: 'Redpack' },
+  { value: 'UBER_FLASH', label: 'Uber Flash (Local)' },
+  { value: 'IN_HOUSE',   label: 'Repartidor Propio' },
+  { value: 'OTHER',      label: 'Otra' },
+];
+
 // ── Order Card (mobile-first, replaces table row) ─────────────────────────────
 function OrderCard({
   order, i,
@@ -203,13 +214,20 @@ export default function ProviderOrdersPage() {
   const [orderToCancel,  setOrderToCancel]  = useState<OrderResponseDto | null>(null);
   const [orderToView,    setOrderToView]    = useState<OrderResponseDto | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [shippingCarrier, setShippingCarrier] = useState("DHL");
 
   useEffect(() => { fetchOrders(t("toast_load_error")); }, [fetchOrders, t]);
 
   const handleShipSubmit = async () => {
     if (!selectedOrder || trackingNumber.trim().length < 5) return;
-    const ok = await shipOrder(selectedOrder.id, trackingNumber.trim(), t("toast_ship_success"), t("toast_ship_error"));
-    if (ok) { setSelectedOrder(null); setTrackingNumber(""); }
+    const ok = await shipOrder(
+      selectedOrder.id,
+      trackingNumber.trim(),
+      t("toast_ship_success"),
+      t("toast_ship_error"),
+      shippingCarrier
+    );
+    if (ok) { setSelectedOrder(null); setTrackingNumber(""); setShippingCarrier("DHL"); }
   };
 
   const processingCount = orders.filter(o => getOrderStatus(o.orderStatus) === "PROCESSING").length;
@@ -284,19 +302,38 @@ export default function ProviderOrdersPage() {
               {selectedOrder && t("modal_desc", { id: selectedOrder.id, name: selectedOrder.consumerName })}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">
-              {t("modal_input_label")} <span className="text-red-500">*</span>
-            </label>
-            <Input
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
-              placeholder={t("modal_placeholder")}
-              className="font-mono"
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && handleShipSubmit()}
-            />
-            <p className="text-xs text-slate-400 mt-2">Mínimo 5 caracteres.</p>
+          <div className="py-4 space-y-4">
+            {/* Selector de Paquetería */}
+            <div>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">
+                Paquetería / Método de Envío
+              </label>
+              <select
+                value={shippingCarrier}
+                onChange={(e) => setShippingCarrier(e.target.value)}
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-medical-500/30 transition-all"
+              >
+                {CARRIERS.map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Número de Guía */}
+            <div>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block">
+                {t("modal_input_label")} <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value.toUpperCase())}
+                placeholder={t("modal_placeholder")}
+                className="font-mono uppercase"
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleShipSubmit()}
+              />
+              <p className="text-xs text-slate-400 mt-1.5">El paciente podrá rastrear su envío con este número.</p>
+            </div>
           </div>
           <Separator className="dark:bg-slate-800" />
           <DialogFooter className="gap-2 pt-2">
