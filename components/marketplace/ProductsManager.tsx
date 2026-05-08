@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 // 🚀 MAGIA DE IA: Importamos el servicio y el manejador de errores
 import { catalogAiService } from '@/services/catalogAiService';
 import { handleApiError } from '@/lib/handleApiError';
+import { CameraModal } from "./CameraModal";
 
 interface ProductsManagerProps {
   products: UI_Product[];
@@ -43,8 +44,9 @@ export function ProductsManager({
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   
   // 🚀 MAGIA DE IA: Refs para los inputs de cámara de IA
-  const aiCameraRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const [scanningProductId, setScanningProductId] = useState<number | null>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [activeProductIdForCamera, setActiveProductIdForCamera] = useState<number | null>(null);
 
   const t = useTranslations('Marketplace.products');
   const tGlobal = useTranslations('StoreCatalog.actions');
@@ -57,46 +59,48 @@ export function ProductsManager({
     onAdd();
   };
 
-  // 🚀 MAGIA DE IA: Función que escanea la imagen
-  const handleAiScan = async (event: React.ChangeEvent<HTMLInputElement>, productId: number) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  // 🚀 MAGIA DE IA: Función que procesa la imagen (Base64 o File)
+  const processImageWithAi = async (productId: number, base64OrFile: string | File) => {
     setScanningProductId(productId);
     const loadingToast = toast.loading("Analizando caja con Inteligencia Artificial...");
 
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
+      let base64String: string;
       
-      reader.onload = async () => {
-        try {
-          const base64String = reader.result as string;
-          const aiData = await catalogAiService.scanProductImage(base64String);
+      if (base64OrFile instanceof File) {
+        base64String = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(base64OrFile);
+          reader.onload = () => resolve(reader.result as string);
+        });
+      } else {
+        base64String = base64OrFile;
+      }
 
-          // Actualizamos los campos en el componente padre
-          onUpdate(productId, {
-            name: aiData.name || '',
-            description: aiData.description || '',
-            activeIngredient: aiData.activeIngredient || '',
-            manufacturer: aiData.manufacturer || '',
-            requiresPrescription: aiData.requiresPrescription || false,
-          });
+      const aiData = await catalogAiService.scanProductImage(base64String);
 
-          toast.update(loadingToast, { render: "¡Datos extraídos con éxito!", type: "success", isLoading: false, autoClose: 3000 });
-        } catch (error) {
-          handleApiError(error);
-          toast.update(loadingToast, { render: "No pudimos extraer los datos de la imagen.", type: "error", isLoading: false, autoClose: 3000 });
-        } finally {
-          setScanningProductId(null);
-          if (aiCameraRefs.current[productId]) aiCameraRefs.current[productId]!.value = '';
-        }
-      };
+      onUpdate(productId, {
+        name: aiData.name || '',
+        description: aiData.description || '',
+        activeIngredient: aiData.activeIngredient || '',
+        manufacturer: aiData.manufacturer || '',
+        requiresPrescription: aiData.requiresPrescription || false,
+      });
+
+      toast.update(loadingToast, { render: "¡Datos extraídos con éxito!", type: "success", isLoading: false, autoClose: 3000 });
     } catch (error) {
+      handleApiError(error);
+      toast.update(loadingToast, { render: "No pudimos extraer los datos de la imagen.", type: "error", isLoading: false, autoClose: 3000 });
+    } finally {
       setScanningProductId(null);
-      toast.dismiss(loadingToast);
-      toast.error("No se pudo leer el archivo de imagen.");
     }
+  };
+
+  const handleAiScan = async (event: React.ChangeEvent<HTMLInputElement>, productId: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await processImageWithAi(productId, file);
+    event.target.value = ''; // Limpiar input
   };
 
   return (
@@ -237,15 +241,6 @@ export function ProductsManager({
                             </p>
                           </div>
                           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            {/* Input para CÁMARA */}
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              capture="environment" 
-                              ref={el => { aiCameraRefs.current[product.id] = el; }}
-                              className="hidden" 
-                              onChange={(e) => handleAiScan(e, product.id)} 
-                            />
                             {/* Input para GALERÍA */}
                             <input 
                               type="file" 
@@ -258,7 +253,10 @@ export function ProductsManager({
                             <Button 
                               type="button"
                               size="sm"
-                              onClick={() => aiCameraRefs.current[product.id]?.click()}
+                              onClick={() => {
+                                setActiveProductIdForCamera(product.id);
+                                setIsCameraOpen(true);
+                              }}
                               disabled={scanningProductId === product.id}
                               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md flex-1 sm:flex-none"
                             >
@@ -436,6 +434,20 @@ export function ProductsManager({
           </AnimatePresence>
         )}
       </CardContent>
+
+      {/* 🚀 MODAL DE CÁMARA EN VIVO */}
+      <CameraModal 
+        isOpen={isCameraOpen}
+        onClose={() => {
+          setIsCameraOpen(false);
+          setActiveProductIdForCamera(null);
+        }}
+        onCapture={(base64) => {
+          if (activeProductIdForCamera !== null) {
+            processImageWithAi(activeProductIdForCamera, base64);
+          }
+        }}
+      />
     </Card>
   );
 }
