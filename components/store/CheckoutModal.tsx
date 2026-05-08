@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { StorefrontItem } from "@/types/storefront";
+import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
+import { googleService } from "@/services/google.service";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface CheckoutModalProps {
@@ -58,14 +60,59 @@ export function CheckoutModal({
   const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
+  const { setQuery, suggestions, setSuggestions, isLoading: isAutocompleteLoading } = useGoogleAutocomplete();
+
   // --- Derived: can submit? ---
   const addressOk  = !hasPhysical || isAddressComplete(address);
   const rxOk       = !needsPrescription || itemsNeedingRx.every(i => !!prescriptionUrls[i.id]);
   const canSubmit  = addressOk && rxOk && !isProcessing;
 
   // --- Handlers ---
-  const handleAddressChange = (field: keyof AddressForm, value: string) =>
+  const handleAddressChange = (field: keyof AddressForm, value: string) => {
     setAddress(prev => ({ ...prev, [field]: value }));
+    if (field === 'street') {
+      setQuery(value);
+    }
+  };
+
+  const handleSelectSuggestion = async (placeId: string, description: string) => {
+    setQuery('');
+    setSuggestions([]);
+    
+    try {
+      const details = await googleService.getDetails(placeId);
+      
+      if (details?.result?.address_components) {
+        let streetNumber = '';
+        let route = '';
+        let colony = '';
+        let city = '';
+        let state = '';
+        let zip = '';
+
+        details.result.address_components.forEach((c: any) => {
+          if (c.types.includes('street_number')) streetNumber = c.long_name;
+          if (c.types.includes('route')) route = c.long_name;
+          if (c.types.includes('sublocality') || c.types.includes('neighborhood')) colony = c.long_name;
+          if (c.types.includes('locality')) city = c.long_name;
+          if (c.types.includes('administrative_area_level_1')) state = c.long_name;
+          if (c.types.includes('postal_code')) zip = c.long_name;
+        });
+
+        setAddress({
+          street: `${route} ${streetNumber}`.trim() || description,
+          colony: colony,
+          city: city,
+          state: state,
+          zip: zip,
+        });
+      } else {
+        setAddress(prev => ({ ...prev, street: description }));
+      }
+    } catch (e) {
+      setAddress(prev => ({ ...prev, street: description }));
+    }
+  };
 
   const handleFileChange = async (itemId: number, file: File | null) => {
     if (!file) return;
@@ -163,13 +210,38 @@ export function CheckoutModal({
 
                 {/* Formulario */}
                 <div className="space-y-3">
-                  <InputField
-                    label="Calle y número"
-                    placeholder="Av. Siempre Viva 742"
-                    value={address.street}
-                    onChange={v => handleAddressChange("street", v)}
-                    icon={<MapPin className="w-4 h-4" />}
-                  />
+                  <div className="relative">
+                    <InputField
+                      label="Calle y número"
+                      placeholder="Av. Siempre Viva 742"
+                      value={address.street}
+                      onChange={v => handleAddressChange("street", v)}
+                      icon={isAutocompleteLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+                    />
+                    
+                    {/* Autocomplete Suggestions */}
+                    <AnimatePresence>
+                      {suggestions.length > 0 && address.street.length > 2 && (
+                        <motion.ul 
+                          initial={{ opacity: 0, y: -10 }} 
+                          animate={{ opacity: 1, y: 0 }} 
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto"
+                        >
+                          {suggestions.map((sug) => (
+                            <li 
+                              key={sug.place_id}
+                              onClick={() => handleSelectSuggestion(sug.place_id, sug.description)}
+                              className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-start gap-3 transition-colors"
+                            >
+                              <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                              <span className="leading-tight">{sug.description}</span>
+                            </li>
+                          ))}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <InputField label="Colonia" placeholder="Centro" value={address.colony} onChange={v => handleAddressChange("colony", v)} />
                     <InputField label="Código Postal" placeholder="81200" value={address.zip} onChange={v => handleAddressChange("zip", v)} />
