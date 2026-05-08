@@ -23,6 +23,11 @@ export interface StorefrontItem {
   stockQuantity?: number | null;
   isDigital?: boolean;
 
+  // 💊 Farmacia / Cumplimiento
+  requiresPrescription?: boolean;
+  activeIngredient?: string;
+  manufacturer?: string;
+
   // 🎓 NUEVOS CAMPOS: Cursos y Contenido Digital
   contentUrl?: string;
 }

@@ -5,11 +5,13 @@ export interface CheckoutParams {
   providerId: number;
   consumerId?: number; 
   dependentId?: number | null; 
-  selectedDate: Date | null; // 🚀 Ahora acepta null si son solo productos
-  selectedTime: string | null; // 🚀 Ahora acepta null si son solo productos
+  selectedDate: Date | null;
+  selectedTime: string | null;
   cart: StorefrontItem[];
   consumerSymptoms?: string; 
-  shippingAddress?: string; // 🚀 NUEVO: Para enviar productos físicos
+  shippingAddress?: string;
+  // 🚀 Mapa de { catalogItemId → URL de receta } para ítems controlados
+  prescriptionUrls?: Record<number, string>;
 }
 
 export interface CreateAppointmentRequest {

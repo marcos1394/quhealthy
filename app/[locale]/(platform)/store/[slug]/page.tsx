@@ -21,6 +21,9 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { CheckoutModal } from "@/components/store/CheckoutModal";
+import { useBookingCheckout } from "@/hooks/useBookingCheckout";
+import { useSessionStore } from "@/stores/SessionStore";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -33,6 +36,9 @@ export default function PublicStorePage() {
   const [activeTab, setActiveTab] = useState<TabType>('servicios');
   const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
+  const { processCheckout, isProcessing } = useBookingCheckout();
+  const { userId } = useSessionStore();
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
   const { favoriteIds: favoritePackageIds } = useMyFavorites('PACKAGE');
@@ -494,13 +500,38 @@ export default function PublicStorePage() {
                   </button>
                 </div>
               </div>
-              <Button onClick={() => router.push(`/patient/booking/${slug}`)} className="rounded-full px-8 py-6 font-bold text-base shadow-xl hover:scale-105" style={{ backgroundColor: safePrimaryColor, color: '#fff' }}>
+              <Button
+                onClick={() => setShowCheckout(true)}
+                className="rounded-full px-8 py-6 font-bold text-base shadow-xl hover:scale-105"
+                style={{ backgroundColor: safePrimaryColor, color: '#fff' }}
+              >
                 {t('btn_continue')} <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── CHECKOUT MODAL ────────────────────────────────────────────── */}
+      <CheckoutModal
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+        cart={cart}
+        isProcessing={isProcessing}
+        onConfirm={(shippingAddress, prescriptionUrls) => {
+          setShowCheckout(false);
+          processCheckout({
+            providerId: store!.providerId,
+            consumerId: userId ?? undefined,
+            dependentId: null,
+            selectedDate: null,
+            selectedTime: null,
+            cart,
+            shippingAddress,
+            prescriptionUrls,
+          });
+        }}
+      />
 
     </div>
   );
