@@ -51,7 +51,6 @@ export function BookingSummary({
   // ESTADOS LOCALES
   // ==========================================
   const [symptoms, setSymptoms] = useState("");
-  const [shippingAddress, setShippingAddress] = useState("");
   const [rates, setRates] = useState<Record<string, number>>({ MXN: 1 });
   const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
   const [isLoadingRates, setIsLoadingRates] = useState(true);
@@ -91,11 +90,10 @@ export function BookingSummary({
 
   const validationRules = useMemo(() => {
     const isTimeValid = cartAnalysis.hasServices ? (selectedDate !== null && selectedTime !== null) : true;
-    const isAddressValid = cartAnalysis.hasProducts ? shippingAddress.trim().length >= 10 : true;
-    const isReady = isTimeValid && isAddressValid && !cartAnalysis.isEmpty;
+    const isReady = isTimeValid && !cartAnalysis.isEmpty;
 
-    return { isTimeValid, isAddressValid, isReady };
-  }, [cartAnalysis, selectedDate, selectedTime, shippingAddress]);
+    return { isTimeValid, isReady };
+  }, [cartAnalysis, selectedDate, selectedTime]);
 
   const currencyCalculations = useMemo(() => {
     const currentRate = rates[selectedCurrency] || 1;
@@ -114,7 +112,7 @@ export function BookingSummary({
       ? symptoms.trim() 
       : `Orden Híbrida generada web. Ítems: ${cart.length}`;
 
-    onCheckout(finalNotes, cartAnalysis.hasProducts ? shippingAddress.trim() : undefined);
+    onCheckout(finalNotes, undefined);
   };
 
   // ==========================================
@@ -247,48 +245,7 @@ export function BookingSummary({
 
               <Separator className="bg-slate-100 dark:bg-slate-800" />
 
-              {/* 📦 FORMULARIO DINÁMICO: DIRECCIÓN DE ENVÍO */}
-              <AnimatePresence>
-                {cartAnalysis.hasProducts && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-3 overflow-hidden"
-                  >
-                    <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold">
-                      <Truck className="w-4 h-4 text-emerald-500" />
-                      <h4>Datos de Envío <span className="text-red-500 ml-0.5">*</span></h4>
-                    </div>
-                    <div className="relative">
-                      <textarea
-                        value={shippingAddress}
-                        onChange={(e) => setShippingAddress(e.target.value)}
-                        placeholder="Calle, Número, Colonia, Ciudad, Código Postal..."
-                        className={`
-                          w-full bg-slate-50 dark:bg-slate-800/80 border rounded-xl p-3.5 text-sm 
-                          text-slate-900 dark:text-white placeholder:text-slate-400 
-                          focus:outline-none focus:ring-2 transition-all resize-none
-                          ${shippingAddress.length > 0 && !validationRules.isAddressValid 
-                            ? 'border-red-300 focus:ring-red-500/50 dark:border-red-900' 
-                            : 'border-slate-200 dark:border-slate-700 focus:ring-medical-500/50'
-                          }
-                        `}
-                        rows={3}
-                        maxLength={500}
-                        disabled={isProcessing}
-                        aria-invalid={!validationRules.isAddressValid}
-                      />
-                      {shippingAddress.length > 0 && !validationRules.isAddressValid && (
-                        <p className="text-xs text-red-500 mt-1.5 flex items-center">
-                          <AlertCircle className="w-3 h-3 mr-1" />
-                          La dirección debe ser más descriptiva (min. 10 caract.)
-                        </p>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* El formulario de envío fue movido al CheckoutModal */}
 
               {/* 📝 NOTAS / SÍNTOMAS */}
               {!cartAnalysis.isEmpty && (
@@ -379,11 +336,6 @@ export function BookingSummary({
                   <span className="flex items-center">
                     <AlertCircle className="w-5 h-5 mr-2" />
                     Selecciona horario
-                  </span>
-                ) : !validationRules.isAddressValid ? (
-                  <span className="flex items-center">
-                    <MapPin className="w-5 h-5 mr-2" />
-                    Ingresa dirección de envío
                   </span>
                 ) : (
                   <span className="flex items-center">
