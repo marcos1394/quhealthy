@@ -501,11 +501,34 @@ export default function PublicStorePage() {
                 </div>
               </div>
               <Button
-                onClick={() => setShowCheckout(true)}
+                onClick={() => {
+                  const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
+                  const needsPrescription = cart.some(i => i.requiresPrescription === true);
+                  
+                  if (!hasPhysical && !needsPrescription) {
+                    processCheckout({
+                      providerId: store!.providerId,
+                      consumerId: userId ?? undefined,
+                      dependentId: null,
+                      selectedDate: null,
+                      selectedTime: null,
+                      cart,
+                      shippingAddress: undefined,
+                      prescriptionUrls: {},
+                    });
+                  } else {
+                    setShowCheckout(true);
+                  }
+                }}
+                disabled={isProcessing}
                 className="rounded-full px-8 py-6 font-bold text-base shadow-xl hover:scale-105"
                 style={{ backgroundColor: safePrimaryColor, color: '#fff' }}
               >
-                {t('btn_continue')} <ChevronRight className="w-5 h-5 ml-2" />
+                {isProcessing ? (
+                  <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Procesando...</>
+                ) : (
+                  <>{t('btn_continue')} <ChevronRight className="w-5 h-5 ml-2" /></>
+                )}
               </Button>
             </div>
           </motion.div>

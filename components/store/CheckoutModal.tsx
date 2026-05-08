@@ -47,7 +47,7 @@ export function CheckoutModal({
   isOpen, onClose, cart, onConfirm, isProcessing, onUploadFile,
 }: CheckoutModalProps) {
   // --- Derived flags ---
-  const hasPhysical = cart.some(i => !i.isDigital);
+  const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
   const itemsNeedingRx = cart.filter(i => i.requiresPrescription === true);
   const needsPrescription = itemsNeedingRx.length > 0;
 
