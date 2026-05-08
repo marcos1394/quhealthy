@@ -31,6 +31,13 @@ export const providerOrderService = {
     await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/cancel`);
   },
 
+  // 🚀 NUEVO: Rechazo por receta médica inválida (Llama al payment_service)
+  rejectOrderForPrescription: async (orderId: number, reason: string): Promise<void> => {
+    await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/reject`, null, {
+      params: { reason }
+    });
+  },
+
   // 🚀 NUEVO: Descargar Packing Slip
   downloadPackingSlip: async (orderId: number): Promise<Blob> => {
     const response = await axiosInstance.get(`${BASE_URL}/${orderId}/packing-slip`, {

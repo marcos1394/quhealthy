@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import {
   Package, Truck, CheckCircle2, Loader2, MapPin, XCircle,
   Printer, Clock, CreditCard, Ban, ShoppingBag, Eye, Mail,
-  ExternalLink, Copy
+  ExternalLink, Copy, FileText, AlertTriangle, ShieldAlert
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
@@ -71,12 +71,12 @@ const CARRIERS = [
 // ── Order Card (mobile-first, replaces table row) ─────────────────────────────
 function OrderCard({
   order, i,
-  onShip, onCancel, onDeliver, onSlip, onView,
+  onShip, onCancel, onDeliver, onSlip, onView, onReject,
 }: {
   order: OrderResponseDto; i: number;
   onShip: () => void; onCancel: () => void;
   onDeliver: (id: number) => void; onSlip: (id: number) => void;
-  onView: () => void;
+  onView: () => void; onReject: () => void;
 }) {
   const status  = getOrderStatus(order.orderStatus);
   const pStatus = getPaymentStatus(order.paymentStatus);
@@ -171,6 +171,15 @@ function OrderCard({
             >
               <Truck className="w-3.5 h-3.5 mr-1.5" /> Enviar
             </Button>
+            {/* 💊 Rechazar por receta — solo si tiene recetas adjuntas */}
+            {order.prescriptionUrls && (
+              <Button size="sm" variant="ghost"
+                className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                onClick={onReject}
+              >
+                <ShieldAlert className="w-3.5 h-3.5 mr-1.5" /> Rechazar Receta
+              </Button>
+            )}
             <Button size="sm" variant="ghost"
               className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
               onClick={onCancel}
@@ -202,19 +211,49 @@ function OrderCard({
   );
 }
 
+// ── Prescription viewer helper ────────────────────────────────────────────────
+function PrescriptionViewer({ prescriptionUrls }: { prescriptionUrls?: string }) {
+  if (!prescriptionUrls) return null;
+  try {
+    const urls = JSON.parse(prescriptionUrls) as Record<string, string>;
+    const entries = Object.entries(urls);
+    if (entries.length === 0) return null;
+    return (
+      <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl">
+        <h4 className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2 mb-3 text-sm">
+          <AlertTriangle className="w-4 h-4" /> Recetas Médicas Adjuntas
+        </h4>
+        <div className="flex flex-wrap gap-2">
+          {entries.map(([itemId, url]) => (
+            <Button key={itemId} size="sm" variant="outline"
+              className="bg-white dark:bg-slate-900 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/40"
+              onClick={() => window.open(url, '_blank')}
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              Ver Receta (Ítem #{itemId})
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  } catch { return null; }
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function ProviderOrdersPage() {
   const t = useTranslations("ProviderOrders");
   const {
     orders, isLoading, isSubmitting,
-    fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip,
+    fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip, rejectOrder,
   } = useProviderOrders();
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderResponseDto | null>(null);
-  const [orderToCancel,  setOrderToCancel]  = useState<OrderResponseDto | null>(null);
-  const [orderToView,    setOrderToView]    = useState<OrderResponseDto | null>(null);
-  const [trackingNumber, setTrackingNumber] = useState("");
+  const [selectedOrder,   setSelectedOrder]   = useState<OrderResponseDto | null>(null);
+  const [orderToCancel,   setOrderToCancel]   = useState<OrderResponseDto | null>(null);
+  const [orderToView,     setOrderToView]     = useState<OrderResponseDto | null>(null);
+  const [orderToReject,   setOrderToReject]   = useState<OrderResponseDto | null>(null);
+  const [trackingNumber,  setTrackingNumber]  = useState("");
   const [shippingCarrier, setShippingCarrier] = useState("DHL");
+  const [rejectionReasonInput, setRejectionReasonInput] = useState("Receta médica inválida o ilegible");
 
   useEffect(() => { fetchOrders(t("toast_load_error")); }, [fetchOrders, t]);
 
@@ -286,6 +325,7 @@ export default function ProviderOrdersPage() {
               onDeliver={(id) => markAsDelivered(id, t("toast_deliver_success"), t("toast_deliver_error"))}
               onSlip={(id) => downloadSlip(id, "Hoja de empaque descargada", "Error al descargar")}
               onView={() => setOrderToView(order)}
+              onReject={() => setOrderToReject(order)}
             />
           ))}
         </div>
@@ -449,10 +489,94 @@ export default function ProviderOrdersPage() {
                 )}
               </div>
             </div>
+
+            {/* 💊 Recetas Médicas */}
+            <PrescriptionViewer prescriptionUrls={orderToView?.prescriptionUrls} />
           </div>
 
           <DialogFooter>
             <Button variant="outline" className="w-full" onClick={() => setOrderToView(null)}>Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── MODAL: Rechazar por Receta Inválida ──────────────────────────────── */}
+      <Dialog open={!!orderToReject} onOpenChange={(open) => !open && setOrderToReject(null)}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-900/50">
+          <DialogHeader>
+            <DialogTitle className="text-amber-700 dark:text-amber-400 flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5" /> Rechazar Orden por Receta Inválida
+            </DialogTitle>
+            <DialogDescription className="text-slate-600 dark:text-slate-300 pt-1 space-y-2">
+              <span className="block">
+                Vas a rechazar la Orden <strong className="text-slate-900 dark:text-white">#{orderToReject?.id}</strong> de{" "}
+                <strong className="text-slate-900 dark:text-white">{orderToReject?.consumerName}</strong>.
+              </span>
+              <span className="block text-sm">
+                Esto cancelará la orden, <strong className="text-amber-700 dark:text-amber-400">restaurará el inventario</strong> y{" "}
+                devolverá{" "}
+                <strong className="text-amber-700 dark:text-amber-400">${orderToReject?.totalAmount} {orderToReject?.currency}</strong>{" "}
+                al paciente automáticamente.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <PrescriptionViewer prescriptionUrls={orderToReject?.prescriptionUrls} />
+
+          {/* Selector de Razón */}
+          <div className="py-2 space-y-3">
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+              Razón del Rechazo <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={rejectionReasonInput}
+              onChange={(e) => setRejectionReasonInput(e.target.value)}
+              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/30 transition-all text-sm"
+            >
+              <option value="Receta médica inválida o ilegible">Receta médica inválida o ilegible</option>
+              <option value="Receta vencida">Receta vencida</option>
+              <option value="Medicamento no coincide con receta">Medicamento no coincide con receta</option>
+              <option value="Dosis o presentación incorrecta">Dosis o presentación incorrecta</option>
+              <option value="Faltan datos obligatorios (Cédula, Firma, Fecha)">Faltan datos obligatorios</option>
+              <option value="OTHER">Otra razón (especificar)</option>
+            </select>
+
+            {rejectionReasonInput === 'OTHER' && (
+              <Input
+                placeholder="Escribe la razón detallada..."
+                onChange={(e) => setRejectionReasonInput(e.target.value)}
+                className="mt-2"
+              />
+            )}
+          </div>
+
+          <Separator className="dark:bg-slate-800" />
+          <DialogFooter className="gap-2 pt-2">
+            <Button variant="outline" onClick={() => setOrderToReject(null)} disabled={isSubmitting}>
+              Mantener Orden
+            </Button>
+            <Button
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              disabled={isSubmitting}
+              onClick={async () => {
+                if (orderToReject) {
+                  const finalReason = rejectionReasonInput === 'OTHER' ? 'Rechazo por criterio médico' : rejectionReasonInput;
+                  const ok = await rejectOrder(
+                    orderToReject.id,
+                    finalReason,
+                    "✅ Orden rechazada y dinero reembolsado al paciente.",
+                    "❌ No se pudo procesar el rechazo. Contacta soporte."
+                  );
+                  if (ok) {
+                    setOrderToReject(null);
+                    setRejectionReasonInput("Receta médica inválida o ilegible");
+                  }
+                }
+              }}
+            >
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <ShieldAlert className="w-4 h-4 mr-2" /> Sí, Rechazar y Reembolsar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

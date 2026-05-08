@@ -107,6 +107,34 @@ export const useProviderOrders = () => {
     }
   };
 
+  const rejectOrder = async (
+    orderId: number,
+    reason: string,
+    successMsg: string,
+    errorMsg: string
+  ): Promise<boolean> => {
+    setIsSubmitting(true);
+    try {
+      await providerOrderService.rejectOrderForPrescription(orderId, reason);
+      // Actualizar localmente sin refetch
+      setOrders(prev =>
+        prev.map(o =>
+          o.id === orderId
+            ? { ...o, orderStatus: 'CANCELLED', paymentStatus: 'REFUNDED' }
+            : o
+        )
+      );
+      toast.success(successMsg, { theme: 'colored' });
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      toast.error(errorMsg, { theme: 'colored' });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     orders,
     isLoading,
@@ -115,6 +143,7 @@ export const useProviderOrders = () => {
     shipOrder,
     markAsDelivered,
     cancelOrder,
-    downloadSlip
+    downloadSlip,
+    rejectOrder,
   };
 };

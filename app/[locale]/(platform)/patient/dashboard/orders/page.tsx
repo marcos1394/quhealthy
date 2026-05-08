@@ -226,6 +226,27 @@ export default function PatientOrdersPage() {
                           </div>
                         </div>
                       )}
+
+                      {/* 🚩 Estado cancelado / rechazado */}
+                      {order.orderStatus === 'CANCELLED' && (
+                        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl p-5 space-y-3">
+                          <div className="flex items-center gap-2 text-rose-800 dark:text-rose-400">
+                            <AlertCircle className="w-5 h-5" />
+                            <h4 className="font-bold">Pedido Cancelado</h4>
+                          </div>
+                          {order.rejectionReason && (
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                              <p className="text-xs font-bold text-rose-900 dark:text-rose-300 uppercase tracking-tight mb-1">Razón del especialista:</p>
+                              <p className="text-sm text-slate-700 dark:text-rose-200/80 leading-relaxed italic">
+                                "{order.rejectionReason}"
+                              </p>
+                            </div>
+                          )}
+                          <p className="text-xs text-slate-500 dark:text-zinc-500">
+                            Tu dinero ha sido reembolsado automáticamente a tu método de pago original. Si tienes dudas, contacta a tu especialista.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                   </div>
