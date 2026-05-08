@@ -79,39 +79,44 @@ export function CheckoutModal({
     setQuery('');
     setSuggestions([]);
     
-    try {
-      const details = await googleService.getDetails(placeId);
-      
-      if (details?.result?.address_components) {
-        let streetNumber = '';
-        let route = '';
-        let colony = '';
-        let city = '';
-        let state = '';
-        let zip = '';
+    // Parse the autocomplete description string directly without calling details API
+    // Typically formatted as: "Street Name 123, Colony, City, State, Country"
+    const parts = description.split(',').map(p => p.trim());
+    
+    let street = '';
+    let colony = '';
+    let city = '';
+    let state = '';
+    let zip = ''; // Autocomplete descriptions rarely contain ZIP codes
 
-        details.result.address_components.forEach((c: any) => {
-          if (c.types.includes('street_number')) streetNumber = c.long_name;
-          if (c.types.includes('route')) route = c.long_name;
-          if (c.types.includes('sublocality') || c.types.includes('neighborhood')) colony = c.long_name;
-          if (c.types.includes('locality')) city = c.long_name;
-          if (c.types.includes('administrative_area_level_1')) state = c.long_name;
-          if (c.types.includes('postal_code')) zip = c.long_name;
-        });
-
-        setAddress({
-          street: `${route} ${streetNumber}`.trim() || description,
-          colony: colony,
-          city: city,
-          state: state,
-          zip: zip,
-        });
-      } else {
-        setAddress(prev => ({ ...prev, street: description }));
-      }
-    } catch (e) {
-      setAddress(prev => ({ ...prev, street: description }));
+    if (parts.length > 0) {
+      street = parts[0];
     }
+
+    // Attempt to guess the components based on the number of commas
+    if (parts.length >= 5) {
+      // E.g., "Av Siempre Viva 742", "Centro", "Los Mochis", "Sinaloa", "México"
+      colony = parts[1];
+      city = parts[parts.length - 3];
+      state = parts[parts.length - 2];
+    } else if (parts.length === 4) {
+      // E.g., "Av Siempre Viva 742", "Los Mochis", "Sinaloa", "México"
+      city = parts[1];
+      state = parts[2];
+    } else if (parts.length === 3) {
+      // E.g., "Los Mochis", "Sinaloa", "México" (No street)
+      city = parts[0];
+      state = parts[1];
+      street = ''; 
+    }
+
+    setAddress({
+      street: street,
+      colony: colony,
+      city: city,
+      state: state,
+      zip: zip,
+    });
   };
 
   const handleFileChange = async (itemId: number, file: File | null) => {
