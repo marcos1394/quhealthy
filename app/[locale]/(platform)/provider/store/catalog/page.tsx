@@ -157,7 +157,9 @@ export default function CatalogSetupPage() {
       return;
     }
     const newProduct: UI_Product = {
-      id: Date.now(), name: "", description: "", category: "", price: 0, stockQuantity: 1, isNew: true, hasUnsavedChanges: true,
+      id: Date.now(), name: "", description: "", category: "", price: 0, stockQuantity: 1, 
+      activeIngredient: "", manufacturer: "", requiresPrescription: false,
+      isNew: true, hasUnsavedChanges: true,
     };
     setProducts([newProduct, ...products]);
   };

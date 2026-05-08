@@ -87,6 +87,9 @@ export const useCatalog = () => {
           stockQuantity: item.stockQuantity || 0,
           sku: item.sku || '',
           imageUrl: item.imageUrl,
+          activeIngredient: item.activeIngredient || '',
+          manufacturer: item.manufacturer || '',
+          requiresPrescription: item.requiresPrescription || false,
           isNew: false,
           hasUnsavedChanges: false
         }));
@@ -205,7 +208,10 @@ export const useCatalog = () => {
       stockQuantity: product.stockQuantity,
       sku: product.sku,
       isDigital: false,
-      imageUrl: product.imageUrl
+      imageUrl: product.imageUrl,
+      activeIngredient: product.activeIngredient,
+      manufacturer: product.manufacturer,
+      requiresPrescription: product.requiresPrescription
     };
 
     try {

@@ -21,10 +21,13 @@ export interface CatalogItemDTO {
   cancellationPolicy?: CancellationPolicy | string;
   followUpPeriodDays?: number;
 
-  // 📦 Específico E-commerce (Productos Físicos)
+  // 📦 Específico E-commerce (Productos Físicos / Farmacia)
   sku?: string;
   stockQuantity?: number;
   isDigital?: boolean;
+  activeIngredient?: string;
+  manufacturer?: string;
+  requiresPrescription?: boolean;
 
   // 🎓 Específico Cursos / Contenido Digital
   contentUrl?: string;
@@ -73,6 +76,12 @@ export interface UI_Product {
   stockQuantity: number;
   sku?: string;
   imageUrl?: string;
+  
+  // 💊 Campos Farmacéuticos
+  activeIngredient?: string;
+  manufacturer?: string;
+  requiresPrescription?: boolean;
+
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
