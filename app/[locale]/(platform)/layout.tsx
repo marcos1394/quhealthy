@@ -1,5 +1,6 @@
 import React from "react";
 import { Sidebar } from "@/components/platform/Sidebar";
+import { MobileNavbar } from "@/components/platform/MobileNavbar"; // 🚀 Nuevo componente móvil
 
 // 🚀 IMPORTAMOS NUESTRO GUARDIÁN DE SEGURIDAD AQUÍ (SOLO PARA EL DASHBOARD)
 import AuthProvider from '@/components/providers/AuthProvider';
@@ -13,7 +14,11 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
   return (
     // 🚀 ENVOLVEMOS EL DASHBOARD CON EL AUTHPROVIDER
     <AuthProvider>
-      <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans antialiased selection:bg-medical-500/20 dark:selection:bg-medical-500/30 overflow-hidden transition-colors duration-300">
+      <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans antialiased selection:bg-medical-500/20 dark:selection:bg-medical-500/30 overflow-hidden transition-colors duration-300">
+        
+        {/* Navbar (Mobile only) */}
+        <MobileNavbar />
+
         {/* Sidebar (Desktop only) */}
         <div className="hidden md:flex flex-shrink-0 h-full z-50 shadow-sm dark:shadow-xl">
           <Sidebar />
