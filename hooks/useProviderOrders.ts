@@ -135,6 +135,28 @@ export const useProviderOrders = () => {
     }
   };
 
+  // 🚀 NUEVA FUNCIÓN: Aprobar Receta
+  const approvePrescription = async (
+    orderId: number,
+    successMsg: string,
+    errorMsg: string
+  ): Promise<boolean> => {
+    setIsSubmitting(true);
+    try {
+      const updatedOrder = await providerOrderService.approvePrescription(orderId);
+      // Actualizamos la orden en la tabla
+      setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+      toast.success(successMsg, { theme: 'colored' });
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      toast.error(errorMsg, { theme: 'colored' });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     orders,
     isLoading,
@@ -145,5 +167,6 @@ export const useProviderOrders = () => {
     cancelOrder,
     downloadSlip,
     rejectOrder,
+    approvePrescription, // 🚀 Añadir aquí
   };
 };

@@ -165,12 +165,22 @@ function OrderCard({
 
         {isProcessing && (
           <>
-            <Button size="sm"
-              className="bg-medical-600 hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
-              onClick={onShip}
-            >
-              <Truck className="w-3.5 h-3.5 mr-1.5" /> Enviar
-            </Button>
+            {/* 🚀 LÓGICA DE BLOQUEO POR RECETA */}
+            {order.prescriptionUrls && !order.prescriptionApproved ? (
+              <Button size="sm" variant="outline"
+                className="border-amber-300 text-amber-700 bg-amber-50 dark:border-amber-500/40 dark:text-amber-400 dark:bg-amber-500/10"
+                onClick={onView}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 mr-1.5" /> Revisar Receta
+              </Button>
+            ) : (
+              <Button size="sm"
+                className="bg-medical-600 hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
+                onClick={onShip}
+              >
+                <Truck className="w-3.5 h-3.5 mr-1.5" /> Enviar
+              </Button>
+            )}
             {/* 💊 Rechazar por receta — solo si tiene recetas adjuntas */}
             {order.prescriptionUrls && (
               <Button size="sm" variant="ghost"
@@ -244,7 +254,7 @@ export default function ProviderOrdersPage() {
   const t = useTranslations("ProviderOrders");
   const {
     orders, isLoading, isSubmitting,
-    fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip, rejectOrder,
+    fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip, rejectOrder, approvePrescription,
   } = useProviderOrders();
 
   const [selectedOrder,   setSelectedOrder]   = useState<OrderResponseDto | null>(null);
@@ -494,8 +504,31 @@ export default function ProviderOrdersPage() {
             <PrescriptionViewer prescriptionUrls={orderToView?.prescriptionUrls} />
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" className="w-full" onClick={() => setOrderToView(null)}>Cerrar</Button>
+          <DialogFooter className="gap-2 sm:justify-between">
+            {/* Si tiene receta y no está aprobada, mostramos el botón verde */}
+            {orderToView?.prescriptionUrls && !orderToView?.prescriptionApproved ? (
+              <Button 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto"
+                disabled={isSubmitting}
+                onClick={async () => {
+                  if (!orderToView) return;
+                  const ok = await approvePrescription(
+                    orderToView.id, 
+                    "Receta aprobada. Ya puedes enviar el pedido.", 
+                    "Error al aprobar receta."
+                  );
+                  if (ok) {
+                    setOrderToView({ ...orderToView, prescriptionApproved: true });
+                  }
+                }}
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                Aprobar Receta Médica
+              </Button>
+            ) : (
+              <div /> // Espaciador para empujar el botón Cerrar a la derecha
+            )}
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOrderToView(null)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

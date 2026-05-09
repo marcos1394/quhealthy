@@ -23,6 +23,9 @@ export interface OrderResponseDto {
   currency: string;
   createdAt: string;
   items: OrderItemDto[];
+  prescriptionUrls?: string;
+  prescriptionApproved?: boolean; // 🚀 NUEVO: Agregar este campo (lo puse opcional para compatibilidad)
+  rejectionReason?: string;
 }
 
 export interface ShipOrderRequest {

@@ -47,5 +47,12 @@ export const providerOrderService = {
       }
     });
     return response.data;
+  },
+
+  // 🚀 NUEVO: Aprobar receta médica
+  approvePrescription: async (orderId: number): Promise<OrderResponseDto> => {
+    // Usamos el endpoint correcto
+    const response = await axiosInstance.patch<OrderResponseDto>(`/api/payments/provider/orders/${orderId}/approve-prescription`);
+    return response.data;
   }
 };
