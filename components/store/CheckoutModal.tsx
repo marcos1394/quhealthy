@@ -1,3 +1,4 @@
+// Ubicación: src/components/store/CheckoutModal.tsx
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -12,17 +13,16 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { StorefrontItem } from "@/types/storefront";
 import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
-import { googleService } from "@/services/google.service";
+import { storageService } from "@/services/storage.service"; // 🚀 Añadido el servicio de Storage
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   cart: StorefrontItem[];
-  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: Record<number, string>) => void;
+  // 🚀 FIX: prescriptionUrls ahora es de tipo string (JSON) para que encaje con el Hook
+  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined) => void;
   isProcessing: boolean;
-  /** Optional: GCP upload function. Receives File, returns public URL */
-  onUploadFile?: (file: File) => Promise<string>;
 }
 
 interface AddressForm {
@@ -46,7 +46,7 @@ function isAddressComplete(f: AddressForm): boolean {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function CheckoutModal({
-  isOpen, onClose, cart, onConfirm, isProcessing, onUploadFile,
+  isOpen, onClose, cart, onConfirm, isProcessing
 }: CheckoutModalProps) {
   // --- Derived flags ---
   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
@@ -79,32 +79,26 @@ export function CheckoutModal({
     setQuery('');
     setSuggestions([]);
     
-    // Parse the autocomplete description string directly without calling details API
-    // Typically formatted as: "Street Name 123, Colony, City, State, Country"
     const parts = description.split(',').map(p => p.trim());
     
     let street = '';
     let colony = '';
     let city = '';
     let state = '';
-    let zip = ''; // Autocomplete descriptions rarely contain ZIP codes
+    let zip = ''; 
 
     if (parts.length > 0) {
       street = parts[0];
     }
 
-    // Attempt to guess the components based on the number of commas
     if (parts.length >= 5) {
-      // E.g., "Av Siempre Viva 742", "Centro", "Los Mochis", "Sinaloa", "México"
       colony = parts[1];
       city = parts[parts.length - 3];
       state = parts[parts.length - 2];
     } else if (parts.length === 4) {
-      // E.g., "Av Siempre Viva 742", "Los Mochis", "Sinaloa", "México"
       city = parts[1];
       state = parts[2];
     } else if (parts.length === 3) {
-      // E.g., "Los Mochis", "Sinaloa", "México" (No street)
       city = parts[0];
       state = parts[1];
       street = ''; 
@@ -119,29 +113,39 @@ export function CheckoutModal({
     });
   };
 
+  // 🚀 LÓGICA DIRECT-TO-CLOUD PARA LA RECETA
   const handleFileChange = async (itemId: number, file: File | null) => {
     if (!file) return;
     setUploadingId(itemId);
     setUploadErrors(prev => ({ ...prev, [itemId]: "" }));
+    
     try {
-      if (onUploadFile) {
-        const url = await onUploadFile(file);
-        setPrescriptionUrls(prev => ({ ...prev, [itemId]: url }));
-      } else {
-        // Fallback: store local object URL (for dev / when no upload fn provided)
-        const url = URL.createObjectURL(file);
-        setPrescriptionUrls(prev => ({ ...prev, [itemId]: url }));
-      }
-    } catch {
-      setUploadErrors(prev => ({ ...prev, [itemId]: "Error al subir. Intenta de nuevo." }));
+      // 1. Pedimos la Signed URL a nuestro backend (Java)
+      const { signedUrl, fileKey } = await storageService.getPrescriptionUploadUrl(file.type);
+
+      // 2. Subimos el archivo a Google Cloud usando fetch y el verbo PUT
+      await storageService.uploadDirectToCloud(file, signedUrl);
+
+      // 3. Guardamos el 'fileKey' interno de Google Cloud en nuestro estado local
+      setPrescriptionUrls(prev => ({ ...prev, [itemId]: fileKey }));
+      
+    } catch (error) {
+      console.error(error);
+      setUploadErrors(prev => ({ ...prev, [itemId]: "Error al subir a la nube. Intenta de nuevo." }));
     } finally {
       setUploadingId(null);
     }
   };
 
   const handleConfirm = () => {
-    const shippingAddress = hasPhysical ? buildAddressString(address) : undefined;
-    onConfirm(shippingAddress, prescriptionUrls);
+    const finalShippingAddress = hasPhysical ? buildAddressString(address) : undefined;
+    
+    // 🚀 Transformamos el objeto de recetas a un String JSON para el Backend
+    const finalPrescriptionUrls = Object.keys(prescriptionUrls).length > 0 
+      ? JSON.stringify(prescriptionUrls) 
+      : undefined;
+
+    onConfirm(finalShippingAddress, finalPrescriptionUrls);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -302,7 +306,7 @@ export function CheckoutModal({
                           </div>
                           {uploaded && (
                             <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-none text-xs flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Receta subida
+                              <CheckCircle2 className="w-3 h-3" /> Receta protegida
                             </Badge>
                           )}
                         </div>
@@ -329,7 +333,7 @@ export function CheckoutModal({
                           )}
                           <span className="text-xs font-medium text-slate-600 dark:text-zinc-300">
                             {isUploading
-                              ? "Subiendo..."
+                              ? "Cifrando y subiendo receta..."
                               : uploaded
                                 ? "Cambiar imagen de receta"
                                 : "Toca para subir una foto de tu receta"}
@@ -359,7 +363,7 @@ export function CheckoutModal({
                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 flex items-start gap-2">
                   <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Tu receta está protegida. Solo la verá el especialista para validar tu compra.
+                    Tu receta será cifrada de extremo a extremo. Solo la verá el especialista para validar tu compra.
                   </p>
                 </div>
               </section>

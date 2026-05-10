@@ -29,11 +29,16 @@ export const useProviderOrders = () => {
     trackingNumber: string, 
     successMsg: string, 
     errorMsg: string,
-    shippingCarrier = 'OTHER'
+    shippingCarrier = 'OTHER',
+    packageEvidenceUrls?: string // 🚀 NUEVO PARÁMETRO
   ): Promise<boolean> => {
     setIsSubmitting(true);
     try {
-      const updatedOrder = await providerOrderService.shipOrder(orderId, { trackingNumber, shippingCarrier });
+      const updatedOrder = await providerOrderService.shipOrder(orderId, { 
+        trackingNumber, 
+        shippingCarrier,
+        packageEvidenceUrls // 🚀 Lo enviamos en el payload
+      });
       setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
       toast.success(successMsg, { theme: 'colored' });
       return true;

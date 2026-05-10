@@ -265,6 +265,10 @@ export default function ProviderOrdersPage() {
   const [shippingCarrier, setShippingCarrier] = useState("DHL");
   const [rejectionReasonInput, setRejectionReasonInput] = useState("Receta médica inválida o ilegible");
 
+  // 🚀 NUEVOS ESTADOS PARA LA EVIDENCIA
+  const [evidenceUrl, setEvidenceUrl] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+
   useEffect(() => { fetchOrders(t("toast_load_error")); }, [fetchOrders, t]);
 
   const handleShipSubmit = async () => {
@@ -274,9 +278,33 @@ export default function ProviderOrdersPage() {
       trackingNumber.trim(),
       t("toast_ship_success"),
       t("toast_ship_error"),
-      shippingCarrier
+      shippingCarrier,
+      evidenceUrl // 🚀 Enviamos la URL de la foto
     );
-    if (ok) { setSelectedOrder(null); setTrackingNumber(""); setShippingCarrier("DHL"); }
+    if (ok) { 
+      setSelectedOrder(null); 
+      setTrackingNumber(""); 
+      setShippingCarrier("DHL");
+      setEvidenceUrl(""); // 🚀 Limpiamos la foto
+    }
+  };
+
+  // 🚀 FUNCIÓN PARA SUBIR LA IMAGEN
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      // Simulamos la subida por ahora (reemplaza esto con tu código real)
+      const uploadedUrl = URL.createObjectURL(file); 
+      setEvidenceUrl(uploadedUrl);
+      toast.success("Evidencia adjuntada correctamente", { theme: "colored" });
+    } catch (error) {
+      toast.error("Error al subir la imagen", { theme: "colored" });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const processingCount = orders.filter(o => getOrderStatus(o.orderStatus) === "PROCESSING").length;
@@ -342,7 +370,12 @@ export default function ProviderOrdersPage() {
       )}
 
       {/* ── MODAL: Agregar Número de Guía ─────────────────────────────────── */}
-      <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+      <Dialog open={!!selectedOrder} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedOrder(null);
+          setEvidenceUrl(""); // 🚀 Limpiar si el usuario cierra el modal sin guardar
+        }
+      }}>
         <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-white flex items-center gap-2">
@@ -383,6 +416,50 @@ export default function ProviderOrdersPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleShipSubmit()}
               />
               <p className="text-xs text-slate-400 mt-1.5">El paciente podrá rastrear su envío con este número.</p>
+            </div>
+
+            {/* 🚀 NUEVA SECCIÓN: Evidencia Fotográfica */}
+            <div className="pt-2">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 block flex justify-between">
+                <span>📸 Prueba de Empaque (Opcional)</span>
+              </label>
+              
+              {!evidenceUrl ? (
+                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 text-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    id="evidence-upload" 
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                  />
+                  <label htmlFor="evidence-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                    {isUploading ? (
+                      <Loader2 className="w-6 h-6 animate-spin text-medical-500" />
+                    ) : (
+                      <>
+                        <div className="bg-medical-50 dark:bg-medical-500/10 p-2 rounded-full text-medical-600 dark:text-medical-400">
+                          <Package className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs text-slate-500 font-medium">Haz clic para adjuntar foto del paquete</span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              ) : (
+                <div className="relative border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <img src={evidenceUrl} alt="Evidencia" className="w-10 h-10 object-cover rounded-md border" />
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 truncate">
+                      ✅ Imagen lista para enviar
+                    </span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setEvidenceUrl("")} className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 h-8">
+                    <XCircle className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           <Separator className="dark:bg-slate-800" />

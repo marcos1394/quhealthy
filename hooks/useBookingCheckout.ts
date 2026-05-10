@@ -111,10 +111,8 @@ export const useBookingCheckout = () => {
           paymentMethod: 'CREDIT_CARD',
           consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
           shippingAddress,
-          // 💊 Recetas médicas: se envían en metadata para que el backend las persista en la orden
-          ...(prescriptionUrls && Object.keys(prescriptionUrls).length > 0 && {
-            metadata: { prescriptionUrls }
-          }),
+          // 🚀 DIRECT-TO-CLOUD: Enviamos el JSON directo en el body, NO en metadata
+          prescriptionUrls: prescriptionUrls, 
           cartItems
         };
 

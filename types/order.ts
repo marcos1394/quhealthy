@@ -26,9 +26,11 @@ export interface OrderResponseDto {
   prescriptionUrls?: string;
   prescriptionApproved?: boolean; // 🚀 NUEVO: Agregar este campo (lo puse opcional para compatibilidad)
   rejectionReason?: string;
+  packageEvidenceUrls?: string; // 🚀 NUEVA LÍNEA
 }
 
 export interface ShipOrderRequest {
   trackingNumber: string;
   shippingCarrier?: string;
+  packageEvidenceUrls?: string; // 🚀 NUEVA LÍNEA
 }

@@ -10,8 +10,8 @@ export interface CheckoutParams {
   cart: StorefrontItem[];
   consumerSymptoms?: string; 
   shippingAddress?: string;
-  // 🚀 Mapa de { catalogItemId → URL de receta } para ítems controlados
-  prescriptionUrls?: Record<number, string>;
+  // 🚀 Espera un JSON en String ej: '{"12": "consumers/5/prescriptions/abc.jpg"}'
+  prescriptionUrls?: string;
 }
 
 export interface CreateAppointmentRequest {
