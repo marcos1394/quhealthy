@@ -46,5 +46,17 @@ export const storageService = {
     if (!response.ok) {
       throw new Error('Fallo al subir el archivo de manera segura a Google Cloud.');
     }
+  },
+
+  /**
+   * Pide permiso al backend para leer un archivo privado.
+   * Devuelve la URL temporal de Google Cloud para abrir o descargar.
+   */
+  getReadUrl: async (fileKey: string): Promise<string> => {
+    const response = await axiosInstance.get<{signedUrl: string}>(
+      '/api/appointments/storage/read-url',
+      { params: { fileKey } }
+    );
+    return response.data.signedUrl;
   }
 };

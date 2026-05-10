@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
+import { storageService } from "@/services/storage.service";
 import { OrderResponseDto, OrderStatus, PaymentStatus } from "@/types/order";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -223,7 +224,25 @@ function OrderCard({
 
 // ── Prescription viewer helper ────────────────────────────────────────────────
 function PrescriptionViewer({ prescriptionUrls }: { prescriptionUrls?: string }) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
   if (!prescriptionUrls) return null;
+
+  const handleView = async (itemId: string, fileKey: string) => {
+    setLoadingId(itemId);
+    try {
+      // 1. Pedimos la llave mágica de lectura
+      const signedUrl = await storageService.getReadUrl(fileKey);
+      // 2. Abrimos la URL de Google Cloud en una pestaña nueva
+      window.open(signedUrl, '_blank');
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al abrir la receta médica", { theme: "colored" });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   try {
     const urls = JSON.parse(prescriptionUrls) as Record<string, string>;
     const entries = Object.entries(urls);
@@ -234,13 +253,18 @@ function PrescriptionViewer({ prescriptionUrls }: { prescriptionUrls?: string })
           <AlertTriangle className="w-4 h-4" /> Recetas Médicas Adjuntas
         </h4>
         <div className="flex flex-wrap gap-2">
-          {entries.map(([itemId, url]) => (
+          {entries.map(([itemId, fileKey]) => (
             <Button key={itemId} size="sm" variant="outline"
               className="bg-white dark:bg-slate-900 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/40"
-              onClick={() => window.open(url, '_blank')}
+              onClick={() => handleView(itemId, fileKey)}
+              disabled={loadingId === itemId}
             >
-              <FileText className="w-3.5 h-3.5 mr-1.5" />
-              Ver Receta (Ítem #{itemId})
+              {loadingId === itemId ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <FileText className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              {loadingId === itemId ? "Descifrando..." : `Ver Receta (Ítem #${itemId})`}
             </Button>
           ))}
         </div>
