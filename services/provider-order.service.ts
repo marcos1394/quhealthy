@@ -1,6 +1,6 @@
-// services/provider-order.service.ts
+// Ubicación: src/services/provider-order.service.ts
 import axiosInstance from '@/lib/axios';
-import { PageResponse } from '@/types/appointments'; // Reutilizamos tu tipo de paginación
+import { PageResponse } from '@/types/appointments'; 
 import { OrderResponseDto, ShipOrderRequest } from '@/types/order';
 
 // 🚀 FIX: Ruta actualizada para coincidir con el microservicio a través del Gateway
@@ -25,34 +25,29 @@ export const providerOrderService = {
     return response.data;
   },
 
-  // 🚀 NUEVO: Llama al payment_service para cancelar y reembolsar
   cancelAndRefundOrder: async (orderId: number): Promise<void> => {
-    // Fíjate que la ruta apunta a /payments, no a /appointments
     await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/cancel`);
   },
 
-  // 🚀 NUEVO: Rechazo por receta médica inválida (Llama al payment_service)
   rejectOrderForPrescription: async (orderId: number, reason: string): Promise<void> => {
     await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/reject`, null, {
       params: { reason }
     });
   },
 
-  // 🚀 NUEVO: Descargar Packing Slip
   downloadPackingSlip: async (orderId: number): Promise<Blob> => {
     const response = await axiosInstance.get(`${BASE_URL}/${orderId}/packing-slip`, {
-      responseType: 'blob', // Fundamental para que no se corrompa el PDF
+      responseType: 'blob', 
       headers: {
-        'Accept': 'application/pdf' // 🚀 FIX: Le decimos a Spring que sí queremos un PDF
+        'Accept': 'application/pdf' 
       }
     });
     return response.data;
   },
 
-  // 🚀 NUEVO: Aprobar receta médica
   approvePrescription: async (orderId: number): Promise<OrderResponseDto> => {
-    // Usamos el endpoint correcto
-    const response = await axiosInstance.patch<OrderResponseDto>(`/api/payments/provider/orders/${orderId}/approve-prescription`);
+    // 🚀 FIX: Usa BASE_URL para apuntar a appointment_service
+    const response = await axiosInstance.patch<OrderResponseDto>(`${BASE_URL}/${orderId}/approve-prescription`);
     return response.data;
   }
 };

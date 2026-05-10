@@ -182,15 +182,7 @@ function OrderCard({
                 <Truck className="w-3.5 h-3.5 mr-1.5" /> Enviar
               </Button>
             )}
-            {/* 💊 Rechazar por receta — solo si tiene recetas adjuntas */}
-            {order.prescriptionUrls && (
-              <Button size="sm" variant="ghost"
-                className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
-                onClick={onReject}
-              >
-                <ShieldAlert className="w-3.5 h-3.5 mr-1.5" /> Rechazar Receta
-              </Button>
-            )}
+
             <Button size="sm" variant="ghost"
               className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
               onClick={onCancel}
@@ -605,30 +597,45 @@ export default function ProviderOrdersPage() {
             <PrescriptionViewer prescriptionUrls={orderToView?.prescriptionUrls} />
           </div>
 
-          <DialogFooter className="gap-2 sm:justify-between">
-            {/* Si tiene receta y no está aprobada, mostramos el botón verde */}
+          <DialogFooter className="gap-2 sm:justify-between flex-wrap">
+            {/* Lógica de botones si tiene receta y no está aprobada */}
             {orderToView?.prescriptionUrls && !orderToView?.prescriptionApproved ? (
-              <Button 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto"
-                disabled={isSubmitting}
-                onClick={async () => {
-                  if (!orderToView) return;
-                  const ok = await approvePrescription(
-                    orderToView.id, 
-                    "Receta aprobada. Ya puedes enviar el pedido.", 
-                    "Error al aprobar receta."
-                  );
-                  if (ok) {
-                    setOrderToView({ ...orderToView, prescriptionApproved: true });
-                  }
-                }}
-              >
-                {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-                Aprobar Receta Médica
-              </Button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white flex-1 sm:flex-none"
+                  disabled={isSubmitting}
+                  onClick={async () => {
+                    if (!orderToView) return;
+                    const ok = await approvePrescription(
+                      orderToView.id, 
+                      "Receta aprobada. Ya puedes enviar el pedido.", 
+                      "Error al aprobar receta."
+                    );
+                    if (ok) {
+                      setOrderToView({ ...orderToView, prescriptionApproved: true });
+                    }
+                  }}
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                  Aprobar Receta
+                </Button>
+
+                {/* 🚀 BOTÓN RECHAZAR MOVIDO AQUÍ */}
+                <Button 
+                  variant="outline"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-500/40 dark:text-amber-400 dark:bg-amber-500/10 flex-1 sm:flex-none"
+                  onClick={() => {
+                    setOrderToReject(orderToView); // Abre el modal de rechazo
+                    setOrderToView(null);          // Cierra este modal
+                  }}
+                >
+                  <ShieldAlert className="w-4 h-4 mr-2" /> Rechazar
+                </Button>
+              </div>
             ) : (
-              <div /> // Espaciador para empujar el botón Cerrar a la derecha
+              <div /> // Espaciador visual
             )}
+            
             <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOrderToView(null)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
