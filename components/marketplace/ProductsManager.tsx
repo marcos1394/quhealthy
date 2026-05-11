@@ -1,10 +1,21 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Plus, Trash2, Save, ImagePlus, ShoppingBag, Box, Barcode, Tag, Info, Sparkles, Camera, Loader2, FlaskConical, Building2 } from "lucide-react";
+import { Plus, Trash2, Save, ImagePlus, ShoppingBag, Box, Barcode, Tag, Info, Sparkles, Camera, Loader2, FlaskConical, Building2, ShieldAlert, FileText, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+
+// Agrega esto debajo de tus imports
+const COFEPRIS_CATEGORIES = [
+  { value: 'OTC_GENERAL', label: 'Venta Libre (Supermercados)' },
+  { value: 'OTC_FARMACIA', label: 'Venta Libre (Exclusivo Farmacia)' },
+  { value: 'RECETA_SIMPLE', label: 'Requiere Receta Simple' },
+  { value: 'ANTIBIOTICO', label: 'Antibiótico (Requiere Sello/Retención)' },
+  { value: 'PSICOTROPICO_CONTROLADO', label: 'Psicotrópico (Grupo III - Surtible 3 veces)' },
+  { value: 'PSICOTROPICO_RETENCION', label: 'Psicotrópico (Grupo II - Retención Obligatoria)' },
+  { value: 'ESTUPEFACIENTE', label: 'Estupefaciente (Grupo I - PROHIBIDO E-COMMERCE)' },
+];
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +95,13 @@ export function ProductsManager({
         description: aiData.description || '',
         activeIngredient: aiData.activeIngredient || '',
         manufacturer: aiData.manufacturer || '',
+        
+        // Nuevos campos
+        cofeprisCategory: aiData.cofeprisCategory || 'OTC_GENERAL',
         requiresPrescription: aiData.requiresPrescription || false,
+        isAntibiotic: aiData.isAntibiotic || false,
+        requiresPhysicalRetention: aiData.requiresPhysicalRetention || false,
+        allowsInterstateShipping: aiData.allowsInterstateShipping ?? true,
       });
 
       toast.update(loadingToast, { render: "¡Datos extraídos con éxito!", type: "success", isLoading: false, autoClose: 3000 });
@@ -316,52 +333,107 @@ export function ProductsManager({
                           </div>
                         </div>
 
-                        {/* 🚀 MAGIA DE IA: Nuevos Campos Farmacéuticos */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center">
-                              <FlaskConical className="w-3.5 h-3.5 mr-1 text-slate-400" /> Sustancia Activa
-                            </label>
-                            <Input 
-                              value={product.activeIngredient || ''} 
-                              onChange={e => onUpdate(product.id, { activeIngredient: e.target.value })} 
-                              placeholder="Ej: Paracetamol 500mg" 
-                              className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700" 
-                            />
+                        {/* 🛡️ SECCIÓN CUMPLIMIENTO REGULATORIO (COFEPRIS) */}
+                        <div className="bg-amber-50/50 dark:bg-amber-900/10 p-5 rounded-2xl border border-amber-200/60 dark:border-amber-800/50 space-y-5">
+                          <h4 className="font-bold text-amber-800 dark:text-amber-400 flex items-center text-sm border-b border-amber-200/50 pb-2">
+                            <ShieldAlert className="w-4 h-4 mr-2" /> Cumplimiento Regulatorio y Farmacológico
+                          </h4>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Categoría COFEPRIS */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Clasificación Sanitaria</label>
+                              <select
+                                value={product.cofeprisCategory || 'OTC_GENERAL'}
+                                onChange={(e) => onUpdate(product.id, { cofeprisCategory: e.target.value })}
+                                className="w-full h-11 px-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                              >
+                                {COFEPRIS_CATEGORIES.map(cat => (
+                                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* URL Ficha Técnica */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+                                <FileText className="w-3.5 h-3.5 mr-1" /> Ficha Técnica (IPP PDF)
+                              </label>
+                              <Input 
+                                value={product.technicalSheetUrl || ''} 
+                                onChange={e => onUpdate(product.id, { technicalSheetUrl: e.target.value })} 
+                                placeholder="Ej: https://.../medicamento.pdf" 
+                                className="bg-white dark:bg-slate-950" 
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+                                <FlaskConical className="w-3.5 h-3.5 mr-1" /> Sustancia Activa
+                              </label>
+                              <Input 
+                                value={product.activeIngredient || ''} 
+                                onChange={e => onUpdate(product.id, { activeIngredient: e.target.value })} 
+                                placeholder="Ej: Paracetamol 500mg" 
+                                className="bg-white dark:bg-slate-950" 
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+                                <Building2 className="w-3.5 h-3.5 mr-1" /> Laboratorio / Marca
+                              </label>
+                              <Input 
+                                value={product.manufacturer || ''} 
+                                onChange={e => onUpdate(product.id, { manufacturer: e.target.value })} 
+                                placeholder="Ej: Pfizer, Bayer" 
+                                className="bg-white dark:bg-slate-950" 
+                              />
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center">
-                              <Building2 className="w-3.5 h-3.5 mr-1 text-slate-400" /> Laboratorio / Marca
+
+                          {/* Toggles de Compliance */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-amber-200/50">
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={product.requiresPrescription || false}
+                                onChange={e => onUpdate(product.id, { requiresPrescription: e.target.checked })}
+                                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300"
+                              />
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Requiere Receta Médica</span>
                             </label>
-                            <Input 
-                              value={product.manufacturer || ''} 
-                              onChange={e => onUpdate(product.id, { manufacturer: e.target.value })} 
-                              placeholder="Ej: Pfizer, Bayer" 
-                              className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700" 
-                            />
-                          </div>
-                          
-                          {/* Checkbox de Receta Médica */}
-                          <div className="md:col-span-2 pt-2">
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                              <div className="relative flex items-center justify-center">
-                                <input 
-                                  type="checkbox" 
-                                  checked={product.requiresPrescription || false}
-                                  onChange={e => onUpdate(product.id, { requiresPrescription: e.target.checked })}
-                                  className="peer sr-only"
-                                />
-                                <div className="w-6 h-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 peer-checked:bg-medical-600 peer-checked:border-medical-600 transition-colors"></div>
-                                <Sparkles className="w-4 h-4 text-white absolute opacity-0 peer-checked:opacity-100 transition-opacity" />
-                              </div>
-                              <div>
-                                <span className="font-bold text-sm text-slate-700 dark:text-slate-300 group-hover:text-medical-600 transition-colors">
-                                  Este producto requiere Receta Médica
-                                </span>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                  El paciente deberá subir una foto de su receta antes de pagar.
-                                </p>
-                              </div>
+
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={product.isAntibiotic || false}
+                                onChange={e => onUpdate(product.id, { isAntibiotic: e.target.checked })}
+                                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300"
+                              />
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Es Antibiótico (Retención/Sello)</span>
+                            </label>
+
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={product.requiresPhysicalRetention || false}
+                                onChange={e => onUpdate(product.id, { requiresPhysicalRetention: e.target.checked })}
+                                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300"
+                              />
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Exige Recolectar Receta Original</span>
+                            </label>
+
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={product.allowsInterstateShipping ?? true}
+                                onChange={e => onUpdate(product.id, { allowsInterstateShipping: e.target.checked })}
+                                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
+                              />
+                              <span className="text-sm font-medium flex items-center text-slate-700 dark:text-slate-300">
+                                <Truck className="w-3.5 h-3.5 mr-1" /> Permite Envío Foráneo
+                              </span>
                             </label>
                           </div>
                         </div>

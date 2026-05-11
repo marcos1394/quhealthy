@@ -77,10 +77,15 @@ export interface UI_Product {
   sku?: string;
   imageUrl?: string;
   
-  // 💊 Campos Farmacéuticos
+  // 💊 Campos Farmacéuticos y COFEPRIS
   activeIngredient?: string;
   manufacturer?: string;
   requiresPrescription?: boolean;
+  cofeprisCategory?: string;
+  isAntibiotic?: boolean;
+  requiresPhysicalRetention?: boolean;
+  allowsInterstateShipping?: boolean;
+  technicalSheetUrl?: string;
 
   isNew?: boolean;
   hasUnsavedChanges?: boolean;

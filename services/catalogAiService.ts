@@ -6,15 +6,18 @@ export interface AiProductScanResponse {
   description: string;
   activeIngredient: string;
   manufacturer: string;
+  
+  // Nuevos campos de Compliance COFEPRIS
+  cofeprisCategory: string;
   requiresPrescription: boolean;
+  isAntibiotic: boolean;
+  requiresPhysicalRetention: boolean;
+  requiresBarcodePrescription: boolean;
+  allowsInterstateShipping: boolean;
 }
 
 export const catalogAiService = {
-  /**
-   * 🤖 Envía la imagen en Base64 a Vertex AI y devuelve los datos del medicamento estructurados
-   */
   scanProductImage: async (imageBase64: string): Promise<AiProductScanResponse> => {
-    // Apuntamos al nuevo endpoint de Spring Boot que creamos
     const response = await axiosInstance.post('/api/catalog/ai/scan-product', {
       imageBase64
     });
