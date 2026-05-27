@@ -3566,5 +3566,29 @@
     "s6_l3": "Solicitar la eliminación total de tu cuenta y datos asociados ('Derecho al Olvido').",
     "s6_l4": "Revocar accesos previamente otorgados a médicos o clínicas.",
     "contact": "Para ejercer tus derechos de privacidad o si tienes consultas sobre nuestras prácticas de seguridad, por favor contacta a nuestro Oficial de Protección de Datos (DPO) en privacy@quhealthy.com."
+  },
+  "PublicCookies": {
+    "breadcrumb": "Legal",
+    "title": "Política de Cookies",
+    "subtitle": "Transparencia total sobre cómo utilizamos tecnologías de rastreo para mejorar tu experiencia de usuario.",
+    "date": "Última actualización: 27 de Mayo, 2026",
+    "toc": "Contenido",
+    "intro_title": "1. ¿Qué son las Cookies?",
+    "intro_desc": "Las cookies son pequeños archivos de texto que los sitios web almacenan en su dispositivo (computadora, tableta o móvil) cuando los visita. Utilizamos cookies y tecnologías similares para garantizar el funcionamiento básico de QuHealthy, entender cómo interactúa con nuestra plataforma y ofrecerle una experiencia más personalizada.",
+    "types_title": "2. Tipos de Cookies que Utilizamos",
+    "types_essential": "Cookies Esenciales (Estrictamente Necesarias)",
+    "types_essential_desc": "Son vitales para que la plataforma funcione. Incluyen funciones como mantener su sesión iniciada de manera segura, el enrutamiento de red y la prevención de fraudes. No se pueden desactivar.",
+    "types_analytics": "Cookies Analíticas",
+    "types_analytics_desc": "Nos ayudan a entender cómo los usuarios navegan por el sitio, qué páginas son las más visitadas y dónde se encuentran los errores. Utilizamos Google Analytics con anonimización de IP para proteger su privacidad.",
+    "types_marketing": "Cookies de Marketing",
+    "types_marketing_desc": "Utilizadas para rastrear la efectividad de nuestras campañas publicitarias y ofrecer contenido relevante. Trabajamos con Meta Pixel y otros proveedores. Estas cookies solo se activan si usted nos da su consentimiento explícito.",
+    "consent_title": "3. Gestión de tu Consentimiento",
+    "consent_desc": "En QuHealthy creemos en el control granular. Cuando visita nuestra plataforma por primera vez, se le presenta un banner de cookies (Cookie Manager) que le permite aceptar o rechazar categorías específicas. Puede modificar estas preferencias en cualquier momento utilizando el botón en la parte inferior de esta página.",
+    "thirdparty_title": "4. Proveedores Externos",
+    "thirdparty_desc": "Algunos de nuestros servicios de terceros pueden colocar sus propias cookies. Por ejemplo, al procesar pagos mediante Stripe o cargar mapas dinámicos. Estos proveedores están obligados por contrato a mantener sus datos seguros.",
+    "contact_title": "5. Contacto",
+    "contact_desc": "Si tiene alguna pregunta sobre nuestra Política de Cookies o sobre cómo gestionamos sus preferencias, puede contactar a nuestro equipo de privacidad.",
+    "contact_link": "legal@quhealthy.com",
+    "manage_btn": "Gestionar Preferencias de Cookies"
   }
 }
