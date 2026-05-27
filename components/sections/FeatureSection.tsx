@@ -48,17 +48,17 @@ const FeaturesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative"
+                className="group relative p-8 rounded-3xl bg-transparent transition-all duration-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
-                {/* Decorador de línea superior muy fino */}
-                <div className="absolute -top-6 left-0 w-12 h-px bg-medical-600/30 dark:bg-medical-400/30 transition-all duration-500 group-hover:w-full" />
+                {/* Decorador de línea superior dinámico */}
+                <div className="absolute top-0 left-8 w-12 h-px bg-medical-600/30 dark:bg-medical-400/30 transition-all duration-700 ease-out group-hover:w-[calc(100%-4rem)] group-hover:bg-medical-500" />
 
-                <div className="flex flex-col h-full">
-                  <div className="mb-6 inline-flex items-center justify-center text-medical-600 dark:text-medical-400">
+                <div className="flex flex-col h-full pt-4">
+                  <div className="mb-6 inline-flex items-center justify-center text-medical-600 dark:text-medical-400 transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
                     <IconComponent className="w-8 h-8" strokeWidth={1} />
                   </div>
 
-                  <h3 className="text-2xl font-medium text-slate-900 dark:text-white mb-4 tracking-tight">
+                  <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4 tracking-tight leading-tight">
                     {t(`items.${index}.title`)}
                   </h3>
 
@@ -66,12 +66,11 @@ const FeaturesSection = () => {
                     {t(`items.${index}.description`)}
                   </p>
 
-                  <div className="mt-auto">
-                    <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white hover:opacity-70 transition-opacity">
-                      <span className="border-b border-transparent group-hover:border-slate-900 dark:group-hover:border-white transition-colors pb-0.5">
-                        {t('explore')}
-                      </span>
-                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                  <div className="mt-auto pt-6">
+                    <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white hover:text-medical-600 dark:hover:text-medical-400 transition-colors group/link relative">
+                      <span>{t('explore')}</span>
+                      <ArrowRight className="w-4 h-4 transform group-hover/link:translate-x-1.5 transition-transform duration-300" />
+                      <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-medical-600 dark:bg-medical-400 transition-all duration-300 ease-out group-hover/link:w-full" />
                     </a>
                   </div>
                 </div>

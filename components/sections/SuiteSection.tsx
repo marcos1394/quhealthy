@@ -93,18 +93,22 @@ const SuiteSection: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className={cn("space-y-8 lg:max-w-xl", !isEven ? "lg:col-start-2" : "")}
+                  className={cn("space-y-8 lg:max-w-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/20 dark:shadow-none relative overflow-hidden group", !isEven ? "lg:col-start-2" : "")}
                 >
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className={cn("p-3 rounded-2xl", product.bgClass, product.themeColor)}>
-                      <product.icon className="w-6 h-6" />
+                  {/* Subtle gradient glow behind the card */}
+                  <div className={cn("absolute -top-32 -right-32 w-64 h-64 rounded-full blur-[80px] opacity-20 pointer-events-none transition-opacity duration-500 group-hover:opacity-40", product.bgClass.replace('/10', ''))} />
+
+                  <div className="flex items-center gap-4 mb-2 relative z-10">
+                    <div className={cn("p-3.5 rounded-2xl relative shadow-sm border border-white/20 dark:border-slate-700/50", product.bgClass, product.themeColor)}>
+                      <div className={cn("absolute inset-0 rounded-2xl opacity-50 blur-md pointer-events-none", product.bgClass.replace('/10', ''))} />
+                      <product.icon className="w-7 h-7 relative z-10" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-3xl lg:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
+                    <h3 className="text-3xl lg:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight relative z-10">
                       {product.name}
                     </h3>
                   </div>
 
-                  <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light relative z-10">
                     {product.description}
                   </p>
 
@@ -135,17 +139,32 @@ const SuiteSection: React.FC = () => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className={cn("relative w-full aspect-[4/5] lg:aspect-square rounded-[2rem] overflow-hidden", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
+                  className={cn("relative w-full aspect-[4/5] lg:aspect-square rounded-[2rem] overflow-hidden group", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <motion.img
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                     src={suiteImages[index]}
                     alt={`Ilustración de uso para ${product.name}`}
-                    className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-[2s] ease-out"
+                    className="w-full h-full object-cover object-center"
                   />
 
+                  {/* Floating Badge */}
+                  <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    className="absolute top-6 right-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 dark:border-slate-700 shadow-lg z-10"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                      {index === 0 ? "Platform" : index === 1 ? "Marketplace" : "Academy"}
+                    </span>
+                  </motion.div>
+
                   {/* Overlay gradiente muy sutil para asegurar contraste si se colocan elementos encima en el futuro */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent mix-blend-multiply" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none mix-blend-multiply" />
                 </motion.div>
 
               </div>
