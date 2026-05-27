@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Check, ShieldCheck, Star, Activity, Heart, Calendar, Sparkles, UserPlus, TrendingUp, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { LogoCarousel } from "@/components/sections/LogoCarousel";
 
 const TypewriterWords = ({ words }: { words: string[] }) => {
   const [index, setIndex] = useState(0);
@@ -36,6 +38,7 @@ const TypewriterWords = ({ words }: { words: string[] }) => {
 
 const HeroSection: React.FC = () => {
   const t = useTranslations('Hero');
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
 
@@ -144,9 +147,15 @@ const HeroSection: React.FC = () => {
                 </div>
 
                 <Button
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (searchQuery) params.append("q", searchQuery);
+                    if (locationQuery) params.append("loc", locationQuery);
+                    router.push(`/discover?${params.toString()}`);
+                  }}
                   className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl px-8 py-6 h-auto text-base font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 shadow-slate-900/10 dark:shadow-none transition-all duration-300 group overflow-hidden relative"
                 >
-                  <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+                  <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none"></span>
                   <span className="relative group-hover:translate-x-1 transition-transform inline-block">
                     {t('search_button')}
                   </span>
@@ -326,6 +335,9 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
         </div>
+        
+        {/* Logo Carousel Trust Section */}
+        <LogoCarousel />
       </div>
     </section>
   );

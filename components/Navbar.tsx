@@ -210,12 +210,9 @@ export const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* LOGO - Typographic Premium */}
+        {/* LOGO - Editorial Minimalist */}
         <Link href="/" className="flex items-center gap-2 relative z-50 group">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-medical-600 to-teal-500 shadow-lg shadow-medical-500/20 group-hover:shadow-medical-500/40 transition-shadow">
-            <span className="text-white font-bold text-lg leading-none">Q</span>
-          </div>
-          <span className="text-2xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
+          <span className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white transition-opacity group-hover:opacity-80">
             QuHealthy
           </span>
         </Link>

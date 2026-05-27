@@ -5,6 +5,8 @@ import { Calendar, CreditCard, FileText, Video, Activity, Zap, Shield, Users, Ar
 import { cn } from "@/lib/utils";
 import { FEATURES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const iconMap: Record<string, React.ElementType> = {
   Calendar, CreditCard, FileText, Video, Activity, Zap, Shield, Users
@@ -67,11 +69,11 @@ const FeaturesSection = () => {
                   </p>
 
                   <div className="mt-auto pt-6">
-                    <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white hover:text-medical-600 dark:hover:text-medical-400 transition-colors group/link relative">
+                    <Link href="/discover" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white hover:text-medical-600 dark:hover:text-medical-400 transition-colors group/link relative">
                       <span>{t('explore')}</span>
                       <ArrowRight className="w-4 h-4 transform group-hover/link:translate-x-1.5 transition-transform duration-300" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-medical-600 dark:bg-medical-400 transition-all duration-300 ease-out group-hover/link:w-full" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </motion.div>
@@ -84,9 +86,11 @@ const FeaturesSection = () => {
           <p className="text-slate-500 dark:text-slate-400 text-lg font-light">
             {t('cta_text')}
           </p>
-          <a href="#" className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-none text-sm tracking-wide">
-            {t('cta_button')}
-          </a>
+          <Button asChild className="rounded-full px-8 py-6 text-sm tracking-wide">
+            <Link href="/discover">
+              {t('cta_button')}
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

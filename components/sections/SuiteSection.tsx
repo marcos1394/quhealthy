@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Lightbulb, ShoppingBag, BookOpen, CheckCircle2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 const SuiteSection: React.FC = () => {
   const t = useTranslations('Suite');
@@ -124,10 +125,10 @@ const SuiteSection: React.FC = () => {
                   </ul>
 
                   <div className="pt-8">
-                    <a href="#" className="group inline-flex items-center gap-2 text-slate-900 dark:text-white font-semibold text-lg hover:opacity-80 transition-all">
+                    <Link href="/discover" className="group inline-flex items-center gap-2 text-slate-900 dark:text-white font-semibold text-lg hover:opacity-80 transition-all">
                       <span className="border-b-2 border-slate-900 dark:border-white pb-0.5">{product.explore}</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-                    </a>
+                    </Link>
                   </div>
                 </motion.div>
 
