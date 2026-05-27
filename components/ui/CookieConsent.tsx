@@ -92,7 +92,7 @@ export const CookieConsent = () => {
                 </div>
               </div>
 
-              <Button onClick={handleSavePreferences} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 h-12 rounded-xl text-sm font-medium">
+              <Button onClick={handleSavePreferences} className="w-full bg-medical-600 hover:bg-medical-700 text-white h-12 rounded-xl text-sm font-medium">
                 Guardar Preferencias
               </Button>
             </div>
