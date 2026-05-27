@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
               transition={{ duration: 0.5 }}
             >
               <Link href="/" className="inline-block group">
-                <span className="text-3xl font-extrabold bg-gradient-to-r from-medical-600 via-teal-500 to-indigo-500 dark:from-medical-400 dark:via-teal-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight">
+                <span className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white transition-opacity group-hover:opacity-80">
                   QuHealthy
                 </span>
               </Link>

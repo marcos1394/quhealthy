@@ -184,7 +184,7 @@ const PricingSection: React.FC = () => {
                   className={cn(
                     "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
                     plan.isPopular
-                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200"
+                      ? "bg-medical-600 hover:bg-medical-700 text-white"
                       : "border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                   )}
                 >

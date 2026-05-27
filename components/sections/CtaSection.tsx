@@ -52,7 +52,7 @@ const CtaSection: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
             <Link
               href={isAuthenticated ? (role === 'PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
-              className="group inline-flex items-center justify-center gap-2 px-10 py-5 w-full sm:w-auto rounded-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-semibold text-lg transition-all shadow-none"
+              className="group inline-flex items-center justify-center gap-2 px-10 py-5 w-full sm:w-auto rounded-full bg-medical-600 hover:bg-medical-700 text-white font-semibold text-lg transition-all shadow-none"
             >
               {isAuthenticated ? "Ir a mi Panel" : t('button_primary')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
