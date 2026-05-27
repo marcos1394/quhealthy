@@ -210,16 +210,19 @@ export const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* LOGO - Solo Texto */}
-        <Link href="/" className="flex items-center gap-2 relative z-50">
-          <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+        {/* LOGO - Typographic Premium */}
+        <Link href="/" className="flex items-center gap-2 relative z-50 group">
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-medical-600 to-teal-500 shadow-lg shadow-medical-500/20 group-hover:shadow-medical-500/40 transition-shadow">
+            <span className="text-white font-bold text-lg leading-none">Q</span>
+          </div>
+          <span className="text-2xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
             QuHealthy
           </span>
         </Link>
 
         {/* DESKTOP NAV - Estilo plano */}
         {!isLoading && (
-          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
             {currentLinks.map((item: NavItem) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -229,14 +232,26 @@ export const Navbar: React.FC = () => {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "text-sm font-medium transition-colors duration-200 flex items-center gap-2",
+                    "relative text-sm font-medium transition-colors duration-300 flex items-center gap-2 py-2 group",
                     isActive
                       ? "text-medical-600 dark:text-medical-400"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
-                  {Icon && <Icon size={16} className={isActive ? "text-medical-600 dark:text-medical-400" : "text-slate-400"} />}
+                  {Icon && <Icon size={16} className={cn("transition-colors", isActive ? "text-medical-600 dark:text-medical-400" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")} />}
                   {t(item.name)}
+                  
+                  {/* Premium Underline Indicator */}
+                  {isActive ? (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-medical-600 dark:bg-medical-400 rounded-full"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  ) : (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all origin-left duration-300 ease-out" />
+                  )}
                 </Link>
               );
             })}

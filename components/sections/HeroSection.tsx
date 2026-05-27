@@ -65,8 +65,24 @@ const HeroSection: React.FC = () => {
   return (
     <section className="relative w-full bg-[#FAFAFA] dark:bg-[#0A0A0A] pt-32 pb-20 lg:pt-40 lg:pb-32 transition-colors duration-300 overflow-hidden">
 
-      {/* Background Decorative Blob */}
-      <div className="absolute top-20 right-0 w-[800px] h-[800px] bg-medical-500/5 dark:bg-medical-500/10 rounded-full blur-[100px] opacity-70 translate-x-1/3 -translate-y-1/4 pointer-events-none" />
+      {/* Premium Aurora Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] rounded-full bg-gradient-to-br from-medical-500/15 to-teal-400/15 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
+        />
+        <motion.div 
+          animate={{ x: [0, -40, 0], y: [0, 60, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: 2 }}
+          className="absolute top-[20%] -left-[10%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full bg-gradient-to-tr from-rose-400/10 to-medical-400/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
+        />
+        <motion.div 
+          animate={{ x: [0, 30, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 4 }}
+          className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] max-w-[900px] max-h-[900px] rounded-full bg-gradient-to-r from-teal-500/15 to-medical-500/15 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
+        />
+      </div>
 
       <div className="container mx-auto px-6 md:px-12 xl:px-24">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
@@ -100,10 +116,10 @@ const HeroSection: React.FC = () => {
               {t('description')}
             </p>
 
-            {/* Search Form - Minimalist Line Art Style */}
-            <div className="w-full max-w-2xl mt-4 relative z-30">
-              <div className="absolute -inset-1 bg-gradient-to-r from-medical-500/20 to-teal-500/20 rounded-[1.25rem] blur-lg opacity-50 dark:opacity-30"></div>
-              <div className="relative flex flex-col md:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-800 p-2 gap-2">
+            {/* Search Form - Premium Style */}
+            <div className="w-full max-w-2xl mt-4 relative z-30 group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-medical-500/30 via-teal-500/30 to-medical-500/30 rounded-[1.25rem] blur-xl opacity-40 dark:opacity-20 group-focus-within:opacity-100 group-focus-within:duration-500 transition-all duration-1000"></div>
+              <div className="relative flex flex-col md:flex-row shadow-2xl shadow-medical-500/10 dark:shadow-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-800 p-2 gap-2 group-focus-within:border-medical-500/50 transition-colors">
 
                 <div className="flex-1 flex items-center px-4 py-3 md:py-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 group">
                   <Search className="w-5 h-5 text-slate-400 group-focus-within:text-medical-500 transition-colors shrink-0" />
@@ -271,7 +287,13 @@ const HeroSection: React.FC = () => {
                 className="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/50 dark:border-slate-700/80 p-4 rounded-[1.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] dark:shadow-none flex items-center justify-between z-20"
               >
                 <div className="flex -space-x-3 hover:space-x-1 transition-all duration-300">
-                  {[1, 2, 3, 4, 5].map((_, i) => (
+                  {[
+                    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100&h=100",
+                    "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=100&h=100",
+                    "https://images.unsplash.com/photo-1594824432258-293e5066c06a?auto=format&fit=crop&q=80&w=100&h=100",
+                    "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=100&h=100",
+                    "https://images.unsplash.com/photo-1618060932014-4deda4932554?auto=format&fit=crop&q=80&w=100&h=100"
+                  ].map((src, i) => (
                     <motion.div
                       key={i}
                       whileHover={{ y: -5, scale: 1.1, zIndex: 10 }}
@@ -279,8 +301,8 @@ const HeroSection: React.FC = () => {
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={`https://i.pravatar.cc/100?img=${40 + i}`}
-                        alt="Avatar paciente"
+                        src={src}
+                        alt={`Avatar ${i + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </motion.div>
