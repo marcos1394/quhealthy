@@ -3,35 +3,23 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Briefcase, Laptop, HeartPulse } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import useSWR from "swr";
+import axiosInstance from "@/lib/axios";
+
+// Interfaz esperada del backend
+interface JobOpening {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  tag?: string;
+}
+
+const fetcher = (url: string) => axiosInstance.get<JobOpening[]>(url).then(res => res.data);
 
 export default function CareersPage() {
-  const jobOpenings = [
-    {
-      title: "Senior Full-Stack Engineer",
-      department: "Ingeniería",
-      location: "Remoto (Latinoamérica)",
-      type: "Tiempo Completo",
-      tag: "Prioridad",
-    },
-    {
-      title: "Product Designer (UI/UX)",
-      department: "Diseño",
-      location: "Remoto (Latinoamérica)",
-      type: "Tiempo Completo",
-    },
-    {
-      title: "Medical Operations Manager",
-      department: "Operaciones",
-      location: "Ciudad de México",
-      type: "Híbrido",
-    },
-    {
-      title: "Growth Marketing Lead",
-      department: "Marketing",
-      location: "Remoto",
-      type: "Tiempo Completo",
-    }
-  ];
+  const { data: jobOpenings, isLoading } = useSWR<JobOpening[]>("/api/careers/openings", fetcher);
 
   const benefits = [
     { icon: Laptop, title: "Trabajo Remoto y Flexible", desc: "Creemos en medir resultados, no horas de asiento. Trabaja desde donde seas más feliz y productivo." },
@@ -107,9 +95,28 @@ export default function CareersPage() {
           </div>
 
           <div className="space-y-4">
-            {jobOpenings.map((job, idx) => (
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                <div className="w-8 h-8 border-4 border-medical-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p>Cargando posiciones abiertas...</p>
+              </div>
+            )}
+
+            {!isLoading && (!jobOpenings || jobOpenings.length === 0) && (
+              <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">No hay posiciones abiertas</h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                  En este momento nuestro equipo está completo. Sin embargo, siempre estamos buscando talento excepcional. Envíanos tu información.
+                </p>
+              </div>
+            )}
+
+            {!isLoading && jobOpenings && jobOpenings.map((job, idx) => (
               <motion.div 
-                key={idx}
+                key={job.id || idx}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}

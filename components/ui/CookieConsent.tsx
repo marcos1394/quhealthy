@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 export const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  
+  // State for granular preferences
+  const [prefs, setPrefs] = useState({ analytics: true, marketing: false });
 
   useEffect(() => {
     // Check if the user has already consented
@@ -22,16 +25,19 @@ export const CookieConsent = () => {
 
   const handleAcceptAll = () => {
     localStorage.setItem("quhealthy_cookie_consent", "all");
+    window.dispatchEvent(new Event("cookie_consent_changed"));
     setIsVisible(false);
   };
 
   const handleRejectAll = () => {
     localStorage.setItem("quhealthy_cookie_consent", "essential");
+    window.dispatchEvent(new Event("cookie_consent_changed"));
     setIsVisible(false);
   };
 
   const handleSavePreferences = () => {
-    localStorage.setItem("quhealthy_cookie_consent", "custom");
+    localStorage.setItem("quhealthy_cookie_consent", JSON.stringify(prefs));
+    window.dispatchEvent(new Event("cookie_consent_changed"));
     setIsVisible(false);
   };
 
@@ -77,18 +83,24 @@ export const CookieConsent = () => {
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Analíticas</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Nos ayudan a entender cómo usas QuHealthy para mejorar tu experiencia.</p>
                   </div>
-                  <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-slate-200 dark:bg-slate-700 cursor-pointer">
-                    <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
-                  </div>
+                  <button 
+                    onClick={() => setPrefs({...prefs, analytics: !prefs.analytics})}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.analytics ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${prefs.analytics ? 'translate-x-4' : 'translate-x-1'}`} />
+                  </button>
                 </div>
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Marketing</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Utilizadas para mostrarte anuncios relevantes y campañas personalizadas.</p>
                   </div>
-                  <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-slate-200 dark:bg-slate-700 cursor-pointer">
-                    <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
-                  </div>
+                  <button 
+                    onClick={() => setPrefs({...prefs, marketing: !prefs.marketing})}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.marketing ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${prefs.marketing ? 'translate-x-4' : 'translate-x-1'}`} />
+                  </button>
                 </div>
               </div>
 

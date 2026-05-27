@@ -14,6 +14,7 @@ import { ToastProvider } from '@/components/providers/ToastProvider';
 import 'react-toastify/dist/ReactToastify.css';
 import { CookieConsent } from '@/components/ui/CookieConsent';
 import { LocationPrompt } from '@/components/ui/LocationPrompt';
+import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
 
 // Configuración de la fuente
 const inter = Inter({ subsets: ["latin"] });
@@ -98,7 +99,8 @@ export default async function RootLayout({
             {/* Componente de notificaciones global (auto dark/light + i18n errors) */}
             <ToastProvider />
 
-            {/* Global Enterprise Prompts */}
+            {/* Global Enterprise Prompts & Analytics */}
+            <AnalyticsManager />
             <CookieConsent />
             <LocationPrompt />
 

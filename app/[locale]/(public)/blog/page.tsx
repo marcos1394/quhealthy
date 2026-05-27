@@ -4,47 +4,36 @@ import { motion } from "framer-motion";
 import { ArrowRight, Search, Calendar, User, Tag } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import useSWR from "swr";
+import axiosInstance from "@/lib/axios";
+
+// Interfaz esperada del backend
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  author: string;
+  imageUrl: string;
+}
+
+const fetcher = (url: string) => axiosInstance.get<BlogPost[]>(url).then(res => res.data);
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
-
   const categories = ["Todos", "Salud Mental", "Nutrición", "Dermatología", "Innovación Médica", "Estilo de Vida"];
 
-  const featuredPost = {
-    title: "El Futuro de la Telemedicina en América Latina: Tendencias 2026",
-    excerpt: "Descubre cómo la inteligencia artificial y la infraestructura de datos unificada están cambiando para siempre la forma en que interactuamos con nuestros médicos de cabecera.",
-    category: "Innovación Médica",
-    date: "27 de Mayo, 2026",
-    author: "Dra. Elena Ramos",
-    imageUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-  };
+  const { data: posts, isLoading, error } = useSWR<BlogPost[]>("/api/blog/posts", fetcher);
 
-  const posts = [
-    {
-      title: "5 Mitos sobre el Cuidado de la Piel que Debes Dejar de Creer",
-      excerpt: "Nuestra dermatóloga principal desmiente los remedios caseros más comunes que en realidad están dañando tu barrera cutánea.",
-      category: "Dermatología",
-      date: "24 de Mayo, 2026",
-      author: "Dr. Carlos Vega",
-      imageUrl: "https://images.unsplash.com/photo-1617897903246-719242758050?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      title: "Cómo Construir Hábitos de Sueño Sostenibles",
-      excerpt: "La higiene del sueño es el pilar de la salud mental. Aprende protocolos basados en evidencia científica para descansar mejor.",
-      category: "Estilo de Vida",
-      date: "20 de Mayo, 2026",
-      author: "Lic. Marta Silva",
-      imageUrl: "https://images.unsplash.com/photo-1511295742362-92c96b1cf484?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      title: "Impacto del Microbioma en el Sistema Inmunológico",
-      excerpt: "Una exploración profunda sobre cómo nuestra dieta moderna está afectando las colonias bacterianas que nos protegen diariamente.",
-      category: "Nutrición",
-      date: "15 de Mayo, 2026",
-      author: "Dr. Andrés Font",
-      imageUrl: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    }
-  ];
+  // Filtro simple en cliente (luego podría pasarse al backend)
+  const filteredPosts = posts?.filter(post => 
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    post.category.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const regularPosts = filteredPosts.slice(1);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
@@ -105,11 +94,36 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 min-h-[50vh]">
         <div className="container mx-auto px-6 md:px-12 max-w-7xl">
           
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+              <div className="w-8 h-8 border-4 border-medical-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p>Cargando artículos...</p>
+            </div>
+          )}
+
+          {!isLoading && (!posts || posts.length === 0) && (
+            <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Próximamente</h3>
+              <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                Aún no hemos publicado artículos en el blog. Nuestro equipo de especialistas está preparando contenido de alto valor para ti. Vuelve pronto.
+              </p>
+            </div>
+          )}
+
+          {!isLoading && posts && posts.length > 0 && filteredPosts.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-slate-500 text-lg">No se encontraron artículos para tu búsqueda.</p>
+            </div>
+          )}
+
           {/* Featured Post */}
-          {!searchQuery && (
+          {!isLoading && featuredPost && !searchQuery && (
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -149,48 +163,52 @@ export default function BlogPage() {
           )}
 
           {/* Grid Posts */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post, idx) => (
-              <motion.article 
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
-                  <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{post.category}</span>
+          {!isLoading && regularPosts.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {regularPosts.map((post, idx) => (
+                <motion.article 
+                  key={post.id || idx}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{post.category}</span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="p-6 md:p-8">
-                  <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
-                    <span>{post.date}</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6 line-clamp-3">
-                    {post.excerpt}
-                  </p>
                   
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{post.author}</span>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-1 transition-all" />
+                  <div className="p-6 md:p-8">
+                    <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
+                      <span>{post.date}</span>
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6 line-clamp-3">
+                      {post.excerpt}
+                    </p>
+                    
+                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+                      <span className="text-xs font-semibold text-slate-900 dark:text-white">{post.author}</span>
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-1 transition-all" />
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
 
-          <div className="mt-20 flex justify-center">
-            <Button variant="outline" className="rounded-full px-8 h-12 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
-              Cargar más artículos
-            </Button>
-          </div>
+          {!isLoading && regularPosts.length > 0 && (
+            <div className="mt-20 flex justify-center">
+              <Button variant="outline" className="rounded-full px-8 h-12 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+                Cargar más artículos
+              </Button>
+            </div>
+          )}
         </div>
       </section>
     </div>
