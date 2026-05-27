@@ -3567,5 +3567,101 @@
     "contact_desc": "If you have any questions about our Cookie Policy or how we manage your preferences, you can contact our privacy team.",
     "contact_link": "legal@quhealthy.com",
     "manage_btn": "Manage Cookie Preferences"
+  },
+  "PublicBusiness": {
+    "breadcrumb": "QuHealthy for Clinics",
+    "title_light": "Digitize your ",
+    "title_highlight": "medical",
+    "title_dark": " practice.",
+    "subtitle": "A complete operating system for modern clinics. Manage appointments, records, billing, and telemedicine from a single unified platform.",
+    "cta_primary": "Start Free Trial",
+    "cta_secondary": "Talk to Sales",
+    "bento_title": "Everything you need to scale",
+    "bento_subtitle": "We replace up to 5 fragmented software tools with a single integrated ecosystem.",
+    "bento": {
+      "f1_title": "Electronic Health Records (EHR)",
+      "f1_desc": "Encrypted, interoperable medical records that are easy to update during the consultation.",
+      "f2_title": "Native Telemedicine",
+      "f2_desc": "High-definition video consultations, no downloads required, integrated into the patient flow.",
+      "f3_title": "Billing and Payments",
+      "f3_desc": "Automatic collections, subscriptions, and compatibility with major insurance companies.",
+      "f4_title": "Patient Portal",
+      "f4_desc": "Your patients can book, view their results, and chat with you 24/7."
+    },
+    "pricing_title": "Transparent pricing",
+    "pricing_subtitle": "Designed to grow with you, from independent doctors to hospital networks.",
+    "pricing": {
+      "basic_title": "Independent",
+      "basic_price": "$49",
+      "basic_period": "/ month",
+      "basic_desc": "Perfect for private doctors starting their digital practice.",
+      "basic_btn": "Choose Independent",
+      "pro_title": "Clinic",
+      "pro_price": "$199",
+      "pro_period": "/ month",
+      "pro_desc": "For teams of up to 10 doctors with advanced management needs.",
+      "pro_btn": "Choose Clinic",
+      "ent_title": "Enterprise",
+      "ent_price": "Custom",
+      "ent_period": "",
+      "ent_desc": "Hospitals and large networks requiring custom integrations (API).",
+      "ent_btn": "Contact Sales"
+    }
+  },
+  "PublicAcademy": {
+    "breadcrumb": "QuHealthy Academy",
+    "title_light": "The frontier of ",
+    "title_highlight": "medical",
+    "title_dark": " knowledge.",
+    "subtitle": "Continuous medical education, certifications, and interactive clinical cases taught by top specialists globally.",
+    "search_ph": "Search courses, specialties, or instructors...",
+    "stats": {
+      "courses": "Active Courses",
+      "students": "Medical Students",
+      "hours": "Content Hours"
+    },
+    "featured_title": "Featured Programs",
+    "courses": {
+      "c1_title": "Artificial Intelligence in Diagnostic Radiology",
+      "c1_desc": "Learn to integrate Deep Learning models into your clinical imaging workflow.",
+      "c1_instructor": "Dr. Alan Turing, MD PhD",
+      "c2_title": "Telemedicine and Digital Ethics",
+      "c2_desc": "Best legal and ethical practices for treating patients through virtual platforms.",
+      "c2_instructor": "Dr. Ada Lovelace",
+      "c3_title": "Update in Interventional Cardiology",
+      "c3_desc": "Deep review of the latest AHA/ACC guidelines for structural procedures.",
+      "c3_instructor": "Dr. Rene Laennec"
+    },
+    "enroll_btn": "View Program"
+  },
+  "PublicMarket": {
+    "breadcrumb": "QuHealthy Marketplace",
+    "title_light": "The equipment you need, one ",
+    "title_highlight": "click",
+    "title_dark": " away.",
+    "subtitle": "Clinical supplies, medical software, and certified supplementation. All curated by experts and delivered to your clinic or patient.",
+    "search_ph": "Search stethoscopes, monitors, supplements...",
+    "categories": {
+      "c1": "Medical Equipment",
+      "c2": "Software & Wearables",
+      "c3": "Clinical Supplementation",
+      "c4": "Disposable Supplies"
+    },
+    "trending_title": "Trending in Equipment",
+    "products": {
+      "p1_title": "Littmann Cardiology IV",
+      "p1_brand": "3M",
+      "p1_price": "$189.99",
+      "p2_title": "Smart Vital Signs Monitor",
+      "p2_brand": "Welch Allyn",
+      "p2_price": "$1,250.00",
+      "p3_title": "Ophthalmoscope Diagnostic Kit",
+      "p3_brand": "Heine",
+      "p3_price": "$450.00",
+      "p4_title": "Medical ECG Smartwatch",
+      "p4_brand": "Withings",
+      "p4_price": "$299.99"
+    },
+    "add_to_cart": "Add to Cart"
   }
 }

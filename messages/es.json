@@ -3590,5 +3590,101 @@
     "contact_desc": "Si tiene alguna pregunta sobre nuestra Política de Cookies o sobre cómo gestionamos sus preferencias, puede contactar a nuestro equipo de privacidad.",
     "contact_link": "legal@quhealthy.com",
     "manage_btn": "Gestionar Preferencias de Cookies"
+  },
+  "PublicBusiness": {
+    "breadcrumb": "QuHealthy para Clínicas",
+    "title_light": "Digitaliza tu ",
+    "title_highlight": "práctica",
+    "title_dark": " médica.",
+    "subtitle": "Un sistema operativo completo para consultorios modernos. Gestiona citas, expedientes, facturación y telemedicina desde una sola plataforma unificada.",
+    "cta_primary": "Comenzar Prueba Gratuita",
+    "cta_secondary": "Hablar con Ventas",
+    "bento_title": "Todo lo que necesitas para escalar",
+    "bento_subtitle": "Reemplazamos hasta 5 herramientas de software fragmentadas con un solo ecosistema integrado.",
+    "bento": {
+      "f1_title": "Expediente Clínico (EHR)",
+      "f1_desc": "Historiales médicos encriptados, interoperables y fáciles de actualizar durante la consulta.",
+      "f2_title": "Telemedicina Nativa",
+      "f2_desc": "Consultas por video en alta definición, sin descargas, integradas en el flujo del paciente.",
+      "f3_title": "Facturación y Pagos",
+      "f3_desc": "Cobros automáticos, suscripciones y compatibilidad con las principales aseguradoras.",
+      "f4_title": "Portal de Pacientes",
+      "f4_desc": "Tus pacientes pueden agendar, ver sus resultados y chatear contigo 24/7."
+    },
+    "pricing_title": "Planes transparentes",
+    "pricing_subtitle": "Diseñados para crecer contigo, desde médicos independientes hasta redes hospitalarias.",
+    "pricing": {
+      "basic_title": "Independiente",
+      "basic_price": "$49",
+      "basic_period": "/ mes",
+      "basic_desc": "Perfecto para médicos particulares iniciando su práctica digital.",
+      "basic_btn": "Elegir Independiente",
+      "pro_title": "Clínica",
+      "pro_price": "$199",
+      "pro_period": "/ mes",
+      "pro_desc": "Para equipos de hasta 10 médicos con necesidades avanzadas de gestión.",
+      "pro_btn": "Elegir Clínica",
+      "ent_title": "Enterprise",
+      "ent_price": "Personalizado",
+      "ent_period": "",
+      "ent_desc": "Hospitales y grandes redes que requieren integraciones a medida (API).",
+      "ent_btn": "Contactar Ventas"
+    }
+  },
+  "PublicAcademy": {
+    "breadcrumb": "QuHealthy Academy",
+    "title_light": "La frontera del ",
+    "title_highlight": "conocimiento",
+    "title_dark": " médico.",
+    "subtitle": "Educación médica continua, certificaciones y casos clínicos interactivos impartidos por los mejores especialistas a nivel global.",
+    "search_ph": "Buscar cursos, especialidades o instructores...",
+    "stats": {
+      "courses": "Cursos Activos",
+      "students": "Estudiantes Médicos",
+      "hours": "Horas de Contenido"
+    },
+    "featured_title": "Programas Destacados",
+    "courses": {
+      "c1_title": "Inteligencia Artificial en Radiología Diagnóstica",
+      "c1_desc": "Aprende a integrar modelos de Deep Learning en tu flujo de trabajo de imagenología clínica.",
+      "c1_instructor": "Dr. Alan Turing, MD PhD",
+      "c2_title": "Telemedicina y Ética Digital",
+      "c2_desc": "Las mejores prácticas legales y éticas para tratar pacientes a través de plataformas virtuales.",
+      "c2_instructor": "Dra. Ada Lovelace",
+      "c3_title": "Actualización en Cardiología Intervencionista",
+      "c3_desc": "Revisión profunda de las últimas guías AHA/ACC para procedimientos estructurales.",
+      "c3_instructor": "Dr. Rene Laennec"
+    },
+    "enroll_btn": "Ver Programa"
+  },
+  "PublicMarket": {
+    "breadcrumb": "QuHealthy Marketplace",
+    "title_light": "El equipamiento que necesitas, a un ",
+    "title_highlight": "clic",
+    "title_dark": " de distancia.",
+    "subtitle": "Insumos clínicos, software médico y suplementación certificada. Todo curado por expertos y entregado en tu consultorio o paciente.",
+    "search_ph": "Buscar estetoscopios, monitores, suplementos...",
+    "categories": {
+      "c1": "Equipamiento Médico",
+      "c2": "Software & Wearables",
+      "c3": "Suplementación Clínica",
+      "c4": "Insumos Desechables"
+    },
+    "trending_title": "Tendencias en Equipamiento",
+    "products": {
+      "p1_title": "Littmann Cardiology IV",
+      "p1_brand": "3M",
+      "p1_price": "$189.99",
+      "p2_title": "Monitor de Signos Vitales Inteligente",
+      "p2_brand": "Welch Allyn",
+      "p2_price": "$1,250.00",
+      "p3_title": "Kit de Diagnóstico Oftalmoscopio",
+      "p3_brand": "Heine",
+      "p3_price": "$450.00",
+      "p4_title": "Reloj Inteligente ECG Médico",
+      "p4_brand": "Withings",
+      "p4_price": "$299.99"
+    },
+    "add_to_cart": "Añadir al Carrito"
   }
 }
