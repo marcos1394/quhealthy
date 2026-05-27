@@ -119,13 +119,20 @@ const PricingSection: React.FC = () => {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className={cn(
-                  "relative p-10 flex flex-col transition-all duration-300",
-                  isMiddle ? "bg-[#FAFAFA] dark:bg-[#0A0A0A] md:border-x border-slate-200 dark:border-slate-800 md:-mt-8 md:-mb-8 md:pt-18 md:pb-18 md:rounded-2xl" : "hover:bg-slate-50 dark:hover:bg-slate-800/20"
+                  "relative p-10 flex flex-col transition-all duration-300 group/pricing z-10",
+                  isMiddle 
+                    ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-18 md:pb-18 md:rounded-3xl shadow-2xl shadow-medical-500/10 border border-medical-100 dark:border-medical-900/50" 
+                    : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 md:rounded-3xl border border-transparent"
                 )}
               >
+                {/* Glow behind popular plan */}
+                {isMiddle && (
+                  <div className="absolute -inset-4 bg-gradient-to-b from-medical-500/20 to-teal-500/20 blur-2xl opacity-50 -z-10 rounded-3xl pointer-events-none" />
+                )}
+
                 {/* Etiqueta Popular si aplica */}
                 {plan.isPopular && (
-                  <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase">
+                  <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-gradient-to-r from-medical-600 to-teal-500 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-medical-500/30">
                     {t('badges.popular')}
                   </div>
                 )}
@@ -141,10 +148,10 @@ const PricingSection: React.FC = () => {
 
                 {/* Precio Editorial */}
                 <div className="mb-10 flex items-baseline gap-2">
-                  <span className="text-5xl font-light text-slate-900 dark:text-white tracking-tighter">
+                  <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
                     ${finalPrice}
                   </span>
-                  <span className="text-slate-500 dark:text-slate-400 text-sm font-light uppercase tracking-widest">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
                     /{t('price_frequency')}
                   </span>
                 </div>
@@ -153,8 +160,10 @@ const PricingSection: React.FC = () => {
                 <ul className="space-y-6 mb-12 flex-1">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-4">
-                      <Check className="w-5 h-5 text-slate-900 dark:text-white shrink-0" strokeWidth={1.5} />
-                      <span className="text-slate-600 dark:text-slate-300 font-light leading-relaxed">
+                      <div className={cn("p-1 rounded-full shrink-0 mt-0.5", isMiddle ? "bg-medical-500 text-white shadow-sm shadow-medical-500/20" : "bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400")}>
+                        <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                      </div>
+                      <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
                         {feature}
                       </span>
                     </li>

@@ -13,16 +13,19 @@ const TestimonialsSection: React.FC = () => {
       name: t('items.1.name'),
       role: t('items.1.role'),
       text: t('items.1.text'),
+      avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=150&h=150"
     },
     {
       name: t('items.2.name'),
       role: t('items.2.role'),
       text: t('items.2.text'),
+      avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=150&h=150"
     },
     {
       name: t('items.3.name'),
       role: t('items.3.role'),
       text: t('items.3.text'),
+      avatar: "https://images.unsplash.com/photo-1594824432258-293e5066c06a?auto=format&fit=crop&q=80&w=150&h=150"
     }
   ];
 
@@ -52,36 +55,42 @@ const TestimonialsSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col relative"
+              className="flex flex-col relative bg-white dark:bg-slate-900/40 p-8 rounded-[2rem] shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-100 dark:border-slate-800 backdrop-blur-sm"
             >
               {/* Gran comilla decorativa editorial */}
-              <div className="absolute -top-10 -left-6 text-9xl font-serif text-slate-100 dark:text-slate-800/50 leading-none h-12 mb-6 z-0 select-none">
+              <div className="absolute -top-4 -left-2 text-8xl font-serif leading-none h-12 z-0 select-none bg-clip-text text-transparent bg-gradient-to-br from-medical-200 to-teal-100 dark:from-medical-900/80 dark:to-teal-900/80 opacity-80">
                 &ldquo;
               </div>
 
               {/* Testimonial text - Editorial */}
-              <blockquote className="relative z-10 text-xl md:text-2xl text-slate-900 dark:text-slate-100 leading-relaxed font-light mb-12 flex-1">
+              <blockquote className="relative z-10 text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed font-light mb-8 flex-1 pt-4">
                 {testimonial.text}
               </blockquote>
 
               {/* Footer con autor - Limpio y tipográfico */}
-              <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-slate-900 dark:text-white font-medium text-lg">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5 tracking-wide uppercase font-semibold">
-                      {testimonial.role}
-                    </p>
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="text-slate-900 dark:text-white font-medium text-base">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-[10px] tracking-wider uppercase font-bold">
+                        {testimonial.role}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Rating visual */}
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5 shrink-0">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-4 h-4 text-slate-900 dark:text-slate-100 fill-slate-900 dark:fill-slate-100"
+                        className="w-4 h-4 text-yellow-400 fill-yellow-400"
                       />
                     ))}
                   </div>
