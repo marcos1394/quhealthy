@@ -2,10 +2,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Search, Calendar, User, Tag } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import useSWR from "swr";
 import axiosInstance from "@/lib/axios";
+import { useTranslations } from "next-intl";
 
 // Interfaz esperada del backend
 interface BlogPost {
@@ -21,6 +19,7 @@ interface BlogPost {
 const fetcher = (url: string) => axiosInstance.get<BlogPost[]>(url).then(res => res.data);
 
 export default function BlogPage() {
+  const t = useTranslations("PublicBlog");
   const [searchQuery, setSearchQuery] = useState("");
   const categories = ["Todos", "Salud Mental", "Nutrición", "Dermatología", "Innovación Médica", "Estilo de Vida"];
 
@@ -48,10 +47,10 @@ export default function BlogPage() {
               className="max-w-2xl"
             >
               <h1 className="text-5xl md:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">
-                El <span className="text-medical-600 dark:text-medical-400 italic font-serif">Pulso</span> de la Salud.
+                {t('title_light')}<span className="text-medical-600 dark:text-medical-400 italic font-serif">{t('title_highlight')}</span>{t('title_dark')}
               </h1>
               <p className="text-xl text-slate-500 dark:text-slate-400 font-light leading-relaxed">
-                Insights, investigación y guías prácticas redactadas directamente por los especialistas de más alto nivel en nuestra red.
+                {t('subtitle')}
               </p>
             </motion.div>
 
@@ -69,7 +68,7 @@ export default function BlogPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar artículos..."
+                placeholder={t('search_ph')}
                 className="w-full bg-slate-100 dark:bg-slate-800/50 border border-transparent focus:border-medical-500 focus:bg-white dark:focus:bg-slate-800 rounded-full py-3 pl-11 pr-4 text-sm outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400"
               />
             </motion.div>
@@ -100,7 +99,7 @@ export default function BlogPage() {
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
               <div className="w-8 h-8 border-4 border-medical-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p>Cargando artículos...</p>
+              <p>{t('loading')}</p>
             </div>
           )}
 
@@ -109,16 +108,16 @@ export default function BlogPage() {
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-8 h-8 text-slate-400" />
               </div>
-              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">Próximamente</h3>
+              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">{t('empty_title')}</h3>
               <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                Aún no hemos publicado artículos en el blog. Nuestro equipo de especialistas está preparando contenido de alto valor para ti. Vuelve pronto.
+                {t('empty_desc')}
               </p>
             </div>
           )}
 
           {!isLoading && posts && posts.length > 0 && filteredPosts.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-slate-500 text-lg">No se encontraron artículos para tu búsqueda.</p>
+              <p className="text-slate-500 text-lg">{t('no_results')}</p>
             </div>
           )}
 
@@ -154,7 +153,7 @@ export default function BlogPage() {
                   </p>
                   <div>
                     <span className="inline-flex items-center gap-2 text-medical-600 dark:text-medical-400 font-semibold text-sm tracking-wide">
-                      Leer artículo completo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      {t('read_more')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
                 </div>
@@ -205,7 +204,7 @@ export default function BlogPage() {
           {!isLoading && regularPosts.length > 0 && (
             <div className="mt-20 flex justify-center">
               <Button variant="outline" className="rounded-full px-8 h-12 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
-                Cargar más artículos
+                {t('load_more')}
               </Button>
             </div>
           )}

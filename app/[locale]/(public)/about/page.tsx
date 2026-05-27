@@ -1,9 +1,12 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Target, Zap, ShieldCheck } from "lucide-react";
+import { ArrowRight, Users, Target, Zap, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function AboutPage() {
+  const t = useTranslations("PublicAbout");
   const values = [
     {
       icon: Users,
@@ -32,22 +35,27 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-medical-50/50 via-white to-white dark:from-medical-900/20 dark:via-slate-950 dark:to-slate-950 -z-10" />
-        <div className="container mx-auto px-6 md:px-12 text-center max-w-5xl">
+        <div className="container mx-auto px-6 md:px-12 max-w-5xl">
+          <div className="flex items-center gap-2 text-sm text-medical-600 dark:text-medical-400 font-semibold uppercase tracking-widest mb-6">
+            <Link href="/" className="hover:underline">QuHealthy</Link>
+            <ArrowRight className="w-4 h-4" />
+            <span>{t('breadcrumb')}</span>
+          </div>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-900 dark:text-white mb-8"
+            className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6"
           >
-            Nuestra misión es <span className="text-transparent bg-clip-text bg-gradient-to-r from-medical-600 to-teal-500 italic font-serif">democratizar</span> el acceso al bienestar.
+            {t('title_light')} <span className="text-medical-600 dark:text-medical-400 italic font-serif">{t('title_highlight')}</span> {t('title_dark')}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-light max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-light max-w-3xl leading-relaxed"
           >
-            QuHealthy nace de la necesidad de conectar a las personas con servicios de salud y belleza de calidad, a través de una plataforma moderna, transparente y eficiente.
+            {t('subtitle')}
           </motion.p>
         </div>
       </section>
