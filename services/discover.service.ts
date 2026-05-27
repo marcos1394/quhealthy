@@ -11,5 +11,13 @@ export const discoverService = {
   getAllProviders: async (): Promise<DiscoverProvider[]> => {
     const response = await axiosInstance.get<DiscoverProvider[]>(BASE_URL_STOREFRONT);
     return response.data;
+  },
+
+  /**
+   * Búsqueda global de providers con filtros avanzados (PostGIS + Disponibilidad)
+   */
+  searchProviders: async (params: import('@/types/discover').CatalogSearchRequestParams): Promise<import('@/types/discover').ProviderSearchResponseDto[]> => {
+    const response = await axiosInstance.get<import('@/types/discover').ProviderSearchResponseDto[]>('/api/catalog/search', { params });
+    return response.data;
   }
 };

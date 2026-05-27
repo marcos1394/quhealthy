@@ -17,3 +17,27 @@ export interface DiscoverProvider {
   distanceKm?: number; // Lo calcularemos dinámicamente más adelante
   city?: string;
 }
+
+export interface CatalogSearchRequestParams {
+  category: string;
+  lat: number;
+  lng: number;
+  date?: string; // Formato ISO yyyy-MM-dd
+  radiusKm?: number;
+  minScore?: number;
+  maxPrice?: number;
+  page?: number;
+  size?: number;
+}
+
+export interface ProviderSearchResponseDto {
+  providerId: number;
+  name: string;
+  category: string;
+  quScore: number;
+  distanceKm: number;
+  basePrice: number;
+  slotsToday: number;
+  slotsTomorrow: number;
+  nextAvailableSlot: string;
+}

@@ -16,7 +16,7 @@ export const LogoCarousel: React.FC = () => {
   return (
     <div className="w-full mt-24 mb-4 lg:col-span-12">
       <p className="text-center text-xs md:text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-10">
-        Empresas y clínicas que confían en nosotros
+        Nuestros Partners Tecnológicos
       </p>
       
       <div className="relative flex overflow-hidden w-full group">
