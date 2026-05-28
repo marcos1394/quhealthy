@@ -1,6 +1,6 @@
 // src/services/providerScore.service.ts
 import axiosInstance from '@/lib/axios';
-import { ProviderScoreResponse } from '@/types/providerScore';
+import { ProviderScoreResponse, QuScoreMethodologyResponse } from '@/types/providerScore';
 
 const BASE_URL = '/api/catalog/v1/providers/scores';
 
@@ -27,6 +27,14 @@ export const providerScoreService = {
       params: { ids: idsParam }
     });
     
+    return response.data;
+  },
+
+  /**
+   * Obtiene la metodología pública del QuScore
+   */
+  getScoreMethodology: async (): Promise<QuScoreMethodologyResponse> => {
+    const response = await axiosInstance.get<QuScoreMethodologyResponse>(`${BASE_URL}/methodology`);
     return response.data;
   }
 };

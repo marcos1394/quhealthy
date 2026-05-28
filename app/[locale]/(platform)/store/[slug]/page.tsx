@@ -8,7 +8,7 @@ import {
   MapPin, Clock, MessageCircle, Instagram, Star, CheckCircle2, 
   ChevronRight, Sparkles, ArrowRight, Loader2, AlertCircle, 
   Video, Building2, Globe, ShieldCheck, Tag as TagIcon,
-  ShoppingBag, GraduationCap, Box, PlayCircle
+  ShoppingBag, GraduationCap, Box, PlayCircle, Info
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useProviderScore } from "@/hooks/useProviderScore";
+import { QuScoreModal } from "@/components/store/QuScoreModal";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -39,6 +41,9 @@ export default function PublicStorePage() {
   const { processCheckout, isProcessing } = useBookingCheckout();
   const { userId } = useSessionStore();
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showQuScoreModal, setShowQuScoreModal] = useState(false);
+  
+  const { singleScore, fetchSingleScore } = useProviderScore();
 
   const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
   const { favoriteIds: favoritePackageIds } = useMyFavorites('PACKAGE');
@@ -57,8 +62,9 @@ export default function PublicStorePage() {
         store.displayName,
         store.primaryColor || '#9333ea'
       );
+      fetchSingleScore(store.providerId);
     }
-  }, [store?.providerId, store?.displayName, store?.primaryColor, slug, setProvider]);
+  }, [store?.providerId, store?.displayName, store?.primaryColor, slug, setProvider, fetchSingleScore]);
 
   const handleAddToCart = (item: StorefrontItem) => {
     addToCart(item, slug);
@@ -144,6 +150,17 @@ export default function PublicStorePage() {
                   <Star className="w-4 h-4 text-amber-400 fill-amber-400 mr-1.5" />
                   {store.rating || '4.9'} ({store.reviewsCount || t('new_label')})
                 </Badge>
+                
+                {singleScore && (
+                  <Badge 
+                    onClick={() => setShowQuScoreModal(true)}
+                    className="cursor-pointer bg-gradient-to-r from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30 backdrop-blur-md px-3 py-1.5 shadow-sm flex items-center transition-all"
+                  >
+                    <Info className="w-4 h-4 mr-1.5 text-purple-500" />
+                    QuScore: {singleScore.score} 
+                    <span className="ml-2 opacity-60 text-xs hidden sm:inline">¿Cómo se calcula?</span>
+                  </Badge>
+                )}
                 <Badge className="bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-white/10 backdrop-blur-md px-3 py-1.5 shadow-sm flex items-center">
                   <MapPin className="w-4 h-4 mr-1.5 opacity-70" />
                   <span className="truncate max-w-[200px]">{store.city || store.address || 'Consultorio'}</span>
@@ -570,6 +587,12 @@ export default function PublicStorePage() {
             prescriptionUrls,
           });
         }}
+      />
+
+      <QuScoreModal 
+        isOpen={showQuScoreModal}
+        onClose={() => setShowQuScoreModal(false)}
+        scoreData={singleScore}
       />
 
     </div>

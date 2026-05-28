@@ -19,3 +19,26 @@ export interface ProviderScoreResponse {
   percentile?: number; // Para el "Top 8% de nutricionistas"
   lastCalculatedAt: string;
 }
+
+export interface QuScoreMethodologyPillar {
+  name: string;
+  weightPercentage: number;
+  description: string;
+  criteria: string[];
+}
+
+export interface QuScoreMethodologyBand {
+  bandName: string;
+  minScore: number;
+  maxScore: number;
+  description: string;
+}
+
+export interface QuScoreMethodologyResponse {
+  algorithmVersion: string;
+  lastReviewedAt: string;
+  feedbackContact: string;
+  description: string;
+  weights: Record<string, QuScoreMethodologyPillar>;
+  scoreBands: QuScoreMethodologyBand[];
+}
