@@ -8,6 +8,8 @@ export interface PillarDetail {
   percentage: number;
   status: PillarStatus;
   tooltip: string; // El texto explicativo de la US-003
+  actions?: string[];
+  potentialPoints?: number;
 }
 
 export interface ProviderScoreResponse {

@@ -10,6 +10,9 @@ export const useProviderScore = () => {
   // Estado para la vista de lista (Resultados de búsqueda)
   const [batchScores, setBatchScores] = useState<Record<number, ProviderScoreResponse>>({});
 
+  // Estado para la vista accionable (Dashboard del proveedor)
+  const [myActionableScore, setMyActionableScore] = useState<ProviderScoreResponse | null>(null);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +34,29 @@ export const useProviderScore = () => {
         setError("Could not load provider score.");
       }
       setSingleScore(null);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * 🎯 Obtiene el score accionable del médico autenticado (CAT-P03)
+   */
+  const fetchMyActionableScore = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await providerScoreService.getMyActionableScore();
+      setMyActionableScore(data);
+      return data;
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status !== 404 && status !== 500) {
+        console.warn("[useProviderScore] Unexpected error fetching actionable score:", err?.message);
+        setError("Could not load your actionable score.");
+      }
+      setMyActionableScore(null);
       return null;
     } finally {
       setIsLoading(false);
@@ -71,9 +97,11 @@ export const useProviderScore = () => {
   return {
     singleScore,
     batchScores,
+    myActionableScore,
     isLoading,
     error,
     fetchSingleScore,
+    fetchMyActionableScore,
     fetchBatchScores
   };
 };

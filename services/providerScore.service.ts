@@ -15,6 +15,14 @@ export const providerScoreService = {
   },
 
   /**
+   * Obtiene el score accionable del médico autenticado (CAT-P03)
+   */
+  getMyActionableScore: async (): Promise<ProviderScoreResponse> => {
+    const response = await axiosInstance.get<ProviderScoreResponse>(`${BASE_URL}/me`);
+    return response.data;
+  },
+
+  /**
    * Obtiene los scores de múltiples proveedores de golpe (Para la vista de Búsqueda)
    */
   getScoresBatch: async (providerIds: number[]): Promise<ProviderScoreResponse[]> => {
