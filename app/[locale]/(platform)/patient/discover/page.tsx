@@ -7,7 +7,7 @@ import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { useTheme } from 'next-themes'; // 🚀 Importamos el detector de tema
 import {
   Loader2, Search, SlidersHorizontal, Star,
-  ChevronRight, Sparkles, Navigation, PlayCircle, MapPin
+  ChevronRight, Sparkles, Navigation, PlayCircle, MapPin, Award
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -117,7 +117,8 @@ const MapProviderCard = ({
 
       <div className={cn(
         "relative h-full bg-white/90 dark:bg-slate-950/80 backdrop-blur-2xl rounded-[1.8rem] border flex flex-col overflow-hidden transition-colors",
-        isSelected ? "border-slate-300 dark:border-white/20" : "border-slate-200/50 dark:border-slate-700/30 hover:border-slate-300/80 dark:hover:border-slate-600/50"
+        isSelected ? "border-slate-300 dark:border-white/20" : "border-slate-200/50 dark:border-slate-700/30 hover:border-slate-300/80 dark:hover:border-slate-600/50",
+        provider.isPromoted && "ring-2 ring-amber-400 dark:ring-amber-500 ring-offset-2 dark:ring-offset-slate-950"
       )}>
 
         {/* Media */}
@@ -187,7 +188,14 @@ const MapProviderCard = ({
         {/* Info */}
         <div className="p-4 flex-1 flex flex-col">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight line-clamp-1">{provider.name}</h3>
+            <div>
+              {provider.isPromoted && (
+                <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 mb-1">
+                  <Award className="w-3 h-3" /> Patrocinado
+                </div>
+              )}
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight line-clamp-1">{provider.name}</h3>
+            </div>
             {provider.logoUrl && (
               <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 flex-shrink-0 object-cover shadow-sm" />
             )}
@@ -271,7 +279,11 @@ const DiscoverMapContent = () => {
       }
       return { ...p, distanceKm: distance };
     })
-      .sort((a, b) => (a.distanceKm || 9999) - (b.distanceKm || 9999))
+      .sort((a, b) => {
+        if (a.isPromoted && !b.isPromoted) return -1;
+        if (!a.isPromoted && b.isPromoted) return 1;
+        return (a.distanceKm || 9999) - (b.distanceKm || 9999);
+      })
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [providers, coordinates, calculateDistance, searchQuery]);
 

@@ -14,8 +14,14 @@ export interface DiscoverProvider {
   previewVideoUrl: string | null; // 🚀 El video para el Hover
   color: string;
   isPremium: boolean;
+  isPromoted?: boolean;
   distanceKm?: number; // Lo calcularemos dinámicamente más adelante
   city?: string;
+}
+
+export interface DiscoverProviderWrapperResponse {
+  sponsored: DiscoverProvider[];
+  organic: DiscoverProvider[];
 }
 
 export interface CatalogSearchRequestParams {
@@ -40,4 +46,10 @@ export interface ProviderSearchResponseDto {
   slotsToday: number;
   slotsTomorrow: number;
   nextAvailableSlot: string;
+  isPromoted?: boolean;
+}
+
+export interface ProviderSearchWrapperResponse {
+  sponsored: ProviderSearchResponseDto[];
+  organic: ProviderSearchResponseDto[];
 }

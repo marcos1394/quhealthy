@@ -1,7 +1,7 @@
 // hooks/useCatalogSearch.ts
 import useSWR from 'swr';
 import { discoverService } from '@/services/discover.service';
-import { CatalogSearchRequestParams, ProviderSearchResponseDto } from '@/types/discover';
+import { CatalogSearchRequestParams, ProviderSearchWrapperResponse } from '@/types/discover';
 
 export const useCatalogSearch = (params: CatalogSearchRequestParams | null) => {
   // Construimos una key de caché única basada en los parámetros
@@ -10,7 +10,7 @@ export const useCatalogSearch = (params: CatalogSearchRequestParams | null) => {
     ? ['/api/catalog/search', params.category, params.lat, params.lng, params.date, params.page] 
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR<ProviderSearchResponseDto[]>(
+  const { data, error, isLoading, mutate } = useSWR<ProviderSearchWrapperResponse>(
     cacheKey,
     () => discoverService.searchProviders(params!),
     {
@@ -23,7 +23,9 @@ export const useCatalogSearch = (params: CatalogSearchRequestParams | null) => {
   );
 
   return {
-    results: data || [],
+    results: data ? [...data.sponsored, ...data.organic] : [],
+    sponsoredResults: data?.sponsored || [],
+    organicResults: data?.organic || [],
     isLoading,
     isError: !!error,
     refresh: mutate

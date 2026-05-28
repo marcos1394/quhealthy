@@ -158,6 +158,21 @@ export default function QuScoreMethodologyPage() {
           </div>
         </div>
 
+        {/* TRANSPARENCY NOTE (CAT-P02) */}
+        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-3xl p-6 sm:p-8 mt-8">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
+              <Award className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Transparencia en Resultados Patrocinados</h3>
+              <p className="text-slate-600 dark:text-zinc-300 text-sm leading-relaxed">
+                El QuScore es un algoritmo estrictamente orgánico y ético. En QuHealthy, cualquier clínica o especialista que decida invertir en promoción publicitaria siempre aparecerá claramente marcado con la etiqueta <strong>"Patrocinado"</strong> y agrupado de forma independiente. <strong className="text-slate-900 dark:text-white">Ningún pago o patrocinio puede alterar, comprar o influir en la calificación del QuScore</strong> ni en la posición dentro del ranking orgánico de resultados.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
