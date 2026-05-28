@@ -17,6 +17,9 @@ export interface DiscoverProvider {
   isPromoted?: boolean;
   distanceKm?: number; // Lo calcularemos dinámicamente más adelante
   city?: string;
+  basePrice?: number; // CAT-P05
+  compareAtPrice?: number; // CAT-P05
+  discountPercentage?: number; // CAT-P05
 }
 
 export interface DiscoverProviderWrapperResponse {
@@ -32,6 +35,7 @@ export interface CatalogSearchRequestParams {
   radiusKm?: number;
   minScore?: number;
   maxPrice?: number;
+  hasDiscount?: boolean; // CAT-P05
   page?: number;
   size?: number;
 }
@@ -43,6 +47,8 @@ export interface ProviderSearchResponseDto {
   quScore: number;
   distanceKm: number;
   basePrice: number;
+  compareAtPrice?: number; // CAT-P05
+  discountPercentage?: number; // CAT-P05
   slotsToday: number;
   slotsTomorrow: number;
   nextAvailableSlot: string;

@@ -148,9 +148,14 @@ const MapProviderCard = ({
 
           <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 dark:from-slate-950 dark:via-transparent to-transparent" />
 
-          {/* 🚀 EL NUEVO BADGE DE SCORE */}
-          <div className="absolute top-3 left-3 z-10">
+          {/* 🚀 EL NUEVO BADGE DE SCORE Y DESCUENTOS */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
             <ProviderScoreBadge scoreData={scoreData} />
+            {provider.discountPercentage && provider.discountPercentage > 0 && (
+              <Badge className="bg-green-500/90 backdrop-blur-md border border-green-400/50 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl w-fit">
+                {provider.discountPercentage}% OFF
+              </Badge>
+            )}
           </div>
           {/* 🚀 EL NUEVO BOTÓN DE FAVORITOS (Corazón) */}
           {/* Lo ponemos absolute top-3 right-3. Si hay icono de video, lo empujamos o lo ponemos al lado */}
@@ -202,9 +207,19 @@ const MapProviderCard = ({
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4">
-            <Badge variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium truncate max-w-[120px]">
-              {provider.category || 'Especialista'}
-            </Badge>
+            <div className="flex flex-col">
+              {provider.basePrice && (
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-sm font-bold text-slate-800 dark:text-white">${provider.basePrice}</span>
+                  {provider.compareAtPrice && provider.compareAtPrice > provider.basePrice && (
+                    <span className="text-[10px] text-slate-400 line-through">${provider.compareAtPrice}</span>
+                  )}
+                </div>
+              )}
+              <Badge variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium truncate max-w-[120px]">
+                {provider.category || 'Especialista'}
+              </Badge>
+            </div>
             <span className="flex items-center text-medical-600 dark:text-medical-400 font-medium">
               <Navigation className="w-3 h-3 mr-1" />
               {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km` : '...'}
@@ -241,6 +256,7 @@ const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hasDiscountFilter, setHasDiscountFilter] = useState(false); // CAT-P05
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
@@ -284,8 +300,9 @@ const DiscoverMapContent = () => {
         if (!a.isPromoted && b.isPromoted) return 1;
         return (a.distanceKm || 9999) - (b.distanceKm || 9999);
       })
-      .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [providers, coordinates, calculateDistance, searchQuery]);
+      .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter(p => !hasDiscountFilter || (p.discountPercentage && p.discountPercentage > 0));
+  }, [providers, coordinates, calculateDistance, searchQuery, hasDiscountFilter]);
 
   const mapCenter = useMemo(() => {
     if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
@@ -392,6 +409,14 @@ const DiscoverMapContent = () => {
               </Button>
             </div>
           </div>
+          {/* Botón Ofertas CAT-P05 */}
+          <Button 
+            variant={hasDiscountFilter ? "default" : "outline"}
+            className={cn("h-[50px] rounded-2xl transition-all font-bold shadow-lg md:px-4", hasDiscountFilter ? "bg-green-500 hover:bg-green-600 text-white border-green-500" : "bg-white/90 dark:bg-slate-950/90 text-slate-600 dark:text-slate-300 backdrop-blur-xl hover:bg-white dark:hover:bg-slate-900 border-slate-200 dark:border-slate-700/50")}
+            onClick={() => setHasDiscountFilter(!hasDiscountFilter)}
+          >
+            % Ofertas
+          </Button>
         </div>
 
         {!coordinates && (

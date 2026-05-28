@@ -86,6 +86,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
               <Sparkles className="w-3 h-3 mr-1 text-yellow-400" /> Premium
             </Badge>
           )}
+          {provider.discountPercentage && provider.discountPercentage > 0 && (
+            <Badge className="bg-green-500/90 backdrop-blur-md border border-green-400/50 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
+              {provider.discountPercentage}% OFF
+            </Badge>
+          )}
         </div>
 
         {/* Indicador de Video (Muestra un pequeño icono si tiene video pero no está en hover) */}
@@ -122,10 +127,20 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
         </h3>
 
         <div className="mt-auto pt-4 flex items-center justify-between">
-          <span className="flex items-center text-xs text-zinc-500 font-medium">
-            <MapPin className="w-3.5 h-3.5 mr-1" />
-            {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km cerca` : 'Calculando...'}
-          </span>
+          <div className="flex flex-col">
+            {provider.basePrice && (
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-bold text-white">${provider.basePrice}</span>
+                {provider.compareAtPrice && provider.compareAtPrice > provider.basePrice && (
+                  <span className="text-[10px] text-zinc-500 line-through">${provider.compareAtPrice}</span>
+                )}
+              </div>
+            )}
+            <span className="flex items-center text-xs text-zinc-500 font-medium mt-1">
+              <MapPin className="w-3.5 h-3.5 mr-1" />
+              {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km cerca` : 'Calculando...'}
+            </span>
+          </div>
           <span 
             className="text-xs font-bold transition-all"
             style={{ color: provider.color }}
