@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 
 // 🚀 MAGIA DE IA: Importamos el servicio y el manejador de errores
 import { catalogAiService } from '@/services/catalogAiService';
+import { complianceService } from '@/services/compliance.service';
 import { handleApiError } from '@/lib/handleApiError';
 import { CameraModal } from "./CameraModal";
 
@@ -58,6 +59,9 @@ export function ProductsManager({
   const [scanningProductId, setScanningProductId] = useState<number | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [activeProductIdForCamera, setActiveProductIdForCamera] = useState<number | null>(null);
+
+  const activeIngredientTimers = useRef<{ [key: number]: NodeJS.Timeout }>({});
+  const [suggestStatus, setSuggestStatus] = useState<{ [key: number]: 'NONE' | 'SEARCHING' | 'FOUND' | 'NOT_FOUND' }>({});
 
   const t = useTranslations('Marketplace.products');
   const tGlobal = useTranslations('StoreCatalog.actions');
@@ -118,6 +122,56 @@ export function ProductsManager({
     if (!file) return;
     await processImageWithAi(productId, file);
     event.target.value = ''; // Limpiar input
+  };
+
+  const handleActiveIngredientChange = (productId: number, value: string) => {
+    onUpdate(productId, { activeIngredient: value });
+
+    if (activeIngredientTimers.current[productId]) {
+      clearTimeout(activeIngredientTimers.current[productId]);
+    }
+
+    if (!value || value.trim().length < 3) {
+      onUpdate(productId, {
+        cofeprisCategory: 'OTC_GENERAL',
+        requiresPrescription: false,
+        isAntibiotic: false,
+        requiresPhysicalRetention: false,
+        allowsInterstateShipping: true,
+      });
+      setSuggestStatus(prev => ({ ...prev, [productId]: 'NONE' }));
+      return;
+    }
+
+    setSuggestStatus(prev => ({ ...prev, [productId]: 'SEARCHING' }));
+
+    activeIngredientTimers.current[productId] = setTimeout(async () => {
+      try {
+        const result = await complianceService.suggestComplianceByIngredient(value);
+        if (result.found) {
+          onUpdate(productId, {
+            cofeprisCategory: result.cofeprisCategory,
+            requiresPrescription: result.requiresPrescription,
+            isAntibiotic: result.isAntibiotic,
+            requiresPhysicalRetention: result.requiresPhysicalRetention,
+            allowsInterstateShipping: result.allowsInterstateShipping,
+          });
+          setSuggestStatus(prev => ({ ...prev, [productId]: 'FOUND' }));
+          toast.info(`Reglas COFEPRIS aplicadas para: ${value}`);
+        } else {
+          onUpdate(productId, {
+            cofeprisCategory: 'OTC_GENERAL',
+            requiresPrescription: false,
+            isAntibiotic: false,
+            requiresPhysicalRetention: false,
+            allowsInterstateShipping: true,
+          });
+          setSuggestStatus(prev => ({ ...prev, [productId]: 'NOT_FOUND' }));
+        }
+      } catch (error) {
+        setSuggestStatus(prev => ({ ...prev, [productId]: 'NONE' }));
+      }
+    }, 600);
   };
 
   return (
@@ -367,13 +421,30 @@ export function ProductsManager({
                               />
                             </div>
 
-                            <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
-                                <FlaskConical className="w-3.5 h-3.5 mr-1" /> Sustancia Activa
-                              </label>
+                            <div className="space-y-2 relative">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center">
+                                  <FlaskConical className="w-3.5 h-3.5 mr-1" /> Sustancia Activa
+                                </label>
+                                {suggestStatus[product.id] === 'SEARCHING' && (
+                                  <span className="text-[10px] text-amber-600 font-bold animate-pulse flex items-center">
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Buscando...
+                                  </span>
+                                )}
+                                {suggestStatus[product.id] === 'FOUND' && (
+                                  <span className="text-[10px] text-emerald-600 font-bold flex items-center">
+                                    <Sparkles className="w-3 h-3 mr-1" /> BD QuHealthy
+                                  </span>
+                                )}
+                                {suggestStatus[product.id] === 'NOT_FOUND' && (
+                                  <span className="text-[10px] text-slate-500 font-bold flex items-center">
+                                    <Info className="w-3 h-3 mr-1" /> Bajo revisión al guardar
+                                  </span>
+                                )}
+                              </div>
                               <Input 
                                 value={product.activeIngredient || ''} 
-                                onChange={e => onUpdate(product.id, { activeIngredient: e.target.value })} 
+                                onChange={e => handleActiveIngredientChange(product.id, e.target.value)} 
                                 placeholder="Ej: Paracetamol 500mg" 
                                 className="bg-white dark:bg-slate-950" 
                               />
