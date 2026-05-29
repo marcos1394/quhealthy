@@ -112,7 +112,7 @@ function ResetPasswordForm() {
         <div className="relative">
           <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
           <Input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder={t("new_password_placeholder")} className="pl-11 pr-12 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 rounded-xl" required />
-          <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <button type="button" aria-label={showPwd ? "Ocultar contraseña" : "Mostrar contraseña"} onClick={() => setShowPwd(!showPwd)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             {showPwd ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
           </button>
         </div>
@@ -130,7 +130,7 @@ function ResetPasswordForm() {
         <div className="relative">
           <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
           <Input type={showConfirmPwd ? "text" : "password"} value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} placeholder={t("confirm_password_placeholder")} className={cn("pl-11 pr-12 h-14 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl", confirmPwd && password !== confirmPwd ? "border-red-500" : "border-slate-200 dark:border-slate-800 focus:border-medical-500")} required />
-          <button type="button" onClick={() => setShowConfirmPwd(!showConfirmPwd)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <button type="button" aria-label={showConfirmPwd ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"} onClick={() => setShowConfirmPwd(!showConfirmPwd)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             {showConfirmPwd ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
           </button>
         </div>

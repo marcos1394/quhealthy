@@ -60,7 +60,7 @@ export default function VerifyPhonePage() {
       setSuccess(true);
       toast.success(t("success_title"), { position: "top-center" });
       setTimeout(() => {
-        router.push(role === "PROVIDER" ? "/provider/onboarding/checklist" : "/dashboard");
+        router.push(role === "PROVIDER" ? "/onboarding" : "/patient/dashboard");
       }, 2000);
     } catch (err: any) {
       setError(err.message || "Error");
@@ -83,7 +83,7 @@ export default function VerifyPhonePage() {
   };
 
   const handleSkip = () => {
-    router.push(role === "PROVIDER" ? "/provider/onboarding/checklist?phone_pending=true" : "/dashboard?phone_pending=true");
+    router.push(role === "PROVIDER" ? "/onboarding?phone_pending=true" : "/patient/dashboard?phone_pending=true");
   };
 
   return (
@@ -165,7 +165,7 @@ export default function VerifyPhonePage() {
                     <div className="text-left"><p className="text-sm font-medium text-medical-700 dark:text-medical-400 mb-0.5">{t("success_status")}</p><p className="text-xs text-medical-600/80 dark:text-medical-300/80">{t("success_redirect")}</p></div>
                   </div>
                 </div>
-                <Button onClick={() => router.push(role === "PROVIDER" ? "/provider/onboarding/checklist" : "/dashboard")} className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl">
+                <Button onClick={() => router.push(role === "PROVIDER" ? "/onboarding" : "/patient/dashboard")} className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl">
                   <Sparkles className="w-4 h-4 mr-2" />{t("continue")}
                 </Button>
               </motion.div>

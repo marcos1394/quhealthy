@@ -49,24 +49,24 @@ export const CookieConsent = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ type: "spring", damping: 20, stiffness: 100 }}
-          className="fixed bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-auto md:w-[480px] z-[9999] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] border border-slate-200 dark:border-slate-800 overflow-hidden font-sans"
+          className="fixed bottom-3 left-3 right-3 md:bottom-6 md:left-6 md:right-auto md:w-[420px] z-[9999] bg-white dark:bg-slate-900 rounded-xl shadow-[0_18px_50px_-18px_rgba(15,23,42,0.45)] dark:shadow-[0_18px_50px_-18px_rgba(0,0,0,0.7)] border border-slate-200 dark:border-slate-800 overflow-hidden font-sans"
         >
           {showPreferences ? (
             // Preferences View
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center">
-                    <Settings className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+                  <div className="w-9 h-9 rounded-full bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center">
+                    <Settings className="w-4 h-4 text-medical-600 dark:text-medical-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">Preferencias</h3>
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight">Preferencias</h3>
                 </div>
-                <button onClick={() => setShowPreferences(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <button aria-label="Volver al aviso de cookies" onClick={() => setShowPreferences(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               
-              <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2">
+              <div className="space-y-3 mb-4 max-h-[260px] overflow-y-auto pr-2">
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -84,6 +84,7 @@ export const CookieConsent = () => {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Nos ayudan a entender cómo usas QuHealthy para mejorar tu experiencia.</p>
                   </div>
                   <button 
+                    aria-label="Activar o desactivar cookies analíticas"
                     onClick={() => setPrefs({...prefs, analytics: !prefs.analytics})}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.analytics ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
@@ -96,6 +97,7 @@ export const CookieConsent = () => {
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Utilizadas para mostrarte anuncios relevantes y campañas personalizadas.</p>
                   </div>
                   <button 
+                    aria-label="Activar o desactivar cookies de marketing"
                     onClick={() => setPrefs({...prefs, marketing: !prefs.marketing})}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.marketing ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
@@ -104,44 +106,44 @@ export const CookieConsent = () => {
                 </div>
               </div>
 
-              <Button onClick={handleSavePreferences} className="w-full bg-medical-600 hover:bg-medical-700 text-white h-12 rounded-xl text-sm font-medium">
+              <Button onClick={handleSavePreferences} className="w-full bg-medical-600 hover:bg-medical-700 text-white h-11 rounded-xl text-sm font-medium">
                 Guardar Preferencias
               </Button>
             </div>
           ) : (
             // Default View
-            <div className="p-6">
-              <div className="flex items-start gap-4 mb-5">
-                <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                  <Cookie className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+            <div className="p-4 sm:p-5">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                  <Cookie className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Privacidad y Cookies</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Privacidad y Cookies</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
                     Utilizamos cookies para mejorar tu experiencia, analizar nuestro tráfico y personalizar el contenido. Al hacer clic en "Aceptar todas", aceptas su uso.
                   </p>
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full">
                 <Button 
                   onClick={handleAcceptAll} 
-                  className="w-full sm:flex-1 bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-11 text-sm font-medium"
+                  className="w-full sm:flex-1 bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-10 text-sm font-medium"
                 >
                   Aceptar todas
                 </Button>
-                <div className="flex items-center gap-3 w-full sm:flex-1">
+                <div className="flex items-center gap-2.5 w-full sm:flex-1">
                   <Button 
                     variant="outline" 
                     onClick={handleRejectAll}
-                    className="flex-1 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl h-11 text-sm font-medium"
+                    className="flex-1 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl h-10 text-sm font-medium"
                   >
                     Rechazar
                   </Button>
                   <Button 
                     variant="ghost" 
                     onClick={() => setShowPreferences(true)}
-                    className="flex-1 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl h-11 text-sm font-medium"
+                    className="flex-1 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl h-10 text-sm font-medium"
                   >
                     Configurar
                   </Button>

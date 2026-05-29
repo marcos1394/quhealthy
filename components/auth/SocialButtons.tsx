@@ -125,6 +125,8 @@ export default function SocialAuthButtons({
     {
       id: 'google',
       name: 'Google',
+      label: 'Continuar con Google',
+      disabled: false,
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -139,6 +141,8 @@ export default function SocialAuthButtons({
     {
       id: 'apple',
       name: 'Apple',
+      label: 'Apple próximamente',
+      disabled: true,
       icon: (
         <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
           <path d="M17.057 12.822c.018 2.392 2.046 3.193 2.071 3.204-.017.054-.323 1.107-1.07 2.201-.645.945-1.314 1.887-2.373 1.906-1.037.019-1.371-.611-2.563-.611-1.192 0-1.562.592-2.544.629-1.02.038-1.791-.983-2.438-1.928-1.325-1.931-2.336-5.454-1.01-7.755.658-1.141 1.83-1.864 3.102-1.883 1.019-.019 1.98.702 2.604.702.623 0 1.777-.87 2.992-.746.509.021 1.936.204 2.854 1.545-.072.045-1.705.993-1.685 2.941zM14.636 4.545c.548-.663.917-1.583.816-2.503-.79.032-1.745.527-2.312 1.189-.509.589-.955 1.529-.836 2.427.88.069 1.785-.45 2.332-1.113z" />
@@ -163,10 +167,12 @@ export default function SocialAuthButtons({
             type="button"
             variant="outline"
             onClick={provider.onClick}
-            disabled={loadingProvider !== null}
+            disabled={provider.disabled || loadingProvider !== null}
+            title={provider.disabled ? "Inicio con Apple estará disponible próximamente" : undefined}
             className={cn(
               "w-full h-11 relative flex items-center justify-center gap-3 transition-all duration-200 shadow-sm border rounded-xl",
               provider.bgColor,
+              provider.disabled ? "opacity-60 cursor-not-allowed" : "",
               loadingProvider !== null && loadingProvider !== provider.id ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"
             )}
           >
@@ -178,7 +184,7 @@ export default function SocialAuthButtons({
             ) : (
               <>
                 <span className="absolute left-4">{provider.icon}</span>
-                <span className="text-sm font-medium">Continuar con {provider.name}</span>
+                <span className="text-sm font-medium">{provider.label}</span>
               </>
             )}
           </Button>

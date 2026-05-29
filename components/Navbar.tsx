@@ -43,9 +43,9 @@ interface NavItem {
 // Usamos Record para asegurar que cubrimos todos los casos o 'string' para ser flexibles
 const LINKS: Record<string, NavItem[]> = {
   GUEST: [
-    { name: "links.guest.discover", href: "/discover" },
+    { name: "links.guest.discover", href: "/patient/discover" },
     { name: "links.guest.business", href: "/business" },
-    { name: "links.guest.pricing", href: "/pricing" },
+    { name: "links.guest.pricing", href: "/#pricing" },
   ],
   CONSUMER: [
     { name: "links.consumer.discover", href: "/discover", icon: Search },
@@ -324,8 +324,9 @@ export const Navbar: React.FC = () => {
 
         {/* MOBILE TOGGLE */}
         <button
+          aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-gray-300 hover:text-white transition-colors z-50 rounded-md hover:bg-white/10"
+          className="md:hidden p-2 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors z-50 rounded-md hover:bg-slate-100 dark:hover:bg-white/10"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -342,11 +343,11 @@ export const Navbar: React.FC = () => {
           >
             <div className="p-4 flex flex-col gap-2">
               {isAuthenticated && (
-                <div className="flex items-center gap-3 p-3 mb-2 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-center gap-3 p-3 mb-2 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
                   <UserAvatar size="lg" />
                   <div>
-                    <p className="text-white font-medium">{user?.firstName}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-slate-900 dark:text-white font-medium">{user?.firstName}</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-500">{user?.email}</p>
                   </div>
                 </div>
               )}

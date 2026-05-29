@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogoCarousel } from "@/components/sections/LogoCarousel";
 
-const TypewriterWords = ({ words }: { words: string[] }) => {
+const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: string }) => {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const TypewriterWords = ({ words }: { words: string[] }) => {
   }, [words]);
 
   return (
-    <div className="relative inline-block h-16 md:h-20 lg:h-24 min-w-[280px] md:min-w-[350px] align-bottom overflow-visible">
+    <div className="relative inline-block h-12 sm:h-14 md:h-20 lg:h-24 min-w-[130px] sm:min-w-[180px] md:min-w-[350px] align-bottom overflow-visible">
       <AnimatePresence mode="popLayout">
         <motion.span
           key={index}
@@ -27,9 +27,9 @@ const TypewriterWords = ({ words }: { words: string[] }) => {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: -20, opacity: 0, scale: 1.05 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute inset-x-0 bottom-2 text-medical-600 dark:text-medical-400 font-serif italic text-left pr-4 whitespace-nowrap"
+          className="absolute inset-x-0 bottom-1 md:bottom-2 text-medical-600 dark:text-medical-400 font-serif italic text-left pr-4 whitespace-nowrap"
         >
-          {words[index]}
+          {words[index]}{suffix}
         </motion.span>
       </AnimatePresence>
     </div>
@@ -66,7 +66,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative w-full bg-[#FAFAFA] dark:bg-[#0A0A0A] pt-32 pb-20 lg:pt-40 lg:pb-32 transition-colors duration-300 overflow-hidden">
+    <section className="relative w-full bg-[#FAFAFA] dark:bg-[#0A0A0A] pt-24 pb-14 sm:pt-28 sm:pb-16 lg:pt-40 lg:pb-32 transition-colors duration-300 overflow-hidden">
 
       {/* Premium Aurora Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -97,7 +97,7 @@ const HeroSection: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} // smooth ease out
-            className="lg:col-span-7 flex flex-col items-start text-left space-y-10 relative z-10"
+            className="lg:col-span-7 flex flex-col items-start text-left space-y-6 sm:space-y-8 lg:space-y-10 relative z-10"
           >
             {/* Pill Badge Minimalista */}
             <div className="inline-block border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 rounded-full px-4 py-1.5 backdrop-blur-md">
@@ -108,19 +108,18 @@ const HeroSection: React.FC = () => {
             </div>
 
             {/* Editorial Headline with Typewriter */}
-            <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight text-slate-900 dark:text-white leading-[1.1] md:leading-[1.05] relative z-20 flex flex-wrap items-end gap-x-3 w-full">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight text-slate-900 dark:text-white leading-[1.08] md:leading-[1.05] relative z-20 flex flex-wrap items-end gap-x-2 sm:gap-x-3 w-full">
               <span>{t('title_start')}</span>
-              <TypewriterWords words={dynamicWords} />
-              <span className="self-end pb-2 md:pb-4">{t('title_end')}</span>
+              <TypewriterWords words={dynamicWords} suffix={t('title_end')} />
             </h1>
 
             {/* Description */}
-            <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed font-light">
+            <p className="text-base sm:text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed font-light">
               {t('description')}
             </p>
 
             {/* Search Form - Premium Style */}
-            <div className="w-full max-w-2xl mt-4 relative z-30 group">
+            <div className="w-full max-w-2xl mt-1 sm:mt-4 relative z-30 group">
               <div className="absolute -inset-1 bg-gradient-to-r from-medical-500/30 via-teal-500/30 to-medical-500/30 rounded-[1.25rem] blur-xl opacity-40 dark:opacity-20 group-focus-within:opacity-100 group-focus-within:duration-500 transition-all duration-1000"></div>
               <div className="relative flex flex-col md:flex-row shadow-2xl shadow-medical-500/10 dark:shadow-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-800 p-2 gap-2 group-focus-within:border-medical-500/50 transition-colors">
 
@@ -151,7 +150,8 @@ const HeroSection: React.FC = () => {
                     const params = new URLSearchParams();
                     if (searchQuery) params.append("category", searchQuery);
                     if (locationQuery) params.append("loc", locationQuery);
-                    router.push(`/discover?${params.toString()}`);
+                    const query = params.toString();
+                    router.push(`/patient/discover${query ? `?${query}` : ""}`);
                   }}
                   className="w-full md:w-auto bg-medical-600 hover:bg-medical-700 text-white rounded-xl px-8 py-6 h-auto text-base font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 shadow-medical-600/20 transition-all duration-300 group overflow-hidden relative border-0"
                 >
@@ -164,7 +164,7 @@ const HeroSection: React.FC = () => {
             </div>
 
             {/* Micro-Metrics */}
-            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-slate-200/50 dark:border-slate-800/50 w-full max-w-2xl relative z-20">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 pt-3 sm:pt-4 border-t border-slate-200/50 dark:border-slate-800/50 w-full max-w-2xl relative z-20">
               {metrics.map((metric, idx) => (
                 <div key={idx} className="flex items-center gap-2 group cursor-default">
                   <metric.icon className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
@@ -189,7 +189,6 @@ const HeroSection: React.FC = () => {
 
               {/* Dynamic Animated Background Patterns */}
               <div className="absolute inset-0 bg-gradient-to-tr from-medical-50/80 via-transparent to-teal-50/40 dark:from-medical-900/20 dark:via-transparent dark:to-teal-900/10 pointer-events-none" />
-              <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] dark:opacity-[0.02] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("/assets/noise.png")' }} />
               <div className="absolute top-0 left-0 w-full h-full opacity-40 dark:opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(139, 92, 246, 0.1) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
               {/* Floating Dynamic Element 1: Health Analysis */}
