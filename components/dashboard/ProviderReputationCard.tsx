@@ -47,8 +47,6 @@ export function ProviderReputationCard() {
     );
   }
 
-  }
-
   // Estado: Proveedor Nuevo
   if (!myActionableScore || myActionableScore.isNewProvider || myActionableScore.band === 'NUEVO') {
     return (
