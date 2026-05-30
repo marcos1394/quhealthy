@@ -4,12 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Activity, Building2, BarChart3, Database } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-// Carga dinámica del mapa para evitar problemas con 'window' en SSR
-const NationalHealthcareMap = dynamic(
-  () => import('@/components/intelligence/NationalHealthcareMap'),
-  { ssr: false, loading: () => <div className="w-full h-[600px] bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl flex items-center justify-center text-slate-500">Cargando mapa interactivo...</div> }
-);
-
+import { MapWrapper } from '@/components/intelligence/MapWrapper';
 import { IntelligenceSummaryRow } from '@/components/intelligence/IntelligenceSummaryRow';
 import { StateDistributionChart } from '@/components/intelligence/StateDistributionChart';
 import { InstitutionDistributionChart } from '@/components/intelligence/InstitutionDistributionChart';
@@ -61,7 +56,7 @@ export default function IntelligencePage() {
             </div>
           </CardHeader>
           <CardContent className="p-0 bg-slate-100 dark:bg-slate-900 relative">
-            <NationalHealthcareMap />
+            <MapWrapper />
           </CardContent>
         </Card>
 
