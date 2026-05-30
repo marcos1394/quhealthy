@@ -15,7 +15,6 @@ export const useDiscover = () => {
       dedupingInterval: 60000,  // Mantiene la caché por 1 minuto
       onError: (err) => {
         console.error("Error al cargar los especialistas:", err);
-        return;
       }
     }
   );

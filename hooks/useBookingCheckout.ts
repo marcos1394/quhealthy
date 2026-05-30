@@ -145,13 +145,11 @@ export const useBookingCheckout = () => {
       if (errorData?.code === "VALIDATION_ERROR") {
         const validationMsgs = Object.values(errorData.errors || {}).join(", ");
         toast.error(`Error de validación: ${validationMsgs}`, { theme: "colored" });
-        return;
       } 
       
       if (error.response?.status === 401) {
         toast.warning("Tu sesión ha expirado.");
         router.push('/login?expired=true');
-        return;
       }
 
       const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";

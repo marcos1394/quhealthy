@@ -33,10 +33,8 @@ export const useAvailability = () => {
       
       // 🚀 Manejo específico para el error 403 (Problema de permisos en el backend)
       if (error.response?.status === 403) {
-        return;
       } else {
         const errorMessage = error.response?.data?.message || "No pudimos cargar los horarios para este día.";
-        return;
       }
       
       setAvailableSlots([]); // Nos aseguramos de limpiar en caso de error

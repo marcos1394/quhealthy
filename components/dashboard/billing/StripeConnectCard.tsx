@@ -31,7 +31,7 @@ export default function StripeConnectCard() {
 
   const isReady = status?.ready === true;
   const isPending = status?.status === "PENDING" || (status && !status.ready);
-  const isNotConnected = !status || status.status === "NOT_CONNECTED";
+  const isNotConnected = !status || status.status === "NOT_CREATED";
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

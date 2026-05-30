@@ -40,6 +40,7 @@ export interface PrescriptionItem {
   duration: string;       // Duración (ej. 7 días)
   instructions?: string;  // Indicaciones adicionales
   catalogItemId?: number; // Enlace al producto en el Marketplace de QuHealthy
+  price?: number;         // Precio del producto si está en catálogo
 }
 
 /**
@@ -53,6 +54,7 @@ export interface PrescriptionItemDto {
   duration: string;
   instructions?: string;
   catalogItemId?: number;
+  price?: number;
 }
 
 // ==========================================================
@@ -86,6 +88,7 @@ export interface PatientClinicalProfile {
   chronicConditions?: string[];
   quScore?: number;     // Puntuación de salud algorítmica
   quScoreBand?: string; // Clasificación: "Óptimo", "En Riesgo", etc.
+  phone?: string;       // Teléfono de contacto
 }
 
 /**

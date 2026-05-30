@@ -42,7 +42,6 @@ export const useStaff = () => {
       setStaff(mappedStaff);
     } catch (error) {
       console.error("Error cargando equipo", error);
-      return;
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +66,6 @@ export const useStaff = () => {
       }
       return { ...member, id: savedData.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      return;
       return null;
     }
   };
@@ -77,7 +75,6 @@ export const useStaff = () => {
       await staffService.deleteStaffMember(id);
       return true;
     } catch (error) {
-      return;
       return false;
     }
   };
@@ -89,7 +86,6 @@ export const useStaff = () => {
       const response = await storeService.uploadMedia(file, 'STAFF_AVATAR' as any);
       return response.url;
     } catch (error) {
-      return;
       return null;
     }
   };

@@ -39,7 +39,8 @@ export default function PublicStorePage() {
   const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
   const { processCheckout, isProcessing } = useBookingCheckout();
-  const { userId } = useSessionStore();
+  const { user } = useSessionStore();
+  const userId = user?.id;
   const [showCheckout, setShowCheckout] = useState(false);
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
   
@@ -547,7 +548,7 @@ export default function PublicStorePage() {
                       selectedTime: null,
                       cart,
                       shippingAddress: undefined,
-                      prescriptionUrls: {},
+                      prescriptionUrls: undefined,
                     });
                   } else {
                     setShowCheckout(true);
@@ -584,7 +585,7 @@ export default function PublicStorePage() {
             selectedTime: null,
             cart,
             shippingAddress,
-            prescriptionUrls,
+            prescriptionUrls: JSON.stringify(prescriptionUrls),
           });
         }}
       />

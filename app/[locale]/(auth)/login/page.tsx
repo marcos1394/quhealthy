@@ -91,10 +91,7 @@ export default function LoginPage() {
   const handleAuthNavigation = (response: AuthResponse) => {
     const role = response.role;
 
-    // 🚀 FIX: Establecer cookie de rol para que el middleware (proxy.ts) sepa a dónde redirigir
-    if (typeof document !== 'undefined') {
-      document.cookie = `userRole=${role}; path=/; max-age=3600; SameSite=Lax`;
-    }
+    // La cookie __Secure-userRole ahora se asigna directamente desde el backend para mayor seguridad.
 
     if (role === 'ADMIN') {
       router.push("/admin/dashboard");

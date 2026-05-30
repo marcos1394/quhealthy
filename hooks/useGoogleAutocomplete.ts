@@ -14,7 +14,6 @@ export function useGoogleAutocomplete() {
   useEffect(() => {
     if (!query || query.trim().length < 3) {
       setSuggestions([]);
-      return;
     }
 
     const fetchSuggestions = async () => {

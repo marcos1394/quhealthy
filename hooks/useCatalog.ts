@@ -116,7 +116,6 @@ export const useCatalog = () => {
 
     } catch (error) {
       console.error("Error cargando inventario", error);
-      return;
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +145,6 @@ export const useCatalog = () => {
       }
       return { ...service, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      return;
       return null;
     }
   };
@@ -156,7 +154,6 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      return;
       return false;
     }
   };
@@ -182,7 +179,6 @@ export const useCatalog = () => {
       }
       return { ...pkg, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      return;
       return null;
     }
   };
@@ -192,7 +188,6 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      return;
       return false;
     }
   };
@@ -223,7 +218,6 @@ export const useCatalog = () => {
       }
       return { ...product, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      return;
       return null;
     }
   };
@@ -233,7 +227,6 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      return;
       return false;
     }
   };
@@ -260,7 +253,6 @@ export const useCatalog = () => {
       }
       return { ...course, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
-      return;
       return null;
     }
   };
@@ -270,7 +262,6 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
-      return;
       return false;
     }
   };
@@ -282,7 +273,6 @@ export const useCatalog = () => {
       return response.url;
     } catch (error) {
       console.error("Error en uploadItemImage", error);
-      return;
       return null;
     }
   };

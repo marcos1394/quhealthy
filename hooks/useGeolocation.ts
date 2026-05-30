@@ -16,7 +16,6 @@ export const useGeolocation = () => {
     if (!navigator.geolocation) {
       setError('La geolocalización no es soportada por tu navegador.');
       setIsLoading(false);
-      return;
     }
 
     navigator.geolocation.getCurrentPosition(

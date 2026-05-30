@@ -34,7 +34,6 @@ export const useConsumerProfile = () => {
       setProfile(safeData);
     } catch (error: any) {
       console.error("Error al cargar el perfil del paciente:", error);
-      return;
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +55,6 @@ export const useConsumerProfile = () => {
       return true;
     } catch (error: any) {
       console.error("Error al guardar el perfil:", error);
-      return;
       return false;
     } finally {
       setIsSaving(false);

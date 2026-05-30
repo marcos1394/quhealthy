@@ -51,7 +51,6 @@ export const useCalendarIntegration = () => {
       const url = await calendarIntegrationService.getConnectUrl();
       window.location.href = url; // Redirección directa al Auth de Google
     } catch (error) {
-      return;
     }
   };
 

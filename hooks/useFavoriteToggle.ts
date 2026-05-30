@@ -5,7 +5,7 @@ import { handleApiError } from '@/lib/handleApiError';
 import { favoriteService } from '@/services/favorite.service';
 
 export const useFavoriteToggle = (
-    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT',
+    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE',
     entityId: number,
     initialState: boolean = false
 ) => {
@@ -40,7 +40,6 @@ export const useFavoriteToggle = (
             console.error("❌ Error toggling favorite:", error);
             // 3. Rollback si falla
             setIsFavorite(previousState);
-            return;
         } finally {
             setIsLoading(false);
         }

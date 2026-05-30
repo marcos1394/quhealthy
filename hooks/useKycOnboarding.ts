@@ -18,7 +18,6 @@ export const useKycOnboarding = () => {
         if (response.verificationStatus === 'APPROVED') {
           toast.success("✅ Documento verificado correctamente.");
         } else if (response.verificationStatus === 'REJECTED') {
-          return;
         }
       })
       .catch(err => {
@@ -80,7 +79,6 @@ export const useKycOnboarding = () => {
       if (response.verificationStatus === 'APPROVED') {
         toast.success("✅ Documento verificado correctamente.");
       } else if (response.verificationStatus === 'REJECTED') {
-        return;
       } else if (response.verificationStatus === 'PROCESSING') {
         // We leave uploadingState true intentionally until polling finishes
         startPolling(type);
@@ -90,7 +88,6 @@ export const useKycOnboarding = () => {
     } catch (error: any) {
       console.error(`Error subiendo ${type}:`, error);
       const msg = error.response?.data?.message || error.message || "Error al subir.";
-      return;
       setUploadingState(prev => ({ ...prev, [type]: false }));
     }
   };

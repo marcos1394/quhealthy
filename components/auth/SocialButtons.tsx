@@ -34,10 +34,7 @@ export default function SocialAuthButtons({
   const handleRedirection = (response: AuthResponse) => {
     const { status, role: userRole, user } = response;
 
-    // 🚀 FIX: Establecer cookie de rol para que el middleware (proxy.ts) sepa a dónde redirigir
-    if (typeof document !== 'undefined') {
-      document.cookie = `userRole=${userRole}; path=/; max-age=3600; SameSite=Lax`;
-    }
+    // 🚀 La cookie __Secure-userRole ahora se asigna directamente desde el backend
 
     if (!status.emailVerified) {
       router.push('/verify-email');

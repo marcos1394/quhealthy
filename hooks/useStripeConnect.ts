@@ -71,7 +71,6 @@ export const useStripeConnect = () => {
       }
     } catch (error: any) {
       console.error('Error al iniciar el Onboarding de Stripe:', error);
-      return;
       setIsRedirecting(false); // Solo lo apagamos si falla, si tiene éxito se va de la página
     }
   };

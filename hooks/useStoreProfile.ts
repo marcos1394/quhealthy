@@ -19,7 +19,6 @@ export const useStoreProfile = () => {
       setProfile(data);
     } catch (error) {
       console.error("Error cargando perfil de tienda:", error);
-      return;
     } finally {
       setIsLoading(false);
     }
@@ -45,9 +44,7 @@ export const useStoreProfile = () => {
       console.error("Error actualizando perfil:", error);
       // Manejar el error específico del Slug duplicado que configuramos en Java
       if (error.response?.data?.message) {
-        return;
       } else {
-        return;
       }
       return false;
     } finally {
@@ -82,7 +79,6 @@ export const useStoreProfile = () => {
       return newUrl;
     } catch (error: any) {
       console.error("Error subiendo archivo:", error);
-      return;
       return null;
     } finally {
       setIsUploading(false);

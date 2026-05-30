@@ -34,7 +34,7 @@ import SocialInbox from '@/components/dashboard/marketing/SocialInbox'; // ✅ d
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Contexto Global de Redes Sociales
-import { SocialProvider } from '@/hooks/useSocial';
+// Eliminado: import { SocialProvider } from '@/hooks/useSocial';
 
 // ── Fallback de carga ──────────────────────────────────────────────────────────
 
@@ -350,10 +350,8 @@ function MarketingContent() {
 
 export default function MarketingPage() {
   return (
-    <SocialProvider>
-      <Suspense fallback={<MarketingLoading />}>
-        <MarketingContent />
-      </Suspense>
-    </SocialProvider>
+    <Suspense fallback={<MarketingLoading />}>
+      <MarketingContent />
+    </Suspense>
   );
 }

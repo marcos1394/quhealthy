@@ -37,7 +37,7 @@ export const LocationPrompt = () => {
             toast.success(`Notamos que estás en ${res.city}. ¡Encuentra especialistas cerca!`, {
               position: "top-right",
               autoClose: 5000,
-              icon: "📍"
+              icon: () => <>📍</>
             });
             sessionStorage.setItem("quhealthy_city_welcomed", "true");
           }

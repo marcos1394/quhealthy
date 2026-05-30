@@ -19,7 +19,6 @@ export const usePublicPrescription = (appointmentId: number) => {
     
     if (pin.length !== 4) {
       setError("Por favor, ingresa exactamente 4 dígitos.");
-      return;
     }
 
     setIsLoading(true);

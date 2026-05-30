@@ -16,7 +16,6 @@ export const useTimeBlock = () => {
     } catch (error: any) {
       console.error("Error al crear el bloqueo:", error);
       const errorMessage = error.response?.data?.message || "Ocurrió un error al bloquear el horario.";
-      return;
       return false; // Retornamos false si falló para que el Modal no se cierre
     } finally {
       setIsCreating(false);

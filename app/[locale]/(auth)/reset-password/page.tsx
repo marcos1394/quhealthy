@@ -27,7 +27,7 @@ function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const t = useTranslations("AuthResetPassword");
-  const { validateResetToken, confirmResetPassword } = useAuth();
+  const { validateResetToken, recoveryResetPassword } = useAuth();
 
   const token = searchParams.get("token");
 
@@ -60,7 +60,7 @@ function ResetPasswordForm() {
     if (!isValid() || !token) return;
     setLoading(true); setError("");
     try {
-      await confirmResetPassword({ token, newPassword: password });
+      await recoveryResetPassword({ token, newPassword: password });
       setSuccess(true); toast.success(t("success_title"), { position: "top-center" });
       setTimeout(() => router.push("/login"), 3000);
     } catch (err: any) { setError(err.message || "Error"); handleApiError(err); }

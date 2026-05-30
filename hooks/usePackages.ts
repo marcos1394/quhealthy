@@ -25,7 +25,6 @@ export const usePackages = () => {
         // Si no hay token, no intentamos hacer la llamada para evitar 401s innecesarios
         if (!token || !user) {
             setIsLoading(false);
-            return;
         }
 
         setIsLoading(true);

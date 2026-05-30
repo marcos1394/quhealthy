@@ -51,7 +51,7 @@ export const useLeaveReview = (token: string | undefined) => {
         if (!context) return;
         
         if (rating === 0) {
-            handleApiError(err);
+            toast.error(t('error_rating', { defaultValue: 'Por favor, seleccione una calificación.' }));
             return;
         }
 

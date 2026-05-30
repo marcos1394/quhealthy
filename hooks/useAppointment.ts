@@ -77,7 +77,6 @@ export const useAppointments = () => {
       }));
     } catch (error) {
       console.error("Error cargando citas:", error);
-      return;
       return [];
     } finally {
       setIsLoading(false);
@@ -97,7 +96,6 @@ export const useAppointments = () => {
       return true;
     } catch (error: any) {
       console.error("Error al reprogramar:", error);
-      return;
       return false;
     }
   };
@@ -113,7 +111,6 @@ export const useAppointments = () => {
       toast.success("Cita cancelada.");
       return true;
     } catch (error: any) {
-      return;
       return false;
     }
   };

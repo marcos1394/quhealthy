@@ -73,7 +73,7 @@ export const useChat = () => {
                 console.error("❌ Error STOMP de Producción:", frame.headers['message']);
                 // Si el token expira, el backend cerrará la conexión aquí
                 if (frame.headers['message']?.includes('No autorizado')) {
-                    handleApiError(err);
+                    toast.error("Sesión expirada. Por favor, inicie sesión nuevamente.");
                 }
             }
         });

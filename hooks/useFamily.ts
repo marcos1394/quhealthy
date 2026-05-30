@@ -17,7 +17,6 @@ export const useFamily = () => {
             setFamily(data);
         } catch (error) {
             console.error("Error cargando familiares:", error);
-            return;
         } finally {
             setIsLoading(false);
         }
@@ -36,7 +35,6 @@ export const useFamily = () => {
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Error agregando familiar:", error);
-            return;
         } finally {
             setIsSubmitting(false);
         }
@@ -52,7 +50,6 @@ export const useFamily = () => {
             if (onSuccess) onSuccess();
         } catch (error) {
             console.error("Error actualizando familiar:", error);
-            return;
         } finally {
             setIsSubmitting(false);
         }
@@ -65,7 +62,6 @@ export const useFamily = () => {
             toast.success("Familiar eliminado.");
         } catch (error) {
             console.error("Error eliminando familiar:", error);
-            return;
         }
     };
 

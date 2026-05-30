@@ -7,14 +7,14 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: false,
 
   // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},
 
   // === 2. BYPASS DE ERRORES ===
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   // === 3. REVERSE PROXY REMOVIDO ===

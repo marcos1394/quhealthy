@@ -16,7 +16,6 @@ export const useConsumerWallet = () => {
       setPackages(data || []);
     } catch (error) {
       console.error("Error fetching wallet:", error);
-      return;
     } finally {
       setIsLoading(false);
     }

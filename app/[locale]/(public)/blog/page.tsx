@@ -5,6 +5,7 @@ import { ArrowRight, Search, Calendar, User, Tag } from "lucide-react";
 import useSWR from "swr";
 import axiosInstance from "@/lib/axios";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 
 // Interfaz esperada del backend
 interface BlogPost {

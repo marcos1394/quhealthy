@@ -32,7 +32,6 @@ export const useOperatingHours = () => {
       }));
     } catch (error) {
       console.error("Error cargando horarios:", error);
-      return;
       return [];
     } finally {
       setIsLoading(false);
@@ -59,7 +58,6 @@ export const useOperatingHours = () => {
       return true;
     } catch (error: any) {
       console.error("Error guardando horarios:", error);
-      return;
       return false;
     } finally {
       setIsSaving(false);

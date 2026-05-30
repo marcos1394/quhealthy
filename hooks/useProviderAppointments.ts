@@ -18,7 +18,6 @@ export const useProviderAppointments = () => {
       setAppointments(data);
     } catch (error) {
       console.error("Error al obtener las citas del proveedor:", error);
-      return;
     } finally {
       setIsLoading(false);
     }

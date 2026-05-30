@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useFavoriteToggle } from '@/hooks/useFavoriteToggle';
 
 interface FavoriteButtonProps {
-    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT';
+    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE';
     entityId: number;
     initialIsFavorite?: boolean;
     className?: string;

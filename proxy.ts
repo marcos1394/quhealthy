@@ -59,7 +59,7 @@ export function proxy(request: NextRequest) {
 
   // 🛡️ Lógica Anti-rebote (Con token intentando ir a Login/Registro)
   if (isAuthRoute && hasToken) {
-    const userRole = request.cookies.get('userRole')?.value;
+    const userRole = request.cookies.get('__Secure-userRole')?.value;
     
     // 🚀 Redirigir según el rol guardado en la cookie
     if (userRole === 'PROVIDER') {

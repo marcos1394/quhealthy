@@ -23,7 +23,7 @@ const MODALITY_OPTIONS = [
 
 interface Props {
     form: ConsumerProfile;
-    toggleArrayItem: (field: 'healthGoals' | 'servicePreferences', value: string) => void;
+    toggleArrayItem: (field: 'healthGoals', value: string) => void;
     handleSelectChange: (name: string, value: string) => void;
     handleInterestChange: (activity: string, value: number[]) => void;
 }
@@ -98,13 +98,13 @@ export function ProfilePreferencesSection({ form, toggleArrayItem, handleSelectC
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-6">
                         {MODALITY_OPTIONS.map((modality) => {
-                            const isSelected = form.servicePreferences.includes(modality.value);
+                            const isSelected = form.preferredModality === modality.value.toUpperCase();
                             const Icon = modality.icon;
                             return (
                                 <button
                                     key={modality.value}
                                     type="button"
-                                    onClick={() => toggleArrayItem('servicePreferences', modality.value)}
+                                    onClick={() => handleSelectChange('preferredModality', modality.value.toUpperCase())}
                                     className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isSelected
                                             ? `${modality.colorActive} text-white shadow-lg`
                                             : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'

@@ -442,7 +442,6 @@ export const useSocial = (): UseSocialReturn => {
         retryCount++;
         if (retryCount >= MAX_RETRIES) {
           console.warn('🔴 SSE CRM: Máximo de reintentos alcanzado. Cerrando conexión.');
-          return;
         }
         console.warn(
           `🟡 SSE caído (intento ${retryCount}/${MAX_RETRIES}). Reconectando en ${RETRY_DELAY_MS / 1000}s...`

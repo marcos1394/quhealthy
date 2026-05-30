@@ -19,7 +19,6 @@ export const useMyReviews = () => {
     const fetchMyReviews = useCallback(async () => {
         if (!token || !user) {
             setIsLoading(false);
-            return;
         }
 
         setIsLoading(true);

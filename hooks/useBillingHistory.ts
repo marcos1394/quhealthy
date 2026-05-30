@@ -24,7 +24,6 @@ export const useBillingHistory = () => {
       setPage(data.number);
     } catch (error) {
       console.error("❌ Error al cargar historial de facturación:", error);
-      return;
     } finally {
       setIsLoading(false);
     }

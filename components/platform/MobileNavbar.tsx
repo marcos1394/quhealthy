@@ -34,7 +34,7 @@ export function MobileNavbar() {
             </Button>
           </SheetTrigger>
           {/* Usamos !max-w-[280px] para evitar que el sheet se estire demasiado en tablets pequeñas */}
-          <SheetContent side="left" className="p-0 w-[280px] !max-w-[280px] bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
+          <SheetContent position="left" className="p-0 w-[280px] !max-w-[280px] bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
             <div className="h-full w-full flex flex-col">
               <Sidebar className="w-full border-none" />
             </div>

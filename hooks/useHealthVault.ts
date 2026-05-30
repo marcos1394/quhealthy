@@ -22,7 +22,6 @@ export function useHealthVault() {
             setDocuments(data);
         } catch (error: any) {
             console.error('Error fetching vault docs:', error);
-            return;
         } finally {
             setIsLoading(false);
         }
@@ -56,7 +55,6 @@ export function useHealthVault() {
             return newDoc;
         } catch (error: any) {
             console.error('Error uploading document:', error);
-            return;
             return null;
         } finally {
             setIsUploading(false);
@@ -71,7 +69,6 @@ export function useHealthVault() {
             window.open(url, '_blank');
         } catch (error: any) {
             console.error('Error generating presigned URL:', error);
-            return;
         }
     };
 

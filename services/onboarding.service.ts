@@ -11,6 +11,7 @@ import {
   KycDocumentType,
   FiscalDataRequest,
   FiscalDataResponse,
+  UpdatePrescriptionPreferencesRequest,
 } from '@/types/onboarding';
 
 export const onboardingService = {
