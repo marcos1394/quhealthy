@@ -1,41 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Search } from "lucide-react";
 
-interface HealthcareMapDto {
-  clues: string;
-  entidad: string;
-  municipio: string;
-  localidad: string;
-  nombreUnidad: string;
-  nombreInstitucion: string;
-  nivelAtencion: string;
-  nombreTipoEstablecimiento: string;
-}
+import { Download, Search } from "lucide-react";
+import { useIntelligenceMap } from "@/hooks/useIntelligence";
+import { HealthcareMapDTO } from "@/types/intelligence";
 
 export function HealthcareExplorerTable() {
-  const [data, setData] = useState<HealthcareMapDto[]>([]);
-  const [filtered, setFiltered] = useState<HealthcareMapDto[]>([]);
+  const { data: rawData, loading } = useIntelligenceMap();
+  const data = rawData || [];
+  const [filtered, setFiltered] = useState<HealthcareMapDTO[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const pageSize = 15;
-
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || "http://localhost:8087";
-    fetch(`${url}/api/intelligence/map`)
-      .then(res => res.json())
-      .then(d => {
-        setData(d);
-        setFiltered(d);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
 
   useEffect(() => {
     if (!search) {

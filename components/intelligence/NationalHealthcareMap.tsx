@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useIntelligenceMap } from "@/hooks/useIntelligence";
 
 // Solución para iconos perdidos en Next.js con Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -28,26 +27,8 @@ interface HealthcareMapDto {
 }
 
 export default function NationalHealthcareMap() {
-  const [points, setPoints] = useState<HealthcareMapDto[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || "http://localhost:8087";
-    // Cargamos una muestra de los datos para no bloquear el navegador con 40K puntos de golpe
-    // En el futuro, los endpoints de mapa deberían soportar bounding boxes (BBOX) o tiles
-    fetch(`${url}/api/intelligence/map`)
-      .then(res => res.json())
-      .then(data => {
-        // Para MVP, limitamos a 5000 puntos para garantizar rendimiento en el renderizado
-        // En una app de producción usaríamos Mapbox GL JS o vector tiles para los 40k.
-        setPoints(data.slice(0, 5000));
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error fetching map:", err);
-        setLoading(false);
-      });
-  }, []);
+  const { data: pointsRaw, loading } = useIntelligenceMap();
+  const points = pointsRaw?.slice(0, 5000) || [];
 
   const center: [number, number] = [23.6345, -102.5528]; // Centro de México
 

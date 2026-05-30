@@ -1,39 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell
-} from "recharts";
-
-interface Distribution {
-  label: string;
-  total: number;
-}
+import { useIntelligenceInstitutions } from "@/hooks/useIntelligence";
 
 export function InstitutionDistributionChart() {
-  const [data, setData] = useState<Distribution[]>([]);
-
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || "http://localhost:8087";
-    fetch(`${url}/api/intelligence/institutions`)
-      .then(res => res.json())
-      .then(d => {
-        // Tomamos el Top 7 para la gráfica
-        setData(d.slice(0, 7));
-      })
-      .catch(err => console.error(err));
-  }, []);
-
-  if (data.length === 0) {
+  const { data: rawData, loading, error } = useIntelligenceInstitutions();
+  
+  if (loading) {
     return <div className="h-[300px] flex items-center justify-center text-slate-400">Cargando datos...</div>;
   }
+  
+  if (error || !rawData) {
+    return <div className="h-[300px] flex items-center justify-center text-red-400">Error al cargar datos</div>;
+  }
+
+  const data = rawData.slice(0, 7);
 
   const colors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#059669', '#047857', '#064e3b'];
 

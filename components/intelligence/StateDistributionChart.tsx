@@ -1,38 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from "recharts";
-
-interface Distribution {
-  label: string;
-  total: number;
-}
+import { useIntelligenceStates } from "@/hooks/useIntelligence";
 
 export function StateDistributionChart() {
-  const [data, setData] = useState<Distribution[]>([]);
-
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || "http://localhost:8087";
-    fetch(`${url}/api/intelligence/states`)
-      .then(res => res.json())
-      .then(d => {
-        // Mostramos solo el Top 10 para que la gráfica sea legible
-        setData(d.slice(0, 10));
-      })
-      .catch(err => console.error(err));
-  }, []);
-
-  if (data.length === 0) {
+  const { data: rawData, loading, error } = useIntelligenceStates();
+  
+  if (loading) {
     return <div className="h-[300px] flex items-center justify-center text-slate-400">Cargando datos...</div>;
   }
+  
+  if (error || !rawData) {
+    return <div className="h-[300px] flex items-center justify-center text-red-400">Error al cargar datos</div>;
+  }
+
+  const data = rawData.slice(0, 10);
 
   return (
     <div className="h-[300px] w-full">

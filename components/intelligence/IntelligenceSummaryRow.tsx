@@ -1,29 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Users, MapPin, Building, Map } from "lucide-react";
-
-interface ExecutiveSummary {
-  totalEstablishments: number;
-  privateEstablishments: number;
-  primaryCareEstablishments: number;
-  georeferencedEstablishments: number;
-}
+import { useIntelligenceSummary } from "@/hooks/useIntelligence";
 
 export function IntelligenceSummaryRow() {
-  const [data, setData] = useState<ExecutiveSummary | null>(null);
+  const { data, loading, error } = useIntelligenceSummary();
 
-  useEffect(() => {
-    // En MVP, apuntamos a localhost:8087 (o la ruta pública si se ha desplegado)
-    const url = process.env.NEXT_PUBLIC_ANALYTICS_API_URL || "http://localhost:8087";
-    fetch(`${url}/api/intelligence/summary`)
-      .then(res => res.json())
-      .then(data => setData(data))
-      .catch(err => console.error("Error fetching summary:", err));
-  }, []);
-
-  if (!data) {
+  if (loading || !data) {
     return <div className="animate-pulse flex gap-4 h-24">Cargando métricas...</div>;
+  }
+  
+  if (error) {
+    return <div className="text-red-300">Error al cargar métricas</div>;
   }
 
   const kpis = [
