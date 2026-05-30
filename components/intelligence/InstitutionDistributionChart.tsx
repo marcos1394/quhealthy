@@ -1,6 +1,16 @@
 "use client";
 
 import { useIntelligenceInstitutions } from "@/hooks/useIntelligence";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell
+} from "recharts";
 
 export function InstitutionDistributionChart() {
   const { data: rawData, loading, error } = useIntelligenceInstitutions();
