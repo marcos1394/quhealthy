@@ -46,7 +46,11 @@ const defaultCenter = { lat: 23.6345, lng: -102.5528 };
 
 export default function NationalHealthcareMap() {
   const { data: pointsRaw, loading } = useIntelligenceMap();
-  const points = pointsRaw?.slice(0, 8000) || [];
+  
+  // Usar useMemo es CRÍTICO aquí para evitar que .slice() cree una nueva referencia de array 
+  // en cada re-render (por ejemplo, al dar click en un pin), lo que causaba que el mapa 
+  // recalculara y se alejara.
+  const points = useMemo(() => pointsRaw?.slice(0, 8000) || [], [pointsRaw]);
   
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<HealthcareMapDto | null>(null);
@@ -59,7 +63,11 @@ export default function NationalHealthcareMap() {
   });
 
   const mapOptions = useMemo<google.maps.MapOptions>(() => ({
-    disableDefaultUI: false,
+    disableDefaultUI: true, // Desactivar UI por defecto para usar nuestros controles
+    zoomControl: true, // Habilitar controles de zoom nativos de Google
+    zoomControlOptions: {
+      position: 9 // google.maps.ControlPosition.RIGHT_BOTTOM (9)
+    },
     clickableIcons: false,
     styles: resolvedTheme === 'dark' ? darkMapStyle : lightMapStyle,
   }), [resolvedTheme]);
@@ -81,10 +89,9 @@ export default function NationalHealthcareMap() {
     if (validPoints > 0) {
       map.fitBounds(bounds);
       
-      // Limitar zoom máximo después de encuadrar
-      const listener = window.google.maps.event.addListener(map, "idle", () => {
-        if (map.getZoom()! > 14) map.setZoom(14);
-        window.google.maps.event.removeListener(listener);
+      // Limitar zoom máximo después de encuadrar (evitar hacer zoom extremo a un solo punto)
+      const listener = window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+        if (map.getZoom()! > 16) map.setZoom(16);
       });
     } else {
       map.setCenter(defaultCenter);
