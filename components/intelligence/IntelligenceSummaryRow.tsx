@@ -1,6 +1,7 @@
 "use client";
 
 import { useIntelligenceSummary } from "@/hooks/useIntelligence";
+import { Users, MapPin, Building, Map } from "lucide-react";
 
 export function IntelligenceSummaryRow() {
   const { data, loading, error } = useIntelligenceSummary();
