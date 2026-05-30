@@ -5,6 +5,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useIntelligenceMap } from "@/hooks/useIntelligence";
+import { useEffect } from "react";
 
 // Solución para iconos perdidos en Next.js con Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -25,6 +26,36 @@ interface HealthcareMapDto {
   nombreTipoEstablecimiento: string;
   latitud: number;
   longitud: number;
+}
+
+function MapUpdater({ points }: { points: HealthcareMapDto[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (points.length === 0) return;
+
+    // Calcular los límites (bounds) de todos los puntos actuales
+    const lats = points.map(p => p.latitud).filter(lat => lat != null && !isNaN(lat));
+    const lngs = points.map(p => p.longitud).filter(lng => lng != null && !isNaN(lng));
+
+    if (lats.length > 0 && lngs.length > 0) {
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+
+      // Limitar el nivel máximo de zoom para no acercarse demasiado si es un solo punto
+      map.fitBounds([
+        [minLat, minLng],
+        [maxLat, maxLng]
+      ], { padding: [50, 50], maxZoom: 12, animate: true });
+    } else {
+      // Si no hay coordenadas válidas, regresamos a la vista nacional
+      map.setView([23.6345, -102.5528], 5, { animate: true });
+    }
+  }, [points, map]);
+
+  return null;
 }
 
 export default function NationalHealthcareMap() {
@@ -48,6 +79,7 @@ export default function NationalHealthcareMap() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
+        <MapUpdater points={points} />
         {!loading && (
           <MarkerClusterGroup
             chunkedLoading
