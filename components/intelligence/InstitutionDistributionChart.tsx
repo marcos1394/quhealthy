@@ -25,13 +25,15 @@ export function InstitutionDistributionChart() {
     return <div className="h-[300px] flex items-center justify-center text-red-400">Error al cargar datos</div>;
   }
 
-  const data = rawData.slice(0, 7);
+  const data = rawData;
+  const chartWidth = Math.max(800, data.length * 80);
 
   const colors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#059669', '#047857', '#064e3b'];
 
   return (
-    <div className="h-[300px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[400px] w-full overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar">
+      <div style={{ width: chartWidth, height: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
@@ -44,6 +46,8 @@ export function InstitutionDistributionChart() {
             tick={{ fill: '#64748b', fontSize: 11 }}
             angle={-45}
             textAnchor="end"
+            interval={0}
+            height={100}
           />
           <YAxis hide />
           <Tooltip 
@@ -62,7 +66,8 @@ export function InstitutionDistributionChart() {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

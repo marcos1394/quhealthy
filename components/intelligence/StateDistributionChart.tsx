@@ -25,11 +25,13 @@ export function StateDistributionChart() {
     return <div className="h-[300px] flex items-center justify-center text-red-400">Error al cargar datos</div>;
   }
 
-  const data = rawData.slice(0, 10);
+  const data = rawData;
+  const chartHeight = Math.max(300, data.length * 40);
 
   return (
-    <div className="h-[300px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[400px] w-full overflow-y-auto pr-2 custom-scrollbar">
+      <div style={{ height: chartHeight, width: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
         <BarChart
           layout="vertical"
           data={data}
@@ -61,7 +63,8 @@ export function StateDistributionChart() {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
