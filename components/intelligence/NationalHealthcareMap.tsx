@@ -164,16 +164,17 @@ export default function NationalHealthcareMap() {
           >
             <div className="p-0 min-w-[220px] max-w-[280px] overflow-hidden rounded-md">
               <div className="w-full h-32 bg-slate-200 relative">
-                {/* Imagen de Street View usando Static API */}
+                {/* Imagen de Street View usando Static API sin heading/pitch para que auto-apunte */}
                 <img 
-                  src={`https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${selectedPoint.latitud},${selectedPoint.longitud}&fov=90&heading=235&pitch=10&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+                  src={`https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${selectedPoint.latitud},${selectedPoint.longitud}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
                   alt="Street View"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    // Si falla, mostramos un gradiente elegante en lugar de una imagen rota
+                    (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="100%" height="100%" fill="%23e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%2364748b">Street View no disponible</text></svg>';
                   }}
                 />
-                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 shadow-sm">
                   <MapPin className="w-3 h-3" />
                   Street View
                 </div>
@@ -191,6 +192,16 @@ export default function NationalHealthcareMap() {
                   <p><span className="font-semibold text-slate-800">Ubicación:</span> {selectedPoint.municipio}, {selectedPoint.entidad}</p>
                   <p className="font-mono text-[10px] text-slate-400 mt-2 bg-slate-50 p-1 rounded border inline-block">{selectedPoint.clues}</p>
                 </div>
+                
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${selectedPoint.latitud},${selectedPoint.longitud}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2 rounded transition-colors"
+                >
+                  <MapPin className="w-3 h-3" />
+                  Abrir en Google Maps
+                </a>
               </div>
             </div>
           </InfoWindowF>
