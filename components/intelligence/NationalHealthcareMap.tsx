@@ -50,7 +50,9 @@ export default function NationalHealthcareMap() {
   // Usar useMemo es CRÍTICO aquí para evitar que .slice() cree una nueva referencia de array 
   // en cada re-render (por ejemplo, al dar click en un pin), lo que causaba que el mapa 
   // recalculara y se alejara.
-  const points = useMemo(() => pointsRaw?.slice(0, 8000) || [], [pointsRaw]);
+  // Reducimos el límite a 2500 para evitar que el navegador se congele al re-renderizar 
+  // cuando cambian los filtros bruscamente, pero sigue dando una excelente visión nacional.
+  const points = useMemo(() => pointsRaw?.slice(0, 2500) || [], [pointsRaw]);
   
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<HealthcareMapDto | null>(null);
@@ -67,6 +69,11 @@ export default function NationalHealthcareMap() {
     zoomControl: true, // Habilitar controles de zoom nativos de Google
     zoomControlOptions: {
       position: 9 // google.maps.ControlPosition.RIGHT_BOTTOM (9)
+    },
+    mapTypeControl: true, // Habilitar tipos de mapa (Satélite, Terreno)
+    mapTypeControlOptions: {
+      position: 3, // google.maps.ControlPosition.TOP_RIGHT
+      style: 1 // google.maps.MapTypeControlStyle.HORIZONTAL_BAR
     },
     clickableIcons: false,
     styles: resolvedTheme === 'dark' ? darkMapStyle : lightMapStyle,
@@ -155,17 +162,35 @@ export default function NationalHealthcareMap() {
             position={{ lat: selectedPoint.latitud, lng: selectedPoint.longitud }}
             onCloseClick={() => setSelectedPoint(null)}
           >
-            <div className="p-1 min-w-[200px] max-w-[250px]">
-              <h3 className="font-bold text-sm text-slate-900 flex items-start gap-2 mb-2">
-                <Building2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                <span>{selectedPoint.nombreUnidad}</span>
-              </h3>
-              <div className="text-xs text-slate-600 space-y-1.5 border-t pt-2">
-                <p><span className="font-semibold text-slate-800">Inst:</span> {selectedPoint.nombreInstitucion}</p>
-                <p><span className="font-semibold text-slate-800">Tipo:</span> {selectedPoint.nombreTipoEstablecimiento}</p>
-                <p><span className="font-semibold text-slate-800">Nivel:</span> {selectedPoint.nivelAtencion}</p>
-                <p><span className="font-semibold text-slate-800">Ubicación:</span> {selectedPoint.municipio}, {selectedPoint.entidad}</p>
-                <p className="font-mono text-[10px] text-slate-400 mt-2">{selectedPoint.clues}</p>
+            <div className="p-0 min-w-[220px] max-w-[280px] overflow-hidden rounded-md">
+              <div className="w-full h-32 bg-slate-200 relative">
+                {/* Imagen de Street View usando Static API */}
+                <img 
+                  src={`https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${selectedPoint.latitud},${selectedPoint.longitud}&fov=90&heading=235&pitch=10&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+                  alt="Street View"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  Street View
+                </div>
+              </div>
+              
+              <div className="p-3">
+                <h3 className="font-bold text-sm text-slate-900 flex items-start gap-2 mb-2 leading-tight">
+                  <Building2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                  <span>{selectedPoint.nombreUnidad}</span>
+                </h3>
+                <div className="text-xs text-slate-600 space-y-1.5 border-t pt-2">
+                  <p><span className="font-semibold text-slate-800">Inst:</span> {selectedPoint.nombreInstitucion}</p>
+                  <p><span className="font-semibold text-slate-800">Tipo:</span> {selectedPoint.nombreTipoEstablecimiento}</p>
+                  <p><span className="font-semibold text-slate-800">Nivel:</span> {selectedPoint.nivelAtencion}</p>
+                  <p><span className="font-semibold text-slate-800">Ubicación:</span> {selectedPoint.municipio}, {selectedPoint.entidad}</p>
+                  <p className="font-mono text-[10px] text-slate-400 mt-2 bg-slate-50 p-1 rounded border inline-block">{selectedPoint.clues}</p>
+                </div>
               </div>
             </div>
           </InfoWindowF>

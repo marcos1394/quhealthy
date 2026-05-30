@@ -42,7 +42,7 @@ export function StateDistributionChart() {
           <YAxis 
             dataKey="label" 
             type="category" 
-            width={120} 
+            width={180} 
             axisLine={false} 
             tickLine={false}
             tick={{ fill: '#64748b', fontSize: 12 }} 

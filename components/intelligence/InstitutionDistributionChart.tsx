@@ -36,7 +36,7 @@ export function InstitutionDistributionChart() {
         <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+          margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
           <XAxis 
@@ -47,7 +47,7 @@ export function InstitutionDistributionChart() {
             angle={-45}
             textAnchor="end"
             interval={0}
-            height={100}
+            height={160}
           />
           <YAxis hide />
           <Tooltip 
