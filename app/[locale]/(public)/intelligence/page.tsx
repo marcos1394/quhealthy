@@ -9,6 +9,7 @@ import { IntelligenceSummaryRow } from '@/components/intelligence/IntelligenceSu
 import { StateDistributionChart } from '@/components/intelligence/StateDistributionChart';
 import { InstitutionDistributionChart } from '@/components/intelligence/InstitutionDistributionChart';
 import { HealthcareExplorerTable } from '@/components/intelligence/HealthcareExplorerTable';
+import { QueryBuilder } from '@/components/intelligence/QueryBuilder';
 
 export const metadata: Metadata = {
   title: 'Inteligencia en Salud | QuHealthy',
@@ -35,6 +36,8 @@ export default function IntelligencePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10 space-y-8">
+        
+        <QueryBuilder />
         
         {/* Mapa Principal */}
         <Card className="border-0 shadow-xl overflow-hidden rounded-2xl">

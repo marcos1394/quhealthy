@@ -1,6 +1,7 @@
 "use client";
 
-import { useIntelligenceStates } from "@/hooks/useIntelligence";
+import { useIntelligenceAggregate } from "@/hooks/useIntelligence";
+import { useBIStore } from "@/store/intelligence.store";
 import {
   BarChart,
   Bar,
@@ -8,11 +9,13 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from "recharts";
 
 export function StateDistributionChart() {
-  const { data: rawData, loading, error } = useIntelligenceStates();
+  const { data: rawData, loading, error } = useIntelligenceAggregate('entidad');
+  const setFilter = useBIStore(state => state.setFilter);
   
   if (loading) {
     return <div className="h-[300px] flex items-center justify-center text-slate-400">Cargando datos...</div>;
@@ -46,7 +49,17 @@ export function StateDistributionChart() {
             cursor={{ fill: '#f1f5f9' }}
             contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
           />
-          <Bar dataKey="total" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+          <Bar 
+            dataKey="total" 
+            fill="#6366f1" 
+            radius={[4, 4, 0, 0]} 
+            onClick={(data) => setFilter('estado', data.label)}
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill="#6366f1" />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
