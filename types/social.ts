@@ -9,7 +9,8 @@ export type SocialPlatform =
   | 'WHATSAPP'
   | 'LINKEDIN'
   | 'YOUTUBE'
-  | 'GOOGLE_BUSINESS';
+  | 'GOOGLE_BUSINESS'
+  | 'EMAIL';
 
 export type MessageType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'UNKNOWN';
 export type MessageDirection = 'INBOUND' | 'OUTBOUND';
