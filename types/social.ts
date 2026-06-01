@@ -158,14 +158,22 @@ export interface ScheduledPostDTO {
 
 /** Alineado con ConversationResponse.java del backend */
 export interface ConversationDTO {
-  id: string;                    // UUID
-  platform: SocialPlatform;
-  contactName: string;
+  id: string;
+  providerId: string;
+  platform: 'WHATSAPP' | 'INSTAGRAM' | 'FACEBOOK' | 'EMAIL';
   externalContactId: string;
-  lastMessageAt: string;         // ISO-8601
+  contactName: string;
+  lastMessageAt: string;
+  lastMessage: string;
   isRead: boolean;
-  lastMessage?: string;          // ✅ era 'lastMessagePreview'
-  unreadCount?: number;          // ✅ nuevo — viene del backend
+  patientDirectoryId?: number;
+  status?: string;
+  unreadCount?: number;
+}
+
+export interface UpdateConversationRequest {
+  patientDirectoryId?: number;
+  status?: string;
 }
 
 /** Alineado con MessageResponse.java del backend */

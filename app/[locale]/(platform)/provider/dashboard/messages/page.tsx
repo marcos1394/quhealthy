@@ -4,15 +4,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, MessageSquare, Sparkles, Search, MoreVertical, Phone, Video, CheckCheck, RefreshCw } from "lucide-react";
+import { Send, MessageSquare, Sparkles, Search, MoreVertical, Phone, Video, CheckCheck, RefreshCw, UserPlus, Filter, CheckCircle, Mail, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
 import { useSocial } from "@/hooks/useSocial";
 import { ConversationDTO, MessageDTO, AiSuggestion } from "@/types/social";
+import { patientDirectoryService } from "@/services/patientDirectory.service";
+import { PatientDirectorySearchResult } from "@/types/patient";
 
 export default function ProviderMessagesPage() {
   const t = useTranslations("DashboardMessages");
@@ -25,6 +28,7 @@ export default function ProviderMessagesPage() {
     loadMessages,
     sendMessage,
     getAiReplySuggestions,
+    updateConversation,
     loading
   } = useSocial();
 
@@ -32,6 +36,16 @@ export default function ProviderMessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestedReplies, setSuggestedReplies] = useState<AiSuggestion[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
+
+  // Filtros
+  const [platformFilter, setPlatformFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+
+  // Pacientes
+  const [isPatientDialogOpen, setIsPatientDialogOpen] = useState(false);
+  const [patientSearchQuery, setPatientSearchQuery] = useState("");
+  const [patientSearchResults, setPatientSearchResults] = useState<PatientDirectorySearchResult[]>([]);
+  const [isSearchingPatient, setIsSearchingPatient] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -79,10 +93,54 @@ export default function ProviderMessagesPage() {
     setSuggestedReplies([]);
   };
 
-  const filteredConversations = conversations.filter(c => 
-    c.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.platform?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    if (patientSearchQuery.length > 2) {
+      const fetchPatients = async () => {
+        setIsSearchingPatient(true);
+        try {
+          const results = await patientDirectoryService.searchPatients(patientSearchQuery);
+          setPatientSearchResults(results);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setIsSearchingPatient(false);
+        }
+      };
+      const debounce = setTimeout(fetchPatients, 500);
+      return () => clearTimeout(debounce);
+    } else {
+      setPatientSearchResults([]);
+    }
+  }, [patientSearchQuery]);
+
+  const handleLinkPatient = async (patientId: number) => {
+    if (!activeConversationId) return;
+    await updateConversation(activeConversationId, { patientDirectoryId: patientId });
+    setIsPatientDialogOpen(false);
+  };
+
+  const handleToggleStatus = async (currentStatus?: string) => {
+    if (!activeConversationId) return;
+    const newStatus = currentStatus === "RESOLVED" ? "OPEN" : "RESOLVED";
+    await updateConversation(activeConversationId, { status: newStatus });
+  };
+
+  const filteredConversations = conversations.filter(c => {
+    const matchesSearch = c.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.platform?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPlatform = platformFilter === "ALL" || c.platform === platformFilter;
+    const matchesStatus = statusFilter === "ALL" || c.status === statusFilter || (!c.status && statusFilter === "OPEN");
+    return matchesSearch && matchesPlatform && matchesStatus;
+  });
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "WHATSAPP": return <MessageCircle className="w-4 h-4 text-emerald-500" />;
+      case "EMAIL": return <Mail className="w-4 h-4 text-red-500" />;
+      case "INSTAGRAM": return <Instagram className="w-4 h-4 text-pink-500" />;
+      case "FACEBOOK": return <Facebook className="w-4 h-4 text-blue-600" />;
+      default: return null;
+    }
+  };
 
   return (
     <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-colors">
@@ -94,10 +152,24 @@ export default function ProviderMessagesPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder={t("search_patient")}
+              placeholder={t("search_patient") || "Buscar..."}
               className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-10 focus:border-medical-500 rounded-xl transition-all shadow-sm"
               value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
+            <Badge variant="outline" className={`cursor-pointer shrink-0 ${platformFilter === "ALL" ? "bg-medical-100 text-medical-800" : ""}`} onClick={() => setPlatformFilter("ALL")}>Todos</Badge>
+            <Badge variant="outline" className={`cursor-pointer shrink-0 ${platformFilter === "WHATSAPP" ? "bg-emerald-100 text-emerald-800" : ""}`} onClick={() => setPlatformFilter("WHATSAPP")}>WhatsApp</Badge>
+            <Badge variant="outline" className={`cursor-pointer shrink-0 ${platformFilter === "EMAIL" ? "bg-red-100 text-red-800" : ""}`} onClick={() => setPlatformFilter("EMAIL")}>Correo</Badge>
+            <Badge variant="outline" className={`cursor-pointer shrink-0 ${platformFilter === "INSTAGRAM" ? "bg-pink-100 text-pink-800" : ""}`} onClick={() => setPlatformFilter("INSTAGRAM")}>Instagram</Badge>
+            <Badge variant="outline" className={`cursor-pointer shrink-0 ${platformFilter === "FACEBOOK" ? "bg-blue-100 text-blue-800" : ""}`} onClick={() => setPlatformFilter("FACEBOOK")}>Facebook</Badge>
+          </div>
+          
+          <div className="flex gap-2 mt-2">
+            <Badge variant="secondary" className={`cursor-pointer ${statusFilter === "ALL" ? "bg-slate-300" : ""}`} onClick={() => setStatusFilter("ALL")}>Todos</Badge>
+            <Badge variant="secondary" className={`cursor-pointer ${statusFilter === "OPEN" ? "bg-amber-100 text-amber-800" : ""}`} onClick={() => setStatusFilter("OPEN")}>Pendientes</Badge>
+            <Badge variant="secondary" className={`cursor-pointer ${statusFilter === "RESOLVED" ? "bg-medical-100 text-medical-800" : ""}`} onClick={() => setStatusFilter("RESOLVED")}>Resueltos</Badge>
           </div>
         </div>
 
@@ -116,7 +188,8 @@ export default function ProviderMessagesPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className={`font-semibold truncate text-sm ${activeConversation?.id === convo.id ? "text-medical-900 dark:text-white" : "text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"}`}>
+                    <span className={`font-semibold truncate text-sm flex items-center gap-1 ${activeConversation?.id === convo.id ? "text-medical-900 dark:text-white" : "text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"}`}>
+                      {getPlatformIcon(convo.platform)}
                       {convo.contactName || "Usuario"}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">
@@ -131,6 +204,10 @@ export default function ProviderMessagesPage() {
                       </Badge>
                     ) : null}
                   </p>
+                  <div className="flex gap-1 mt-1">
+                    {convo.patientDirectoryId && <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 bg-medical-50 text-medical-700 border-medical-200">Paciente</Badge>}
+                    {convo.status === "RESOLVED" && <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 bg-slate-100 text-slate-500">Resuelto</Badge>}
+                  </div>
                 </div>
               </button>
             ))}
@@ -151,15 +228,67 @@ export default function ProviderMessagesPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white tracking-tight">{activeConversation.contactName || "Usuario"}</h3>
-                  <span className="text-xs text-slate-500 font-medium">
+                  <h3 className="font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                    {activeConversation.contactName || "Usuario"}
+                    {activeConversation.status === "RESOLVED" && <Badge variant="secondary" className="text-xs font-normal">Resuelto</Badge>}
+                    {activeConversation.patientDirectoryId && <Badge className="bg-medical-100 text-medical-800 hover:bg-medical-200 border-none text-xs font-normal">Paciente Vinculado</Badge>}
+                  </h3>
+                  <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                    {getPlatformIcon(activeConversation.platform)}
                     {activeConversation.platform}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="default" className="text-slate-400 hover:text-medical-600 dark:hover:text-medical-400 rounded-full w-9 h-9"><Phone className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="default" className="text-slate-400 hover:text-medical-600 dark:hover:text-medical-400 rounded-full w-9 h-9"><Video className="w-4 h-4" /></Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleToggleStatus(activeConversation.status)}
+                  className={`text-xs h-8 ${activeConversation.status === "RESOLVED" ? "text-amber-600 border-amber-200 hover:bg-amber-50" : "text-emerald-600 border-emerald-200 hover:bg-emerald-50"}`}
+                >
+                  <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                  {activeConversation.status === "RESOLVED" ? "Reabrir" : "Resolver"}
+                </Button>
+
+                <Dialog open={isPatientDialogOpen} onOpenChange={setIsPatientDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs h-8 text-medical-600 border-medical-200 hover:bg-medical-50">
+                      <UserPlus className="w-3.5 h-3.5 mr-1" />
+                      {activeConversation.patientDirectoryId ? "Cambiar Paciente" : "Vincular"}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Vincular a Paciente</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                      <Input 
+                        placeholder="Buscar por nombre..." 
+                        value={patientSearchQuery}
+                        onChange={(e) => setPatientSearchQuery(e.target.value)}
+                      />
+                      {isSearchingPatient ? (
+                        <p className="text-sm text-slate-500 text-center">Buscando...</p>
+                      ) : (
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {patientSearchResults.map(p => (
+                            <div key={p.id} className="flex justify-between items-center p-2 border rounded-lg hover:bg-slate-50">
+                              <div>
+                                <p className="font-medium text-sm">{p.firstName} {p.lastName}</p>
+                                <p className="text-xs text-slate-500">{p.email}</p>
+                              </div>
+                              <Button size="sm" onClick={() => handleLinkPatient(p.id)}>Seleccionar</Button>
+                            </div>
+                          ))}
+                          {patientSearchQuery.length > 2 && patientSearchResults.length === 0 && (
+                            <p className="text-sm text-slate-500 text-center">No se encontraron pacientes.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
                 <Button variant="ghost" size="default" className="text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-full w-9 h-9"><MoreVertical className="w-4 h-4" /></Button>
               </div>
             </div>

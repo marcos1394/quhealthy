@@ -142,6 +142,11 @@ export const socialService = {
     return response.data;
   },
 
+  updateConversation: async (id: string, data: Partial<ConversationDTO>): Promise<ConversationDTO> => {
+    const response = await socialAxios.patch(`${BASE}/crm/conversations/${id}`, data);
+    return response.data;
+  },
+
   getMessages: async (
     conversationId: string,
     page = 0,

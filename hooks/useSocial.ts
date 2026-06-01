@@ -61,6 +61,7 @@ export interface UseSocialReturn {
   loadConversations: (page?: number, size?: number) => Promise<void>;
   loadMessages: (conversationId: string, page?: number, size?: number) => Promise<void>;
   sendMessage: (conversationId: string, data: SendMessageRequest) => Promise<MessageDTO>;
+  updateConversation: (conversationId: string, data: Partial<ConversationDTO>) => Promise<void>;
 
   // ── Sugerencias IA CRM ──────────────────────────────────────────
   getAiReplySuggestions: (
@@ -309,6 +310,25 @@ export const useSocial = (): UseSocialReturn => {
     }
   }, [handleError]);
 
+  const updateConversation = useCallback(async (
+    conversationId: string,
+    data: Partial<ConversationDTO>
+  ) => {
+    setLoading(true); setError(null);
+    try {
+      const updatedConv = await socialService.updateConversation(conversationId, data);
+      
+      // Actualización optimista local
+      setConversations((prev) => 
+        prev.map((conv) => conv.id === conversationId ? { ...conv, ...updatedConv } : conv)
+      );
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [handleError]);
+
   // =================================================================
   // 5. SUGERENCIAS IA PARA EL CRM
   // =================================================================
@@ -518,6 +538,7 @@ export const useSocial = (): UseSocialReturn => {
     loadConversations,
     loadMessages,
     sendMessage,
+    updateConversation,
 
     // Sugerencias IA CRM
     getAiReplySuggestions,
