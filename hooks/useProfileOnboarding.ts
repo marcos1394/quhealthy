@@ -106,6 +106,7 @@ export const useProfileOnboarding = () => {
       setTags(availableTags);
     } catch (err) {
       console.error("Error cargando catálogos:", err);
+      toast.error("No se pudieron cargar las especialidades. ¿Está el backend encendido?");
     }
   }, []);
 

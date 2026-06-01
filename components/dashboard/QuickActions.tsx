@@ -11,9 +11,9 @@ export const QuickActions = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const actions = [
-        { icon: Calendar, label: "New Appointment", href: "/provider/appointments?action=new", color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10" },
-        { icon: Users, label: "Add Patient", href: "/provider/patients?action=new", color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
-        { icon: FileText, label: "Upload Document", href: "/provider/documents?action=upload", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10" },
+        { icon: Calendar, label: "New Appointment", href: "/provider/dashboard/appointments?action=new", color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10" },
+        { icon: Users, label: "Add Patient", href: "/provider/dashboard/patients?action=new", color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
+        { icon: FileText, label: "Upload Document", href: "/provider/dashboard/documents?action=upload", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10" },
         { icon: Settings, label: "Store Settings", href: "/provider/store", color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10" },
     ];
 
