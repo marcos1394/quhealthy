@@ -28,6 +28,7 @@ const socialAxios = {
   get: (url: string, config?: any) => axiosInstance.get(url, { ...config, baseURL: CLOUD_RUN_URL }),
   post: (url: string, data?: any, config?: any) => axiosInstance.post(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
   put: (url: string, data?: any, config?: any) => axiosInstance.put(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
+  patch: (url: string, data?: any, config?: any) => axiosInstance.patch(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
   delete: (url: string, config?: any) => axiosInstance.delete(url, { ...config, baseURL: CLOUD_RUN_URL }),
 };
 
