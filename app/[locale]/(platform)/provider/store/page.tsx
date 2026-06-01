@@ -25,7 +25,8 @@ import {
   Pill,
   GraduationCap,
   Stethoscope,
-  Package
+  Package,
+  Share2
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -134,6 +135,14 @@ export default function StoreSetupPage() {
       isComplete: isStaffComplete,
       path: "/provider/store/staff",
       color: "pink"
+    {
+      id: "integrations",
+      title: "Canales de Contacto", // You could use t() if it existed, but hardcoding for now
+      description: "Conecta WhatsApp, Gmail y Redes Sociales.",
+      icon: Share2,
+      isComplete: true, // We can mark it true so it doesn't block "publish" if they don't want to connect
+      path: "/provider/store/integrations",
+      color: "purple"
     },
   ];
 
@@ -295,6 +304,23 @@ export default function StoreSetupPage() {
                 </p>
                 <Button onClick={() => router.push("/provider/store/policies")} variant="outline" className="w-full h-12 rounded-xl font-bold">
                   Actualizar Políticas
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Tarjeta: Integraciones */}
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Share2 className="w-6 h-6 text-purple-500" /> Canales y Redes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Conecta tus cuentas de WhatsApp, Gmail y redes sociales al CRM.
+                </p>
+                <Button onClick={() => router.push("/provider/store/integrations")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                  Conectar Canales
                 </Button>
               </CardContent>
             </Card>
