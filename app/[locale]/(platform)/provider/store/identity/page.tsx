@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { VisualIdentitySection, IdentitySettings } from "@/components/marketplace/VisualIdentitySection";
 import { PublicInfoSection, PublicInfoSettings } from "@/components/marketplace/PublicInfoSection";
+import { ContactIntegrationsSection } from "@/components/marketplace/ContactIntegrationsSection";
 import EnhancedLocationPicker from "@/components/shared/location/MapModal";
 import { LocationData } from "@/types/location";
 
@@ -247,6 +248,9 @@ export default function IdentitySetupPage() {
             onVideoUpload={handleVideoUpload}
             onVideoDelete={handleVideoDelete}
           />
+
+          {/* Sección 3: Contacto e Integraciones (CRM Omnicanal) */}
+          <ContactIntegrationsSection />
 
           {/* 📍 SECCIÓN: Ubicación del Consultorio */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
