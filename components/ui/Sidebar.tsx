@@ -38,6 +38,7 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
     { name: t('store'), href: '/quhealthy/provider/onboarding/marketplace', icon: Store },
     { name: t('calendar'), href: '/quhealthy/provider/dashboard/calendar', icon: Calendar },
     { name: t('appointments'), href: '/quhealthy/provider/dashboard/appointments', icon: ClipboardList },
+    { name: 'Mensajes / CRM', href: '/quhealthy/provider/dashboard/messages', icon: MessageSquare },
     { name: t('reviews'), href: '/quhealthy/provider/dashboard/reviews', icon: MessageSquare },
     { name: t('patients'), href: '/quhealthy/provider/patients', icon: Users },
     { name: t('reports'), href: '/quhealthy/provider/reports', icon: BarChart3 },
