@@ -32,6 +32,7 @@ const providerLinks = [
   { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
   { key: "orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
   { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
+  { key: "messages", href: "/provider/dashboard/messages", icon: MessageCircle, badge: null },
   { key: "referrals", href: "/provider/dashboard/referrals", icon: Handshake, badge: null },
   { key: "history", href: "/provider/dashboard/history", icon: History, badge: null },
   { key: "marketing", href: "/provider/dashboard/marketing", icon: BadgeX, badge: null },
