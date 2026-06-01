@@ -135,6 +135,7 @@ export default function StoreSetupPage() {
       isComplete: isStaffComplete,
       path: "/provider/store/staff",
       color: "pink"
+    },
     {
       id: "integrations",
       title: "Canales de Contacto", // You could use t() if it existed, but hardcoding for now
