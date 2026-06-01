@@ -85,6 +85,7 @@ export const useCatalog = () => {
           category: item.category || '',
           price: item.price,
           stockQuantity: item.stockQuantity || 0,
+          stockAlertThreshold: item.stockAlertThreshold || 5, // 🚨 NUEVO
           sku: item.sku || '',
           imageUrl: item.imageUrl,
           activeIngredient: item.activeIngredient || '',
@@ -201,6 +202,7 @@ export const useCatalog = () => {
       description: product.description,
       price: product.price,
       stockQuantity: product.stockQuantity,
+      stockAlertThreshold: product.stockAlertThreshold || 5, // 🚨 NUEVO
       sku: product.sku,
       isDigital: false,
       imageUrl: product.imageUrl,

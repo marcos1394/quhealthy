@@ -24,6 +24,7 @@ export interface CatalogItemDTO {
   // 📦 Específico E-commerce (Productos Físicos / Farmacia)
   sku?: string;
   stockQuantity?: number;
+  stockAlertThreshold?: number; // 🚨 NUEVO
   isDigital?: boolean;
   activeIngredient?: string;
   manufacturer?: string;
@@ -74,6 +75,7 @@ export interface UI_Product {
   category: string;
   price: number;
   stockQuantity: number;
+  stockAlertThreshold?: number; // 🚨 NUEVO
   sku?: string;
   imageUrl?: string;
   

@@ -520,7 +520,7 @@ export function ProductsManager({
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center">
                               <Box className="w-4 h-4 mr-1 text-slate-400" /> {t('label_stock', { defaultValue: 'Stock Disponible' })}
@@ -528,6 +528,17 @@ export function ProductsManager({
                             <Input 
                               type="number" min="0" value={product.stockQuantity || ''} 
                               onChange={e => onUpdate(product.id, { stockQuantity: parseInt(e.target.value) || 0 })} 
+                              className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700" 
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center">
+                              <ShieldAlert className="w-4 h-4 mr-1 text-slate-400" /> Alerta de Stock
+                            </label>
+                            <Input 
+                              type="number" min="0" value={product.stockAlertThreshold || ''} 
+                              onChange={e => onUpdate(product.id, { stockAlertThreshold: parseInt(e.target.value) || 0 })} 
+                              placeholder="Ej: 5"
                               className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700" 
                             />
                           </div>
