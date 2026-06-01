@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Facebook, Linkedin, Youtube, Link as LinkIcon,
-  CheckCircle, Loader2, Calendar
+  CheckCircle, Loader2, Calendar, Mail
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -49,6 +49,13 @@ const AVAILABLE_NETWORKS: {
     icon: Linkedin,
     color: 'bg-[#0A66C2]',
     gradient: 'from-[#0A66C2] to-[#004182]',
+  },
+  {
+    id: 'EMAIL',
+    name: 'Gmail',
+    icon: Mail,
+    color: 'bg-[#EA4335]', // Red color for Gmail
+    gradient: 'from-[#EA4335] to-[#B31412]',
   },
 ];
 
