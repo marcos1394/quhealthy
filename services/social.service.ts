@@ -148,6 +148,11 @@ export const socialService = {
     return response.data;
   },
 
+  syncEmails: async (): Promise<{message: string}> => {
+    const response = await socialAxios.post(`${BASE}/crm/sync-emails`);
+    return response.data;
+  },
+
   getMessages: async (
     conversationId: string,
     page = 0,

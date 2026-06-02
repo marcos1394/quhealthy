@@ -12,7 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
 import { useSocial } from "@/hooks/useSocial";
+import { socialService } from "@/services/social.service";
 import { ConversationDTO, MessageDTO, AiSuggestion } from "@/types/social";
 import { patientDirectoryService } from "@/services/patientDirectory.service";
 import { PatientDirectorySearchResult } from "@/types/patient";
@@ -46,6 +48,7 @@ export default function ProviderMessagesPage() {
   const [patientSearchQuery, setPatientSearchQuery] = useState("");
   const [patientSearchResults, setPatientSearchResults] = useState<PatientDirectorySearchResult[]>([]);
   const [isSearchingPatient, setIsSearchingPatient] = useState(false);
+  const [isSyncingEmails, setIsSyncingEmails] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -125,6 +128,20 @@ export default function ProviderMessagesPage() {
     await updateConversation(activeConversationId, { status: newStatus });
   };
 
+  const handleSyncEmails = async () => {
+    setIsSyncingEmails(true);
+    try {
+      await socialService.syncEmails();
+      toast.success("Correos sincronizados correctamente");
+      await loadConversations();
+    } catch (error) {
+      toast.error("Error al sincronizar correos. Revisa tu conexión en Mi Tienda > Integraciones.");
+      console.error(error);
+    } finally {
+      setIsSyncingEmails(false);
+    }
+  };
+
   const filteredConversations = conversations.filter(c => {
     const matchesSearch = c.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.platform?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPlatform = platformFilter === "ALL" || c.platform === platformFilter;
@@ -148,7 +165,19 @@ export default function ProviderMessagesPage() {
       {/* SIDEBAR */}
       <aside className="w-full md:w-80 lg:w-96 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50/50 dark:bg-slate-900/50 transition-colors">
         <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">{t("title")}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{t("title")}</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSyncEmails}
+              disabled={isSyncingEmails}
+              className="h-8 text-xs bg-white dark:bg-slate-900 border-slate-200"
+            >
+              <RefreshCw className={`w-3 h-3 mr-1.5 ${isSyncingEmails ? 'animate-spin' : ''}`} />
+              Sincronizar Correos
+            </Button>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input

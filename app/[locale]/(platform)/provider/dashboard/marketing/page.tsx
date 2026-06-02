@@ -27,10 +27,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCatalog } from '@/hooks/useCatalog';
 
 // Componentes modulares
-import { SocialConnectionsCard } from '@/components/dashboard/marketing/SocialConnectionsCard';
 import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
 import { ContentGallery } from '@/components/dashboard/marketing/ContentGallery';
-import SocialInbox from '@/components/dashboard/marketing/SocialInbox'; // ✅ default export
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Contexto Global de Redes Sociales
@@ -132,14 +130,6 @@ function MarketingContent() {
             </TabsTrigger>
 
             <TabsTrigger
-              value="inbox"
-              className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm px-6 rounded-lg"
-            >
-              {t('tab_inbox')}
-              <span className="ml-2 flex h-2 w-2 rounded-full bg-medical-500 animate-pulse" />
-            </TabsTrigger>
-
-            <TabsTrigger
               value="profile"
               className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm px-6 rounded-lg"
             >
@@ -149,9 +139,6 @@ function MarketingContent() {
 
           {/* ── Tab 1: Redes & IA ───────────────────────────────────────────── */}
           <TabsContent value="social" className="space-y-8 mt-0 border-none outline-none">
-
-            {/* OAuth connections — ✅ refreshTrigger eliminado, el hook maneja el estado */}
-            <SocialConnectionsCard />
 
             {/* Generación IA */}
             <AiStudioForm
@@ -171,12 +158,7 @@ function MarketingContent() {
 
           </TabsContent>
 
-          {/* ── Tab 2: CRM / Inbox ──────────────────────────────────────────── */}
-          <TabsContent value="inbox" className="mt-0 border-none outline-none">
-            <SocialInbox />
-          </TabsContent>
-
-          {/* ── Tab 3: Perfil Clínico Público ───────────────────────────────── */}
+          {/* ── Tab 2: Perfil Clínico Público ───────────────────────────────── */}
           <TabsContent value="profile" className="space-y-8 mt-0 border-none outline-none">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
