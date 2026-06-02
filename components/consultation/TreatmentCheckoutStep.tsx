@@ -178,11 +178,71 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t('frequency')}</label>
-                <Input placeholder={t('rx_frequency')} value={newRx.frequency} onChange={e => setNewRx({...newRx, frequency: e.target.value})} className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100" />
+                {newRx.frequencyEnum === 'CUSTOM' ? (
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Ej. Cada 8 horas" 
+                      value={newRx.frequency} 
+                      onChange={e => setNewRx({...newRx, frequency: e.target.value})} 
+                      className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 flex-1" 
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => setNewRx({...newRx, frequencyEnum: '', frequency: ''})}
+                      className="h-10 w-10 shrink-0"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Select 
+                    value={newRx.frequencyEnum || ''} 
+                    onValueChange={(val) => {
+                      if (val === 'CUSTOM') {
+                        setNewRx({...newRx, frequencyEnum: val, frequency: ''});
+                      } else {
+                        const opt = FREQUENCY_OPTIONS.find(o => o.value === val);
+                        setNewRx({...newRx, frequencyEnum: val, frequency: opt?.readable || ''});
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700">
+                      <SelectValue placeholder="Selecciona frecuencia..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FREQUENCY_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t('duration')}</label>
-                <Input placeholder={t('rx_duration')} value={newRx.duration} onChange={e => setNewRx({...newRx, duration: e.target.value})} className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100" />
+                <div className="flex gap-2">
+                  <Input 
+                    type="number"
+                    min="1"
+                    placeholder="Días"
+                    value={newRx.durationDays || ''}
+                    onChange={e => {
+                      const days = e.target.value;
+                      setNewRx({
+                        ...newRx, 
+                        durationDays: days, 
+                        duration: days ? `Por ${days} días` : ''
+                      });
+                    }}
+                    className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 w-24 shrink-0" 
+                  />
+                  <Input 
+                    placeholder="Texto libre" 
+                    value={newRx.duration} 
+                    onChange={e => setNewRx({...newRx, duration: e.target.value})} 
+                    className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 flex-1" 
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t('extra_instructions')}</label>
