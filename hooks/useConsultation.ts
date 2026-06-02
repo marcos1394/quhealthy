@@ -135,9 +135,36 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       setIsSubmitting(true);
       
       // 🚀 1. ARMAMOS EL PAYLOAD EXACTAMENTE COMO LO ESPERA SPRING BOOT
+      // Limpiamos los datos para evitar errores de deserialización (INVALID_JSON_FORMAT)
+      const cleanedPrescriptionItems = prescription.map(item => {
+        const cleaned: any = {
+          medicationName: item.medicationName,
+          dosage: item.dosage,
+          frequency: item.frequency,
+          duration: item.duration,
+          instructions: item.instructions,
+          catalogItemId: item.catalogItemId
+        };
+
+        // Solo enviamos frequencyEnum si tiene un valor válido
+        if (item.frequencyEnum && item.frequencyEnum.trim() !== '') {
+          cleaned.frequencyEnum = item.frequencyEnum;
+        }
+
+        // Convertimos durationDays a Integer o lo omitimos
+        if (item.durationDays !== undefined && item.durationDays !== null && item.durationDays !== '') {
+          const parsedDays = parseInt(String(item.durationDays), 10);
+          if (!isNaN(parsedDays)) {
+            cleaned.durationDays = parsedDays;
+          }
+        }
+
+        return cleaned;
+      });
+
       const payload = {
         clinicalNotes: soapNotes,
-        prescriptionItems: prescription,
+        prescriptionItems: cleanedPrescriptionItems,
         sendPrescriptionToVault: true // 🚀 ESTO ES CLAVE PARA QUE JAVA GENERE EL PDF
       };
 

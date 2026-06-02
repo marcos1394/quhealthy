@@ -38,6 +38,8 @@ export interface PrescriptionItem {
   dosage: string;         // Dosis (ej. 500mg)
   frequency: string;      // Frecuencia (ej. Cada 12h)
   duration: string;       // Duración (ej. 7 días)
+  frequencyEnum?: string; // Enum estricto para Adherencia
+  durationDays?: number;  // Entero estricto para Adherencia
   instructions?: string;  // Indicaciones adicionales
   catalogItemId?: number; // Enlace al producto en el Marketplace de QuHealthy
   price?: number;         // Precio del producto si está en catálogo
@@ -52,6 +54,8 @@ export interface PrescriptionItemDto {
   dosage: string;
   frequency: string;
   duration: string;
+  frequencyEnum?: string;
+  durationDays?: number;
   instructions?: string;
   catalogItemId?: number;
   price?: number;

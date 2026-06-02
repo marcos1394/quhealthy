@@ -52,9 +52,12 @@ export default function ConsultationRoomPage() {
     addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
 
-  // 🚀 CAMBIO 1: Agregamos 'price' al estado inicial
-  const [newRx, setNewRx] = useState({ 
-    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '' 
+  // 🚀 CAMBIO 1: Agregamos 'price', 'frequencyEnum' y 'durationDays' al estado inicial
+  const [newRx, setNewRx] = useState<{
+    medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; price: string | number;
+    frequencyEnum?: string; durationDays?: number | string; catalogItemId?: number;
+  }>({ 
+    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '' 
   });
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -145,11 +148,14 @@ export default function ConsultationRoomPage() {
         dosage: newRx.dosage,
         frequency: newRx.frequency,
         duration: newRx.duration,
+        frequencyEnum: newRx.frequencyEnum || undefined,
+        durationDays: newRx.durationDays ? Number(newRx.durationDays) : undefined,
         instructions: newRx.instructions,
+        catalogItemId: newRx.catalogItemId,
         price: Number(newRx.price) || 0 // 🚀 INYECTAMOS EL PRECIO A LA RECETA FINAL
       });
       // Limpiamos todo incluyendo el precio
-      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '' });
+      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '' });
     }
   };
 

@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Pill, ShoppingBag, Plus, Trash2, ArrowLeft, CheckCircle, Search, Package, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrescriptionItem } from '@/types/ehr';
 import { useCatalog } from '@/hooks/useCatalog'; // 🚀 Importamos TU hook existente
@@ -10,8 +11,8 @@ import { UI_Product } from '@/types/catalog'; // 🚀 Importamos el tipo que usa
 
 interface TreatmentCheckoutStepProps {
   prescription: PrescriptionItem[];
-  // 🚀 AÑADIDO: price y catalogItemId en la definición
-  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number; price?: string | number };
+  // 🚀 AÑADIDO: frequencyEnum y durationDays en la definición
+  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number; price?: string | number; frequencyEnum?: string; durationDays?: number | string };
   setNewRx: (rx: any) => void;
   handleAddRx: () => void;
   removePrescriptionItem: (id: string) => void;
@@ -64,6 +65,16 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
     });
     setShowDropdown(false);
   };
+
+  const FREQUENCY_OPTIONS = [
+    { value: 'EVERY_4_HOURS', label: 'Cada 4 horas', readable: 'cada 4 horas' },
+    { value: 'EVERY_6_HOURS', label: 'Cada 6 horas', readable: 'cada 6 horas' },
+    { value: 'EVERY_8_HOURS', label: 'Cada 8 horas', readable: 'cada 8 horas' },
+    { value: 'EVERY_12_HOURS', label: 'Cada 12 horas', readable: 'cada 12 horas' },
+    { value: 'ONCE_DAILY', label: '1 vez al día', readable: '1 vez al día' },
+    { value: 'AS_NEEDED', label: 'Según sea necesario (PRN)', readable: 'según sea necesario (PRN)' },
+    { value: 'CUSTOM', label: 'Otra (Personalizada)...', readable: '' }
+  ];
 
   return (
     <div className="h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 max-w-4xl mx-auto">
