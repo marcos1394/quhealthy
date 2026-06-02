@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
 import { Calculator, Play, Ban, AlertCircle, ArrowUpRight, ArrowDownRight, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +20,20 @@ export default function CashRegisterPage() {
   const [isLoading, setIsLoading] = useState(true);
   
   // Para abrir caja
-  const [initialBalance, setInitialBalance] = useState<number>(0);
+  const [initialBalance, setInitialBalance] = useState<string>('');
   const [isOpening, setIsOpening] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const [breakdown, setBreakdown] = useState<Record<string, number>>({
+    '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0,
+    '10': 0, '5': 0, '2': 0, '1': 0, '0.5': 0
+  });
+
+  const updateBreakdown = (denom: string, count: number) => {
+    const newBreakdown = { ...breakdown, [denom]: count };
+    setBreakdown(newBreakdown);
+    const total = Object.entries(newBreakdown).reduce((acc, [d, c]) => acc + (parseFloat(d) * c), 0);
+    setInitialBalance(total > 0 ? total.toString() : '');
+  };
 
   // Para cerrar caja
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
@@ -51,7 +64,8 @@ export default function CashRegisterPage() {
   }, []);
 
   const handleOpenRegister = async () => {
-    if (initialBalance < 0) {
+    const parsedBalance = parseFloat(initialBalance || '0');
+    if (parsedBalance < 0) {
       toast.error('El balance inicial no puede ser negativo.');
       return;
     }
@@ -59,7 +73,7 @@ export default function CashRegisterPage() {
       setIsOpening(true);
       await cashRegisterService.openRegister({
         locationId: null, // As requested, null for now until Location selector is fully integrated
-        initialBalance
+        initialBalance: parsedBalance
       });
       toast.success('Caja abierta exitosamente.');
       fetchCurrentRegister();
@@ -95,7 +109,7 @@ export default function CashRegisterPage() {
             Indica con cuánto dinero en efectivo (cambio) iniciarás tu turno.
           </p>
 
-          <div className="max-w-xs mx-auto space-y-4">
+          <div className="max-w-md mx-auto space-y-4">
             <div className="text-left space-y-2">
               <label className="text-sm font-bold text-slate-700 dark:text-zinc-300">
                 Balance Inicial en Caja ($)
@@ -105,16 +119,61 @@ export default function CashRegisterPage() {
                 min="0"
                 step="0.01"
                 value={initialBalance}
-                onChange={(e) => setInitialBalance(parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  setInitialBalance(e.target.value);
+                  // Resetear desglose si el usuario escribe manualmente el total
+                  if (showBreakdown) {
+                    setBreakdown({
+                      '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0,
+                      '10': 0, '5': 0, '2': 0, '1': 0, '0.5': 0
+                    });
+                  }
+                }}
                 className="w-full p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-slate-900 dark:text-white focus:ring-2 focus:ring-medical-500 focus:border-medical-500 text-lg font-semibold transition-all"
                 placeholder="Ej. 500.00"
               />
             </div>
+
+            <div className="text-left">
+              <button 
+                type="button" 
+                onClick={() => setShowBreakdown(!showBreakdown)}
+                className="text-medical-600 dark:text-medical-400 text-sm font-semibold hover:underline flex items-center gap-1 transition-colors"
+              >
+                <Calculator className="w-4 h-4" />
+                {showBreakdown ? 'Ocultar calculadora de desglose' : 'Usar calculadora de desglose (Billetes y Monedas)'}
+              </button>
+            </div>
+
+            {showBreakdown && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: 'auto' }} 
+                className="bg-slate-50 dark:bg-white/5 p-5 rounded-2xl border border-slate-200 dark:border-white/10 text-left space-y-4"
+              >
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Cantidad de billetes/monedas</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {['1000', '500', '200', '100', '50', '20', '10', '5', '2', '1', '0.5'].map(denom => (
+                    <div key={denom} className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium text-slate-700 dark:text-zinc-300 w-12">${denom}</span>
+                      <input 
+                        type="number" 
+                        min="0"
+                        value={breakdown[denom] || ''} 
+                        onChange={(e) => updateBreakdown(denom, parseInt(e.target.value) || 0)}
+                        className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-medical-500 outline-none transition-all"
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
             
             <Button 
               onClick={handleOpenRegister} 
-              disabled={isOpening}
-              className="w-full rounded-xl p-6 font-bold shadow-lg hover:scale-105 transition-transform"
+              disabled={isOpening || !initialBalance}
+              className="w-full rounded-xl p-6 font-bold shadow-lg hover:scale-105 transition-transform mt-2"
             >
               {isOpening ? <QhSpinner className="w-5 h-5 text-white" /> : <><Play className="w-5 h-5 mr-2" /> Abrir Caja</>}
             </Button>
