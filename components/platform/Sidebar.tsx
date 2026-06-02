@@ -12,7 +12,8 @@ import { LayoutDashboard, CalendarDays, Users, CreditCard,
   Star, HeartIcon, Menu, Package, ClipboardIcon, 
   Handshake,
   History,
-  BadgeX} from "lucide-react";
+  BadgeX,
+  Calculator} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -29,6 +30,7 @@ const providerLinks = [
   { key: "calendar", href: "/provider/dashboard/calendar", icon: CalendarDays, badge: null },
   { key: "patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
   { key: "store", href: "/provider/store", icon: BriefcaseMedical, badge: null },
+  { key: "cash_register", href: "/provider/dashboard/cash-register", icon: Calculator, badge: null },
   { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
   { key: "orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
   { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },

@@ -88,7 +88,10 @@ export const authService = {
   validateSession: async (): Promise<AuthResponse> => {
     const response = await axiosInstance.get<AuthResponse>(
       `${BASE_AUTH}/session`,
-      { withCredentials: true } 
+      { 
+        withCredentials: true,
+        skipAuthRedirect: true
+      } as any
     );
     return response.data;
   },

@@ -77,6 +77,7 @@ axiosInstance.interceptors.response.use(
   async (error: AxiosError<ApiErrorResponse>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
+      skipAuthRedirect?: boolean;
     };
 
     // ── 404: lo pasamos directo al componente ────────────────────────────
@@ -174,7 +175,8 @@ axiosInstance.interceptors.response.use(
 
         if (
           typeof window !== 'undefined' &&
-          !window.location.pathname.includes('/login')
+          !window.location.pathname.includes('/login') &&
+          !originalRequest?.skipAuthRedirect
         ) {
           window.location.href = '/login?expired=true';
         }
