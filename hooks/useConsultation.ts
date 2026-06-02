@@ -152,7 +152,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         }
 
         // Convertimos durationDays a Integer o lo omitimos
-        if (item.durationDays !== undefined && item.durationDays !== null && item.durationDays !== '') {
+        if (item.durationDays !== undefined && item.durationDays !== null && String(item.durationDays) !== '') {
           const parsedDays = parseInt(String(item.durationDays), 10);
           if (!isNaN(parsedDays)) {
             cleaned.durationDays = parsedDays;
