@@ -13,6 +13,7 @@ import { LayoutDashboard, CalendarDays, Users, CreditCard,
   Handshake,
   History,
   BadgeX,
+  PackageCheck,
   Calculator} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,9 @@ const providerLinks = [
   { key: "patients", href: "/provider/dashboard/patients", icon: Users, badge: null },
   { key: "store", href: "/provider/store", icon: BriefcaseMedical, badge: null },
   { key: "cash_register", href: "/provider/dashboard/cash-register", icon: Calculator, badge: null },
-  { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
   { key: "orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
+  { key: "inventory", href: "/provider/dashboard/inventory", icon: PackageCheck, badge: null },
+  { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
   { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
   { key: "messages", href: "/provider/dashboard/messages", icon: MessageCircle, badge: null },
   { key: "referrals", href: "/provider/dashboard/referrals", icon: Handshake, badge: null },

@@ -6,8 +6,9 @@ import { storeService } from '@/services/store.service';
 import { 
   UI_Service, 
   UI_Package, 
-  UI_Product, // 🚀 NUEVO
-  UI_Course,  // 🚀 NUEVO
+  UI_Product, 
+  UI_Course,  
+  UI_Supply, // 📦 NUEVO
   CatalogItemDTO, 
   ServiceModality, 
   ServiceDeliveryType, 
@@ -19,8 +20,9 @@ import { handleApiError } from '@/lib/handleApiError';
 export const useCatalog = () => {
   const [services, setServices] = useState<UI_Service[]>([]);
   const [packages, setPackages] = useState<UI_Package[]>([]);
-  const [products, setProducts] = useState<UI_Product[]>([]); // 📦 NUEVO ESTADO
-  const [courses, setCourses] = useState<UI_Course[]>([]);    // 🎓 NUEVO ESTADO
+  const [products, setProducts] = useState<UI_Product[]>([]);
+  const [courses, setCourses] = useState<UI_Course[]>([]);
+  const [supplies, setSupplies] = useState<UI_Supply[]>([]); // 📦 NUEVO ESTADO
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // --- TRADUCTORES FRONT <-> BACK ---
@@ -110,10 +112,28 @@ export const useCatalog = () => {
           hasUnsavedChanges: false
         }));
 
+      // 📦 NUEVO: Formateamos Insumos
+      const loadedSupplies: UI_Supply[] = items
+        .filter(item => item.type === 'SUPPLY')
+        .map(item => ({
+          id: item.id!,
+          name: item.name,
+          description: item.description || '',
+          category: item.category || '',
+          price: item.price,
+          stockQuantity: item.stockQuantity || 0,
+          stockAlertThreshold: item.stockAlertThreshold || 5,
+          sku: item.sku || '',
+          imageUrl: item.imageUrl,
+          isNew: false,
+          hasUnsavedChanges: false
+        }));
+
       setServices(loadedServices);
       setPackages(loadedPackages);
-      setProducts(loadedProducts); // 🚀 Setear Productos
-      setCourses(loadedCourses);   // 🚀 Setear Cursos
+      setProducts(loadedProducts); 
+      setCourses(loadedCourses);   
+      setSupplies(loadedSupplies); // 🚀 Setear Insumos
 
     } catch (error) {
       console.error("Error cargando inventario", error);
@@ -268,6 +288,43 @@ export const useCatalog = () => {
     }
   };
 
+  // 📦 --- GESTIÓN DE INSUMOS ---
+  const saveSupply = async (supply: UI_Supply): Promise<UI_Supply | null> => {
+    const payload: CatalogItemDTO = {
+      type: 'SUPPLY',
+      name: supply.name,
+      category: supply.category,
+      description: supply.description,
+      price: supply.price,
+      stockQuantity: supply.stockQuantity,
+      stockAlertThreshold: supply.stockAlertThreshold || 5,
+      sku: supply.sku,
+      isDigital: false,
+      imageUrl: supply.imageUrl
+    };
+
+    try {
+      let savedItem: CatalogItemDTO;
+      if (supply.isNew) {
+        savedItem = await catalogService.createItem(payload);
+      } else {
+        savedItem = await catalogService.updateItem(supply.id, payload);
+      }
+      return { ...supply, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
+    } catch (error: any) {
+      return null;
+    }
+  };
+
+  const deleteSupply = async (id: number): Promise<boolean> => {
+    try {
+      await catalogService.deleteItem(id);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   // 📸 --- SUBIDA A GCP ---
   const uploadItemImage = async (file: File): Promise<string | null> => {
     try {
@@ -284,20 +341,24 @@ export const useCatalog = () => {
     setServices,
     packages,
     setPackages,
-    products,       // 🚀 Exportado
-    setProducts,    // 🚀 Exportado
-    courses,        // 🚀 Exportado
-    setCourses,     // 🚀 Exportado
+    products,       
+    setProducts,    
+    courses,        
+    setCourses,     
+    supplies,
+    setSupplies,
     isLoading,
     fetchInventory,
     saveService,
     deleteService,
     savePackage,
     deletePackage,
-    saveProduct,    // 🚀 Exportado
-    deleteProduct,  // 🚀 Exportado
-    saveCourse,     // 🚀 Exportado
-    deleteCourse,   // 🚀 Exportado
+    saveProduct,    
+    deleteProduct,  
+    saveCourse,     
+    deleteCourse,   
+    saveSupply,
+    deleteSupply,
     uploadItemImage 
   };
 };

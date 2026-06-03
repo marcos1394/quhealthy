@@ -37,5 +37,13 @@ export const catalogService = {
    */
   deleteItem: async (id: number): Promise<void> => {
     await axiosInstance.delete(`${BASE_URL}/items/${id}`);
+  },
+
+  /**
+   * Ajusta el inventario de un producto o insumo
+   */
+  adjustStock: async (id: number, adjustment: number): Promise<CatalogItemDTO> => {
+    const response = await axiosInstance.patch(`${BASE_URL}/items/${id}/stock?adjustment=${adjustment}`);
+    return response.data;
   }
 };

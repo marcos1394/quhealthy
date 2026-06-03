@@ -1,6 +1,6 @@
 // types/catalog.ts
 
-export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE'; // 🚀 NUEVOS TIPOS
+export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE' | 'SUPPLY';
 export type ServiceModality = 'IN_PERSON' | 'ONLINE' | 'HYBRID';
 export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
 export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';
@@ -101,6 +101,21 @@ export interface UI_Course {
   category: string;
   price: number;
   contentUrl: string; // Enlace del video/PDF
+  imageUrl?: string;
+  isNew?: boolean;
+  hasUnsavedChanges?: boolean;
+}
+
+// 📦 NUEVO: Interfaz para la UI de Insumos Internos
+export interface UI_Supply {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  price: number; // Costo interno (opcional)
+  stockQuantity: number;
+  stockAlertThreshold?: number;
+  sku?: string;
   imageUrl?: string;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;

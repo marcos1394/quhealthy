@@ -89,7 +89,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
         </p>
       </div>
 
-      <Card className="border-emerald-200 dark:border-emerald-900/50 shadow-sm bg-white dark:bg-slate-900 flex-1 overflow-hidden flex flex-col mb-6">
+      <Card className="border-emerald-200 dark:border-emerald-900/50 shadow-sm bg-white dark:bg-slate-900 flex-1 overflow-visible flex flex-col mb-6">
         <CardHeader className="bg-emerald-50/50 dark:bg-emerald-950/20 border-b border-emerald-100 dark:border-emerald-900 py-4 flex flex-row items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2 text-slate-800 dark:text-slate-200">
             <Pill className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -101,7 +101,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
           </div>
         </CardHeader>
         
-        <CardContent className="p-6 overflow-y-auto custom-scrollbar flex-1 flex flex-col gap-6">
+        <CardContent className="p-6 overflow-visible flex-1 flex flex-col gap-6">
           
           <div className="grid gap-4 bg-slate-50 dark:bg-slate-800/50 p-5 rounded-xl border border-slate-100 dark:border-slate-800">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -262,7 +262,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             </Button>
           </div>
 
-          <div className="space-y-3 flex-1">
+          <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
             {prescription.length === 0 ? (
                <div className="h-full min-h-[150px] flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 dark:text-slate-500">
                  <Pill className="w-8 h-8 mb-2 opacity-20" />
