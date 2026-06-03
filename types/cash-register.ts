@@ -1,8 +1,8 @@
 // types/cash-register.ts
 
 export type CashRegisterStatus = 'OPEN' | 'CLOSED';
-export type CashTransactionType = 'CASH_IN' | 'CASH_OUT';
-export type CashReferenceType = 'APPOINTMENT' | 'MANUAL_DEPOSIT' | 'MANUAL_WITHDRAWAL';
+export type CashTransactionType = 'INCOME' | 'EXPENSE';
+export type CashReferenceType = 'APPOINTMENT' | 'PRODUCT_SALE' | 'MANUAL_INCOME' | 'MANUAL_EXPENSE' | 'INITIAL_BALANCE';
 
 export interface CashRegister {
   id: number;

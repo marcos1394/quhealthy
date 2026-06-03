@@ -223,13 +223,13 @@ export default function CashRegisterPage() {
         <div className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm">
           <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mb-2">Ingresos del Día</p>
           <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-            +${report?.transactions.filter(t => t.transactionType === 'CASH_IN').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
+            +${report?.transactions.filter(t => t.transactionType === 'INCOME').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
           </p>
         </div>
         <div className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm">
           <p className="text-sm font-medium text-slate-500 dark:text-zinc-400 mb-2">Egresos del Día</p>
           <p className="text-2xl font-black text-red-600 dark:text-red-400">
-            -${report?.transactions.filter(t => t.transactionType === 'CASH_OUT').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
+            -${report?.transactions.filter(t => t.transactionType === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
           </p>
         </div>
         <div className="bg-slate-900 dark:bg-white/5 border border-slate-800 dark:border-white/10 rounded-3xl p-6 shadow-sm relative overflow-hidden">
@@ -252,8 +252,8 @@ export default function CashRegisterPage() {
             {report.transactions.map((tx) => (
               <div key={tx.id} className="p-4 sm:p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${tx.transactionType === 'CASH_IN' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                    {tx.transactionType === 'CASH_IN' ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                  <div className={`p-3 rounded-full ${tx.transactionType === 'INCOME' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                    {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                   </div>
                   <div>
                     <p className="font-bold text-slate-900 dark:text-white">{tx.description}</p>
@@ -264,8 +264,8 @@ export default function CashRegisterPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`font-black text-lg ${tx.transactionType === 'CASH_IN' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {tx.transactionType === 'CASH_IN' ? '+' : '-'}${tx.amount.toFixed(2)}
+                  <p className={`font-black text-lg ${tx.transactionType === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {tx.transactionType === 'INCOME' ? '+' : '-'}${tx.amount.toFixed(2)}
                   </p>
                 </div>
               </div>
