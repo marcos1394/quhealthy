@@ -903,6 +903,7 @@
     "security_footer": "Protegido por Stripe con cifrado bancario"
   },
   "DashboardCalendar": {
+    "toast_auth_success": "¡Calendario sincronizado exitosamente!",
     "title": "Calendario Virtual",
     "subtitle": "Controla tu horario de atención, bloquea tiempo personal y revisa tus próximos pacientes.",
     "operating_hours": "Horario de Atención",

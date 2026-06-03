@@ -903,6 +903,7 @@
     "security_footer": "Protected by Stripe with bank-grade encryption"
   },
   "DashboardCalendar": {
+    "toast_auth_success": "Calendar successfully synchronized!",
     "title": "Virtual Calendar",
     "subtitle": "Control your office hours, block personal time, and view upcoming patients.",
     "operating_hours": "Operating Hours",
