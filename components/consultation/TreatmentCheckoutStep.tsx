@@ -12,7 +12,7 @@ import { UI_Product } from '@/types/catalog'; // 🚀 Importamos el tipo que usa
 interface TreatmentCheckoutStepProps {
   prescription: PrescriptionItem[];
   // 🚀 AÑADIDO: frequencyEnum y durationDays en la definición
-  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number; price?: string | number; frequencyEnum?: string; durationDays?: number | string };
+  newRx: { medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; catalogItemId?: number; price?: string | number; frequencyEnum?: string; durationDays?: number | string; quantity?: number };
   setNewRx: (rx: any) => void;
   handleAddRx: () => void;
   removePrescriptionItem: (id: string) => void;
@@ -169,9 +169,15 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t('dosage')}</label>
-                <Input placeholder={t('rx_dosage')} value={newRx.dosage} onChange={e => setNewRx({...newRx, dosage: e.target.value})} className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{t('dosage')}</label>
+                  <Input placeholder={t('rx_dosage')} value={newRx.dosage} onChange={e => setNewRx({...newRx, dosage: e.target.value})} className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Cantidad (Venta)</label>
+                  <Input type="number" min="1" placeholder="Cant." value={newRx.quantity || 1} onChange={e => setNewRx({...newRx, quantity: parseInt(e.target.value) || 1})} className="bg-white dark:bg-slate-900 h-10 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100" />
+                </div>
               </div>
             </div>
             
@@ -270,7 +276,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                       {item.medicationName} 
                       {item.catalogItemId && (
                         <span className="flex items-center text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                          <ShoppingBag className="w-3 h-3 mr-1" /> Tienda
+                          <ShoppingBag className="w-3 h-3 mr-1" /> Tienda (x{item.quantity || 1})
                         </span>
                       )}
                       <span className="text-emerald-600 dark:text-emerald-400 font-medium ml-1">{item.dosage}</span>

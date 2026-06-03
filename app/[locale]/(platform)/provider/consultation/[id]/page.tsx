@@ -58,9 +58,9 @@ export default function ConsultationRoomPage() {
   // 🚀 CAMBIO 1: Agregamos 'price', 'frequencyEnum' y 'durationDays' al estado inicial
   const [newRx, setNewRx] = useState<{
     medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; price: string | number;
-    frequencyEnum?: string; durationDays?: number | string; catalogItemId?: number;
+    frequencyEnum?: string; durationDays?: number | string; catalogItemId?: number; quantity?: number;
   }>({ 
-    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '' 
+    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
   });
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -155,10 +155,11 @@ export default function ConsultationRoomPage() {
         durationDays: newRx.durationDays ? Number(newRx.durationDays) : undefined,
         instructions: newRx.instructions,
         catalogItemId: newRx.catalogItemId,
-        price: Number(newRx.price) || 0 // 🚀 INYECTAMOS EL PRECIO A LA RECETA FINAL
+        price: Number(newRx.price) || 0, // 🚀 INYECTAMOS EL PRECIO A LA RECETA FINAL
+        quantity: newRx.quantity || 1
       });
       // Limpiamos todo incluyendo el precio
-      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '' });
+      setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 });
     }
   };
 
@@ -221,11 +222,13 @@ export default function ConsultationRoomPage() {
 
   // 🚀 NUEVO: Calculamos el Gran Total (Consulta + Productos)
   const getGrandTotal = () => {
-    // Sumamos el precio de cada item en la receta (si no tiene precio, suma 0)
+    // Sumamos el precio de cada item en la receta multiplicada por su cantidad (si no tiene precio, suma 0)
     const productsTotal = prescription.reduce((sum, item) => {
       // Usamos item.price o asume 0 si no existe
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return sum + (Number((item as any).price) || 0); 
+      const price = Number((item as any).price) || 0; 
+      const qty = item.quantity || 1;
+      return sum + (price * qty);
     }, 0);
     
     return totalPrice + productsTotal; // totalPrice es el costo base de la consulta

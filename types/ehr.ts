@@ -43,6 +43,7 @@ export interface PrescriptionItem {
   instructions?: string;  // Indicaciones adicionales
   catalogItemId?: number; // Enlace al producto en el Marketplace de QuHealthy
   price?: number;         // Precio del producto si está en catálogo
+  quantity?: number;      // Cantidad de productos recetados/vendidos
 }
 
 /**
@@ -58,6 +59,7 @@ export interface PrescriptionItemDto {
   durationDays?: number;
   instructions?: string;
   catalogItemId?: number;
+  quantity?: number;
   price?: number;
 }
 

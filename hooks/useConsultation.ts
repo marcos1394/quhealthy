@@ -159,6 +159,10 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
           }
         }
 
+        if (item.quantity !== undefined && item.quantity !== null && item.quantity > 0) {
+          cleaned.quantity = item.quantity;
+        }
+
         return cleaned;
       });
 
