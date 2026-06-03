@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, ClipboardList, Stethoscope, BriefcaseMedical } from 'lucide-react';
+import { X, FileText, ClipboardList, Stethoscope, BriefcaseMedical, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ehrService } from '@/services/ehr.service';
+import { appointmentService } from '@/services/appointment.service';
 import { ClinicalNotesDto } from '@/types/ehr';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { toast } from 'react-toastify';
 
 interface PastConsultationModalProps {
   isOpen: boolean;
@@ -42,6 +44,18 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
 
     fetchNotes();
   }, [isOpen, appointmentId]);
+
+  const handleDownloadPrescription = async () => {
+    if (!appointmentId) return;
+    try {
+      const blob = await appointmentService.downloadPrescriptionPdf(appointmentId);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      console.error('Error downloading prescription', err);
+      toast.error('No se pudo encontrar o generar la receta de esta consulta.');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -139,7 +153,13 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 flex justify-end">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+            {notes ? (
+              <Button onClick={handleDownloadPrescription} variant="secondary" className="flex items-center gap-2">
+                <FileDown className="w-4 h-4" />
+                Ver Receta Médica
+              </Button>
+            ) : <div />}
             <Button onClick={onClose} variant="outline" className="px-6">Cerrar Expediente</Button>
           </div>
         </motion.div>
