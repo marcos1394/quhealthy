@@ -284,8 +284,6 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                         <CommandEmpty>{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
                         <CommandGroup className="p-2">
                           {displayedPatients.map((patient) => (
-                           <CommandGroup className="p-2">
-                          {displayedPatients.map((patient) => (
                             <CommandItem
                               key={patient.id}
                               value={String(patient.id)}
@@ -309,9 +307,6 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                                 )}
                               />
                             </CommandItem>
-                          ))}
-                        </CommandGroup>
-
                           ))}
                         </CommandGroup>
                       </CommandList>
