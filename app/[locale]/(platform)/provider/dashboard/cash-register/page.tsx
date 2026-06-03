@@ -7,7 +7,7 @@ import { Calculator, Play, Ban, AlertCircle, ArrowUpRight, ArrowDownRight, Refre
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cashRegisterService } from '@/services/cash-register.service';
-import { CashRegister, CashRegisterReportDto } from '@/types/cash-register';
+import { CashRegister, CashRegisterReportDto, DenominationMap } from '@/types/cash-register';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { CloseRegisterModal } from '@/components/cash-register/CloseRegisterModal';
@@ -69,11 +69,17 @@ export default function CashRegisterPage() {
       toast.error('El balance inicial no puede ser negativo.');
       return;
     }
+    // Preparar denominaciones solo si se usó el desglose y hay al menos una
+    const hasBreakdownValues = showBreakdown && Object.values(breakdown).some(v => v > 0);
+    const cleanDenoms: DenominationMap | undefined = hasBreakdownValues 
+      ? Object.fromEntries(Object.entries(breakdown).filter(([, v]) => v > 0)) 
+      : undefined;
     try {
       setIsOpening(true);
       await cashRegisterService.openRegister({
-        locationId: null, // As requested, null for now until Location selector is fully integrated
-        initialBalance: parsedBalance
+        locationId: null,
+        initialBalance: parsedBalance,
+        initialDenominations: cleanDenoms,
       });
       toast.success('Caja abierta exitosamente.');
       fetchCurrentRegister();
@@ -250,24 +256,46 @@ export default function CashRegisterPage() {
         {report?.transactions && report.transactions.length > 0 ? (
           <div className="divide-y divide-slate-100 dark:divide-white/5">
             {report.transactions.map((tx) => (
-              <div key={tx.id} className="p-4 sm:p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${tx.transactionType === 'INCOME' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                    {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">{tx.description}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate-500 dark:text-zinc-400">{new Date(tx.createdAt).toLocaleTimeString()}</span>
-                      <Badge variant="outline" className="text-[10px] uppercase border-slate-200 dark:border-white/10">{tx.referenceType}</Badge>
+              <div key={tx.id} className="p-4 sm:p-6 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-full ${tx.transactionType === 'INCOME' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                      {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white">{tx.description}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-slate-500 dark:text-zinc-400">{new Date(tx.createdAt).toLocaleTimeString()}</span>
+                        <Badge variant="outline" className="text-[10px] uppercase border-slate-200 dark:border-white/10">{tx.referenceType}</Badge>
+                      </div>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <p className={`font-black text-lg ${tx.transactionType === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {tx.transactionType === 'INCOME' ? '+' : '-'}${tx.amount.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className={`font-black text-lg ${tx.transactionType === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {tx.transactionType === 'INCOME' ? '+' : '-'}${tx.amount.toFixed(2)}
-                  </p>
-                </div>
+                {/* Desglose de denominaciones */}
+                {tx.denominations && Object.keys(tx.denominations).length > 0 && (
+                  <div className="mt-2 ml-16 flex flex-wrap gap-1.5">
+                    {Object.entries(tx.denominations)
+                      .filter(([, count]) => count > 0)
+                      .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
+                      .map(([denom, count]) => (
+                        <span 
+                          key={denom}
+                          className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                            tx.transactionType === 'INCOME' 
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' 
+                              : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
+                          }`}
+                        >
+                          {count}×${denom}
+                        </span>
+                      ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

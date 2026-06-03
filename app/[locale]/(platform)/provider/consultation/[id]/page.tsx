@@ -20,6 +20,8 @@ import { ConsultationSuccessStep } from "@/components/consultation/ConsultationS
 
 // 🚀 NUEVO: Importamos el Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
+import { cashRegisterService } from "@/services/cash-register.service";
+import { DenominationMap } from "@/types/cash-register";
 
 // 🚀 Añadimos 'success' al final del pipeline
 type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
@@ -45,6 +47,7 @@ export default function ConsultationRoomPage() {
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [paymentStatus, setPaymentStatus] = useState<string>('');
   const [showCashModal, setShowCashModal] = useState(false);
+  const [registerDenominations, setRegisterDenominations] = useState<DenominationMap | null>(null);
 
   const {
     patientProfile, vaultDocuments, isLoading, isSubmitting,
@@ -191,6 +194,19 @@ export default function ConsultationRoomPage() {
     if (appointmentId) fetchAppointmentDetails();
   }, [appointmentId]);
 
+  // 🚀 NUEVO: Obtener denominaciones de la caja activa
+  useEffect(() => {
+    const fetchRegisterDenoms = async () => {
+      try {
+        const register = await cashRegisterService.getCurrentRegister();
+        if (register?.initialDenominations) {
+          setRegisterDenominations(register.initialDenominations);
+        }
+      } catch { /* No hay caja abierta, no pasa nada */ }
+    };
+    fetchRegisterDenoms();
+  }, []);
+
   // 2. CARGAR EXPEDIENTE (App u Offline)
   useEffect(() => {
     // Si tiene cuenta en la app
@@ -275,6 +291,7 @@ export default function ConsultationRoomPage() {
         appointmentId={appointmentId}
         totalAmount={getGrandTotal()} // 🚀 AQUÍ inyectamos el total dinámico
         patientName={displayFullName}
+        registerDenominations={registerDenominations}
       />
 
       {/* 🚀 HEADER Y PIPELINE (STEPPER) */}

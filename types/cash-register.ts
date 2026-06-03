@@ -4,6 +4,9 @@ export type CashRegisterStatus = 'OPEN' | 'CLOSED';
 export type CashTransactionType = 'INCOME' | 'EXPENSE';
 export type CashReferenceType = 'APPOINTMENT' | 'PRODUCT_SALE' | 'MANUAL_INCOME' | 'MANUAL_EXPENSE' | 'INITIAL_BALANCE';
 
+// Mapa de denominaciones: clave = valor del billete/moneda, valor = cantidad
+export type DenominationMap = Record<string, number>;
+
 export interface CashRegister {
   id: number;
   providerId: number;
@@ -12,6 +15,7 @@ export interface CashRegister {
   openedAt: string;
   closedAt: string | null;
   initialBalance: number;
+  initialDenominations: DenominationMap | null;
   expectedClosingBalance: number | null;
   actualClosingBalance: number | null;
   balanceDifference: number | null;
@@ -27,6 +31,7 @@ export interface CashTransaction {
   referenceId: number | null;
   amount: number;
   description: string;
+  denominations: DenominationMap | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -39,6 +44,7 @@ export interface CashRegisterReportDto {
 export interface OpenRegisterRequest {
   locationId: number | null;
   initialBalance: number;
+  initialDenominations?: DenominationMap;
 }
 
 export interface CloseRegisterRequest {
