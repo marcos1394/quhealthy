@@ -101,7 +101,7 @@ export interface PatientClinicalProfile {
 export interface VaultDocument {
   id: string;
   fileName: string;
-  documentType: 'LAB_RESULT' | 'PRESCRIPTION' | 'IMAGING' | 'OTHER';
+  documentType: 'LAB_RESULT' | 'PRESCRIPTION' | 'IMAGING' | 'OTHER' | 'CONSULTA_PREVIA';
   uploadDate: string; // ISO 8601
   secureUrl?: string; // URL temporal de S3/Azure Blob Storage
 }

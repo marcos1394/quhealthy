@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from "next-intl";
 import { 
   User, ShieldAlert, History, FileCheck, AlertTriangle, 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { VaultDocument } from '@/types/ehr';
+import { PastConsultationModal } from '@/components/consultation/PastConsultationModal';
 
 interface PatientProfileStepProps {
   patientProfile: any; // Usamos any temporalmente para aceptar los nuevos campos
@@ -29,6 +30,8 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
 }) => {
   const t = useTranslations('EHR');
   const displayInitial = displayFullName.charAt(0).toUpperCase();
+
+  const [selectedPastConsultation, setSelectedPastConsultation] = useState<{ id: number; date: string } | null>(null);
 
   // Función auxiliar para renderizar arrays o texto de historial
   const renderHistoryData = (data: any, fallbackText: string) => {
@@ -164,7 +167,20 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {vaultDocuments.map(doc => (
-                  <div key={doc.id} className="flex items-center p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+                  <div 
+                    key={doc.id} 
+                    className="flex items-center p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                    onClick={() => {
+                      if (doc.documentType === 'CONSULTA_PREVIA') {
+                        setSelectedPastConsultation({
+                          id: parseInt(doc.id),
+                          date: doc.uploadDate
+                        });
+                      } else if (doc.secureUrl) {
+                        window.open(doc.secureUrl, '_blank');
+                      }
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-lg bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center mr-4 group-hover:bg-medical-100 dark:group-hover:bg-medical-900/50 transition-colors">
                       <FileCheck className="w-5 h-5 text-medical-600 dark:text-medical-400" />
                     </div>
@@ -187,6 +203,14 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
           </Button>
         </div>
       </div>
+
+      <PastConsultationModal
+        isOpen={!!selectedPastConsultation}
+        onClose={() => setSelectedPastConsultation(null)}
+        appointmentId={selectedPastConsultation?.id || null}
+        patientName={displayFullName}
+        consultationDate={selectedPastConsultation?.date || ''}
+      />
     </div>
   );
 };
