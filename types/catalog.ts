@@ -120,3 +120,36 @@ export interface UI_Supply {
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
+
+// 🏢 NUEVO: Interfaz para Proveedores
+export interface UI_Supplier {
+  id: number;
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+}
+
+// 📦 NUEVO: Interfaz para Órdenes de Compra
+export interface UI_PurchaseOrder {
+  id: number;
+  supplier: UI_Supplier;
+  orderDate: string;
+  expectedDeliveryDate?: string;
+  receivedDate?: string;
+  totalAmount: number;
+  status: 'DRAFT' | 'SENT' | 'RECEIVED' | 'CANCELLED';
+  paymentMethod?: 'CASH' | 'TRANSFER' | 'CREDIT';
+  notes?: string;
+  items: UI_PurchaseOrderItem[];
+}
+
+export interface UI_PurchaseOrderItem {
+  id: number;
+  catalogItemId: number;
+  catalogItemName: string;
+  catalogItemSku?: string;
+  quantity: number;
+  unitCost: number;
+  totalLineCost: number;
+}
