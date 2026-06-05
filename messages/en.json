@@ -3218,6 +3218,7 @@
   "SidebarNav": {
     "platform": "Platform",
     "settings_section": "Settings",
+    "team": "Team Management",
     "dashboard": "Dashboard",
     "store": "My Store",
     "cash_register": "Cash Register",
