@@ -43,7 +43,7 @@ interface SessionState {
   // Estado
   token: string | null;
   user: AuthUser | null;
-  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | null;
+  role: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | 'STAFF' | null;
   status: AuthStatus | null;
   isAuthenticated: boolean;
   isLoading: boolean;

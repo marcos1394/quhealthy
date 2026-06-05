@@ -44,6 +44,7 @@ const providerLinks = [
 
 const providerSettingsLinks = [
   { key: "public_profile", href: "/provider/profile", icon: UserCircle, badge: null },
+  { key: "team", href: "/provider/settings/team", icon: Users, badge: null },
   { key: "settings", href: "/provider/settings", icon: Settings, badge: null },
 ];
 
@@ -120,13 +121,22 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout } = useAuth();
-  const { role } = useSessionStore();
+  const { role, user } = useSessionStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
   const t = useTranslations('SidebarNav');
 
   const isConsumer = role === 'CONSUMER';
+  const isStaff = role === 'STAFF';
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
-  const currentLinks = isConsumer ? patientLinks : providerLinks;
+  
+  // Filtrar links para el staff basado en sus permisos
+  let currentLinks = isConsumer ? patientLinks : providerLinks;
+  if (isStaff && user?.permissions) {
+    currentLinks = currentLinks.filter(link => 
+      link.key === 'dashboard' || user.permissions?.includes(link.key)
+    );
+  }
+  
   const currentSettingsLinks = isConsumer ? patientSettingsLinks : providerSettingsLinks;
 
   // 📊 Cargar plan del provider

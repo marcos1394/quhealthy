@@ -3,7 +3,7 @@
 // ================================
 // ENUMS & TYPES
 // ================================
-export type UserRole = 'CONSUMER' | 'PROVIDER' | 'ADMIN';
+export type UserRole = 'CONSUMER' | 'PROVIDER' | 'ADMIN' | 'STAFF';
 export type ServiceType = 'HEALTH' | 'WELLNESS'; // Mantener si se usaba
 
 // ================================
@@ -56,7 +56,8 @@ export interface AuthUser {
   lastName: string;
   email: string;
   profileImageUrl: string | null;
-  role?: 'CONSUMER' | 'PROVIDER' | 'ADMIN';
+  role?: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | 'STAFF';
+  permissions?: string[];
   planStatus?: string;
   trialExpiresAt?: string;
 }
