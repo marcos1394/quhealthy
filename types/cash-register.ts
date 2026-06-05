@@ -16,6 +16,7 @@ export interface CashRegister {
   closedAt: string | null;
   initialBalance: number;
   initialDenominations: DenominationMap | null;
+  currentDenominations: DenominationMap | null;
   expectedClosingBalance: number | null;
   actualClosingBalance: number | null;
   balanceDifference: number | null;

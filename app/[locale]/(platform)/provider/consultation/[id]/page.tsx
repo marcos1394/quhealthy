@@ -201,7 +201,8 @@ export default function ConsultationRoomPage() {
       try {
         const register = await cashRegisterService.getCurrentRegister();
         if (register?.initialDenominations) {
-          setRegisterDenominations(register.initialDenominations);
+          // Hidratar las denominaciones en tiempo real si están disponibles
+          setRegisterDenominations(register.currentDenominations || register.initialDenominations);
         }
       } catch { /* No hay caja abierta, no pasa nada */ }
     };
