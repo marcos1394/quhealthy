@@ -11,6 +11,8 @@ import { CashRegister, CashRegisterReportDto, DenominationMap } from '@/types/ca
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { CloseRegisterModal } from '@/components/cash-register/CloseRegisterModal';
+import { ManualExpenseModal } from '@/components/cash-register/ManualExpenseModal';
+import { paymentService } from '@/services/payment.service';
 import { scheduleService } from '@/services/schedule.service';
 
 export default function CashRegisterPage() {
@@ -18,6 +20,9 @@ export default function CashRegisterPage() {
   const [register, setRegister] = useState<CashRegister | null>(null);
   const [report, setReport] = useState<CashRegisterReportDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
+  const [history, setHistory] = useState<CashRegister[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   
   // Para abrir caja
   const [initialBalance, setInitialBalance] = useState<string>('');
@@ -37,6 +42,23 @@ export default function CashRegisterPage() {
 
   // Para cerrar caja
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
+  // Para salida manual
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+
+  const fetchHistory = async () => {
+    try {
+      setIsHistoryLoading(true);
+      const res = await paymentService.getCashRegisterHistory(0, 50); // Get first 50
+      if (res && res.content) {
+        setHistory(res.content);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
 
   const fetchCurrentRegister = async () => {
     try {
@@ -61,6 +83,7 @@ export default function CashRegisterPage() {
 
   useEffect(() => {
     fetchCurrentRegister();
+    fetchHistory();
   }, []);
 
   const handleOpenRegister = async () => {
@@ -193,7 +216,33 @@ export default function CashRegisterPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
-      {/* Header Info */}
+      {/* TABS HEADER */}
+      <div className="flex space-x-1 bg-slate-100 dark:bg-white/5 p-1 rounded-xl w-fit mb-6">
+        <button
+          onClick={() => setActiveTab('current')}
+          className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            activeTab === 'current'
+              ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white'
+          }`}
+        >
+          Caja Activa
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            activeTab === 'history'
+              ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white'
+          }`}
+        >
+          Historial de Turnos
+        </button>
+      </div>
+
+      {activeTab === 'current' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          {/* Header Info */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-3xl p-6 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl">
@@ -211,6 +260,9 @@ export default function CashRegisterPage() {
         </div>
         
         <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => setIsExpenseModalOpen(true)} className="rounded-xl border-slate-200 dark:border-white/10">
+             Salida de Efectivo
+          </Button>
           <Button variant="outline" onClick={fetchCurrentRegister} className="rounded-xl border-slate-200 dark:border-white/10">
             <RefreshCcw className="w-4 h-4 mr-2" /> Actualizar
           </Button>
@@ -308,12 +360,102 @@ export default function CashRegisterPage() {
         )}
       </div>
 
+      </motion.div>
+      )}
+
+      {activeTab === 'history' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
+            <div className="p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">Historial de Turnos de Caja</h3>
+              <Button variant="outline" size="sm" onClick={fetchHistory}>
+                <RefreshCcw className="w-3.5 h-3.5 mr-2" /> Refrescar
+              </Button>
+            </div>
+            
+            {isHistoryLoading ? (
+              <div className="p-12 text-center">
+                <QhSpinner className="mx-auto mb-4" />
+                <p className="text-slate-500">Cargando historial...</p>
+              </div>
+            ) : history.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-500 dark:text-zinc-400">
+                  <thead className="bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-zinc-300">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold">Estado</th>
+                      <th className="px-6 py-4 font-semibold">Apertura</th>
+                      <th className="px-6 py-4 font-semibold">Cierre</th>
+                      <th className="px-6 py-4 font-semibold">Monto Inicial</th>
+                      <th className="px-6 py-4 font-semibold">Monto Final</th>
+                      <th className="px-6 py-4 font-semibold text-right">Diferencia</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                    {history.map((h) => (
+                      <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4">
+                          {h.status === 'OPEN' ? (
+                            <Badge className="bg-emerald-50 text-emerald-700">ABIERTA</Badge>
+                          ) : (
+                            <Badge variant="secondary">CERRADA</Badge>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {new Date(h.openedAt).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          {h.closedAt ? new Date(h.closedAt).toLocaleString() : '-'}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                          ${h.initialBalance.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                          ${(h.actualClosingBalance || 0).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          {h.balanceDifference !== undefined && h.balanceDifference !== null ? (
+                            <span className={`font-bold ${h.balanceDifference > 0 ? 'text-emerald-600' : h.balanceDifference < 0 ? 'text-red-600' : 'text-slate-500'}`}>
+                              {h.balanceDifference > 0 ? '+' : ''}${h.balanceDifference.toFixed(2)}
+                            </span>
+                          ) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-12 text-center">
+                <AlertCircle className="w-12 h-12 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No hay historial</h4>
+                <p className="text-slate-500 dark:text-zinc-400">Aún no tienes cajas cerradas.</p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       <CloseRegisterModal 
         isOpen={isCloseModalOpen}
         onClose={() => setIsCloseModalOpen(false)}
         registerId={register.id}
         expectedBalance={register.expectedClosingBalance || register.initialBalance}
-        onSuccess={fetchCurrentRegister}
+        onSuccess={() => {
+           fetchCurrentRegister();
+           fetchHistory();
+        }}
+      />
+      
+      <ManualExpenseModal
+        isOpen={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+        onSuccess={() => {
+           setIsExpenseModalOpen(false);
+           fetchCurrentRegister();
+        }}
+        currentDenominations={register.currentDenominations || register.initialDenominations}
+        maxExpectedBalance={register.expectedClosingBalance || register.initialBalance}
       />
     </div>
   );

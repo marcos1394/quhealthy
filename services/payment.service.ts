@@ -36,7 +36,6 @@ export const paymentService = {
     return response.data.checkoutUrl;
   },
 
-  // 🚀 Método para procesar pago en efectivo en caja con desglose de denominaciones
   processCashCheckout: async (data: { 
     appointmentId: number; 
     totalAmount: number; 
@@ -46,6 +45,28 @@ export const paymentService = {
     changeDenominations?: Record<string, number>;
   }) => {
     const response = await axiosInstance.post('/api/payments/cash/checkout', data);
+    return response.data;
+  },
+
+  // 🚀 NUEVO: Obtener historial de cajas
+  getCashRegisterHistory: async (page: number = 0, size: number = 10) => {
+    const response = await axiosInstance.get(
+      `${BASE_URL}/cash/registers/history?page=${page}&size=${size}&sort=openedAt,desc`
+    );
+    return response.data;
+  },
+
+  // 🚀 NUEVO: Registrar salida manual (caja chica)
+  registerManualExpense: async (data: {
+    locationId?: number | null;
+    amount: number;
+    description: string;
+    expenseDenominations?: Record<string, number>;
+  }) => {
+    const response = await axiosInstance.post(
+      `${BASE_URL}/cash/registers/current/expenses`,
+      data
+    );
     return response.data;
   },
 
