@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
+import { WearablesStep } from "./WearablesStep";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -294,23 +295,7 @@ export default function ConsumerOnboardingWizard() {
           </div>
         );
       case 6:
-        return (
-          <div className="space-y-6 text-center py-8">
-            <Watch className="w-20 h-20 mx-auto text-slate-300 mb-4" />
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Conecta tus Dispositivos</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              Sincroniza tu reloj inteligente o pulsera de actividad (Apple Health, Google Fit) para alimentar el motor de IA con datos en tiempo real.
-            </p>
-            <div className="flex flex-col gap-3 mt-8 max-w-xs mx-auto">
-              <button className="px-6 py-3 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 transition">
-                Conectar Apple Health
-              </button>
-              <button className="px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-                Conectar Google Fit
-              </button>
-            </div>
-          </div>
-        );
+        return <WearablesStep />;
       case 7:
         return (
            <div className="space-y-6 text-center py-8">
