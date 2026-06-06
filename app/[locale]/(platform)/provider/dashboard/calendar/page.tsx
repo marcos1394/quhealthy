@@ -14,6 +14,7 @@ import { CalendarView } from "@/components/dashboard/CalendarView";
 import { OperatingHoursModal } from "@/components/dashboard/OperatingHours";
 import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
+import { useOperatingHours } from "@/hooks/useOperatingHours";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function CalendarLoading() {
@@ -30,8 +31,10 @@ function CalendarContent() {
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [hasConfiguredHours, setHasConfiguredHours] = useState<boolean | null>(null);
   
   const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } = useCalendarIntegration();
+  const { fetchSchedules } = useOperatingHours();
   const t = useTranslations('DashboardCalendar');
 
   // 🚀 LÓGICA DE CAPTURA DE ERRORES/ÉXITO DE OAUTH
@@ -58,6 +61,15 @@ function CalendarContent() {
       router.replace("/provider/dashboard/calendar", { scroll: false });
     }
   }, [searchParams, router, t]);
+
+  // 🚀 FETCH DE HORARIOS PARA MOSTRAR ALERTA SI NO ESTÁN CONFIGURADOS
+  useEffect(() => {
+    const loadHours = async () => {
+      const data = await fetchSchedules(1); // DEFAULT_LOCATION_ID = 1
+      setHasConfiguredHours(data.length > 0 && data.some(d => d.isActive));
+    };
+    loadHours();
+  }, [fetchSchedules, refreshKey]);
 
   return (
     <div className="space-y-6 pb-10">
@@ -87,6 +99,35 @@ function CalendarContent() {
             </Button>
           </div>
         </div>
+
+        {/* Warning Banner if hours not configured */}
+        <AnimatePresence>
+          {hasConfiguredHours === false && (
+            <motion.div layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+              className="rounded-xl border p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20">
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-amber-200 dark:border-amber-500/30 shrink-0">
+                  <AlertCircle className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-amber-800 dark:text-amber-400">
+                    {t('missing_hours_title', { fallback: 'Configura tu Horario Laboral' })}
+                  </h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-500/90 font-light">
+                    {t('missing_hours_desc', { fallback: 'Los pacientes no podrán agendar citas contigo hasta que definas qué días y horas trabajas.' })}
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 relative z-10 w-full md:w-auto">
+                <Button onClick={() => setIsHoursModalOpen(true)}
+                  className="w-full md:w-auto h-9 px-6 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-none text-sm">
+                  <Clock className="w-3.5 h-3.5 mr-1.5" />
+                  {t('btn_configure_hours', { fallback: 'Configurar ahora' })}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Google Integration Banner */}
         <AnimatePresence>
