@@ -95,11 +95,11 @@ export default function LoginPage() {
 
     if (role === 'ADMIN') {
       router.push("/admin/dashboard");
-    }
-    else if (role === 'PROVIDER') {
+    } else if (role === 'PROVIDER') {
       router.push("/provider/dashboard");
-    }
-    else {
+    } else if (role === 'CONSUMER') {
+      router.push("/patient/onboarding");
+    } else {
       router.push("/patient/discover");
     }
 

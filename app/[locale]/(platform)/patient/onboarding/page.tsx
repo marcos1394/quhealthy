@@ -59,7 +59,43 @@ export default function ConsumerOnboardingWizard() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<OnboardingData>(INITIAL_DATA);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load profile on mount
+  React.useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await fetch("/api/onboarding/consumer/profile");
+        if (res.ok) {
+          const profile = await res.json();
+          const step = profile.onboardingStep || 0;
+          
+          if (step >= STEPS.length) {
+            router.push("/patient/dashboard");
+            return;
+          }
+          
+          setCurrentStep(step);
+          setData(prev => ({
+            ...prev,
+            algorithmicConsentAccepted: profile.algorithmicConsentAccepted || prev.algorithmicConsentAccepted,
+            biologicalSex: profile.biologicalSex || prev.biologicalSex,
+            bloodType: profile.bloodType || prev.bloodType,
+            dietaryPreference: profile.dietaryPreference || prev.dietaryPreference,
+            medicalConditions: profile.medicalConditions || prev.medicalConditions,
+            allergies: profile.allergies || prev.allergies,
+            currentMedications: profile.currentMedications || prev.currentMedications,
+            healthGoals: profile.healthGoals || prev.healthGoals,
+          }));
+        }
+      } catch (err) {
+        console.error("Error loading profile", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const updateData = (fields: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...fields }));
@@ -122,8 +158,14 @@ export default function ConsumerOnboardingWizard() {
         });
       }
       
+      const nextStep = currentStep < STEPS.length - 1 ? currentStep + 1 : currentStep;
+      
+      // Guardar el paso en el que nos quedamos
       if (currentStep < STEPS.length - 1) {
-        setCurrentStep((prev) => prev + 1);
+        await fetch(`/api/onboarding/consumer/profile/step?step=${nextStep}`, {
+          method: "PATCH",
+        });
+        setCurrentStep(nextStep);
       } else {
         router.push("/patient/dashboard");
       }
@@ -135,11 +177,22 @@ export default function ConsumerOnboardingWizard() {
     }
   };
 
-  const handleSkip = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      router.push("/patient/dashboard");
+  const handleSkip = async () => {
+    setLoading(true);
+    try {
+      if (currentStep < STEPS.length - 1) {
+        const nextStep = currentStep + 1;
+        await fetch(`/api/onboarding/consumer/profile/step?step=${nextStep}`, {
+          method: "PATCH",
+        });
+        setCurrentStep(nextStep);
+      } else {
+        router.push("/patient/dashboard");
+      }
+    } catch (error) {
+      console.error("Error skipping step", error);
+    } finally {
+      setLoading(false);
     }
   };
 
