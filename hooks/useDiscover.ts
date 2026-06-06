@@ -1,4 +1,5 @@
 // hooks/useDiscover.ts
+import { useMemo } from 'react';
 import useSWR from 'swr';
 import { discoverService } from '@/services/discover.service';
 import { DiscoverProviderWrapperResponse } from '@/types/discover';
@@ -19,10 +20,14 @@ export const useDiscover = () => {
     }
   );
 
+  const providers = useMemo(() => data ? [...data.sponsored, ...data.organic] : [], [data]);
+  const sponsoredProviders = useMemo(() => data?.sponsored || [], [data]);
+  const organicProviders = useMemo(() => data?.organic || [], [data]);
+
   return {
-    providers: data ? [...data.sponsored, ...data.organic] : [],
-    sponsoredProviders: data?.sponsored || [],
-    organicProviders: data?.organic || [],
+    providers,
+    sponsoredProviders,
+    organicProviders,
     isLoading,
     isError: !!error,
     refresh: mutate // Por si necesitas forzar una recarga manual desde algún botón
