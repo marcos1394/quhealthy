@@ -18,10 +18,10 @@ export interface ActiveSession {
 }
 
 export const securityService = {
-  // 🔐 1. Cambiar Contraseña (Pendiente en Backend)
+  // 🔐 1. Cambiar Contraseña
   changePassword: async (data: ChangePasswordRequest): Promise<MessageResponse> => {
-    const response = await axiosInstance.post<MessageResponse>(
-      '/api/auth/change-password',
+    const response = await axiosInstance.put<MessageResponse>(
+      '/api/auth/password',
       data
     );
     return response.data;

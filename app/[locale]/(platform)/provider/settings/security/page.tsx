@@ -10,7 +10,8 @@ import {
   Activity,
   Bell,
   Smartphone,
-  ChevronRight
+  ChevronRight,
+  UserX
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -83,6 +84,15 @@ export default function SecuritySettingsPage() {
       link: "security/activity",
       color: "text-medical-600 dark:text-medical-400",
       bgHover: "group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10"
+    },
+    {
+      id: "delete-account",
+      title: "Eliminar Cuenta",
+      description: "Borrar permanentemente tu cuenta y todos tus datos.",
+      icon: UserX,
+      link: "security/delete-account",
+      color: "text-rose-600 dark:text-rose-400",
+      bgHover: "group-hover:bg-rose-50 dark:group-hover:bg-rose-500/10"
     },
   ];
 

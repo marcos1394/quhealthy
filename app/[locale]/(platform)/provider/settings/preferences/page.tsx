@@ -32,12 +32,14 @@ import {
 import { motion } from "framer-motion";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
+import apiClient from '@/lib/axios';
 
 interface AppPreferences {
     language: string;
     timeZone: string;
     email_alerts: boolean;
     sms_alerts: boolean;
+    push_alerts: boolean;
     marketing: boolean;
     theme: string;
 }
@@ -50,6 +52,7 @@ export default function PreferencesPage() {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
         email_alerts: true,
         sms_alerts: false,
+        push_alerts: false,
         marketing: false,
         theme: "system",
     });
@@ -58,18 +61,36 @@ export default function PreferencesPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        // Simulación de carga desde API
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 600);
-        return () => clearTimeout(timer);
+        const fetchSettings = async () => {
+            try {
+                const response = await apiClient.get('/api/auth/provider/settings');
+                const data = response.data;
+                setPreferences(prev => ({
+                    ...prev,
+                    email_alerts: data.emailNotificationsEnabled ?? true,
+                    sms_alerts: data.smsNotificationsEnabled ?? false,
+                    push_alerts: data.pushNotificationsEnabled ?? false,
+                    marketing: data.marketingEmailsOptIn ?? false,
+                }));
+            } catch (err) {
+                console.error("Error fetching preferences", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSettings();
     }, []);
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // Simulación de guardado a API
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await apiClient.put('/api/auth/provider/settings', {
+                emailNotificationsEnabled: preferences.email_alerts,
+                smsNotificationsEnabled: preferences.sms_alerts,
+                pushNotificationsEnabled: preferences.push_alerts,
+                marketingEmailsOptIn: preferences.marketing,
+                appointmentRemindersEnabled: true // Default to true unless managed
+            });
             toast.success(t('toast_save'), {
                 icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
             });
@@ -232,6 +253,22 @@ export default function PreferencesPage() {
                                             <Switch
                                                 checked={preferences.sms_alerts}
                                                 onCheckedChange={(val) => updatePref('sms_alerts', val)}
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-100 dark:border-slate-800/50 hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-10 w-10 shrink-0 rounded-full bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400">
+                                                    <Bell className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">Notificaciones Push</p>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400">Recibe notificaciones en tiempo real en tu dispositivo.</p>
+                                                </div>
+                                            </div>
+                                            <Switch
+                                                checked={preferences.push_alerts}
+                                                onCheckedChange={(val) => updatePref('push_alerts', val)}
                                             />
                                         </div>
 
