@@ -42,7 +42,7 @@ export default function SocialAuthButtons({
     }
 
     if (userRole === 'CONSUMER') {
-      router.push('/patient/onboarding');
+      router.push('/onboarding/patient');
       return;
     }
 

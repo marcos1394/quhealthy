@@ -98,7 +98,8 @@ export default function LoginPage() {
     } else if (role === 'PROVIDER') {
       router.push("/provider/dashboard");
     } else if (role === 'CONSUMER') {
-      router.push("/patient/onboarding");
+      // 🔥 Ajuste: mandamos al nuevo layout del onboarding sin sidebar
+      router.push("/onboarding/patient");
     } else {
       router.push("/patient/discover");
     }
