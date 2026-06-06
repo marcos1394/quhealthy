@@ -5,9 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, Target, UserPlus, ShieldAlert, Watch, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
-// apiClient is probably in /app/api/client or similar. If not, I'll use standard fetch for now with credentials.
-import apiClient from "@/services/api-client"; // Assuming standard location based on previous files. Wait, previous was "import apiClient from '@/services/apiClient'" ? I'll use relative or generic fetch if needed, but I'll use apiClient.
-
 // ---- Types ----
 interface OnboardingData {
   algorithmicConsentAccepted: boolean;
@@ -98,7 +95,7 @@ export default function ConsumerOnboardingWizard() {
             isSmoker: data.isSmoker,
             alcoholUnitsWeek: data.alcoholUnitsWeek,
             weeklyExerciseMinutes: data.weeklyExerciseMinutes,
-            activityLevel: data.weeklyExerciseMinutes > 150 ? "ACTIVE" : "SEDENTARY", // Auto infer
+            activityLevel: Number(data.weeklyExerciseMinutes) > 150 ? "ACTIVE" : "SEDENTARY", // Auto infer
           }),
         });
       } else if (currentStep === 4) {
