@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, Target, UserPlus, ShieldAlert, Watch, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
+import { consumerProfileService } from "@/services/consumerProfile.service";
 // ---- Types ----
 interface OnboardingData {
   algorithmicConsentAccepted: boolean;
@@ -65,9 +66,8 @@ export default function ConsumerOnboardingWizard() {
   React.useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await fetch("/api/onboarding/consumer/profile");
-        if (res.ok) {
-          const profile = await res.json();
+        const profile: any = await consumerProfileService.getProfile();
+        if (profile) {
           const step = profile.onboardingStep || 0;
           
           if (step >= STEPS.length) {
@@ -107,54 +107,38 @@ export default function ConsumerOnboardingWizard() {
       // Logic to save partial progress based on step
       if (currentStep === 1) {
         // Demographics
-        await fetch("/api/onboarding/consumer/step-demographics", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            biologicalSex: data.biologicalSex,
-            bloodType: data.bloodType,
-            dietaryPreference: data.dietaryPreference,
-            algorithmicConsentAccepted: data.algorithmicConsentAccepted,
-          }),
+        await consumerProfileService.updateDemographics({
+          biologicalSex: data.biologicalSex,
+          bloodType: data.bloodType,
+          dietaryPreference: data.dietaryPreference,
+          algorithmicConsentAccepted: data.algorithmicConsentAccepted,
         });
       } else if (currentStep === 3) {
         // Biometrics & Lifestyle (sent together after step 3)
-        await fetch("/api/onboarding/consumer/step-biometrics-lifestyle", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            weightKg: data.weightKg,
-            heightCm: data.heightCm,
-            restingHeartRate: data.restingHeartRate,
-            averageBloodPressureSystolic: data.averageBloodPressureSystolic,
-            averageBloodPressureDiastolic: data.averageBloodPressureDiastolic,
-            isSmoker: data.isSmoker,
-            alcoholUnitsWeek: data.alcoholUnitsWeek,
-            weeklyExerciseMinutes: data.weeklyExerciseMinutes,
-            activityLevel: Number(data.weeklyExerciseMinutes) > 150 ? "ACTIVE" : "SEDENTARY", // Auto infer
-          }),
+        await consumerProfileService.updateBiometricsLifestyle({
+          weightKg: data.weightKg,
+          heightCm: data.heightCm,
+          restingHeartRate: data.restingHeartRate,
+          averageBloodPressureSystolic: data.averageBloodPressureSystolic,
+          averageBloodPressureDiastolic: data.averageBloodPressureDiastolic,
+          isSmoker: data.isSmoker,
+          alcoholUnitsWeek: data.alcoholUnitsWeek,
+          weeklyExerciseMinutes: data.weeklyExerciseMinutes,
+          activityLevel: Number(data.weeklyExerciseMinutes) > 150 ? "ACTIVE" : "SEDENTARY", // Auto infer
         });
       } else if (currentStep === 4) {
         // Clinical
-        await fetch("/api/onboarding/consumer/step-clinical-history", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            medicalConditions: data.medicalConditions,
-            allergies: data.allergies,
-            currentMedications: data.currentMedications,
-            familyHistory: [],
-          }),
+        await consumerProfileService.updateClinicalHistory({
+          medicalConditions: data.medicalConditions,
+          allergies: data.allergies,
+          currentMedications: data.currentMedications,
+          familyHistory: [],
         });
       } else if (currentStep === 5) {
         // Goals
-        await fetch("/api/onboarding/consumer/step-goals", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            healthGoals: data.healthGoals,
-            preferredModality: "ANY",
-          }),
+        await consumerProfileService.updateGoals({
+          healthGoals: data.healthGoals,
+          preferredModality: "ANY",
         });
       }
       
@@ -162,9 +146,7 @@ export default function ConsumerOnboardingWizard() {
       
       // Guardar el paso en el que nos quedamos
       if (currentStep < STEPS.length - 1) {
-        await fetch(`/api/onboarding/consumer/profile/step?step=${nextStep}`, {
-          method: "PATCH",
-        });
+        await consumerProfileService.updateOnboardingStep(nextStep);
         setCurrentStep(nextStep);
       } else {
         router.push("/patient/dashboard");
@@ -182,9 +164,7 @@ export default function ConsumerOnboardingWizard() {
     try {
       if (currentStep < STEPS.length - 1) {
         const nextStep = currentStep + 1;
-        await fetch(`/api/onboarding/consumer/profile/step?step=${nextStep}`, {
-          method: "PATCH",
-        });
+        await consumerProfileService.updateOnboardingStep(nextStep);
         setCurrentStep(nextStep);
       } else {
         router.push("/patient/dashboard");
