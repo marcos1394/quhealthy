@@ -1,4 +1,4 @@
-import { axiosInstance } from "./axiosInstance";
+import axiosInstance from '@/lib/axios';
 
 export interface WearableConnection {
   provider: string; // "google_fit", "apple_health", "garmin", "fitbit", "oura"
