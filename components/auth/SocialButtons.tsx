@@ -41,16 +41,21 @@ export default function SocialAuthButtons({
       return;
     }
 
+    if (userRole === 'CONSUMER') {
+      router.push('/patient/onboarding');
+      return;
+    }
+
     if (!status.onboardingComplete) {
-      router.push('/onboarding');
+      if (userRole === 'PROVIDER') {
+        router.push('/provider/onboarding');
+      }
       return;
     }
 
     // Si todo está completo, lo mandamos a su panel
     if (userRole === 'PROVIDER') {
       router.push('/provider/dashboard');
-    } else {
-      router.push('/patient/dashboard');
     }
   };
 
@@ -70,10 +75,12 @@ export default function SocialAuthButtons({
         });
 
         toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
-        if (onSuccess) onSuccess(response);
-
-        // 🚀 Ejecutamos el embudo de redirección
-        handleRedirection(response);
+        if (onSuccess) {
+          onSuccess(response);
+        } else {
+          // 🚀 Ejecutamos el embudo de redirección
+          handleRedirection(response);
+        }
 
       } catch (error: any) {
         // El error ya lo maneja el interceptor/hook, aquí solo detenemos el loading
@@ -103,10 +110,12 @@ export default function SocialAuthButtons({
       });
 
       toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
-      if (onSuccess) onSuccess(response);
-
-      // 🚀 Ejecutamos el embudo de redirección
-      handleRedirection(response);
+      if (onSuccess) {
+        onSuccess(response);
+      } else {
+        // 🚀 Ejecutamos el embudo de redirección
+        handleRedirection(response);
+      }
 
     } catch (error: any) {
        // Manejo de error
