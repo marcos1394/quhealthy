@@ -12,7 +12,7 @@ export const paymentService = {
    */
   createCheckoutSession: async (appointmentId: number): Promise<string> => {
     const response = await axiosInstance.post<StripeCheckoutResponse>(
-      `${BASE_URL}/appointments/checkout`, 
+      `${BASE_URL}/checkout/appointment`, 
       { appointmentId }
     );
     return response.data.url;
