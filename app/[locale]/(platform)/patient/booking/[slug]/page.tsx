@@ -51,7 +51,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   // 🧠 CEREBRO DEL CHECKOUT HÍBRIDO
   const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
   const requiresShipping = cart.some(item => item.type === 'PRODUCT' && item.isDigital !== true);
-  const needsPrescription = cart.some(item => item.requiresPrescription === true);
+  const needsPrescription = cart.some(item => item.type === 'PRODUCT' && item.requiresPrescription === true);
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
 
   useEffect(() => {
