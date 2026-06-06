@@ -93,9 +93,9 @@ export const WearablesStep = () => {
     }
 
     if (providerId === "google_fit") {
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_FIT_CLIENT_ID;
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       if (!clientId) {
-        toast.error("Falta configurar NEXT_PUBLIC_GOOGLE_FIT_CLIENT_ID en el entorno.");
+        toast.error("Falta configurar NEXT_PUBLIC_GOOGLE_CLIENT_ID en el entorno.");
         return;
       }
       
