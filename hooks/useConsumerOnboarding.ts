@@ -58,7 +58,19 @@ export function useConsumerOnboarding(stepsLength: number) {
           dietaryPreference: data.dietaryPreference,
           algorithmicConsentAccepted: data.algorithmicConsentAccepted,
         });
+      } else if (currentStep === 2) {
+        if (!data.weightKg || !data.heightCm) {
+          toast.error("Por favor completa tu peso y estatura antes de continuar.");
+          setLoading(false);
+          return;
+        }
+        // Save to API happens on step 3 because backend expects biometrics and lifestyle together
       } else if (currentStep === 3) {
+        if (!data.weightKg || !data.heightCm) {
+          toast.error("Faltan datos corporales. Por favor regresa al paso anterior.");
+          setLoading(false);
+          return;
+        }
         const weeklyExercise = (Number(data.exerciseDaysPerWeek) || 0) * (Number(data.exerciseMinutesPerDay) || 0);
 
         await consumerProfileService.updateBiometricsLifestyle({
@@ -123,12 +135,19 @@ export function useConsumerOnboarding(stepsLength: number) {
     }
   };
 
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   return {
     currentStep,
     data,
     loading,
     updateData,
     handleNext,
-    handleSkip
+    handleSkip,
+    handleBack
   };
 }

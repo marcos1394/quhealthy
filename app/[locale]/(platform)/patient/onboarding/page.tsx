@@ -27,7 +27,8 @@ export default function ConsumerOnboardingWizard() {
     loading,
     updateData,
     handleNext,
-    handleSkip
+    handleSkip,
+    handleBack
   } = useConsumerOnboarding(STEPS.length);
 
   // ---- Step Renders ----
@@ -380,11 +381,21 @@ export default function ConsumerOnboardingWizard() {
 
             {renderStepContent()}
 
-            <div className="mt-10 flex items-center gap-4">
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              {currentStep > 0 && (
+                <button 
+                  onClick={handleBack}
+                  disabled={loading}
+                  className="flex-1 min-w-[120px] py-4 px-6 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                >
+                  Regresar
+                </button>
+              )}
               {showSkipButton && (
                 <button 
                   onClick={handleSkip}
-                  className="flex-1 py-4 px-6 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  disabled={loading}
+                  className="flex-1 min-w-[120px] py-4 px-6 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
                 >
                   Saltar por ahora
                 </button>
@@ -392,7 +403,7 @@ export default function ConsumerOnboardingWizard() {
               <button
                 onClick={handleNext}
                 disabled={isNextDisabled() || loading}
-                className="flex-1 py-4 px-6 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className="flex-[2] min-w-[150px] py-4 px-6 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 {loading ? "Guardando..." : currentStep === STEPS.length - 1 ? "Ir al Dashboard" : "Continuar"}
                 {!loading && <ArrowRight className="w-5 h-5" />}
