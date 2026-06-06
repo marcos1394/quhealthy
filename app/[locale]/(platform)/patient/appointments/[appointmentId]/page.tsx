@@ -76,7 +76,7 @@ export default function PatientAppointmentDetailsPage() {
         <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8 text-center max-w-sm">
           No pudimos localizar esta cita. Es posible que haya sido eliminada o que no tengas permisos para verla.
         </p>
-        <Button onClick={() => router.push("/patient/appointments")} variant="outline">
+        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline">
           Volver a mis citas
         </Button>
       </div>
@@ -114,7 +114,7 @@ export default function PatientAppointmentDetailsPage() {
         
         {/* HEADER */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/patient/appointments')} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/patient/dashboard/appointments')} className="rounded-full">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>

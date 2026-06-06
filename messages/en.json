@@ -2097,6 +2097,7 @@
     "btn_cancel": "Cancel",
     "btn_rebook": "Book Again",
     "btn_receipt": "Receipt",
+    "toast_calendar_added": "Appointment added to calendar",
     "toast_canceled": "Appointment cancelled successfully",
     "toast_cancel_error": "Error cancelling the appointment",
     "toast_receipt": "Downloading receipt...",

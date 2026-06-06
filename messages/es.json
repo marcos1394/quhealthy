@@ -2097,6 +2097,7 @@
     "btn_cancel": "Cancelar",
     "btn_rebook": "Agendar de Nuevo",
     "btn_receipt": "Comprobante",
+    "toast_calendar_added": "Añadido al calendario",
     "toast_canceled": "Cita cancelada correctamente",
     "toast_cancel_error": "Error al cancelar la cita",
     "toast_receipt": "Descargando comprobante...",

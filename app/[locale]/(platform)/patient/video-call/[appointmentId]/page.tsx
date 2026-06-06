@@ -64,7 +64,7 @@ export default function VideoCallLobbyPage() {
         <p className="text-blue-700 mt-2 mb-8 max-w-sm mx-auto">
           Esta cita está programada para ser presencial en el consultorio. No requiere videollamada.
         </p>
-        <Button onClick={() => router.push("/patient/appointments")} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
           <ArrowLeft className="w-4 h-4 mr-2" /> Volver a mis citas
         </Button>
       </div>
@@ -127,7 +127,7 @@ export default function VideoCallLobbyPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Button onClick={() => router.push("/patient/appointments")} variant="ghost" className="text-blue-600 hover:bg-blue-100 hover:text-blue-800">
+          <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="ghost" className="text-blue-600 hover:bg-blue-100 hover:text-blue-800">
             <ArrowLeft className="w-4 h-4 mr-2" /> Volver atrás
           </Button>
         </div>

@@ -35,7 +35,7 @@ export function ActionButtons({ t, router, copied, isDownloading, handleAddToCal
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
-        <Button onClick={() => router.push('/patient/appointments')} className="flex-1 h-14 bg-gradient-to-r from-medical-600 to-medical-500 hover:from-medical-700 hover:to-medical-600 text-white text-base font-bold rounded-2xl shadow-lg">
+        <Button onClick={() => router.push('/patient/dashboard/appointments')} className="flex-1 h-14 bg-gradient-to-r from-medical-600 to-medical-500 hover:from-medical-700 hover:to-medical-600 text-white text-base font-bold rounded-2xl shadow-lg">
           {t('btn_appointments')} <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
         <Button onClick={() => router.push('/patient/dashboard')} variant="outline" className="flex-1 h-14 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white text-base font-bold rounded-2xl">
