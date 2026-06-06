@@ -6,44 +6,7 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, Target, UserPlus, ShieldAlert, Watch, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
-// ---- Types ----
-interface OnboardingData {
-  algorithmicConsentAccepted: boolean;
-  biologicalSex: string;
-  bloodType: string;
-  dietaryPreference: string;
-  weightKg: number | "";
-  heightCm: number | "";
-  restingHeartRate: number | "";
-  averageBloodPressureSystolic: number | "";
-  averageBloodPressureDiastolic: number | "";
-  isSmoker: boolean;
-  alcoholUnitsWeek: number | "";
-  weeklyExerciseMinutes: number | "";
-  medicalConditions: any[];
-  allergies: any[];
-  currentMedications: string[];
-  healthGoals: string[];
-}
-
-const INITIAL_DATA: OnboardingData = {
-  algorithmicConsentAccepted: false,
-  biologicalSex: "",
-  bloodType: "",
-  dietaryPreference: "",
-  weightKg: "",
-  heightCm: "",
-  restingHeartRate: "",
-  averageBloodPressureSystolic: "",
-  averageBloodPressureDiastolic: "",
-  isSmoker: false,
-  alcoholUnitsWeek: "",
-  weeklyExerciseMinutes: "",
-  medicalConditions: [],
-  allergies: [],
-  currentMedications: [],
-  healthGoals: [],
-};
+import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -58,123 +21,14 @@ const STEPS = [
 
 export default function ConsumerOnboardingWizard() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<OnboardingData>(INITIAL_DATA);
-  const [loading, setLoading] = useState(true);
-
-  // Load profile on mount
-  React.useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const profile: any = await consumerProfileService.getProfile();
-        if (profile) {
-          const step = profile.onboardingStep || 0;
-          
-          if (step >= STEPS.length) {
-            router.push("/patient/dashboard");
-            return;
-          }
-          
-          setCurrentStep(step);
-          setData(prev => ({
-            ...prev,
-            algorithmicConsentAccepted: profile.algorithmicConsentAccepted || prev.algorithmicConsentAccepted,
-            biologicalSex: profile.biologicalSex || prev.biologicalSex,
-            bloodType: profile.bloodType || prev.bloodType,
-            dietaryPreference: profile.dietaryPreference || prev.dietaryPreference,
-            medicalConditions: profile.medicalConditions || prev.medicalConditions,
-            allergies: profile.allergies || prev.allergies,
-            currentMedications: profile.currentMedications || prev.currentMedications,
-            healthGoals: profile.healthGoals || prev.healthGoals,
-          }));
-        }
-      } catch (err) {
-        console.error("Error loading profile", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProfile();
-  }, []);
-
-  const updateData = (fields: Partial<OnboardingData>) => {
-    setData((prev) => ({ ...prev, ...fields }));
-  };
-
-  const handleNext = async () => {
-    setLoading(true);
-    try {
-      // Logic to save partial progress based on step
-      if (currentStep === 1) {
-        // Demographics
-        await consumerProfileService.updateDemographics({
-          biologicalSex: data.biologicalSex,
-          bloodType: data.bloodType,
-          dietaryPreference: data.dietaryPreference,
-          algorithmicConsentAccepted: data.algorithmicConsentAccepted,
-        });
-      } else if (currentStep === 3) {
-        // Biometrics & Lifestyle (sent together after step 3)
-        await consumerProfileService.updateBiometricsLifestyle({
-          weightKg: data.weightKg,
-          heightCm: data.heightCm,
-          restingHeartRate: data.restingHeartRate,
-          averageBloodPressureSystolic: data.averageBloodPressureSystolic,
-          averageBloodPressureDiastolic: data.averageBloodPressureDiastolic,
-          isSmoker: data.isSmoker,
-          alcoholUnitsWeek: data.alcoholUnitsWeek,
-          weeklyExerciseMinutes: data.weeklyExerciseMinutes,
-          activityLevel: Number(data.weeklyExerciseMinutes) > 150 ? "ACTIVE" : "SEDENTARY", // Auto infer
-        });
-      } else if (currentStep === 4) {
-        // Clinical
-        await consumerProfileService.updateClinicalHistory({
-          medicalConditions: data.medicalConditions,
-          allergies: data.allergies,
-          currentMedications: data.currentMedications,
-          familyHistory: [],
-        });
-      } else if (currentStep === 5) {
-        // Goals
-        await consumerProfileService.updateGoals({
-          healthGoals: data.healthGoals,
-          preferredModality: "ANY",
-        });
-      }
-      
-      const nextStep = currentStep < STEPS.length - 1 ? currentStep + 1 : currentStep;
-      
-      // Guardar el paso en el que nos quedamos
-      if (currentStep < STEPS.length - 1) {
-        await consumerProfileService.updateOnboardingStep(nextStep);
-        setCurrentStep(nextStep);
-      } else {
-        router.push("/patient/dashboard");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Hubo un error al guardar tu progreso. Intenta de nuevo.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSkip = async () => {
-    setLoading(true);
-    try {
-      if (currentStep < STEPS.length - 1) {
-        const nextStep = currentStep + 1;
-        await consumerProfileService.updateOnboardingStep(nextStep);
-        setCurrentStep(nextStep);
-      } else {
-        router.push("/patient/dashboard");
-      }
-    } catch (error) {
-      console.error("Error skipping step", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    currentStep,
+    data,
+    loading,
+    updateData,
+    handleNext,
+    handleSkip
+  } = useConsumerOnboarding(STEPS.length);
 
   // ---- Step Renders ----
 
