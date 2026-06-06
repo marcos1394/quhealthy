@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Calendar, Clock, Search } from 'lucide-react';
-import { formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale'; // Idealmente dinámico según el locale actual
 
 // ShadCN UI
@@ -64,13 +64,13 @@ export function NextAppointmentHero({ appointment, onNavigate, onSearch, locale 
                 <div className="flex items-center gap-2.5">
                   <Calendar className="w-4 h-4 text-medical-300" />
                   <span className="font-semibold text-white capitalize">
-                    {formatInTimeZone(new Date(appointment.startTime), 'UTC', "EEEE d 'de' MMMM", { locale: dateLocale })}
+                    {format(new Date(appointment.startTime), "EEEE d 'de' MMMM", { locale: dateLocale })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-medical-300" />
                   <span className="font-medium text-medical-100">
-                    {formatInTimeZone(new Date(appointment.startTime), 'UTC', "h:mm a", { locale: dateLocale })}
+                    {format(new Date(appointment.startTime), "h:mm a", { locale: dateLocale })}
                   </span>
                 </div>
               </div>
