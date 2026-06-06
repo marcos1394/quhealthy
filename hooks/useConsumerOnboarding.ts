@@ -106,6 +106,7 @@ export function useConsumerOnboarding(stepsLength: number) {
         await consumerProfileService.updateOnboardingStep(nextStep);
         setCurrentStep(nextStep);
       } else {
+        await consumerProfileService.updateOnboardingStep(stepsLength);
         router.push("/patient/dashboard");
       }
     } catch (error) {
@@ -126,6 +127,7 @@ export function useConsumerOnboarding(stepsLength: number) {
         await consumerProfileService.updateOnboardingStep(nextStep);
         setCurrentStep(nextStep);
       } else {
+        await consumerProfileService.updateOnboardingStep(stepsLength);
         router.push("/patient/dashboard");
       }
     } catch (error) {
