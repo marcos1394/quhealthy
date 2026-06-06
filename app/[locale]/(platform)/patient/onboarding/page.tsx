@@ -7,6 +7,7 @@ import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, 
 import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
+import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -250,15 +251,14 @@ export default function ConsumerOnboardingWizard() {
       case 4:
         return (
           <div className="space-y-6">
-             <div className="p-4 bg-orange-50 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200 rounded-xl border border-orange-200 dark:border-orange-800 text-sm">
-                Esta sección utilizará próximamente el estándar CIE-10 para mayor precisión médica. Por ahora, puedes ingresar texto libre.
+             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl border border-blue-200 dark:border-blue-800 text-sm">
+                Esta sección utiliza el estándar médico CIE-10 (Clasificación Internacional de Enfermedades).
              </div>
              <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Enfermedades Crónicas / Diagnósticos</label>
-              <textarea 
-                placeholder="Ej. Diabetes Tipo 2, Hipertensión..."
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 min-h-[100px]"
-                onChange={(e) => updateData({ medicalConditions: [{ name: e.target.value }] })}
+              <Icd10Autocomplete 
+                selectedConditions={data.medicalConditions}
+                onChange={(newConditions) => updateData({ medicalConditions: newConditions })}
               />
             </div>
             <div>

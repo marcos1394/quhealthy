@@ -41,21 +41,20 @@ export const consumerProfileService = {
   /**
    * Guarda los datos biométricos y de estilo de vida (Paso 2 y 3).
    */
-  updateBiometricsLifestyle: async (payload: any): Promise<void> => {
-    await axiosInstance.put(`/api/onboarding/consumer/step-biometrics-lifestyle`, payload);
+  updateBiometricsLifestyle: async (data: any) => {
+    const response = await axiosInstance.put("/api/onboarding/consumer/step-biometrics-lifestyle", data);
+    return response.data;
   },
-
-  /**
-   * Guarda el historial clínico (Paso 4).
-   */
-  updateClinicalHistory: async (payload: any): Promise<void> => {
-    await axiosInstance.put(`/api/onboarding/consumer/step-clinical-history`, payload);
+  updateClinicalHistory: async (data: any) => {
+    const response = await axiosInstance.put("/api/onboarding/consumer/step-clinical-history", data);
+    return response.data;
   },
-
-  /**
-   * Guarda los objetivos de salud (Paso 5).
-   */
-  updateGoals: async (payload: any): Promise<void> => {
-    await axiosInstance.put(`/api/onboarding/consumer/step-goals`, payload);
+  updateGoals: async (data: any) => {
+    const response = await axiosInstance.put("/api/onboarding/consumer/step-goals", data);
+    return response.data;
+  },
+  searchIcd10: async (query: string) => {
+    const response = await axiosInstance.get(`/api/catalogs/icd10?query=${encodeURIComponent(query)}&size=20`);
+    return response.data;
   }
 };
