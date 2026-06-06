@@ -9,6 +9,7 @@ import { consumerProfileService } from "@/services/consumerProfile.service";
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 import { WearablesStep } from "./WearablesStep";
+import { DependentsStep } from "./DependentsStep";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -297,20 +298,7 @@ export default function ConsumerOnboardingWizard() {
       case 6:
         return <WearablesStep />;
       case 7:
-        return (
-           <div className="space-y-6 text-center py-8">
-            <UserPlus className="w-20 h-20 mx-auto text-slate-300 mb-4" />
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Familiares a cargo</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              ¿Gestionarás la salud de tus hijos o adultos mayores? Puedes agregar sus perfiles ahora o hacerlo después en tus ajustes.
-            </p>
-            <div className="mt-8">
-              <button className="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
-                Agregar Dependiente
-              </button>
-            </div>
-          </div>
-        );
+        return <DependentsStep />;
       default:
         return null;
     }
