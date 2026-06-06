@@ -49,9 +49,24 @@ export const WearablesStep = () => {
     // 1. Revisar si venimos de un Callback OAuth
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
-    const provider = urlParams.get("state") || "google_fit"; // Temporal: asumimos google si no hay state
+    const stateParam = urlParams.get("state");
+    
+    // El state parameter contiene: "providerId_randomToken" (ej: "google_fit_a1b2c3")
+    const provider = stateParam ? stateParam.split('_')[0] + '_' + stateParam.split('_')[1] : "google_fit";
 
     if (code && !processingAuth) {
+      // Verificación de Seguridad CSRF (State Parameter)
+      const savedState = sessionStorage.getItem("oauth_state");
+      if (savedState && savedState !== stateParam) {
+        console.error("CSRF Validation failed. State mismatch.", { expected: savedState, got: stateParam });
+        toast.error("Error de seguridad: La sesión de validación no coincide (Posible CSRF).");
+        // Limpiar URL por seguridad
+        window.history.replaceState({}, document.title, window.location.pathname);
+        sessionStorage.removeItem("oauth_state");
+        return;
+      }
+      
+      sessionStorage.removeItem("oauth_state");
       setProcessingAuth(true);
       wearableService.handleCallback(provider, code)
         .then(() => {
@@ -101,7 +116,13 @@ export const WearablesStep = () => {
       
       const redirectUri = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '';
       const scope = encodeURIComponent("https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.blood_pressure.read https://www.googleapis.com/auth/fitness.heart_rate.read https://www.googleapis.com/auth/fitness.sleep.read");
-      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent&state=google_fit`;
+      
+      // 🛡️ Generar Estado Seguro Aleatorio contra CSRF
+      const csrfToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const state = `google_fit_${csrfToken}`;
+      sessionStorage.setItem("oauth_state", state);
+
+      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent&state=${state}`;
       
       window.location.href = url;
       return;

@@ -69,6 +69,7 @@
     "formik": "^2.4.6",
     "framer-motion": "^11.17.0",
     "fullcalendar": "^6.1.15",
+    "google-auth-library": "^10.7.0",
     "headlessui": "^0.0.0",
     "html5-qrcode": "^2.3.8",
     "jwt-decode": "^4.0.0",
