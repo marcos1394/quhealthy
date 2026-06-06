@@ -1,17 +1,19 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, Video, 
-  User, Stethoscope, Receipt, AlertCircle, FileText
+  User, Stethoscope, Receipt, AlertCircle, FileText, CreditCard
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 import { useAppointmentDetails } from '@/hooks/useAppointmentDetails';
+import { paymentService } from '@/services/payment.service';
+import { handleApiError } from '@/lib/handleApiError';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +24,8 @@ export default function PatientAppointmentDetailsPage() {
   const rawId = params.appointmentId;
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   // Usamos el hook maestro que ya tienes construido
   const {
     appointment,
@@ -31,6 +35,24 @@ export default function PatientAppointmentDetailsPage() {
     downloadInvoice,
     qrCodeUrl
   } = useAppointmentDetails(appointmentId);
+
+  const handlePayNow = async () => {
+    if (!appointment) return;
+    try {
+      setIsProcessingPayment(true);
+      const checkoutUrl = await paymentService.createCheckoutSession(appointment.id);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        toast.error("No se pudo generar la sesión de pago.");
+      }
+    } catch (error) {
+      toast.error("Hubo un error al intentar iniciar el pago.");
+      handleApiError(error);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   // ==========================================
   // 🚦 ESTADOS DE CARGA Y ERROR
@@ -253,9 +275,19 @@ export default function PatientAppointmentDetailsPage() {
                     Descargar Recibo
                   </Button>
                 ) : (
-                  <p className="text-sm text-amber-600 text-center font-medium bg-amber-50 p-2 rounded-lg">
-                    Pendiente de pago
-                  </p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-amber-600 text-center font-medium bg-amber-50 p-2 rounded-lg">
+                      Pendiente de pago
+                    </p>
+                    <Button 
+                      onClick={handlePayNow} 
+                      disabled={isProcessingPayment}
+                      className="w-full bg-medical-600 text-white hover:bg-medical-700 font-medium"
+                    >
+                      {isProcessingPayment ? <QhSpinner size="sm" className="mr-2 text-white" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                      Pagar ahora
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
