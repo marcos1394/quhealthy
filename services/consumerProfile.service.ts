@@ -53,8 +53,10 @@ export const consumerProfileService = {
     const response = await axiosInstance.put("/api/onboarding/consumer/step-goals", data);
     return response.data;
   },
-  searchIcd10: async (query: string) => {
-    const response = await axiosInstance.get(`/api/catalogs/icd10?query=${encodeURIComponent(query)}&size=20`);
+  searchIcd10: async (query: string, size: number = 20) => {
+    const response = await axiosInstance.get(`/api/onboarding/catalogs/icd10`, {
+        params: { query, size }
+    });
     return response.data;
   }
 };
