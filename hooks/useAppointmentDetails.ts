@@ -30,7 +30,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
         
         // 2. 📱 Inmediatamente cargamos el código QR si la cita se obtuvo correctamente
         try {
-          const qrBlob = await appointmentService.getQrCode(appointmentId);
+          const qrBlob = await appointmentService.getCheckInQrCode(appointmentId as number);
           // Convertimos los bytes crudos en una URL que una etiqueta <img> pueda leer
           const qrObjectUrl = URL.createObjectURL(qrBlob);
           setQrCodeUrl(qrObjectUrl);
