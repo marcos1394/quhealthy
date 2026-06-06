@@ -108,7 +108,7 @@ export default function ConsumerOnboardingWizard() {
                 placeholder="Ej. 75"
                 className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 value={data.weightKg}
-                onChange={(e) => updateData({ weightKg: Number(e.target.value) })}
+                onChange={(e) => updateData({ weightKg: e.target.value ? Number(e.target.value) : "" })}
               />
             </div>
             <div>
@@ -118,9 +118,17 @@ export default function ConsumerOnboardingWizard() {
                 placeholder="Ej. 175"
                 className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 value={data.heightCm}
-                onChange={(e) => updateData({ heightCm: Number(e.target.value) })}
+                onChange={(e) => updateData({ heightCm: e.target.value ? Number(e.target.value) : "" })}
               />
             </div>
+            {data.weightKg && data.heightCm && (
+              <div className="col-span-1 md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl border border-blue-200 dark:border-blue-800 flex justify-between items-center">
+                <span className="font-medium">Tu Índice de Masa Corporal (IMC):</span>
+                <span className="text-xl font-bold">
+                  {(Number(data.weightKg) / Math.pow(Number(data.heightCm) / 100, 2)).toFixed(1)}
+                </span>
+              </div>
+            )}
             <div className="col-span-1 md:col-span-2 mt-4">
               <h3 className="font-semibold text-slate-900 dark:text-white">Signos Vitales Históricos (Promedio)</h3>
             </div>
@@ -131,28 +139,29 @@ export default function ConsumerOnboardingWizard() {
                 placeholder="Ej. 65"
                 className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 value={data.restingHeartRate}
-                onChange={(e) => updateData({ restingHeartRate: Number(e.target.value) })}
+                onChange={(e) => updateData({ restingHeartRate: e.target.value ? Number(e.target.value) : "" })}
               />
             </div>
             <div className="flex gap-4 items-end">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Presión Arterial (Sys/Dia)</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Presión Sistólica (Alta)</label>
                 <input 
                   type="number" 
-                  placeholder="120"
+                  placeholder="Ej. 120"
                   className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                   value={data.averageBloodPressureSystolic}
-                  onChange={(e) => updateData({ averageBloodPressureSystolic: Number(e.target.value) })}
+                  onChange={(e) => updateData({ averageBloodPressureSystolic: e.target.value ? Number(e.target.value) : "" })}
                 />
               </div>
-              <span className="text-xl font-bold pb-2">/</span>
+              <span className="text-xl font-bold pb-2 text-slate-400">/</span>
               <div className="flex-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Presión Diastólica (Baja)</label>
                 <input 
                   type="number" 
-                  placeholder="80"
+                  placeholder="Ej. 80"
                   className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                   value={data.averageBloodPressureDiastolic}
-                  onChange={(e) => updateData({ averageBloodPressureDiastolic: Number(e.target.value) })}
+                  onChange={(e) => updateData({ averageBloodPressureDiastolic: e.target.value ? Number(e.target.value) : "" })}
                 />
               </div>
             </div>
@@ -176,17 +185,56 @@ export default function ConsumerOnboardingWizard() {
                 <option value="PALEO">Paleo</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Minutos de Ejercicio Semanal</label>
-              <input 
-                type="number" 
-                placeholder="Ej. 150"
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                value={data.weeklyExerciseMinutes}
-                onChange={(e) => updateData({ weeklyExerciseMinutes: Number(e.target.value) })}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Días de ejercicio a la semana</label>
+                <input 
+                  type="number" 
+                  placeholder="Ej. 3"
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  value={data.exerciseDaysPerWeek}
+                  onChange={(e) => updateData({ exerciseDaysPerWeek: e.target.value ? Number(e.target.value) : "" })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Minutos por día</label>
+                <input 
+                  type="number" 
+                  placeholder="Ej. 45"
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  value={data.exerciseMinutesPerDay}
+                  onChange={(e) => updateData({ exerciseMinutesPerDay: e.target.value ? Number(e.target.value) : "" })}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Horas promedio de sueño al día</label>
+                <input 
+                  type="number" 
+                  placeholder="Ej. 7.5"
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  value={data.sleepHoursAvg}
+                  onChange={(e) => updateData({ sleepHoursAvg: e.target.value ? Number(e.target.value) : "" })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nivel de estrés general (1-10)</label>
+                <input 
+                  type="range" 
+                  min="1" max="10"
+                  className="w-full h-2 mt-4 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700"
+                  value={data.stressLevel}
+                  onChange={(e) => updateData({ stressLevel: Number(e.target.value) })}
+                />
+                <div className="flex justify-between text-xs text-slate-500 mt-2">
+                  <span>Muy Bajo (1)</span>
+                  <span className="font-bold text-blue-600">{data.stressLevel}</span>
+                  <span>Extremo (10)</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
               <input 
                 type="checkbox" 
                 id="smoker"
@@ -194,7 +242,7 @@ export default function ConsumerOnboardingWizard() {
                 checked={data.isSmoker}
                 onChange={(e) => updateData({ isSmoker: e.target.checked })}
               />
-              <label htmlFor="smoker" className="font-medium text-slate-700 dark:text-slate-300">Soy fumador(a) regular</label>
+              <label htmlFor="smoker" className="font-medium text-slate-700 dark:text-slate-300 w-full cursor-pointer">Soy fumador(a) regular</label>
             </div>
           </div>
         );

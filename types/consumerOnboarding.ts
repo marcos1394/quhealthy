@@ -10,7 +10,10 @@ export interface ConsumerOnboardingData {
   averageBloodPressureDiastolic: number | "";
   isSmoker: boolean;
   alcoholUnitsWeek: number | "";
-  weeklyExerciseMinutes: number | "";
+  exerciseDaysPerWeek: number | "";
+  exerciseMinutesPerDay: number | "";
+  stressLevel: number | "";
+  sleepHoursAvg: number | "";
   medicalConditions: any[];
   allergies: any[];
   currentMedications: string[];
@@ -29,7 +32,10 @@ export const INITIAL_CONSUMER_ONBOARDING_DATA: ConsumerOnboardingData = {
   averageBloodPressureDiastolic: "",
   isSmoker: false,
   alcoholUnitsWeek: "",
-  weeklyExerciseMinutes: "",
+  exerciseDaysPerWeek: "",
+  exerciseMinutesPerDay: "",
+  stressLevel: 5,
+  sleepHoursAvg: "",
   medicalConditions: [],
   allergies: [],
   currentMedications: [],

@@ -59,6 +59,8 @@ export function useConsumerOnboarding(stepsLength: number) {
           algorithmicConsentAccepted: data.algorithmicConsentAccepted,
         });
       } else if (currentStep === 3) {
+        const weeklyExercise = (Number(data.exerciseDaysPerWeek) || 0) * (Number(data.exerciseMinutesPerDay) || 0);
+
         await consumerProfileService.updateBiometricsLifestyle({
           weightKg: data.weightKg,
           heightCm: data.heightCm,
@@ -67,8 +69,10 @@ export function useConsumerOnboarding(stepsLength: number) {
           averageBloodPressureDiastolic: data.averageBloodPressureDiastolic,
           isSmoker: data.isSmoker,
           alcoholUnitsWeek: data.alcoholUnitsWeek,
-          weeklyExerciseMinutes: data.weeklyExerciseMinutes,
-          activityLevel: Number(data.weeklyExerciseMinutes) > 150 ? "ACTIVE" : "SEDENTARY",
+          weeklyExerciseMinutes: weeklyExercise,
+          activityLevel: weeklyExercise > 150 ? "ACTIVE" : "SEDENTARY",
+          stressLevel: data.stressLevel || 5, // Default mid level
+          sleepHoursAvg: data.sleepHoursAvg,
         });
       } else if (currentStep === 4) {
         await consumerProfileService.updateClinicalHistory({
