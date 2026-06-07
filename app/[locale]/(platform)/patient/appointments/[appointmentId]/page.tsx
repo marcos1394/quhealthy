@@ -88,6 +88,7 @@ export default function PatientAppointmentDetailsPage() {
   // ==========================================
   
   // Usamos el mismo patrón de fechas que corregimos antes (lee la hora local directamente)
+  const isOnline = appointment.type === 'ONLINE' || appointment.appointmentType === 'ONLINE';
   const dateFormatted = format(new Date(appointment.startTime), "EEEE, d 'de' MMMM yyyy", { locale: es });
   const timeFormatted = format(new Date(appointment.startTime), "HH:mm 'hrs'", { locale: es });
   
@@ -200,7 +201,7 @@ export default function PatientAppointmentDetailsPage() {
             <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
               <CardContent className="p-6 flex items-start gap-4">
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl h-fit">
-                  {appointment.appointmentType === 'ONLINE' ? (
+                  {isOnline ? (
                     <Video className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <MapPin className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -208,9 +209,9 @@ export default function PatientAppointmentDetailsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-slate-500 font-medium mb-1">
-                    {appointment.appointmentType === 'ONLINE' ? 'Videoconsulta' : 'Cita Presencial'}
+                    {isOnline ? 'Videoconsulta' : 'Cita Presencial'}
                   </p>
-                  {appointment.appointmentType === 'ONLINE' ? (
+                  {isOnline ? (
                     <div>
                       <p className="text-slate-900 dark:text-white mb-3">El enlace de la videollamada se activará minutos antes de tu cita.</p>
                       {appointment.meetLink ? (
