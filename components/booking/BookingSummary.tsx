@@ -96,7 +96,7 @@ export function BookingSummary({
     const isReady = isTimeValid && !cartAnalysis.isEmpty;
 
     return { isTimeValid, isReady };
-  }, [cartAnalysis, selectedDate, selectedTime]);
+  }, [cartAnalysis, selectedDate, selectedTime, scheduleNow]);
 
   const currencyCalculations = useMemo(() => {
     const currentRate = rates[selectedCurrency] || 1;
