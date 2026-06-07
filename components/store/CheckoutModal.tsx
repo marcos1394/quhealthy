@@ -5,7 +5,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Truck, FileText, Upload, X, CheckCircle2,
-  Loader2, MapPin, ShieldCheck, AlertCircle,
+  Loader2, MapPin, ShieldCheck, AlertCircle, Store
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -59,11 +59,12 @@ export function CheckoutModal({
   const [uploadingId, setUploadingId] = useState<number | null>(null);
   const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); // 🚀 Toggle de envío
 
   const { setQuery, suggestions, setSuggestions, isLoading: isAutocompleteLoading } = useGoogleAutocomplete();
 
   // --- Derived: can submit? ---
-  const addressOk  = !hasPhysical || isAddressComplete(address);
+  const addressOk  = !hasPhysical || shippingMethod === 'PICKUP' || isAddressComplete(address);
   const rxOk       = !needsPrescription || itemsNeedingRx.every(i => !!prescriptionUrls[i.id]);
   const canSubmit  = addressOk && rxOk && !isProcessing;
 
@@ -138,7 +139,9 @@ export function CheckoutModal({
   };
 
   const handleConfirm = () => {
-    const finalShippingAddress = hasPhysical ? buildAddressString(address) : undefined;
+    const finalShippingAddress = hasPhysical 
+      ? (shippingMethod === 'PICKUP' ? 'PICKUP' : buildAddressString(address)) 
+      : undefined;
     
     // 🚀 Transformamos el objeto de recetas a un String JSON para el Backend
     const finalPrescriptionUrls = Object.keys(prescriptionUrls).length > 0 
@@ -217,9 +220,34 @@ export function CheckoutModal({
                   ))}
                 </div>
 
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div 
+                    className={cn(
+                      "p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-2",
+                      shippingMethod === 'DELIVERY' ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10" : "border-slate-200 dark:border-slate-800 hover:border-medical-300"
+                    )}
+                    onClick={() => setShippingMethod('DELIVERY')}
+                  >
+                    <Truck className={cn("w-5 h-5", shippingMethod === 'DELIVERY' ? "text-medical-600" : "text-slate-400")} />
+                    <span className={cn("font-semibold text-sm", shippingMethod === 'DELIVERY' ? "text-medical-700 dark:text-medical-300" : "text-slate-600 dark:text-slate-400")}>Envío a domicilio</span>
+                  </div>
+                  <div 
+                    className={cn(
+                      "p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-2",
+                      shippingMethod === 'PICKUP' ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10" : "border-slate-200 dark:border-slate-800 hover:border-medical-300"
+                    )}
+                    onClick={() => setShippingMethod('PICKUP')}
+                  >
+                    <Store className={cn("w-5 h-5", shippingMethod === 'PICKUP' ? "text-medical-600" : "text-slate-400")} />
+                    <span className={cn("font-semibold text-sm", shippingMethod === 'PICKUP' ? "text-medical-700 dark:text-medical-300" : "text-slate-600 dark:text-slate-400")}>Recoger en Clínica</span>
+                  </div>
+                </div>
+
                 {/* Formulario */}
-                <div className="space-y-3">
-                  <div className="relative">
+                <AnimatePresence>
+                  {shippingMethod === 'DELIVERY' && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
+                      <div className="relative">
                     <InputField
                       label="Calle y número"
                       placeholder="Av. Siempre Viva 742"
@@ -259,10 +287,12 @@ export function CheckoutModal({
                     <InputField label="Ciudad" placeholder="Los Mochis" value={address.city} onChange={v => handleAddressChange("city", v)} />
                     <InputField label="Estado" placeholder="Sinaloa" value={address.state} onChange={v => handleAddressChange("state", v)} />
                   </div>
-                </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Preview dirección */}
-                {isAddressComplete(address) && (
+                {shippingMethod === 'DELIVERY' && isAddressComplete(address) && (
                   <motion.div
                     initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                     className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-200 dark:border-emerald-500/20 flex items-start gap-2"

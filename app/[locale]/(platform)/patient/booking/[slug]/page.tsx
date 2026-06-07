@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Clock, ChevronLeft, ChevronRight, CalendarX2,
-  Calendar as CalendarIcon, Loader2, MapPin, Truck, Zap, GraduationCap
+  Calendar as CalendarIcon, Loader2, MapPin, Truck, Zap, GraduationCap, Package, Store
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   // --- NUEVO: ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [pendingSymptoms, setPendingSymptoms] = useState("");
+  const [scheduleNow, setScheduleNow] = useState(true); // 🚀 Toggle para agendar ahora o después
+  const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); // 🚀 Toggle para recoger o envío
 
   // 🧠 CEREBRO DEL CHECKOUT HÍBRIDO
   const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
@@ -77,7 +79,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
 
   const handleCheckout = async (symptomsText: string) => {
     // Validaciones extra para E-commerce
-    if (requiresScheduling && (!selectedDate || !selectedTime)) {
+    if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
       return; 
     }
 
@@ -90,10 +92,10 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
       if (providerId) {
         await processCheckout({
           providerId,
-          selectedDate: requiresScheduling ? selectedDate : null,
-          selectedTime: requiresScheduling ? selectedTime : null,
+          selectedDate: (requiresScheduling && scheduleNow) ? selectedDate : null,
+          selectedTime: (requiresScheduling && scheduleNow) ? selectedTime : null,
           cart,
-          dependentId: requiresScheduling ? dependentId : undefined, 
+          dependentId: (requiresScheduling && scheduleNow) ? dependentId : undefined, 
           consumerSymptoms: symptomsText,
         });
       }
@@ -157,9 +159,49 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           {/* 🩺 LÓGICA DE SERVICIOS (Calendario y Paciente) */}
           {requiresScheduling && (
             <>
-              {/* Step: Calendar */}
-              <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="flex items-center gap-4 mb-8">
+              {/* Opción de Agendar Ahora o Comprar para Después */}
+              <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center border-2 border-medical-200 dark:border-medical-500/30">
+                    <span className="font-bold text-lg text-medical-600 dark:text-medical-400">{stepCounter++}</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">¿Cuándo deseas agendar?</h2>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-14">
+                  <Card 
+                    className={`cursor-pointer transition-all ${scheduleNow ? 'ring-2 ring-medical-500 bg-medical-50 dark:bg-medical-500/10' : 'hover:border-medical-300'}`}
+                    onClick={() => setScheduleNow(true)}
+                  >
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <CalendarIcon className={`w-8 h-8 ${scheduleNow ? 'text-medical-600' : 'text-slate-400'}`} />
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">Agendar Ahora</h4>
+                        <p className="text-sm text-slate-500">Selecciona fecha y hora</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card 
+                    className={`cursor-pointer transition-all ${!scheduleNow ? 'ring-2 ring-medical-500 bg-medical-50 dark:bg-medical-500/10' : 'hover:border-medical-300'}`}
+                    onClick={() => setScheduleNow(false)}
+                  >
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <Package className={`w-8 h-8 ${!scheduleNow ? 'text-medical-600' : 'text-slate-400'}`} />
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">Comprar para Después</h4>
+                        <p className="text-sm text-slate-500">Guarda los créditos en tu cuenta</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </motion.section>
+
+              {/* Step: Calendar (Solo si scheduleNow es true) */}
+              <AnimatePresence>
+                {scheduleNow && (
+                  <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                    <div className="flex items-center gap-4 mb-8">
                   <div className="w-10 h-10 rounded-2xl bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center border-2 border-medical-200 dark:border-medical-500/30">
                     <span className="font-bold text-lg text-medical-600 dark:text-medical-400">{stepCounter++}</span>
                   </div>
@@ -192,10 +234,12 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   </CardContent>
                 </Card>
               </motion.section>
+                )}
+              </AnimatePresence>
 
               {/* Step: Time Slots */}
               <AnimatePresence>
-                {selectedDate && (
+                {scheduleNow && selectedDate && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-4 mb-8">
                       <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center border-2 border-blue-200 dark:border-blue-500/30">
@@ -237,7 +281,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
 
               {/* Step: Patient Selector */}
               <AnimatePresence>
-                {selectedTime && (
+                {scheduleNow && selectedTime && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-4 mb-8">
                       <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center border-2 border-emerald-200 dark:border-emerald-500/30">
