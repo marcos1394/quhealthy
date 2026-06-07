@@ -24,6 +24,7 @@ export interface OrderResponseDto {
   createdAt: string;
   items: OrderItemDto[];
   prescriptionUrls?: string;
+  pickupTime?: string | null;
   prescriptionApproved?: boolean; // 🚀 NUEVO: Agregar este campo (lo puse opcional para compatibilidad)
   rejectionReason?: string;
   packageEvidenceUrls?: string; // 🚀 NUEVA LÍNEA

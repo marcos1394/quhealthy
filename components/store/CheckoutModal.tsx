@@ -21,7 +21,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   cart: StorefrontItem[];
   // 🚀 FIX: prescriptionUrls ahora es de tipo string (JSON) para que encaje con el Hook
-  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined) => void;
+  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined) => void;
   isProcessing: boolean;
 }
 
@@ -60,11 +60,15 @@ export function CheckoutModal({
   const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); // 🚀 Toggle de envío
+  
+  // 🚀 Nuevos estados para fecha y hora de recolección en sitio
+  const [pickupDate, setPickupDate] = useState<string>('');
+  const [pickupTimeStr, setPickupTimeStr] = useState<string>('');
 
   const { setQuery, suggestions, setSuggestions, isLoading: isAutocompleteLoading } = useGoogleAutocomplete();
 
   // --- Derived: can submit? ---
-  const addressOk  = !hasPhysical || shippingMethod === 'PICKUP' || isAddressComplete(address);
+  const addressOk  = !hasPhysical || (shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr) || (shippingMethod === 'DELIVERY' && isAddressComplete(address));
   const rxOk       = !needsPrescription || itemsNeedingRx.every(i => !!prescriptionUrls[i.id]);
   const canSubmit  = addressOk && rxOk && !isProcessing;
 
@@ -148,7 +152,12 @@ export function CheckoutModal({
       ? JSON.stringify(prescriptionUrls) 
       : undefined;
 
-    onConfirm(finalShippingAddress, finalPrescriptionUrls);
+    // 🚀 Formateamos la fecha y hora a ISO String si aplica
+    const finalPickupTime = shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr 
+      ? `${pickupDate}T${pickupTimeStr}:00` 
+      : undefined;
+
+    onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -287,6 +296,36 @@ export function CheckoutModal({
                     <InputField label="Ciudad" placeholder="Los Mochis" value={address.city} onChange={v => handleAddressChange("city", v)} />
                     <InputField label="Estado" placeholder="Sinaloa" value={address.state} onChange={v => handleAddressChange("state", v)} />
                   </div>
+                    </motion.div>
+                  )}
+
+                  {/* Formulario PICKUP (Fecha y Hora) */}
+                  {shippingMethod === 'PICKUP' && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
+                      <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 text-xs text-medical-700 dark:text-medical-300">
+                        Selecciona el día y la hora aproximada en la que pasarás a la clínica a recoger tu producto.
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Fecha de Recolección</label>
+                          <input 
+                            type="date" 
+                            min={new Date().toISOString().split('T')[0]}
+                            value={pickupDate}
+                            onChange={e => setPickupDate(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/30 transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Hora Aproximada</label>
+                          <input 
+                            type="time" 
+                            value={pickupTimeStr}
+                            onChange={e => setPickupTimeStr(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/30 transition-all"
+                          />
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

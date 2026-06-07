@@ -149,14 +149,33 @@ export default function PatientOrdersPage() {
                     {/* Right: logistics + CTA */}
                     <div className="flex-1 space-y-6">
                       {order.shippingAddress ? (
-                        <div>
-                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" /> Dirección de Entrega
-                          </h4>
-                          <p className="text-sm text-slate-700 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
-                            {order.shippingAddress}
-                          </p>
-                        </div>
+                        order.shippingAddress === 'PICKUP' ? (
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" /> Entrega en Clínica
+                            </h4>
+                            <div className="text-sm text-slate-700 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                              <p className="font-medium text-medical-600 dark:text-medical-400">Recoger en Sucursal</p>
+                              {order.pickupTime && (
+                                <p className="mt-1 text-slate-500 flex items-center gap-1">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  Pasarás el {new Date(order.pickupTime).toLocaleString('es-MX', {
+                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                  })}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" /> Dirección de Entrega
+                            </h4>
+                            <p className="text-sm text-slate-700 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                              {order.shippingAddress}
+                            </p>
+                          </div>
+                        )
                       ) : (
                         <div className="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20">
                           <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">

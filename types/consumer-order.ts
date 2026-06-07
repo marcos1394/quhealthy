@@ -23,6 +23,7 @@ export interface ConsumerOrder {
   trackingUrl?: string;
   prescriptionUrls?: string; // 💊 URLs de recetas adjuntas (JSON)
   rejectionReason?: string;  // 🚩 Razón de rechazo
+  pickupTime?: string | null;
 
   createdAt: string;
   items: ConsumerOrderItem[];

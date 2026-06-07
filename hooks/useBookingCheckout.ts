@@ -21,7 +21,8 @@ export const useBookingCheckout = () => {
     cart,
     consumerSymptoms,
     shippingAddress,
-    prescriptionUrls
+    prescriptionUrls,
+    pickupTime
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -111,6 +112,7 @@ export const useBookingCheckout = () => {
           paymentMethod: 'CREDIT_CARD',
           consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
           shippingAddress,
+          pickupTime,
           // 🚀 DIRECT-TO-CLOUD: Enviamos el JSON directo en el body, NO en metadata
           prescriptionUrls: prescriptionUrls, 
           cartItems

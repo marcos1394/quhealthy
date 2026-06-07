@@ -575,7 +575,7 @@ export default function PublicStorePage() {
         onClose={() => setShowCheckout(false)}
         cart={cart}
         isProcessing={isProcessing}
-        onConfirm={(shippingAddress, prescriptionUrls) => {
+        onConfirm={(shippingAddress, prescriptionUrls, pickupTime) => {
           setShowCheckout(false);
           processCheckout({
             providerId: store!.providerId,
@@ -585,7 +585,8 @@ export default function PublicStorePage() {
             selectedTime: null,
             cart,
             shippingAddress,
-            prescriptionUrls: JSON.stringify(prescriptionUrls),
+            prescriptionUrls,
+            pickupTime,
           });
         }}
       />
