@@ -63,8 +63,12 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
         setIsUploading(true);
         try {
             const newDoc = await uploadDocument(file, 'GENERAL');
-            onSendMessage(`Adjunto documento clínico: ${newDoc.fileName}`, newDoc.id);
-            toast.success("Documento subido y adjuntado con éxito");
+            if (newDoc) {
+                onSendMessage(`Adjunto documento clínico: ${newDoc.fileName}`, newDoc.id);
+                toast.success("Documento subido y adjuntado con éxito");
+            } else {
+                toast.error("Error al subir el archivo");
+            }
         } catch (error) {
             console.error("Error subiendo el archivo:", error);
             toast.error("Error al subir el archivo");
