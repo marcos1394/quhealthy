@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2 } from 'lucide-react';
+import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import apiClient from '@/lib/axios';
+import { useRef } from 'react';
 
 // Esquema Básico Simulado
 const VACCINE_SCHEDULE = [
@@ -65,17 +67,16 @@ export default function VaccinationsPage() {
     // Estado simulado de vacunas aplicadas
     const [appliedVaccines, setAppliedVaccines] = useState<Record<string, { date: string, documentId?: string }>>({});
     const [simulatingAction, setSimulatingAction] = useState<string | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!isLoading && family) {
             const found = family.find(f => f.id === Number(params.id));
             if (found) {
                 setMember(found);
-                // Pre-llenar simulado para demostración
-                setAppliedVaccines({
-                    'bcg': { date: '2024-01-10' },
-                    'hepb_1': { date: '2024-01-10' }
-                });
+                // Inicializamos vacío como corresponde para la integración real
+                setAppliedVaccines({});
             } else {
                 toast.error("Familiar no encontrado");
                 router.push('/patient/dashboard/family');
@@ -101,6 +102,46 @@ export default function VaccinationsPage() {
                 setSimulatingAction(null);
                 toast.success("Vacuna marcada como aplicada. Comprobante guardado en Bóveda.");
             }, 1200);
+        }
+    };
+
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setIsScanning(true);
+        toast.info("Escaneando cartilla de vacunación con Inteligencia Artificial...");
+
+        try {
+            const response = await apiClient.post('/api/onboarding/consumer/vault/vaccinations/extract', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            const newVaccines: Record<string, { date: string }> = {};
+            for (const item of response.data) {
+                if (item.vaccineId && item.dateApplied) {
+                    newVaccines[item.vaccineId] = { date: item.dateApplied };
+                }
+            }
+            
+            if (Object.keys(newVaccines).length > 0) {
+                setAppliedVaccines(prev => ({ ...prev, ...newVaccines }));
+                toast.success(`¡Se extrajeron ${Object.keys(newVaccines).length} vacunas exitosamente!`);
+            } else {
+                toast.warning("La IA no detectó vacunas aplicadas en la imagen.");
+            }
+            
+        } catch (error) {
+            console.error("Error extrayendo vacunas:", error);
+            toast.error("Hubo un error al leer la cartilla. Intenta tomar la foto más clara.");
+        } finally {
+            setIsScanning(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
 
@@ -137,14 +178,45 @@ export default function VaccinationsPage() {
                     </div>
                 </div>
 
-                {/* Resumen Progress */}
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="w-8 h-8 text-sky-600 dark:text-sky-400" />
+                {/* Resumen Progress y CTA Scanner */}
+                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
+                            <ShieldCheck className="w-8 h-8 text-sky-600 dark:text-sky-400" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">Protección Inmunológica</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Mantén el esquema de vacunación al día para prevenir enfermedades graves.</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-lg">Protección Inmunológica</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Mantén el esquema de vacunación al día para prevenir enfermedades graves.</p>
+                    
+                    <div className="flex-shrink-0 w-full md:w-auto">
+                        <input 
+                            type="file" 
+                            accept="image/*,application/pdf" 
+                            capture="environment" 
+                            hidden 
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                        />
+                        <Button 
+                            size="lg" 
+                            disabled={isScanning}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full md:w-auto bg-gradient-to-r from-medical-500 to-medical-600 hover:from-medical-600 hover:to-medical-700 text-white rounded-full font-bold shadow-lg shadow-medical-500/20 flex items-center gap-2"
+                        >
+                            {isScanning ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Analizando con IA...
+                                </>
+                            ) : (
+                                <>
+                                    <ScanFace className="w-5 h-5" />
+                                    Escanear Cartilla
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </div>
 
