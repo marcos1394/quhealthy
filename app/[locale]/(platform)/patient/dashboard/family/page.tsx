@@ -5,8 +5,9 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, UserPlus, Baby, User, Trash2, Calendar, Plus, X,
-    Loader2, CalendarIcon, HeartPulse, Activity
+    Loader2, CalendarIcon, HeartPulse, Activity, Syringe, HeartHandshake, FolderHeart
 } from 'lucide-react';
+import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -310,6 +311,27 @@ export default function PatientFamilyDashboard() {
                                         {calculateAge(member.dateOfBirth)} años
                                         <span className="opacity-50 mx-1">•</span>
                                         <span className="text-xs">{member.dateOfBirth}</span>
+                                    </div>
+
+                                    {/* Botones de Acción Específicos por Edad */}
+                                    <div className="mt-6 w-full space-y-3">
+                                        {calculateAge(member.dateOfBirth) < 12 && (
+                                            <Link href={`/patient/dashboard/family/${member.id}/vaccinations`} className="w-full flex items-center justify-center gap-2 bg-sky-50 hover:bg-sky-100 dark:bg-sky-500/10 dark:hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 font-semibold py-2.5 rounded-xl transition-colors">
+                                                <Syringe className="w-4 h-4" />
+                                                Cartilla de Vacunación
+                                            </Link>
+                                        )}
+                                        {calculateAge(member.dateOfBirth) >= 65 && (
+                                            <Link href={`/patient/dashboard/family/${member.id}/eldercare`} className="w-full flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold py-2.5 rounded-xl transition-colors">
+                                                <HeartHandshake className="w-4 h-4" />
+                                                Cuidados Geriátricos
+                                            </Link>
+                                        )}
+                                        
+                                        <Link href={`/patient/dashboard/family/${member.id}/history`} className="w-full flex items-center justify-center gap-2 border border-slate-200 hover:border-medical-200 dark:border-slate-700 dark:hover:border-medical-500/50 text-slate-600 dark:text-slate-300 font-medium py-2.5 rounded-xl transition-colors">
+                                            <FolderHeart className="w-4 h-4 text-medical-500" />
+                                            Historial Médico
+                                        </Link>
                                     </div>
                                 </div>
                             </motion.div>
