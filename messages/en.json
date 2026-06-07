@@ -2164,6 +2164,8 @@
     "time_now": "Now",
     "specialist": "Specialist",
     "new_conversation": "New conversation",
+    "privacy_notice": "🔒 Chat protected under health standards",
+    "attach_vault": "Attach from vault",
     "btn_voice_call": "Voice Call",
     "btn_video_call": "Video Call",
     "toast_voice": "Starting voice call...",
