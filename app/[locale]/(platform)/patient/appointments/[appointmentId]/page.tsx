@@ -6,13 +6,14 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, Video, 
-  User, Stethoscope, Receipt, AlertCircle, FileText, CreditCard
+  User, Stethoscope, Receipt, AlertCircle, FileText, CreditCard, MessageSquare
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 import { useAppointmentDetails } from '@/hooks/useAppointmentDetails';
 import { paymentService } from '@/services/payment.service';
+import { chatService } from '@/services/chat.service';
 import { handleApiError } from '@/lib/handleApiError';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ export default function PatientAppointmentDetailsPage() {
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isStartingChat, setIsStartingChat] = useState(false);
 
   // Usamos el hook maestro que ya tienes construido
   const {
@@ -51,6 +53,20 @@ export default function PatientAppointmentDetailsPage() {
       handleApiError(error);
     } finally {
       setIsProcessingPayment(false);
+    }
+  };
+
+  const handleStartChat = async () => {
+    if (!appointment) return;
+    try {
+      setIsStartingChat(true);
+      await chatService.startConversation(appointment.consumerId, appointment.providerId);
+      router.push('/patient/dashboard/messages');
+    } catch (error) {
+      toast.error("Hubo un error al iniciar el chat.");
+      handleApiError(error);
+    } finally {
+      setIsStartingChat(false);
     }
   };
 
@@ -294,6 +310,17 @@ export default function PatientAppointmentDetailsPage() {
             </Card>
 
             {/* Botones de Acción Extra (Reprogramar/Cancelar) */}
+            {(appointment.status === 'SCHEDULED' || appointment.status === 'COMPLETED') && appointment.paymentStatus === 'SETTLED' && (
+              <Button 
+                onClick={handleStartChat}
+                disabled={isStartingChat}
+                className="w-full bg-indigo-600 text-white hover:bg-indigo-700 font-medium shadow-sm"
+              >
+                {isStartingChat ? <QhSpinner size="sm" className="mr-2 text-white" /> : <MessageSquare className="w-4 h-4 mr-2" />}
+                Mensaje al Especialista
+              </Button>
+            )}
+
             {appointment.status === 'SCHEDULED' && (
               <div className="flex flex-col gap-3">
                 <Button variant="outline" className="w-full justify-start text-slate-600">
