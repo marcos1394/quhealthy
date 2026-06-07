@@ -310,12 +310,11 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           cart={cart}
           total={total}
           providerColor={safeColor}
-          // Si no requiere agendar, le pasamos una fecha "dummy" para que el componente no bloquee el botón
           selectedDate={requiresScheduling ? selectedDate : new Date()}
           selectedTime={requiresScheduling ? selectedTime : "00:00"}
           isProcessing={isProcessing}
+          scheduleNow={scheduleNow}
           onCheckout={handleCheckout}
-          // Puedes usar requiresScheduling en tu BookingSummary para ocultar los labels de Fecha/Hora si deseas
         />
       </div>
 

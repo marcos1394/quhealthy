@@ -33,6 +33,7 @@ interface BookingSummaryProps {
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
+  scheduleNow?: boolean;
   onCheckout: (symptoms: string, shippingAddress?: string) => void;
 }
 
@@ -43,6 +44,7 @@ export function BookingSummary({
   selectedDate,
   selectedTime,
   isProcessing = false,
+  scheduleNow = true,
   onCheckout
 }: BookingSummaryProps) {
   const t = useTranslations('PatientBooking');
@@ -89,7 +91,8 @@ export function BookingSummary({
   }, [cart]);
 
   const validationRules = useMemo(() => {
-    const isTimeValid = cartAnalysis.hasServices ? (selectedDate !== null && selectedTime !== null) : true;
+    // Si no quiere agendar ahora, el tiempo SIEMPRE es válido.
+    const isTimeValid = (cartAnalysis.hasServices && scheduleNow) ? (selectedDate !== null && selectedTime !== null) : true;
     const isReady = isTimeValid && !cartAnalysis.isEmpty;
 
     return { isTimeValid, isReady };
@@ -125,7 +128,7 @@ export function BookingSummary({
         return (
           <Badge className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 font-medium">
             <Clock className="w-3 h-3 mr-1.5 text-blue-500" />
-            {item.durationMinutes || 30} min
+            {scheduleNow ? `${item.durationMinutes || 30} min` : 'Crédito'}
           </Badge>
         );
       case 'COURSE':
@@ -171,7 +174,7 @@ export function BookingSummary({
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {t('cart_summary') || 'Resumen de Compra'}
+                    {(cartAnalysis.hasServices && scheduleNow) ? (t('cart_summary') || 'Resumen de tu cita') : 'Resumen de tu orden'}
                   </h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     {cart.length === 0 ? 'El carrito está vacío' : `${cart.length} artículo(s) seleccionados`}
@@ -248,7 +251,7 @@ export function BookingSummary({
               {/* El formulario de envío fue movido al CheckoutModal */}
 
               {/* 📝 NOTAS / SÍNTOMAS */}
-              {!cartAnalysis.isEmpty && (
+              {(!cartAnalysis.isEmpty && scheduleNow) && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold">
                     <FileText className="w-4 h-4 text-slate-400" />
