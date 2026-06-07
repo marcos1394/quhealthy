@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Upload } from 'lucide-react';
+import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Upload, Camera, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -12,6 +12,12 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import apiClient from '@/lib/axios';
 import { useRef } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Esquema Básico Simulado
 const VACCINE_SCHEDULE = [
@@ -69,6 +75,7 @@ export default function VaccinationsPage() {
     const [simulatingAction, setSimulatingAction] = useState<string | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!isLoading && family) {
@@ -142,6 +149,9 @@ export default function VaccinationsPage() {
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
+            if (cameraInputRef.current) {
+                cameraInputRef.current.value = '';
+            }
         }
     };
 
@@ -191,32 +201,55 @@ export default function VaccinationsPage() {
                     </div>
                     
                     <div className="flex-shrink-0 w-full md:w-auto">
+                        {/* Input para seleccionar archivo */}
                         <input 
                             type="file" 
                             accept="image/*,application/pdf" 
-                            capture="environment" 
                             hidden 
                             ref={fileInputRef}
                             onChange={handleFileSelect}
                         />
-                        <Button 
-                            size="lg" 
-                            disabled={isScanning}
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full md:w-auto bg-gradient-to-r from-medical-500 to-medical-600 hover:from-medical-600 hover:to-medical-700 text-white rounded-full font-bold shadow-lg shadow-medical-500/20 flex items-center gap-2"
-                        >
-                            {isScanning ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Analizando con IA...
-                                </>
-                            ) : (
-                                <>
-                                    <ScanFace className="w-5 h-5" />
-                                    Escanear Cartilla
-                                </>
-                            )}
-                        </Button>
+                        {/* Input forzado a cámara (en móviles) */}
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            capture="environment" 
+                            hidden 
+                            ref={cameraInputRef}
+                            onChange={handleFileSelect}
+                        />
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    size="lg" 
+                                    disabled={isScanning}
+                                    className="w-full md:w-auto bg-gradient-to-r from-medical-500 to-medical-600 hover:from-medical-600 hover:to-medical-700 text-white rounded-full font-bold shadow-lg shadow-medical-500/20 flex items-center gap-2"
+                                >
+                                    {isScanning ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Analizando con IA...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ScanFace className="w-5 h-5" />
+                                            Escanear Cartilla
+                                        </>
+                                    )}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl z-50">
+                                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors">
+                                    <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
+                                    <span className="font-medium">Tomar foto ahora</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors">
+                                    <FileUp className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
+                                    <span className="font-medium">Subir desde dispositivo</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
 
