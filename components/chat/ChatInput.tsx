@@ -3,15 +3,18 @@ import { useTranslations } from 'next-intl';
 import { Send, Paperclip } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from 'react-toastify';
+import { ChatVaultModal } from './ChatVaultModal';
 
 interface ChatInputProps {
-    onSendMessage: (content: string) => void;
+    onSendMessage: (content: string, vaultDocumentId?: string) => void;
     onTyping: (isTyping: boolean) => void;
 }
 
 export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
     const t = useTranslations('PatientMessages');
     const [message, setMessage] = useState('');
+    const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -44,7 +47,12 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
         };
     }, []);
 
+    const handleAttachDocument = (document: any) => {
+        onSendMessage(`Adjunto documento clínico: ${document.fileName}`, document.id);
+    };
+
     return (
+        <>
         <form 
             onSubmit={handleSubmit} 
             className="p-3 md:p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 shrink-0"
@@ -55,6 +63,7 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
                 size="icon" 
                 className="text-slate-400 hover:text-medical-500 shrink-0 hidden md:flex"
                 title={t('attach_vault', { defaultValue: 'Adjuntar de la bóveda' })}
+                onClick={() => setIsVaultModalOpen(true)}
             >
                 <Paperclip className="w-5 h-5" />
             </Button>
@@ -75,5 +84,12 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
                 <span className="hidden md:inline font-semibold">{t('btn_send', { defaultValue: 'Enviar' })}</span>
             </Button>
         </form>
+        
+        <ChatVaultModal 
+            isOpen={isVaultModalOpen} 
+            onClose={() => setIsVaultModalOpen(false)} 
+            onAttach={handleAttachDocument} 
+        />
+        </>
     );
 }

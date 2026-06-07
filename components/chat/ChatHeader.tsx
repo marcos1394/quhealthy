@@ -36,7 +36,7 @@ export function ChatHeader({ conversation, onBack, onVoiceCall, onVideoCall }: C
                         {conversation.provider?.online ? (
                             <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('online', { defaultValue: 'En línea' })}</>
                         ) : (
-                            <><span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600"></span> {t('offline', { defaultValue: 'Desconectado' })}</>
+                            <><span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600"></span> {t('offline', { defaultValue: 'Desconectado' })} • Última vez: {new Date(conversation.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</>
                         )}
                     </p>
                 </div>
