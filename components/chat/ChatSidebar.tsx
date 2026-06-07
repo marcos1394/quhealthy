@@ -67,7 +67,7 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                             >
                                 <div className="relative">
                                     <Avatar className="h-12 w-12 border-2 border-medical-100 dark:border-medical-500/20">
-                                        <AvatarImage src={convo.provider?.image} />
+                                        <AvatarImage src={convo.provider?.image || convo.otherParticipantImage} />
                                         <AvatarFallback className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-300 font-bold">
                                             {providerName.charAt(0)}
                                         </AvatarFallback>
@@ -85,7 +85,7 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1 mt-0.5">
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{convo.provider?.specialty || t('specialist', { defaultValue: 'Especialista' })}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{convo.provider?.specialty || convo.otherParticipantSpecialty || t('specialist', { defaultValue: 'Especialista' })}</p>
                                     </div>
                                     <p className={cn(
                                         "text-xs truncate mt-1",

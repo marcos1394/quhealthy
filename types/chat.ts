@@ -8,6 +8,8 @@ export interface Conversation {
     
     // UI Helpers (En el futuro, el backend los poblará o los cruzaremos con los datos del provider)
     otherParticipantName?: string;
+    otherParticipantImage?: string;
+    otherParticipantSpecialty?: string;
     lastMessagePreview?: string;
     unreadCount?: number;
     provider?: {
