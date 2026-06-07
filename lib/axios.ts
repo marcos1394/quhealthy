@@ -56,7 +56,20 @@ const processQueue = (error: AxiosError | null, token: string | null = null): vo
 // 3. INTERCEPTOR DE SOLICITUD — Inyecta el Bearer token
 // =========================================================================
 axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
+    // 🚀 FIX: Si hay un refresh inicial en progreso, esperamos a que termine
+    // antes de enviar cualquier request (excepto el propio refresh o login)
+    const url = config.url ?? '';
+    const isAuthRoute = url.includes('/api/auth/refresh-token') || url.includes('/api/auth/login');
+    
+    if (isInitialRefreshInProgress && initialRefreshPromise && !isAuthRoute) {
+      try {
+        await initialRefreshPromise;
+      } catch (e) {
+        // Si falla, ignoramos y dejamos que el request pase (probablemente retorne 401/403)
+      }
+    }
+
     const token = useSessionStore.getState().token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
