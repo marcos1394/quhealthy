@@ -20,14 +20,14 @@ interface ChatVaultModalProps {
 
 export function ChatVaultModal({ isOpen, onClose, onAttach }: ChatVaultModalProps) {
     const t = useTranslations('PatientMessages');
-    const { documents, isLoading, loadDocuments } = useHealthVault();
+    const { documents, isLoading, fetchDocuments } = useHealthVault();
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         if (isOpen) {
-            loadDocuments();
+            fetchDocuments();
         }
-    }, [isOpen, loadDocuments]);
+    }, [isOpen, fetchDocuments]);
 
     const formatDate = (dateString: string) => {
         return formatInTimeZone(new Date(dateString), 'UTC', "d MMM yyyy", { locale: es });

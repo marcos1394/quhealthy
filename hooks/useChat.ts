@@ -172,25 +172,25 @@ export const useChat = () => {
     }, [selectedConversation, isConnected, user]);
 
     // ==========================================================
-    // 3. ACCIONES DEL USUARIO (Enviar Mensajes y Eventos)
+    // 3. ENVIAR MENSAJES (Vía WS STOMP)
     // ==========================================================
-    
     const sendMessage = useCallback((content: string, vaultDocumentId?: string) => {
         if (!selectedConversation || !stompClientRef.current || !isConnected || !user) {
-            toast.warn("Esperando conexión segura...");
+            console.error("No se puede enviar el mensaje: falta conexión o conversación");
             return;
         }
 
-        const request: ChatMessageRequest = { content, vaultDocumentId };
+        const msgReq: ChatMessageRequest = { content, vaultDocumentId };
 
         // 1. UX Optimista: Mostrar el mensaje en UI instantáneamente (status 'sending')
         const optimisticMsg: ChatMessage = {
             id: `temp-${Date.now()}`,
             conversationId: selectedConversation.id,
             senderId: user.id,
-            senderRole: 'PATIENT', // Asumido desde el portal de pacientes
+            senderRole: user.role === 'PROVIDER' ? 'PROVIDER' : 'PATIENT',
             messageType: vaultDocumentId ? 'VAULT_DOCUMENT' : 'TEXT',
             content,
+            vaultDocumentId,
             isRead: false,
             createdAt: new Date().toISOString(),
             status: 'sending'
@@ -201,7 +201,7 @@ export const useChat = () => {
         // 2. Disparar el mensaje a través del túnel seguro de Spring Boot
         stompClientRef.current.publish({
             destination: `/app/chat/${selectedConversation.id}/send`,
-            body: JSON.stringify(request)
+            body: JSON.stringify(msgReq)
         });
 
     }, [selectedConversation, isConnected, user]);
