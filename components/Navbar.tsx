@@ -69,17 +69,19 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
 
   // ✅ CORRECCIÓN 1: No extraemos fetchSession del store (ya no existe ahí)
-  const { user, role, isAuthenticated, isLoading } = useSessionStore();
+  const { user, role, isAuthenticated, isLoading, initializeSession, _hasHydrated } = useSessionStore();
 
-  // ✅ CORRECCIÓN 2: Usamos checkSession del hook useAuth
-  const { logout, checkSession } = useAuth();
+  // ✅ CORRECCIÓN 2: Usamos logout del hook useAuth e initializeSession del store
+  const { logout } = useAuth();
 
   const t = useTranslations('Navbar');
 
-  // 1. Hydration: Validar sesión al montar
+  // 1. Hydration: Recuperar sesión si recargaron en página pública
   useEffect(() => {
-    checkSession();
-  }, []); // Array vacío para ejecutar solo al montar
+    if (_hasHydrated) {
+      initializeSession();
+    }
+  }, [_hasHydrated, initializeSession]);
 
   // 2. Efecto de Scroll
   useEffect(() => {

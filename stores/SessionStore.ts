@@ -132,6 +132,12 @@ export const useSessionStore = create<SessionState>()(
           return;
         }
 
+        // 🚀 FIX: Si ya hay una inicialización en progreso, esperamos a que termine
+        if (isInitialRefreshInProgress && initialRefreshPromise) {
+          await initialRefreshPromise;
+          return;
+        }
+
         // 2. Hard Refresh (F5) - La RAM se limpió. Intentamos recuperar vía Cookie HttpOnly
         set({ isLoading: true });
 
