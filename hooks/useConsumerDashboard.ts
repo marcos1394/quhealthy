@@ -3,13 +3,18 @@ import { useState, useEffect } from 'react';
 import { appointmentService } from '@/services/appointment.service';
 import { Appointment } from '@/types/appointments'; // 🚀 Asegúrate de usar la ruta correcta a tu archivo de tipos
 
-export const useConsumerDashboard = () => {
+export const useConsumerDashboard = (profileId?: number) => {
   const [data, setData] = useState<{
     nextAppointment: Appointment | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    healthMetrics: any[];
+    pendingPrescriptionsCount: number;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recentActivity: any[]; 
   }>({
     nextAppointment: null,
+    healthMetrics: [],
+    pendingPrescriptionsCount: 0,
     recentActivity: [],
   });
 
@@ -22,43 +27,32 @@ export const useConsumerDashboard = () => {
         setIsLoading(true);
         setError(null);
         
-        // 🚀 CORRECCIÓN 1: getMyAppointments ahora devuelve un PageResponse.
-        // Extraemos el arreglo de citas desde la propiedad 'content'.
-        // Pedimos solo la primera página para optimizar la carga del dashboard.
-        const pageData = await appointmentService.getMyAppointments(0, 50);
-        const appointmentsList = pageData.content || [];
+        // Obtenemos el resumen del dashboard (métricas + próxima cita)
+        const summary = await appointmentService.getConsumerDashboardSummary(profileId);
         
-        const now = new Date();
-        
-        // 🚀 CORRECCIÓN 2: Iteramos sobre el arreglo extraído (appointmentsList)
-        const next = appointmentsList
-          .filter(a => {
-            const appointmentDate = new Date(a.startTime);
-            // Consideramos como "próxima cita" aquellas confirmadas, en progreso o pendientes de pago
-            const isValidStatus = 
-              a.status === 'SCHEDULED' || 
-              a.status === 'PENDING_PAYMENT' || 
-              a.status === 'IN_PROGRESS';
-              
-            return appointmentDate > now && isValidStatus;
-          })
-          // Ordenamos de la más cercana a la más lejana en el tiempo
-          .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0] || null;
-
         setData({
-          nextAppointment: next,
-          recentActivity: [], // En el futuro puedes llenar esto con citas que tengan status 'COMPLETED'
+          nextAppointment: summary.upcomingAppointment || null,
+          healthMetrics: summary.healthMetrics || [],
+          pendingPrescriptionsCount: summary.pendingPrescriptionsCount || 0,
+          recentActivity: [], // Puedes llenar esto con citas recientes si lo deseas
         });
-      } catch (err: any) {
-        console.error("Error en useConsumerDashboard:", err);
-        setError(err.message || "Error al cargar datos del dashboard");
+      } catch (err: unknown) {
+        console.error('Error fetching consumer dashboard summary:', err);
+        setError('No se pudo cargar la información del dashboard.');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadDashboard();
-  }, []);
+  }, [profileId]);
 
-  return { ...data, isLoading, error };
+  return {
+    nextAppointment: data.nextAppointment,
+    healthMetrics: data.healthMetrics,
+    pendingPrescriptionsCount: data.pendingPrescriptionsCount,
+    recentActivity: data.recentActivity,
+    isLoading,
+    error,
+  };
 };

@@ -15,6 +15,7 @@ import { NextAppointmentHero } from '@/components/dashboard/NextAppointmentHero'
 import { QuickAccessCards } from '@/components/dashboard/QuickAccessCards';
 import { HealthScoreWidget } from '@/components/dashboard/HealthScoreWidget';
 import { HealthOnboardingModal } from '@/components/dashboard/HealthOnboardingModal';
+import { HealthMetricsCarousel } from '@/components/dashboard/HealthMetricsCarousel';
 
 // Store & Hooks
 import { useSessionStore } from '@/stores/SessionStore';
@@ -27,10 +28,7 @@ export default function ConsumerDashboardPage() {
   const router = useRouter();
   const t = useTranslations('PatientDashboard');
   
-  // 1. Hook del Dashboard (Citas)
-  const { nextAppointment, isLoading: isDashboardLoading, error: dashboardError } = useConsumerDashboard();
-  
-  // 2. Hook de Salud (Score) - ELEVADO AQUÍ
+  // 1. Hook de Salud (Score) - ELEVADO AQUÍ
   const { 
     scoreData, 
     isLoading: isScoreLoading, 
@@ -38,6 +36,14 @@ export default function ConsumerDashboardPage() {
     fetchMyScore, 
     submitHealthProfile 
   } = useHealthScore();
+
+  // 2. Hook del Dashboard (Citas y Métricas)
+  const { 
+    nextAppointment, 
+    healthMetrics, 
+    isLoading: isDashboardLoading, 
+    error: dashboardError 
+  } = useConsumerDashboard(scoreData?.profileId);
   
   // 3. Estado local del Modal
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
@@ -101,6 +107,12 @@ export default function ConsumerDashboardPage() {
             />
           </div>
         </div>
+
+        {/* --- MÉTRICAS DE SALUD (NUEVO) --- */}
+        <HealthMetricsCarousel 
+          metrics={healthMetrics} 
+          isLoading={isDashboardLoading} 
+        />
 
         {/* --- ACCESOS RÁPIDOS --- */}
         <QuickAccessCards />

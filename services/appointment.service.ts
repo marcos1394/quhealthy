@@ -32,6 +32,18 @@ export const appointmentService = {
   },
 
   /**
+   * 📊 Obtiene el resumen del dashboard del paciente (Métricas y próxima cita)
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getConsumerDashboardSummary: async (profileId?: number): Promise<any> => {
+    const url = profileId 
+      ? `${BASE_URL}/consumer/dashboard/summary?profileId=${profileId}`
+      : `${BASE_URL}/consumer/dashboard/summary`;
+    const response = await axiosInstance.get(url);
+    return response.data;
+  },
+
+  /**
    * 🔍 Obtiene los detalles extendidos de una cita específica por su ID
    */
   getAppointmentById: async (id: string | number): Promise<AppointmentResponse> => {
