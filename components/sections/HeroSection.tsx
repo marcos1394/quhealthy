@@ -125,13 +125,13 @@ const HeroSection: React.FC = () => {
 
                 <div className="flex-1 flex items-center px-4 py-3 md:py-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 group">
                   <Search className="w-5 h-5 text-slate-400 group-focus-within:text-medical-500 transition-colors shrink-0" />
-                  <input
-                    type="text"
-                    placeholder={t('search_placeholder')}
-                    className="w-full bg-transparent border-none outline-none px-3 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                    <input
+                      type="text"
+                      placeholder="Ej. Nutriólogo barato en Reforma..."
+                      className="w-full bg-transparent border-none outline-none px-3 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
 
                 <div className="flex-1 flex items-center px-4 py-3 md:py-0 group">
@@ -148,7 +148,7 @@ const HeroSection: React.FC = () => {
                 <Button
                   onClick={() => {
                     const params = new URLSearchParams();
-                    if (searchQuery) params.append("category", searchQuery);
+                    if (searchQuery) params.append("q", searchQuery);
                     if (locationQuery) params.append("loc", locationQuery);
                     const query = params.toString();
                     router.push(`/patient/discover${query ? `?${query}` : ""}`);
