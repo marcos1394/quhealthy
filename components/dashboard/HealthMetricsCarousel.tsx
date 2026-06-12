@@ -74,25 +74,20 @@ export function HealthMetricsCarousel({ metrics, isLoading }: HealthMetricsCarou
         Métricas de Salud
       </h3>
 
-      {/* Contenedor con Scroll Horizontal (oculta barra en webkit) */}
-      <div className="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Contenedor Responsivo: Scroll Horizontal en Móvil, Grid en Desktop */}
+      <div className="flex overflow-x-auto lg:grid lg:grid-cols-2 gap-4 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {isLoading ? (
           // Skeleton Loader
-          <div className="flex gap-4">
+          <>
             {[1, 2, 3, 4].map((i) => (
               <div 
                 key={i} 
-                className="min-w-[160px] h-[120px] rounded-[1.5rem] bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"
+                className="min-w-[160px] lg:min-w-0 lg:w-full h-[120px] rounded-[1.5rem] bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0"
               />
             ))}
-          </div>
+          </>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="flex gap-4"
-          >
+          <>
             {metrics.map((metric, index) => {
               const Icon = getIconComponent(metric.icon);
               const colorClasses = getColorClasses(metric.color);
@@ -102,7 +97,9 @@ export function HealthMetricsCarousel({ metrics, isLoading }: HealthMetricsCarou
                 <motion.div
                   key={`${metric.title}-${index}`}
                   variants={itemVariants}
-                  className="min-w-[160px] max-w-[180px] shrink-0 relative group cursor-pointer overflow-hidden rounded-[1.5rem] bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 p-4 shadow-sm hover:shadow-xl transition-all duration-300"
+                  initial="hidden"
+                  animate="show"
+                  className="min-w-[160px] lg:min-w-0 lg:w-full shrink-0 relative group cursor-pointer overflow-hidden rounded-[1.5rem] bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 p-4 shadow-sm hover:shadow-xl transition-all duration-300"
                 >
                   {/* Glassmorphism Highlight */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -129,7 +126,7 @@ export function HealthMetricsCarousel({ metrics, isLoading }: HealthMetricsCarou
                 </motion.div>
               );
             })}
-          </motion.div>
+          </>
         )}
       </div>
     </div>

@@ -90,32 +90,40 @@ export default function ConsumerDashboardPage() {
         {/* --- HEADER --- */}
         <DashboardHeader firstName={firstName} />
 
-        {/* --- SECCIÓN PRINCIPAL --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <NextAppointmentHero 
-            appointment={nextAppointment}
-            onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
-            onSearch={() => router.push('/patient/discover')}
-          />
+        {/* --- SECCIÓN PRINCIPAL (12 Columnas en Desktop) --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* --- COLUMNA IZQUIERDA (Gestión y Citas) - 8/12 --- */}
+          <div className="lg:col-span-8 flex flex-col gap-8">
+            <NextAppointmentHero 
+              appointment={nextAppointment}
+              onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
+              onSearch={() => router.push('/patient/discover')}
+            />
+            
+            {/* Accesos Rápidos pasa al lado izquierdo */}
+            <QuickAccessCards />
+          </div>
 
-          <div className="h-full">
-            {/* Le pasamos el estado y la función para abrir el modal */}
-            <HealthScoreWidget 
-              scoreData={scoreData}
-              isLoading={isScoreLoading}
-              onOpenOnboarding={() => setIsOnboardingOpen(true)} 
+          {/* --- COLUMNA DERECHA (Salud y Métricas) - 4/12 --- */}
+          <div className="lg:col-span-4 flex flex-col gap-8">
+            <div className="h-full min-h-[320px]">
+              {/* Le pasamos el estado y la función para abrir el modal */}
+              <HealthScoreWidget 
+                scoreData={scoreData}
+                isLoading={isScoreLoading}
+                onOpenOnboarding={() => setIsOnboardingOpen(true)} 
+              />
+            </div>
+            
+            {/* Las métricas de salud ahora forman parte de la barra lateral de Salud */}
+            <HealthMetricsCarousel 
+              metrics={healthMetrics} 
+              isLoading={isDashboardLoading} 
             />
           </div>
+
         </div>
-
-        {/* --- MÉTRICAS DE SALUD (NUEVO) --- */}
-        <HealthMetricsCarousel 
-          metrics={healthMetrics} 
-          isLoading={isDashboardLoading} 
-        />
-
-        {/* --- ACCESOS RÁPIDOS --- */}
-        <QuickAccessCards />
 
         {/* 🚀 MODAL DE ONBOARDING DE SALUD */}
         <HealthOnboardingModal 
