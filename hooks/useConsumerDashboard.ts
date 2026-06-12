@@ -27,11 +27,20 @@ export const useConsumerDashboard = (profileId?: number) => {
         setIsLoading(true);
         setError(null);
         
-        // Obtenemos el resumen del dashboard (métricas + próxima cita)
-        const summary = await appointmentService.getConsumerDashboardSummary(profileId);
-        
+        // Mapeamos el DTO del backend a la interfaz Appointment esperada
+        const nextAppt = summary.upcomingAppointment ? {
+          id: summary.upcomingAppointment.id,
+          startTime: summary.upcomingAppointment.time, // <- Clave para evitar Invalid time value
+          providerNameSnapshot: summary.upcomingAppointment.providerName,
+          serviceNameSnapshot: summary.upcomingAppointment.type,
+          provider: {
+            specialty: summary.upcomingAppointment.specialty,
+            image: undefined,
+          }
+        } as Appointment : null;
+
         setData({
-          nextAppointment: summary.upcomingAppointment || null,
+          nextAppointment: nextAppt,
           healthMetrics: summary.healthMetrics || [],
           pendingPrescriptionsCount: summary.pendingPrescriptionsCount || 0,
           recentActivity: [], // Puedes llenar esto con citas recientes si lo deseas
