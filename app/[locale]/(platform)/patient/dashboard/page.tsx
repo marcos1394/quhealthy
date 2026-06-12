@@ -43,7 +43,7 @@ export default function ConsumerDashboardPage() {
     healthMetrics, 
     isLoading: isDashboardLoading, 
     error: dashboardError 
-  } = useConsumerDashboard(scoreData?.profileId);
+  } = useConsumerDashboard();
   
   // 3. Estado local del Modal
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
