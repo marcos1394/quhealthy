@@ -183,15 +183,19 @@ export const useSessionStore = create<SessionState>()(
               localStorage.removeItem('quhealthy-session');
               nukeCookies();
 
-              // Solo redirigir si estamos en una ruta protegida
+              // Solo redirigir si estamos en una ruta verdaderamente protegida
               const currentPath = window.location.pathname;
-              const isPublicRoute = currentPath.includes('/login') ||
-                currentPath.includes('/register') ||
-                currentPath.includes('/forgot-password') ||
-                currentPath.includes('/reset-password') ||
-                currentPath.includes('/verify-');
+              const isProtectedRoute = 
+                /\/dashboard/.test(currentPath) ||
+                /\/profile/.test(currentPath) ||
+                /\/wallet/.test(currentPath) ||
+                /\/appointments/.test(currentPath) ||
+                /\/orders/.test(currentPath) ||
+                /\/checkout/.test(currentPath) ||
+                /\/settings/.test(currentPath) ||
+                /\/reviews/.test(currentPath);
 
-              if (!isPublicRoute) {
+              if (isProtectedRoute) {
                 window.location.href = '/login?expired=true';
               }
             }

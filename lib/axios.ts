@@ -186,12 +186,21 @@ axiosInstance.interceptors.response.use(
         processQueue(refreshError as AxiosError, null);
         useSessionStore.getState().clearSession(); // clearSession ya llama nukeCookies()
 
-        if (
-          typeof window !== 'undefined' &&
-          !window.location.pathname.includes('/login') &&
-          !originalRequest?.skipAuthRedirect
-        ) {
-          window.location.href = '/login?expired=true';
+        if (typeof window !== 'undefined') {
+          const currentPath = window.location.pathname;
+          const isProtectedRoute = 
+            /\/dashboard/.test(currentPath) ||
+            /\/profile/.test(currentPath) ||
+            /\/wallet/.test(currentPath) ||
+            /\/appointments/.test(currentPath) ||
+            /\/orders/.test(currentPath) ||
+            /\/checkout/.test(currentPath) ||
+            /\/settings/.test(currentPath) ||
+            /\/reviews/.test(currentPath);
+
+          if (isProtectedRoute && !originalRequest?.skipAuthRedirect) {
+            window.location.href = '/login?expired=true';
+          }
         }
 
         return Promise.reject(refreshError);
