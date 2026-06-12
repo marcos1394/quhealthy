@@ -26,7 +26,9 @@ export const useConsumerDashboard = (profileId?: number) => {
       try {
         setIsLoading(true);
         setError(null);
-        
+        // Obtenemos el resumen del dashboard (métricas + próxima cita)
+        const summary = await appointmentService.getConsumerDashboardSummary(profileId);
+
         // Mapeamos el DTO del backend a la interfaz Appointment esperada
         const nextAppt = summary.upcomingAppointment ? {
           id: summary.upcomingAppointment.id,
