@@ -14,7 +14,8 @@ import { LayoutDashboard, CalendarDays, Users, CreditCard,
   History,
   BadgeX,
   PackageCheck,
-  Calculator} from "lucide-react";
+  Calculator,
+  BookOpen} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -60,6 +61,7 @@ const patientLinks = [
   { key: "dependents", href: "/patient/dashboard/family", icon: Users, badge: null },
   { key: "wallet",     href: "/patient/dashboard/wallet",   icon: CreditCard, badge: null },
   { key: "orders",     href: "/patient/dashboard/orders",   icon: Package,    badge: null },
+  { key: "courses",    href: "/patient/dashboard/courses",  icon: BookOpen,   badge: null },
 ];
 
 const patientSettingsLinks = [
