@@ -5,7 +5,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Truck, FileText, Upload, X, CheckCircle2,
-  Loader2, MapPin, ShieldCheck, AlertCircle, Store
+  Loader2, MapPin, ShieldCheck, AlertCircle, Store, Zap, MonitorPlay
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ interface CheckoutModalProps {
   // 🚀 FIX: prescriptionUrls ahora es de tipo string (JSON) para que encaje con el Hook
   onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined) => void;
   isProcessing: boolean;
+  themeColor?: string;
 }
 
 interface AddressForm {
@@ -46,7 +47,7 @@ function isAddressComplete(f: AddressForm): boolean {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function CheckoutModal({
-  isOpen, onClose, cart, onConfirm, isProcessing
+  isOpen, onClose, cart, onConfirm, isProcessing, themeColor = "#7c3aed"
 }: CheckoutModalProps) {
   // --- Derived flags ---
   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
@@ -206,6 +207,56 @@ export function CheckoutModal({
 
           {/* Scrollable content */}
           <div className="overflow-y-auto flex-1 px-6 py-5 space-y-7">
+
+            {/* ── SECCIÓN 0: PRODUCTOS DIGITALES (SI TODO ES DIGITAL) ──────────────── */}
+            {!hasPhysical && !needsPrescription && (
+              <section className="py-2">
+                <div className="flex flex-col items-center justify-center text-center space-y-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>
+                    <MonitorPlay className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Acceso a Contenido Digital</h3>
+                    <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
+                      Estás a un paso de acceder a tu contenido. Al confirmar el pago, se habilitará inmediatamente en tu cuenta.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-6">
+                  {cart.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-white/10 overflow-hidden flex-shrink-0">
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <MonitorPlay className="w-4 h-4 text-slate-400" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-slate-700 dark:text-zinc-300 line-clamp-1">{item.name}</span>
+                      </div>
+                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-none whitespace-nowrap">
+                        100% Digital
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                    <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                    <span className="text-xs font-medium text-slate-600 dark:text-zinc-400">Acceso Inmediato</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span className="text-xs font-medium text-slate-600 dark:text-zinc-400">Pago Seguro</span>
+                  </div>
+                </div>
+              </section>
+            )}
 
             {/* ── SECCIÓN 1: DIRECCIÓN DE ENVÍO ──────────────────────────── */}
             {hasPhysical && (
@@ -445,7 +496,7 @@ export function CheckoutModal({
               onClick={handleConfirm}
               disabled={!canSubmit}
               className="w-full h-12 text-base font-bold text-white rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              style={{ background: canSubmit ? "linear-gradient(135deg, #7c3aed, #a855f7)" : undefined }}
+              style={{ backgroundColor: themeColor }}
             >
               {isProcessing ? (
                 <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Procesando pago...</>

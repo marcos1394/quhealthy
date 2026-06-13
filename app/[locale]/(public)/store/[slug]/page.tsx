@@ -575,6 +575,7 @@ export default function PublicStorePage() {
         onClose={() => setShowCheckout(false)}
         cart={cart}
         isProcessing={isProcessing}
+        themeColor={safePrimaryColor}
         onConfirm={(shippingAddress, prescriptionUrls, pickupTime) => {
           setShowCheckout(false);
           processCheckout({
