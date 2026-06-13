@@ -20,7 +20,7 @@ function VerificationContent() {
   const token = searchParams.get("token");
   const roleParam = searchParams.get("role");
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error" | "pending">("loading");
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(10);
   const [countdown, setCountdown] = useState(5);
@@ -36,7 +36,14 @@ function VerificationContent() {
 
   useEffect(() => {
     const verify = async () => {
-      if (!token) { setStatus("error"); setMessage(t("cause_3")); setProgress(100); return; }
+      if (!token) { 
+        if (searchParams.get("email")) {
+          setStatus("pending");
+          setProgress(100);
+          return;
+        }
+        setStatus("error"); setMessage(t("cause_3")); setProgress(100); return; 
+      }
       try {
         await verifyEmail(token);
         setProgress(100); setStatus("success"); setMessage(t("success_desc"));
@@ -46,7 +53,7 @@ function VerificationContent() {
     };
     const timeout = setTimeout(() => verify(), 1500);
     return () => clearTimeout(timeout);
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token, searchParams, t, verifyEmail]);
 
   const isProvider = roleParam === "provider";
   const RoleIcon = isProvider ? Stethoscope : User;
@@ -86,6 +93,31 @@ function VerificationContent() {
                   <div className="flex justify-between text-xs font-medium"><span className="text-slate-500">{t("verifying")}</span><span className="text-medical-600 dark:text-medical-400">{progress}%</span></div>
                   <Progress value={progress} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
                 </div>
+              </motion.div>
+            )}
+            
+            {status === "pending" && (
+              <motion.div key="pending" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="text-center space-y-8 py-8">
+                <div className="mx-auto w-16 h-16 bg-medical-50 dark:bg-medical-500/10 rounded-full flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-medical-600 dark:text-medical-400" strokeWidth={1.5} />
+                </div>
+                <div className="space-y-3">
+                  <h1 className="text-2xl font-medium text-slate-900 dark:text-white tracking-tight">Revisa tu correo</h1>
+                  <p className="text-slate-500 dark:text-slate-400 font-light">
+                    Hemos enviado un enlace de confirmación a <strong className="font-medium text-slate-700 dark:text-slate-300">{searchParams.get("email")}</strong>. Por favor, haz clic en el enlace para activar tu cuenta.
+                  </p>
+                </div>
+                <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-medical-600 dark:text-medical-400 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <div className="text-left text-sm text-medical-700 dark:text-medical-400 space-y-1">
+                      <p>Si no lo encuentras en tu bandeja de entrada principal, revisa la carpeta de Spam o Correo No Deseado.</p>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={() => router.push("/login")} className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl">
+                  Ir al inicio de sesión
+                </Button>
               </motion.div>
             )}
 
