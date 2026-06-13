@@ -125,7 +125,7 @@ export default function ProviderSignupPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         termsAccepted: formData.acceptTerms as true,
-        privacyPolicyVersion: "1.0"
+        privacyPolicyVersion: "v1.0"
       };
 
       const res = await registerProvider(signupData);
