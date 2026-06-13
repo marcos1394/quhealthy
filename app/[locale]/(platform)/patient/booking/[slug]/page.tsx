@@ -97,6 +97,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           cart,
           dependentId: (requiresScheduling && scheduleNow) ? dependentId : undefined, 
           consumerSymptoms: symptomsText,
+          scheduleNow: requiresScheduling ? scheduleNow : true,
         });
       }
     }
@@ -335,7 +336,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               consumerSymptoms: pendingSymptoms,
               shippingAddress,
               prescriptionUrls,
-              pickupTime
+              pickupTime,
+              scheduleNow: requiresScheduling ? scheduleNow : true,
             });
           }
         }}

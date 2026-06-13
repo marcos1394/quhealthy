@@ -22,7 +22,8 @@ export const useBookingCheckout = () => {
     consumerSymptoms,
     shippingAddress,
     prescriptionUrls,
-    pickupTime
+    pickupTime,
+    scheduleNow = true
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -32,8 +33,8 @@ export const useBookingCheckout = () => {
       }
 
       // 🧠 1. IDENTIFICAR EL TIPO DE ORDEN
-      // Es cita única si solo hay 1 ítem y es de tipo SERVICIO
-      const isSingleAppointment = cart.length === 1 && cart[0].type === 'SERVICE';
+      // Es cita única SOLAMENTE si hay 1 ítem de tipo SERVICIO y además se seleccionó "Agendar Ahora"
+      const isSingleAppointment = cart.length === 1 && cart[0].type === 'SERVICE' && scheduleNow;
 
       if (isSingleAppointment) {
         // =======================================================
@@ -86,13 +87,14 @@ export const useBookingCheckout = () => {
           let appointmentType = item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON';
 
           if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
-            if (selectedDate && selectedTime) {
+            // Si scheduleNow es true, generamos la fecha seleccionada. Si es false (Comprar para después), enviamos null.
+            if (scheduleNow && selectedDate && selectedTime) {
               const [hours, minutes] = selectedTime.split(':');
               const startDateTime = new Date(selectedDate);
               startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
               startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
             } else {
-               startTimeIso = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
+               startTimeIso = null;
             }
           }
 

@@ -13,6 +13,7 @@ export interface CheckoutParams {
   // 🚀 Espera un JSON en String ej: '{"12": "consumers/5/prescriptions/abc.jpg"}'
   prescriptionUrls?: string;
   pickupTime?: string;
+  scheduleNow?: boolean;
 }
 
 export interface CreateAppointmentRequest {
