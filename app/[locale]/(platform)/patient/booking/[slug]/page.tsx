@@ -324,7 +324,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
         onClose={() => setShowCheckoutModal(false)}
         cart={cart}
         isProcessing={isProcessing}
-        onConfirm={(shippingAddress, prescriptionUrls, pickupTime) => {
+        onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState) => {
           setShowCheckoutModal(false);
           if (providerId) {
             processCheckout({
@@ -337,6 +337,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               shippingAddress,
               prescriptionUrls,
               pickupTime,
+              destinationState,
               scheduleNow: requiresScheduling ? scheduleNow : true,
             });
           }

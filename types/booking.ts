@@ -13,6 +13,7 @@ export interface CheckoutParams {
   // 🚀 Espera un JSON en String ej: '{"12": "consumers/5/prescriptions/abc.jpg"}'
   prescriptionUrls?: string;
   pickupTime?: string;
+  destinationState?: string;
   scheduleNow?: boolean;
 }
 
@@ -47,6 +48,7 @@ export interface CheckoutHybridRequest {
   paymentMethod: string;
   consumerSymptoms?: string;
   shippingAddress?: string;
+  destinationState?: string;
   pickupTime?: string;
   prescriptionUrls?: string;
   cartItems: CartItemRequest[];

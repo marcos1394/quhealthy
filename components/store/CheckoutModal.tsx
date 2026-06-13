@@ -37,7 +37,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   cart: StorefrontItem[];
   // 🚀 FIX: prescriptionUrls ahora es de tipo string (JSON) para que encaje con el Hook
-  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined) => void;
+  onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined, destinationState: string | undefined) => void;
   isProcessing: boolean;
   themeColor?: string;
 }
@@ -180,7 +180,12 @@ export function CheckoutModal({
       ? `${format(pickupDate, "yyyy-MM-dd")}T${pickupTimeStr}:00` 
       : undefined;
 
-    onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime);
+    // 🚀 Extraemos el estado destino explícitamente para validación COFEPRIS
+    const finalDestinationState = hasPhysical && shippingMethod === 'DELIVERY'
+      ? address.state
+      : undefined;
+
+    onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime, finalDestinationState);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────

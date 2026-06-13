@@ -576,7 +576,7 @@ export default function PublicStorePage() {
         cart={cart}
         isProcessing={isProcessing}
         themeColor={safePrimaryColor}
-        onConfirm={(shippingAddress, prescriptionUrls, pickupTime) => {
+        onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState) => {
           setShowCheckout(false);
           processCheckout({
             providerId: store!.providerId,
@@ -588,6 +588,7 @@ export default function PublicStorePage() {
             shippingAddress,
             prescriptionUrls,
             pickupTime,
+            destinationState,
           });
         }}
       />
