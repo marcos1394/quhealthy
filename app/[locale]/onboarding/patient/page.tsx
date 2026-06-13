@@ -10,6 +10,7 @@ import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 import { WearablesStep } from "./WearablesStep";
 import { DependentsStep } from "./DependentsStep";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -28,6 +29,7 @@ export default function ConsumerOnboardingWizard() {
     currentStep,
     data,
     loading,
+    initialLoading,
     updateData,
     handleNext,
     handleSkip,
@@ -35,6 +37,15 @@ export default function ConsumerOnboardingWizard() {
   } = useConsumerOnboarding(STEPS.length);
 
   // ---- Step Renders ----
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
+        <QhSpinner size="lg" className="mb-4" />
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando perfil...</p>
+      </div>
+    );
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {

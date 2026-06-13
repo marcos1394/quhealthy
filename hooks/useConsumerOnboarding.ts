@@ -9,6 +9,7 @@ export function useConsumerOnboarding(stepsLength: number) {
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<ConsumerOnboardingData>(INITIAL_CONSUMER_ONBOARDING_DATA);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -39,6 +40,7 @@ export function useConsumerOnboarding(stepsLength: number) {
         console.error("Error loading profile", err);
       } finally {
         setLoading(false);
+        setInitialLoading(false);
       }
     };
     loadProfile();
@@ -150,6 +152,7 @@ export function useConsumerOnboarding(stepsLength: number) {
     updateData,
     handleNext,
     handleSkip,
-    handleBack
+    handleBack,
+    initialLoading
   };
 }
