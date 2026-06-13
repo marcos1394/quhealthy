@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, Truck, CheckCircle2, Clock,
-  MapPin, AlertCircle, Check, ExternalLink,
+  MapPin, AlertCircle, Check, ExternalLink, FileText
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ type StatusKey = 'PENDING_PAYMENT' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'C
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   PENDING_PAYMENT: { label: 'Pago Pendiente', color: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400', icon: Clock },
+  PENDING_PRESCRIPTION_REVIEW: { label: 'Revisión de Receta', color: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400', icon: FileText },
   PROCESSING:      { label: 'Preparando',     color: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',   icon: Package },
   SHIPPED:         { label: 'En Camino',       color: 'bg-medical-100 text-medical-700 dark:bg-medical-500/20 dark:text-medical-400', icon: Truck },
   DELIVERED:       { label: 'Entregado',       color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400', icon: CheckCircle2 },
