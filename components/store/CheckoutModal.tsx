@@ -394,13 +394,14 @@ export function CheckoutModal({
                                 {pickupDate ? format(pickupDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                            <PopoverContent className="w-auto p-0 z-[100] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl" align="start">
                               <Calendar
                                 mode="single"
                                 selected={pickupDate}
                                 onSelect={setPickupDate}
                                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0 || date.getDay() === 6}
                                 initialFocus
+                                locale={es}
                               />
                             </PopoverContent>
                           </Popover>
@@ -411,7 +412,7 @@ export function CheckoutModal({
                             <SelectTrigger className="w-full bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 rounded-xl py-2.5 h-auto text-sm">
                               <SelectValue placeholder="Seleccionar hora" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-48 z-[100]">
+                            <SelectContent className="max-h-48 z-[100] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl">
                               {PICKUP_TIMES.map((time) => (
                                 <SelectItem key={time} value={time}>
                                   {time} hrs
