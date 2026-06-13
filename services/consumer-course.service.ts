@@ -23,7 +23,7 @@ export interface PurchasedCourseDetails {
 export const ConsumerCourseService = {
   // 1. Obtener la lista de IDs de cursos comprados desde appointment-service
   getPurchasedCourseAccess: async (): Promise<CourseAccessDto[]> => {
-    const response = await axiosInstance.get('/api/appointments/consumer/courses');
+    const response = await axiosInstance.get('/api/appointments/consumer/orders/courses');
     return response.data || [];
   },
 
