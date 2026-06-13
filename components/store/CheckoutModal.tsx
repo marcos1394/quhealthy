@@ -5,7 +5,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Truck, FileText, Upload, X, CheckCircle2,
-  Loader2, MapPin, ShieldCheck, AlertCircle, Store, Zap, MonitorPlay
+  Loader2, MapPin, ShieldCheck, AlertCircle, Store, Zap, MonitorPlay, Calendar as CalendarIcon
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,22 @@ import { cn } from "@/lib/utils";
 import { StorefrontItem } from "@/types/storefront";
 import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
 import { storageService } from "@/services/storage.service"; // 🚀 Añadido el servicio de Storage
+
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface CheckoutModalProps {
@@ -63,8 +79,14 @@ export function CheckoutModal({
   const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); // 🚀 Toggle de envío
   
   // 🚀 Nuevos estados para fecha y hora de recolección en sitio
-  const [pickupDate, setPickupDate] = useState<string>('');
+  const [pickupDate, setPickupDate] = useState<Date>();
   const [pickupTimeStr, setPickupTimeStr] = useState<string>('');
+
+  const PICKUP_TIMES = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
+  ];
 
   const { setQuery, suggestions, setSuggestions, isLoading: isAutocompleteLoading } = useGoogleAutocomplete();
 
@@ -155,7 +177,7 @@ export function CheckoutModal({
 
     // 🚀 Formateamos la fecha y hora a ISO String si aplica
     const finalPickupTime = shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr 
-      ? `${pickupDate}T${pickupTimeStr}:00` 
+      ? `${format(pickupDate, "yyyy-MM-dd")}T${pickupTimeStr}:00` 
       : undefined;
 
     onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime);
@@ -359,22 +381,44 @@ export function CheckoutModal({
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Fecha de Recolección</label>
-                          <input 
-                            type="date" 
-                            min={new Date().toISOString().split('T')[0]}
-                            value={pickupDate}
-                            onChange={e => setPickupDate(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/30 transition-all"
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full justify-start text-left font-normal rounded-xl bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-sm py-2.5 h-auto",
+                                  !pickupDate && "text-slate-400 dark:text-zinc-500"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {pickupDate ? format(pickupDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={pickupDate}
+                                onSelect={setPickupDate}
+                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0 || date.getDay() === 6}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div>
                           <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Hora Aproximada</label>
-                          <input 
-                            type="time" 
-                            value={pickupTimeStr}
-                            onChange={e => setPickupTimeStr(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2.5 px-4 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/30 transition-all"
-                          />
+                          <Select value={pickupTimeStr} onValueChange={setPickupTimeStr}>
+                            <SelectTrigger className="w-full bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 rounded-xl py-2.5 h-auto text-sm">
+                              <SelectValue placeholder="Seleccionar hora" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-48 z-[100]">
+                              {PICKUP_TIMES.map((time) => (
+                                <SelectItem key={time} value={time}>
+                                  {time} hrs
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                     </motion.div>
