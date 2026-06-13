@@ -124,7 +124,8 @@ export default function ProviderSignupPage() {
         lastName: nameParts.slice(1).join(' ') || '',
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        termsAccepted: formData.acceptTerms as true
+        termsAccepted: formData.acceptTerms as true,
+        privacyPolicyVersion: "1.0"
       };
 
       const res = await registerProvider(signupData);

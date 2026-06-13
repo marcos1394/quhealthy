@@ -17,6 +17,7 @@ export interface RegisterConsumerRequest {
   password: string;
   phone?: string;
   termsAccepted: true;
+  privacyPolicyVersion: string;
   referralCode?: string;
   utmSource?: string;
   utmMedium?: string;
@@ -36,6 +37,7 @@ export interface RegisterProviderRequest {
   email: string;
   password: string;
   termsAccepted: true;
+  privacyPolicyVersion: string;
 }
 
 export interface ProviderRegistrationResponse {

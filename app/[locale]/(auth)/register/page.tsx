@@ -121,6 +121,7 @@ export default function ConsumerSignupPage() {
         password: formData.password,
         phone: formData.phone ? formData.phone.trim() : undefined,
         termsAccepted: formData.acceptTerms as true,
+        privacyPolicyVersion: "1.0",
         utmSource: "web_direct",
         utmMedium: "organic"
       };
