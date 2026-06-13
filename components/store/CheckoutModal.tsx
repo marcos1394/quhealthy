@@ -209,7 +209,7 @@ export function CheckoutModal({
 
         {/* Panel */}
         <motion.div
-          className="relative z-10 w-full sm:max-w-xl bg-white dark:bg-[#18181b] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden max-h-[92dvh] flex flex-col"
+          className="relative z-10 w-full sm:max-w-xl bg-white dark:bg-[#18181b] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden max-h-[85dvh] sm:max-h-[80dvh] flex flex-col"
           initial={{ y: 60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 60, opacity: 0 }}
