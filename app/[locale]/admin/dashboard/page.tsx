@@ -6,6 +6,7 @@ import { Activity, Users, DollarSign, LogOut, Settings, BarChart3, ShieldCheck, 
 import { toast } from 'react-toastify';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { adminService, FinanceMetricsDTO } from '@/services/admin.service';
+import { useSessionStore } from '@/stores/SessionStore';
 
 export default function AdminDashboardPage() {
     const router = useRouter();
@@ -22,16 +23,22 @@ export default function AdminDashboardPage() {
             toast.error('Acceso denegado. No eres administrador.');
             router.push('/admin/login');
         } else {
-            adminService.getFinanceMetrics()
-                .then(data => {
-                    setMetrics(data);
-                    setIsLoading(false);
-                })
-                .catch(err => {
-                    console.error("Error fetching metrics", err);
-                    toast.error("Error al cargar métricas de Stripe");
-                    setIsLoading(false);
-                });
+            // Restore token from HttpOnly cookie if F5 was pressed
+            useSessionStore.getState().initializeSession().then(() => {
+                adminService.getFinanceMetrics()
+                    .then(data => {
+                        setMetrics(data);
+                        setIsLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Error fetching metrics", err);
+                        toast.error("Error al cargar métricas de Stripe");
+                        setIsLoading(false);
+                    });
+            }).catch(() => {
+                toast.error("Sesión inválida.");
+                router.push('/admin/login');
+            });
         }
     }, [router]);
 

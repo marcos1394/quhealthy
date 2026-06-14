@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Loader2, ArrowRight, LockKeyhole } from 'lucide-react';
 import { toast } from 'react-toastify';
 import apiClient from '@/lib/axios';
+import { useSessionStore } from '@/stores/SessionStore';
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState('');
@@ -27,6 +28,13 @@ export default function AdminLoginPage() {
             // Ensure cookies/tokens are set
             document.cookie = `__Secure-userRole=${response.data.role}; path=/; secure; samesite=none`;
             document.cookie = `refreshToken=${response.data.refreshToken}; path=/; secure; samesite=none`;
+
+            // 🚀 FIX: Save the token in the session store so axios intercepts it!
+            useSessionStore.getState().updateToken({
+                token: response.data.token,
+                role: response.data.role,
+                status: 'ACTIVE' as any
+            });
 
             toast.success("Bienvenido al panel de administración");
             
