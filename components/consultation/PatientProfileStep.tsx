@@ -36,12 +36,27 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   // Función auxiliar para renderizar arrays o texto de historial
   const renderHistoryData = (data: any, fallbackText: string) => {
     if (!data || data === "Ninguno") return <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+    
+    // Si es un arreglo (ej: ["Aspirina"] o [{name: "Aspirina"}])
     if (Array.isArray(data)) {
-      return data.length && data[0] !== "Ninguno" ? (
-        data.map((item, idx) => <Badge key={idx} variant="outline" className="dark:border-slate-700 dark:text-slate-300">{item}</Badge>)
-      ) : <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+      if (data.length === 0 || data[0] === "Ninguno") {
+        return <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+      }
+      return data.map((item, idx) => {
+        // Extraemos el texto en caso de que sea un objeto (evitando el Error #31 de React)
+        const text = typeof item === 'object' && item !== null ? (item.name || item.disease || JSON.stringify(item)) : item;
+        return <Badge key={idx} variant="outline" className="dark:border-slate-700 dark:text-slate-300 m-0.5">{String(text)}</Badge>;
+      });
     }
-    return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{data}</span>;
+
+    // Si no es arreglo pero es un objeto individual
+    if (typeof data === 'object' && data !== null) {
+      const text = data.name || data.disease || JSON.stringify(data);
+      return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{String(text)}</span>;
+    }
+
+    // Si es un string o número
+    return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{String(data)}</span>;
   };
 
   return (
