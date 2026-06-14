@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useConsumerWallet } from "@/hooks/useConsumerWallet";
+import { useSessionStore } from "@/stores/SessionStore";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const QUICK_AMOUNTS = [500, 1000, 2000, 5000];
 
 export default function PatientWalletPage() {
   const t = useTranslations('PatientWallet');
+  const { user } = useSessionStore();
   const { wallet, isLoading, isToppingUp, fetchWallet, topUpWallet } = useConsumerWallet();
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,7 +102,17 @@ export default function PatientWalletPage() {
             </div>
 
             <div>
-              <p className="text-white/80 text-sm font-medium mb-1">Saldo Actual</p>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-white/80 text-sm font-medium">Saldo Actual</p>
+                <button 
+                  onClick={() => fetchWallet()} 
+                  disabled={isLoading}
+                  className="text-white/60 hover:text-white transition-colors"
+                  title="Actualizar saldo"
+                >
+                  <Activity className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-white text-3xl font-semibold">$</span>
                 <span className="text-white text-5xl font-bold tracking-tight">
@@ -113,7 +125,7 @@ export default function PatientWalletPage() {
             <div className="flex justify-between items-end mt-4">
               <div>
                 <p className="text-white/60 text-[10px] uppercase tracking-wider mb-0.5">Titular</p>
-                <p className="text-white font-medium">Paciente QuHealthy</p>
+                <p className="text-white font-medium">{user ? `${user.firstName} ${user.lastName}` : "Cargando..."}</p>
               </div>
               
               <div className="text-right">
