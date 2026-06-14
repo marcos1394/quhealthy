@@ -46,41 +46,41 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 selection:bg-medical-500/30">
+        <div className="min-h-screen bg-white flex flex-col justify-center items-center p-4 selection:bg-medical-500/30">
             {/* Ambient Background */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute top-1/4 left-1/4 w-[50%] h-[50%] rounded-full bg-medical-500/5 blur-[120px]" />
-                <div className="absolute bottom-1/4 right-1/4 w-[50%] h-[50%] rounded-full bg-sky-500/5 blur-[120px]" />
+                <div className="absolute top-1/4 left-1/4 w-[50%] h-[50%] rounded-full bg-slate-100 blur-[120px]" />
+                <div className="absolute bottom-1/4 right-1/4 w-[50%] h-[50%] rounded-full bg-slate-50 blur-[120px]" />
             </div>
 
             <div className="w-full max-w-md relative z-10">
                 <div className="flex justify-center mb-8">
-                    <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center shadow-2xl">
-                        <ShieldCheck className="w-8 h-8 text-medical-500" />
+                    <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center shadow-lg">
+                        <ShieldCheck className="w-8 h-8 text-slate-800" />
                     </div>
                 </div>
 
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-bold text-white tracking-tight">QuHealthy Admin</h1>
-                    <p className="text-slate-400 mt-2">Acceso restringido a personal autorizado</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">QuHealthy Admin</h1>
+                    <p className="text-slate-500 mt-2">Acceso restringido a personal autorizado</p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+                <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl backdrop-blur-xl">
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-300 ml-1">Correo Corporativo</label>
+                            <label className="text-sm font-semibold text-slate-700 ml-1">Correo Corporativo</label>
                             <input 
                                 type="email"
                                 required
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="admin@quhealthy.org"
-                                className="w-full h-14 bg-slate-950 border border-slate-800 rounded-2xl px-4 text-white placeholder-slate-600 focus:outline-none focus:border-medical-500 focus:ring-1 focus:ring-medical-500 transition-all"
+                                className="w-full h-14 bg-white border border-slate-300 rounded-2xl px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 transition-all"
                             />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-300 ml-1">Contraseña</label>
+                            <label className="text-sm font-semibold text-slate-700 ml-1">Contraseña</label>
                             <div className="relative">
                                 <input 
                                     type="password"
@@ -88,16 +88,16 @@ export default function AdminLoginPage() {
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="w-full h-14 bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 text-white placeholder-slate-600 focus:outline-none focus:border-medical-500 focus:ring-1 focus:ring-medical-500 transition-all"
+                                    className="w-full h-14 bg-white border border-slate-300 rounded-2xl pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 transition-all"
                                 />
-                                <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             </div>
                         </div>
 
                         <button 
                             type="submit"
                             disabled={isLoading || !email || !password}
-                            className="w-full h-14 bg-medical-500 hover:bg-medical-600 text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:hover:bg-medical-500 shadow-lg shadow-medical-500/20"
+                            className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:hover:bg-slate-900 shadow-md"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
