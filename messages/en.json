@@ -2063,7 +2063,11 @@
       "drop_here": "Drop the document here",
       "btn_uploading": "Processing document...",
       "ai_analyzing": "Our AI is extracting medical data.",
-      "privacy_note": "End-to-end encryption (HIPAA Compliant)"
+      "privacy_note": "End-to-end encryption (HIPAA Compliant)",
+      "tab_upload": "Upload File",
+      "tab_note": "Write Note",
+      "drag_inactive": "Click or drag a file here",
+      "supported_formats": "PDF, JPG, PNG (max 10MB)"
     },
     "Card": {
       "ai_pending": "Analyzing...",

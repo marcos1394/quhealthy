@@ -2063,7 +2063,11 @@
       "drop_here": "Suelta el documento aquí",
       "btn_uploading": "Procesando documento...",
       "ai_analyzing": "Nuestra IA está extrayendo los datos médicos.",
-      "privacy_note": "Encriptación de extremo a extremo (HIPAA Compliant)"
+      "privacy_note": "Encriptación de extremo a extremo (HIPAA Compliant)",
+      "tab_upload": "Subir Archivo",
+      "tab_note": "Escribir Nota",
+      "drag_inactive": "Haz clic o arrastra un archivo aquí",
+      "supported_formats": "PDF, JPG, PNG (máx. 10MB)"
     },
     "Card": {
       "ai_pending": "Analizando...",
