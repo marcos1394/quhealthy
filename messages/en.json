@@ -2347,7 +2347,8 @@
     "empty_packages_title": "No saved packages yet",
     "empty_packages_desc": "When you see an interesting health package, save it to easily find it here.",
     "btn_explore": "Explore Map",
-    "view_profile": "View Profile"
+    "view_profile": "View Profile",
+    "buy_package": "Buy"
   },
   "PatientFamilyDashboard": {
     "title": "My Family",
