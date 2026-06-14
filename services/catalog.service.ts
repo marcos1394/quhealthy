@@ -45,5 +45,14 @@ export const catalogService = {
   adjustStock: async (id: number, adjustment: number): Promise<CatalogItemDTO> => {
     const response = await axiosInstance.patch(`${BASE_URL}/items/${id}/stock?adjustment=${adjustment}`);
     return response.data;
+  },
+
+  /**
+   * Obtiene múltiples ítems a partir de una lista de IDs
+   */
+  getItemsBatch: async (itemIds: number[]): Promise<CatalogItemDTO[]> => {
+    if (!itemIds || itemIds.length === 0) return [];
+    const response = await axiosInstance.post(`${BASE_URL}/items/batch`, { itemIds });
+    return response.data;
   }
 };

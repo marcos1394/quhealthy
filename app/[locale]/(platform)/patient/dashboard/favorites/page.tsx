@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 import { useMyFavorites } from '@/hooks/useMyFavorites';
 import { useDiscover } from '@/hooks/useDiscover';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
+import { catalogService } from '@/services/catalog.service';
+import { CatalogItemDTO } from '@/types/catalog';
 
 export default function PatientFavoritesDashboard() {
     const t = useTranslations('PatientFavoritesDashboard');
@@ -34,6 +36,24 @@ export default function PatientFavoritesDashboard() {
         if (!providers) return [];
         return providers.filter(p => favoriteProviderIds.has(p.id));
     }, [providers, favoriteProviderIds]);
+
+    const [savedPackages, setSavedPackages] = useState<CatalogItemDTO[]>([]);
+
+    useEffect(() => {
+        const fetchPackages = async () => {
+            if (favoritePackageIds.size > 0) {
+                try {
+                    const pkgs = await catalogService.getItemsBatch(Array.from(favoritePackageIds));
+                    setSavedPackages(pkgs);
+                } catch (error) {
+                    console.error("Error fetching favorite packages:", error);
+                }
+            } else {
+                setSavedPackages([]);
+            }
+        };
+        fetchPackages();
+    }, [favoritePackageIds]);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-rose-500/30 pb-20">
@@ -155,18 +175,70 @@ export default function PatientFavoritesDashboard() {
                     </motion.div>
                 )}
 
-                {/* Contenido: Paquetes Guardados (Estructura para el futuro próximo) */}
+                {/* Contenido: Paquetes Guardados */}
                 {activeTab === 'PACKAGES' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-4">
-                        <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
-                            <Sparkles className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                                {t('empty_packages_title')}
-                            </h3>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">
-                                {t('empty_packages_desc')}
-                            </p>
-                        </div>
+                        {savedPackages.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {savedPackages.map((pkg) => (
+                                    <div key={pkg.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 relative">
+                                        <div className="h-40 w-full relative bg-rose-50 dark:bg-rose-950/20 overflow-hidden flex items-center justify-center">
+                                            {pkg.imageUrl ? (
+                                                <img 
+                                                    src={pkg.imageUrl} 
+                                                    alt={pkg.name} 
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <Sparkles className="w-16 h-16 text-rose-300 dark:text-rose-700 opacity-50" />
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                                            
+                                            <div className="absolute top-3 right-3 z-10">
+                                                <FavoriteButton 
+                                                    entityType="PACKAGE" 
+                                                    entityId={pkg.id!} 
+                                                    initialIsFavorite={true}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="p-5">
+                                            <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight truncate">
+                                                {pkg.name}
+                                            </h3>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                                                {pkg.description || 'Paquete de salud'}
+                                            </p>
+
+                                            <div className="mt-5 flex items-center justify-between">
+                                                <span className="text-lg font-bold text-rose-600 dark:text-rose-400">
+                                                    ${pkg.price?.toLocaleString()} <span className="text-sm font-normal text-slate-400">MXN</span>
+                                                </span>
+                                                <Button 
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => router.push(`/store/checkout/${pkg.id}`)}
+                                                    className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-600 dark:text-rose-400"
+                                                >
+                                                    {t('buy_package', { defaultValue: 'Comprar' })} <ChevronRight className="w-3 h-3 ml-1" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
+                                <Sparkles className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                                    {t('empty_packages_title')}
+                                </h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">
+                                    {t('empty_packages_desc')}
+                                </p>
+                            </div>
+                        )}
                     </motion.div>
                 )}
 
