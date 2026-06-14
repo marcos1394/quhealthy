@@ -2354,13 +2354,19 @@
     "subtitle": "Your trusted specialists and health packages just a click away.",
     "tab_providers": "Specialists",
     "tab_packages": "Promotions & Packages",
+    "tab_courses": "Courses",
+    "tab_services": "Services",
+    "tab_products": "Products",
     "empty_providers_title": "No saved specialists yet",
     "empty_providers_desc": "Explore the map and tap the heart on the doctors you want to save for later.",
     "empty_packages_title": "No saved packages yet",
     "empty_packages_desc": "When you see an interesting health package, save it to easily find it here.",
+    "empty_items_title": "No saved items yet",
+    "empty_items_desc": "Explore and save what interests you the most to easily find it here.",
     "btn_explore": "Explore Map",
     "view_profile": "View Profile",
-    "buy_package": "Buy"
+    "buy_package": "Buy",
+    "buy_item": "View Details"
   },
   "PatientFamilyDashboard": {
     "title": "My Family",

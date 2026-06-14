@@ -18,6 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 const VACCINE_SCHEDULE = [
     {
@@ -126,6 +135,11 @@ export default function VaccinationsPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
+    // Modal para seleccionar fecha manual
+    const [isManualMarkModalOpen, setIsManualMarkModalOpen] = useState(false);
+    const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string>("");
+
     useEffect(() => {
         if (!isLoading && family) {
             const found = family.find(f => f.id === Number(params.id));
@@ -148,17 +162,28 @@ export default function VaccinationsPage() {
             setAppliedVaccines(newObj);
             toast.info("Vacuna marcada como pendiente");
         } else {
-            // Simular carga de comprobante
-            setSimulatingAction(vaccineId);
-            setTimeout(() => {
-                setAppliedVaccines(prev => ({
-                    ...prev,
-                    [vaccineId]: { date: new Date().toISOString().split('T')[0], documentId: 'simulated_doc_123' }
-                }));
-                setSimulatingAction(null);
-                toast.success("Vacuna marcada como aplicada. Comprobante guardado en Bóveda.");
-            }, 1200);
+            // Abrir modal para elegir fecha
+            setSelectedVaccineId(vaccineId);
+            setSelectedDate(new Date().toISOString().split('T')[0]); // Por defecto hoy
+            setIsManualMarkModalOpen(true);
         }
+    };
+
+    const confirmManualMark = () => {
+        if (!selectedVaccineId || !selectedDate) return;
+        
+        setSimulatingAction(selectedVaccineId);
+        setIsManualMarkModalOpen(false);
+        
+        setTimeout(() => {
+            setAppliedVaccines(prev => ({
+                ...prev,
+                [selectedVaccineId]: { date: selectedDate, documentId: 'simulated_doc_123' }
+            }));
+            setSimulatingAction(null);
+            setSelectedVaccineId(null);
+            toast.success("Vacuna registrada exitosamente. Comprobante guardado en Bóveda.");
+        }, 1000);
     };
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,6 +402,51 @@ export default function VaccinationsPage() {
                     ))}
                 </div>
             </div>
+
+            {/* Modal para fecha manual */}
+            <Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
+                <DialogContent className="sm:max-w-md rounded-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Registrar aplicación de vacuna</DialogTitle>
+                        <DialogDescription>
+                            Selecciona la fecha en la que se aplicó esta vacuna. Por defecto es la fecha de hoy, pero puedes seleccionar una fecha pasada si ya fue aplicada con anterioridad.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Fecha de aplicación
+                            </label>
+                            <Input 
+                                type="date" 
+                                value={selectedDate} 
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
+                                className="w-full rounded-xl border-slate-200 dark:border-slate-800"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter className="sm:justify-end gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsManualMarkModalOpen(false)}
+                            className="rounded-xl border-slate-200 dark:border-slate-800"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={confirmManualMark}
+                            disabled={!selectedDate}
+                            className="rounded-xl bg-sky-500 hover:bg-sky-600 text-white"
+                        >
+                            <FileCheck2 className="w-4 h-4 mr-2" />
+                            Guardar Registro
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
