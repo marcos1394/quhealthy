@@ -68,8 +68,12 @@ export const ClinicalAssetsPanel: React.FC<ClinicalAssetsPanelProps> = ({
                 <div key={doc.id} className="flex items-center p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-medical-300 transition-colors cursor-pointer shadow-sm">
                   <FileCheck className="w-6 h-6 text-medical-500 mr-3 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{doc.fileName}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{doc.documentType} • {new Date(doc.uploadDate).toLocaleDateString()}</p>
+                    <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{doc.title || doc.fileName || 'Nota sin título'}</p>
+                    {doc.documentType !== 'NOTE' && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {new Date(doc.uploadDate).toLocaleDateString()} • {(doc.fileSizeBytes || 0) > 0 ? (doc.fileSizeBytes! / 1024 / 1024).toFixed(1) + ' MB' : '0 MB'}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

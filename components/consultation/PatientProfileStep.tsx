@@ -185,7 +185,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                       <FileCheck className="w-5 h-5 text-medical-600 dark:text-medical-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{doc.fileName}</p>
+                      <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{doc.title || doc.fileName || 'Nota sin título'}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{doc.documentType} • {new Date(doc.uploadDate).toLocaleDateString()}</p>
                     </div>
                     <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity dark:text-medical-400 dark:hover:bg-medical-900/20">{t('view_btn')}</Button>

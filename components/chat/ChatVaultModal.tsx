@@ -41,9 +41,10 @@ export function ChatVaultModal({ isOpen, onClose, onAttach }: ChatVaultModalProp
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    const filteredDocs = documents.filter(doc =>
-        doc.fileName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredDocs = documents.filter(doc => {
+        const searchTarget = (doc.title || doc.fileName || '').toLowerCase();
+        return searchTarget.includes(searchQuery.toLowerCase());
+    });
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -91,12 +92,16 @@ export function ChatVaultModal({ isOpen, onClose, onAttach }: ChatVaultModalProp
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate">
-                                            {doc.fileName}
+                                            {doc.title || doc.fileName || 'Nota sin título'}
                                         </h4>
                                         <div className="flex items-center gap-2 mt-1 text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
                                             <span>{formatDate(doc.uploadedAt)}</span>
-                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                            <span>{formatBytes(doc.fileSizeBytes)}</span>
+                                            {doc.documentType !== 'NOTE' && (
+                                                <>
+                                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                    <span>{formatBytes(doc.fileSizeBytes || 0)}</span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                     <Button size="sm" variant="outline" className="shrink-0 rounded-xl">
