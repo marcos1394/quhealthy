@@ -33,7 +33,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
                 <div className="flex justify-between items-start mb-4 relative z-10">
                     <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 font-medium px-3 py-1">
                         <span className="flex h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-                        {t('status_active', { defaultValue: 'Activo' })}
+                        {pkg.type === 'SERVICE' ? 'Servicio Prepagado' : t('status_active', { defaultValue: 'Paquete Activo' })}
                     </Badge>
                     <ShieldCheck className="w-6 h-6 text-medical-300 dark:text-medical-700" />
                 </div>

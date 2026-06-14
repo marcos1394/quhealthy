@@ -24,6 +24,7 @@ export interface PackageCredit {
  */
 export interface ConsumerPackage {
     id: number; // Identificador del grupo (Basado en el ID del paquete original)
+    type?: string; // "SERVICE" o "PACKAGE_CREDIT"
     provider: PackageProviderInfo;
     servicePackage: PackageServiceInfo;
     purchaseDate: string; // Formato ISO 8601
