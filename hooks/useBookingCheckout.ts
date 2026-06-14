@@ -25,7 +25,8 @@ export const useBookingCheckout = () => {
     pickupTime,
     destinationState,
     scheduleNow = true,
-    shareVaultAccess = false
+    shareVaultAccess = false,
+    allowedDocumentIds
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -74,7 +75,8 @@ export const useBookingCheckout = () => {
         if (shareVaultAccess) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
-            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`);
+            const payload = allowedDocumentIds && allowedDocumentIds.length > 0 ? { allowedDocumentIds } : {};
+            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`, payload);
             console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
           } catch (e) {
             console.error("No se pudo otorgar permiso de expediente", e);
@@ -152,7 +154,8 @@ export const useBookingCheckout = () => {
         if (shareVaultAccess) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
-            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`);
+            const payload = allowedDocumentIds && allowedDocumentIds.length > 0 ? { allowedDocumentIds } : {};
+            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`, payload);
             console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
           } catch (e) {
             console.error("No se pudo otorgar permiso de expediente", e);

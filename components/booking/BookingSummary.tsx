@@ -25,6 +25,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
+import { useHealthVault } from "@/hooks/useHealthVault";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
@@ -34,7 +36,7 @@ interface BookingSummaryProps {
   selectedTime: string | null;
   isProcessing?: boolean;
   scheduleNow?: boolean;
-  onCheckout: (symptoms: string, shippingAddress?: string, shareVaultAccess?: boolean) => void;
+  onCheckout: (symptoms: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[]) => void;
 }
 
 export function BookingSummary({
@@ -54,9 +56,22 @@ export function BookingSummary({
   // ==========================================
   const [symptoms, setSymptoms] = useState("");
   const [shareVaultAccess, setShareVaultAccess] = useState(true);
+  const [shareVaultMode, setShareVaultMode] = useState<'FULL' | 'GRANULAR'>('FULL');
+  const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
+  
   const [rates, setRates] = useState<Record<string, number>>({ MXN: 1 });
   const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
   const [isLoadingRates, setIsLoadingRates] = useState(true);
+
+  // Hook para acceder a los documentos del paciente
+  const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
+
+  // Cargar documentos si decide compartir de forma granular
+  useEffect(() => {
+    if (shareVaultAccess && shareVaultMode === 'GRANULAR' && documents.length === 0) {
+      fetchDocuments();
+    }
+  }, [shareVaultAccess, shareVaultMode, documents.length, fetchDocuments]);
 
   // ==========================================
   // FETCH DE DIVISAS (Con degradación elegante)
@@ -116,7 +131,12 @@ export function BookingSummary({
       ? symptoms.trim() 
       : `Orden Híbrida generada web. Ítems: ${cart.length}`;
 
-    onCheckout(finalNotes, undefined, shareVaultAccess);
+    onCheckout(
+      finalNotes, 
+      undefined, 
+      shareVaultAccess, 
+      shareVaultMode === 'GRANULAR' ? selectedDocumentIds : undefined
+    );
   };
 
   // ==========================================
@@ -273,21 +293,94 @@ export function BookingSummary({
                     disabled={isProcessing}
                   />
                   
-                  <div className="flex items-start gap-3 mt-4 p-3 bg-medical-50 dark:bg-medical-900/20 rounded-xl border border-medical-100 dark:border-medical-800/50">
-                    <input 
-                      type="checkbox" 
-                      id="shareVaultAccess" 
-                      checked={shareVaultAccess}
-                      onChange={(e) => setShareVaultAccess(e.target.checked)}
-                      disabled={isProcessing}
-                      className="mt-1 w-4 h-4 text-medical-600 rounded border-slate-300 focus:ring-medical-500"
-                    />
-                    <label htmlFor="shareVaultAccess" className="text-sm text-slate-700 dark:text-slate-300">
-                      <strong>Compartir mi expediente médico</strong>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Permite al médico visualizar tu historial completo para brindarte una mejor atención.
-                      </p>
-                    </label>
+                  <div className="mt-4 p-4 bg-medical-50 dark:bg-medical-900/20 rounded-xl border border-medical-100 dark:border-medical-800/50 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <input 
+                        type="checkbox" 
+                        id="shareVaultAccess" 
+                        checked={shareVaultAccess}
+                        onChange={(e) => {
+                          setShareVaultAccess(e.target.checked);
+                          if (!e.target.checked) {
+                            setShareVaultMode('FULL');
+                            setSelectedDocumentIds([]);
+                          }
+                        }}
+                        disabled={isProcessing}
+                        className="mt-1 w-4 h-4 text-medical-600 rounded border-slate-300 focus:ring-medical-500"
+                      />
+                      <label htmlFor="shareVaultAccess" className="text-sm text-slate-700 dark:text-slate-300">
+                        <strong>Compartir mi expediente médico</strong>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Permite al médico visualizar tu historial para brindarte una mejor atención.
+                        </p>
+                      </label>
+                    </div>
+
+                    <AnimatePresence>
+                      {shareVaultAccess && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="pl-7 space-y-3 pt-2"
+                        >
+                          <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+                              <input 
+                                type="radio" 
+                                name="vaultMode"
+                                checked={shareVaultMode === 'FULL'}
+                                onChange={() => setShareVaultMode('FULL')}
+                                className="w-4 h-4 text-medical-600 border-slate-300 focus:ring-medical-500"
+                              />
+                              Todo (Recomendado)
+                            </label>
+                            <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+                              <input 
+                                type="radio" 
+                                name="vaultMode"
+                                checked={shareVaultMode === 'GRANULAR'}
+                                onChange={() => setShareVaultMode('GRANULAR')}
+                                className="w-4 h-4 text-medical-600 border-slate-300 focus:ring-medical-500"
+                              />
+                              Seleccionar documentos
+                            </label>
+                          </div>
+
+                          {shareVaultMode === 'GRANULAR' && (
+                            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 max-h-48 overflow-y-auto mt-2">
+                              {isLoadingDocs ? (
+                                <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-medical-500" /></div>
+                              ) : documents.length === 0 ? (
+                                <p className="text-xs text-center text-slate-500 py-2">No tienes documentos en tu expediente aún.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {documents.map(doc => (
+                                    <div key={doc.id} className="flex items-center gap-2 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded">
+                                      <Checkbox 
+                                        id={`doc-${doc.id}`}
+                                        checked={selectedDocumentIds.includes(doc.id)}
+                                        onCheckedChange={(checked) => {
+                                          if (checked) {
+                                            setSelectedDocumentIds(prev => [...prev, doc.id]);
+                                          } else {
+                                            setSelectedDocumentIds(prev => prev.filter(id => id !== doc.id));
+                                          }
+                                        }}
+                                      />
+                                      <label htmlFor={`doc-${doc.id}`} className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer flex-1 truncate">
+                                        {doc.title || doc.documentType}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               )}
