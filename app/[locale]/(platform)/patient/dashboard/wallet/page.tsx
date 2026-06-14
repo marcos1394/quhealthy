@@ -1,209 +1,213 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale"; // Tip: Ajustar dinámicamente según el locale del usuario
 import { motion } from "framer-motion";
 import { 
   WalletCards, 
-  CalendarCheck, 
-  Package, 
-  MonitorPlay, 
-  Loader2, 
-  ShieldCheck,
-  ShoppingBag,
-  ArrowRight
+  Info,
+  CreditCard,
+  PlusCircle,
+  Activity
 } from "lucide-react";
 
 import { useConsumerWallet } from "@/hooks/useConsumerWallet";
-import { PackageCredit } from "@/types/packages";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+
+const QUICK_AMOUNTS = [500, 1000, 2000, 5000];
 
 export default function PatientWalletPage() {
   const t = useTranslations('PatientWallet');
-  const { packages, isLoading, fetchWallet } = useConsumerWallet();
+  const { wallet, isLoading, isToppingUp, fetchWallet, topUpWallet } = useConsumerWallet();
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchWallet(t('toast_load_error'));
+    fetchWallet(t('toast_load_error', { defaultValue: 'Error al cargar billetera' }));
   }, [fetchWallet, t]);
 
-  // 🧠 Lógica Inteligente para renderizar cada tipo de ítem
-  const getItemConfig = (credit: PackageCredit) => {
-    // Si no viene el type del backend, intentamos inferirlo por el nombre
-    const type = credit.itemType || 
-                (credit.serviceName.toLowerCase().includes('curso') ? 'COURSE' : 
-                 credit.serviceName.toLowerCase().includes('producto') ? 'PRODUCT' : 'SERVICE');
-
-    switch (type) {
-      case 'COURSE':
-        return {
-          icon: <MonitorPlay className="w-5 h-5 text-purple-500" />,
-          btnText: t('btn_view_course'),
-          btnVariant: "bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20 border-purple-200 dark:border-purple-500/30",
-          bgBadge: "bg-purple-100 dark:bg-purple-900/40"
-        };
-      case 'PRODUCT':
-        return {
-          icon: <Package className="w-5 h-5 text-emerald-500" />,
-          btnText: t('btn_redeem_product'),
-          btnVariant: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30",
-          bgBadge: "bg-emerald-100 dark:bg-emerald-900/40"
-        };
-      case 'SERVICE':
-      default:
-        return {
-          icon: <CalendarCheck className="w-5 h-5 text-blue-500" />,
-          btnText: t('btn_redeem_service'),
-          btnVariant: "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 border-blue-200 dark:border-blue-500/30",
-          bgBadge: "bg-blue-100 dark:bg-blue-900/40"
-        };
+  const handleTopUp = (amount: number) => {
+    if (amount > 0) {
+      topUpWallet(amount);
+      setIsModalOpen(false);
+      setCustomAmount("");
     }
   };
 
+  const formatExpirationDate = (dateString?: string) => {
+    if (!dateString) return "No disponible";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', { month: '2-digit', year: '2-digit' });
+    } catch {
+      return "No disponible";
+    }
+  };
+
+  if (isLoading && !wallet) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <QhSpinner size="lg" />
+        <p className="text-slate-500 font-medium">Calculando tus fondos...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
-      {/* 🟦 HEADER DE LA BILLETERA */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <WalletCards className="w-8 h-8 text-medical-600 dark:text-medical-500" />
-          {t('title')}
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
-          {t('subtitle')}
-        </p>
+    <div className="p-6 max-w-4xl mx-auto space-y-10">
+      {/* 🟦 HEADER */}
+      <div className="flex items-start gap-4">
+        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
+          <WalletCards className="w-10 h-10 text-medical-600 dark:text-medical-500" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+            QuHealthy Wallet
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
+            {wallet && wallet.balance > 0 
+              ? "¡Tienes saldo a favor! Puedes usarlo para pagar consultas y paquetes." 
+              : "Tu billetera está en ceros. Recarga saldo para comprar más fácil."}
+          </p>
+        </div>
       </div>
 
-      {/* ⏳ ESTADO DE CARGA */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-24">
-          <QhSpinner size="lg" />
-          <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
-        </div>
-      ) : packages.length === 0 ? (
-        
-        <Card className="border-dashed border-2 border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20 shadow-none">
-          <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-6 border border-slate-100 dark:border-slate-700">
-              <ShoppingBag className="w-12 h-12 text-slate-300 dark:text-slate-600" />
+      {/* 💳 VIRTUAL CARD */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="relative overflow-hidden rounded-[24px] shadow-2xl" style={{
+          background: 'linear-gradient(135deg, #1F1C2C 0%, #928DAB 100%)'
+        }}>
+          {/* Subtle Pattern Overlay */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
+            <Activity className="w-96 h-96 text-white" strokeWidth={0.5} />
+          </div>
+
+          <div className="relative p-8 h-56 flex flex-col justify-between z-10">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2 text-white/90">
+                <CreditCard className="w-5 h-5" />
+                <span className="font-medium text-sm tracking-wide">Tarjeta Digital QuHealthy</span>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              {t('empty_state_title')}
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8">
-              {t('empty_state_desc')}
-            </p>
-            <Button className="bg-medical-600 text-white hover:bg-medical-700 h-12 px-8 rounded-xl text-md font-bold shadow-md shadow-medical-500/20 transition-all hover:-translate-y-0.5">
-              {t('btn_explore')} <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {packages.map((pkg, index) => (
-            <motion.div
-              key={pkg.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
-            >
-              <Card className="h-full border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col bg-white dark:bg-slate-900 rounded-2xl">
-                
-                {/* Cabecera del Paquete */}
-                <CardHeader className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/80 dark:to-slate-900 border-b border-slate-100 dark:border-slate-800 pb-5 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-medical-500/5 rounded-bl-full -z-0" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-3">
-                      <Badge className="bg-medical-100 text-medical-700 dark:bg-medical-500/20 dark:text-medical-400 border-medical-200 dark:border-medical-500/30 px-3 py-1">
-                        <WalletCards className="w-3.5 h-3.5 mr-1.5" />
-                        {t('badge_active')}
-                      </Badge>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight mb-2">
-                      {pkg.servicePackage.name}
-                    </h3>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm mt-3">
-                      <div className="flex items-center text-slate-600 dark:text-slate-300">
-                        <ShieldCheck className="w-4 h-4 mr-1.5 text-medical-500" />
-                        <span className="opacity-80 mr-1">{t('provider_label')}</span> 
-                        <span className="font-semibold">{pkg.provider.name}</span>
-                      </div>
-                    </div>
-                  </div>
+            <div>
+              <p className="text-white/80 text-sm font-medium mb-1">Saldo Actual</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-white text-3xl font-semibold">$</span>
+                <span className="text-white text-5xl font-bold tracking-tight">
+                  {wallet?.balance.toFixed(2) || "0.00"}
+                </span>
+                <span className="text-white/70 text-lg font-semibold">{wallet?.currency || "MXN"}</span>
+              </div>
+            </div>
 
-                  <div className="text-xs text-slate-400 dark:text-slate-500 mt-4 font-medium flex items-center">
-                    {t('purchased_on')} <strong className="ml-1 text-slate-500 dark:text-slate-400">{format(parseISO(pkg.purchaseDate), "d 'de' MMMM, yyyy", { locale: es })}</strong>
-                  </div>
-                </CardHeader>
-                
-                {/* Contenido (Créditos Híbridos) */}
-                <CardContent className="p-6 flex-1 flex flex-col bg-slate-50/30 dark:bg-slate-900/50">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider opacity-80">
-                    {t('credits_title')}
-                  </p>
-                  
-                  <div className="space-y-3 flex-1">
-                    {pkg.creditsRemaining.map((credit, idx) => {
-                      const isExhausted = credit.quantity === 0;
-                      const config = getItemConfig(credit);
-                      
-                      return (
-                        <div 
-                          key={`${pkg.id}-credit-${idx}`} 
-                          className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${
-                            isExhausted 
-                              ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800/80 opacity-60 grayscale-[0.5]' 
-                              : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-slate-300 dark:hover:border-slate-600'
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-xl flex-shrink-0 ${isExhausted ? 'bg-slate-200 dark:bg-slate-700' : config.bgBadge}`}>
-                              {config.icon}
-                            </div>
-                            <div>
-                              <p className={`text-base font-bold leading-tight ${isExhausted ? 'text-slate-500 line-through' : 'text-slate-900 dark:text-white'}`}>
-                                {credit.serviceName}
-                              </p>
-                              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                                {isExhausted 
-                                  ? t('consumed_all') 
-                                  : t('available', { remaining: credit.quantity, total: credit.totalQuantity })
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {/* Botón de Acción Dinámico */}
-                          {!isExhausted && (
-                            <Button 
-                              variant="outline" 
-                              className={`ml-4 h-10 px-4 font-bold border rounded-lg transition-colors shrink-0 ${config.btnVariant}`}
-                              onClick={() => {
-                                // Aquí conectarías la acción real según el tipo de ítem
-                                console.log(`Canjear: ${credit.serviceId} de tipo ${credit.itemType}`);
-                              }}
-                            >
-                              {config.btnText}
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+            <div className="flex justify-between items-end mt-4">
+              <div>
+                <p className="text-white/60 text-[10px] uppercase tracking-wider mb-0.5">Titular</p>
+                <p className="text-white font-medium">Paciente QuHealthy</p>
+              </div>
+              
+              <div className="text-right">
+                <p className="text-white/60 text-[10px] uppercase tracking-wider mb-0.5">Válido hasta</p>
+                <p className="text-white font-medium">{formatExpirationDate(wallet?.expirationDate)}</p>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </motion.div>
+
+      {/* ⚡ ACTIONS SECTION */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Card className="p-6 border-slate-200 dark:border-slate-800 shadow-sm rounded-[24px] space-y-6">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Recarga Rápida</h3>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {QUICK_AMOUNTS.map((amount) => (
+              <Button
+                key={amount}
+                variant="outline"
+                className="h-16 text-lg font-bold text-medical-700 bg-medical-50 hover:bg-medical-100 border-transparent dark:bg-medical-500/10 dark:text-medical-400 dark:hover:bg-medical-500/20 rounded-2xl"
+                onClick={() => handleTopUp(amount)}
+                disabled={isToppingUp}
+              >
+                ${amount}
+              </Button>
+            ))}
+          </div>
+
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="w-full h-14 text-lg font-semibold bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-xl shadow-lg transition-all"
+                disabled={isToppingUp}
+              >
+                {isToppingUp ? (
+                  <QhSpinner className="mr-2 w-5 h-5" />
+                ) : (
+                  <PlusCircle className="mr-2 w-5 h-5" />
+                )}
+                {isToppingUp ? "Generando pago seguro..." : "Otro Monto"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md rounded-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center">¿Cuánto deseas recargar?</DialogTitle>
+              </DialogHeader>
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center bg-slate-100 dark:bg-slate-900 px-6 py-4 rounded-2xl w-full max-w-xs">
+                  <span className="text-3xl font-bold text-slate-400 mr-2">$</span>
+                  <Input 
+                    type="number"
+                    placeholder="0.00"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    className="text-4xl font-bold border-none bg-transparent shadow-none text-center h-16 focus-visible:ring-0 p-0"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  className="w-full h-14 text-lg font-bold bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full"
+                  disabled={!customAmount || Number(customAmount) <= 0 || isToppingUp}
+                  onClick={() => handleTopUp(Number(customAmount))}
+                >
+                  {isToppingUp ? <QhSpinner className="mr-2 w-5 h-5" /> : null}
+                  Continuar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+        </Card>
+      </motion.div>
+
+      {/* ℹ️ INFO SECTION */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="flex items-start gap-4 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800"
+      >
+        <Info className="w-6 h-6 text-slate-400 shrink-0 mt-0.5" />
+        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          Tu saldo se utiliza como método de pago al agendar citas o comprar paquetes de servicios. 
+          La vigencia del saldo es de 12 meses a partir de tu última recarga.
+        </p>
+      </motion.div>
     </div>
   );
 }
