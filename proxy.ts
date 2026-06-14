@@ -59,6 +59,9 @@ export function proxy(request: NextRequest) {
   // =========================================================================
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
   
+  // 🚀 NUEVO: Identificamos la ruta pública de la receta para excluirla
+  const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
+
   // 🚀 NUEVO: Identificamos la ruta de login de admin para excluirla de las protegidas
   const isAdminLoginRoute = /^\/([a-zA-Z]{2}\/)?admin\/login/.test(pathname);
 

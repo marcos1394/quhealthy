@@ -2,12 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, Users, DollarSign, LogOut, Settings, BarChart3, ShieldCheck } from 'lucide-react';
+import { Activity, Users, DollarSign, LogOut, Settings, BarChart3, ShieldCheck, Briefcase } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { adminService, FinanceMetricsDTO } from '@/services/admin.service';
 
 export default function AdminDashboardPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
+    const [metrics, setMetrics] = useState<FinanceMetricsDTO | null>(null);
 
     useEffect(() => {
         // Validate admin role from cookie
@@ -19,7 +22,16 @@ export default function AdminDashboardPage() {
             toast.error('Acceso denegado. No eres administrador.');
             router.push('/admin/login');
         } else {
-            setIsLoading(false);
+            adminService.getFinanceMetrics()
+                .then(data => {
+                    setMetrics(data);
+                    setIsLoading(false);
+                })
+                .catch(err => {
+                    console.error("Error fetching metrics", err);
+                    toast.error("Error al cargar métricas de Stripe");
+                    setIsLoading(false);
+                });
         }
     }, [router]);
 
@@ -73,14 +85,16 @@ export default function AdminDashboardPage() {
                         <div className="absolute -right-6 -top-6 w-32 h-32 bg-medical-500/10 rounded-full blur-2xl group-hover:bg-medical-500/20 transition-all" />
                         <div className="flex justify-between items-start mb-4 relative z-10">
                             <div>
-                                <p className="text-slate-400 text-sm font-medium">Ingresos Totales (Mes)</p>
-                                <h3 className="text-3xl font-bold text-white mt-1">$124,500 MXN</h3>
+                                <p className="text-slate-400 text-sm font-medium">Ingresos Totales (30 días)</p>
+                                <h3 className="text-3xl font-bold text-white mt-1">
+                                    {metrics ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(metrics.totalRevenue) : 'Cargando...'}
+                                </h3>
                             </div>
                             <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-medical-500">
                                 <DollarSign className="w-6 h-6" />
                             </div>
                         </div>
-                        <p className="text-sm text-emerald-400 font-medium relative z-10">+12.5% vs mes anterior</p>
+                        <p className="text-sm text-emerald-400 font-medium relative z-10">Conectado a Stripe Live</p>
                     </div>
 
                     {/* Stat Card 2 */}
@@ -88,14 +102,16 @@ export default function AdminDashboardPage() {
                         <div className="absolute -right-6 -top-6 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all" />
                         <div className="flex justify-between items-start mb-4 relative z-10">
                             <div>
-                                <p className="text-slate-400 text-sm font-medium">Médicos Activos</p>
-                                <h3 className="text-3xl font-bold text-white mt-1">1,248</h3>
+                                <p className="text-slate-400 text-sm font-medium">Suscripciones Activas</p>
+                                <h3 className="text-3xl font-bold text-white mt-1">
+                                    {metrics ? metrics.activeSubscriptionsCount : 'Cargando...'}
+                                </h3>
                             </div>
                             <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-sky-500">
                                 <Users className="w-6 h-6" />
                             </div>
                         </div>
-                        <p className="text-sm text-emerald-400 font-medium relative z-10">+42 nuevos esta semana</p>
+                        <p className="text-sm text-sky-400 font-medium relative z-10">Médicos Premium</p>
                     </div>
 
                     {/* Stat Card 3 */}
@@ -103,25 +119,54 @@ export default function AdminDashboardPage() {
                         <div className="absolute -right-6 -top-6 w-32 h-32 bg-violet-500/10 rounded-full blur-2xl group-hover:bg-violet-500/20 transition-all" />
                         <div className="flex justify-between items-start mb-4 relative z-10">
                             <div>
-                                <p className="text-slate-400 text-sm font-medium">Consultas Realizadas</p>
-                                <h3 className="text-3xl font-bold text-white mt-1">8,432</h3>
+                                <p className="text-slate-400 text-sm font-medium">Ingresos por Comisiones</p>
+                                <h3 className="text-3xl font-bold text-white mt-1">
+                                    {metrics ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(metrics.totalCommissionsRevenue) : 'Cargando...'}
+                                </h3>
                             </div>
                             <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-violet-500">
-                                <Activity className="w-6 h-6" />
+                                <Briefcase className="w-6 h-6" />
                             </div>
                         </div>
-                        <p className="text-sm text-slate-400 font-medium relative z-10">En los últimos 30 días</p>
+                        <p className="text-sm text-slate-400 font-medium relative z-10">Cortes de Stripe Connect</p>
                     </div>
                 </div>
 
                 {/* Main Content Area placeholder */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col items-center justify-center min-h-[400px]">
-                        <BarChart3 className="w-16 h-16 text-slate-700 mb-4" />
-                        <h3 className="text-xl font-bold text-slate-300">Gráfico de Suscripciones (Próximamente)</h3>
-                        <p className="text-slate-500 mt-2 text-center max-w-sm">
-                            Aquí integraremos la vista detallada de Stripe Billing y Stripe Connect para el desglose de ingresos.
-                        </p>
+                    <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col min-h-[400px]">
+                        <h3 className="text-xl font-bold text-slate-300 mb-6">Ingresos (Últimos 30 días)</h3>
+                        <div className="flex-1 w-full h-full min-h-[300px]">
+                            {metrics && metrics.chartData ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={metrics.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorSub" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                                            </linearGradient>
+                                            <linearGradient id="colorCom" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <XAxis dataKey="date" stroke="#475569" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="#475569" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px' }}
+                                            itemStyle={{ color: '#f8fafc' }}
+                                        />
+                                        <Area type="monotone" dataKey="subscriptions" name="Suscripciones" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorSub)" />
+                                        <Area type="monotone" dataKey="commissions" name="Comisiones" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorCom)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex h-full items-center justify-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-500"></div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     
                     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col items-center justify-center min-h-[400px]">
