@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -202,6 +203,12 @@ export default function PatientFamilyDashboard() {
                                                         fromYear={1900}
                                                         toYear={new Date().getFullYear()}
                                                         className="bg-white dark:bg-slate-950 p-4"
+                                                        classNames={{
+                                                            day_selected: "bg-medical-500 text-white hover:bg-medical-600 focus:bg-medical-500 focus:text-white rounded-full shadow-md transition-all",
+                                                            day_today: "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-full",
+                                                            day: "h-9 w-9 p-0 font-normal rounded-full aria-selected:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors",
+                                                            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                                        }}
                                                     />
                                                 </PopoverContent>
                                             </Popover>
@@ -212,23 +219,22 @@ export default function PatientFamilyDashboard() {
                                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1 group-focus-within:text-medical-500 transition-colors">
                                                 {t('label_relationship') || 'Parentesco'}
                                             </label>
-                                            <div className="relative">
-                                                <select
-                                                    required
-                                                    value={formData.relationship}
-                                                    onChange={e => setFormData({ ...formData, relationship: e.target.value })}
-                                                    className="w-full h-14 px-4 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-base text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-medical-500 appearance-none cursor-pointer"
-                                                >
-                                                    <option value="CHILD">{t('rel_child') || 'Hijo/a'}</option>
-                                                    <option value="PARENT">{t('rel_parent') || 'Padre/Madre'}</option>
-                                                    <option value="SPOUSE">{t('rel_spouse') || 'Cónyuge'}</option>
-                                                    <option value="SIBLING">{t('rel_sibling') || 'Hermano/a'}</option>
-                                                    <option value="OTHER">{t('rel_other') || 'Otro'}</option>
-                                                </select>
-                                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                    ▼
-                                                </div>
-                                            </div>
+                                            <Select 
+                                                value={formData.relationship} 
+                                                onValueChange={(val) => setFormData({ ...formData, relationship: val })}
+                                                required
+                                            >
+                                                <SelectTrigger className="w-full h-14 rounded-2xl bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-base focus:ring-medical-500 transition-colors">
+                                                    <SelectValue placeholder="Selecciona parentesco" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden bg-white dark:bg-slate-900">
+                                                    <SelectItem value="CHILD" className="rounded-xl focus:bg-slate-100 dark:focus:bg-slate-800 py-2.5 cursor-pointer font-medium transition-colors">{t('rel_child') || 'Hijo/a'}</SelectItem>
+                                                    <SelectItem value="PARENT" className="rounded-xl focus:bg-slate-100 dark:focus:bg-slate-800 py-2.5 cursor-pointer font-medium transition-colors">{t('rel_parent') || 'Padre/Madre'}</SelectItem>
+                                                    <SelectItem value="SPOUSE" className="rounded-xl focus:bg-slate-100 dark:focus:bg-slate-800 py-2.5 cursor-pointer font-medium transition-colors">{t('rel_spouse') || 'Cónyuge'}</SelectItem>
+                                                    <SelectItem value="SIBLING" className="rounded-xl focus:bg-slate-100 dark:focus:bg-slate-800 py-2.5 cursor-pointer font-medium transition-colors">{t('rel_sibling') || 'Hermano/a'}</SelectItem>
+                                                    <SelectItem value="OTHER" className="rounded-xl focus:bg-slate-100 dark:focus:bg-slate-800 py-2.5 cursor-pointer font-medium transition-colors">{t('rel_other') || 'Otro'}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
 
                                     </div>
