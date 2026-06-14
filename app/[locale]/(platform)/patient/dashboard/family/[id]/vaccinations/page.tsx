@@ -19,12 +19,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Esquema Básico Simulado
 const VACCINE_SCHEDULE = [
     {
         ageGroup: 'Al Nacer',
         vaccines: [
-            { id: 'bcg', name: 'BCG (Tuberculosis)', description: 'Única dosis' },
+            { id: 'bcg_1', name: 'BCG (Tuberculosis)', description: 'Única dosis' },
             { id: 'hepb_1', name: 'Hepatitis B', description: 'Primera dosis' }
         ]
     },
@@ -50,8 +49,14 @@ const VACCINE_SCHEDULE = [
         vaccines: [
             { id: 'pentavalente_3', name: 'Pentavalente acelular', description: 'Tercera dosis' },
             { id: 'hepb_3', name: 'Hepatitis B', description: 'Tercera dosis' },
-            { id: 'rotavirus_3', name: 'Rotavirus', description: 'Tercera dosis (Depende marca)' },
+            { id: 'rotavirus_3', name: 'Rotavirus', description: 'Tercera dosis' },
             { id: 'influenza_1', name: 'Influenza', description: 'Primera dosis' }
+        ]
+    },
+    {
+        ageGroup: '7 Meses',
+        vaccines: [
+            { id: 'influenza_2', name: 'Influenza', description: 'Segunda dosis' }
         ]
     },
     {
@@ -59,6 +64,50 @@ const VACCINE_SCHEDULE = [
         vaccines: [
             { id: 'srp_1', name: 'SRP (Sarampión, Rubéola, Parotiditis)', description: 'Primera dosis' },
             { id: 'neumococo_3', name: 'Neumococo conjugada', description: 'Refuerzo' }
+        ]
+    },
+    {
+        ageGroup: '18 Meses (1.5 Años)',
+        vaccines: [
+            { id: 'pentavalente_4', name: 'Pentavalente acelular', description: 'Cuarta dosis (Refuerzo)' }
+        ]
+    },
+    {
+        ageGroup: '24 Meses (2 Años)',
+        vaccines: [
+            { id: 'influenza_3', name: 'Influenza', description: 'Refuerzo anual' }
+        ]
+    },
+    {
+        ageGroup: '36 Meses (3 Años)',
+        vaccines: [
+            { id: 'influenza_4', name: 'Influenza', description: 'Refuerzo anual' }
+        ]
+    },
+    {
+        ageGroup: '48 Meses (4 Años)',
+        vaccines: [
+            { id: 'dpt_1', name: 'DPT (Difteria, Tos ferina, Tétanos)', description: 'Refuerzo' },
+            { id: 'influenza_5', name: 'Influenza', description: 'Refuerzo anual' }
+        ]
+    },
+    {
+        ageGroup: '59 Meses (5 Años)',
+        vaccines: [
+            { id: 'influenza_6', name: 'Influenza', description: 'Refuerzo anual (octubre-enero)' },
+            { id: 'opv_1', name: 'OPV (Polio oral)', description: '1ª y 2ª Semanas Nacionales de Salud' }
+        ]
+    },
+    {
+        ageGroup: '72 Meses (6 Años)',
+        vaccines: [
+            { id: 'srp_2', name: 'SRP (Sarampión, Rubéola, Parotiditis)', description: 'Refuerzo' }
+        ]
+    },
+    {
+        ageGroup: '11 Años o 5º de primaria',
+        vaccines: [
+            { id: 'vph_1', name: 'VPH (Virus de Papiloma Humano)', description: 'Esquema completo' }
         ]
     }
 ];
