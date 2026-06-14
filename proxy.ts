@@ -7,8 +7,31 @@ import type { NextRequest } from 'next/server';
 const intlMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  let { pathname } = request.nextUrl;
   const hasToken = request.cookies.has('refreshToken');
+  
+  // 🛡️ 0. LÓGICA DE SUBDOMINIO PARA ADMIN PORTAL
+  const hostname = request.headers.get('host') || '';
+  const isAdminDomain = hostname === 'admin.quhealthy.org' || hostname.startsWith('admin.localhost');
+
+  if (isAdminDomain) {
+    const localeMatchAdmin = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
+    const localePrefix = localeMatchAdmin ? `/${localeMatchAdmin[1]}` : '';
+    const pathWithoutLocale = localeMatchAdmin ? pathname.substring(3) : pathname;
+
+    if (!pathWithoutLocale.startsWith('/admin')) {
+      let newPath = '';
+      if (pathWithoutLocale === '' || pathWithoutLocale === '/') {
+          newPath = '/admin/dashboard';
+      } else if (pathWithoutLocale === '/login') {
+          newPath = '/admin/login';
+      } else {
+          newPath = '/admin' + pathWithoutLocale;
+      }
+      pathname = localePrefix + newPath;
+      request.nextUrl.pathname = pathname;
+    }
+  }
 
   // =========================================================================
   // 🛡️ 3. ROMPE-BUCLES (KILL SWITCH PARA HTTP-ONLY COOKIES)
