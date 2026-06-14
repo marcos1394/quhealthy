@@ -16,7 +16,7 @@ export interface FinanceMetricsDTO {
 
 export const adminService = {
   getFinanceMetrics: async (): Promise<FinanceMetricsDTO> => {
-    const response = await axiosInstance.get<FinanceMetricsDTO>('/api/admin/payments/metrics');
+    const response = await axiosInstance.get<FinanceMetricsDTO>('/api/payments/admin/metrics');
     return response.data;
   }
 };
