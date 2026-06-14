@@ -1,6 +1,6 @@
 // src/types/healthVault.ts
 
-export type DocumentType = 'LAB_RESULT' | 'PRESCRIPTION' | 'IMAGING' | 'GENERAL';
+export type DocumentType = 'LAB_RESULT' | 'PRESCRIPTION' | 'IMAGING' | 'GENERAL' | 'NOTE';
 export type AIStatus = 'PENDING' | 'PROCESSED' | 'FAILED' | 'UNSUPPORTED';
 
 export interface AIExtractedData {
@@ -13,9 +13,11 @@ export interface AIExtractedData {
 
 export interface ConsumerDocument {
     id: string;
-    fileName: string;
-    contentType: string;
-    fileSizeBytes: number;
+    title?: string;
+    noteContent?: string;
+    fileName?: string;
+    contentType?: string;
+    fileSizeBytes?: number;
     documentType: DocumentType;
     uploadedAt: string;
     aiStatus: AIStatus;

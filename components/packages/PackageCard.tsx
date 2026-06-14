@@ -93,7 +93,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
             <CardFooter className="bg-slate-50/50 dark:bg-slate-800/20 border-t border-slate-100 dark:border-slate-800 p-6 mt-auto">
                 <Button
                     onClick={handleUseCredits}
-                    className="w-full bg-medical-50 hover:bg-medical-100 text-medical-700 dark:bg-medical-500/10 dark:hover:bg-medical-500/20 dark:text-medical-300 font-semibold shadow-none border-0 h-11 transition-all"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-slate-900 font-semibold shadow-none border-0 h-11 transition-all"
                 >
                     {t('btn_use_credits', { defaultValue: 'Utilizar Créditos' })}
                 </Button>

@@ -38,13 +38,14 @@ export const healthVaultService = {
   confirmUpload: async (
     fileKey: string,
     originalFileName: string,
+    title: string | undefined,
     contentType: string,
     fileSizeBytes: number,
     documentType: string = 'GENERAL'
   ): Promise<ConsumerDocument> => {
     const response = await axiosInstance.post<ConsumerDocument>(
       `${BASE_URL}/confirm`,
-      { fileKey, originalFileName, contentType, fileSizeBytes, documentType }
+      { fileKey, originalFileName, title, contentType, fileSizeBytes, documentType }
     );
     return response.data;
   },
@@ -55,7 +56,7 @@ export const healthVaultService = {
    * 2. Subir archivo directamente a GCP
    * 3. Confirmar subida al backend
    */
-  uploadDocument: async (file: File, documentType: string = 'GENERAL'): Promise<ConsumerDocument> => {
+  uploadDocument: async (file: File, title?: string, documentType: string = 'GENERAL'): Promise<ConsumerDocument> => {
     // Paso 1: Generar URL firmada
     const { uploadUrl, fileKey } = await healthVaultService.generateUploadUrl(
       file.name,
@@ -75,12 +76,24 @@ export const healthVaultService = {
     const savedDoc = await healthVaultService.confirmUpload(
       fileKey,
       file.name,
+      title,
       file.type,
       file.size,
       documentType
     );
 
     return savedDoc;
+  },
+
+  /**
+   * Crea una nota de texto en el expediente
+   */
+  createNote: async (title: string, noteContent: string): Promise<ConsumerDocument> => {
+    const response = await axiosInstance.post<ConsumerDocument>(
+      `${BASE_URL}/notes`,
+      { title, noteContent }
+    );
+    return response.data;
   },
 
   /**

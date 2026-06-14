@@ -76,16 +76,24 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
             <div className="flex justify-between items-start mb-6">
                 <div className="flex gap-4 items-start w-full">
                     <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10 transition-colors">
-                        <FileText className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-medical-500 transition-colors" strokeWidth={1.5} />
+                        {document.documentType === 'NOTE' ? (
+                            <FileText className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-medical-500 transition-colors" strokeWidth={1.5} />
+                        ) : (
+                            <FileText className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-medical-500 transition-colors" strokeWidth={1.5} />
+                        )}
                     </div>
                     <div className="flex-1 min-w-0 pt-1">
                         <h3 className="font-bold text-slate-900 dark:text-white truncate text-base">
-                            {document.fileName}
+                            {document.title || document.fileName || 'Nota sin título'}
                         </h3>
                         <div className="flex items-center gap-2 mt-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                             <span>{formatDate(document.uploadedAt)}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-                            <span>{formatBytes(document.fileSizeBytes)}</span>
+                            {document.documentType !== 'NOTE' && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                                    <span>{formatBytes(document.fileSizeBytes || 0)}</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -146,17 +154,33 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
                 </div>
             )}
 
-            {currentStatus !== 'PROCESSED' && <div className="flex-1 min-h-[1rem]"></div>}
+            {currentStatus !== 'PROCESSED' && document.documentType !== 'NOTE' && <div className="flex-1 min-h-[1rem]"></div>}
+
+            {/* Renderizado de Nota Pura */}
+            {document.documentType === 'NOTE' && document.noteContent && (
+                <div className="flex-1 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl p-5 border border-amber-100 dark:border-amber-800/30 mb-6 transition-colors">
+                    <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed line-clamp-6">
+                        {document.noteContent}
+                    </p>
+                </div>
+            )}
 
             {/* Acciones */}
             <div className="pt-2 mt-auto">
                 <Button
                     variant="ghost"
-                    onClick={() => onView(document.id)}
-                    className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 h-14 rounded-2xl font-bold transition-all hover:text-medical-600 dark:hover:text-medical-400"
+                    onClick={() => {
+                        if (document.documentType === 'NOTE') {
+                            // En un entorno real abriría un modal para leer la nota completa
+                            alert(document.noteContent);
+                        } else {
+                            onView(document.id);
+                        }
+                    }}
+                    className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 h-14 rounded-2xl font-bold transition-all hover:text-slate-900 dark:hover:text-white"
                 >
                     <Eye className="w-5 h-5 mr-2" />
-                    {t('btn_view', { defaultValue: 'Ver Documento' })}
+                    {document.documentType === 'NOTE' ? 'Leer Nota Completa' : t('btn_view', { defaultValue: 'Ver Documento' })}
                 </Button>
             </div>
         </div>

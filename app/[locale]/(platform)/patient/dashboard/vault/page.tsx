@@ -19,6 +19,7 @@ export default function PatientVaultPage() {
         isUploading,
         fetchDocuments,
         uploadDocument,
+        createNote,
         viewDocument
     } = useHealthVault();
 
@@ -54,6 +55,7 @@ export default function PatientVaultPage() {
                 <section>
                     <HealthVaultDropzone
                         onUpload={uploadDocument}
+                        onCreateNote={createNote}
                         isUploading={isUploading}
                     />
                 </section>

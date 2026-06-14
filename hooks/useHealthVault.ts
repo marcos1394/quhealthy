@@ -28,7 +28,7 @@ export function useHealthVault() {
     }, [t]);
 
     // 📤 2. Subir documento
-    const uploadDocument = async (file: File, documentType: string = 'GENERAL') => {
+    const uploadDocument = async (file: File, title?: string, documentType: string = 'GENERAL') => {
         setIsUploading(true);
         
         // Validación básica de tamaño (ej. max 10MB)
@@ -41,7 +41,7 @@ export function useHealthVault() {
         try {
             toast.info(t('info_analyzing', { defaultValue: 'Subiendo y analizando con IA...' }));
             
-            const newDoc = await healthVaultService.uploadDocument(file, documentType);
+            const newDoc = await healthVaultService.uploadDocument(file, title, documentType);
             
             // Actualizamos la UI inmediatamente agregando el doc al inicio
             setDocuments(prev => [newDoc, ...prev]);
@@ -55,6 +55,23 @@ export function useHealthVault() {
             return newDoc;
         } catch (error: any) {
             console.error('Error uploading document:', error);
+            return null;
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // 📝 3. Crear nota
+    const createNote = async (title: string, noteContent: string) => {
+        setIsUploading(true);
+        try {
+            const newNote = await healthVaultService.createNote(title, noteContent);
+            setDocuments(prev => [newNote, ...prev]);
+            toast.success(t('success_note', { defaultValue: 'Nota guardada exitosamente.' }));
+            return newNote;
+        } catch (error: any) {
+            console.error('Error creating note:', error);
+            toast.error(t('error_note', { defaultValue: 'Ocurrió un error al guardar la nota.' }));
             return null;
         } finally {
             setIsUploading(false);
@@ -78,6 +95,7 @@ export function useHealthVault() {
         isUploading,
         fetchDocuments,
         uploadDocument,
+        createNote,
         viewDocument
     };
 }
