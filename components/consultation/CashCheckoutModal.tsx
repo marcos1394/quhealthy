@@ -342,7 +342,7 @@ export const CashCheckoutModal = ({
             <Button 
               onClick={handleCheckout} 
               disabled={!isValid || isProcessing || (correctChange > 0 && Math.abs(changeTotal - correctChange) > 0.01)}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="flex-1 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-sm"
             >
               {isProcessing ? 'Procesando...' : <><CheckCircle2 className="w-4 h-4 mr-2"/> Registrar Cobro</>}
             </Button>

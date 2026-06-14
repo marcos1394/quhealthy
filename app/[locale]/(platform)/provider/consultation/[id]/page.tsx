@@ -322,9 +322,8 @@ export default function ConsultationRoomPage() {
             <Button variant="outline" className="text-slate-600 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-10 hidden md:flex">
               <Save className="w-4 h-4 mr-2" /> {t('save_draft')}
             </Button>
-            {/* 🚀 CAMBIO: Ahora llama a handleCompleteClick */}
             {currentStep === 'treatment' && (
-              <Button onClick={handleCompleteClick} disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white h-10 px-6">
+              <Button onClick={handleCompleteClick} disabled={isSubmitting} className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 h-10 px-6 shadow-sm">
                 <CheckCircle className="w-4 h-4 mr-2" /> {t('finish_and_charge')}
               </Button>
             )}
@@ -336,21 +335,21 @@ export default function ConsultationRoomPage() {
           <Button 
             variant={currentStep === 'profile' ? 'default' : 'ghost'} 
             onClick={() => setCurrentStep('profile')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'profile' ? 'bg-white dark:bg-slate-700 text-medical-600 dark:text-medical-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 rounded-lg h-10 ${currentStep === 'profile' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
           >
             <User className="w-4 h-4 mr-2" /> {t('step_clinical_context')}
           </Button>
           <Button 
             variant={currentStep === 'evaluation' ? 'default' : 'ghost'} 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'evaluation' ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 rounded-lg h-10 ${currentStep === 'evaluation' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
           >
             <Stethoscope className="w-4 h-4 mr-2" /> {t('step_evaluation')}
           </Button>
           <Button 
             variant={currentStep === 'treatment' ? 'default' : 'ghost'} 
             onClick={() => setCurrentStep('treatment')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'treatment' ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 rounded-lg h-10 ${currentStep === 'treatment' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
           >
             <Pill className="w-4 h-4 mr-2" /> {t('step_prescription')}
           </Button>

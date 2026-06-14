@@ -55,7 +55,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
                 className={`w-full rounded-full h-14 text-base font-medium shadow-md transition-all ${
                   isRecording 
                     ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/50' 
-                    : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white'
+                    : 'bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
                 }`}
                 variant={isRecording ? 'outline' : 'default'}
               >
@@ -148,12 +148,11 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         </div>
       </div>
 
-      {/* 🚀 BOTONES DE NAVEGACIÓN */}
       <div className="flex justify-between pt-6 mt-auto">
         <Button variant="outline" onClick={onBack} className="h-12 px-6 rounded-xl border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft className="w-5 h-5 mr-2" /> {t('btn_back')}
         </Button>
-        <Button onClick={onNext} className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white h-12 px-8 rounded-xl text-base shadow-lg shadow-teal-600/20">
+        <Button onClick={onNext} className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 h-12 px-8 rounded-xl text-base shadow-sm">
           {t('btn_continue_treatment')} <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
       </div>

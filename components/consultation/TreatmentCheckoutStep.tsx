@@ -301,7 +301,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
           <ArrowLeft className="w-5 h-5 mr-2" /> {t('btn_back_to_evaluation')}
         </Button>
         <div className="text-right text-sm text-slate-500 dark:text-slate-400 flex items-center">
-           {t('use_finish_button')} <strong className="mx-1 text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> {t('finish_and_charge_btn')}</strong> {t('of_top_bar')}
+           {t('use_finish_button')} <strong className="mx-1 text-slate-900 dark:text-white flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5"/> {t('finish_and_charge_btn')}</strong> {t('of_top_bar')}
         </div>
       </div>
     </div>
