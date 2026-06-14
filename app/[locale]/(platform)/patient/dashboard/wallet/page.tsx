@@ -162,7 +162,7 @@ export default function PatientWalletPage() {
                 {isToppingUp ? "Generando pago seguro..." : "Otro Monto"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md rounded-2xl">
+            <DialogContent className="sm:max-w-md rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-center">¿Cuánto deseas recargar?</DialogTitle>
               </DialogHeader>
