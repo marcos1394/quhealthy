@@ -2077,6 +2077,14 @@
       "findings": "Hallazgos",
       "medications": "Medicamentos",
       "btn_view": "Ver Documento"
+    },
+    "Notifications": {
+      "error_size": "El archivo excede el límite de 10MB.",
+      "info_analyzing": "Subiendo y analizando con IA...",
+      "success_upload_ai": "Documento procesado exitosamente por IA.",
+      "success_upload": "Documento encriptado y guardado.",
+      "success_note": "Nota guardada exitosamente.",
+      "error_note": "Ocurrió un error al guardar la nota."
     }
   },
   "PatientAppointments": {

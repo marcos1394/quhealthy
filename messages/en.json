@@ -2077,6 +2077,14 @@
       "findings": "Findings",
       "medications": "Medications",
       "btn_view": "View Document"
+    },
+    "Notifications": {
+      "error_size": "File exceeds the 10MB limit.",
+      "info_analyzing": "Uploading and analyzing with AI...",
+      "success_upload_ai": "Document successfully processed by AI.",
+      "success_upload": "Document encrypted and saved.",
+      "success_note": "Note successfully saved.",
+      "error_note": "An error occurred while saving the note."
     }
   },
   "PatientAppointments": {
