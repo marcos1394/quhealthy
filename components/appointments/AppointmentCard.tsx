@@ -160,7 +160,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
               {canJoinVideo && (
                 <Button
                   onClick={() => appt.meetLink ? window.open(appt.meetLink, '_blank') : toast.info("El enlace aún no está disponible.")}
-                  className="w-full bg-gradient-to-r from-blue-600 to-medical-600 hover:from-blue-700 hover:to-medical-700 shadow-lg group"
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all group"
                 >
                   <Video className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
                   {t('btn_join_video', { defaultValue: 'Entrar a Videollamada' })}
@@ -170,7 +170,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
               <Button
                 variant="outline"
                 onClick={() => router.push(`/patient/appointments/${appt.id}`)}
-                className="w-full border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="w-full border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full font-medium"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 {t('btn_view_details', { defaultValue: 'Ver Detalles' })}
@@ -180,7 +180,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
                 <Button
                   variant="outline"
                   onClick={() => toast.success(t('toast_calendar_added') || "Añadido al calendario")}
-                  className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+                  className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full font-medium"
                 >
                   <CalendarPlus className="w-4 h-4 mr-2" />
                   {t('btn_add_calendar', { defaultValue: 'Añadir al Calendario' })}
@@ -191,7 +191,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
                 <Button
                   variant="outline"
                   onClick={() => onRequestCancel(appt)}
-                  className="w-full border-rose-200 dark:border-red-900 text-rose-600 dark:text-red-400 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors"
+                  className="w-full border-rose-200 dark:border-red-900 text-rose-600 dark:text-red-400 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors rounded-full font-medium"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   {t('btn_cancel', { defaultValue: 'Cancelar Cita' })}

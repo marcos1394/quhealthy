@@ -148,7 +148,7 @@ export default function ConsumerAppointmentsPage() {
           </div>
           <Button 
             onClick={() => router.push('/discover')} 
-            className="bg-gradient-to-r from-medical-600 to-medical-500 hover:from-medical-700 hover:to-medical-600 shadow-lg transition-all"
+            className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
           >
             <Plus className="w-4 h-4 mr-2" /> 
             {t('btn_new', { defaultValue: 'Agendar Cita' })}

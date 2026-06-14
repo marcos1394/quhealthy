@@ -92,7 +92,7 @@ export default function PatientAppointmentDetailsPage() {
         <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8 text-center max-w-sm">
           No pudimos localizar esta cita. Es posible que haya sido eliminada o que no tengas permisos para verla.
         </p>
-        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline">
+        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline" className="rounded-full">
           Volver a mis citas
         </Button>
       </div>
@@ -286,7 +286,7 @@ export default function PatientAppointmentDetailsPage() {
                   <Button 
                     onClick={downloadInvoice} 
                     disabled={isDownloading}
-                    className="w-full bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 font-medium"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
                   >
                     {isDownloading ? <QhSpinner size="sm" className="mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
                     Descargar Recibo
@@ -299,7 +299,7 @@ export default function PatientAppointmentDetailsPage() {
                     <Button 
                       onClick={handlePayNow} 
                       disabled={isProcessingPayment}
-                      className="w-full bg-medical-600 text-white hover:bg-medical-700 font-medium"
+                      className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
                     >
                       {isProcessingPayment ? <QhSpinner size="sm" className="mr-2 text-white" /> : <CreditCard className="w-4 h-4 mr-2" />}
                       Pagar ahora
@@ -314,7 +314,7 @@ export default function PatientAppointmentDetailsPage() {
               <Button 
                 onClick={handleStartChat}
                 disabled={isStartingChat}
-                className="w-full bg-indigo-600 text-white hover:bg-indigo-700 font-medium shadow-sm"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
               >
                 {isStartingChat ? <QhSpinner size="sm" className="mr-2 text-white" /> : <MessageSquare className="w-4 h-4 mr-2" />}
                 Mensaje al Especialista
@@ -323,10 +323,10 @@ export default function PatientAppointmentDetailsPage() {
 
             {appointment.status === 'SCHEDULED' && (
               <div className="flex flex-col gap-3">
-                <Button variant="outline" className="w-full justify-start text-slate-600">
+                <Button variant="outline" className="w-full justify-start text-slate-600 rounded-full transition-colors">
                   <Calendar className="w-4 h-4 mr-2" /> Reprogramar Cita
                 </Button>
-                <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
+                <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors">
                   <AlertCircle className="w-4 h-4 mr-2" /> Cancelar Cita
                 </Button>
               </div>
