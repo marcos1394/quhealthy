@@ -72,7 +72,7 @@ export function HealthVaultDropzone({ onUpload, onCreateNote, isUploading }: Hea
         <div className="w-full max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-800">
                 <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'upload' | 'note')} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
+                    <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl h-auto">
                         <TabsTrigger value="upload" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm transition-all font-semibold py-2.5">
                             <UploadCloud className="w-4 h-4 mr-2" />
                             {t('tab_upload', { defaultValue: 'Subir Archivo' })}
