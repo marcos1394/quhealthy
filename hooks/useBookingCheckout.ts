@@ -24,7 +24,8 @@ export const useBookingCheckout = () => {
     prescriptionUrls,
     pickupTime,
     destinationState,
-    scheduleNow = true
+    scheduleNow = true,
+    shareVaultAccess = false
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -68,6 +69,18 @@ export const useBookingCheckout = () => {
         // 🚀 FIX EXACTO: Como el backend responde con una lista [ {id: 44} ], sacamos el primer elemento.
         // Lo hacemos con un ternario por seguridad, por si en algún momento el backend devuelve un objeto directo.
         const appointmentId = Array.isArray(createdResponse) ? createdResponse[0].id : createdResponse.id;
+
+        // 🚀 OTORGAR PERMISOS SI EL USUARIO LO PIDIÓ
+        if (shareVaultAccess) {
+          try {
+            const axiosInstance = (await import('@/lib/axios')).default;
+            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`);
+            console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
+          } catch (e) {
+            console.error("No se pudo otorgar permiso de expediente", e);
+            // No interrumpimos el flujo si falla
+          }
+        }
 
         // 2. Crear Checkout de Stripe para 1 Cita
         const checkoutUrl = await paymentService.createCheckoutSession(appointmentId);
@@ -134,6 +147,18 @@ export const useBookingCheckout = () => {
           totalAmount: preparedOrder.totalAmount,
           currency: preparedOrder.currency || "MXN"
         };
+
+        // 🚀 OTORGAR PERMISOS SI EL USUARIO LO PIDIÓ
+        if (shareVaultAccess) {
+          try {
+            const axiosInstance = (await import('@/lib/axios')).default;
+            await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`);
+            console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
+          } catch (e) {
+            console.error("No se pudo otorgar permiso de expediente", e);
+            // No interrumpimos el flujo si falla
+          }
+        }
 
         const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
 

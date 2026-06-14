@@ -15,6 +15,7 @@ export interface CheckoutParams {
   pickupTime?: string;
   destinationState?: string;
   scheduleNow?: boolean;
+  shareVaultAccess?: boolean;
 }
 
 export interface CreateAppointmentRequest {

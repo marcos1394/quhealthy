@@ -50,7 +50,7 @@ export default function ConsultationRoomPage() {
   const [registerDenominations, setRegisterDenominations] = useState<DenominationMap | null>(null);
 
   const {
-    patientProfile, vaultDocuments, isLoading, isSubmitting,
+    patientProfile, vaultDocuments, vaultAccessDenied, isLoading, isSubmitting,
     soapNotes, setSoapNotes, prescription, loadPatientRecord, updateSoapNote, 
     addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
@@ -364,6 +364,8 @@ export default function ConsultationRoomPage() {
             <PatientProfileStep 
               patientProfile={patientProfile}
               vaultDocuments={vaultDocuments}
+              vaultAccessDenied={vaultAccessDenied}
+              consumerId={consumerId}
               isOfflinePatient={isOfflinePatient}
               displayFullName={displayFullName}
               patientDirectoryId={patientDirectoryId} // Pasamos el ID del directorio

@@ -34,7 +34,7 @@ interface BookingSummaryProps {
   selectedTime: string | null;
   isProcessing?: boolean;
   scheduleNow?: boolean;
-  onCheckout: (symptoms: string, shippingAddress?: string) => void;
+  onCheckout: (symptoms: string, shippingAddress?: string, shareVaultAccess?: boolean) => void;
 }
 
 export function BookingSummary({
@@ -53,6 +53,7 @@ export function BookingSummary({
   // ESTADOS LOCALES
   // ==========================================
   const [symptoms, setSymptoms] = useState("");
+  const [shareVaultAccess, setShareVaultAccess] = useState(true);
   const [rates, setRates] = useState<Record<string, number>>({ MXN: 1 });
   const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
   const [isLoadingRates, setIsLoadingRates] = useState(true);
@@ -115,7 +116,7 @@ export function BookingSummary({
       ? symptoms.trim() 
       : `Orden Híbrida generada web. Ítems: ${cart.length}`;
 
-    onCheckout(finalNotes, undefined);
+    onCheckout(finalNotes, undefined, shareVaultAccess);
   };
 
   // ==========================================
@@ -271,6 +272,23 @@ export function BookingSummary({
                     maxLength={300}
                     disabled={isProcessing}
                   />
+                  
+                  <div className="flex items-start gap-3 mt-4 p-3 bg-medical-50 dark:bg-medical-900/20 rounded-xl border border-medical-100 dark:border-medical-800/50">
+                    <input 
+                      type="checkbox" 
+                      id="shareVaultAccess" 
+                      checked={shareVaultAccess}
+                      onChange={(e) => setShareVaultAccess(e.target.checked)}
+                      disabled={isProcessing}
+                      className="mt-1 w-4 h-4 text-medical-600 rounded border-slate-300 focus:ring-medical-500"
+                    />
+                    <label htmlFor="shareVaultAccess" className="text-sm text-slate-700 dark:text-slate-300">
+                      <strong>Compartir mi expediente médico</strong>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Permite al médico visualizar tu historial completo para brindarte una mejor atención.
+                      </p>
+                    </label>
+                  </div>
                 </div>
               )}
 

@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const useConsultation = (appointmentId: number, consumerId: number) => {
   const [patientProfile, setPatientProfile] = useState<PatientClinicalProfile | null>(null);
   const [vaultDocuments, setVaultDocuments] = useState<VaultDocument[]>([]);
+  const [vaultAccessDenied, setVaultAccessDenied] = useState(false);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +47,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   // 🚀 FIX: Llamamos a ambos endpoints (Perfil Clínico y Línea de Tiempo) para pacientes locales
   const loadPatientRecord = useCallback(async (errorMsg: string, patientDirId?: number | null, fallbackName: string = "Paciente Local") => {
     setIsLoading(true);
+    setVaultAccessDenied(false);
     
     // CASO 1: PACIENTE CON CUENTA EN LA APP
     if (consumerId) {
@@ -62,7 +64,10 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       try {
         const vaultData = await vaultPromise;
         setVaultDocuments(vaultData || []);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.response?.data?.code === 'ACCESS_DENIED' || error?.response?.status === 403) {
+          setVaultAccessDenied(true);
+        }
         setVaultDocuments([]);
       }
     } 
@@ -209,6 +214,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   return {
     patientProfile,
     vaultDocuments,
+    vaultAccessDenied,
     isLoading,
     isSubmitting,
     soapNotes,

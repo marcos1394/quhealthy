@@ -77,7 +77,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
     }
   };
 
-  const handleCheckout = async (symptomsText: string) => {
+  const handleCheckout = async (symptomsText: string, shippingAddress?: string, shareVaultAccess?: boolean) => {
     // Validaciones extra para E-commerce
     if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
       return; 
@@ -98,6 +98,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           dependentId: (requiresScheduling && scheduleNow) ? dependentId : undefined, 
           consumerSymptoms: symptomsText,
           scheduleNow: requiresScheduling ? scheduleNow : true,
+          shareVaultAccess
         });
       }
     }
@@ -339,6 +340,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               pickupTime,
               destinationState,
               scheduleNow: requiresScheduling ? scheduleNow : true,
+              shareVaultAccess: true // Cuando requiere receta usualmente es true, o podemos dejarlo como true por defecto en E-commerce físico.
             });
           }
         }}

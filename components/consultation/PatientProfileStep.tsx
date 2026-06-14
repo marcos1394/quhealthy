@@ -14,6 +14,8 @@ import { PastConsultationModal } from '@/components/consultation/PastConsultatio
 interface PatientProfileStepProps {
   patientProfile: any; // Usamos any temporalmente para aceptar los nuevos campos
   vaultDocuments: VaultDocument[];
+  vaultAccessDenied?: boolean;
+  consumerId?: number | null;
   isOfflinePatient: boolean;
   displayFullName: string;
   patientDirectoryId: number | null;
@@ -23,6 +25,8 @@ interface PatientProfileStepProps {
 export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   patientProfile,
   vaultDocuments,
+  vaultAccessDenied,
+  consumerId,
   isOfflinePatient,
   displayFullName,
   patientDirectoryId,
@@ -32,6 +36,21 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   const displayInitial = displayFullName.charAt(0).toUpperCase();
 
   const [selectedPastConsultation, setSelectedPastConsultation] = useState<{ id: number; date: string } | null>(null);
+  const [isRequestingAccess, setIsRequestingAccess] = useState(false);
+
+  const handleRequestAccess = async () => {
+    if (!consumerId) return;
+    try {
+      setIsRequestingAccess(true);
+      const axiosInstance = (await import('@/lib/axios')).default;
+      await axiosInstance.post(`/api/onboarding/provider/vault/permissions/request/${consumerId}`);
+      import('react-toastify').then(({ toast }) => toast.success("Solicitud de acceso enviada al paciente exitosamente."));
+    } catch (error) {
+      import('react-toastify').then(({ toast }) => toast.error("Hubo un error al enviar la solicitud. Intenta más tarde."));
+    } finally {
+      setIsRequestingAccess(false);
+    }
+  };
 
   // Función auxiliar para renderizar arrays o texto de historial
   const renderHistoryData = (data: any, fallbackText: string) => {
@@ -169,7 +188,24 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
           </div>
           
           <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
-            {vaultDocuments.length === 0 ? (
+            {vaultAccessDenied ? (
+              <div className="p-8 text-center h-full flex flex-col items-center justify-center text-slate-500">
+                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                  <ShieldAlert className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                </div>
+                <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Expediente Privado</h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                  El paciente mantiene su expediente médico restringido. Para visualizar el historial completo, envíale una solicitud de acceso a su app.
+                </p>
+                <Button 
+                  onClick={handleRequestAccess} 
+                  disabled={isRequestingAccess}
+                  className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-sm"
+                >
+                  {isRequestingAccess ? 'Enviando...' : 'Solicitar Acceso al Expediente'}
+                </Button>
+              </div>
+            ) : vaultDocuments.length === 0 ? (
               <div className="p-8 text-center h-full flex flex-col items-center justify-center text-slate-500">
                 <History className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
                 <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">{t('no_history')}</h4>
