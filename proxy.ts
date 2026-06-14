@@ -59,16 +59,17 @@ export function proxy(request: NextRequest) {
   // =========================================================================
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
   
-  // 🚀 NUEVO: Identificamos la ruta pública de la receta para excluirla
-  const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
+  // 🚀 NUEVO: Identificamos la ruta de login de admin para excluirla de las protegidas
+  const isAdminLoginRoute = /^\/([a-zA-Z]{2}\/)?admin\/login/.test(pathname);
 
   // Todo bajo /patient, /provider o /admin está protegido, 
-  // EXCEPTO /provider/register y la Bóveda de Recetas (/patient/prescription/...)
+  // EXCEPTO /provider/register, la Bóveda de Recetas (/patient/prescription/...) y Admin Login
   const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname) 
     && !isProviderRegisterRoute 
-    && !isPublicPrescriptionRoute; // 🚀 AÑADIMOS LA EXCEPCIÓN AQUÍ
+    && !isPublicPrescriptionRoute
+    && !isAdminLoginRoute;
   
-  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register)/.test(pathname);
+  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register|admin\/login)/.test(pathname);
 
   const localeMatch = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
