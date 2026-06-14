@@ -202,6 +202,7 @@ export default function PatientFamilyDashboard() {
                                                         captionLayout="dropdown"
                                                         fromYear={1900}
                                                         toYear={new Date().getFullYear()}
+                                                        locale={es}
                                                         className="bg-white dark:bg-slate-950 p-4"
                                                         classNames={{
                                                             day_selected: "bg-medical-500 text-white hover:bg-medical-600 focus:bg-medical-500 focus:text-white rounded-full shadow-md transition-all",
@@ -251,7 +252,7 @@ export default function PatientFamilyDashboard() {
                                         <Button
                                             type="submit"
                                             disabled={isSubmitting || !formData.firstName || !formData.lastName || !formData.dateOfBirth}
-                                            className="h-14 rounded-full bg-medical-500 hover:bg-medical-600 text-white font-bold px-10 shadow-lg shadow-medical-500/20 transition-all disabled:opacity-50"
+                                            className="h-14 rounded-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold px-10 shadow-lg transition-all disabled:opacity-50"
                                         >
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Plus className="w-5 h-5 mr-2" />}
                                             {t('btn_save') || 'Guardar Familiar'}

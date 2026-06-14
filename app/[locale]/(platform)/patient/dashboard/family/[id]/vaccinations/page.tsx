@@ -273,7 +273,7 @@ export default function VaccinationsPage() {
                                 <Button 
                                     size="lg" 
                                     disabled={isScanning}
-                                    className="w-full md:w-auto bg-gradient-to-r from-medical-500 to-medical-600 hover:from-medical-600 hover:to-medical-700 text-white rounded-full font-bold shadow-lg shadow-medical-500/20 flex items-center gap-2"
+                                    className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-full font-bold shadow-lg transition-all flex items-center gap-2"
                                 >
                                     {isScanning ? (
                                         <>
