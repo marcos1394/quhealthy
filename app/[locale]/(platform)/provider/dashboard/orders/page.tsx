@@ -136,7 +136,7 @@ function OrderCard({
         <p className="text-xs text-slate-400 truncate">{order.consumerEmail}</p>
         {order.shippingAddress && (
           <div className="flex items-start gap-1.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/50 p-2 rounded-lg mt-2">
-            <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-medical-500" />
+            <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-slate-500" />
             <span className="line-clamp-2">{order.shippingAddress}</span>
           </div>
         )}
@@ -145,7 +145,7 @@ function OrderCard({
       {/* Row 3: items */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {order.items.filter(it => !it.isDigital).map((item, idx) => (
-          <span key={idx} className="inline-flex items-center gap-1.5 bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-400 border border-medical-100 dark:border-medical-500/20 px-2 py-0.5 rounded-full text-xs font-semibold">
+          <span key={idx} className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full text-xs font-semibold">
             ×{item.quantity} {item.itemName}
           </span>
         ))}
@@ -176,7 +176,7 @@ function OrderCard({
               </Button>
             ) : (
               <Button size="sm"
-                className="bg-medical-600 hover:bg-medical-700 text-white dark:bg-medical-500 dark:hover:bg-medical-600"
+                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                 onClick={onShip}
               >
                 <Truck className="w-3.5 h-3.5 mr-1.5" /> Enviar
@@ -331,15 +331,18 @@ export default function ProviderOrdersPage() {
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6"
       >
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-            <ShoppingBag className="w-7 h-7 text-medical-600 dark:text-medical-400" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{t("subtitle")}</p>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
+              <ShoppingBag className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">{t("subtitle")}</p>
+            </div>
           </div>
         </div>
         {!isLoading && orders.length > 0 && (
@@ -395,7 +398,7 @@ export default function ProviderOrdersPage() {
         <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-white flex items-center gap-2">
-              <Truck className="w-5 h-5 text-medical-500" />{t("modal_title")}
+              <Truck className="w-5 h-5 text-slate-500" />{t("modal_title")}
             </DialogTitle>
             <DialogDescription className="text-slate-500 dark:text-slate-400">
               {selectedOrder && t("modal_desc", { id: selectedOrder.id, name: selectedOrder.consumerName })}
@@ -410,7 +413,7 @@ export default function ProviderOrdersPage() {
               <select
                 value={shippingCarrier}
                 onChange={(e) => setShippingCarrier(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-medical-500/30 transition-all"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-300 transition-all"
               >
                 {CARRIERS.map(c => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -452,10 +455,10 @@ export default function ProviderOrdersPage() {
                   />
                   <label htmlFor="evidence-upload" className="cursor-pointer flex flex-col items-center gap-2">
                     {isUploading ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-medical-500" />
+                      <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
                     ) : (
                       <>
-                        <div className="bg-medical-50 dark:bg-medical-500/10 p-2 rounded-full text-medical-600 dark:text-medical-400">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full text-slate-700 dark:text-slate-300">
                           <Package className="w-5 h-5" />
                         </div>
                         <span className="text-xs text-slate-500 font-medium">Haz clic para adjuntar foto del paquete</span>
@@ -481,7 +484,7 @@ export default function ProviderOrdersPage() {
           <Separator className="dark:bg-slate-800" />
           <DialogFooter className="gap-2 pt-2">
             <Button variant="outline" onClick={() => setSelectedOrder(null)}>{t("btn_cancel")}</Button>
-            <Button className="bg-medical-600 text-white hover:bg-medical-700 dark:bg-medical-500 dark:hover:bg-medical-600"
+            <Button className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
               onClick={handleShipSubmit} disabled={isSubmitting || trackingNumber.trim().length < 5}
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
@@ -534,7 +537,7 @@ export default function ProviderOrdersPage() {
         <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="text-slate-900 dark:text-white flex items-center gap-2">
-              <Eye className="w-5 h-5 text-medical-500" />
+              <Eye className="w-5 h-5 text-slate-500" />
               Detalles del Pedido #{orderToView?.id}
             </DialogTitle>
           </DialogHeader>
@@ -549,7 +552,7 @@ export default function ProviderOrdersPage() {
                   <span className="text-slate-600 dark:text-slate-400 text-sm truncate">{orderToView?.consumerEmail}</span>
                   <a
                     href={`mailto:${orderToView?.consumerEmail}?subject=Sobre tu pedido #${orderToView?.id} en QuHealthy`}
-                    className="flex items-center gap-1 text-xs font-bold text-medical-600 dark:text-medical-400 hover:underline bg-medical-50 dark:bg-medical-500/10 px-2 py-1 rounded-md shrink-0"
+                    className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 hover:underline bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md shrink-0"
                   >
                     <Mail className="w-3 h-3" /> Contactar
                   </a>
