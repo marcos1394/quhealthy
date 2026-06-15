@@ -12,6 +12,15 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import apiClient from '@/lib/axios';
 import { useRef } from 'react';
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -138,7 +147,7 @@ export default function VaccinationsPage() {
     // Modal para seleccionar fecha manual
     const [isManualMarkModalOpen, setIsManualMarkModalOpen] = useState(false);
     const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null);
-    const [selectedDate, setSelectedDate] = useState<string>("");
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
     useEffect(() => {
         if (!isLoading && family) {
@@ -164,7 +173,7 @@ export default function VaccinationsPage() {
         } else {
             // Abrir modal para elegir fecha
             setSelectedVaccineId(vaccineId);
-            setSelectedDate(new Date().toISOString().split('T')[0]); // Por defecto hoy
+            setSelectedDate(new Date()); // Por defecto hoy
             setIsManualMarkModalOpen(true);
         }
     };
@@ -172,13 +181,15 @@ export default function VaccinationsPage() {
     const confirmManualMark = () => {
         if (!selectedVaccineId || !selectedDate) return;
         
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+
         setSimulatingAction(selectedVaccineId);
         setIsManualMarkModalOpen(false);
         
         setTimeout(() => {
             setAppliedVaccines(prev => ({
                 ...prev,
-                [selectedVaccineId]: { date: selectedDate, documentId: 'simulated_doc_123' }
+                [selectedVaccineId]: { date: dateStr, documentId: 'simulated_doc_123' }
             }));
             setSimulatingAction(null);
             setSelectedVaccineId(null);
@@ -405,7 +416,7 @@ export default function VaccinationsPage() {
 
             {/* Modal para fecha manual */}
             <Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl">
+                <DialogContent className="sm:max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                     <DialogHeader>
                         <DialogTitle>Registrar aplicación de vacuna</DialogTitle>
                         <DialogDescription>
@@ -413,17 +424,34 @@ export default function VaccinationsPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <div className="space-y-2 flex flex-col">
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                                 Fecha de aplicación
                             </label>
-                            <Input 
-                                type="date" 
-                                value={selectedDate} 
-                                onChange={(e) => setSelectedDate(e.target.value)}
-                                max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
-                                className="w-full rounded-xl border-slate-200 dark:border-slate-800"
-                            />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900",
+                                            !selectedDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0 z-[60] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={setSelectedDate}
+                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                        initialFocus
+                                        locale={es}
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                     </div>
                     <DialogFooter className="sm:justify-end gap-2">
@@ -431,7 +459,7 @@ export default function VaccinationsPage() {
                             type="button"
                             variant="outline"
                             onClick={() => setIsManualMarkModalOpen(false)}
-                            className="rounded-xl border-slate-200 dark:border-slate-800"
+                            className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white"
                         >
                             Cancelar
                         </Button>
@@ -439,7 +467,7 @@ export default function VaccinationsPage() {
                             type="button"
                             onClick={confirmManualMark}
                             disabled={!selectedDate}
-                            className="rounded-xl bg-sky-500 hover:bg-sky-600 text-white"
+                            className="rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900"
                         >
                             <FileCheck2 className="w-4 h-4 mr-2" />
                             Guardar Registro
