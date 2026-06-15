@@ -101,8 +101,8 @@ export default function InventoryPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-5">
-          <div className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-inner">
-            <Boxes className="w-10 h-10 text-medical-600 dark:text-medical-400" />
+          <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
+            <Boxes className="w-10 h-10 text-slate-700 dark:text-slate-300" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -123,7 +123,7 @@ export default function InventoryPage() {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
             <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Filter className="w-5 h-5 text-medical-500" /> Filtros
+                <Filter className="w-5 h-5 text-slate-500" /> Filtros
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-4">
@@ -141,7 +141,7 @@ export default function InventoryPage() {
                 <Button 
                   variant={filterType === 'ALL' ? 'default' : 'outline'} 
                   onClick={() => setFilterType('ALL')}
-                  className={filterType === 'ALL' ? 'bg-medical-600 text-white' : ''}
+                  className={filterType === 'ALL' ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900' : ''}
                   size="sm"
                 >
                   Todos
@@ -149,7 +149,7 @@ export default function InventoryPage() {
                 <Button 
                   variant={filterType === 'PRODUCT' ? 'default' : 'outline'} 
                   onClick={() => setFilterType('PRODUCT')}
-                  className={filterType === 'PRODUCT' ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600' : ''}
+                  className={filterType === 'PRODUCT' ? 'bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900' : ''}
                   size="sm"
                 >
                   <Pill className="w-3.5 h-3.5 mr-1" /> Venta
@@ -157,7 +157,7 @@ export default function InventoryPage() {
                 <Button 
                   variant={filterType === 'SUPPLY' ? 'default' : 'outline'} 
                   onClick={() => setFilterType('SUPPLY')}
-                  className={filterType === 'SUPPLY' ? 'bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600' : ''}
+                  className={filterType === 'SUPPLY' ? 'bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-900' : ''}
                   size="sm"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Insumos
@@ -172,7 +172,7 @@ export default function InventoryPage() {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm h-full">
             <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <PackageSearch className="w-5 h-5 text-blue-500" /> 
+                <PackageSearch className="w-5 h-5 text-slate-500" /> 
                 Listado de Artículos ({filteredInventory.length})
               </CardTitle>
             </CardHeader>
@@ -194,8 +194,8 @@ export default function InventoryPage() {
                           <div className="flex items-center gap-4 flex-1 min-w-0">
                             <div className={`p-3 rounded-xl border shrink-0 ${
                               item.type === 'PRODUCT' 
-                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
-                                : 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20'
+                                ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                             }`}>
                               {item.type === 'PRODUCT' ? <Pill className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
                             </div>
@@ -251,7 +251,7 @@ export default function InventoryPage() {
         <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-medical-500" />
+              <ArrowRightLeft className="w-5 h-5 text-slate-500" />
               Ajustar Inventario
             </DialogTitle>
             <DialogDescription>
@@ -294,7 +294,7 @@ export default function InventoryPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdjustingItem(null)}>Cancelar</Button>
             <Button 
-              className="bg-medical-600 hover:bg-medical-700 text-white" 
+              className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200" 
               onClick={handleAdjustStock}
               disabled={isAdjusting || typeof adjustmentValue !== 'number' || adjustmentValue === 0}
             >
