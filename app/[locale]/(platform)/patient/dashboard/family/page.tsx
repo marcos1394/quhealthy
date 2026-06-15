@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useFamily } from '@/hooks/useFamily';
 import { DependentRequest } from '@/types/dependent';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { DependentVaccineAlert } from '@/components/family/DependentVaccineAlert';
 
 export default function PatientFamilyDashboard() {
     const t = useTranslations('PatientFamilyDashboard');
@@ -288,6 +289,8 @@ export default function PatientFamilyDashboard() {
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
                                     style={{ background: `radial-gradient(circle at top right, rgba(14, 165, 233, 0.05), transparent 50%)` }}
                                 />
+
+                                <DependentVaccineAlert memberId={member.id} />
 
                                 <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                                     <button
