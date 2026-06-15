@@ -94,12 +94,12 @@ export const socialService = {
    * El body ahora incluye socialConnectionId (UUID) en lugar de platform.
    */
   schedulePost: async (data: SchedulePostRequest): Promise<{ message: string; postId: string }> => {
-    const response = await socialAxios.post(`${BASE}/posts/schedule`, data);
+    const response = await axiosInstance.post(`${BASE}/posts/schedule`, data);
     return response.data;
   },
 
   getScheduledPosts: async (page = 0, size = 20): Promise<SpringPage<ScheduledPostDTO>> => {
-    const response = await socialAxios.get(`${BASE}/posts`, { params: { page, size } });
+    const response = await axiosInstance.get(`${BASE}/posts`, { params: { page, size } });
     return response.data;
   },
 
@@ -109,13 +109,12 @@ export const socialService = {
    * Hay que implementar el endpoint en SocialController cuando se requiera.
    */
   cancelPost: async (id: string): Promise<void> => {
-    await socialAxios.delete(`${BASE}/posts/${id}`);
+    await axiosInstance.delete(`${BASE}/posts/${id}`);
   },
 
   uploadMedia: async (file: File): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await socialAxios.post(`${BASE}/upload`, formData, {
     const response = await axiosInstance.post(`${BASE}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -181,7 +180,7 @@ export const socialService = {
   // ============================================================
 
   getAnalyticsDashboard: async (): Promise<AnalyticsDashboardDTO> => {
-    const response = await socialAxios.get(`${BASE}/analytics/dashboard`);
+    const response = await axiosInstance.get(`${BASE}/analytics/dashboard`);
     return response.data;
   },
 };

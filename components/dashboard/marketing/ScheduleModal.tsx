@@ -6,6 +6,22 @@ import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown } f
 import { useSocial } from "@/hooks/useSocial";
 import type { SocialConnectionDTO, ScheduledPostDTO } from "@/types/social";
 
+// ── Fallback Image Component ───────────────────────────────────────────────────
+const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string, className?: string, fallback: React.ReactNode }) => {
+  const [error, setError] = useState(false);
+  if (!src || error) {
+    return <>{fallback}</>;
+  }
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className}
+      onError={() => setError(true)}
+    />
+  );
+};
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface ScheduleModalProps {
@@ -325,7 +341,16 @@ export default function ScheduleModal({
                     {prefill?.mediaType === "video" ? (
                       <div className="w-full h-full flex items-center justify-center text-2xl">▶️</div>
                     ) : (
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <SafeImage 
+                        src={url} 
+                        alt="" 
+                        className="w-full h-full object-cover" 
+                        fallback={
+                          <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100 dark:bg-slate-800">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                        }
+                      />
                     )}
                   </div>
                 ))}

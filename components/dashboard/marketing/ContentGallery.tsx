@@ -1,8 +1,26 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { es, enUS } from 'date-fns/locale';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+
+// ── Fallback Image Component ───────────────────────────────────────────────────
+const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string, className?: string, fallback: React.ReactNode }) => {
+  const [error, setError] = useState(false);
+  if (!src || error) {
+    return <>{fallback}</>;
+  }
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className}
+      onError={() => setError(true)}
+    />
+  );
+};
+
 import {
   Sparkles, Video, Image as ImageIcon, Loader2,
   ArrowDownToLine, CalendarPlus, CheckCircle,
@@ -165,7 +183,17 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
                           onMouseOut={(e) => (e.target as HTMLVideoElement).pause()}
                         />
                       ) : (
-                        <Image src={mediaUrl} alt="Post" fill className="object-cover" />
+                        <SafeImage 
+                          src={mediaUrl} 
+                          alt="Post" 
+                          className="w-full h-full object-cover" 
+                          fallback={
+                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900">
+                              <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
+                              <span className="text-xs font-medium">{t('text_only_badge')}</span>
+                            </div>
+                          }
+                        />
                       )
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900">

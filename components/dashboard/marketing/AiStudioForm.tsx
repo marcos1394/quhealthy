@@ -389,13 +389,16 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                   {/* Preview del servicio seleccionado */}
                   {selectedService && (
                     <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
-                      {selectedService.imageUrl ? (
-                        <img src={selectedService.imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                          <Tag className="w-4 h-4 text-slate-400" />
-                        </div>
-                      )}
+                      <SafeImage
+                        src={selectedService.imageUrl || ''}
+                        alt={selectedService.name}
+                        className="w-10 h-10 rounded-lg object-cover"
+                        fallback={
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-slate-400" />
+                          </div>
+                        }
+                      />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{selectedService.name}</p>
                         <p className="text-[10px] text-slate-400 truncate">{selectedService.category} • ${selectedService.price?.toLocaleString() ?? '—'} MXN</p>
@@ -475,13 +478,16 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
 
                   {selectedService && (
                     <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
-                      {selectedService.imageUrl ? (
-                        <img src={selectedService.imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                          <Tag className="w-4 h-4 text-slate-400" />
-                        </div>
-                      )}
+                      <SafeImage
+                        src={selectedService.imageUrl || ''}
+                        alt={selectedService.name}
+                        className="w-10 h-10 rounded-lg object-cover"
+                        fallback={
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-slate-400" />
+                          </div>
+                        }
+                      />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{selectedService.name}</p>
                         <p className="text-[10px] text-slate-400 truncate">{selectedService.description}</p>
