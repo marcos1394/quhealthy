@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [dateRange, setDateRange] = useState("this_month");
 
   const { data, isLoading, refetch } = useDashboardData(dateRange);
+  const { appointments: allAppointments } = useProviderAppointments();
 
   // 🚀 NUEVO ESTADO: ¿Necesita configurar su receta?
   const [needsPrescriptionSetup, setNeedsPrescriptionSetup] = useState(false);
@@ -94,8 +95,6 @@ export default function DashboardPage() {
   };
 
   // 🚀 Lógica de métricas de tiempo promedio del día
-  const { appointments: allAppointments } = useProviderAppointments();
-  
   const todayCompletedAppointments = allAppointments.filter(appt => {
     const apptDate = new Date(appt.startTime).toDateString();
     const today = new Date().toDateString();
