@@ -1180,7 +1180,10 @@
     "share": "Share",
     "share_success": "Link copied to clipboard",
     "close": "Close",
-    "rate_service": "Rate Service"
+    "rate_service": "Rate Service",
+    "status_pending": "Pending",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled"
   },
   "DashboardMessages": {
     "title": "Messages",

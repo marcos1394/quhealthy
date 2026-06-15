@@ -1180,7 +1180,10 @@
     "share": "Compartir",
     "share_success": "Enlace copiado al portapapeles",
     "close": "Cerrar",
-    "rate_service": "Calificar Servicio"
+    "rate_service": "Calificar Servicio",
+    "status_pending": "Pendiente",
+    "status_completed": "Completado",
+    "status_cancelled": "Cancelado"
   },
   "DashboardMessages": {
     "title": "Mensajes",

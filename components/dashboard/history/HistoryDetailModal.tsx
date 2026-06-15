@@ -231,7 +231,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
                 <MessageSquare className="w-3 h-3" /> {t("service_notes")}
               </p>
               <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">{entry.notes}</p>
+                <p className="text-sm text-slate-900 dark:text-white leading-relaxed">{entry.notes}</p>
               </div>
             </motion.div>
           )}
