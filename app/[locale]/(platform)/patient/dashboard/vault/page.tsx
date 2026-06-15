@@ -3,13 +3,15 @@
 import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Loader2, FolderOpen, FileText } from 'lucide-react';
+import { ShieldCheck, Loader2, FolderOpen, FileText, Syringe } from 'lucide-react';
 
 // Hooks & Components
 import { useHealthVault } from '@/hooks/useHealthVault';
 import { HealthVaultDropzone } from '@/components/vault/HealthVaultDropzone';
 import { HealthVaultDocumentCard } from '@/components/vault/HealthVaultDocumentCard';
+import { DigitalVaccinationCard } from '@/components/vault/DigitalVaccinationCard';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { useFamily } from '@/hooks/useFamily';
 
 export default function PatientVaultPage() {
     const t = useTranslations('HealthVault');
@@ -22,6 +24,8 @@ export default function PatientVaultPage() {
         createNote,
         viewDocument
     } = useHealthVault();
+
+    const { family } = useFamily();
 
     // Cargar los documentos al montar la página
     useEffect(() => {
@@ -58,6 +62,27 @@ export default function PatientVaultPage() {
                         onCreateNote={createNote}
                         isUploading={isUploading}
                     />
+                </section>
+
+                {/* --- CARTILLAS DIGITALES --- */}
+                <section className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/80 pb-5">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                            <Syringe className="w-6 h-6 text-sky-500" />
+                            Cartillas de Salud
+                        </h2>
+                    </div>
+                    {family && family.length > 0 ? (
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            {family.map(member => (
+                                <DigitalVaccinationCard key={member.id} memberId={member.id} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl">
+                            <p className="text-slate-500">No tienes familiares registrados para mostrar cartillas.</p>
+                        </div>
+                    )}
                 </section>
 
                 {/* --- LISTA DE DOCUMENTOS --- */}

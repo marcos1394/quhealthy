@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Upload, Camera, FileUp } from 'lucide-react';
@@ -11,7 +11,6 @@ import { toast } from 'react-toastify';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import apiClient from '@/lib/axios';
-import { useRef } from 'react';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -35,100 +34,35 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 
-const VACCINE_SCHEDULE = [
-    {
-        ageGroup: 'Al Nacer',
-        vaccines: [
-            { id: 'bcg_1', name: 'BCG (Tuberculosis)', description: 'Única dosis' },
-            { id: 'hepb_1', name: 'Hepatitis B', description: 'Primera dosis' }
-        ]
-    },
-    {
-        ageGroup: '2 Meses',
-        vaccines: [
-            { id: 'pentavalente_1', name: 'Pentavalente acelular', description: 'Primera dosis (Difteria, Tos ferina, Tétanos, Polio, Haemophilus B)' },
-            { id: 'hepb_2', name: 'Hepatitis B', description: 'Segunda dosis' },
-            { id: 'rotavirus_1', name: 'Rotavirus', description: 'Primera dosis' },
-            { id: 'neumococo_1', name: 'Neumococo conjugada', description: 'Primera dosis' }
-        ]
-    },
-    {
-        ageGroup: '4 Meses',
-        vaccines: [
-            { id: 'pentavalente_2', name: 'Pentavalente acelular', description: 'Segunda dosis' },
-            { id: 'rotavirus_2', name: 'Rotavirus', description: 'Segunda dosis' },
-            { id: 'neumococo_2', name: 'Neumococo conjugada', description: 'Segunda dosis' }
-        ]
-    },
-    {
-        ageGroup: '6 Meses',
-        vaccines: [
-            { id: 'pentavalente_3', name: 'Pentavalente acelular', description: 'Tercera dosis' },
-            { id: 'hepb_3', name: 'Hepatitis B', description: 'Tercera dosis' },
-            { id: 'rotavirus_3', name: 'Rotavirus', description: 'Tercera dosis' },
-            { id: 'influenza_1', name: 'Influenza', description: 'Primera dosis' }
-        ]
-    },
-    {
-        ageGroup: '7 Meses',
-        vaccines: [
-            { id: 'influenza_2', name: 'Influenza', description: 'Segunda dosis' }
-        ]
-    },
-    {
-        ageGroup: '12 Meses (1 Año)',
-        vaccines: [
-            { id: 'srp_1', name: 'SRP (Sarampión, Rubéola, Parotiditis)', description: 'Primera dosis' },
-            { id: 'neumococo_3', name: 'Neumococo conjugada', description: 'Refuerzo' }
-        ]
-    },
-    {
-        ageGroup: '18 Meses (1.5 Años)',
-        vaccines: [
-            { id: 'pentavalente_4', name: 'Pentavalente acelular', description: 'Cuarta dosis (Refuerzo)' }
-        ]
-    },
-    {
-        ageGroup: '24 Meses (2 Años)',
-        vaccines: [
-            { id: 'influenza_3', name: 'Influenza', description: 'Refuerzo anual' }
-        ]
-    },
-    {
-        ageGroup: '36 Meses (3 Años)',
-        vaccines: [
-            { id: 'influenza_4', name: 'Influenza', description: 'Refuerzo anual' }
-        ]
-    },
-    {
-        ageGroup: '48 Meses (4 Años)',
-        vaccines: [
-            { id: 'dpt_1', name: 'DPT (Difteria, Tos ferina, Tétanos)', description: 'Refuerzo' },
-            { id: 'influenza_5', name: 'Influenza', description: 'Refuerzo anual' }
-        ]
-    },
-    {
-        ageGroup: '59 Meses (5 Años)',
-        vaccines: [
-            { id: 'influenza_6', name: 'Influenza', description: 'Refuerzo anual (octubre-enero)' },
-            { id: 'opv_1', name: 'OPV (Polio oral)', description: '1ª y 2ª Semanas Nacionales de Salud' }
-        ]
-    },
-    {
-        ageGroup: '72 Meses (6 Años)',
-        vaccines: [
-            { id: 'srp_2', name: 'SRP (Sarampión, Rubéola, Parotiditis)', description: 'Refuerzo' }
-        ]
-    },
-    {
-        ageGroup: '11 Años o 5º de primaria',
-        vaccines: [
-            { id: 'vph_1', name: 'VPH (Virus de Papiloma Humano)', description: 'Esquema completo' }
-        ]
-    }
-];
+import { vaccinationService } from '@/services/vaccination.service';
+import { VaccinationStatusDto } from '@/types/vaccination';
+
+// Helper for mapping age to labels
+function getAgeLabel(months: number) {
+    if (months === 0) return 'Al Nacer';
+    if (months === 2) return '2 Meses';
+    if (months === 4) return '4 Meses';
+    if (months === 6) return '6 Meses';
+    if (months === 7) return '7 Meses';
+    if (months === 12) return '12 Meses (1 Año)';
+    if (months === 18) return '18 Meses (1.5 Años)';
+    if (months === 24) return '24 Meses (2 Años)';
+    if (months === 36) return '36 Meses (3 Años)';
+    if (months === 48) return '48 Meses (4 Años)';
+    if (months === 59) return '59 Meses (5 Años)';
+    if (months === 72) return '72 Meses (6 Años)';
+    if (months === 132) return '11 Años o 5º de primaria';
+    return `${months} Meses`;
+}
+
+// Mapper to map AI extract IDs to numeric Catalog IDs if possible
+// This would need a better backend sync, but for demo:
+const ID_MAPPING: Record<string, string> = {
+    'bcg': 'Tuberculosis',
+    'hepb_1': 'Hepatitis B',
+    // We try to match by name roughly
+};
 
 export default function VaccinationsPage() {
     const params = useParams();
@@ -137,69 +71,93 @@ export default function VaccinationsPage() {
     const { family, isLoading } = useFamily();
     const [member, setMember] = useState<any>(null);
 
-    // Estado simulado de vacunas aplicadas
-    const [appliedVaccines, setAppliedVaccines] = useState<Record<string, { date: string, documentId?: string }>>({});
-    const [simulatingAction, setSimulatingAction] = useState<string | null>(null);
+    const [vaccinesData, setVaccinesData] = useState<VaccinationStatusDto[]>([]);
+    const [isLoadingVaccines, setIsLoadingVaccines] = useState(true);
+
+    const [simulatingAction, setSimulatingAction] = useState<number | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
     // Modal para seleccionar fecha manual
     const [isManualMarkModalOpen, setIsManualMarkModalOpen] = useState(false);
-    const [selectedVaccineId, setSelectedVaccineId] = useState<string | null>(null);
+    const [selectedVaccineId, setSelectedVaccineId] = useState<number | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+
+    const loadVaccines = useCallback(async (dependentId: number) => {
+        setIsLoadingVaccines(true);
+        try {
+            const data = await vaccinationService.getVaccinations(dependentId);
+            setVaccinesData(data);
+        } catch (error) {
+            console.error("Error fetching vaccines:", error);
+            toast.error("Error al cargar el esquema de vacunación.");
+        } finally {
+            setIsLoadingVaccines(false);
+        }
+    }, []);
 
     useEffect(() => {
         if (!isLoading && family) {
             const found = family.find(f => f.id === Number(params.id));
             if (found) {
                 setMember(found);
-                // Inicializamos vacío como corresponde para la integración real
-                setAppliedVaccines({});
+                loadVaccines(found.id);
             } else {
                 toast.error("Familiar no encontrado");
                 router.push('/patient/dashboard/family');
             }
         }
-    }, [isLoading, family, params.id, router]);
+    }, [isLoading, family, params.id, router, loadVaccines]);
 
-    const handleToggleVaccine = (vaccineId: string) => {
-        if (appliedVaccines[vaccineId]) {
-            // Desmarcar
-            const newObj = { ...appliedVaccines };
-            delete newObj[vaccineId];
-            setAppliedVaccines(newObj);
-            toast.info("Vacuna marcada como pendiente");
+    const groupedVaccines = useMemo(() => {
+        const groups: Record<number, { ageGroup: string, vaccines: VaccinationStatusDto[] }> = {};
+        vaccinesData.forEach(vaccine => {
+            const month = vaccine.recommendedAgeMonths;
+            if (!groups[month]) {
+                groups[month] = { ageGroup: getAgeLabel(month), vaccines: [] };
+            }
+            groups[month].vaccines.push(vaccine);
+        });
+        return Object.values(groups).sort((a, b) => a.vaccines[0].recommendedAgeMonths - b.vaccines[0].recommendedAgeMonths);
+    }, [vaccinesData]);
+
+    const handleToggleVaccine = (vaccine: VaccinationStatusDto) => {
+        if (vaccine.isApplied) {
+            toast.info("La vacuna ya fue aplicada. No se puede desmarcar.");
         } else {
-            // Abrir modal para elegir fecha
-            setSelectedVaccineId(vaccineId);
-            setSelectedDate(new Date()); // Por defecto hoy
+            setSelectedVaccineId(vaccine.vaccineCatalogId);
+            setSelectedDate(new Date()); 
             setIsManualMarkModalOpen(true);
         }
     };
 
-    const confirmManualMark = () => {
-        if (!selectedVaccineId || !selectedDate) return;
+    const confirmManualMark = async () => {
+        if (!selectedVaccineId || !selectedDate || !member) return;
         
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
-
         setSimulatingAction(selectedVaccineId);
-        setIsManualMarkModalOpen(false);
         
-        setTimeout(() => {
-            setAppliedVaccines(prev => ({
-                ...prev,
-                [selectedVaccineId]: { date: dateStr, documentId: 'simulated_doc_123' }
-            }));
+        try {
+            await vaccinationService.markVaccine(member.id, {
+                vaccineCatalogId: selectedVaccineId,
+                appliedDate: dateStr
+            });
+            toast.success("Vacuna registrada exitosamente. Comprobante guardado en Bóveda.");
+            setIsManualMarkModalOpen(false);
+            await loadVaccines(member.id);
+        } catch (err) {
+            console.error(err);
+            toast.error("Hubo un error al registrar la vacuna.");
+        } finally {
             setSimulatingAction(null);
             setSelectedVaccineId(null);
-            toast.success("Vacuna registrada exitosamente. Comprobante guardado en Bóveda.");
-        }, 1000);
+        }
     };
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) return;
+        if (!file || !member) return;
 
         const formData = new FormData();
         formData.append('file', file);
@@ -212,18 +170,34 @@ export default function VaccinationsPage() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
-            const newVaccines: Record<string, { date: string }> = {};
+            let markedCount = 0;
             for (const item of response.data) {
                 if (item.vaccineId && item.dateApplied) {
-                    newVaccines[item.vaccineId] = { date: item.dateApplied };
+                    // Try to match string ID with numeric ID (In real app, backend would return catalog ID)
+                    // We'll just try to match the prefix for demo or refresh
+                    // Actually, if we get matched dates, we'd fire the POST.
+                    // For now, we will just inform user that extraction needs backend ID mapping, or do a fuzzy match.
+                    
+                    const catalogMatch = vaccinesData.find(v => 
+                        v.diseasePrevented.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, '')) ||
+                        v.name.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, ''))
+                    );
+                    
+                    if (catalogMatch && !catalogMatch.isApplied) {
+                        await vaccinationService.markVaccine(member.id, {
+                            vaccineCatalogId: catalogMatch.vaccineCatalogId,
+                            appliedDate: item.dateApplied
+                        });
+                        markedCount++;
+                    }
                 }
             }
             
-            if (Object.keys(newVaccines).length > 0) {
-                setAppliedVaccines(prev => ({ ...prev, ...newVaccines }));
-                toast.success(`¡Se extrajeron ${Object.keys(newVaccines).length} vacunas exitosamente!`);
+            if (markedCount > 0) {
+                toast.success(`¡Se registraron ${markedCount} vacunas encontradas en la imagen!`);
+                loadVaccines(member.id);
             } else {
-                toast.warning("La IA no detectó vacunas aplicadas en la imagen.");
+                toast.warning("La IA no detectó vacunas nuevas o reconocibles en la imagen.");
             }
             
         } catch (error) {
@@ -231,16 +205,12 @@ export default function VaccinationsPage() {
             toast.error("Hubo un error al leer la cartilla. Intenta tomar la foto más clara.");
         } finally {
             setIsScanning(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-            if (cameraInputRef.current) {
-                cameraInputRef.current.value = '';
-            }
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (cameraInputRef.current) cameraInputRef.current.value = '';
         }
     };
 
-    if (isLoading || !member) {
+    if (isLoading || !member || isLoadingVaccines) {
         return (
             <div className="flex flex-col justify-center items-center min-h-[60vh]">
                 <QhSpinner size="lg" />
@@ -250,14 +220,11 @@ export default function VaccinationsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50/50 dark:bg-[#09090b] font-sans pb-32 text-slate-900 dark:text-white selection:bg-medical-500/30">
-            {/* Cinematic Background */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
                 <div className="absolute top-0 right-0 w-[50%] h-[50%] rounded-full bg-sky-500/5 dark:bg-sky-500/10 blur-[120px]" />
             </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12 relative z-10 space-y-8">
-                
-                {/* Header Back & Info */}
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-white dark:hover:bg-slate-800">
                         <ChevronLeft className="w-6 h-6 text-slate-500" />
@@ -273,7 +240,6 @@ export default function VaccinationsPage() {
                     </div>
                 </div>
 
-                {/* Resumen Progress y CTA Scanner */}
                 <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
@@ -286,23 +252,8 @@ export default function VaccinationsPage() {
                     </div>
                     
                     <div className="flex-shrink-0 w-full md:w-auto">
-                        {/* Input para seleccionar archivo */}
-                        <input 
-                            type="file" 
-                            accept="image/*,application/pdf" 
-                            hidden 
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                        />
-                        {/* Input forzado a cámara (en móviles) */}
-                        <input 
-                            type="file" 
-                            accept="image/*" 
-                            capture="environment" 
-                            hidden 
-                            ref={cameraInputRef}
-                            onChange={handleFileSelect}
-                        />
+                        <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
+                        <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -325,11 +276,11 @@ export default function VaccinationsPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl z-50">
-                                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors">
+                                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                     <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
                                     <span className="font-medium">Tomar foto ahora</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 transition-colors">
+                                <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                     <FileUp className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
                                     <span className="font-medium">Subir desde dispositivo</span>
                                 </DropdownMenuItem>
@@ -338,9 +289,8 @@ export default function VaccinationsPage() {
                     </div>
                 </div>
 
-                {/* Timeline / Grid de Vacunas */}
                 <div className="space-y-6">
-                    {VACCINE_SCHEDULE.map((stage, idx) => (
+                    {groupedVaccines.map((stage, idx) => (
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -348,7 +298,7 @@ export default function VaccinationsPage() {
                             key={stage.ageGroup} 
                             className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200/50 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
                         >
-                            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                                 <h2 className="font-bold text-lg flex items-center gap-2">
                                     <Clock className="w-5 h-5 text-medical-500" />
                                     {stage.ageGroup}
@@ -357,14 +307,14 @@ export default function VaccinationsPage() {
                             
                             <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                 {stage.vaccines.map(vaccine => {
-                                    const isApplied = !!appliedVaccines[vaccine.id];
-                                    const isSimulating = simulatingAction === vaccine.id;
+                                    const isApplied = vaccine.isApplied;
+                                    const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
 
                                     return (
-                                        <div key={vaccine.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                        <div key={vaccine.vaccineCatalogId} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
                                             <div className="flex gap-4">
                                                 <button 
-                                                    onClick={() => handleToggleVaccine(vaccine.id)}
+                                                    onClick={() => handleToggleVaccine(vaccine)}
                                                     disabled={isSimulating}
                                                     className="mt-1 shrink-0 focus:outline-none"
                                                 >
@@ -383,12 +333,12 @@ export default function VaccinationsPage() {
                                                     )}>
                                                         {vaccine.name}
                                                     </h4>
-                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{vaccine.description}</p>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{vaccine.diseasePrevented} (Dosis {vaccine.doseNumber})</p>
                                                     
-                                                    {isApplied && (
+                                                    {isApplied && vaccine.appliedDate && (
                                                         <div className="flex items-center gap-2 mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md w-fit">
                                                             <FileCheck2 className="w-3.5 h-3.5" />
-                                                            Aplicada el {appliedVaccines[vaccine.id].date}
+                                                            Aplicada el {vaccine.appliedDate}
                                                         </div>
                                                     )}
                                                 </div>
@@ -399,7 +349,7 @@ export default function VaccinationsPage() {
                                                     variant="outline" 
                                                     size="sm"
                                                     disabled={isSimulating}
-                                                    onClick={() => handleToggleVaccine(vaccine.id)}
+                                                    onClick={() => handleToggleVaccine(vaccine)}
                                                     className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-xl border-slate-200 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-400"
                                                 >
                                                     Marcar Aplicada
@@ -414,13 +364,12 @@ export default function VaccinationsPage() {
                 </div>
             </div>
 
-            {/* Modal para fecha manual */}
             <Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
                 <DialogContent className="sm:max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                     <DialogHeader>
                         <DialogTitle>Registrar aplicación de vacuna</DialogTitle>
                         <DialogDescription>
-                            Selecciona la fecha en la que se aplicó esta vacuna. Por defecto es la fecha de hoy, pero puedes seleccionar una fecha pasada si ya fue aplicada con anterioridad.
+                            Selecciona la fecha en la que se aplicó esta vacuna. Por defecto es la fecha de hoy.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
@@ -466,10 +415,10 @@ export default function VaccinationsPage() {
                         <Button
                             type="button"
                             onClick={confirmManualMark}
-                            disabled={!selectedDate}
+                            disabled={!selectedDate || simulatingAction !== null}
                             className="rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900"
                         >
-                            <FileCheck2 className="w-4 h-4 mr-2" />
+                            {simulatingAction !== null ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileCheck2 className="w-4 h-4 mr-2" />}
                             Guardar Registro
                         </Button>
                     </DialogFooter>
