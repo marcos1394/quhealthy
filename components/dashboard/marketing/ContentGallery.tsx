@@ -232,7 +232,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
                         <div className="flex gap-1">
                           <Button
                             size="sm"
-                            className="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-50 dark:hover:bg-slate-200 text-white dark:text-slate-900 text-xs"
+                            className="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-sm text-xs"
                             onClick={() => { setSelectedPost(post); setIsModalOpen(true); }}
                           >
                             <CalendarPlus className="w-3.5 h-3.5 mr-1" />

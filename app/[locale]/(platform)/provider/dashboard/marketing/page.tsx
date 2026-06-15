@@ -104,17 +104,22 @@ function MarketingContent() {
       >
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-            <Share2 className="w-8 h-8 text-medical-600 dark:text-medical-400" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-              {t('title')}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              {t('subtitle')}
-            </p>
+        <div className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
+                <Share2 className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {t('title')}
+                </h1>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                  {t('subtitle')}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -169,7 +174,7 @@ function MarketingContent() {
                 <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
-                      <UserCircle className="w-5 h-5 text-medical-500" />
+                      <UserCircle className="w-5 h-5 text-slate-500" />
                       {t('profile_bio_title')}
                     </CardTitle>
                     <CardDescription>
@@ -179,7 +184,7 @@ function MarketingContent() {
                   <CardContent className="space-y-4">
                     <div className="flex items-start gap-4 mb-6">
                       {/* Avatar picker */}
-                      <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-500 hover:border-medical-500 hover:text-medical-600 transition-colors cursor-pointer group shrink-0">
+                      <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-500 hover:border-slate-500 hover:text-slate-600 dark:hover:border-slate-400 dark:hover:text-slate-400 transition-colors cursor-pointer group shrink-0">
                         <ImageIcon className="w-8 h-8 group-hover:scale-110 transition-transform mb-1" />
                         <span className="text-[10px] font-medium">{t('profile_avatar_change')}</span>
                       </div>
@@ -191,14 +196,14 @@ function MarketingContent() {
                         <Textarea
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
-                          className="min-h-[160px] resize-none border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:border-medical-500 focus:ring-medical-500/20"
+                          className="min-h-[160px] resize-none border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:border-slate-400 focus:ring-slate-400/20"
                           placeholder={t('profile_bio_placeholder')}
                         />
                       </div>
                     </div>
 
                     <div className="flex justify-end">
-                      <Button className="bg-medical-600 hover:bg-medical-700 text-white">
+                      <Button className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
                         <CheckCircle className="w-4 h-4 mr-2" />
                         {t('save_changes')}
                       </Button>
@@ -251,7 +256,7 @@ function MarketingContent() {
                         <circle
                           cx="50" cy="50" r="45"
                           fill="none" strokeWidth="8"
-                          className="stroke-medical-500 transition-all duration-1000 ease-out"
+                          className="stroke-slate-900 dark:stroke-slate-100 transition-all duration-1000 ease-out"
                           style={{
                             strokeDasharray: 283,
                             strokeDashoffset: 283 - (283 * profileCompleteness) / 100,
@@ -292,7 +297,7 @@ function MarketingContent() {
                 </Card>
 
                 {/* Share Card */}
-                <Card className="bg-gradient-to-br from-medical-600 to-emerald-500 text-white border-none shadow-md overflow-hidden relative">
+                <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-md overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                   <CardContent className="p-6 relative z-10 flex flex-col items-center text-center">
                     <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
@@ -301,11 +306,11 @@ function MarketingContent() {
                     <h3 className="text-lg font-bold mb-2 tracking-tight">
                       {t('profile_share_title')}
                     </h3>
-                    <p className="text-sm text-medical-100 mb-6 font-light">
+                    <p className="text-sm text-slate-300 mb-6 font-light">
                       {t('profile_share_desc')}
                     </p>
                     <Button
-                      className="w-full bg-white text-medical-700 hover:bg-slate-50 font-bold shadow-sm"
+                      className="w-full bg-white text-slate-900 hover:bg-slate-50 font-bold shadow-sm"
                       onClick={() => {
                         navigator.clipboard.writeText('https://quhealthy.com/directorio/dr-john-doe')
                           .then(() => toast.success(t('copied_to_clipboard')))

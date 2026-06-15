@@ -229,11 +229,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
   return (
     <>
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-40 bg-medical-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 p-40 bg-slate-500/5 dark:bg-slate-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white text-lg font-bold">
-            <Sparkles className="w-5 h-5 text-medical-500" />
+            <Sparkles className="w-5 h-5 text-slate-500 dark:text-slate-400" />
             {t('ai_studio_title')}
           </CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -246,7 +246,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
           {/* ── PASO 1: Selector de servicio ─────────────────────────────── */}
           <div className="space-y-3">
             <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-medical-100 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400 text-[11px] font-bold">1</span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold">1</span>
               {t('step_select_service')}
             </Label>
 
@@ -265,7 +265,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       onClick={() => setSelectedService(service)}
                       className={`relative flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 ${
                         isSelected
-                          ? 'border-medical-500 bg-medical-50/50 dark:bg-medical-950/20 dark:border-medical-500/60 ring-1 ring-medical-500/30 shadow-sm'
+                          ? 'border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 dark:border-slate-500 ring-1 ring-slate-400/30 shadow-sm'
                           : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/60'
                       }`}
                     >
@@ -277,7 +277,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold truncate ${isSelected ? 'text-medical-700 dark:text-medical-300' : 'text-slate-900 dark:text-white'}`}>
+                        <p className={`text-sm font-semibold truncate ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
                           {service.name}
                         </p>
                         {service.description && (
@@ -299,8 +299,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         </div>
                       </div>
                       {isSelected && (
-                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-medical-500 flex items-center justify-center">
-                          <ChevronRight className="w-3 h-3 text-white" />
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-slate-900 dark:bg-slate-100 flex items-center justify-center">
+                          <ChevronRight className="w-3 h-3 text-white dark:text-slate-900" />
                         </div>
                       )}
                     </button>
@@ -313,7 +313,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
           {/* ── PASO 2: Tabs de contenido ─────────────────────────────────── */}
           <div className="space-y-3">
             <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-medical-100 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400 text-[11px] font-bold">2</span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold">2</span>
               {t('step_choose_content')}
             </Label>
 
@@ -354,7 +354,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                           onClick={() => setTextTone(tone.value)}
                           className={`px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
                             textTone === tone.value
-                              ? 'border-medical-500 bg-medical-50 text-medical-700 dark:bg-medical-950/30 dark:text-medical-300 dark:border-medical-500/60'
+                              ? 'border-slate-800 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white dark:border-slate-400'
                               : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                           }`}
                         >
@@ -387,7 +387,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   <Button
                     onClick={handleGenerateText}
                     disabled={isGeneratingText || !selectedService}
-                    className="w-full h-11 bg-medical-600 hover:bg-medical-700 text-white shadow-sm"
+                    className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                   >
                     {isGeneratingText ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <Sparkles className="w-4 h-4 mr-2" />}
                     {isGeneratingText ? t('generating') : t('generate_text_btn')}
@@ -428,7 +428,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     <div className="flex items-center gap-3">
                       <Button
                         onClick={handleCopyAndScheduleText}
-                        className="flex-1 h-10 bg-medical-600 hover:bg-medical-700 text-white shadow-sm"
+                        className="flex-1 h-10 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                       >
                         <CalendarPlus className="w-4 h-4 mr-2" />
                         {t('copy_and_use')}
@@ -522,7 +522,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       {/* ✅ Programar imagen */}
                       <Button
                         onClick={handleScheduleImage}
-                        className="h-10 bg-medical-600 hover:bg-medical-700 text-white"
+                        className="h-10 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                       >
                         <CalendarPlus className="w-4 h-4 mr-2" /> {t('schedule_btn')}
                       </Button>
@@ -654,7 +654,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   <Button
                     onClick={handleGenerateVideo}
                     disabled={isGeneratingVideo || !videoPrompt.trim()}
-                    className="w-full h-11 bg-medical-600 hover:bg-medical-700 text-white shadow-sm"
+                    className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                   >
                     {isGeneratingVideo ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <Video className="w-4 h-4 mr-2" />}
                     {isGeneratingVideo ? t('generating') : t('generate_video_btn')}
@@ -663,15 +663,15 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
 
                 {/* Estado: procesando */}
                 {videoStatus && !generatedVideoUrl && (
-                  <div className="p-4 bg-gradient-to-br from-medical-50 to-medical-100/50 dark:from-medical-950/20 dark:to-medical-900/10 rounded-xl border border-medical-200 dark:border-medical-800/40 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-950/20 dark:to-slate-900/10 rounded-xl border border-slate-200 dark:border-slate-800/40 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-medical-100 dark:bg-medical-500/20 rounded-lg animate-pulse">
-                        <Video className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+                      <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse">
+                        <Video className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('video_in_progress')}</h4>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">{videoStatus}</p>
-                        <p className="text-[10px] text-medical-600 dark:text-medical-400 mt-1 font-medium">{t('video_sse_hint')}</p>
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-1 font-medium">{t('video_sse_hint')}</p>
                       </div>
                     </div>
                   </div>
@@ -695,7 +695,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       </Button>
 
                       {/* ✅ Programar video */}
-                      <Button size="sm" onClick={handleScheduleVideo} className="flex-1 bg-medical-600 hover:bg-medical-700 text-white">
+                      <Button size="sm" onClick={handleScheduleVideo} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm">
                         <CalendarPlus className="w-4 h-4 mr-2" /> {t('schedule_video_btn')}
                       </Button>
 
