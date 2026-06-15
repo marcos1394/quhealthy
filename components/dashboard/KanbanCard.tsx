@@ -18,8 +18,8 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
   useEffect(() => {
    const calculate = () => {
       try {
-        // 🚀 FIX: Limpiamos los microsegundos de Java (.603643) que crashean el Date de JS
-        const cleanTime = startTime.includes('.') ? startTime.split('.')[0] : startTime;
+        // 🚀 FIX: Limpiamos los microsegundos de Java (.603643) pero CONSERVAMOS la Z (UTC)
+        const cleanTime = startTime.replace(/\.\d+/, '');
         
         const start = new Date(cleanTime).getTime();
         const now = new Date().getTime();
