@@ -13,22 +13,13 @@ import { PlansHeader } from '@/components/dashboard/subscription/PlansHeader';
 import { PricingCard, Plan } from '@/components/dashboard/subscription/PricingCard';
 import { ConfirmationModal } from '@/components/dashboard/subscription/ConfirmationModal';
 import { handleApiError } from '@/lib/handleApiError';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 
 // Tipos adicionales locales para la data
 export type UserRole = "paciente" | "proveedor";
 export type BillingCycle = "monthly" | "yearly";
 
-// Tipado del Plan desde Backend (Java)
-interface BackendPlan {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  billingInterval: "MONTHLY" | "YEARLY";
-  currency: string;
-  stripePriceId: string;
-}
+import { BackendPlan, buildFeaturesForPlan } from '@/lib/subscriptionUtils';
 
 // Configuración de Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -36,6 +27,8 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 export default function BillingPage() {
   const t = useTranslations('SettingsSubscription');
   const params = useParams();
+  const searchParams = useSearchParams();
+  const planIdParam = searchParams.get('planId');
   const locale = params.locale; // Obtiene 'es', 'en', etc.
   const role: UserRole = "proveedor"; 
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
@@ -44,63 +37,6 @@ export default function BillingPage() {
   const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
   const [displayPlans, setDisplayPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Mapear features visuales según el nombre del plan para mantener i18n
-// Mapear features visuales simétricas para facilitar la comparación
-  const buildFeaturesForPlan = (planName: string, isYearly: boolean) => {
-    const nameLower = planName.toLowerCase();
-    
-    // EJE 1: Mensualidad vs Comisión (Claridad financiera)
-    // EJE 2: Capacidad Operativa (Citas)
-    // EJE 3: Capacidad de Catálogo (Servicios/Productos)
-    // EJE 4: Extras (Market, IA, Multi-usuario)
-
-    if (nameLower.includes("gratis") || nameLower.includes("gratuito")) {
-      return [
-        { title: "$0 Mensualidad fija" },
-        { title: "Gestión básica de Citas y Pacientes" },
-        { title: "15% de comisión por cobros en app" }
-      ];
-    }
-    if (nameLower.includes("básico") || nameLower.includes("basic")) {
-      return [
-        { title: "Hasta 50 Citas al mes" },
-        { title: "Catálogo: 5 Servicios / 10 Productos" },
-        { title: "15% Comisión + $10 MXN por reserva" }
-      ];
-    }
-    if (nameLower.includes("estándar") || nameLower.includes("standard")) {
-      return [
-        { title: "Hasta 150 Citas al mes", highlighted: true },
-        { title: "Catálogo: 15 Servicios / 30 Productos" },
-        { title: "12% Comisión + $8 MXN por reserva" },
-        { title: "Acceso a ventas en QUMarket" }
-      ];
-    }
-    if (nameLower.includes("premium")) {
-      return [
-        { title: "Hasta 500 Citas al mes", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
-        { title: "Catálogo: 50 Servicios / 100 Productos" },
-        { title: "10% Comisión + $5 MXN por reserva" },
-        { title: "Reportes Avanzados e IA (QUBlocks)" }
-      ];
-    }
-    if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) {
-      return [
-        { title: "Citas y Catálogo Ilimitados", icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, highlighted: true },
-        { title: "Gestión Multi-usuario (Clínicas)" },
-        { title: "Comisión VIP: 5% + $0 MXN por reserva" },
-        { title: "Marketing y Soporte Nivel 4 (VIP)" }
-      ];
-    }
-    
-    // Por defecto fallback a profesional/estándar
-    return [
-      { title: "Gestión de agenda médica" },
-      { title: "Catálogo de servicios" },
-      { title: "Soporte técnico" }
-    ];
-  };
 
   // Cargar planes del backend
   useEffect(() => {
@@ -148,7 +84,15 @@ export default function BillingPage() {
     });
 
     setDisplayPlans(uiPlans);
-  }, [billingCycle, rawPlans]);
+
+    // Auto-open modal if planIdParam is present
+    if (planIdParam && !selectedPlan) {
+      const planToAutoOpen = uiPlans.find(p => p.id === planIdParam || p.id === `plan_${planIdParam}`);
+      if (planToAutoOpen) {
+        setSelectedPlan(planToAutoOpen);
+      }
+    }
+  }, [billingCycle, rawPlans, planIdParam]);
 
   // Manejo del pago
   const handleCheckout = async () => {

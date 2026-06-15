@@ -75,9 +75,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onCancel()}>
-      <DialogContent className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white border-0 sm:max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-0 overflow-hidden rounded-[2rem]">
+      <DialogContent className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white border-0 sm:max-w-xl max-h-[90vh] flex flex-col shadow-2xl p-0 overflow-hidden rounded-[2rem]">
 
-        {/* Decorative background gradient */}
+        <div className="flex-1 overflow-y-auto relative">
+          {/* Decorative background gradient */}
         <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-950 opacity-50 z-0 pointer-events-none" />
 
         <div className="relative z-10 p-8 pb-4">
@@ -259,6 +260,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               </ul>
             </div>
           </motion.div>
+        </div>
         </div>
 
         {/* Footer */}

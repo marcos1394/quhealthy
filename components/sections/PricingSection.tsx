@@ -1,73 +1,68 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { useTranslations } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
 import Link from "next/link";
+import axiosInstance from "@/lib/axios";
+import { BackendPlan, buildFeaturesForPlan } from "@/lib/subscriptionUtils";
+
+interface UIPlan {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  isPopular: boolean;
+  features: { title: string; icon?: React.ReactNode; highlighted?: boolean }[];
+  originalId: number;
+}
 
 const PricingSection: React.FC = () => {
   const t = useTranslations('Pricing');
   const { isAuthenticated, role } = useSessionStore();
   const [isAnnual, setIsAnnual] = useState(true);
+  const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const plans = [
-    {
-      title: t('plans.basic.title'),
-      price: 0,
-      description: t('plans.basic.description'),
-      features: [
-        t('plans.basic.features.0'),
-        t('plans.basic.features.1'),
-        t('plans.basic.features.2'),
-        t('plans.basic.features.3')
-      ],
-      includes: ["Búsqueda", "Reservas"],
-      isPopular: false,
-      buttonText: t('plans.basic.button_text'),
-      notIncluded: []
-    },
-    {
-      title: t('plans.premium.title'),
-      price: 9.99,
-      description: t('plans.premium.description'),
-      features: [
-        t('plans.premium.features.0'),
-        t('plans.premium.features.1'),
-        t('plans.premium.features.2'),
-        t('plans.premium.features.3'),
-        t('plans.premium.features.4')
-      ],
-      includes: ["Búsqueda", "Reservas", "Chat"],
-      isPopular: true,
-      buttonText: t('plans.premium.button_text'),
-      notIncluded: []
-    },
-    {
-      title: t('plans.business.title'),
-      price: 24.99,
-      description: t('plans.business.description'),
-      features: [
-        t('plans.business.features.0'),
-        t('plans.business.features.1'),
-        t('plans.business.features.2'),
-        t('plans.business.features.3'),
-        t('plans.business.features.4'),
-        t('plans.business.features.5')
-      ],
-      includes: ["Búsqueda", "Reservas", "Chat", "Gestión"],
-      isPopular: false,
-      buttonText: t('plans.business.button_text'),
-      notIncluded: []
-    }
-  ];
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const { data } = await axiosInstance.get<BackendPlan[]>('/api/payments/plans');
+        setRawPlans(data);
+      } catch (err) {
+        console.error("Error fetching plans:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  const currentInterval = isAnnual ? "YEARLY" : "MONTHLY";
+  const filteredRawPlans = rawPlans.filter(p => p.billingInterval === currentInterval);
+
+  // Ordenar por precio ascendente
+  const displayPlans: UIPlan[] = filteredRawPlans
+    .sort((a, b) => a.price - b.price)
+    .map((bp) => {
+      const isPopular = bp.name.toLowerCase().includes("estándar") || bp.name.toLowerCase().includes("prof");
+      return {
+        id: bp.stripePriceId || `plan_${bp.id}`,
+        title: bp.name,
+        description: bp.description || "Potencia tu consultorio digital.",
+        price: bp.price,
+        isPopular,
+        features: buildFeaturesForPlan(bp.name, isAnnual),
+        originalId: bp.id
+      };
+    });
 
   return (
     <section id="pricing" className="py-24 md:py-32 bg-white dark:bg-slate-900 transition-colors duration-300">
-      <div className="container mx-auto px-6 md:px-12 xl:px-24">
-
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         {/* Editorial Header */}
         <div className="max-w-3xl mb-20 md:mb-28 mx-auto text-center">
           <span className="inline-block border border-slate-200 dark:border-slate-800 px-4 py-1.5 rounded-full text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-widest uppercase mb-6">
@@ -91,6 +86,7 @@ const PricingSection: React.FC = () => {
             <Switch
               checked={isAnnual}
               onCheckedChange={setIsAnnual}
+              disabled={isLoading}
               className="data-[state=checked]:bg-slate-900 dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-slate-200 dark:data-[state=unchecked]:bg-slate-700"
             />
             <span className={cn(
@@ -105,96 +101,94 @@ const PricingSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Pricing Layout - Borderless Columns */}
-        <div className="grid md:grid-cols-3 gap-0 border-t border-slate-200 dark:border-slate-800 max-w-6xl mx-auto">
-          {plans.map((plan, index) => {
-            const finalPrice = isAnnual ? Math.round(plan.price * 0.8) : plan.price;
-            const isMiddle = index === 1;
+        {/* Pricing Layout */}
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-10 h-10 text-slate-300 animate-spin" />
+          </div>
+        ) : (
+          <div className="flex flex-wrap justify-center items-stretch border-t border-slate-200 dark:border-slate-800 max-w-[1400px] mx-auto pt-8 md:pt-0">
+            {displayPlans.map((plan, index) => {
+              const finalPrice = plan.price;
+              const isMiddle = plan.isPopular;
 
-            return (
-              <motion.div
-                key={plan.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className={cn(
-                  "relative p-10 flex flex-col transition-all duration-300 group/pricing z-10",
-                  isMiddle 
-                    ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-18 md:pb-18 md:rounded-3xl shadow-2xl shadow-medical-500/10 border border-medical-100 dark:border-medical-900/50" 
-                    : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 md:rounded-3xl border border-transparent"
-                )}
-              >
-                {/* Glow behind popular plan */}
-                {isMiddle && (
-                  <div className="absolute -inset-4 bg-gradient-to-b from-medical-500/20 to-teal-500/20 blur-2xl opacity-50 -z-10 rounded-3xl pointer-events-none" />
-                )}
-
-                {/* Etiqueta Popular si aplica */}
-                {plan.isPopular && (
-                  <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-gradient-to-r from-medical-600 to-teal-500 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-medical-500/30">
-                    {t('badges.popular')}
-                  </div>
-                )}
-
-                <div className="mb-8">
-                  <h3 className="text-2xl font-medium text-slate-900 dark:text-white mb-2">
-                    {plan.title}
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-light min-h-[40px]">
-                    {plan.description}
-                  </p>
-                </div>
-
-                {/* Precio Editorial */}
-                <div className="mb-10 flex items-baseline gap-2">
-                  <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
-                    ${finalPrice}
-                  </span>
-                  <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                    /{t('price_frequency')}
-                  </span>
-                </div>
-
-                {/* Lista de Features Líneas */}
-                <ul className="space-y-6 mb-12 flex-1">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-4">
-                      <div className={cn("p-1 rounded-full shrink-0 mt-0.5", isMiddle ? "bg-medical-500 text-white shadow-sm shadow-medical-500/20" : "bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400")}>
-                        <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                      </div>
-                      <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                  {plan.notIncluded?.map((feature, i) => (
-                    <li key={`not-${i}`} className="flex items-start gap-4 opacity-40 grayscale">
-                      <X className="w-5 h-5 text-slate-400 shrink-0" strokeWidth={1.5} />
-                      <span className="text-slate-500 font-light leading-relaxed line-through decoration-slate-300">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Botón CTA */}
-                <Link
-                  href={isAuthenticated && role === 'PROVIDER' ? '/provider/settings/subscription' : '/provider/register'}
+              return (
+                <motion.div
+                  key={plan.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   className={cn(
-                    "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
-                    plan.isPopular
-                      ? "bg-medical-600 hover:bg-medical-700 text-white"
-                      : "border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                    "relative p-8 flex flex-col w-full md:w-1/2 lg:w-1/4 transition-all duration-300 group/pricing z-10",
+                    isMiddle 
+                      ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-16 md:pb-16 md:rounded-3xl shadow-2xl shadow-medical-500/10 border border-medical-100 dark:border-medical-900/50 z-20" 
+                      : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 md:rounded-3xl border border-transparent"
                   )}
                 >
-                  {plan.buttonText}
-                </Link>
+                  {/* Glow behind popular plan */}
+                  {isMiddle && (
+                    <div className="absolute -inset-4 bg-gradient-to-b from-medical-500/20 to-teal-500/20 blur-2xl opacity-50 -z-10 rounded-3xl pointer-events-none" />
+                  )}
 
-              </motion.div>
-            );
-          })}
-        </div>
+                  {/* Etiqueta Popular si aplica */}
+                  {plan.isPopular && (
+                    <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-gradient-to-r from-medical-600 to-teal-500 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-medical-500/30">
+                      {t('badges.popular')}
+                    </div>
+                  )}
+
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-medium text-slate-900 dark:text-white mb-2">
+                      {plan.title}
+                    </h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-light min-h-[40px]">
+                      {plan.description}
+                    </p>
+                  </div>
+
+                  {/* Precio Editorial */}
+                  <div className="mb-10 flex items-baseline gap-2">
+                    <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
+                      ${finalPrice}
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+                      /{t('price_frequency')}
+                    </span>
+                  </div>
+
+                  {/* Lista de Features Líneas */}
+                  <ul className="space-y-6 mb-12 flex-1">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-4">
+                        <div className={cn("p-1 rounded-full shrink-0 mt-0.5", feature.highlighted ? "bg-medical-500 text-white shadow-sm shadow-medical-500/20" : "bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400")}>
+                          {feature.icon ? feature.icon : <Check className="w-3.5 h-3.5" strokeWidth={2.5} />}
+                        </div>
+                        <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                          {feature.title}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Botón CTA */}
+                  <Link
+                    href={isAuthenticated && role === 'PROVIDER' ? `/provider/settings/subscription?planId=${plan.id}` : `/provider/register?planId=${plan.id}`}
+                    className={cn(
+                      "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
+                      isMiddle
+                        ? "bg-medical-600 hover:bg-medical-700 text-white"
+                        : "border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                    )}
+                  >
+                    {isMiddle ? t('plans.premium.button_text') : t('plans.basic.button_text')}
+                  </Link>
+
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="text-center mt-24 text-sm text-slate-500 font-light">
           {t('footer')}
