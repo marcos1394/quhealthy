@@ -23,6 +23,9 @@ export type HistoryEntry = {
   client: { name: string };
   priceAtBooking?: number;
   cost?: number;
+  arrivedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
 };
 
 type UserRole = "paciente" | "proveedor";

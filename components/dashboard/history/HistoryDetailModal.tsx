@@ -155,6 +155,53 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
             </div>
           </motion.div>
 
+          {/* Timeline de Servicio */}
+          {(entry.arrivedAt || entry.startedAt || entry.completedAt) && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-2 mt-4">
+              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="w-3 h-3" /> {t("service_timeline", { defaultValue: "Línea de Tiempo del Servicio" })}
+              </p>
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                {entry.arrivedAt && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><User className="w-4 h-4 text-emerald-500"/> {t("timeline_arrival", { defaultValue: "Llegada del paciente" })}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.arrivedAt), "HH:mm", { locale: es })}</span>
+                  </div>
+                )}
+                
+                {entry.arrivedAt && entry.startedAt && (
+                  <div className="flex justify-end -my-1">
+                    <span className="text-xs bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md font-medium border border-amber-200 dark:border-amber-500/20">
+                      ⏱️ {t("timeline_wait", { defaultValue: "Espera:" })} {Math.floor((new Date(entry.startedAt).getTime() - new Date(entry.arrivedAt).getTime())/60000)}m
+                    </span>
+                  </div>
+                )}
+
+                {entry.startedAt && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500"/> {t("timeline_start", { defaultValue: "Inicio de consulta" })}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.startedAt), "HH:mm", { locale: es })}</span>
+                  </div>
+                )}
+
+                {entry.startedAt && entry.completedAt && (
+                  <div className="flex justify-end -my-1">
+                    <span className="text-xs bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md font-medium border border-indigo-200 dark:border-indigo-500/20">
+                      ▶️ {t("timeline_consultation", { defaultValue: "Consulta:" })} {Math.floor((new Date(entry.completedAt).getTime() - new Date(entry.startedAt).getTime())/60000)}m
+                    </span>
+                  </div>
+                )}
+
+                {entry.completedAt && (
+                  <div className="flex justify-between items-center text-sm border-t border-slate-200 dark:border-slate-700 pt-3 mt-1">
+                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-indigo-500"/> {t("timeline_completed", { defaultValue: "Servicio Finalizado" })}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.completedAt), "HH:mm", { locale: es })}</span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
           <Separator className="bg-slate-200 dark:bg-slate-800" />
 
           {/* Rating */}

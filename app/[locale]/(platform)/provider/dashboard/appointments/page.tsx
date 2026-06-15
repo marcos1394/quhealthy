@@ -195,6 +195,34 @@ export default function ProviderAppointmentsPage() {
     return true;
   });
 
+  // 🚀 Cálculo de promedios para métricas del día (Dashboard Analytics local)
+  const todayCompletedAppointments = appointments.filter(appt => {
+    const apptDate = new Date(appt.startTime).toDateString();
+    const today = new Date().toDateString();
+    return apptDate === today && normalizeStatus(appt.status) === "COMPLETED";
+  });
+
+  const getDiffMinutes = (startStr?: string, endStr?: string) => {
+    if (!startStr || !endStr) return null;
+    try {
+      const cleanStart = startStr.replace(/\.\d+/, '');
+      const cleanEnd = endStr.replace(/\.\d+/, '');
+      const s = new Date(cleanStart).getTime();
+      const e = new Date(cleanEnd).getTime();
+      if (isNaN(s) || isNaN(e)) return null;
+      const diff = Math.floor((e - s) / 60000);
+      return diff > 0 ? diff : 0;
+    } catch {
+      return null;
+    }
+  };
+
+  const waitTimes = todayCompletedAppointments.map(a => getDiffMinutes(a.arrivedAt, a.startedAt)).filter(v => v !== null) as number[];
+  const avgWaitTime = waitTimes.length ? Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length) : 0;
+
+  const consultationTimes = todayCompletedAppointments.map(a => getDiffMinutes(a.startedAt, a.completedAt)).filter(v => v !== null) as number[];
+  const avgConsultationTime = consultationTimes.length ? Math.round(consultationTimes.reduce((a, b) => a + b, 0) / consultationTimes.length) : 0;
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col justify-center items-center">
@@ -217,6 +245,24 @@ export default function ProviderAppointmentsPage() {
           <Button onClick={() => setIsNewAppointmentModalOpen(true)} className="bg-slate-900 text-white rounded-xl shadow-none">
             <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
           </Button>
+        </div>
+      </div>
+
+      {/* 🚀 Dashboard Analytics: Tiempos Promedio del Día */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <Timer className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">{t('avg_wait_today', { defaultValue: 'Promedio Espera (Hoy)' })}</span>
+          </div>
+          <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{avgWaitTime} <span className="text-sm font-medium opacity-70">min</span></p>
+        </div>
+        <div className="bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-4 flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <PlayCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">{t('avg_consultation_today', { defaultValue: 'Promedio Consulta (Hoy)' })}</span>
+          </div>
+          <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">{avgConsultationTime} <span className="text-sm font-medium opacity-70">min</span></p>
         </div>
       </div>
 

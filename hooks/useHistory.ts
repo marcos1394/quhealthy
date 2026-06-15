@@ -39,7 +39,10 @@ export const useHistory = () => {
           specialty: app.providerSpecialty || 'General' 
         },
         priceAtBooking: app.price,
-        cost: app.amountPaid
+        cost: app.amountPaid,
+        arrivedAt: app.arrivedAt,
+        startedAt: app.startedAt,
+        completedAt: app.completedAt
       }));
 
       setHistoryData(mappedHistory);
