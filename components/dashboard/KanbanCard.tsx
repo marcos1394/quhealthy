@@ -109,6 +109,22 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     }
   };
 
+  // Función para obtener diferencia en minutos
+  const getDiffMinutes = (startStr?: string, endStr?: string) => {
+    if (!startStr || !endStr) return 0;
+    try {
+      const cleanStart = startStr.replace(/\.\d+/, '');
+      const cleanEnd = endStr.replace(/\.\d+/, '');
+      const s = new Date(cleanStart).getTime();
+      const e = new Date(cleanEnd).getTime();
+      if (isNaN(s) || isNaN(e)) return 0;
+      const diff = Math.floor((e - s) / 60000);
+      return diff > 0 ? diff : 0;
+    } catch {
+      return 0;
+    }
+  };
+
   return (
     <div
       draggable
@@ -147,6 +163,21 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           <LiveTimer startTime={appt.arrivedAt} type="WAITING" />
         ) : columnId === "IN_PROGRESS" && appt.startedAt ? (
           <LiveTimer startTime={appt.startedAt} type="CONSULTATION" />
+        ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) ? (
+          <div className="flex gap-1.5">
+            {appt.arrivedAt && appt.startedAt && (
+              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700" title="Tiempo de espera">
+                <Timer className="w-3 h-3 text-amber-500" />
+                {getDiffMinutes(appt.arrivedAt, appt.startedAt)}m
+              </span>
+            )}
+            {appt.startedAt && appt.completedAt && (
+              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700" title="Tiempo de consulta">
+                <PlayCircle className="w-3 h-3 text-indigo-500" />
+                {getDiffMinutes(appt.startedAt, appt.completedAt)}m
+              </span>
+            )}
+          </div>
         ) : (
           <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700">
             <Clock className="w-3 h-3" />

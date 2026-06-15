@@ -123,6 +123,7 @@ export interface ProviderAppointment {
   endTime: string;
   arrivedAt?: string; // 🚀 NUEVO: Hora en la que llegó a sala de espera
   startedAt?: string; // 🚀 NUEVO: Hora en la que inició la consulta
+  completedAt?: string; // 🚀 NUEVO: Hora en la que terminó la consulta
   provider: { 
     name: string; 
   };

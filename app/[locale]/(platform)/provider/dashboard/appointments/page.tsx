@@ -89,6 +89,9 @@ export default function ProviderAppointmentsPage() {
         if (newStatus === "IN_PROGRESS" && !appt.startedAt) {
           updatedAppt.startedAt = nowLocalIso;
         }
+        if (newStatus === "COMPLETED" && !appt.completedAt) {
+          updatedAppt.completedAt = nowLocalIso;
+        }
         
         return updatedAppt;
       }
