@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown } from "lucide-react";
+import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown, Image as ImageIcon } from "lucide-react";
 import { useSocial } from "@/hooks/useSocial";
 import type { SocialConnectionDTO, ScheduledPostDTO } from "@/types/social";
 
