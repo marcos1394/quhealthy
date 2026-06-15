@@ -43,7 +43,7 @@ const getStatusConfig = (status: HistoryEntry["status"], t: (key: string) => str
     completed: { icon: <CheckCircle2 className="w-3 h-3" />, text: t("status_completed"), className: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20" },
     cancelled: { icon: <XCircle className="w-3 h-3" />, text: t("status_cancelled"), className: "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20" },
     rescheduled: { icon: <RefreshCw className="w-3 h-3" />, text: t("status_rescheduled"), className: "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" },
-    pending: { icon: <Clock className="w-3 h-3" />, text: t("status_pending"), className: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20" },
+    pending: { icon: <Clock className="w-3 h-3" />, text: t("status_pending"), className: "bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50" },
   };
   const config = configs[status] || configs["pending"]; // Fallback safe
   return (
@@ -137,7 +137,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ entries, role, onVie
                 className={cn(
                   "border-slate-100 dark:border-slate-800 transition-all cursor-pointer group",
                   hoveredRow === entry.id ? "bg-slate-50 dark:bg-slate-800/50" : "",
-                  recent ? "bg-medical-50/30 dark:bg-medical-500/5" : ""
+                  recent ? "bg-slate-50/50 dark:bg-slate-800/30" : ""
                 )}
                 onClick={() => onViewDetails(entry)}>
 
@@ -150,7 +150,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ entries, role, onVie
                       <div className="text-[11px] text-slate-400">{format(parseISO(entry.date), "yyyy")}</div>
                     </div>
                     {recent && (
-                      <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 text-[10px]">
+                      <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-[10px]">
                         {t("new_badge")}
                       </Badge>
                     )}
@@ -189,7 +189,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ entries, role, onVie
                       : <span className="text-xs text-slate-400 italic font-light">{t("not_rated")}</span>
                   ) : (
                     <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-                      <Clock className="w-3.5 h-3.5 text-medical-600 dark:text-medical-400" />
+                      <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                       <span className="font-medium">{entry.duration}</span>
                     </div>
                   )}
@@ -199,8 +199,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ entries, role, onVie
                 <TableCell className="text-right pr-5">
                   <Button variant="ghost" size="sm"
                     className={cn(
-                      "text-slate-400 hover:text-medical-600 dark:hover:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10 transition-all rounded-lg text-xs",
-                      hoveredRow === entry.id ? "text-medical-600 dark:text-medical-400 bg-medical-50 dark:bg-medical-500/10" : ""
+                      "text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all rounded-lg text-xs",
+                      hoveredRow === entry.id ? "text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800" : ""
                     )}
                     onClick={(e) => { e.stopPropagation(); onViewDetails(entry); }}>
                     <Eye className="w-3.5 h-3.5 mr-1.5" />{t("view_details")}
@@ -232,7 +232,7 @@ export const HistoryTableCompact: React.FC<HistoryTableProps> = ({ entries, role
       {entries.map((entry, index) => (
         <motion.div key={entry.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
           onClick={() => onViewDetails(entry)}
-          className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-medical-200 dark:hover:border-medical-500/20 hover:shadow-sm transition-all cursor-pointer group">
+          className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm transition-all cursor-pointer group">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export const HistoryTableCompact: React.FC<HistoryTableProps> = ({ entries, role
                 <span>{entry.type}</span>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-0.5 transition-all" />
+            <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all" />
           </div>
         </motion.div>
       ))}

@@ -62,18 +62,18 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className={cn(
           "grid grid-cols-1 md:grid-cols-4 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 transition-all shadow-sm",
-          isFocused ? "border-medical-300 dark:border-medical-500/30 shadow-md" : ""
+          isFocused ? "border-slate-300 dark:border-slate-600 shadow-md" : ""
         )}>
 
         {/* Search */}
         <div className="relative">
-          <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors pointer-events-none", isFocused || searchTerm ? "text-medical-600 dark:text-medical-400" : "text-slate-400")} />
+          <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors pointer-events-none", isFocused || searchTerm ? "text-slate-600 dark:text-slate-300" : "text-slate-400")} />
           <Input
             placeholder={t("search_placeholder")}
             className={cn(
               "pl-10 pr-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white h-10 rounded-xl transition-all",
-              "focus:border-medical-500 focus:ring-1 focus:ring-medical-500/20",
-              searchTerm && "border-medical-300 dark:border-medical-500/30"
+              "focus-visible:ring-slate-300 dark:focus-visible:ring-slate-600",
+              searchTerm && "border-slate-300 dark:border-slate-600"
             )}
             value={searchTerm} onChange={(e) => onSearchTermChange(e.target.value)}
             onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}
@@ -92,10 +92,10 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
         <Select value={filters.dateRange} onValueChange={(value) => onFiltersChange({ ...filters, dateRange: value })}>
           <SelectTrigger className={cn(
             "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.dateRange !== "all" ? "border-medical-300 dark:border-medical-500/30 bg-medical-50 dark:bg-medical-500/5" : ""
+            filters.dateRange !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
           )}>
             <div className="flex items-center gap-2">
-              <Calendar className={cn("w-4 h-4", filters.dateRange !== "all" ? "text-medical-600 dark:text-medical-400" : "text-slate-400")} />
+              <Calendar className={cn("w-4 h-4", filters.dateRange !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
               <SelectValue placeholder={t("filter_period")} />
             </div>
           </SelectTrigger>
@@ -112,10 +112,10 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
         <Select value={filters.type} onValueChange={(value) => onFiltersChange({ ...filters, type: value })}>
           <SelectTrigger className={cn(
             "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.type !== "all" ? "border-medical-300 dark:border-medical-500/30 bg-medical-50 dark:bg-medical-500/5" : ""
+            filters.type !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
           )}>
             <div className="flex items-center gap-2">
-              <ListFilter className={cn("w-4 h-4", filters.type !== "all" ? "text-medical-600 dark:text-medical-400" : "text-slate-400")} />
+              <ListFilter className={cn("w-4 h-4", filters.type !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
               <SelectValue placeholder={t("filter_service")} />
             </div>
           </SelectTrigger>
@@ -129,10 +129,10 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
         <Select value={filters.status} onValueChange={(value) => onFiltersChange({ ...filters, status: value })}>
           <SelectTrigger className={cn(
             "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.status !== "all" ? "border-emerald-300 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/5" : ""
+            filters.status !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
           )}>
             <div className="flex items-center gap-2">
-              <Filter className={cn("w-4 h-4", filters.status !== "all" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400")} />
+              <Filter className={cn("w-4 h-4", filters.status !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
               <SelectValue placeholder={t("filter_status")} />
             </div>
           </SelectTrigger>
@@ -157,37 +157,37 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
               <AnimatePresence>
                 {searchTerm && (
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
                       <Search className="w-2.5 h-2.5" />
                       <span className="max-w-[100px] truncate">{searchTerm}</span>
-                      <button aria-label="Clear search" onClick={handleClearSearch} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear search" onClick={handleClearSearch} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
                 {filters.dateRange !== "all" && (
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
                       <Calendar className="w-2.5 h-2.5" />
                       {getFilterLabel("dateRange", filters.dateRange)}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
                 {filters.type !== "all" && (
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 gap-1 text-xs">
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
                       <ListFilter className="w-2.5 h-2.5" />
                       {filters.type}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 hover:text-medical-700 dark:hover:text-medical-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}
                 {filters.status !== "all" && (
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 gap-1 text-xs">
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
                       <Filter className="w-2.5 h-2.5" />
                       {getFilterLabel("status", filters.status)}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 hover:text-emerald-700 dark:hover:text-emerald-300"><X className="w-2.5 h-2.5" /></button>
+                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
                     </Badge>
                   </motion.div>
                 )}

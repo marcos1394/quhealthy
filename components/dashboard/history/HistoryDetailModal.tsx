@@ -35,9 +35,9 @@ const getRatingStars = (rating: number) => (
 
 const getServiceIcon = (type: string) => {
   const normalized = type.toLowerCase();
-  if (normalized.includes("video") || normalized.includes("teleconsulta")) return <Video className="w-5 h-5 text-medical-600 dark:text-medical-400" />;
-  if (normalized.includes("presencial") || normalized.includes("consulta")) return <User className="w-5 h-5 text-medical-600 dark:text-medical-400" />;
-  if (normalized.includes("llamada") || normalized.includes("telefónica")) return <Phone className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />;
+  if (normalized.includes("video") || normalized.includes("teleconsulta")) return <Video className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
+  if (normalized.includes("presencial") || normalized.includes("consulta")) return <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
+  if (normalized.includes("llamada") || normalized.includes("telefónica")) return <Phone className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
   return <FileText className="w-5 h-5 text-slate-400" />;
 };
 
@@ -85,7 +85,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3.5 flex-1">
                 <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200 }}
-                  className="p-2.5 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-200 dark:border-medical-500/20">
+                  className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                   {getServiceIcon(entry.type)}
                 </motion.div>
                 <div className="flex-1 min-w-0 text-left">
@@ -123,7 +123,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
                   {role === "paciente" ? entry.provider?.name : entry.client?.name}
                 </p>
                 {role === "paciente" && entry.provider?.specialty && (
-                  <p className="text-sm text-medical-600 dark:text-medical-400 font-medium">{entry.provider.specialty}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{entry.provider.specialty}</p>
                 )}
                 {entry.provider?.location && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-light">
@@ -142,7 +142,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
                 <p className="text-base font-semibold text-slate-900 dark:text-white">{entry.type}</p>
                 {entry.duration && (
                   <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-medical-600 dark:text-medical-400" />
+                    <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span className="font-medium">{entry.duration}</span>
                   </p>
                 )}

@@ -116,34 +116,37 @@ export default function ProviderHistoryPage() {
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-200 dark:border-medical-500/20">
-              <History className="w-7 h-7 text-medical-600 dark:text-medical-400" />
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+            <div className="flex items-center gap-5">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
+                <History className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">{t("subtitle")}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("subtitle")}</p>
-            </div>
+            <HistoryHeader role={role} entryCount={filteredHistory.length} onExport={handleExport} />
           </div>
-          <HistoryHeader role={role} entryCount={filteredHistory.length} onExport={handleExport} />
         </motion.div>
 
         {/* Stats Row */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: t("records"), value: filteredHistory.length, icon: ClipboardList, color: "text-medical-600 dark:text-medical-400", bg: "bg-medical-50 dark:bg-medical-500/10 border-medical-200 dark:border-medical-500/20" },
-            { label: t("status_completed"), value: completedCount, icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
-            { label: t("status_cancelled"), value: cancelledCount, icon: FileDown, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20" },
-            { label: t("status_rescheduled"), value: rescheduledCount, icon: FileDown, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
+            { label: t("records"), value: filteredHistory.length, icon: ClipboardList, color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
+            { label: t("status_completed"), value: completedCount, icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
+            { label: t("status_cancelled"), value: cancelledCount, icon: FileDown, color: "text-red-600 dark:text-red-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
+            { label: t("status_rescheduled"), value: rescheduledCount, icon: FileDown, color: "text-amber-600 dark:text-amber-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
           ].map((stat, i) => (
-            <div key={i} className={`p-4 rounded-xl border ${stat.bg} transition-colors`}>
-              <div className="flex items-center gap-2 mb-1">
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
+            <div key={i} className={`p-5 rounded-2xl border ${stat.bg} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300`}>
+              <div className="flex items-center gap-2 mb-2">
+                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
               </div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+              <p className="text-3xl font-black text-slate-900 dark:text-white">{stat.value}</p>
             </div>
           ))}
         </motion.div>
