@@ -92,17 +92,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               >
                 <ShieldCheck className="w-7 h-7 text-white dark:text-slate-900" />
               </motion.div>
-
-              {!isLoading && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onCancel}
-                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              )}
             </div>
 
             <div className="space-y-2 text-left">
