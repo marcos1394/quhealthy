@@ -1335,6 +1335,10 @@
   "DashboardMarketing": {
     "title": "Centro de Marketing",
     "subtitle": "Impulsa tu práctica con contenido para redes sociales generado por IA.",
+    "item_service": "Servicio",
+    "item_package": "Paquete",
+    "item_product": "Producto",
+    "item_course": "Curso",
     "social_tab": "Redes Sociales",
     "assets_tab": "Activos de Marca",
     "campaigns_tab": "Campañas",

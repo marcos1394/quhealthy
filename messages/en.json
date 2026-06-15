@@ -1335,6 +1335,10 @@
   "DashboardMarketing": {
     "title": "Marketing Hub",
     "subtitle": "Boost your practice with AI-generated social media content.",
+    "item_service": "Service",
+    "item_package": "Package",
+    "item_product": "Product",
+    "item_course": "Course",
     "social_tab": "Social Media",
     "assets_tab": "Brand Assets",
     "campaigns_tab": "Campaigns",
