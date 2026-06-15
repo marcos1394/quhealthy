@@ -730,6 +730,8 @@
   "DashboardAppointments": {
     "title": "Appointments",
     "subtitle": "Manage and track your patient appointments.",
+    "avg_wait_today": "Average Wait (Today)",
+    "avg_consultation_today": "Average Consultation (Today)",
     "stats": {
       "upcoming": "Upcoming",
       "today": "Today",

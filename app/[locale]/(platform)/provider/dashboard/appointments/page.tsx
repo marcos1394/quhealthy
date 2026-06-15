@@ -15,7 +15,7 @@ import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarView } from "@/components/dashboard/CalendarView";
 import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
-import { useProviderAppointments } from "@/hooks/useProviderAppointments";
+import { useProviderAppointments, saveApptTime } from "@/hooks/useProviderAppointments";
 import { appointmentService } from "@/services/appointment.service";
 import { ProviderAppointment } from "@/types/appointments";
 import { KanbanCard } from "@/components/dashboard/KanbanCard";
@@ -85,12 +85,15 @@ export default function ProviderAppointmentsPage() {
         // ⏱️ INYECTOR DE TIMERS: Si no tenía tiempo asignado, se lo ponemos AHORA MISMO
         if (newStatus === "WAITING_ROOM" && !appt.arrivedAt) {
           updatedAppt.arrivedAt = nowLocalIso;
+          saveApptTime(appt.id, 'arrivedAt', nowLocalIso);
         }
         if (newStatus === "IN_PROGRESS" && !appt.startedAt) {
           updatedAppt.startedAt = nowLocalIso;
+          saveApptTime(appt.id, 'startedAt', nowLocalIso);
         }
         if (newStatus === "COMPLETED" && !appt.completedAt) {
           updatedAppt.completedAt = nowLocalIso;
+          saveApptTime(appt.id, 'completedAt', nowLocalIso);
         }
         
         return updatedAppt;

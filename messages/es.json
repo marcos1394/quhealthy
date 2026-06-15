@@ -730,6 +730,8 @@
   "DashboardAppointments": {
     "title": "Citas",
     "subtitle": "Gestiona y da seguimiento a las citas de tus pacientes.",
+    "avg_wait_today": "Promedio Espera (Hoy)",
+    "avg_consultation_today": "Promedio Consulta (Hoy)",
     "stats": {
       "upcoming": "Próximas",
       "today": "Hoy",
