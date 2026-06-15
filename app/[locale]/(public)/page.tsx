@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 import SuiteSection from "@/components/sections/SuiteSection";
 import FeaturesSection from "@/components/sections/FeatureSection";
-import ProviderModulesSection from "@/components/sections/ProviderModulesSection";
+import PlatformModulesSection from "@/components/sections/PlatformModulesSection";
 import TestimonialsSection from "@/components/sections/TestimonialSection";
 import PricingSection from "@/components/sections/PricingSection";
 import CtaSection from "@/components/sections/CtaSection";
@@ -40,8 +40,8 @@ export default function Home() {
       <HeroSection />
       <SuiteSection />
       
-      {/* Modulos del Proveedor (Reemplaza al FeaturesSection genérico) */}
-      <ProviderModulesSection />
+      {/* Modulos Interactivos (Proveedor/Paciente) */}
+      <PlatformModulesSection />
       <TestimonialsSection />
 
       <PricingSection />

@@ -1342,7 +1342,7 @@
     "social_tab": "Social Media",
     "assets_tab": "Brand Assets",
     "campaigns_tab": "Campaigns",
-    "tab_product_course_package": "Products, Courses & Packages",
+    "tab_product_course_package": "Services, Products, Courses and Packages",
     "connect_section_title": "1. Connect your Accounts",
     "connect_section_desc": "Link your social media profiles to publish directly from QuHealthy.",
     "connect_btn": "Connect",
@@ -1368,7 +1368,6 @@
     "warn_select_service": "Please select a service.",
     "warn_empty_prompt": "Describe the idea for your video.",
     "step_select_service": "Select the service to promote",
-    "tab_product_course_package": "Services, Products, Courses and Packages",
     "step_choose_content": "Choose the type of content",
     "no_services": "You have no services in your catalog. Add one from your Marketplace.",
     "tab_text": "Text / Copy",
@@ -3719,5 +3718,159 @@
       "p4_price": "$299.99"
     },
     "add_to_cart": "Add to Cart"
+  },
+  "PlatformModules": {
+    "badge": "Comprehensive Ecosystem",
+    "title_start": "Everything you need for your ",
+    "title_highlight_provider": "medical practice",
+    "title_highlight_patient": "health & wellness",
+    "description_provider": "From scheduling the first appointment to billing. A complete suite of modules designed specifically to grow your clinic.",
+    "description_patient": "Find specialists, manage your health records, buy products, and improve your wellness from a single smart platform.",
+    "switch_provider": "I'm a Provider",
+    "switch_patient": "I'm a Patient",
+    "explore_all": "Explore all tools included in our plans.",
+    "view_plans": "View Plans and Pricing",
+    "categories": {
+      "provider_clinic": {
+        "title": "Clinical Management",
+        "description": "Digitize your clinic and offer a superior experience to your patients with tools designed to optimize your time.",
+        "modules": {
+          "calendar": {
+            "title": "Calendar & Appointments",
+            "description": "Smart scheduling for you and your team. Real-time synchronization, availability control, and automatic reminders."
+          },
+          "history": {
+            "title": "Electronic Health Record",
+            "description": "Complete, secure, and always accessible clinical history. Complies with the strictest data privacy regulations."
+          },
+          "messages": {
+            "title": "Private Messaging",
+            "description": "Communicate safely with your patients directly from the platform, keeping your professional and personal life separate."
+          },
+          "patients": {
+            "title": "Patient Management",
+            "description": "Centralized database with detailed profiles, clinical notes, and long-term follow-ups."
+          }
+        }
+      },
+      "provider_commerce": {
+        "title": "QuMarket & Products",
+        "description": "Multiply your income by offering health, wellness, and beauty products directly from your digital clinic.",
+        "modules": {
+          "store": {
+            "title": "Your Own Store",
+            "description": "Personalized online catalog where you can list recommended products, vitamins, or skin-care items."
+          },
+          "orders": {
+            "title": "Order Control",
+            "description": "Manage your patients' purchases, coordinating home deliveries or pick-ups directly at your branch."
+          },
+          "inventory": {
+            "title": "Smart Inventory",
+            "description": "Keep exact control of your stock, receive low-stock alerts, and easily manage your suppliers."
+          }
+        }
+      },
+      "provider_finance": {
+        "title": "Finance & Billing",
+        "description": "Keep the financial health of your practice under absolute control with automated tools that prevent capital leaks.",
+        "modules": {
+          "cash_register": {
+            "title": "Cash Register",
+            "description": "Daily income and expense tracking. Perform perfect cash drawer closings and reconciliations without headaches."
+          },
+          "billing": {
+            "title": "Automated Billing",
+            "description": "Issue invoices instantly and send receipts directly to your patients' email without using external software."
+          },
+          "dashboard": {
+            "title": "Financial Dashboard",
+            "description": "Visual and intuitive reports on the economic performance of your clinic in real time."
+          }
+        }
+      },
+      "provider_growth": {
+        "title": "Growth & Marketing",
+        "description": "Reach more patients, position your personal brand as a health expert, and grow your clinic exponentially.",
+        "modules": {
+          "profile": {
+            "title": "Premium Public Profile",
+            "description": "Stand out in our medical directory with an optimized professional profile to attract new patients."
+          },
+          "marketing": {
+            "title": "Marketing Campaigns",
+            "description": "Create and send promotions, newsletters, and annual check-up reminders to your patient base."
+          },
+          "referrals": {
+            "title": "Referral Network",
+            "description": "Collaborate closely with other QuHealthy network specialists and manage transparent referrals."
+          }
+        }
+      },
+      "patient_health": {
+        "title": "Healthcare",
+        "description": "Find the ideal specialist, book instantly, and manage your health history from a unified ecosystem.",
+        "modules": {
+          "discover": {
+            "title": "Smart Directory",
+            "description": "Filter by specialty, price, distance, and verified reviews to find the best doctor for you."
+          },
+          "appointments": {
+            "title": "Appointment Management",
+            "description": "Book, reschedule, or cancel your appointments 24/7 without phone calls or waiting times."
+          },
+          "reviews": {
+            "title": "Verified Reviews",
+            "description": "Read experiences from other real patients before making decisions about your health."
+          }
+        }
+      },
+      "patient_records": {
+        "title": "Records & Family",
+        "description": "All your history, lab results, and your loved ones' health centralized and encrypted in one place.",
+        "modules": {
+          "vault": {
+            "title": "Medical Vault",
+            "description": "Securely store lab results, medical prescriptions, and clinical studies for a lifetime."
+          },
+          "dependents": {
+            "title": "Family Management",
+            "description": "Manage appointments, histories, and purchases for your children or parents from your same account."
+          },
+          "messages": {
+            "title": "Direct Contact",
+            "description": "Communicate with your specialists to follow up on your treatments quickly and safely."
+          }
+        }
+      },
+      "patient_commerce": {
+        "title": "E-commerce & Wallet",
+        "description": "A simplified shopping experience for your wellness needs, with flexible payment options.",
+        "modules": {
+          "store": {
+            "title": "QuMarket",
+            "description": "Buy products, vitamins, and dermocosmetics directly recommended by your trusted doctors."
+          },
+          "wallet": {
+            "title": "Digital Wallet",
+            "description": "Pay for your consultations and products quickly and safely, using cards, cash, or accumulated balance."
+          },
+          "packages": {
+            "title": "Plans & Subscriptions",
+            "description": "Acquire annual memberships or treatment packages with exclusive discounts."
+          }
+        }
+      },
+      "patient_education": {
+        "title": "QuBlocks Academy",
+        "description": "Empower yourself with valuable knowledge to improve your lifestyle and prevent illnesses.",
+        "modules": {
+          "courses": {
+            "title": "Wellness Courses",
+            "description": "Access exclusive content and Masterclasses on nutrition, mental fitness, and personal care taught by experts."
+          }
+        }
+      }
+    }
   }
 }

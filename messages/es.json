@@ -1342,7 +1342,7 @@
     "social_tab": "Redes Sociales",
     "assets_tab": "Activos de Marca",
     "campaigns_tab": "Campañas",
-    "tab_product_course_package": "Productos, Cursos y Paquetes",
+    "tab_product_course_package": "Servicios, Productos, Cursos y Paquetes",
     "connect_section_title": "1. Conecta tus Cuentas",
     "connect_section_desc": "Vincula tus perfiles sociales para publicar directamente desde QuHealthy.",
     "connect_btn": "Conectar",
@@ -1368,7 +1368,6 @@
     "warn_select_service": "Por favor, selecciona un servicio.",
     "warn_empty_prompt": "Describe la idea de tu video.",
     "step_select_service": "Selecciona el servicio a promocionar",
-    "tab_product_course_package": "Servicios, Productos, Cursos y Paquetes",
     "step_choose_content": "Elige el tipo de contenido",
     "no_services": "No tienes servicios en tu catálogo. Agrega uno desde tu Marketplace.",
     "tab_text": "Texto / Copy",
@@ -3742,5 +3741,159 @@
       "p4_price": "$299.99"
     },
     "add_to_cart": "Añadir al Carrito"
+  },
+  "PlatformModules": {
+    "badge": "Ecosistema Integral",
+    "title_start": "Todo lo que necesitas para tu ",
+    "title_highlight_provider": "práctica médica",
+    "title_highlight_patient": "salud y bienestar",
+    "description_provider": "Desde la agendación de la primera cita hasta la facturación. Una suite completa de módulos diseñados específicamente para hacer crecer tu consultorio.",
+    "description_patient": "Encuentra especialistas, gestiona tus expedientes, compra productos y mejora tu bienestar desde una única plataforma inteligente.",
+    "switch_provider": "Soy Médico",
+    "switch_patient": "Soy Paciente",
+    "explore_all": "Explora todas las herramientas incluidas en nuestros planes.",
+    "view_plans": "Ver Planes y Precios",
+    "categories": {
+      "provider_clinic": {
+        "title": "Gestión Clínica",
+        "description": "Digitaliza tu consultorio y ofrece una experiencia superior a tus pacientes con herramientas diseñadas para optimizar tu tiempo.",
+        "modules": {
+          "calendar": {
+            "title": "Calendario y Citas",
+            "description": "Agenda inteligente para ti y tu equipo. Sincronización en tiempo real, control de disponibilidad y recordatorios automáticos."
+          },
+          "history": {
+            "title": "Expediente Electrónico",
+            "description": "Historial clínico completo, seguro y siempre accesible. Cumple con las normativas más estrictas de privacidad de datos."
+          },
+          "messages": {
+            "title": "Mensajería Privada",
+            "description": "Comunícate de forma segura con tus pacientes desde la plataforma, manteniendo separada tu vida profesional de la personal."
+          },
+          "patients": {
+            "title": "Gestión de Pacientes",
+            "description": "Base de datos centralizada con perfiles detallados, notas de evolución y seguimiento a largo plazo."
+          }
+        }
+      },
+      "provider_commerce": {
+        "title": "QuMarket & Productos",
+        "description": "Multiplica tus ingresos ofreciendo productos de salud, bienestar y belleza directamente desde tu consultorio digital.",
+        "modules": {
+          "store": {
+            "title": "Tu Propia Tienda",
+            "description": "Catálogo en línea personalizado donde puedes listar productos recomendados, vitaminas o artículos de skin-care."
+          },
+          "orders": {
+            "title": "Control de Pedidos",
+            "description": "Gestiona las compras de tus pacientes, coordinando entregas a domicilio o retiros directamente en tu sucursal."
+          },
+          "inventory": {
+            "title": "Inventario Inteligente",
+            "description": "Mantén el control exacto de tus existencias, recibe alertas de stock bajo y administra a tus proveedores fácilmente."
+          }
+        }
+      },
+      "provider_finance": {
+        "title": "Finanzas y Facturación",
+        "description": "Mantén la salud financiera de tu práctica bajo control absoluto con herramientas automatizadas que evitan fugas de capital.",
+        "modules": {
+          "cash_register": {
+            "title": "Caja Registradora",
+            "description": "Control de ingresos y egresos diarios. Realiza cortes de caja perfectos y conciliaciones sin dolor de cabeza."
+          },
+          "billing": {
+            "title": "Facturación Automatizada",
+            "description": "Emite facturas al instante y envía recibos directamente al correo de tus pacientes sin usar software externo."
+          },
+          "dashboard": {
+            "title": "Panel Financiero",
+            "description": "Reportes visuales e intuitivos sobre el rendimiento económico de tu consultorio en tiempo real."
+          }
+        }
+      },
+      "provider_growth": {
+        "title": "Crecimiento y Marketing",
+        "description": "Llega a más pacientes, posiciona tu marca personal como experto en salud y haz crecer tu clínica exponencialmente.",
+        "modules": {
+          "profile": {
+            "title": "Perfil Público Premium",
+            "description": "Destaca en nuestro directorio médico con un perfil profesional optimizado para atraer nuevos pacientes."
+          },
+          "marketing": {
+            "title": "Campañas de Marketing",
+            "description": "Crea y envía promociones, boletines informativos y recordatorios de check-up anual a tu base de pacientes."
+          },
+          "referrals": {
+            "title": "Red de Referidos",
+            "description": "Colabora de cerca con otros especialistas de la red QuHealthy y gestiona derivaciones de forma transparente."
+          }
+        }
+      },
+      "patient_health": {
+        "title": "Atención Médica",
+        "description": "Encuentra al especialista ideal, reserva al instante y gestiona tu historial desde un ecosistema unificado.",
+        "modules": {
+          "discover": {
+            "title": "Directorio Inteligente",
+            "description": "Filtra por especialidad, precio, distancia y valoraciones reales para encontrar al mejor médico para ti."
+          },
+          "appointments": {
+            "title": "Gestión de Citas",
+            "description": "Reserva, reagenda o cancela tus citas 24/7 sin llamadas telefónicas ni tiempos de espera."
+          },
+          "reviews": {
+            "title": "Reseñas Verificadas",
+            "description": "Lee experiencias de otros pacientes reales antes de tomar decisiones sobre tu salud."
+          }
+        }
+      },
+      "patient_records": {
+        "title": "Expediente y Familia",
+        "description": "Todo tu historial, estudios y la salud de tus seres queridos centralizados y encriptados en un solo lugar.",
+        "modules": {
+          "vault": {
+            "title": "Bóveda Médica",
+            "description": "Almacena de forma segura resultados de laboratorio, recetas médicas y estudios clínicos de por vida."
+          },
+          "dependents": {
+            "title": "Gestión Familiar",
+            "description": "Administra las citas, historiales y compras de tus hijos o padres desde tu misma cuenta."
+          },
+          "messages": {
+            "title": "Contacto Directo",
+            "description": "Comunícate con tus especialistas para dar seguimiento a tus tratamientos de manera ágil y segura."
+          }
+        }
+      },
+      "patient_commerce": {
+        "title": "E-commerce y Billetera",
+        "description": "Una experiencia de compra simplificada para tus necesidades de bienestar, con opciones de pago flexibles.",
+        "modules": {
+          "store": {
+            "title": "QuMarket",
+            "description": "Compra productos, vitaminas y dermocosmetics directamente recomendados por tus doctores de confianza."
+          },
+          "wallet": {
+            "title": "Billetera Digital",
+            "description": "Paga tus consultas y productos de forma rápida y segura, usando tarjetas, efectivo o saldo acumulado."
+          },
+          "packages": {
+            "title": "Planes y Suscripciones",
+            "description": "Adquiere membresías anuales o paquetes de tratamiento con descuentos exclusivos."
+          }
+        }
+      },
+      "patient_education": {
+        "title": "QuBlocks Academy",
+        "description": "Empodérate con conocimientos valiosos para mejorar tu estilo de vida y prevenir enfermedades.",
+        "modules": {
+          "courses": {
+            "title": "Cursos de Bienestar",
+            "description": "Accede a contenido exclusivo y Masterclasses sobre nutrición, fitness mental y cuidado personal impartidos por expertos."
+          }
+        }
+      }
+    }
   }
 }
