@@ -19,6 +19,22 @@ import { useSocial } from '@/hooks/useSocial';
 import { SocialPlatform, AiTone } from '@/types/social';
 import ScheduleModal from '@/components/dashboard/marketing/ScheduleModal';
 
+// ── Fallback Image Component ───────────────────────────────────────────────────
+const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string, className?: string, fallback: React.ReactNode }) => {
+  const [error, setError] = useState(false);
+  if (!src || error) {
+    return <>{fallback}</>;
+  }
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className}
+      onError={() => setError(true)}
+    />
+  );
+};
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface CatalogItemOption {
@@ -272,13 +288,16 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                           : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/60'
                       }`}
                     >
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
-                      ) : (
-                        <div className="w-14 h-14 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                          <Tag className="w-5 h-5 text-slate-400" />
-                        </div>
-                      )}
+                      <SafeImage
+                        src={item.imageUrl || ''}
+                        alt={item.name}
+                        className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700"
+                        fallback={
+                          <div className="w-14 h-14 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                            <Tag className="w-5 h-5 text-slate-400" />
+                          </div>
+                        }
+                      />
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold truncate ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
                           {item.name}
