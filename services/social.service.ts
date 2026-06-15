@@ -21,17 +21,6 @@ import {
 } from '@/types/social';
 
 const BASE = '/api/social';
-const CLOUD_RUN_URL = 'https://social-service-629639328783.us-central1.run.app';
-
-// Envolvemos axiosInstance para sobreescribir el baseURL y apuntar directo a Cloud Run
-const socialAxios = {
-  get: (url: string, config?: any) => axiosInstance.get(url, { ...config, baseURL: CLOUD_RUN_URL }),
-  post: (url: string, data?: any, config?: any) => axiosInstance.post(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
-  put: (url: string, data?: any, config?: any) => axiosInstance.put(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
-  patch: (url: string, data?: any, config?: any) => axiosInstance.patch(url, data, { ...config, baseURL: CLOUD_RUN_URL }),
-  delete: (url: string, config?: any) => axiosInstance.delete(url, { ...config, baseURL: CLOUD_RUN_URL }),
-};
-
 export const socialService = {
 
   // ============================================================
@@ -39,12 +28,12 @@ export const socialService = {
   // ============================================================
 
   getActiveConnections: async (): Promise<SocialConnectionDTO[]> => {
-    const response = await socialAxios.get(`${BASE}/connections`);
+    const response = await axiosInstance.get(`${BASE}/connections`);
     return response.data;
   },
 
   getAuthUrl: async (platform: string): Promise<AuthUrlResponse> => {
-    const response = await socialAxios.get(`${BASE}/${platform}/url`);
+    const response = await axiosInstance.get(`${BASE}/${platform}/url`);
     return response.data;
   },
 
@@ -53,7 +42,7 @@ export const socialService = {
    * no DELETE /{platform} con nombre de plataforma.
    */
   disconnectConnection: async (connectionId: string): Promise<void> => {
-    await socialAxios.delete(`${BASE}/connections/${connectionId}`);
+    await axiosInstance.delete(`${BASE}/connections/${connectionId}`);
   },
 
   // ============================================================
@@ -61,12 +50,12 @@ export const socialService = {
   // ============================================================
 
   generateText: async (data: AiTextRequest): Promise<AiTextResponse> => {
-    const response = await socialAxios.post(`${BASE}/ai/generate-text`, data);
+    const response = await axiosInstance.post(`${BASE}/ai/generate-text`, data);
     return response.data;
   },
 
   generateImage: async (data: AiImageRequest): Promise<AiImageResponse> => {
-    const response = await socialAxios.post(`${BASE}/ai/generate-image`, data);
+    const response = await axiosInstance.post(`${BASE}/ai/generate-image`, data);
     return response.data;
   },
 
@@ -76,7 +65,7 @@ export const socialService = {
    * llega por SSE cuando está listo, no por esta respuesta HTTP.
    */
   generateVideo: async (data: AiVideoRequest): Promise<AiVideoResponse> => {
-    const response = await socialAxios.post(`${BASE}/ai/generate-video`, data, {
+    const response = await axiosInstance.post(`${BASE}/ai/generate-video`, data, {
       timeout: 10_000,
     });
     return response.data;
@@ -88,7 +77,7 @@ export const socialService = {
    */
   checkPendingVideo: async (): Promise<AiVideoResponse | null> => {
     try {
-      const response = await socialAxios.get(`${BASE}/ai/video-status`);
+      const response = await axiosInstance.get(`${BASE}/ai/video-status`);
       return response.data;
     } catch {
       // 404 = sin video pendiente, es un caso normal
@@ -127,6 +116,7 @@ export const socialService = {
     const formData = new FormData();
     formData.append('file', file);
     const response = await socialAxios.post(`${BASE}/upload`, formData, {
+    const response = await axiosInstance.post(`${BASE}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
@@ -137,19 +127,19 @@ export const socialService = {
   // ============================================================
 
   getConversations: async (page = 0, size = 20): Promise<SpringPage<ConversationDTO>> => {
-    const response = await socialAxios.get(`${BASE}/crm/conversations`, {
+    const response = await axiosInstance.get(`${BASE}/conversations`, {
       params: { page, size },
     });
     return response.data;
   },
 
   updateConversation: async (id: string, data: Partial<ConversationDTO>): Promise<ConversationDTO> => {
-    const response = await socialAxios.patch(`${BASE}/crm/conversations/${id}`, data);
+    const response = await axiosInstance.patch(`${BASE}/conversations/${id}`, data);
     return response.data;
   },
 
   syncEmails: async (): Promise<{message: string}> => {
-    const response = await socialAxios.post(`${BASE}/crm/sync-emails`);
+    const response = await axiosInstance.post(`${BASE}/crm/sync-emails`);
     return response.data;
   },
 
@@ -158,8 +148,8 @@ export const socialService = {
     page = 0,
     size = 50
   ): Promise<SpringPage<MessageDTO>> => {
-    const response = await socialAxios.get(
-      `${BASE}/crm/conversations/${conversationId}/messages`,
+    const response = await axiosInstance.get(
+      `${BASE}/conversations/${conversationId}/messages`,
       { params: { page, size } }
     );
     return response.data;
@@ -169,8 +159,8 @@ export const socialService = {
     conversationId: string,
     data: SendMessageRequest
   ): Promise<MessageDTO> => {
-    const response = await socialAxios.post(
-      `${BASE}/crm/conversations/${conversationId}/messages`,
+    const response = await axiosInstance.post(
+      `${BASE}/conversations/${conversationId}/messages`,
       data
     );
     return response.data;
@@ -182,7 +172,7 @@ export const socialService = {
    * Endpoint: POST /api/social/crm/ai-suggest
    */
   getAiReplySuggestions: async (data: AiSuggestRequest): Promise<AiSuggestResponse> => {
-    const response = await socialAxios.post(`${BASE}/crm/ai-suggest`, data);
+    const response = await axiosInstance.post(`${BASE}/crm/ai-suggest`, data);
     return response.data;
   },
 
