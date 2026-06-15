@@ -16,8 +16,8 @@ export function AppointmentSummary({ t, appointment, formattedDateTime }: Props)
   return (
     <>
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 rounded-2xl bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center border-2 border-medical-200 dark:border-medical-500/30">
-          <FileText className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+        <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-slate-200 dark:border-slate-700">
+          <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('cart_summary') || 'Resumen'}</h2>
       </div>
@@ -66,12 +66,12 @@ export function AppointmentSummary({ t, appointment, formattedDateTime }: Props)
           </div>
 
           {/* Price Banner */}
-          <div className="mt-6 flex items-start gap-4 p-5 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-200 dark:border-medical-500/30 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-medical-200/30 dark:bg-medical-500/10 rounded-full blur-2xl -mr-10 -mt-10" />
-            <div className="p-3 bg-medical-100 dark:bg-medical-500/20 rounded-xl relative z-10"><DollarSign className="w-6 h-6 text-medical-600 dark:text-medical-400" /></div>
+          <div className="mt-6 flex items-start gap-4 p-5 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-200/50 dark:bg-slate-700/50 rounded-full blur-2xl -mr-10 -mt-10" />
+            <div className="p-3 bg-slate-200 dark:bg-slate-800 rounded-xl relative z-10"><DollarSign className="w-6 h-6 text-slate-700 dark:text-slate-300" /></div>
             <div className="flex-1 relative z-10">
-              <p className="text-xs font-bold text-medical-500/70 dark:text-medical-300/70 uppercase tracking-wider mb-1">{t('label_price')}</p>
-              <p className="font-bold text-3xl text-slate-900 dark:text-white">${(appointment.totalPrice || appointment.price || 0).toLocaleString('es-MX')} <span className="text-lg text-medical-600 dark:text-medical-400 font-bold ml-1">{appointment.currency || 'MXN'}</span></p>
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_price')}</p>
+              <p className="font-bold text-3xl text-slate-900 dark:text-white">${(appointment.totalPrice || appointment.price || 0).toLocaleString('es-MX')} <span className="text-lg text-slate-700 dark:text-slate-300 font-bold ml-1">{appointment.currency || 'MXN'}</span></p>
             </div>
             <Badge className="bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30 hidden sm:flex items-center mt-2 relative z-10"><Check className="w-3 h-3 mr-1" /> Completado</Badge>
           </div>

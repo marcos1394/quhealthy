@@ -24,7 +24,7 @@ export function SuccessHeader({ t, email }: Props) {
           <p className="text-slate-500 dark:text-slate-400 text-lg mb-6 max-w-md mx-auto">{t('subtitle')}</p>
           {email && (
             <div className="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-5 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700">
-              <Mail className="w-4 h-4 text-medical-500" />
+              <Mail className="w-4 h-4 text-slate-500" />
               Recibo enviado a <span className="text-slate-900 dark:text-white">{email}</span>
             </div>
           )}
