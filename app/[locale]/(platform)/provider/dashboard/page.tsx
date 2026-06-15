@@ -18,7 +18,9 @@ import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
+import { Timer, PlayCircle } from "lucide-react";
 
 // 🚀 IMPORTAMOS EL NUEVO COMPONENTE DE REPUTACIÓN (Score)
 import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
@@ -90,6 +92,36 @@ export default function DashboardPage() {
       default: return <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-0">{status}</Badge>;
     }
   };
+
+  // 🚀 Lógica de métricas de tiempo promedio del día
+  const { appointments: allAppointments } = useProviderAppointments();
+  
+  const todayCompletedAppointments = allAppointments.filter(appt => {
+    const apptDate = new Date(appt.startTime).toDateString();
+    const today = new Date().toDateString();
+    return apptDate === today && (appt.status === "COMPLETED" || appt.status.toUpperCase() === "COMPLETED");
+  });
+
+  const getDiffMinutes = (startStr?: string, endStr?: string) => {
+    if (!startStr || !endStr) return null;
+    try {
+      const cleanStart = startStr.replace(/\.\d+/, '');
+      const cleanEnd = endStr.replace(/\.\d+/, '');
+      const s = new Date(cleanStart).getTime();
+      const e = new Date(cleanEnd).getTime();
+      if (isNaN(s) || isNaN(e)) return null;
+      const diff = Math.floor((e - s) / 60000);
+      return diff > 0 ? diff : 0;
+    } catch {
+      return null;
+    }
+  };
+
+  const waitTimes = todayCompletedAppointments.map(a => getDiffMinutes(a.arrivedAt, a.startedAt)).filter(v => v !== null) as number[];
+  const avgWaitTime = waitTimes.length ? Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length) : 0;
+
+  const consultationTimes = todayCompletedAppointments.map(a => getDiffMinutes(a.startedAt, a.completedAt)).filter(v => v !== null) as number[];
+  const avgConsultationTime = consultationTimes.length ? Math.round(consultationTimes.reduce((a, b) => a + b, 0) / consultationTimes.length) : 0;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 pb-10">
@@ -195,6 +227,24 @@ export default function DashboardPage() {
         <SummaryCard title={t('new_patients')} value={analytics.newClients.toString()}
           icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800"
           trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0, period: t('previous_month') }} />
+      </div>
+
+      {/* --- TIME METRICS --- */}
+      <div className="grid grid-cols-2 gap-5">
+        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <Timer className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Promedio Espera (Hoy)</span>
+          </div>
+          <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">{avgWaitTime} <span className="text-sm font-medium opacity-70">min</span></p>
+        </div>
+        <div className="bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <PlayCircle className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Promedio Consulta (Hoy)</span>
+          </div>
+          <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-100">{avgConsultationTime} <span className="text-sm font-medium opacity-70">min</span></p>
+        </div>
       </div>
 
       {/* --- MAIN GRID: CHART & REPUTATION --- */}
