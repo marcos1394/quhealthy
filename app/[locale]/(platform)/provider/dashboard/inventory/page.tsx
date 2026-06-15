@@ -99,18 +99,21 @@ export default function InventoryPage() {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-5">
-          <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
-            <Boxes className="w-10 h-10 text-slate-700 dark:text-slate-300" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              Control de Inventarios
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-              Escanea códigos de barras, ajusta stock de insumos y productos para la venta.
-            </p>
+      <div className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm mb-2">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
+              <Boxes className="w-10 h-10 text-slate-700 dark:text-slate-300" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Control de Inventarios
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                Escanea códigos de barras, ajusta stock de insumos y productos para la venta.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -127,13 +130,13 @@ export default function InventoryPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-600 dark:group-focus-within:text-slate-300 transition-colors" />
                 <Input 
                   placeholder="Buscar por nombre o código..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-700 rounded-xl transition-all"
                 />
               </div>
 
@@ -190,7 +193,7 @@ export default function InventoryPage() {
                       const isLowStock = item.stockQuantity <= (item.stockAlertThreshold || 5);
                       
                       return (
-                        <div key={item.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between gap-4">
+                        <div key={item.id} className="group p-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-300 flex items-center justify-between gap-4 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
                           <div className="flex items-center gap-4 flex-1 min-w-0">
                             <div className={`p-3 rounded-xl border shrink-0 ${
                               item.type === 'PRODUCT' 
@@ -216,23 +219,23 @@ export default function InventoryPage() {
 
                           <div className="flex items-center gap-6 shrink-0">
                             <div className="text-right">
-                              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Stock</p>
-                              <Badge className={`text-base px-3 py-1 ${
+                              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Stock</p>
+                              <Badge className={`text-sm px-3 py-1 shadow-sm border ${
                                 isLowStock 
-                                  ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400' 
-                                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400'
+                                  ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' 
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
                               }`}>
                                 {item.stockQuantity} un
                               </Badge>
                             </div>
 
                             <Button 
-                              variant="outline" 
-                              className="shrink-0 font-bold border-slate-200 text-slate-600"
+                              variant="ghost" 
+                              className="shrink-0 font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                               onClick={() => { setAdjustingItem(item); setAdjustmentValue(''); }}
                             >
-                              <ArrowRightLeft className="w-4 h-4 mr-2" />
-                              Ajustar
+                              <ArrowRightLeft className="w-4 h-4 md:mr-2" />
+                              <span className="hidden md:inline">Ajustar</span>
                             </Button>
                           </div>
                         </div>
