@@ -1363,6 +1363,7 @@
     "warn_select_service": "Por favor, selecciona un servicio.",
     "warn_empty_prompt": "Describe la idea de tu video.",
     "step_select_service": "Selecciona el servicio a promocionar",
+    "tab_product_course_package": "Servicios, Productos, Cursos y Paquetes",
     "step_choose_content": "Elige el tipo de contenido",
     "no_services": "No tienes servicios en tu catálogo. Agrega uno desde tu Marketplace.",
     "tab_text": "Texto / Copy",

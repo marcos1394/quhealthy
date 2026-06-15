@@ -1363,6 +1363,7 @@
     "warn_select_service": "Please select a service.",
     "warn_empty_prompt": "Describe the idea for your video.",
     "step_select_service": "Select the service to promote",
+    "tab_product_course_package": "Services, Products, Courses and Packages",
     "step_choose_content": "Choose the type of content",
     "no_services": "You have no services in your catalog. Add one from your Marketplace.",
     "tab_text": "Text / Copy",
