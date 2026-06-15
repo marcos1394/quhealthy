@@ -135,7 +135,12 @@ export default function PatientFavoritesDashboard() {
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => {
+                                if (activeTab !== tab.id) {
+                                    setSavedItems([]);
+                                    setActiveTab(tab.id);
+                                }
+                            }}
                             className={`pb-4 text-sm font-bold transition-colors relative whitespace-nowrap ${activeTab === tab.id ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                         >
                             {tab.label}
