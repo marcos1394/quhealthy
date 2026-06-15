@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 // ⏱️ 1. COMPONENTE INTERNO: Cronómetro en vivo con Semáforo
 // =====================================================================
 const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | 'CONSULTATION' }) => {
+  const [elapsed, setElapsed] = useState("00:00");
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   useEffect(() => {
@@ -26,19 +27,33 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
         
         // Si por alguna razón la fecha sigue siendo inválida, abortamos
         if (isNaN(start)) {
+          setElapsed("00:00");
           setElapsedMinutes(0);
           return;
         }
 
-        const diff = Math.floor((now - start) / 60000); // Diferencia en minutos
-        setElapsedMinutes(diff > 0 ? diff : 0);
+        const diffMs = now - start;
+        if (diffMs <= 0) {
+          setElapsed("00:00");
+          setElapsedMinutes(0);
+          return;
+        }
+
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+
+        setElapsed(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+        setElapsedMinutes(mins);
       } catch (e) {
+        setElapsed("00:00");
         setElapsedMinutes(0);
       }
     };
     
     calculate();
-    const interval = setInterval(calculate, 60000);
+    // 🚀 FIX: Actualizamos CADA SEGUNDO para dar la percepción de tiempo real
+    const interval = setInterval(calculate, 1000);
     return () => clearInterval(interval);
   }, [startTime]);
 
@@ -60,9 +75,9 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
   }
 
   return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 ${colorClass}`}>
+    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md flex items-center gap-1 ${colorClass}`}>
       {icon}
-      {elapsedMinutes} min
+      {elapsed}
     </span>
   );
 };
