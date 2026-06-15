@@ -481,7 +481,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   <Button
                     onClick={handleGenerateImage}
                     disabled={isGeneratingImage || !selectedService}
-                    className="w-full h-11"
+                    className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                   >
                     {isGeneratingImage ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <ImageIcon className="w-4 h-4 mr-2" />}
                     {isGeneratingImage ? t('generating') : t('generate_image_btn')}
