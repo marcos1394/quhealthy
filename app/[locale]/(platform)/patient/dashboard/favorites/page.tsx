@@ -19,6 +19,21 @@ import { CatalogItemDTO } from '@/types/catalog';
 
 type TabType = 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'SERVICE' | 'PRODUCT';
 
+const SafeImage = ({ src, alt, fallback }: { src: string, alt: string, fallback: React.ReactNode }) => {
+    const [error, setError] = useState(false);
+    if (!src || error) {
+        return <>{fallback}</>;
+    }
+    return (
+        <img 
+            src={src} 
+            alt={alt} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={() => setError(true)}
+        />
+    );
+};
+
 export default function PatientFavoritesDashboard() {
     const t = useTranslations('PatientFavoritesDashboard');
     const router = useRouter();
@@ -132,8 +147,9 @@ export default function PatientFavoritesDashboard() {
                 </div>
 
                 {/* Contenido: Doctores Guardados */}
-                {activeTab === 'PROVIDER' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-4">
+                <AnimatePresence mode="wait">
+                    {activeTab === 'PROVIDER' && (
+                        <motion.div key="provider-tab" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="pt-4">
                         {savedProviders.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {savedProviders.map((provider) => (
@@ -141,15 +157,11 @@ export default function PatientFavoritesDashboard() {
                                         
                                         {/* Portada */}
                                         <div className="h-40 w-full relative bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
-                                            {provider.imageUrl ? (
-                                                <img 
-                                                    src={provider.imageUrl} 
-                                                    alt={provider.name} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                />
-                                            ) : (
-                                                <User className="w-16 h-16 text-slate-300 dark:text-slate-600" />
-                                            )}
+                                            <SafeImage 
+                                                src={provider.imageUrl || ''} 
+                                                alt={provider.name} 
+                                                fallback={<User className="w-16 h-16 text-slate-300 dark:text-slate-600" />}
+                                            />
                                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                                             
                                             {/* El mismo Corazón reutilizable */}
@@ -216,7 +228,7 @@ export default function PatientFavoritesDashboard() {
 
                 {/* Contenido: Items Guardados (Packages, Courses, Services, Products) */}
                 {activeTab !== 'PROVIDER' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-4">
+                    <motion.div key={`item-tab-${activeTab}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="pt-4">
                         {isLoadingItems ? (
                             <div className="flex justify-center items-center py-20">
                                 <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
@@ -226,15 +238,11 @@ export default function PatientFavoritesDashboard() {
                                 {savedItems.map((item) => (
                                     <div key={item.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 relative flex flex-col">
                                         <div className="h-40 w-full relative bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
-                                            {item.imageUrl ? (
-                                                <img 
-                                                    src={item.imageUrl} 
-                                                    alt={item.name} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                />
-                                            ) : (
-                                                getItemPlaceholder(activeTab)
-                                            )}
+                                            <SafeImage 
+                                                src={item.imageUrl || ''} 
+                                                alt={item.name} 
+                                                fallback={getItemPlaceholder(activeTab)}
+                                            />
                                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                                             
                                             <div className="absolute top-3 right-3 z-10">
@@ -286,6 +294,7 @@ export default function PatientFavoritesDashboard() {
                         )}
                     </motion.div>
                 )}
+                </AnimatePresence>
 
             </div>
         </div>
