@@ -29,7 +29,7 @@ const CtaSection: React.FC = () => {
           {/* Headline Editorial */}
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight text-slate-900 dark:text-white leading-[1.05] mb-8">
             {t('title_start')} <br className="hidden md:block" />
-            <span className="text-medical-600 dark:text-medical-400 font-serif italic">
+            <span className="text-slate-500 dark:text-slate-400 font-serif italic">
               {t('title_highlight')}
             </span>
           </h2>
@@ -42,7 +42,7 @@ const CtaSection: React.FC = () => {
           <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 mb-14">
             {benefits.map((benefit, idx) => (
               <div key={idx} className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-medical-600 dark:text-medical-400" strokeWidth={1.5} />
+                <Check className="w-5 h-5 text-slate-900 dark:text-white" strokeWidth={1.5} />
                 <span className="text-slate-600 dark:text-slate-300 font-medium text-lg">{benefit}</span>
               </div>
             ))}
@@ -52,7 +52,7 @@ const CtaSection: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
             <Link
               href={isAuthenticated ? (role === 'PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
-              className="group inline-flex items-center justify-center gap-2 px-10 py-5 w-full sm:w-auto rounded-full bg-medical-600 hover:bg-medical-700 text-white font-semibold text-lg transition-all shadow-none"
+              className="group inline-flex items-center justify-center gap-2 px-10 py-5 w-full sm:w-auto rounded-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-semibold text-lg transition-all shadow-none"
             >
               {isAuthenticated ? "Ir a mi Panel" : t('button_primary')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

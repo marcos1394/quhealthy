@@ -39,7 +39,7 @@ const TestimonialsSection: React.FC = () => {
             {t('badge')}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]">
-            {t('title_start')} <span className="text-medical-600 dark:text-medical-400 font-serif italic">{t('title_highlight')}</span>
+            {t('title_start')} <span className="text-slate-500 dark:text-slate-400 font-serif italic">{t('title_highlight')}</span>
           </h2>
           <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
             {t('description')}
@@ -58,7 +58,7 @@ const TestimonialsSection: React.FC = () => {
               className="flex flex-col relative bg-white dark:bg-slate-900/40 p-8 rounded-[2rem] shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-100 dark:border-slate-800 backdrop-blur-sm"
             >
               {/* Gran comilla decorativa editorial */}
-              <div className="absolute -top-4 -left-2 text-8xl font-serif leading-none h-12 z-0 select-none bg-clip-text text-transparent bg-gradient-to-br from-medical-200 to-teal-100 dark:from-medical-900/80 dark:to-teal-900/80 opacity-80">
+              <div className="absolute -top-4 -left-2 text-8xl font-serif leading-none h-12 z-0 select-none text-slate-200 dark:text-slate-800 opacity-50">
                 &ldquo;
               </div>
 
@@ -71,7 +71,7 @@ const TestimonialsSection: React.FC = () => {
               <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 grayscale">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
                     </div>
@@ -90,7 +90,7 @@ const TestimonialsSection: React.FC = () => {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-4 h-4 text-yellow-400 fill-yellow-400"
+                        className="w-4 h-4 text-slate-800 dark:text-slate-200 fill-current"
                       />
                     ))}
                   </div>

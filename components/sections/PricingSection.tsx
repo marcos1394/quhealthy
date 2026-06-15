@@ -69,7 +69,7 @@ const PricingSection: React.FC = () => {
             {t('badge')}
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]">
-            {t('title_start')} <span className="text-medical-600 dark:text-medical-400 font-serif italic">{t('title_highlight')}</span>
+            {t('title_start')} <span className="text-slate-500 dark:text-slate-400 font-serif italic">{t('title_highlight')}</span>
           </h2>
           <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light max-w-2xl mx-auto">
             {t('description')}
@@ -94,7 +94,7 @@ const PricingSection: React.FC = () => {
               isAnnual ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500"
             )}>
               {t('billing.annual')}
-              <span className="inline-block border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400 px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide">
+              <span className="inline-block border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200 px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide">
                 {t('billing.discount')}
               </span>
             </span>
@@ -122,18 +122,18 @@ const PricingSection: React.FC = () => {
                   className={cn(
                     "relative p-8 flex flex-col w-full md:w-1/2 lg:w-1/4 transition-all duration-300 group/pricing z-10",
                     isMiddle 
-                      ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-16 md:pb-16 md:rounded-3xl shadow-2xl shadow-medical-500/10 border border-medical-100 dark:border-medical-900/50 z-20" 
+                      ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-16 md:pb-16 md:rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-700 z-20" 
                       : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 md:rounded-3xl border border-transparent"
                   )}
                 >
                   {/* Glow behind popular plan */}
                   {isMiddle && (
-                    <div className="absolute -inset-4 bg-gradient-to-b from-medical-500/20 to-teal-500/20 blur-2xl opacity-50 -z-10 rounded-3xl pointer-events-none" />
+                    <div className="absolute -inset-4 bg-slate-200/50 dark:bg-slate-800/20 blur-2xl opacity-50 -z-10 rounded-3xl pointer-events-none" />
                   )}
 
                   {/* Etiqueta Popular si aplica */}
                   {plan.isPopular && (
-                    <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-gradient-to-r from-medical-600 to-teal-500 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-medical-500/30">
+                    <div className="absolute top-0 left-10 md:-top-4 md:left-1/2 md:-translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg shadow-slate-900/20 dark:shadow-white/20">
                       {t('badges.popular')}
                     </div>
                   )}
@@ -161,7 +161,7 @@ const PricingSection: React.FC = () => {
                   <ul className="space-y-6 mb-12 flex-1">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-4">
-                        <div className={cn("p-1 rounded-full shrink-0 mt-0.5", feature.highlighted ? "bg-medical-500 text-white shadow-sm shadow-medical-500/20" : "bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400")}>
+                        <div className={cn("p-1 rounded-full shrink-0 mt-0.5", feature.highlighted ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white")}>
                           {feature.icon ? feature.icon : <Check className="w-3.5 h-3.5" strokeWidth={2.5} />}
                         </div>
                         <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
@@ -177,7 +177,7 @@ const PricingSection: React.FC = () => {
                     className={cn(
                       "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
                       isMiddle
-                        ? "bg-medical-600 hover:bg-medical-700 text-white"
+                        ? "bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900"
                         : "border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                     )}
                   >
