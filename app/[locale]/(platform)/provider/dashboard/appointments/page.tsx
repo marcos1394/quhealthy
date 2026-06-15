@@ -47,6 +47,17 @@ export default function ProviderAppointmentsPage() {
     return s;
   };
 
+  const translateStatus = (status: string) => {
+    switch (status) {
+      case "WAITING_ROOM": return "Sala de Espera";
+      case "IN_PROGRESS": return "En Progreso";
+      case "COMPLETED": return "Completada";
+      case "SCHEDULED": return "Programada";
+      case "CONFIRMED": return "Confirmada";
+      default: return status;
+    }
+  };
+
   const handleOpenCancelModal = (appointment: ProviderAppointment) => setCancelModalState({ isOpen: true, appointment });
 
   const handleConfirmCancel = async () => {
@@ -87,7 +98,7 @@ export default function ProviderAppointmentsPage() {
     try {
       // 2. Llamada en segundo plano al backend
       await appointmentService.updateStatus(appointmentId, newStatus);
-      toast.success(`Cita actualizada a ${newStatus}`);
+      toast.success(`Cita actualizada a ${translateStatus(newStatus)}`);
     } catch (error) {
       // Si falla, revertimos recargando
       handleApiError(error);
