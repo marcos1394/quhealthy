@@ -334,8 +334,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
               <TabsContent value="text" className="mt-4 border-none outline-none space-y-4">
                 <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-lg">
-                      <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm text-slate-900 dark:text-white">{t('text_generator_title')}</h3>
@@ -378,7 +378,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{selectedService.name}</p>
                         <p className="text-[10px] text-slate-400 truncate">{selectedService.category} • ${selectedService.price?.toLocaleString() ?? '—'} MXN</p>
                       </div>
-                      <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-0 text-[10px]">
+                      <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-0 text-[10px]">
                         {tones.find((to) => to.value === textTone)?.label}
                       </Badge>
                     </div>
@@ -396,11 +396,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
 
                 {/* Resultado de texto */}
                 {generatedText && (
-                  <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl border border-blue-200 dark:border-blue-800/40 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900/40 dark:to-slate-800/20 rounded-xl border border-slate-200 dark:border-slate-800/40 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-sm backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-100 dark:bg-blue-500/20 rounded-lg">
-                          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                          <Sparkles className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                         </div>
                         <div>
                           <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('result_title')}</h4>
@@ -408,11 +408,11 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Button variant="ghost" size="sm" onClick={() => handleCopyText(generatedText)} className="text-xs text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 h-8 px-2.5">
-                          {copied ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+                        <Button variant="ghost" size="sm" onClick={() => handleCopyText(generatedText)} className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white h-8 px-2.5">
+                          {copied ? <Check className="w-3.5 h-3.5 mr-1 text-slate-900 dark:text-white" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
                           {copied ? t('copied') : t('copy_btn')}
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={handleGenerateText} disabled={isGeneratingText} className="text-xs text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 h-8 px-2.5">
+                        <Button variant="ghost" size="sm" onClick={handleGenerateText} disabled={isGeneratingText} className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white h-8 px-2.5">
                           <RotateCcw className="w-3.5 h-3.5 mr-1" /> {t('regenerate_btn')}
                         </Button>
                       </div>
@@ -421,7 +421,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     <Textarea
                       value={generatedText}
                       onChange={(e) => setGeneratedText(e.target.value)}
-                      className="min-h-[280px] bg-white dark:bg-slate-900 border-blue-200 dark:border-blue-800/30 text-slate-800 dark:text-slate-200 text-sm leading-relaxed resize-y focus:ring-blue-500/20 focus:border-blue-500"
+                      className="min-h-[280px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm leading-relaxed resize-y focus:ring-slate-400/20 focus:border-slate-400"
                     />
 
                     {/* ✅ "Copiar y Usar" abre ScheduleModal con prefill */}
@@ -442,8 +442,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
               <TabsContent value="image" className="mt-4 border-none outline-none space-y-4">
                 <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
-                      <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <ImageIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm text-slate-900 dark:text-white">{t('image_generator_title')}</h3>
@@ -474,7 +474,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       onChange={(e) => setImagePrompt(e.target.value)}
                       disabled={isGeneratingImage}
                       placeholder={t('image_prompt_placeholder')}
-                      className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[80px] resize-none text-sm focus:ring-emerald-500/20 focus:border-emerald-500"
+                      className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[80px] resize-none text-sm focus:ring-slate-400/20 focus:border-slate-400"
                     />
                   </div>
 
@@ -488,22 +488,21 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                   </Button>
                 </div>
 
-                {/* Resultado de imagen */}
                 {generatedImageUrl && (
-                  <div className="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800/40 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900/40 dark:to-slate-800/20 rounded-xl border border-slate-200 dark:border-slate-800/40 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-sm backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
-                          <ImageIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                          <ImageIcon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                         </div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t('result_image_title')}</h4>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={handleGenerateImage} disabled={isGeneratingImage} className="text-xs text-slate-500 hover:text-emerald-600 h-8 px-2.5">
+                      <Button variant="ghost" size="sm" onClick={handleGenerateImage} disabled={isGeneratingImage} className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white h-8 px-2.5">
                         <RotateCcw className="w-3.5 h-3.5 mr-1" /> {t('regenerate_btn')}
                       </Button>
                     </div>
 
-                    <div className="relative rounded-xl overflow-hidden border border-emerald-200 dark:border-emerald-800/40 shadow-md">
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md">
                       <img src={generatedImageUrl} alt="Generated" className="w-full rounded-xl" referrerPolicy="no-referrer" />
                     </div>
 
@@ -514,7 +513,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         target="_blank"
                         rel="noopener noreferrer"
                         download
-                        className="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-sm transition-colors"
+                        className="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-medium shadow-sm transition-colors"
                       >
                         <Download className="w-4 h-4" /> {t('download_image')}
                       </a>
@@ -535,7 +534,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                           setVideoPrompt(`Crear un video promocional animado basado en la imagen generada del servicio "${selectedService?.name ?? ''}". Animación suave y profesional.`);
                           setActiveTab('video');
                         }}
-                        className="h-10 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+                        className="h-10 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                       >
                         <Video className="w-4 h-4 mr-2" /> {t('generate_video_from_image')}
                       </Button>
@@ -547,9 +546,9 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                         <Textarea
                           value={generatedImageCaption}
                           onChange={(e) => setGeneratedImageCaption(e.target.value)}
-                          className="min-h-[100px] bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800/30 text-sm leading-relaxed resize-y"
+                          className="min-h-[100px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-sm leading-relaxed resize-y"
                         />
-                        <Button variant="ghost" size="sm" onClick={() => handleCopyText(generatedImageCaption)} className="text-xs text-slate-500 hover:text-emerald-600 h-8">
+                        <Button variant="ghost" size="sm" onClick={() => handleCopyText(generatedImageCaption)} className="text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white h-8">
                           <Copy className="w-3.5 h-3.5 mr-1" /> {t('copy_caption')}
                         </Button>
                       </div>
@@ -562,8 +561,8 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
               <TabsContent value="video" className="mt-4 border-none outline-none space-y-4">
                 <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg">
-                      <Video className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <Video className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm text-slate-900 dark:text-white">{t('video_generator_title')}</h3>
@@ -571,18 +570,18 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 p-2.5 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg border border-indigo-100 dark:border-indigo-900/30">
-                    <Clock className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                    <p className="text-[11px] text-indigo-700 dark:text-indigo-400">{t('video_processing_note')}</p>
+                  <div className="flex items-center gap-2 p-2.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <Clock className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                    <p className="text-[11px] text-slate-700 dark:text-slate-300">{t('video_processing_note')}</p>
                   </div>
 
                   {/* Imagen base (image-to-video) */}
                   {videoBaseImageUrl && (
-                    <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-indigo-200 dark:border-indigo-800/40">
+                    <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
                       <img src={videoBaseImageUrl} alt="Base" className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700" referrerPolicy="no-referrer" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-900 dark:text-white">{t('video_base_image')}</p>
-                        <p className="text-[10px] text-indigo-600 dark:text-indigo-400">{t('video_image_to_video')}</p>
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400">{t('video_image_to_video')}</p>
                       </div>
                       <button type="button" onClick={() => setVideoBaseImageUrl('')} className="text-xs text-slate-400 hover:text-red-500 p-1">✕</button>
                     </div>
@@ -596,7 +595,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       onChange={(e) => setVideoPrompt(e.target.value)}
                       disabled={isGeneratingVideo}
                       placeholder={t('video_placeholder')}
-                      className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[100px] resize-none text-sm focus:ring-indigo-500/20 focus:border-indigo-500"
+                      className="bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[100px] resize-none text-sm focus:ring-slate-400/20 focus:border-slate-400"
                     />
                   </div>
 
@@ -610,7 +609,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                           <button key={p} type="button" onClick={() => setVideoPlatform(p)}
                             className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${
                               videoPlatform === p
-                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                                ? 'border-slate-800 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white dark:border-slate-400 shadow-sm'
                                 : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                           >{p.charAt(0) + p.slice(1).toLowerCase()}</button>
@@ -626,7 +625,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                           <button key={tone.value} type="button" onClick={() => setVideoTone(tone.value)}
                             className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${
                               videoTone === tone.value
-                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                                ? 'border-slate-800 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white dark:border-slate-400 shadow-sm'
                                 : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                           >{tone.emoji}</button>
@@ -642,7 +641,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                           <button key={a} type="button" onClick={() => setVideoAspectRatio(a)}
                             className={`px-2.5 py-1.5 rounded-md text-[11px] font-medium border transition-all ${
                               videoAspectRatio === a
-                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-500/60'
+                                ? 'border-slate-800 bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white dark:border-slate-400 shadow-sm'
                                 : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                             }`}
                           >{{ LANDSCAPE: '16:9', PORTRAIT: '9:16', SQUARE: '1:1' }[a]}</button>
