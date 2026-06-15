@@ -21,23 +21,24 @@ import ScheduleModal from '@/components/dashboard/marketing/ScheduleModal';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-interface ServiceOption {
+interface CatalogItemOption {
   id: number;
   name: string;
   description?: string;
   imageUrl?: string;
   category?: string;
   price?: number;
+  itemType?: string; // service, product, course, package
 }
 
 interface AiStudioFormProps {
-  services: ServiceOption[];
+  catalogItems: CatalogItemOption[];
   onGenerationSuccess: () => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProps) {
+export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioFormProps) {
   const t = useTranslations('DashboardMarketing');
   const {
     generateText: generateTextApi,
@@ -48,7 +49,7 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
   } = useSocial();
 
   // ── Servicio seleccionado ───────────────────────────────────────────────────
-  const [selectedService, setSelectedService] = useState<ServiceOption | null>(null);
+  const [selectedService, setSelectedService] = useState<CatalogItemOption | null>(null);
 
   // ── Configuración de generación ────────────────────────────────────────────
   // ✅ CORREGIDO: minúsculas — alineado con AiTone del tipo y el backend
@@ -111,8 +112,9 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
     setIsGeneratingText(true);
     setGeneratedText('');
     try {
+      const itemTypeLabel = selectedService.itemType?.toLowerCase() || 'servicio';
       const response = await generateTextApi({
-        topic: `Crear un copy publicitario para redes sociales sobre el servicio "${selectedService.name}". Descripción: ${selectedService.description || selectedService.name}. Categoría: ${selectedService.category || 'General'}. Precio: $${selectedService.price || 'No especificado'} MXN.`,
+        topic: `Crear un copy publicitario para redes sociales sobre el ${itemTypeLabel} "${selectedService.name}". Descripción: ${selectedService.description || selectedService.name}. Categoría: ${selectedService.category || 'General'}. Precio: $${selectedService.price || 'No especificado'} MXN.`,
         tone: textTone,                        // ✅ minúsculas
         targetAudience: 'Pacientes potenciales buscando servicios de salud y bienestar',
         platform: 'FACEBOOK',
@@ -135,9 +137,10 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
     setGeneratedImageUrl('');
     setGeneratedImageCaption('');
     try {
+      const itemTypeLabel = selectedService.itemType?.toLowerCase() || 'servicio';
       const topic = imagePrompt.trim()
-        ? `${imagePrompt}. Servicio: ${selectedService.name}. ${selectedService.description || ''}`
-        : `Crear una imagen promocional profesional para el servicio "${selectedService.name}". ${selectedService.description || ''}. Categoría: ${selectedService.category || 'Salud'}.`;
+        ? `${imagePrompt}. ${selectedService.itemType}: ${selectedService.name}. ${selectedService.description || ''}`
+        : `Crear una imagen promocional profesional para el ${itemTypeLabel} "${selectedService.name}". ${selectedService.description || ''}. Categoría: ${selectedService.category || 'Salud'}.`;
 
       const response = await generateImageApi({
         topic,
@@ -247,30 +250,30 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
           <div className="space-y-3">
             <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold">1</span>
-              {t('step_select_service')}
+              {t('step_select_service')} ({t('tab_product_course_package') || 'Servicios, Productos, Cursos y Paquetes'})
             </Label>
 
-            {services.length === 0 ? (
+            {catalogItems.length === 0 ? (
               <div className="p-6 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-center text-slate-400 dark:text-slate-500 text-sm">
                 {t('no_services')}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {services.map((service) => {
-                  const isSelected = selectedService?.id === service.id;
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                {catalogItems.map((item) => {
+                  const isSelected = selectedService?.id === item.id && selectedService?.itemType === item.itemType;
                   return (
                     <button
-                      key={service.id}
+                      key={`${item.itemType}-${item.id}`}
                       type="button"
-                      onClick={() => setSelectedService(service)}
+                      onClick={() => setSelectedService(item)}
                       className={`relative flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 ${
                         isSelected
                           ? 'border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 dark:border-slate-500 ring-1 ring-slate-400/30 shadow-sm'
                           : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800/60'
                       }`}
                     >
-                      {service.imageUrl ? (
-                        <img src={service.imageUrl} alt={service.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
                       ) : (
                         <div className="w-14 h-14 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
                           <Tag className="w-5 h-5 text-slate-400" />
@@ -278,22 +281,22 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       )}
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold truncate ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
-                          {service.name}
+                          {item.name}
                         </p>
-                        {service.description && (
+                        {item.description && (
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
-                            {service.description}
+                            {item.description}
                           </p>
                         )}
                         <div className="flex items-center gap-2 mt-1.5">
-                          {service.category && (
+                          {item.category && (
                             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-                              {service.category}
+                              {item.category}
                             </Badge>
                           )}
-                          {service.price != null && (
+                          {item.price != null && (
                             <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                              ${service.price.toLocaleString()} MXN
+                              ${item.price.toLocaleString()} MXN
                             </span>
                           )}
                         </div>
@@ -530,8 +533,9 @@ export function AiStudioForm({ services, onGenerationSuccess }: AiStudioFormProp
                       <Button
                         variant="outline"
                         onClick={() => {
+                          const itemTypeLabel = selectedService?.itemType?.toLowerCase() || 'servicio';
                           setVideoBaseImageUrl(generatedImageUrl);
-                          setVideoPrompt(`Crear un video promocional animado basado en la imagen generada del servicio "${selectedService?.name ?? ''}". Animación suave y profesional.`);
+                          setVideoPrompt(`Crear un video promocional animado basado en la imagen generada del ${itemTypeLabel} "${selectedService?.name ?? ''}". Animación suave y profesional.`);
                           setActiveTab('video');
                         }}
                         className="h-10 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"

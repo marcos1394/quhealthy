@@ -56,7 +56,7 @@ function MarketingContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const { services, fetchInventory } = useCatalog();
+  const { services, packages, products, courses, fetchInventory } = useCatalog();
 
   // ── Estado global de la página ─────────────────────────────────────────────
   const [galleryRefresh, setGalleryRefresh] = useState(0);
@@ -147,13 +147,19 @@ function MarketingContent() {
 
             {/* Generación IA */}
             <AiStudioForm
-              services={services.map((s) => ({
-                id: s.id,
-                name: s.name,
-                description: s.description,
-                imageUrl: s.imageUrl,
-                category: s.category,
-                price: s.price,
+              catalogItems={[
+                ...services.map((s) => ({ ...s, itemType: t('item_service') || 'Servicio' })),
+                ...packages.map((p) => ({ ...p, itemType: t('item_package') || 'Paquete' })),
+                ...products.map((p) => ({ ...p, itemType: t('item_product') || 'Producto' })),
+                ...courses.map((c) => ({ ...c, itemType: t('item_course') || 'Curso' }))
+              ].map((item) => ({
+                id: item.id,
+                name: item.name,
+                description: item.description,
+                imageUrl: item.imageUrl,
+                category: item.category,
+                price: item.price,
+                itemType: item.itemType
               }))}
               onGenerationSuccess={() => setGalleryRefresh((prev) => prev + 1)}
             />
