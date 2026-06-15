@@ -62,8 +62,8 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         transition={{ type: "spring", stiffness: 200 }}
         className="inline-flex items-center justify-center.tsx"
       >
-        <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-          <Icon className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+        <div className="p-3 bg-slate-50 dark:bg-slate-500/10 rounded-2xl border border-slate-100 dark:border-slate-500/20 shadow-sm">
+          <Icon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
         </div>
       </motion.div>
 
@@ -151,14 +151,14 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
             className={cn(
               "relative rounded-xl px-8 py-3 font-semibold transition-all duration-300",
               billingCycle === "yearly"
-                ? "bg-medical-600 text-white shadow-md shadow-medical-500/20"
+                ? "bg-slate-600 text-white shadow-md shadow-slate-500/20"
                 : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
             )}
           >
             {billingCycle === "yearly" && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute inset-0 bg-medical-600 rounded-xl"
+                className="absolute inset-0 bg-slate-600 rounded-xl"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
@@ -168,7 +168,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
                 "ml-1 text-xs px-2 py-0.5 font-bold transition-all shadow-none",
                 billingCycle === "yearly"
                   ? "bg-white/20 text-white hover:bg-white/30"
-                  : "bg-medical-50 text-medical-600 dark:bg-medical-500/20 dark:text-medical-300 hover:bg-medical-100"
+                  : "bg-slate-50 text-slate-600 dark:bg-slate-500/20 dark:text-slate-300 hover:bg-slate-100"
               )}>
                 <Zap className="w-3 h-3 mr-1" />
                 {t('badge_discount')}
@@ -195,7 +195,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
-        className="w-24 h-1 bg-gradient-to-r from-transparent via-medical-500 to-transparent mx-auto rounded-full mt-8 opacity-50"
+        className="w-24 h-1 bg-gradient-to-r from-transparent via-slate-500 to-transparent mx-auto rounded-full mt-8 opacity-50"
       />
     </div>
   );
@@ -235,12 +235,12 @@ export const PlansHeaderCompact: React.FC<PlansHeaderProps> = ({
           className={cn(
             "rounded-lg px-4 py-2 text-sm transition-all flex items-center",
             billingCycle === "yearly"
-              ? "bg-medical-600 text-white font-medium"
+              ? "bg-slate-600 text-white font-medium"
               : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           )}
         >
           {t('toggle_yearly')}
-          <Badge className={cn("ml-2 shadow-none border-0 text-[10px]", billingCycle === "yearly" ? "bg-white/20 hover:bg-white/30" : "bg-medical-50 text-medical-600 dark:bg-medical-500/20 dark:text-medical-300")}>
+          <Badge className={cn("ml-2 shadow-none border-0 text-[10px]", billingCycle === "yearly" ? "bg-white/20 hover:bg-white/30" : "bg-slate-50 text-slate-600 dark:bg-slate-500/20 dark:text-slate-300")}>
             {t('badge_discount')}
           </Badge>
         </Button>

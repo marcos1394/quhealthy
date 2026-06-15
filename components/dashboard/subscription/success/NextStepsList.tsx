@@ -20,7 +20,7 @@ export const NextStepsList = () => {
       description: t('step2_desc') || "Hemos enviado la confirmación y factura a tu correo."
     },
     {
-      icon: <LayoutDashboard className="w-5 h-5 text-medical-500" />,
+      icon: <LayoutDashboard className="w-5 h-5 text-slate-500" />,
       title: t('step3_title') || "Configura tu consultorio",
       description: t('step3_desc') || "Aprovecha al máximo tu nuevo catálogo y herramientas."
     }

@@ -25,7 +25,7 @@ interface BackendPlan {
   name: string;
   description: string;
   price: number;
-  interval: "MONTHLY" | "YEARLY";
+  billingInterval: "MONTHLY" | "YEARLY";
   currency: string;
   stripePriceId: string;
 }
@@ -123,11 +123,11 @@ export default function BillingPage() {
     if (rawPlans.length === 0) return;
 
     const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
-    const filtered = rawPlans.filter(p => p.interval === currentInterval);
+    const filtered = rawPlans.filter(p => p.billingInterval === currentInterval);
 
     const uiPlans: Plan[] = filtered.map(bp => {
       // Cálculo de ahorros hipotético si es anual y existe un precio base
-      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.interval === "MONTHLY");
+      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.billingInterval === "MONTHLY");
       const baseMonthlyPrice = matchingMonthly ? matchingMonthly.price : bp.price / 12;
       const savings = (currentInterval === "YEARLY" && baseMonthlyPrice > 0) 
           ? (baseMonthlyPrice * 12) - bp.price 
@@ -223,7 +223,7 @@ export default function BillingPage() {
         {/* Grid de Planes */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
-            <div className="w-10 h-10 border-4 border-medical-200 border-t-medical-600 rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
             <p className="text-slate-500 font-medium animate-pulse">{t('loading') || "Cargando planes..."}</p>
           </div>
         ) : (
@@ -257,7 +257,7 @@ export default function BillingPage() {
             <span>{t('accept_cards') || "Aceptamos todas las tarjetas"}</span>
           </div>
           <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
-            <CheckCircle2 className="w-5 h-5 text-medical-500" />
+            <CheckCircle2 className="w-5 h-5 text-slate-500" />
             <span>{t('cancel_anytime') || "Cancela cuando quieras"}</span>
           </div>
         </motion.div>

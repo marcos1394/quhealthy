@@ -87,7 +87,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <Badge className="bg-medical-600 text-white px-5 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg border border-medical-500 flex items-center gap-1.5">
+            <Badge className="bg-slate-600 text-white px-5 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg border border-slate-500 flex items-center gap-1.5">
               <Star className="w-3.5 h-3.5 fill-current" />
               {t('popular_badge')}
               <Star className="w-3.5 h-3.5 fill-current" />
@@ -124,13 +124,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       <Card className={cn(
         "h-full flex flex-col overflow-hidden transition-all duration-300",
         isPopular
-          ? 'bg-white dark:bg-slate-900 border-2 border-medical-500 shadow-xl shadow-medical-500/10'
+          ? 'bg-white dark:bg-slate-900 border-2 border-slate-500 shadow-xl shadow-slate-500/10'
           : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg shadow-sm',
-        isHovered && !isPopular ? "border-medical-300 dark:border-medical-500/50" : ""
+        isHovered && !isPopular ? "border-slate-300 dark:border-slate-500/50" : ""
       )}>
 
         {/* Header */}
-        <CardHeader className={cn("p-8 pb-6 text-center space-y-4", isPopular ? "bg-medical-50 dark:bg-medical-500/5" : "bg-slate-50 dark:bg-slate-800/20")}>
+        <CardHeader className={cn("p-8 pb-6 text-center space-y-4", isPopular ? "bg-slate-50 dark:bg-slate-500/5" : "bg-slate-50 dark:bg-slate-800/20")}>
 
           <div className="space-y-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -199,10 +199,10 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 <div className={cn(
                   "mt-0.5 p-1 rounded-md shrink-0 transition-all duration-300",
                   feature.highlighted
-                    ? "bg-medical-100 text-medical-600 dark:bg-medical-500/20 dark:text-medical-400"
+                    ? "bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400"
                     : isPopular
-                      ? "bg-medical-50 text-medical-500 dark:bg-medical-500/10 dark:text-medical-400"
-                      : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 group-hover/item:text-medical-500 transition-colors"
+                      ? "bg-slate-50 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400"
+                      : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 group-hover/item:text-slate-500 transition-colors"
                 )}>
                   {feature.icon || <Check className="w-4 h-4" />}
                 </div>
@@ -231,7 +231,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.6 + idx * 0.05 }}
                   >
-                    <Badge className="bg-medical-50 text-medical-600 dark:bg-medical-500/20 dark:text-medical-400 border border-medical-200 dark:border-medical-500/30 text-[10px] px-1.5 py-0 shadow-none">
+                    <Badge className="bg-slate-50 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-200 dark:border-slate-500/30 text-[10px] px-1.5 py-0 shadow-none">
                       {t('premium_feature')}
                     </Badge>
                   </motion.div>
@@ -243,7 +243,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
           {/* Extra info */}
           {plan.features.length > 10 && (
             <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <p className="text-xs text-center text-medical-600 dark:text-medical-400 font-medium flex items-center justify-center gap-1.5">
+              <p className="text-xs text-center text-slate-600 dark:text-slate-400 font-medium flex items-center justify-center gap-1.5">
                 <Info className="w-3.5 h-3.5" />
                 {t('more_features', { count: plan.features.length - 10 })}
               </p>
@@ -259,7 +259,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
               className={cn(
                 "w-full h-12 text-sm font-bold transition-all duration-300 group/btn shadow-sm",
                 isPopular
-                  ? 'bg-medical-600 hover:bg-medical-700 text-white'
+                  ? 'bg-slate-600 hover:bg-slate-700 text-white'
                   : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700',
                 isHovered ? "scale-[1.02]" : ""
               )}

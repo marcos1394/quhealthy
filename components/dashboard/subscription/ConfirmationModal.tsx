@@ -85,9 +85,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="bg-medical-50 dark:bg-medical-500/10 p-3.5 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-sm"
+                className="bg-slate-50 dark:bg-slate-500/10 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-500/20 shadow-sm"
               >
-                <ShieldCheck className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+                <ShieldCheck className="w-6 h-6 text-slate-600 dark:text-slate-400" />
               </motion.div>
 
               {!isLoading && (
@@ -132,10 +132,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               </div>
               <Badge
                 variant="outline"
-                className="border-medical-200 dark:border-medical-500/30 text-medical-600 dark:text-medical-400 bg-medical-50 dark:bg-medical-500/10 text-base py-1.5 px-3 font-bold shadow-none"
+                className="border-slate-200 dark:border-slate-500/30 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-500/10 text-base py-1.5 px-3 font-bold shadow-none"
               >
                 ${plan.price.toLocaleString()}
-                <span className="text-xs font-medium text-medical-600/70 dark:text-medical-400/70 ml-1.5">
+                <span className="text-xs font-medium text-slate-600/70 dark:text-slate-400/70 ml-1.5">
                   /{plan.duration === 'monthly' ? t('duration_monthly') : t('duration_yearly')}
                 </span>
               </Badge>
@@ -160,7 +160,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                   </motion.div>
                 ))}
                 {plan.features.length > 4 && (
-                  <p className="text-xs text-medical-600 dark:text-medical-400 pl-6 font-medium flex items-center gap-1 mt-3.5">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 pl-6 font-medium flex items-center gap-1 mt-3.5">
                     <Sparkles className="w-3.5 h-3.5" />
                     {t('more_benefits', { count: plan.features.length - 4 })}
                   </p>

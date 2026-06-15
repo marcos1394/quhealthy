@@ -20,7 +20,7 @@ export const SuccessActions = () => {
     >
       <button
         onClick={() => router.push(`/${locale}/provider/dashboard`)}
-        className="px-6 py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+        className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors shadow-sm"
       >
         {t('btn_dashboard') || "Ir al Dashboard"}
       </button>
