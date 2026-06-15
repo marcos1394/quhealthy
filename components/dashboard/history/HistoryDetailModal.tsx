@@ -52,7 +52,7 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
     const configs: Record<string, { text: string; className: string; icon: React.ReactNode }> = {
       completed: { text: t("status_completed" as never) || "Completed", className: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20", icon: <CheckCircle2 className="w-3 h-3" /> },
       cancelled: { text: t("status_cancelled" as never) || "Cancelled", className: "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20", icon: <X className="w-3 h-3" /> },
-      pending: { text: t("status_pending" as never) || "Pending", className: "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20", icon: <Clock className="w-3 h-3" /> },
+      pending: { text: t("status_pending" as never) || "Pending", className: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20", icon: <Clock className="w-3 h-3" /> },
     };
     const config = configs[status] || configs.completed;
     return <Badge variant="outline" className={cn("flex items-center gap-1 text-xs", config.className)}>{config.icon}{config.text}</Badge>;
