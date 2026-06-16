@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Upload, Camera, FileUp } from 'lucide-react';
+import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Camera, FileUp, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -122,6 +122,10 @@ export default function VaccinationsPage() {
         return Object.values(groups).sort((a, b) => a.vaccines[0].recommendedAgeMonths - b.vaccines[0].recommendedAgeMonths);
     }, [vaccinesData]);
 
+    const appliedCount = useMemo(() => vaccinesData.filter(vaccine => vaccine.isApplied).length, [vaccinesData]);
+    const delayedCount = useMemo(() => vaccinesData.filter(vaccine => vaccine.isDelayed).length, [vaccinesData]);
+    const progress = vaccinesData.length > 0 ? Math.round((appliedCount / vaccinesData.length) * 100) : 0;
+
     const handleToggleVaccine = (vaccine: VaccinationStatusDto) => {
         if (vaccine.isApplied) {
             toast.info("La vacuna ya fue aplicada. No se puede desmarcar.");
@@ -219,39 +223,63 @@ export default function VaccinationsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-[#09090b] font-sans pb-32 text-slate-900 dark:text-white selection:bg-medical-500/30">
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute top-0 right-0 w-[50%] h-[50%] rounded-full bg-sky-500/5 dark:bg-sky-500/10 blur-[120px]" />
-            </div>
-
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12 relative z-10 space-y-8">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-white dark:hover:bg-slate-800">
-                        <ChevronLeft className="w-6 h-6 text-slate-500" />
-                    </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold flex items-center gap-3">
-                            <Syringe className="w-8 h-8 text-sky-500" />
-                            Cartilla de Vacunación
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">
-                            Esquema oficial para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>
-                        </p>
+        <div className="mx-auto w-full max-w-5xl space-y-8 p-4 sm:p-6 lg:p-8">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="flex items-start gap-4">
+                        <Button variant="outline" size="icon" onClick={() => router.back()} className="h-11 w-11 shrink-0 rounded-xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+                            <ChevronLeft className="h-5 w-5 text-slate-500" />
+                        </Button>
+                        <div className="max-w-2xl">
+                            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300">
+                                <Sparkles className="h-3.5 w-3.5" />
+                                Esquema infantil y comprobantes
+                            </div>
+                            <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                                Cartilla de Vacunación
+                            </h1>
+                            <p className="mt-2 text-base leading-7 text-slate-500 dark:text-slate-400">
+                                Esquema oficial para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-full bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-8 h-8 text-sky-600 dark:text-sky-400" />
+                <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Avance</p>
+                            <ShieldCheck className="h-5 w-5 text-sky-500" />
+                        </div>
+                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{progress}%</p>
+                    </div>
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                        <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Aplicadas</p>
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+                        </div>
+                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{appliedCount}</p>
+                    </div>
+                    <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/10">
+                        <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">Con retraso</p>
+                            <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-300" />
+                        </div>
+                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{delayedCount}</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-5 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300">
+                            <ScanFace className="h-6 w-6" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">Protección Inmunológica</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Mantén el esquema de vacunación al día para prevenir enfermedades graves.</p>
+                            <h3 className="font-bold text-slate-950 dark:text-white">Escanear cartilla</h3>
+                            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">Sube una foto o PDF para detectar vacunas y fechas con IA.</p>
                         </div>
                     </div>
-                    
-                    <div className="flex-shrink-0 w-full md:w-auto">
+
+                    <div className="w-full flex-shrink-0 md:w-auto">
                         <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
                         <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
 
@@ -260,7 +288,7 @@ export default function VaccinationsPage() {
                                 <Button 
                                     size="lg" 
                                     disabled={isScanning}
-                                    className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-full font-bold shadow-lg transition-all flex items-center gap-2"
+                                    className="w-full rounded-2xl bg-slate-950 font-bold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 md:w-auto"
                                 >
                                     {isScanning ? (
                                         <>
@@ -275,7 +303,7 @@ export default function VaccinationsPage() {
                                     )}
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl z-50">
+                            <DropdownMenuContent align="end" className="z-50 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
                                 <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                     <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
                                     <span className="font-medium">Tomar foto ahora</span>
