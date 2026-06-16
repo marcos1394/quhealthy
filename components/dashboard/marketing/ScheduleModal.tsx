@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown, Image as ImageIcon } from "lucide-react";
 import { useSocial } from "@/hooks/useSocial";
 import type { SocialConnectionDTO, ScheduledPostDTO } from "@/types/social";
+
+// UI Components
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { format, parseISO, setHours, setMinutes, isBefore, addMinutes } from "date-fns";
+import { es, enUS } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 // ── Fallback Image Component ───────────────────────────────────────────────────
 const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string, className?: string, fallback: React.ReactNode }) => {
@@ -43,10 +50,8 @@ type ScheduleStatus = "idle" | "loading" | "success" | "error";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function getMinDateTime(): string {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() + 6); // mínimo 5 min adelante + 1 buffer
-  return d.toISOString().slice(0, 16);
+function getMinDateTime(): Date {
+  return addMinutes(new Date(), 5);
 }
 
 function formatDatePreview(dateStr: string, locale = "es-MX"): string {
@@ -80,6 +85,9 @@ export default function ScheduleModal({
   prefill,
 }: ScheduleModalProps) {
   const t = useTranslations("DashboardMarketing.imageModal");
+  const locale = useLocale();
+  const dateLocale = locale === 'es' ? es : enUS;
+
   const { connections, schedulePost, loadConnections } = useSocial();
 
   // ── Form state ──────────────────────────────────────────────────────────────
@@ -89,6 +97,11 @@ export default function ScheduleModal({
   const [status, setStatus] = useState<ScheduleStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [showConnectionDropdown, setShowConnectionDropdown] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Derivados para el Popover mixto (Fecha y Hora)
+  const selectedDateObj = scheduledAt ? parseISO(scheduledAt) : undefined;
+  const timeString = scheduledAt ? format(parseISO(scheduledAt), "HH:mm") : "";
 
   // ── Init ────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -122,14 +135,41 @@ export default function ScheduleModal({
     if (!scheduledAt) return t("toast_warn");
 
     const selected = new Date(scheduledAt);
-    const now = new Date();
-    if (selected <= now) return t("err_date_past");
-
-    const diffMinutes = (selected.getTime() - now.getTime()) / 60000;
-    if (diffMinutes < 5) return t("err_date_min");
+    const minTime = getMinDateTime();
+    if (isBefore(selected, minTime)) return t("err_date_min");
 
     return null;
   }
+
+  // ── Handlers Fecha y Hora ───────────────────────────────────────────────────
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    // Mantiene la hora si ya existía
+    let newDate = date;
+    if (scheduledAt) {
+      const oldTime = parseISO(scheduledAt);
+      newDate = setHours(newDate, oldTime.getHours());
+      newDate = setMinutes(newDate, oldTime.getMinutes());
+    } else {
+      // Si no había hora, le ponemos la actual + 1 hora
+      newDate = setHours(newDate, new Date().getHours() + 1);
+      newDate = setMinutes(newDate, 0);
+    }
+    setScheduledAt(format(newDate, "yyyy-MM-dd'T'HH:mm"));
+    setErrorMsg("");
+    setCalendarOpen(false);
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const timeVal = e.target.value;
+    if (!timeVal) return;
+    const [hours, minutes] = timeVal.split(":").map(Number);
+    let newDate = scheduledAt ? parseISO(scheduledAt) : new Date();
+    newDate = setHours(newDate, hours);
+    newDate = setMinutes(newDate, minutes);
+    setScheduledAt(format(newDate, "yyyy-MM-dd'T'HH:mm"));
+    setErrorMsg("");
+  };
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   async function handleSchedule() {
@@ -144,7 +184,6 @@ export default function ScheduleModal({
 
     try {
       await schedulePost({
-        // ✅ Alineado exactamente con SchedulePostRequest.java
         socialConnectionId: selectedConnectionId,
         content: content.trim(),
         mediaUrls: prefill?.mediaUrls ?? post?.mediaUrls ?? [],
@@ -301,32 +340,62 @@ export default function ScheduleModal({
           </div>
 
           {/* 3. Fecha y hora */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
-              <span className="flex items-center gap-2">
-                <Calendar size={16} className="text-slate-500" />
-                {t("datetime_title")}
-              </span>
-            </label>
-            <input
-              type="datetime-local"
-              value={scheduledAt}
-              min={getMinDateTime()}
-              onChange={(e) => {
-                setScheduledAt(e.target.value);
-                setErrorMsg("");
-              }}
-              className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-slate-800 dark:text-white hover:border-slate-400 dark:hover:border-slate-500 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white transition-all [&::-webkit-calendar-picker-indicator]:dark:invert"
-            />
-            {scheduledAt && (
-              <div className="flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-full">
-                <Clock size={14} className="text-slate-500" />
-                {formatDatePreview(scheduledAt)}
-              </div>
-            )}
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2 px-1">
-              {t("timezone_info")} <span className="text-slate-700 dark:text-slate-300">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Fecha (Shadcn Calendar Popover) */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <span className="flex items-center gap-2">
+                  <Calendar size={16} className="text-slate-500" />
+                  Fecha
+                </span>
+              </label>
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "w-full flex items-center gap-2 px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-left transition-all hover:bg-white dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white",
+                      !selectedDateObj ? "text-slate-400" : "text-slate-800 dark:text-white"
+                    )}
+                  >
+                    {selectedDateObj ? format(selectedDateObj, "PPP", { locale: dateLocale }) : "Seleccionar fecha"}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl" align="start">
+                  <CalendarUI
+                    mode="single"
+                    selected={selectedDateObj}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => isBefore(date, new Date().setHours(0, 0, 0, 0))}
+                    initialFocus
+                    locale={dateLocale}
+                    className="rounded-2xl"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Hora (Input Time nativo pero estilizado) */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                <span className="flex items-center gap-2">
+                  <Clock size={16} className="text-slate-500" />
+                  Hora
+                </span>
+              </label>
+              <input
+                type="time"
+                value={timeString}
+                onChange={handleTimeChange}
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-slate-800 dark:text-white hover:border-slate-400 dark:hover:border-slate-500 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white transition-all [&::-webkit-calendar-picker-indicator]:dark:invert"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-1">
+             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 px-1">
+                {t("timezone_info")} <span className="text-slate-700 dark:text-slate-300">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+              </p>
           </div>
 
           {/* Resumen del post (si hay media prefill) */}
