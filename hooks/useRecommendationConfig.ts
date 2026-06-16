@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { getCookie } from 'cookies-next';
+import { useSessionStore } from '@/store/sessionStore';
 
 export interface RecommendationConfigDto {
   discountAmount: number;
@@ -16,7 +16,7 @@ export function useRecommendationConfig() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const token = getCookie('token') || '';
+  const token = useSessionStore((state) => state.token) || '';
 
   const fetchConfig = useCallback(async () => {
     setIsLoading(true);
