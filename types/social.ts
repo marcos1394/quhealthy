@@ -80,6 +80,9 @@ export interface AiImageRequest {
   targetAudience?: string;
   platform?: SocialPlatform;
   additionalPrompt?: string;
+  imageStyle?: string;
+  lighting?: string;
+  aspectRatio?: string;
 }
 
 export interface AiImageResponse {

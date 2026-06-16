@@ -74,6 +74,10 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
   // ✅ CORREGIDO: minúsculas — alineado con AiTone del tipo y el backend
   const [textTone, setTextTone]               = useState<AiTone>('professional');
   const [imagePrompt, setImagePrompt]         = useState('');
+  const [imagePlatform, setImagePlatform]     = useState<SocialPlatform>('INSTAGRAM');
+  const [imageStyle, setImageStyle]           = useState('Fotorrealismo Clínico');
+  const [imageLighting, setImageLighting]     = useState('Luz Natural');
+  const [imageAspectRatio, setImageAspectRatio] = useState<'SQUARE' | 'PORTRAIT' | 'LANDSCAPE'>('SQUARE');
   const [videoPrompt, setVideoPrompt]         = useState('');
   const [videoPlatform, setVideoPlatform]     = useState<SocialPlatform>('INSTAGRAM');
   const [videoTone, setVideoTone]             = useState<AiTone>('educational');
@@ -164,9 +168,12 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
 
       const response = await generateImageApi({
         topic,
-        tone: 'professional',                 // ✅ minúsculas
+        tone: 'professional',
         targetAudience: 'Pacientes potenciales de la clínica',
-        platform: 'FACEBOOK',
+        platform: imagePlatform,
+        imageStyle,
+        lighting: imageLighting,
+        aspectRatio: imageAspectRatio,
       });
       if (response?.imageUrl)      setGeneratedImageUrl(response.imageUrl);
       if (response?.generatedText) setGeneratedImageCaption(response.generatedText);
@@ -498,6 +505,66 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                       </div>
                     </div>
                   )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Formato</Label>
+                      <Select value={imageAspectRatio} onValueChange={(val: any) => setImageAspectRatio(val)}>
+                        <SelectTrigger className="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SQUARE">1:1 Cuadrado</SelectItem>
+                          <SelectItem value="PORTRAIT">9:16 Vertical</SelectItem>
+                          <SelectItem value="LANDSCAPE">16:9 Horizontal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Plataforma</Label>
+                      <Select value={imagePlatform} onValueChange={(val: any) => setImagePlatform(val)}>
+                        <SelectTrigger className="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                          <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                          <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
+                          <SelectItem value="GOOGLE_BUSINESS">Google Business</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Estilo Visual</Label>
+                      <Select value={imageStyle} onValueChange={setImageStyle}>
+                        <SelectTrigger className="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Fotorrealismo Clínico">📸 Fotorrealismo Clínico</SelectItem>
+                          <SelectItem value="Estilo de Vida / Wellness">🌿 Estilo de Vida / Wellness</SelectItem>
+                          <SelectItem value="Ilustración Digital">🎨 Ilustración Digital</SelectItem>
+                          <SelectItem value="Render 3D Suave">🧊 Render 3D Suave</SelectItem>
+                          <SelectItem value="Minimalista">⚪ Minimalista</SelectItem>
+                          <SelectItem value="Acuarela">🖌️ Acuarela</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Iluminación</Label>
+                      <Select value={imageLighting} onValueChange={setImageLighting}>
+                        <SelectTrigger className="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Luz Natural">☀️ Luz Natural</SelectItem>
+                          <SelectItem value="Luz de Estudio">💡 Luz de Estudio</SelectItem>
+                          <SelectItem value="Cinemática">🎬 Cinemática</SelectItem>
+                          <SelectItem value="Minimalista Brillante">✨ Minimalista Brillante</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t('image_prompt_label')}</Label>
