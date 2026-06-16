@@ -63,6 +63,7 @@ export interface AiTextRequest {
   targetAudience: string;
   platform: SocialPlatform;
   sessionId?: string;            // Para conversaciones multi-turn con historial
+  businessName?: string;         // Nombre del doctor o clínica para personalizar el copy
 }
 
 export interface AiTextResponse {

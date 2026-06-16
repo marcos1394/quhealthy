@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSocial } from '@/hooks/useSocial';
 import { SocialPlatform, AiTone } from '@/types/social';
 import ScheduleModal from '@/components/dashboard/marketing/ScheduleModal';
+import { useSessionStore } from '@/stores/SessionStore';
 
 // ── Fallback Image Component ───────────────────────────────────────────────────
 const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string, className?: string, fallback: React.ReactNode }) => {
@@ -63,6 +64,8 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
     sseVideoUrl,
     clearSseVideoUrl,
   } = useSocial();
+
+  const { user } = useSessionStore();
 
   // ── Servicio seleccionado ───────────────────────────────────────────────────
   const [selectedService, setSelectedService] = useState<CatalogItemOption | null>(null);
@@ -134,6 +137,7 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
         tone: textTone,                        // ✅ minúsculas
         targetAudience: 'Pacientes potenciales buscando servicios de salud y bienestar',
         platform: 'FACEBOOK',
+        businessName: user ? `${user.firstName} ${user.lastName}` : undefined,
       });
       if (response?.generatedText) {
         setGeneratedText(response.generatedText);
