@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useSessionStore } from '@/store/sessionStore';
+import { useSessionStore } from '@/stores/SessionStore';
 
 export interface RecommendationConfigDto {
   discountAmount: number;
