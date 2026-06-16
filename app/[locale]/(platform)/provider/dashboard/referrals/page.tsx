@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'react-toastify';
-import { Gift, Copy, CheckCircle2, Users, Sparkles, AlertTriangle, CalendarDays, Share2, ArrowRight } from 'lucide-react';
+import { Gift, Copy, CheckCircle2, Users, Sparkles, AlertTriangle, CalendarDays, Share2, ArrowRight, MessageCircle, Facebook, Twitter, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
@@ -39,6 +39,36 @@ export default function ProviderReferralsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: t('share_title', { defaultValue: 'Únete a QuHealthy' }),
+          text: t('share_text', { defaultValue: 'Regístrate en QuHealthy con mi código y obtén beneficios exclusivos:' }),
+          url: referralLink,
+        });
+      } catch (error) {
+        // Ignorar si el usuario cancela
+      }
+    } else {
+      handleCopy();
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(`Regístrate en QuHealthy con mi código y obtén beneficios exclusivos: ${referralLink}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const handleFacebookShare = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}`, '_blank');
+  };
+
+  const handleTwitterShare = () => {
+    const text = encodeURIComponent(`¡Regístrate en QuHealthy con mi código y obtén beneficios exclusivos!`);
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=${text}`, '_blank');
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVATED": 
@@ -66,15 +96,15 @@ export default function ProviderReferralsPage() {
         {/* Header Homologado */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-200 dark:border-purple-500/20">
-              <Gift className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+            <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+              <Gift className="w-7 h-7 text-slate-900 dark:text-white" />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
                 {t("title", { defaultValue: 'Programa de Referidos' })}
               </h1>
-              <Badge className="mt-1 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-0">
-                <Sparkles className="w-2.5 h-2.5 mr-1" /> Programa VIP
+              <Badge className="mt-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium shadow-sm">
+                <Sparkles className="w-3 h-3 mr-1.5" /> Programa VIP
               </Badge>
             </div>
           </div>
@@ -87,41 +117,53 @@ export default function ProviderReferralsPage() {
           {/* Link Share Card (Ocupa 2 columnas en desktop) */}
           <Card className="lg:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
             <CardContent className="p-6 md:p-8 flex flex-col justify-center h-full">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 rounded-lg"><Share2 className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg"><Share2 className="h-5 w-5 text-slate-700 dark:text-slate-300" /></div>
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">{t('link_title', { defaultValue: 'Tu Enlace de Invitación' })}</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-light">Compártelo por WhatsApp, email o redes sociales.</p>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('link_title', { defaultValue: 'Tu Enlace de Invitación' })}</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Copia el enlace o compártelo directamente en tus redes sociales.</p>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Input 
-                    readOnly 
-                    value={referralLink} 
-                    // 🚀 FIX: pr-36 da más espacio, truncate corta limpiamente
-                    className="h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 pr-36 text-slate-600 dark:text-slate-300 font-mono text-sm truncate"
-                  />
-                  {/* 🚀 FIX: Fondo sólido en los bordes interiores para que no se mezclen las letras */}
-                  <div className="absolute right-1 top-1 bottom-1 flex items-center pr-2 pl-4 pointer-events-none bg-slate-50 dark:bg-slate-950 rounded-r-md">
-                    <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-500/20 px-2.5 py-1.5 rounded-md border border-purple-200 dark:border-purple-500/30 uppercase tracking-wider">
-                      {userReferralCode}
-                    </span>
+              <div className="flex flex-col space-y-5">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Input 
+                      readOnly 
+                      value={referralLink} 
+                      className="h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-mono text-sm px-4 focus-visible:ring-slate-400 truncate"
+                    />
                   </div>
+                  <Button 
+                    size="lg"
+                    onClick={handleCopy} 
+                    className={`h-12 px-8 font-semibold shadow-sm transition-all rounded-xl ${
+                      copied 
+                        ? 'bg-slate-100 text-slate-900 border border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700' 
+                        : 'bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200'
+                    }`}
+                  >
+                    {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                    {copied ? t('copied', { defaultValue: 'Copiado' }) : t('copy', { defaultValue: 'Copiar Enlace' })}
+                  </Button>
                 </div>
-                <Button 
-                  size="lg"
-                  onClick={handleCopy} 
-                  className={`h-12 px-8 font-semibold shadow-none transition-all rounded-xl ${
-                    copied 
-                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:border-emerald-500/30' 
-                      : 'bg-medical-600 hover:bg-medical-700 text-white'
-                  }`}
-                >
-                  {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                  {copied ? t('copied', { defaultValue: 'Copiado' }) : t('copy', { defaultValue: 'Copiar Enlace' })}
-                </Button>
+
+                {/* Redes Sociales */}
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 mt-4">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mr-2 uppercase tracking-wider">Compartir vía:</span>
+                  <Button variant="outline" size="sm" onClick={handleWhatsAppShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
+                    <MessageCircle className="w-4 h-4 mr-1.5" /> WhatsApp
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleFacebookShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-blue-600 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10">
+                    <Facebook className="w-4 h-4 mr-1.5" /> Facebook
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleTwitterShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <Twitter className="w-4 h-4 mr-1.5" /> X (Twitter)
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden">
+                    <Send className="w-4 h-4 mr-1.5" /> Más opciones
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
