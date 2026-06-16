@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Sparkles, Video, Image as ImageIcon, Loader2, FileText,
-  ChevronRight, Clock, Tag, Copy, Check, RotateCcw, Download, Trash2, CalendarPlus
+  ChevronRight, Clock, Tag, Copy, Check, RotateCcw, Download, Trash2, CalendarPlus, Save
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -62,6 +62,7 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
     generateText: generateTextApi,
     generateImage: generateImageApi,
     generateVideo: generateVideoApi,
+    saveDraft,
     sseVideoUrl,
     clearSseVideoUrl,
   } = useSocial();
@@ -253,6 +254,29 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
       generatedByAi: true,
     });
     setScheduleModalOpen(true);
+  };
+
+  const handleSaveDraft = async (type: 'text' | 'image' | 'video') => {
+    let content = '';
+    let mediaUrls: string[] = [];
+    
+    if (type === 'text') {
+      content = generatedText;
+    } else if (type === 'image') {
+      content = generatedImageCaption || 'Imagen generada con IA';
+      mediaUrls = [generatedImageUrl];
+    } else if (type === 'video') {
+      content = videoPrompt || `Video generado con IA — ${selectedService?.name ?? ''}`;
+      mediaUrls = [generatedVideoUrl];
+    }
+
+    try {
+      await saveDraft({ content, mediaUrls, generatedByAi: true });
+      toast.success(t('saved_to_gallery') || 'Guardado en la galería');
+      onGenerationSuccess();
+    } catch {
+      // El hook ya maneja el error visualmente
+    }
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -462,10 +486,18 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                     />
 
                     {/* ✅ "Copiar y Usar" abre ScheduleModal con prefill */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <Button
+                        onClick={() => handleSaveDraft('text')}
+                        variant="outline"
+                        className="w-full sm:flex-1 h-10 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        {t('save_to_gallery') || 'Guardar en Galería'}
+                      </Button>
                       <Button
                         onClick={handleCopyAndScheduleText}
-                        className="flex-1 h-10 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
+                        className="w-full sm:flex-1 h-10 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 shadow-sm"
                       >
                         <CalendarPlus className="w-4 h-4 mr-2" />
                         {t('copy_and_use')}
@@ -606,7 +638,7 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                       <img src={generatedImageUrl} alt="Generated" className="w-full rounded-xl" referrerPolicy="no-referrer" />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       {/* Descargar */}
                       <a
                         href={generatedImageUrl}
@@ -617,6 +649,15 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                       >
                         <Download className="w-4 h-4" /> {t('download_image')}
                       </a>
+
+                      {/* Guardar en galeria */}
+                      <Button
+                        variant="outline"
+                        onClick={() => handleSaveDraft('image')}
+                        className="h-10 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      >
+                        <Save className="w-4 h-4 mr-2" /> {t('save_to_gallery') || 'Guardar'}
+                      </Button>
 
                       {/* ✅ Programar imagen */}
                       <Button
@@ -783,7 +824,7 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                     <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-black">
                       <video src={generatedVideoUrl} controls autoPlay className="w-full aspect-video object-contain" />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm" onClick={() => {
                         const a = document.createElement('a');
                         a.href = generatedVideoUrl;
@@ -792,6 +833,10 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
                         a.click();
                       }} className="flex-1">
                         <Download className="w-4 h-4 mr-2" /> {t('download_video')}
+                      </Button>
+
+                      <Button variant="outline" size="sm" onClick={() => handleSaveDraft('video')} className="flex-1 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <Save className="w-4 h-4 mr-2" /> {t('save_to_gallery') || 'Guardar'}
                       </Button>
 
                       {/* ✅ Programar video */}

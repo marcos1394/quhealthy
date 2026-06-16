@@ -143,6 +143,13 @@ export interface SchedulePostRequest {
   generatedByAi?: boolean;
 }
 
+/** Alineado con SaveDraftRequest.java del backend. */
+export interface SaveDraftRequest {
+  content: string;
+  mediaUrls?: string[];
+  generatedByAi?: boolean;
+}
+
 /** Alineado con ScheduledPost.java (entidad) */
 export interface ScheduledPostDTO {
   id: string;                    // UUID

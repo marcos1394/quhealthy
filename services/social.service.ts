@@ -98,6 +98,11 @@ export const socialService = {
     return response.data;
   },
 
+  saveDraft: async (data: import('@/types/social').SaveDraftRequest): Promise<{ message: string; groupId: string }> => {
+    const response = await axiosInstance.post(`${BASE}/posts/draft`, data);
+    return response.data;
+  },
+
   getScheduledPosts: async (page = 0, size = 20): Promise<SpringPage<ScheduledPostDTO>> => {
     const response = await axiosInstance.get(`${BASE}/posts`, { params: { page, size } });
     return response.data;

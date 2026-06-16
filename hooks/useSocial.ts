@@ -21,6 +21,7 @@ import {
   AiSuggestionTone,
   AnalyticsDashboardDTO,
   SpringPage,
+  SaveDraftRequest,
 } from '@/types/social';
 
 // =================================================================
@@ -54,6 +55,7 @@ export interface UseSocialReturn {
 
   // ── Scheduler ───────────────────────────────────────────────────
   schedulePost: (data: SchedulePostRequest) => Promise<{ message: string; postId: string }>;
+  saveDraft: (data: SaveDraftRequest) => Promise<{ message: string; groupId: string }>;
   getScheduledPosts: (page?: number, size?: number) => Promise<SpringPage<ScheduledPostDTO>>;
   cancelPost: (id: string) => Promise<void>;
 
@@ -216,6 +218,17 @@ export const useSocial = (): UseSocialReturn => {
     setLoading(true); setError(null);
     try {
       return await socialService.schedulePost(data);
+    } catch (err) {
+      return handleError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [handleError]);
+
+  const saveDraft = useCallback(async (data: SaveDraftRequest) => {
+    setLoading(true); setError(null);
+    try {
+      return await socialService.saveDraft(data);
     } catch (err) {
       return handleError(err);
     } finally {
@@ -531,6 +544,7 @@ export const useSocial = (): UseSocialReturn => {
 
     // Scheduler
     schedulePost,
+    saveDraft,
     getScheduledPosts,
     cancelPost,
 
