@@ -17,6 +17,8 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // 🚀 Importamos el Hook de Arquitectura Limpia
 import { useReferrals } from '@/hooks/useReferrals';
+import { RecommendationSettingsForm } from '@/components/dashboard/referrals/RecommendationSettingsForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ProviderReferralsPage() {
   const t = useTranslations('DashboardReferrals');
@@ -113,7 +115,14 @@ export default function ProviderReferralsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Tabs defaultValue="affiliates" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 bg-slate-100 dark:bg-slate-800">
+            <TabsTrigger value="affiliates">Programa de Afiliados</TabsTrigger>
+            <TabsTrigger value="recommendations">Recomendaciones Cruzadas</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="affiliates" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Link Share Card (Ocupa 2 columnas en desktop) */}
           <Card className="lg:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
             <CardContent className="p-6 md:p-8 flex flex-col justify-center h-full">
@@ -266,6 +275,13 @@ export default function ProviderReferralsPage() {
             </CardContent>
           </Card>
         </section>
+        </TabsContent>
+
+        <TabsContent value="recommendations" className="space-y-8">
+          <RecommendationSettingsForm />
+        </TabsContent>
+
+      </Tabs>
 
       </motion.div>
     </div>
