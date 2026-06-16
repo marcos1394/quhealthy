@@ -218,7 +218,10 @@
       "guest": {
         "discover": "Discover",
         "business": "For Doctors",
-        "pricing": "Pricing"
+        "pricing": "Pricing",
+        "suite": "Ecosystem",
+        "modules": "Modules",
+        "testimonials": "Testimonials"
       },
       "consumer": {
         "discover": "Find Doctors",

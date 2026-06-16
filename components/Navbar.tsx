@@ -43,9 +43,10 @@ interface NavItem {
 // Usamos Record para asegurar que cubrimos todos los casos o 'string' para ser flexibles
 const LINKS: Record<string, NavItem[]> = {
   GUEST: [
-    { name: "links.guest.discover", href: "/patient/discover" },
-    { name: "links.guest.business", href: "/business" },
+    { name: "links.guest.suite", href: "/#suite" },
+    { name: "links.guest.modules", href: "/#platform-modules" },
     { name: "links.guest.pricing", href: "/#pricing" },
+    { name: "links.guest.testimonials", href: "/#testimonials" },
   ],
   CONSUMER: [
     { name: "links.consumer.discover", href: "/discover", icon: Search },
@@ -111,7 +112,7 @@ export const Navbar: React.FC = () => {
       className
     )}>
       <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || "Usuario"} />
-      <AvatarFallback className="bg-medical-50 text-medical-700 dark:bg-medical-900/30 dark:text-medical-300 font-semibold text-xs">
+      <AvatarFallback className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-semibold text-xs">
         {user?.firstName ? user.firstName.substring(0, 2).toUpperCase() : <UserIcon size={14} />}
       </AvatarFallback>
     </Avatar>
@@ -233,18 +234,18 @@ export const Navbar: React.FC = () => {
                   className={cn(
                     "relative text-sm font-medium transition-colors duration-300 flex items-center gap-2 py-2 group",
                     isActive
-                      ? "text-medical-600 dark:text-medical-400"
+                      ? "text-slate-900 dark:text-white"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
-                  {Icon && <Icon size={16} className={cn("transition-colors", isActive ? "text-medical-600 dark:text-medical-400" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")} />}
+                  {Icon && <Icon size={16} className={cn("transition-colors", isActive ? "text-slate-900 dark:text-white" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")} />}
                   {t(item.name)}
                   
                   {/* Premium Underline Indicator */}
                   {isActive ? (
                     <motion.div
                       layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-medical-600 dark:bg-medical-400 rounded-full"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full"
                       initial={false}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
@@ -290,14 +291,14 @@ export const Navbar: React.FC = () => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="bg-medical-600 text-white hover:bg-medical-700 font-medium h-9 px-5 rounded-md border-0 transition-colors">
+                  <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-medium h-9 px-5 rounded-md border-0 transition-colors">
                     {t('buttons.register')}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xl rounded-xl p-1">
                   <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg p-2.5">
                     <Link href="/provider/register" className="flex items-center gap-2.5 w-full">
-                      <div className="w-8 h-8 rounded-full bg-medical-50 dark:bg-medical-500/10 flex items-center justify-center text-medical-600 dark:text-medical-400">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-900 dark:text-white">
                         <Store size={16} />
                       </div>
                       <div className="flex flex-col">
@@ -309,7 +310,7 @@ export const Navbar: React.FC = () => {
                   <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
                   <DropdownMenuItem asChild className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg p-2.5">
                     <Link href="/register" className="flex items-center gap-2.5 w-full">
-                      <div className="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-900 dark:text-white">
                         <UserIcon size={16} />
                       </div>
                       <div className="flex flex-col">
@@ -363,7 +364,7 @@ export const Navbar: React.FC = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-3 p-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
                   >
-                    {Icon && <Icon size={18} className="text-medical-500 dark:text-medical-400" />}
+                    {Icon && <Icon size={18} className="text-slate-500 dark:text-slate-400" />}
                     {t(item.name)}
                   </Link>
                 );
@@ -392,7 +393,7 @@ export const Navbar: React.FC = () => {
                       </Button>
                     </Link>
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full bg-medical-600 text-white hover:bg-medical-700 h-14 flex-col gap-1 rounded-xl">
+                      <Button className="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 h-14 flex-col gap-1 rounded-xl">
                         <UserIcon size={16} />
                         <span className="text-[10px] uppercase font-bold tracking-wider">Paciente</span>
                       </Button>
