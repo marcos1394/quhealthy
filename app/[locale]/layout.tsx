@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       default: content.title,
     },
     description: content.description,
-    keywords: content.keywords,
+    keywords: [...content.keywords],
     authors: [{ name: 'QuHealthy Team', url: siteUrl }],
     creator: 'QuHealthy',
     publisher: 'QuHealthy',
