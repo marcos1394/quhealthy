@@ -19,54 +19,82 @@ import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
 // Configuración de la fuente
 const inter = Inter({ subsets: ["latin"] });
 
-// --- METADATOS PROFESIONALES PARA SEO ---
-export const metadata: Metadata = {
-  metadataBase: new URL('https://www.quhealthy.org'),
-  title: {
-    template: '%s | QuHealthy',
-    default: 'QuHealthy - Plataforma de Salud y Bienestar Digital',
-  },
-  description: "Encuentra, agenda y gestiona tus citas de salud y belleza con los mejores profesionales. QuHealthy es la plataforma digital que conecta pacientes y proveedores de manera eficiente.",
-  keywords: ['salud', 'belleza', 'bienestar', 'citas médicas', 'agenda online', 'profesionales de la salud', 'terapia', 'spa', 'médicos en México'],
-  authors: [{ name: 'QuHealthy Team', url: 'https://www.quhealthy.com' }],
-  creator: 'QuHealthy',
-  publisher: 'QuHealthy',
-  openGraph: {
-    title: 'QuHealthy - Tu Ecosistema de Bienestar Digital',
-    description: 'La plataforma líder para agendar y gestionar servicios de salud y belleza.',
-    url: 'https://www.quhealthy.com',
-    siteName: 'QuHealthy',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Dashboard de QuHealthy mostrando una agenda de citas',
-      },
-    ],
+// --- METADATOS DINÁMICOS POR IDIOMA (SEO + Open Graph) ---
+const ogContent = {
+  es: {
+    title: 'QuHealthy - Plataforma de Salud y Bienestar Digital',
+    ogTitle: 'QuHealthy — Tu Ecosistema de Bienestar Digital',
+    description: 'Encuentra, agenda y gestiona tus citas de salud y belleza con los mejores profesionales. La plataforma que conecta pacientes y proveedores de manera eficiente.',
+    ogDescription: 'La plataforma líder para agendar y gestionar servicios de salud y belleza en México.',
+    keywords: ['salud', 'belleza', 'bienestar', 'citas médicas', 'agenda online', 'profesionales de la salud', 'médicos en México'],
     locale: 'es_MX',
-    type: 'website',
+    imageAlt: 'Dashboard de QuHealthy mostrando una agenda de citas',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'QuHealthy - Tu Ecosistema de Bienestar Digital',
-    description: 'La plataforma líder para agendar y gestionar servicios de salud y belleza.',
-    creator: '@QuHealthyApp',
-    images: ['/og-image.png'],
+  en: {
+    title: 'QuHealthy - Digital Health & Wellness Platform',
+    ogTitle: 'QuHealthy — Your Digital Wellness Ecosystem',
+    description: 'Find, book, and manage your health and beauty appointments with top professionals. The platform that connects patients and providers efficiently.',
+    ogDescription: 'The leading platform to book and manage health & beauty services.',
+    keywords: ['health', 'beauty', 'wellness', 'medical appointments', 'online booking', 'health professionals'],
+    locale: 'en_US',
+    imageAlt: 'QuHealthy dashboard showing an appointment calendar',
   },
-  manifest: '/manifest.json',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+} as const;
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const lang = (locale === 'en' ? 'en' : 'es') as keyof typeof ogContent;
+  const content = ogContent[lang];
+  const siteUrl = 'https://www.quhealthy.org';
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      template: '%s | QuHealthy',
+      default: content.title,
+    },
+    description: content.description,
+    keywords: content.keywords,
+    authors: [{ name: 'QuHealthy Team', url: siteUrl }],
+    creator: 'QuHealthy',
+    publisher: 'QuHealthy',
+    openGraph: {
+      title: content.ogTitle,
+      description: content.ogDescription,
+      url: `${siteUrl}/${lang}`,
+      siteName: 'QuHealthy',
+      images: [
+        {
+          url: `${siteUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: content.imageAlt,
+        },
+      ],
+      locale: content.locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.ogTitle,
+      description: content.ogDescription,
+      creator: '@QuHealthyApp',
+      images: [`${siteUrl}/og-image.png`],
+    },
+    manifest: '/manifest.json',
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
-};
+  };
+}
 
 // --- VIEWPORT ---
 export const viewport: Viewport = {

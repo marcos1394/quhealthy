@@ -20,10 +20,12 @@ interface UIPlan {
   originalId: number;
 }
 
+const ANNUAL_DISCOUNT = 0.20; // 20% de descuento al pagar anual
+
 const PricingSection: React.FC = () => {
   const t = useTranslations('Pricing');
   const { isAuthenticated, role } = useSessionStore();
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false); // ✅ Mensual por defecto
   const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,11 +43,12 @@ const PricingSection: React.FC = () => {
     fetchPlans();
   }, []);
 
-  const currentInterval = isAnnual ? "YEARLY" : "MONTHLY";
-  const filteredRawPlans = rawPlans.filter(p => p.billingInterval === currentInterval);
+  // ✅ Siempre usamos los planes MONTHLY como fuente de verdad.
+  // Si el usuario elige anual, calculamos el descuento en el frontend.
+  const monthlyPlans = rawPlans.filter(p => p.billingInterval === "MONTHLY");
 
-  // Ordenar por precio ascendente
-  const displayPlans: UIPlan[] = filteredRawPlans
+  // Ordenar por precio ascendente y mapear a UIPlan
+  const displayPlans: UIPlan[] = monthlyPlans
     .sort((a, b) => a.price - b.price)
     .map((bp) => {
       const isPopular = bp.name.toLowerCase().includes("estándar") || bp.name.toLowerCase().includes("prof");
@@ -53,7 +56,7 @@ const PricingSection: React.FC = () => {
         id: bp.stripePriceId || `plan_${bp.id}`,
         title: bp.name,
         description: bp.description || "Potencia tu consultorio digital.",
-        price: bp.price,
+        price: bp.price, // Precio mensual original
         isPopular,
         features: buildFeaturesForPlan(bp.name, isAnnual),
         originalId: bp.id
@@ -107,9 +110,17 @@ const PricingSection: React.FC = () => {
             <Loader2 className="w-10 h-10 text-slate-300 animate-spin" />
           </div>
         ) : (
-          <div className="flex flex-wrap justify-center items-stretch border-t border-slate-200 dark:border-slate-800 max-w-[1400px] mx-auto pt-8 md:pt-0">
+          <div
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-2 lg:gap-0 border-t border-slate-200 dark:border-slate-800 max-w-[1400px] mx-auto pt-8 md:pt-0 items-start"
+              style={{ '--plan-cols': displayPlans.length } as React.CSSProperties}
+            >
+              <style>{`@media (min-width: 1024px) { [style*="--plan-cols"] { grid-template-columns: repeat(var(--plan-cols), minmax(0, 1fr)) !important; } }`}</style>
             {displayPlans.map((plan, index) => {
-              const finalPrice = plan.price;
+              const monthlyPrice = plan.price;
+              // ✅ Si es anual: precio mensual con 20% de descuento, redondeado sin decimales
+              const finalPrice = isAnnual
+                ? Math.round(monthlyPrice * (1 - ANNUAL_DISCOUNT))
+                : monthlyPrice;
               const isMiddle = plan.isPopular;
 
               return (
@@ -120,10 +131,10 @@ const PricingSection: React.FC = () => {
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   className={cn(
-                    "relative p-8 flex flex-col w-full md:w-1/2 lg:w-1/4 transition-all duration-300 group/pricing z-10",
+                    "relative p-6 lg:p-8 flex flex-col transition-all duration-300 group/pricing",
                     isMiddle 
-                      ? "bg-white dark:bg-slate-900 md:-mt-8 md:-mb-8 md:pt-16 md:pb-16 md:rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-700 z-20" 
-                      : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 md:rounded-3xl border border-transparent"
+                      ? "bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-700 z-20 md:scale-[1.03]" 
+                      : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/20 rounded-3xl border border-transparent z-10"
                   )}
                 >
                   {/* Glow behind popular plan */}
@@ -148,13 +159,26 @@ const PricingSection: React.FC = () => {
                   </div>
 
                   {/* Precio Editorial */}
-                  <div className="mb-10 flex items-baseline gap-2">
-                    <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
-                      ${finalPrice}
-                    </span>
-                    <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                      /{t('price_frequency')}
-                    </span>
+                  <div className="mb-10">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
+                        ${finalPrice}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
+                        /{t('price_frequency')}
+                      </span>
+                    </div>
+                    {/* ✅ Precio original tachado cuando es anual y el plan no es gratis */}
+                    {isAnnual && monthlyPrice > 0 && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-slate-400 dark:text-slate-500 text-sm line-through">
+                          ${monthlyPrice}/{t('price_frequency')}
+                        </span>
+                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                          -20%
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Lista de Features Líneas */}
