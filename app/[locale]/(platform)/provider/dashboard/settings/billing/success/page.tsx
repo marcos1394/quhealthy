@@ -6,14 +6,20 @@ import confetti from 'canvas-confetti';
 import { SuccessHeader } from '@/components/dashboard/subscription/success/SuccessHeader';
 import { NextStepsList } from '@/components/dashboard/subscription/success/NextStepsList';
 import { SuccessActions } from '@/components/dashboard/subscription/success/SuccessActions';
+import { useSessionStore } from '@/stores/SessionStore';
 
 export default function SubscriptionSuccessPage() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const forceRefreshSession = useSessionStore(state => state.forceRefreshSession);
 
-  // Lanzar un poco de confetti al cargar la página si el pago fue exitoso
+  // Lanzar un poco de confetti al cargar la página si el pago fue exitoso y refrescar sesión
   useEffect(() => {
     if (sessionId) {
+      // 1. Refrescar la sesión para obtener el nuevo token JWT con el nuevo plan_id
+      forceRefreshSession();
+
+      // 2. Confetti
       const duration = 3 * 1000;
       const end = Date.now() + duration;
 

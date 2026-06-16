@@ -58,6 +58,7 @@ interface SessionState {
   clearSession: () => void;
   setLoading: (loading: boolean) => void;
   initializeSession: () => Promise<void>;
+  forceRefreshSession: () => Promise<void>;
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -209,6 +210,31 @@ export const useSessionStore = create<SessionState>()(
         })();
 
         await initialRefreshPromise;
+      },
+
+      // =========================================================================
+      // REFRESH FORZOSO (Usado tras un cambio de plan o suscripción)
+      // =========================================================================
+      forceRefreshSession: async () => {
+        const state = get();
+        try {
+          const response = await axios.post<AuthResponse>(
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+            {}, 
+            { withCredentials: true } 
+          );
+
+          set({
+            token: response.data.token,
+            user: response.data.user || state.user,
+            role: response.data.role || state.role,
+            status: response.data.status || state.status,
+            isAuthenticated: true,
+          });
+          console.log('🔄 [Auth] Sesión refrescada forzosamente (ej. tras cambio de plan)');
+        } catch (error) {
+          console.error('⚠️ [Auth] Falló el refresh forzoso', error);
+        }
       },
     }),
     {
