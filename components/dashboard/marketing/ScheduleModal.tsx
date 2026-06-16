@@ -170,49 +170,50 @@ export default function ScheduleModal({
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+      {/* Backdrop (Glassmorphism) */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-200/50 dark:border-slate-800/50 overflow-hidden font-sans transform transition-all">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               {t("title")}
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
               {t("subtitle")}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 sm:px-8 py-6 space-y-6">
 
           {/* 1. Selector de cuenta social (conexión) */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
               {t("platform_title")}
             </label>
 
             {connections.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-4 text-center">
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center bg-slate-50/50 dark:bg-slate-800/20">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t("no_accounts_title")}
                 </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                   {t("no_accounts_desc")}
                 </p>
               </div>
@@ -221,31 +222,31 @@ export default function ScheduleModal({
                 <button
                   type="button"
                   onClick={() => setShowConnectionDropdown((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-left hover:border-medical-400 dark:hover:border-medical-500 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-left hover:border-slate-400 dark:hover:border-slate-500 hover:bg-white dark:hover:bg-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-100"
                 >
                   {selectedConnection ? (
-                    <span className="flex items-center gap-2 text-sm text-slate-800 dark:text-white">
-                      <span className="text-lg">
+                    <span className="flex items-center gap-3 text-sm text-slate-800 dark:text-white">
+                      <span className="text-xl">
                         {PLATFORM_ICONS[selectedConnection.platform] ?? "🌐"}
                       </span>
-                      <span className="font-medium">{selectedConnection.platformUserName}</span>
-                      <span className="text-xs text-slate-400 dark:text-slate-500">
-                        · {selectedConnection.platform}
+                      <span className="font-semibold">{selectedConnection.platformUserName}</span>
+                      <span className="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-200/50 dark:bg-slate-700/50 px-2 py-0.5 rounded-full">
+                        {selectedConnection.platform}
                       </span>
                     </span>
                   ) : (
-                    <span className="text-sm text-slate-400 dark:text-slate-500">
+                    <span className="text-sm text-slate-400 dark:text-slate-500 font-medium">
                       {t("platform_placeholder")}
                     </span>
                   )}
                   <ChevronDown
-                    size={16}
-                    className={`text-slate-400 transition-transform ${showConnectionDropdown ? "rotate-180" : ""}`}
+                    size={18}
+                    className={`text-slate-400 transition-transform duration-200 ${showConnectionDropdown ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {showConnectionDropdown && (
-                  <div className="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden">
+                  <div className="absolute z-10 mt-2 w-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden py-1">
                     {connections.map((conn) => (
                       <button
                         key={conn.id}
@@ -254,9 +255,9 @@ export default function ScheduleModal({
                           setSelectedConnectionId(conn.id);
                           setShowConnectionDropdown(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
+                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
                           selectedConnectionId === conn.id
-                            ? "bg-medical-50 dark:bg-medical-900/20"
+                            ? "bg-slate-50 dark:bg-slate-700/30"
                             : ""
                         }`}
                       >
@@ -264,13 +265,13 @@ export default function ScheduleModal({
                           {PLATFORM_ICONS[conn.platform] ?? "🌐"}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800 dark:text-white truncate">
+                          <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
                             {conn.platformUserName}
                           </p>
-                          <p className="text-xs text-slate-400">{conn.platform}</p>
+                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{conn.platform}</p>
                         </div>
                         {selectedConnectionId === conn.id && (
-                          <CheckCircle2 size={16} className="text-medical-600 shrink-0" />
+                          <CheckCircle2 size={18} className="text-slate-900 dark:text-white shrink-0" />
                         )}
                       </button>
                     ))}
@@ -281,27 +282,29 @@ export default function ScheduleModal({
           </div>
 
           {/* 2. Contenido editable */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
               Contenido
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={4}
-              placeholder="Escribe o edita el contenido de tu publicación..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-white placeholder-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-medical-500 focus:border-transparent transition"
-            />
-            <p className="text-xs text-slate-400 mt-1 text-right">
-              {content.length} caracteres
-            </p>
+            <div className="relative">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={5}
+                placeholder="Escribe o edita el contenido de tu publicación..."
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 resize-none hover:bg-white dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:bg-white dark:focus:bg-slate-800 transition-all"
+              />
+              <span className="absolute bottom-3 right-4 text-xs font-medium text-slate-400">
+                {content.length} / 2200
+              </span>
+            </div>
           </div>
 
           {/* 3. Fecha y hora */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              <span className="flex items-center gap-1.5">
-                <Calendar size={14} />
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+              <span className="flex items-center gap-2">
+                <Calendar size={16} className="text-slate-500" />
                 {t("datetime_title")}
               </span>
             </label>
@@ -313,37 +316,37 @@ export default function ScheduleModal({
                 setScheduledAt(e.target.value);
                 setErrorMsg("");
               }}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-medical-500 focus:border-transparent transition"
+              className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-sm font-medium text-slate-800 dark:text-white hover:border-slate-400 dark:hover:border-slate-500 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white transition-all [&::-webkit-calendar-picker-indicator]:dark:invert"
             />
             {scheduledAt && (
-              <p className="text-xs text-teal-600 dark:text-teal-400 mt-1.5 flex items-center gap-1">
-                <Clock size={12} />
+              <div className="flex items-center gap-1.5 mt-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-full">
+                <Clock size={14} className="text-slate-500" />
                 {formatDatePreview(scheduledAt)}
-              </p>
+              </div>
             )}
-            <p className="text-xs text-slate-400 mt-1">
-              {t("timezone_info")} {Intl.DateTimeFormat().resolvedOptions().timeZone}
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2 px-1">
+              {t("timezone_info")} <span className="text-slate-700 dark:text-slate-300">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
             </p>
           </div>
 
           {/* Resumen del post (si hay media prefill) */}
           {(prefill?.mediaUrls?.length || post?.mediaUrls?.length) && (
-            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3">
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 p-4">
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">
                 {t("summary_title")}
               </p>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-3 flex-wrap">
                 {(prefill?.mediaUrls ?? post?.mediaUrls ?? []).map((url, i) => (
                   <div
                     key={i}
-                    className="w-16 h-16 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 shrink-0"
+                    className="w-20 h-20 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 shrink-0 shadow-sm border border-slate-200/50 dark:border-slate-600/50"
                   >
                     {prefill?.mediaType === "video" ? (
-                      <div className="w-full h-full flex items-center justify-center text-2xl">▶️</div>
+                      <div className="w-full h-full flex items-center justify-center text-2xl bg-slate-800 text-white">▶️</div>
                     ) : (
                       <SafeImage 
                         src={url} 
-                        alt="" 
+                        alt="Media Preview" 
                         className="w-full h-full object-cover" 
                         fallback={
                           <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100 dark:bg-slate-800">
@@ -360,19 +363,19 @@ export default function ScheduleModal({
 
           {/* Error message */}
           {errorMsg && (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-              <AlertCircle size={16} className="text-red-500 shrink-0" />
-              <p className="text-sm text-red-600 dark:text-red-400">{errorMsg}</p>
+            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50">
+              <AlertCircle size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-red-700 dark:text-red-300 leading-relaxed">{errorMsg}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="flex gap-3 px-6 sm:px-8 py-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80">
           <button
             onClick={onClose}
             disabled={status === "loading"}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all disabled:opacity-50"
           >
             {t("cancel_btn")}
           </button>
@@ -380,10 +383,10 @@ export default function ScheduleModal({
           <button
             onClick={handleSchedule}
             disabled={status === "loading" || status === "success" || connections.length === 0}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-medical-600 hover:bg-medical-700 text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-md hover:shadow-lg hover:bg-slate-800 dark:hover:bg-slate-100 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:cursor-not-allowed"
           >
-            {status === "loading" && <Loader2 size={16} className="animate-spin" />}
-            {status === "success" && <CheckCircle2 size={16} />}
+            {status === "loading" && <Loader2 size={18} className="animate-spin" />}
+            {status === "success" && <CheckCircle2 size={18} />}
             {status === "idle" && t("schedule_idle")}
             {status === "loading" && t("schedule_loading")}
             {status === "success" && t("schedule_success")}
