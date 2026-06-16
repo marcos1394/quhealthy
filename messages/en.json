@@ -3875,5 +3875,33 @@
         }
       }
     }
+  },
+  "LocationPrompt": {
+    "title": "Improve your experience",
+    "description": "Allow access to your location so we can show you the best specialists and services near you.",
+    "activate_btn": "Enable Location",
+    "dismiss_btn": "Not now",
+    "city_welcome": "We noticed you're in {city}. Find nearby specialists!",
+    "denied": "Got it. You can enable location later from your browser settings.",
+    "error": "Could not get your location. Please try again later.",
+    "not_supported": "Your browser does not support geolocation."
+  },
+  "CookieConsent": {
+    "title": "Privacy & Cookies",
+    "description": "We use cookies to improve your experience, analyze traffic, and personalize content. By clicking \"Accept all\", you agree to their use.",
+    "accept_all": "Accept all",
+    "reject": "Reject",
+    "configure": "Configure",
+    "preferences_title": "Preferences",
+    "back_label": "Back to cookie notice",
+    "essential_title": "Essential",
+    "essential_desc": "Required for the basic functionality of the site. Cannot be disabled.",
+    "analytics_title": "Analytics",
+    "analytics_desc": "Help us understand how you use QuHealthy to improve your experience.",
+    "toggle_analytics": "Enable or disable analytics cookies",
+    "marketing_title": "Marketing",
+    "marketing_desc": "Used to show you relevant ads and personalized campaigns.",
+    "toggle_marketing": "Enable or disable marketing cookies",
+    "save_btn": "Save Preferences"
   }
 }

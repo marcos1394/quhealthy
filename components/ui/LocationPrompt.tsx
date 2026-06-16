@@ -1,40 +1,55 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, X, Loader2, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGeolocation } from "@/hooks/useGeolocation";
 import { googleService } from "@/services/google.service";
 import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
 
 export const LocationPrompt = () => {
+  const t = useTranslations('LocationPrompt');
   const [isVisible, setIsVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { coordinates, error } = useGeolocation(); // Esto no pide permiso hasta que lo triggereamos si se modifica, pero el hook actual lo pide OnMount. 
-  
-  // Como tu hook `useGeolocation` pide la ubicación en `useEffect` al montar,
-  // la mejor aproximación "Enterprise" es detectar si ya se concedió silenciosamente,
-  // o mostrar un pequeño toast persuasivo ANTES de montar el hook, pero como el hook ya está hecho,
-  // vamos a interceptarlo mostrando este toast persuasivo flotante.
 
+  // ✅ Solo mostramos el prompt si NO se ha interactuado antes con él
   useEffect(() => {
-    // Mostrar el prompt solo si no hemos guardado la preferencia
     const hasPrompted = sessionStorage.getItem("quhealthy_location_prompted");
-    if (!hasPrompted && !coordinates) {
+    if (hasPrompted) return;
+
+    // Primero checamos si ya tenemos permiso (sin pedirlo de nuevo)
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "geolocation" }).then((result) => {
+        if (result.state === "granted") {
+          // Ya tiene permiso — obtenemos coords silenciosamente sin mostrar prompt
+          silentFetchLocation();
+        } else if (result.state === "prompt") {
+          // Aún no ha decidido — mostramos nuestro prompt persuasivo después de 3s
+          const timer = setTimeout(() => setIsVisible(true), 3000);
+          return () => clearTimeout(timer);
+        }
+        // Si es "denied", no mostramos nada
+      });
+    } else {
+      // Navegador sin Permissions API — mostramos el prompt como fallback
       const timer = setTimeout(() => setIsVisible(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, [coordinates]);
+  }, []);
 
-  // Si tenemos coordenadas pero no hemos mostrado la alerta de ciudad
-  useEffect(() => {
-    if (coordinates && !sessionStorage.getItem("quhealthy_city_welcomed")) {
-      const fetchCity = async () => {
+  // ✅ Obtener ubicación silenciosamente (ya tiene permiso)
+  const silentFetchLocation = useCallback(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        sessionStorage.setItem("quhealthy_location_prompted", "true");
         try {
-          const res = await googleService.reverseGeocode(coordinates.lat, coordinates.lng);
-          if (res && res.city) {
-            toast.success(`Notamos que estás en ${res.city}. ¡Encuentra especialistas cerca!`, {
+          const res = await googleService.reverseGeocode(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          if (res?.city && !sessionStorage.getItem("quhealthy_city_welcomed")) {
+            toast.success(t('city_welcome', { city: res.city }), {
               position: "top-right",
               autoClose: 5000,
               icon: () => <>📍</>
@@ -44,34 +59,68 @@ export const LocationPrompt = () => {
         } catch (e) {
           console.error("Error reverse geocoding:", e);
         }
-      };
-      fetchCity();
-    }
-  }, [coordinates]);
+      },
+      () => {
+        // Silencioso — no mostramos error si falla
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+    );
+  }, [t]);
 
   const handleDismiss = () => {
     setIsVisible(false);
     sessionStorage.setItem("quhealthy_location_prompted", "true");
   };
 
+  // ✅ Cuando el usuario presiona "Activar Ubicación" — pedimos permiso al navegador
   const handleActivate = () => {
     setIsProcessing(true);
-    // Forzamos al navegador a pedir permiso
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setIsProcessing(false);
-          setIsVisible(false);
-          sessionStorage.setItem("quhealthy_location_prompted", "true");
-          // El useEffect de arriba detectará las coordenadas (vía hook si se refresca el state global, o lo hacemos manual)
-          window.location.reload(); // Recarga limpia para que el hook principal tome las coordenadas
-        },
-        (err) => {
-          setIsProcessing(false);
-          toast.error("No se pudo obtener la ubicación. Por favor revisa los permisos de tu navegador.");
-        }
-      );
+
+    if (!navigator.geolocation) {
+      setIsProcessing(false);
+      toast.error(t('not_supported'));
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        setIsProcessing(false);
+        setIsVisible(false);
+        sessionStorage.setItem("quhealthy_location_prompted", "true");
+
+        // Mostramos la ciudad
+        try {
+          const res = await googleService.reverseGeocode(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          if (res?.city) {
+            toast.success(t('city_welcome', { city: res.city }), {
+              position: "top-right",
+              autoClose: 5000,
+              icon: () => <>📍</>
+            });
+            sessionStorage.setItem("quhealthy_city_welcomed", "true");
+          }
+        } catch (e) {
+          console.error("Error reverse geocoding:", e);
+        }
+      },
+      (err) => {
+        setIsProcessing(false);
+        setIsVisible(false);
+        sessionStorage.setItem("quhealthy_location_prompted", "true");
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.info(t('denied'), {
+            position: "top-right",
+            autoClose: 4000,
+          });
+        } else {
+          toast.error(t('error'));
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   return (
@@ -81,7 +130,7 @@ export const LocationPrompt = () => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="fixed bottom-24 left-4 right-4 md:left-auto md:right-8 md:w-96 z-[9000] bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-2xl border border-medical-100 dark:border-medical-900/50"
+          className="fixed bottom-24 left-4 right-4 md:left-auto md:right-8 md:w-96 z-[9000] bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800"
         >
           <button 
             onClick={handleDismiss}
@@ -91,29 +140,29 @@ export const LocationPrompt = () => {
           </button>
           
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-full bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center shrink-0">
-              <Navigation className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <Navigation className="w-6 h-6 text-slate-600 dark:text-slate-400" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Mejora tu experiencia</h4>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{t('title')}</h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                Permite el acceso a tu ubicación para mostrarte los mejores especialistas y servicios cerca de ti.
+                {t('description')}
               </p>
               <div className="flex gap-2">
                 <Button 
                   onClick={handleActivate} 
                   disabled={isProcessing}
-                  className="bg-medical-600 hover:bg-medical-700 text-white rounded-lg h-9 text-xs px-4"
+                  className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white rounded-lg h-9 text-xs px-4"
                 >
                   {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <MapPin className="w-3.5 h-3.5 mr-1" />}
-                  Activar Ubicación
+                  {t('activate_btn')}
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={handleDismiss}
                   className="text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 text-xs px-3"
                 >
-                  Ahora no
+                  {t('dismiss_btn')}
                 </Button>
               </div>
             </div>

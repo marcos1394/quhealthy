@@ -4,9 +4,10 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Cookie, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export const CookieConsent = () => {
+  const t = useTranslations('CookieConsent');
   const [isVisible, setIsVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   
@@ -56,12 +57,12 @@ export const CookieConsent = () => {
             <div className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center">
-                    <Settings className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+                  <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <Settings className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                   </div>
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight">Preferencias</h3>
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight">{t('preferences_title')}</h3>
                 </div>
-                <button aria-label="Volver al aviso de cookies" onClick={() => setShowPreferences(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <button aria-label={t('back_label')} onClick={() => setShowPreferences(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -70,44 +71,44 @@ export const CookieConsent = () => {
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-emerald-500" /> Esenciales
+                      <ShieldCheck className="w-4 h-4 text-emerald-500" /> {t('essential_title')}
                     </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Necesarias para el funcionamiento básico del sitio. No se pueden desactivar.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('essential_desc')}</p>
                   </div>
-                  <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-medical-600 cursor-not-allowed opacity-70">
-                    <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-4" />
+                  <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-slate-900 dark:bg-slate-100 cursor-not-allowed opacity-70">
+                    <span className="inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition translate-x-4" />
                   </div>
                 </div>
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Analíticas</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Nos ayudan a entender cómo usas QuHealthy para mejorar tu experiencia.</p>
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{t('analytics_title')}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('analytics_desc')}</p>
                   </div>
                   <button 
-                    aria-label="Activar o desactivar cookies analíticas"
+                    aria-label={t('toggle_analytics')}
                     onClick={() => setPrefs({...prefs, analytics: !prefs.analytics})}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.analytics ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.analytics ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${prefs.analytics ? 'translate-x-4' : 'translate-x-1'}`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition ${prefs.analytics ? 'translate-x-4' : 'translate-x-1'}`} />
                   </button>
                 </div>
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Marketing</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Utilizadas para mostrarte anuncios relevantes y campañas personalizadas.</p>
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{t('marketing_title')}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('marketing_desc')}</p>
                   </div>
                   <button 
-                    aria-label="Activar o desactivar cookies de marketing"
+                    aria-label={t('toggle_marketing')}
                     onClick={() => setPrefs({...prefs, marketing: !prefs.marketing})}
-                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.marketing ? 'bg-medical-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.marketing ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${prefs.marketing ? 'translate-x-4' : 'translate-x-1'}`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition ${prefs.marketing ? 'translate-x-4' : 'translate-x-1'}`} />
                   </button>
                 </div>
               </div>
 
-              <Button onClick={handleSavePreferences} className="w-full bg-medical-600 hover:bg-medical-700 text-white h-11 rounded-xl text-sm font-medium">
-                Guardar Preferencias
+              <Button onClick={handleSavePreferences} className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white h-11 rounded-xl text-sm font-medium">
+                {t('save_btn')}
               </Button>
             </div>
           ) : (
@@ -118,9 +119,9 @@ export const CookieConsent = () => {
                   <Cookie className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight mb-1">Privacidad y Cookies</h3>
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight mb-1">{t('title')}</h3>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
-                    Utilizamos cookies para mejorar tu experiencia, analizar nuestro tráfico y personalizar el contenido. Al hacer clic en "Aceptar todas", aceptas su uso.
+                    {t('description')}
                   </p>
                 </div>
               </div>
@@ -128,9 +129,9 @@ export const CookieConsent = () => {
               <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full">
                 <Button 
                   onClick={handleAcceptAll} 
-                  className="w-full sm:flex-1 bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-10 text-sm font-medium"
+                  className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white rounded-xl h-10 text-sm font-medium"
                 >
-                  Aceptar todas
+                  {t('accept_all')}
                 </Button>
                 <div className="flex items-center gap-2.5 w-full sm:flex-1">
                   <Button 
@@ -138,14 +139,14 @@ export const CookieConsent = () => {
                     onClick={handleRejectAll}
                     className="flex-1 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl h-10 text-sm font-medium"
                   >
-                    Rechazar
+                    {t('reject')}
                   </Button>
                   <Button 
                     variant="ghost" 
                     onClick={() => setShowPreferences(true)}
                     className="flex-1 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl h-10 text-sm font-medium"
                   >
-                    Configurar
+                    {t('configure')}
                   </Button>
                 </div>
               </div>
