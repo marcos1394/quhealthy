@@ -223,176 +223,174 @@ export default function VaccinationsPage() {
     }
 
     return (
-        <div className="mx-auto w-full max-w-5xl space-y-8 p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="flex items-start gap-4">
-                        <Button variant="outline" size="icon" onClick={() => router.back()} className="h-11 w-11 shrink-0 rounded-xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-                            <ChevronLeft className="h-5 w-5 text-slate-500" />
-                        </Button>
-                        <div className="max-w-2xl">
-                            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300">
-                                <Sparkles className="h-3.5 w-3.5" />
-                                Esquema infantil y comprobantes
-                            </div>
-                            <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                                Cartilla de Vacunación
-                            </h1>
-                            <p className="mt-2 text-base leading-7 text-slate-500 dark:text-slate-400">
-                                Esquema oficial para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>.
-                            </p>
+        <><div className="mx-auto w-full max-w-5xl space-y-8 p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex items-start gap-4">
+                    <Button variant="outline" size="icon" onClick={() => router.back()} className="h-11 w-11 shrink-0 rounded-xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+                        <ChevronLeft className="h-5 w-5 text-slate-500" />
+                    </Button>
+                    <div className="max-w-2xl">
+                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300">
+                            <Sparkles className="h-3.5 w-3.5" />
+                            Esquema infantil y comprobantes
                         </div>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                            Cartilla de Vacunación
+                        </h1>
+                        <p className="mt-2 text-base leading-7 text-slate-500 dark:text-slate-400">
+                            Esquema oficial para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>.
+                        </p>
                     </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Avance</p>
-                            <ShieldCheck className="h-5 w-5 text-sky-500" />
-                        </div>
-                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{progress}%</p>
-                    </div>
-                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Aplicadas</p>
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-                        </div>
-                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{appliedCount}</p>
-                    </div>
-                    <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/10">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">Con retraso</p>
-                            <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-300" />
-                        </div>
-                        <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{delayedCount}</p>
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-5 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300">
-                            <ScanFace className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-slate-950 dark:text-white">Escanear cartilla</h3>
-                            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">Sube una foto o PDF para detectar vacunas y fechas con IA.</p>
-                        </div>
-                    </div>
-
-                    <div className="w-full flex-shrink-0 md:w-auto">
-                        <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
-                        <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button 
-                                    size="lg" 
-                                    disabled={isScanning}
-                                    className="w-full rounded-2xl bg-slate-950 font-bold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 md:w-auto"
-                                >
-                                    {isScanning ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Analizando con IA...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ScanFace className="w-5 h-5" />
-                                            Escanear Cartilla
-                                        </>
-                                    )}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="z-50 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-                                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                    <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
-                                    <span className="font-medium">Tomar foto ahora</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                    <FileUp className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
-                                    <span className="font-medium">Subir desde dispositivo</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    {groupedVaccines.map((stage, idx) => (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.1 }}
-                            key={stage.ageGroup} 
-                            className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200/50 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
-                        >
-                            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                                <h2 className="font-bold text-lg flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-medical-500" />
-                                    {stage.ageGroup}
-                                </h2>
-                            </div>
-                            
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                {stage.vaccines.map(vaccine => {
-                                    const isApplied = vaccine.isApplied;
-                                    const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
-
-                                    return (
-                                        <div key={vaccine.vaccineCatalogId} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                            <div className="flex gap-4">
-                                                <button 
-                                                    onClick={() => handleToggleVaccine(vaccine)}
-                                                    disabled={isSimulating}
-                                                    className="mt-1 shrink-0 focus:outline-none"
-                                                >
-                                                    {isSimulating ? (
-                                                        <Loader2 className="w-6 h-6 text-sky-500 animate-spin" />
-                                                    ) : isApplied ? (
-                                                        <CheckCircle2 className="w-6 h-6 text-emerald-500 transition-transform group-hover:scale-110" />
-                                                    ) : (
-                                                        <Circle className="w-6 h-6 text-slate-300 dark:text-slate-600 transition-transform group-hover:scale-110" />
-                                                    )}
-                                                </button>
-                                                <div>
-                                                    <h4 className={cn(
-                                                        "font-bold text-base transition-colors",
-                                                        isApplied ? "text-slate-700 dark:text-slate-300" : "text-slate-900 dark:text-white"
-                                                    )}>
-                                                        {vaccine.name}
-                                                    </h4>
-                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{vaccine.diseasePrevented} (Dosis {vaccine.doseNumber})</p>
-                                                    
-                                                    {isApplied && vaccine.appliedDate && (
-                                                        <div className="flex items-center gap-2 mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md w-fit">
-                                                            <FileCheck2 className="w-3.5 h-3.5" />
-                                                            Aplicada el {vaccine.appliedDate}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {!isApplied && (
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm"
-                                                    disabled={isSimulating}
-                                                    onClick={() => handleToggleVaccine(vaccine)}
-                                                    className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-xl border-slate-200 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-400"
-                                                >
-                                                    Marcar Aplicada
-                                                </Button>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </motion.div>
-                    ))}
                 </div>
             </div>
 
-            <Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
+            <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Avance</p>
+                        <ShieldCheck className="h-5 w-5 text-sky-500" />
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{progress}%</p>
+                </div>
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Aplicadas</p>
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{appliedCount}</p>
+                </div>
+                <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/10">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">Con retraso</p>
+                        <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-300" />
+                    </div>
+                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{delayedCount}</p>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-5 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300">
+                        <ScanFace className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-slate-950 dark:text-white">Escanear cartilla</h3>
+                        <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">Sube una foto o PDF para detectar vacunas y fechas con IA.</p>
+                    </div>
+                </div>
+
+                <div className="w-full flex-shrink-0 md:w-auto">
+                    <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
+                    <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                size="lg"
+                                disabled={isScanning}
+                                className="w-full rounded-2xl bg-slate-950 font-bold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 md:w-auto"
+                            >
+                                {isScanning ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Analizando con IA...
+                                    </>
+                                ) : (
+                                    <>
+                                        <ScanFace className="w-5 h-5" />
+                                        Escanear Cartilla
+                                    </>
+                                )}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="z-50 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                            <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
+                                <span className="font-medium">Tomar foto ahora</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <FileUp className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
+                                <span className="font-medium">Subir desde dispositivo</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+
+            <div className="space-y-6">
+                {groupedVaccines.map((stage, idx) => (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        key={stage.ageGroup}
+                        className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200/50 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
+                    >
+                        <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <h2 className="font-bold text-lg flex items-center gap-2">
+                                <Clock className="w-5 h-5 text-medical-500" />
+                                {stage.ageGroup}
+                            </h2>
+                        </div>
+
+                        <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                            {stage.vaccines.map(vaccine => {
+                                const isApplied = vaccine.isApplied;
+                                const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
+
+                                return (
+                                    <div key={vaccine.vaccineCatalogId} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => handleToggleVaccine(vaccine)}
+                                                disabled={isSimulating}
+                                                className="mt-1 shrink-0 focus:outline-none"
+                                            >
+                                                {isSimulating ? (
+                                                    <Loader2 className="w-6 h-6 text-sky-500 animate-spin" />
+                                                ) : isApplied ? (
+                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500 transition-transform group-hover:scale-110" />
+                                                ) : (
+                                                    <Circle className="w-6 h-6 text-slate-300 dark:text-slate-600 transition-transform group-hover:scale-110" />
+                                                )}
+                                            </button>
+                                            <div>
+                                                <h4 className={cn(
+                                                    "font-bold text-base transition-colors",
+                                                    isApplied ? "text-slate-700 dark:text-slate-300" : "text-slate-900 dark:text-white"
+                                                )}>
+                                                    {vaccine.name}
+                                                </h4>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{vaccine.diseasePrevented} (Dosis {vaccine.doseNumber})</p>
+
+                                                {isApplied && vaccine.appliedDate && (
+                                                    <div className="flex items-center gap-2 mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md w-fit">
+                                                        <FileCheck2 className="w-3.5 h-3.5" />
+                                                        Aplicada el {vaccine.appliedDate}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {!isApplied && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                disabled={isSimulating}
+                                                onClick={() => handleToggleVaccine(vaccine)}
+                                                className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-xl border-slate-200 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-400"
+                                            >
+                                                Marcar Aplicada
+                                            </Button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        </div><Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
                 <DialogContent className="sm:max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                     <DialogHeader>
                         <DialogTitle>Registrar aplicación de vacuna</DialogTitle>
@@ -425,8 +423,7 @@ export default function VaccinationsPage() {
                                         onSelect={setSelectedDate}
                                         disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                                         initialFocus
-                                        locale={es}
-                                    />
+                                        locale={es} />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -451,7 +448,6 @@ export default function VaccinationsPage() {
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
-        </div>
+            </Dialog></>
     );
 }
