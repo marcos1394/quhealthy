@@ -1,62 +1,137 @@
 import React from 'react';
-import { Zap, CheckCircle2 } from 'lucide-react';
+import { Bot, MessageCircle, FileText, ShoppingBag, Receipt, Truck, Users, BookOpen } from 'lucide-react';
 
+// 1. Mapeamos exactamente la respuesta que envía el nuevo PublicPlanController
 export interface BackendPlan {
   id: number;
   name: string;
   description: string;
   price: number;
-  billingInterval: "MONTHLY" | "YEARLY";
   currency: string;
-  stripePriceId: string;
+  billingInterval: string;
+  features?: string;
+  
+  // Límites
+  maxAppointments?: number;
+  maxServices?: number;
+  maxProducts?: number;
+  maxCourses?: number;
+  maxPackages?: number;
+  userManagement?: number;
+
+  // 🚀 Nuevas Banderas (Feature Gating)
+  qumarketAccess?: boolean;
+  qublocksAccess?: boolean;
+  analyticsAccess?: boolean;
+  payrollAccess?: boolean;
+  advancedReports?: boolean;
+  aiCopilotAccess?: boolean;
+  aiMarketingAccess?: boolean;
+  whatsappChatbot?: boolean;
+  shippingIntegration?: boolean;
+  invoicingAccess?: boolean;
+  referralCampaigns?: boolean;
+  
+  // (Este campo lo usa Stripe internamente, pero lo guardamos para el mapeo)
+  stripePriceId?: string;
 }
 
-export const buildFeaturesForPlan = (planName: string, isYearly: boolean) => {
-  const nameLower = planName.toLowerCase();
-  
-  if (nameLower.includes("gratis") || nameLower.includes("gratuito")) {
-    return [
-      { title: "$0 Mensualidad fija" },
-      { title: "Gestión básica de Citas y Pacientes" },
-      { title: "15% de comisión por cobros en app" }
-    ];
+// 2. Interfaz esperada por tu UI (PricingSection)
+export interface UIPlanFeature {
+  title: string;
+  icon?: React.ReactNode;
+  highlighted?: boolean;
+}
+
+/**
+ * 🛠️ Transforma las banderas booleanas de la base de datos en una lista visual
+ * para el componente de Pricing en la Landing Page.
+ */
+export const buildFeaturesForPlan = (plan: BackendPlan, isAnnual: boolean): UIPlanFeature[] => {
+  const features: UIPlanFeature[] = [];
+
+  // 1. Funcionalidades Base (Para todos los planes, porque el volumen es ilimitado)
+  features.push({ title: "Citas Ilimitadas", highlighted: false });
+  features.push({ title: "Catálogo de Servicios Ilimitado", highlighted: false });
+
+  // 2. Tienda y Pacientes (Todos lo tienen, pero lo destacamos)
+  if (plan.qumarketAccess) {
+    features.push({ 
+      title: "Venta de Productos (QuMarket)", 
+      icon: React.createElement(ShoppingBag, { className: "w-3.5 h-3.5" }), 
+      highlighted: false 
+    });
   }
-  if (nameLower.includes("básico") || nameLower.includes("basic")) {
-    return [
-      { title: "Hasta 50 Citas al mes" },
-      { title: "Catálogo: 5 Servicios / 10 Productos" },
-      { title: "15% Comisión + $10 MXN por reserva" }
-    ];
+
+  // 3. Facturación y Referidos (Desde Básico)
+  if (plan.invoicingAccess) {
+    features.push({ 
+      title: "Facturación Electrónica CFDI", 
+      icon: React.createElement(Receipt, { className: "w-3.5 h-3.5" }), 
+      highlighted: false 
+    });
   }
-  if (nameLower.includes("estándar") || nameLower.includes("standard")) {
-    return [
-      { title: "Hasta 150 Citas al mes", highlighted: true },
-      { title: "Catálogo: 15 Servicios / 30 Productos" },
-      { title: "12% Comisión + $8 MXN por reserva" },
-      { title: "Acceso a ventas en QUMarket" }
-    ];
+  if (plan.referralCampaigns) {
+    features.push({ 
+      title: "Campañas de Recomendación (Comisiones)", 
+      highlighted: false 
+    });
   }
-  if (nameLower.includes("premium")) {
-    return [
-      { title: "Hasta 500 Citas al mes", icon: <Zap className="w-4 h-4 text-amber-500" />, highlighted: true },
-      { title: "Catálogo: 50 Servicios / 100 Productos" },
-      { title: "10% Comisión + $5 MXN por reserva" },
-      { title: "Reportes Avanzados e IA (QUBlocks)" }
-    ];
+
+  // 4. Copiloto IA y Paqueterías (Desde Estándar)
+  if (plan.aiCopilotAccess) {
+    features.push({ 
+      title: "Copiloto IA en Consultas (Notas SOAP automáticas)", 
+      icon: React.createElement(Bot, { className: "w-3.5 h-3.5" }), 
+      highlighted: true // ✨ Destacamos la IA
+    });
   }
-  if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) {
-    return [
-      { title: "Citas y Catálogo Ilimitados", icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, highlighted: true },
-      { title: "Gestión Multi-usuario (Clínicas)" },
-      { title: "Comisión VIP: 5% + $0 MXN por reserva" },
-      { title: "Marketing y Soporte Nivel 4 (VIP)" }
-    ];
+  if (plan.shippingIntegration) {
+    features.push({ 
+      title: "Integración con Paqueterías Nacionales", 
+      icon: React.createElement(Truck, { className: "w-3.5 h-3.5" }), 
+      highlighted: false 
+    });
   }
-  
-  // Por defecto fallback a profesional/estándar
-  return [
-    { title: "Gestión de agenda médica" },
-    { title: "Catálogo de servicios" },
-    { title: "Soporte técnico" }
-  ];
+
+  // 5. Cursos, Chatbots y Marketing (Desde Premium)
+  if (plan.qublocksAccess) {
+    features.push({ 
+      title: "Venta de Cursos Online (QuBlocks)", 
+      icon: React.createElement(BookOpen, { className: "w-3.5 h-3.5" }), 
+      highlighted: false 
+    });
+  }
+  if (plan.whatsappChatbot) {
+    features.push({ 
+      title: "Chatbot de WhatsApp (Confirmación y Recordatorios)", 
+      icon: React.createElement(MessageCircle, { className: "w-3.5 h-3.5" }), 
+      highlighted: true 
+    });
+  }
+  if (plan.aiMarketingAccess) {
+    features.push({ 
+      title: "Generación de Marketing con IA", 
+      highlighted: false 
+    });
+  }
+
+  // 6. Equipo y Roles (Si userManagement > 1)
+  if (plan.userManagement && plan.userManagement > 1) {
+    features.push({ 
+      title: plan.userManagement === 999 ? "Usuarios y Asistentes Ilimitados" : `Hasta ${plan.userManagement} usuarios en clínica`, 
+      icon: React.createElement(Users, { className: "w-3.5 h-3.5" }), 
+      highlighted: false 
+    });
+  }
+
+  // 7. Bono Anual: Si el usuario activó el Switch de "Anual", podemos mostrar un feature extra de regalo
+  if (isAnnual && plan.price > 0) {
+    features.push({ 
+      title: "Soporte Prioritario VIP", 
+      highlighted: true 
+    });
+  }
+
+  return features;
 };

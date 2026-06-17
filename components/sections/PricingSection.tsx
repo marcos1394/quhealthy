@@ -47,7 +47,7 @@ const PricingSection: React.FC = () => {
   // Si el usuario elige anual, calculamos el descuento en el frontend.
   const monthlyPlans = rawPlans.filter(p => p.billingInterval === "MONTHLY");
 
-  // Ordenar por precio ascendente y mapear a UIPlan
+ // Ordenar por precio ascendente y mapear a UIPlan
   const displayPlans: UIPlan[] = monthlyPlans
     .sort((a, b) => a.price - b.price)
     .map((bp) => {
@@ -58,7 +58,8 @@ const PricingSection: React.FC = () => {
         description: bp.description || "Potencia tu consultorio digital.",
         price: bp.price, // Precio mensual original
         isPopular,
-        features: buildFeaturesForPlan(bp.name, isAnnual),
+        // 🚀 AQUÍ ESTÁ EL CAMBIO: Pasamos 'bp' en lugar de 'bp.name'
+        features: buildFeaturesForPlan(bp, isAnnual), 
         originalId: bp.id
       };
     });
