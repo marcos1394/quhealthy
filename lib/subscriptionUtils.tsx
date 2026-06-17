@@ -7,6 +7,8 @@ export interface BackendPlan {
   name: string;
   description: string;
   price: number;
+  commissionRate?: number; // 🚀 NUEVO
+  transactionFee?: number; // 🚀 NUEVO
   currency: string;
   billingInterval: string;
   features?: string;
@@ -49,6 +51,23 @@ export interface UIPlanFeature {
  */
 export const buildFeaturesForPlan = (plan: BackendPlan, isAnnual: boolean): UIPlanFeature[] => {
   const features: UIPlanFeature[] = [];
+
+  // 🚀 1. EL GANCHO FINANCIERO (Siempre al principio)
+  if (plan.commissionRate !== undefined && plan.transactionFee !== undefined) {
+    const commissionPct = (plan.commissionRate * 100).toFixed(1).replace('.0', '');
+    
+    if (plan.commissionRate === 0) {
+      features.push({ 
+        title: "0% de comisión por procesamiento", 
+        highlighted: true // Destacado para el plan Enterprise
+      });
+    } else {
+      features.push({ 
+        title: `Comisión preferencial: ${commissionPct}% + $${plan.transactionFee} MXN`, 
+        highlighted: true // ✨ El usuario debe ver esto de inmediato
+      });
+    }
+  }
 
   // 1. Funcionalidades Base (Para todos los planes, porque el volumen es ilimitado)
   features.push({ title: "Citas Ilimitadas", highlighted: false });
