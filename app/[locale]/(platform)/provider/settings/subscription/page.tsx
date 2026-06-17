@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-toastify';
-import { ShieldCheck, CreditCard, CheckCircle2, Zap } from 'lucide-react';
+import { ShieldCheck, CreditCard, CheckCircle2 } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -79,7 +79,8 @@ export default function BillingPage() {
         duration: billingCycle,
         savings: savings && savings > 0 ? savings : undefined,
         isPopular: isPopular,
-        features: buildFeaturesForPlan(bp.name, currentInterval === "YEARLY")
+        // 🚀 FIX APLICADO: Pasamos el objeto completo 'bp'
+        features: buildFeaturesForPlan(bp, currentInterval === "YEARLY")
       };
     });
 
