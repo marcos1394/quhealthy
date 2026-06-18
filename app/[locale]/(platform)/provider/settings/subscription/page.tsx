@@ -71,16 +71,6 @@ export default function BillingPage() {
       else if (nameLower.includes("premium")) planKey = "premium";
       else if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) planKey = "enterprise";
 
-      const featuresText: string[] = tPricing.raw(`plans.${planKey}.features`) || [];
-      const features = featuresText.map((text: string, idx: number) => {
-         let highlighted = false;
-         let icon = undefined;
-         if (planKey === "premium" && idx === 0) { icon = <Zap className="w-4 h-4 text-amber-500" />; highlighted = true; }
-         if (planKey === "enterprise" && idx === 0) { icon = <CheckCircle2 className="w-4 h-4 text-emerald-500" />; highlighted = true; }
-         if (planKey === "standard" && idx === 0) { highlighted = true; }
-         return { title: text, icon, highlighted };
-      });
-
       const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
 
       // Cálculo de ahorros hipotético si es anual y existe un precio base
@@ -100,7 +90,7 @@ export default function BillingPage() {
         duration: billingCycle,
         savings: savings && savings > 0 ? savings : undefined,
         isPopular: isPopular,
-        features: features,
+        features: buildFeaturesForPlan(bp, currentInterval === "YEARLY", tPricing),
         planKey
       };
     });

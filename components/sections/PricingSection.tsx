@@ -63,18 +63,9 @@ const PricingSection: React.FC = () => {
       else if (nameLower.includes("premium")) planKey = "premium";
       else if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) planKey = "enterprise";
 
-      const featuresText: string[] = t.raw(`plans.${planKey}.features`) || [];
-      const features = featuresText.map((text, idx) => {
-         let highlighted = false;
-         let icon = undefined;
-         if (planKey === "premium" && idx === 0) { icon = <Zap className="w-4 h-4 text-amber-500" />; highlighted = true; }
-         if (planKey === "enterprise" && idx === 0) { icon = <CheckCircle2 className="w-4 h-4 text-emerald-500" />; highlighted = true; }
-         if (planKey === "standard" && idx === 0) { highlighted = true; }
-         return { title: text, icon, highlighted };
-      });
-
       // Conversión aproximada a USD si el idioma es inglés
       const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
+
 
       return {
         id: bp.stripePriceId || `plan_${bp.id}`,
@@ -82,7 +73,7 @@ const PricingSection: React.FC = () => {
         description: t(`plans.${planKey}.description`),
         price: displayPrice,
         isPopular,
-        features, 
+        features: buildFeaturesForPlan(bp, isAnnual, t),
         originalId: bp.id,
         planKey
       };

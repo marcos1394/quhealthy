@@ -105,6 +105,23 @@
     "badges": {
       "popular": "Más Popular"
     },
+    "features": {
+      "zero_commission": "0% de comisión por procesamiento",
+      "preferential_commission": "Comisión preferencial: {pct}% + ${fee} MXN",
+      "unlimited_appointments": "Citas Ilimitadas",
+      "unlimited_catalog": "Catálogo de Servicios Ilimitado",
+      "qumarket_sales": "Venta de Productos (QuMarket)",
+      "cfdi_invoicing": "Facturación Electrónica CFDI",
+      "referral_campaigns": "Campañas de Recomendación (Comisiones)",
+      "ai_copilot": "Copiloto IA en Consultas (Notas SOAP automáticas)",
+      "shipping_integration": "Integración con Paqueterías Nacionales",
+      "qublocks_sales": "Venta de Cursos Online (QuBlocks)",
+      "whatsapp_chatbot": "Chatbot de WhatsApp (Confirmación y Recordatorios)",
+      "ai_marketing": "Generación de Marketing con IA",
+      "unlimited_users": "Usuarios y Asistentes Ilimitados",
+      "up_to_users": "Hasta {count} usuarios en clínica",
+      "vip_support": "Soporte Prioritario VIP"
+    },
     "plans": {
       "free": {
         "title": "Gratis",

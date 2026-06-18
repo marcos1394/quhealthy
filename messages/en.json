@@ -105,6 +105,23 @@
     "badges": {
       "popular": "Most Popular"
     },
+    "features": {
+      "zero_commission": "0% processing commission",
+      "preferential_commission": "Preferential commission: {pct}% + ${fee} MXN",
+      "unlimited_appointments": "Unlimited Appointments",
+      "unlimited_catalog": "Unlimited Service Catalog",
+      "qumarket_sales": "Product Sales (QuMarket)",
+      "cfdi_invoicing": "CFDI Electronic Invoicing",
+      "referral_campaigns": "Referral Campaigns (Commissions)",
+      "ai_copilot": "AI Copilot in Consultations (Auto SOAP Notes)",
+      "shipping_integration": "Integration with National Couriers",
+      "qublocks_sales": "Online Course Sales (QuBlocks)",
+      "whatsapp_chatbot": "WhatsApp Chatbot (Confirmations & Reminders)",
+      "ai_marketing": "AI Marketing Generation",
+      "unlimited_users": "Unlimited Users and Assistants",
+      "up_to_users": "Up to {count} clinic users",
+      "vip_support": "VIP Priority Support"
+    },
     "plans": {
       "free": {
         "title": "Free",
