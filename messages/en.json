@@ -106,39 +106,56 @@
       "popular": "Most Popular"
     },
     "plans": {
-      "basic": {
-        "title": "Basic",
-        "description": "Ideal for casual users",
+      "free": {
+        "title": "Free",
+        "description": "Start your digital practice at no cost",
         "features": [
-          "Search for professionals",
-          "Appointment booking",
-          "Limited reviews",
-          "Email support"
+          "$0 Fixed monthly fee",
+          "Basic Appointment and Patient Management",
+          "15% commission on in-app payments"
         ],
         "button_text": "Start for free"
       },
+      "basic": {
+        "title": "Basic",
+        "description": "Ideal for growing practices",
+        "features": [
+          "Up to 50 Appointments per month",
+          "Catalog: 5 Services / 10 Products",
+          "15% Commission + $10 per booking"
+        ],
+        "button_text": "Choose Basic"
+      },
+      "standard": {
+        "title": "Standard",
+        "description": "For established professionals",
+        "features": [
+          "Up to 150 Appointments per month",
+          "Catalog: 15 Services / 30 Products",
+          "12% Commission + $8 per booking",
+          "Access to sales in QUMarket"
+        ],
+        "button_text": "Try 14 days for free"
+      },
       "premium": {
         "title": "Premium",
-        "description": "For frequent users",
+        "description": "Maximize your clinic's potential",
         "features": [
-          "Everything in Basic",
-          "Unlimited chat with pros",
-          "Exclusive discounts",
-          "Free cancellation",
-          "Priority booking"
+          "Up to 500 Appointments per month",
+          "Catalog: 50 Services / 100 Products",
+          "10% Commission + $5 per booking",
+          "Advanced Reports & AI (QUBlocks)"
         ],
-        "button_text": "Try 7 days free"
+        "button_text": "Choose Premium"
       },
-      "business": {
-        "title": "Business",
-        "description": "For families and small businesses",
+      "enterprise": {
+        "title": "Enterprise",
+        "description": "For large clinics and multiple users",
         "features": [
-          "Everything in Premium",
-          "Up to 5 users",
-          "Shared medical history",
-          "Priority consultations",
-          "Personal manager",
-          "24/7 Support"
+          "Unlimited Appointments and Catalog",
+          "Multi-user Management (Clinics)",
+          "VIP Commission: 5% + $0 per booking",
+          "Level 4 Marketing & Support (VIP)"
         ],
         "button_text": "Contact sales"
       }

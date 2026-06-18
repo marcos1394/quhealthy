@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   ArrowRight,
   Check,
@@ -54,6 +54,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const t = useTranslations('SettingsSubscription.PricingCard');
+  const locale = useLocale();
 
   const getDailyPrice = () => {
     const days = plan.duration === 'monthly' ? 30 : 365;
@@ -148,14 +149,14 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             transition={{ type: "spring", stiffness: 400 }}
           >
             <div className="flex items-baseline justify-center gap-1">
-              <span className="text-sm text-slate-400 font-medium">$</span>
+              <span className="text-sm text-slate-400 font-medium">{locale === 'en' && plan.price > 0 ? '~$' : '$'}</span>
               <span className={cn(
                 "font-black tracking-tighter text-5xl text-slate-900 dark:text-white"
               )}>
                 {plan.price.toLocaleString()}
               </span>
               <span className="text-slate-500 dark:text-slate-400 font-medium text-sm ml-1">
-                /{plan.duration === 'monthly' ? t('duration_monthly') : t('duration_yearly')}
+                {locale === 'en' && plan.price > 0 ? ' USD' : ''}/{plan.duration === 'monthly' ? t('duration_monthly') : t('duration_yearly')}
               </span>
             </div>
 

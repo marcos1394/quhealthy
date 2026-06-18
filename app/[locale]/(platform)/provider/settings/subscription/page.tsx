@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { toast } from 'react-toastify';
-import { ShieldCheck, CreditCard, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, CreditCard, CheckCircle2, Zap } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -26,6 +26,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 
 export default function BillingPage() {
   const t = useTranslations('SettingsSubscription');
+  const tPricing = useTranslations('Pricing');
   const params = useParams();
   const searchParams = useSearchParams();
   const planIdParam = searchParams.get('planId');
@@ -62,25 +63,45 @@ export default function BillingPage() {
     const filtered = rawPlans.filter(p => p.billingInterval === currentInterval);
 
     const uiPlans: Plan[] = filtered.map(bp => {
+      const EXCHANGE_RATE = 20;
+      const nameLower = bp.name.toLowerCase();
+      let planKey = "basic";
+      if (nameLower.includes("gratis") || nameLower.includes("free")) planKey = "free";
+      else if (nameLower.includes("estándar") || nameLower.includes("standard")) planKey = "standard";
+      else if (nameLower.includes("premium")) planKey = "premium";
+      else if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) planKey = "enterprise";
+
+      const featuresText: string[] = tPricing.raw(`plans.${planKey}.features`) || [];
+      const features = featuresText.map((text: string, idx: number) => {
+         let highlighted = false;
+         let icon = undefined;
+         if (planKey === "premium" && idx === 0) { icon = <Zap className="w-4 h-4 text-amber-500" />; highlighted = true; }
+         if (planKey === "enterprise" && idx === 0) { icon = <CheckCircle2 className="w-4 h-4 text-emerald-500" />; highlighted = true; }
+         if (planKey === "standard" && idx === 0) { highlighted = true; }
+         return { title: text, icon, highlighted };
+      });
+
+      const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
+
       // Cálculo de ahorros hipotético si es anual y existe un precio base
       const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.billingInterval === "MONTHLY");
-      const baseMonthlyPrice = matchingMonthly ? matchingMonthly.price : bp.price / 12;
+      const baseMonthlyPrice = matchingMonthly ? (locale === 'en' ? Math.round(matchingMonthly.price / EXCHANGE_RATE) : matchingMonthly.price) : displayPrice / 12;
       const savings = (currentInterval === "YEARLY" && baseMonthlyPrice > 0) 
-          ? (baseMonthlyPrice * 12) - bp.price 
+          ? (baseMonthlyPrice * 12) - displayPrice 
           : undefined;
 
-      const isPopular = bp.name.toLowerCase().includes("prof") || bp.name.toLowerCase().includes("estándar");
+      const isPopular = nameLower.includes("prof") || nameLower.includes("estándar");
 
       return {
         id: bp.stripePriceId || `plan_${bp.id}`,
-        name: bp.name,
-        description: bp.description || "Potencia tu consultorio.",
-        price: bp.price,
+        name: tPricing(`plans.${planKey}.title`),
+        description: tPricing(`plans.${planKey}.description`),
+        price: displayPrice,
         duration: billingCycle,
         savings: savings && savings > 0 ? savings : undefined,
         isPopular: isPopular,
-        // 🚀 FIX APLICADO: Pasamos el objeto completo 'bp'
-        features: buildFeaturesForPlan(bp, currentInterval === "YEARLY")
+        features: features,
+        planKey
       };
     });
 

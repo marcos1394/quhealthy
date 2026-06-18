@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Zap, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
 import Link from "next/link";
 import axiosInstance from "@/lib/axios";
@@ -24,6 +24,7 @@ const ANNUAL_DISCOUNT = 0.20; // 20% de descuento al pagar anual
 
 const PricingSection: React.FC = () => {
   const t = useTranslations('Pricing');
+  const locale = useLocale();
   const { isAuthenticated, role } = useSessionStore();
   const [isAnnual, setIsAnnual] = useState(false); // ✅ Mensual por defecto
   const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
@@ -47,20 +48,43 @@ const PricingSection: React.FC = () => {
   // Si el usuario elige anual, calculamos el descuento en el frontend.
   const monthlyPlans = rawPlans.filter(p => p.billingInterval === "MONTHLY");
 
+  const EXCHANGE_RATE = 20;
+
  // Ordenar por precio ascendente y mapear a UIPlan
   const displayPlans: UIPlan[] = monthlyPlans
     .sort((a, b) => a.price - b.price)
     .map((bp) => {
-      const isPopular = bp.name.toLowerCase().includes("estándar") || bp.name.toLowerCase().includes("prof");
+      const nameLower = bp.name.toLowerCase();
+      const isPopular = nameLower.includes("estándar") || nameLower.includes("prof");
+      
+      let planKey = "basic";
+      if (nameLower.includes("gratis") || nameLower.includes("free")) planKey = "free";
+      else if (nameLower.includes("estándar") || nameLower.includes("standard")) planKey = "standard";
+      else if (nameLower.includes("premium")) planKey = "premium";
+      else if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) planKey = "enterprise";
+
+      const featuresText: string[] = t.raw(`plans.${planKey}.features`) || [];
+      const features = featuresText.map((text, idx) => {
+         let highlighted = false;
+         let icon = undefined;
+         if (planKey === "premium" && idx === 0) { icon = <Zap className="w-4 h-4 text-amber-500" />; highlighted = true; }
+         if (planKey === "enterprise" && idx === 0) { icon = <CheckCircle2 className="w-4 h-4 text-emerald-500" />; highlighted = true; }
+         if (planKey === "standard" && idx === 0) { highlighted = true; }
+         return { title: text, icon, highlighted };
+      });
+
+      // Conversión aproximada a USD si el idioma es inglés
+      const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
+
       return {
         id: bp.stripePriceId || `plan_${bp.id}`,
-        title: bp.name,
-        description: bp.description || "Potencia tu consultorio digital.",
-        price: bp.price, // Precio mensual original
+        title: t(`plans.${planKey}.title`),
+        description: t(`plans.${planKey}.description`),
+        price: displayPrice,
         isPopular,
-        // 🚀 AQUÍ ESTÁ EL CAMBIO: Pasamos 'bp' en lugar de 'bp.name'
-        features: buildFeaturesForPlan(bp, isAnnual), 
-        originalId: bp.id
+        features, 
+        originalId: bp.id,
+        planKey
       };
     });
 
@@ -163,17 +187,17 @@ const PricingSection: React.FC = () => {
                   <div className="mb-10">
                     <div className="flex items-baseline gap-2">
                       <span className="text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tighter">
-                        ${finalPrice}
+                        {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
                       </span>
                       <span className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-widest">
-                        /{t('price_frequency')}
+                        {locale === 'en' && finalPrice > 0 ? 'USD ' : ''}/{t('price_frequency')}
                       </span>
                     </div>
                     {/* ✅ Precio original tachado cuando es anual y el plan no es gratis */}
                     {isAnnual && monthlyPrice > 0 && (
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-slate-400 dark:text-slate-500 text-sm line-through">
-                          ${monthlyPrice}/{t('price_frequency')}
+                          {locale === 'en' ? '~$' : '$'}{monthlyPrice}{locale === 'en' ? ' USD' : ''}/{t('price_frequency')}
                         </span>
                         <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                           -20%
@@ -198,7 +222,7 @@ const PricingSection: React.FC = () => {
 
                   {/* Botón CTA */}
                   <Link
-                    href={isAuthenticated && role === 'PROVIDER' ? `/provider/settings/subscription?planId=${plan.id}` : `/provider/register?planId=${plan.id}`}
+                    href={isAuthenticated && role === 'PROVIDER' ? `/provider/settings/subscription?planId=${plan.originalId}` : `/provider/register?planId=${plan.originalId}`}
                     className={cn(
                       "inline-flex items-center justify-center w-full py-4 rounded-xl text-sm font-semibold tracking-wide transition-colors",
                       isMiddle
@@ -206,7 +230,7 @@ const PricingSection: React.FC = () => {
                         : "border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                     )}
                   >
-                    {isMiddle ? t('plans.premium.button_text') : t('plans.basic.button_text')}
+                    {t(`plans.${(plan as any).planKey}.button_text`)}
                   </Link>
 
                 </motion.div>

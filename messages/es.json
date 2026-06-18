@@ -106,39 +106,56 @@
       "popular": "Más Popular"
     },
     "plans": {
-      "basic": {
-        "title": "Básico",
-        "description": "Ideal para usuarios ocasionales",
+      "free": {
+        "title": "Gratis",
+        "description": "Empieza tu consultorio digital sin costo",
         "features": [
-          "Búsqueda de profesionales",
-          "Reserva de citas",
-          "Valoraciones limitadas",
-          "Soporte por email"
+          "$0 Mensualidad fija",
+          "Gestión básica de Citas y Pacientes",
+          "15% de comisión por cobros en app"
         ],
         "button_text": "Comenzar gratis"
       },
+      "basic": {
+        "title": "Básico",
+        "description": "Ideal para consultorios en crecimiento",
+        "features": [
+          "Hasta 50 Citas al mes",
+          "Catálogo: 5 Servicios / 10 Productos",
+          "15% Comisión + $10 por reserva"
+        ],
+        "button_text": "Elegir Básico"
+      },
+      "standard": {
+        "title": "Estándar",
+        "description": "Para profesionales establecidos",
+        "features": [
+          "Hasta 150 Citas al mes",
+          "Catálogo: 15 Servicios / 30 Productos",
+          "12% Comisión + $8 por reserva",
+          "Acceso a ventas en QUMarket"
+        ],
+        "button_text": "Prueba 14 días gratis"
+      },
       "premium": {
         "title": "Premium",
-        "description": "Para usuarios frecuentes",
+        "description": "Maximiza el potencial de tu clínica",
         "features": [
-          "Todo lo del plan Básico",
-          "Chat ilimitado con profesionales",
-          "Descuentos exclusivos",
-          "Cancelación gratuita",
-          "Prioridad en reservas"
+          "Hasta 500 Citas al mes",
+          "Catálogo: 50 Servicios / 100 Productos",
+          "10% Comisión + $5 por reserva",
+          "Reportes Avanzados e IA (QUBlocks)"
         ],
-        "button_text": "Prueba 7 días gratis"
+        "button_text": "Elegir Premium"
       },
-      "business": {
-        "title": "Business",
-        "description": "Para familias y pequeñas empresas",
+      "enterprise": {
+        "title": "Empresarial",
+        "description": "Para clínicas grandes y múltiples usuarios",
         "features": [
-          "Todo lo del plan Premium",
-          "Hasta 5 usuarios",
-          "Historial médico compartido",
-          "Consultas prioritarias",
-          "Gestor personal",
-          "Soporte 24/7"
+          "Citas y Catálogo Ilimitados",
+          "Gestión Multi-usuario (Clínicas)",
+          "Comisión VIP: 5% + $0 por reserva",
+          "Marketing y Soporte Nivel 4 (VIP)"
         ],
         "button_text": "Contactar ventas"
       }
