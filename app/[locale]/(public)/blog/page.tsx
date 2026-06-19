@@ -32,7 +32,7 @@ export default function BlogPage() {
   // Filtro simple en cliente (luego podría pasarse al backend)
   const filteredPosts = posts?.filter(post => 
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    post.category.toLowerCase().includes(searchQuery.toLowerCase())
+    post.keywords?.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase()))
   ) || [];
 
   const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
