@@ -18,8 +18,6 @@ export default function AboutPage() {
   const rawStats: { key: string; value: number; label: string; isRating?: boolean }[] = [];
   if (stats?.patients != null) rawStats.push({ key: "patients", value: stats.patients, label: t("stats.patients") });
   if (stats?.professionals != null) rawStats.push({ key: "professionals", value: stats.professionals, label: t("stats.professionals") });
-  if (stats?.countries != null) rawStats.push({ key: "countries", value: stats.countries, label: t("stats.countries") });
-  if (stats?.rating != null) rawStats.push({ key: "rating", value: stats.rating, label: t("stats.rating"), isRating: true });
 
   const statCards = rawStats.map((s) => ({
     key: s.key,
