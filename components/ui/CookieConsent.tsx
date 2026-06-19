@@ -6,39 +6,130 @@ import { X, Cookie, ShieldCheck, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
+// ---------------------------------------------------------------------------
+// Shared consent contract. AnalyticsManager.tsx imports `readCookieConsent`
+// and the `CookieConsentRecord` type from here — this file is the single
+// source of truth for the storage key, the schema, and the policy version.
+// If you add a new category (e.g. "personalization"), update it only here.
+// ---------------------------------------------------------------------------
+
+export const COOKIE_CONSENT_KEY = "quhealthy_cookie_consent";
+
+// Bump this whenever the published Cookie Policy changes in a way that
+// affects categories or their meaning (it should match the "LAST UPDATED"
+// date on /cookies). Any stored consent with a different or missing
+// version — including the old "all" / "essential" string formats — is
+// treated as invalid, and the banner is shown again.
+export const COOKIE_POLICY_VERSION = "2026-06-18";
+
+export interface CookieConsentRecord {
+  essential: true;
+  functional: boolean;
+  analytics: boolean;
+  marketing: boolean;
+  timestamp: string;
+  policyVersion: string;
+}
+
+type ConsentChoice = Pick<CookieConsentRecord, "functional" | "analytics" | "marketing">;
+
+const ALL_ACCEPTED: ConsentChoice = { functional: true, analytics: true, marketing: true };
+// Everything non-essential defaults to OFF. Pre-checked boxes for optional
+// categories are not valid affirmative consent under any of the frameworks
+// this product needs to respect.
+const ONLY_ESSENTIAL: ConsentChoice = { functional: false, analytics: false, marketing: false };
+
+/**
+ * Reads and validates stored consent. Returns null if there's no consent,
+ * it's malformed, or it belongs to an older policy version — all of which
+ * should be treated as "must ask again".
+ */
+export function readCookieConsent(): CookieConsentRecord | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(COOKIE_CONSENT_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      parsed.policyVersion === COOKIE_POLICY_VERSION &&
+      typeof parsed.functional === "boolean" &&
+      typeof parsed.analytics === "boolean" &&
+      typeof parsed.marketing === "boolean"
+    ) {
+      return { essential: true, ...parsed };
+    }
+    return null;
+  } catch {
+    // Legacy values ("all" / "essential" strings from the previous
+    // implementation) simply fail JSON.parse and fall through to null,
+    // which correctly forces a fresh prompt under the new schema.
+    return null;
+  }
+}
+
+function writeCookieConsent(choice: ConsentChoice): CookieConsentRecord {
+  const consent: CookieConsentRecord = {
+    essential: true,
+    ...choice,
+    timestamp: new Date().toISOString(),
+    policyVersion: COOKIE_POLICY_VERSION,
+  };
+  window.localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(consent));
+  window.dispatchEvent(new CustomEvent<CookieConsentRecord>("cookie_consent_changed", { detail: consent }));
+  return consent;
+}
+
 export const CookieConsent = () => {
-  const t = useTranslations('CookieConsent');
+  const t = useTranslations("CookieConsent");
   const [isVisible, setIsVisible] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  
-  // State for granular preferences
-  const [prefs, setPrefs] = useState({ analytics: true, marketing: false });
 
+  // Granular preferences shown in the "Configure" view.
+  const [prefs, setPrefs] = useState<ConsentChoice>(ONLY_ESSENTIAL);
+
+  // Show the banner if there's no valid consent for the current policy version.
   useEffect(() => {
-    // Check if the user has already consented
-    const consent = localStorage.getItem("quhealthy_cookie_consent");
-    if (!consent) {
-      // Delay showing the banner slightly for better UX
+    const existing = readCookieConsent();
+    if (!existing) {
       const timer = setTimeout(() => setIsVisible(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
 
+  // Lets any "Manage Cookie Preferences" link/button elsewhere in the app
+  // (e.g. the site footer) reopen this modal on demand, pre-loaded with the
+  // user's current saved choices instead of resetting them to defaults.
+  // Usage: window.dispatchEvent(new Event("open_cookie_preferences"))
+  useEffect(() => {
+    const openPreferences = () => {
+      const existing = readCookieConsent();
+      setPrefs(
+        existing
+          ? { functional: existing.functional, analytics: existing.analytics, marketing: existing.marketing }
+          : ONLY_ESSENTIAL
+      );
+      setShowPreferences(true);
+      setIsVisible(true);
+    };
+    window.addEventListener("open_cookie_preferences", openPreferences);
+    return () => window.removeEventListener("open_cookie_preferences", openPreferences);
+  }, []);
+
   const handleAcceptAll = () => {
-    localStorage.setItem("quhealthy_cookie_consent", "all");
-    window.dispatchEvent(new Event("cookie_consent_changed"));
+    writeCookieConsent(ALL_ACCEPTED);
     setIsVisible(false);
   };
 
   const handleRejectAll = () => {
-    localStorage.setItem("quhealthy_cookie_consent", "essential");
-    window.dispatchEvent(new Event("cookie_consent_changed"));
+    writeCookieConsent(ONLY_ESSENTIAL);
     setIsVisible(false);
   };
 
   const handleSavePreferences = () => {
-    localStorage.setItem("quhealthy_cookie_consent", JSON.stringify(prefs));
-    window.dispatchEvent(new Event("cookie_consent_changed"));
+    writeCookieConsent(prefs);
     setIsVisible(false);
   };
 
@@ -66,8 +157,8 @@ export const CookieConsent = () => {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              
-              <div className="space-y-3 mb-4 max-h-[260px] overflow-y-auto pr-2">
+
+              <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-2">
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -79,27 +170,43 @@ export const CookieConsent = () => {
                     <span className="inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition translate-x-4" />
                   </div>
                 </div>
+
+                <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{t('functional_title')}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('functional_desc')}</p>
+                  </div>
+                  <button
+                    aria-label={t('toggle_functional')}
+                    onClick={() => setPrefs((p) => ({ ...p, functional: !p.functional }))}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.functional ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-700'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition ${prefs.functional ? 'translate-x-4' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{t('analytics_title')}</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('analytics_desc')}</p>
                   </div>
-                  <button 
+                  <button
                     aria-label={t('toggle_analytics')}
-                    onClick={() => setPrefs({...prefs, analytics: !prefs.analytics})}
+                    onClick={() => setPrefs((p) => ({ ...p, analytics: !p.analytics }))}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.analytics ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition ${prefs.analytics ? 'translate-x-4' : 'translate-x-1'}`} />
                   </button>
                 </div>
+
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900 dark:text-white">{t('marketing_title')}</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('marketing_desc')}</p>
                   </div>
-                  <button 
+                  <button
                     aria-label={t('toggle_marketing')}
-                    onClick={() => setPrefs({...prefs, marketing: !prefs.marketing})}
+                    onClick={() => setPrefs((p) => ({ ...p, marketing: !p.marketing }))}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${prefs.marketing ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-slate-900 transition ${prefs.marketing ? 'translate-x-4' : 'translate-x-1'}`} />
@@ -125,24 +232,24 @@ export const CookieConsent = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full">
-                <Button 
-                  onClick={handleAcceptAll} 
+                <Button
+                  onClick={handleAcceptAll}
                   className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white rounded-xl h-10 text-sm font-medium"
                 >
                   {t('accept_all')}
                 </Button>
                 <div className="flex items-center gap-2.5 w-full sm:flex-1">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleRejectAll}
                     className="flex-1 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl h-10 text-sm font-medium"
                   >
                     {t('reject')}
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     onClick={() => setShowPreferences(true)}
                     className="flex-1 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl h-10 text-sm font-medium"
                   >

@@ -3997,6 +3997,9 @@
     "marketing_title": "Marketing",
     "marketing_desc": "Utilizadas para mostrarte anuncios relevantes y campañas personalizadas.",
     "toggle_marketing": "Activar o desactivar cookies de marketing",
+    "functional_title": "Funcionales",
+    "functional_desc": "Recuerdan elecciones como idioma o preferencias de visualización para no tener que configurarlas de nuevo.",
+    "toggle_functional": "Activar o desactivar cookies funcionales",
     "save_btn": "Guardar Preferencias"
   }
 }

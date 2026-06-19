@@ -3974,6 +3974,9 @@
     "marketing_title": "Marketing",
     "marketing_desc": "Used to show you relevant ads and personalized campaigns.",
     "toggle_marketing": "Enable or disable marketing cookies",
+    "functional_title": "Functional",
+    "functional_desc": "Remember choices like language or display preferences so you don't have to configure them again.",
+    "toggle_functional": "Enable or disable functional cookies",
     "save_btn": "Save Preferences"
   }
 }
