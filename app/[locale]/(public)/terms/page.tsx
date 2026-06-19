@@ -14,6 +14,8 @@ export default function TermsPage() {
     { id: "cancel", title: t('cancel_title') },
     { id: "privacy", title: t('privacy_title') },
     { id: "liability", title: t('liability_title') },
+    { id: "governing_law", title: t('governing_law_title') },
+    { id: "changes", title: t('changes_title') },
   ];
 
   return (
@@ -92,6 +94,12 @@ export default function TermsPage() {
 
               <h2 id="liability" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('liability_title')}</h2>
               <p>{t('liability_desc')}</p>
+
+              <h2 id="governing_law" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('governing_law_title')}</h2>
+              <p>{t('governing_law_desc')}</p>
+
+              <h2 id="changes" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('changes_title')}</h2>
+              <p>{t('changes_desc')}</p>
               
               <div className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 text-sm">
                 {t('contact')}

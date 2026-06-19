@@ -3591,24 +3591,31 @@
     "open_app_desc": "We are always looking for exceptional talent. Send us your resume and tell us why you belong at QuHealthy.",
     "open_app_btn": "Submit Open Application"
   },
+  
+  
   "PublicTerms": {
     "breadcrumb": "Legal",
     "title": "Terms of Service",
-    "date": "Last updated: May 27, 2026",
+    "date": "Last updated: June 18, 2026",
     "toc": "Table of Contents",
     "intro_title": "1. Introduction",
-    "intro_desc": "By using QuHealthy, you accept these terms of service in full. Please read them carefully before using our platform to book medical appointments, manage records, or communicate with specialists. QuHealthy ('We', 'the Platform') provides technological infrastructure to connect patients with healthcare professionals. We do not provide medical services directly nor are we responsible for the diagnoses issued by registered professionals.",
+    "intro_desc": "To use QuHealthy, you must create an account and expressly accept these Terms of Service during registration. Please read them carefully before using our platform to book medical appointments, manage records, or communicate with specialists. You must be at least 18 years old, or act under the supervision and consent of a parent or legal guardian, to use the Platform. QuHealthy ('We', 'the Platform') provides technological infrastructure to connect patients with healthcare professionals. We are not a healthcare provider: we do not practice medicine, and we are not responsible for the diagnoses, treatments, or professional judgment of the independent healthcare professionals who use the Platform.",
     "use_title": "2. Platform Usage",
-    "use_desc": "You agree to provide true, accurate, and complete information when creating an account. The use of the platform for illegal purposes, identity theft, or the generation of fake appointments will result in immediate and permanent account suspension.",
+    "use_desc": "You agree to provide true, accurate, and complete information when creating your account, and to keep it up to date. Using the Platform for illegal purposes, identity theft, or creating fake appointments will result in immediate and permanent account suspension. QuHealthy takes reasonable steps to verify the professional credentials of registered healthcare providers, but does not guarantee their licensing status at all times; we encourage you to independently verify your provider's credentials with the applicable professional licensing authority.",
     "cancel_title": "3. Appointment and Cancellation Policies",
-    "cancel_desc": "Patients can cancel or reschedule an appointment with at least 24 hours' notice without penalty, unless the healthcare professional specifies otherwise on their profile. Repeated no-shows may lead to temporary bans.",
+    "cancel_desc": "Patients may cancel or reschedule an appointment with at least 24 hours' notice, at no penalty, unless the healthcare professional specifies a different policy on their profile. Repeated no-shows may result in temporary restrictions on booking new appointments.",
     "privacy_title": "4. Privacy and Data",
-    "privacy_desc": "The protection of your health information (PHI) is our top priority. All data is encrypted at rest and in transit following HIPAA guidelines.",
-    "privacy_link": "For more details, please see our Privacy Policy",
+    "privacy_desc": "Protecting your health information is one of our top priorities. Sensitive data is encrypted at rest and in transit, as detailed in our Privacy Notice. We host on cloud infrastructure that offers HIPAA-eligible services, and we never sell or share your health information with advertisers, data brokers, or social media companies.",
+    "privacy_link": "For more details, please see our Privacy Notice.",
     "liability_title": "5. Limitation of Liability",
-    "liability_desc": "QuHealthy acts exclusively as a technological facilitator. We will not be liable for medical negligence, incorrect prescriptions, or direct disputes arising between the patient and the healthcare provider. In the event of a medical emergency, you must immediately contact local emergency services (e.g., 911), and not use our platform.",
-    "contact": "Do you have any questions about these terms? Contact us at legal@quhealthy.com."
+    "liability_desc": "QuHealthy acts exclusively as a technological facilitator connecting patients and independent healthcare professionals. To the maximum extent permitted by applicable law, QuHealthy is not liable for medical negligence, incorrect diagnoses or prescriptions, or disputes arising directly between a patient and a healthcare provider. Nothing in this section limits any liability that cannot be excluded under applicable law, including liability for QuHealthy's own gross negligence or willful misconduct. In a medical emergency, contact your local emergency services immediately — 911 in Mexico and the United States, or your country's emergency number — and do not rely on the Platform for emergency care.",
+    "governing_law_title": "6. Governing Law and Dispute Resolution",
+    "governing_law_desc": "These Terms are governed by the laws of Mexico, without regard to conflict-of-law principles. Any dispute will be subject to the courts of QuHealthy's registered domicile in Sinaloa, Mexico, except where the law of your country of residence grants you non-waivable consumer protection rights or guarantees access to your local courts — in which case those protections apply instead.",
+    "changes_title": "7. Changes to These Terms",
+    "changes_desc": "We may update these Terms from time to time to reflect changes in our services, our practices, or the law. We'll update the date at the top of this page, and for material changes, we'll provide more prominent notice, such as an in-app banner or an email. Continuing to use the Platform after a material change takes effect means you accept the updated Terms; if you don't agree, you should stop using the Platform.",
+    "contact": "Questions about these Terms? Contact us at legal@quhealthy.com. Provided by: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
+
   
 
   "PublicPrivacy": {

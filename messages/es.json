@@ -3614,25 +3614,31 @@
     "open_app_desc": "Siempre estamos buscando talento excepcional. Envíanos tu currículum y cuéntanos por qué deberías estar en QuHealthy.",
     "open_app_btn": "Enviar Solicitud Abierta"
   },
+ 
+
+  
   "PublicTerms": {
     "breadcrumb": "Legal",
-    "title": "Términos de Servicio",
-    "date": "Última actualización: 27 de Mayo, 2026",
+    "title": "Términos y Condiciones",
+    "date": "Última actualización: 18 de junio de 2026",
     "toc": "Contenido",
     "intro_title": "1. Introducción",
-    "intro_desc": "Al utilizar QuHealthy, usted acepta estos términos de servicio en su totalidad. Por favor, léalos cuidadosamente antes de utilizar nuestra plataforma para reservar citas médicas, gestionar expedientes o comunicarse con especialistas. QuHealthy ('Nosotros', 'la Plataforma') proporciona una infraestructura tecnológica para conectar a pacientes con profesionales de la salud. Nosotros no proveemos servicios médicos directamente ni somos responsables de los diagnósticos emitidos por los profesionales registrados.",
+    "intro_desc": "Para usar QuHealthy, debes crear una cuenta y aceptar expresamente estos Términos y Condiciones durante el registro. Léelos con cuidado antes de usar nuestra plataforma para agendar citas médicas, gestionar expedientes o comunicarte con especialistas. Debes tener al menos 18 años, o actuar bajo la supervisión y consentimiento de un padre, madre o tutor legal, para usar la Plataforma. QuHealthy ('nosotros', 'la Plataforma') provee infraestructura tecnológica para conectar a pacientes con profesionales de la salud. No somos un proveedor de servicios de salud: no practicamos la medicina y no somos responsables de los diagnósticos, tratamientos o juicio profesional de los profesionales de la salud independientes que usan la Plataforma.",
     "use_title": "2. Uso de la Plataforma",
-    "use_desc": "Usted se compromete a proporcionar información verdadera, exacta y completa al crear una cuenta. El uso de la plataforma para fines ilícitos, suplantación de identidad o generación de citas falsas resultará en la suspensión inmediata y permanente de la cuenta.",
-    "cancel_title": "3. Políticas de Citas y Cancelaciones",
-    "cancel_desc": "Los pacientes pueden cancelar o reprogramar una cita con al menos 24 horas de anticipación sin penalización, a menos que el profesional de salud especifique lo contrario en su propio perfil. Las ausencias (no-shows) repetidas pueden derivar en bloqueos temporales.",
+    "use_desc": "Te comprometes a proporcionar información verdadera, exacta y completa al crear tu cuenta, y a mantenerla actualizada. El uso de la Plataforma para fines ilícitos, suplantación de identidad, o la generación de citas falsas resultará en la suspensión inmediata y permanente de tu cuenta. QuHealthy toma medidas razonables para verificar las credenciales profesionales de los proveedores de salud registrados, pero no garantiza su estatus de licencia en todo momento; te recomendamos verificar de forma independiente las credenciales de tu proveedor ante la autoridad de licenciamiento profesional correspondiente.",
+    "cancel_title": "3. Políticas de Citas y Cancelación",
+    "cancel_desc": "Los pacientes pueden cancelar o reprogramar una cita con al menos 24 horas de aviso, sin penalización, salvo que el profesional de la salud especifique una política distinta en su perfil. Las inasistencias repetidas pueden derivar en restricciones temporales para agendar nuevas citas.",
     "privacy_title": "4. Privacidad y Datos",
-    "privacy_desc": "La protección de su información de salud (PHI) es nuestra máxima prioridad. Todos los datos son encriptados en reposo y en tránsito siguiendo los lineamientos de HIPAA.",
-    "privacy_link": "Para más detalles, por favor consulte nuestra Política de Privacidad",
+    "privacy_desc": "Proteger tu información de salud es una de nuestras principales prioridades. Los datos sensibles se cifran en reposo y en tránsito, como se detalla en nuestro Aviso de Privacidad. Operamos sobre infraestructura en la nube que ofrece servicios elegibles para HIPAA, y nunca vendemos ni compartimos tu información de salud con anunciantes, corredores de datos o redes sociales.",
+    "privacy_link": "Para más detalles, consulta nuestro Aviso de Privacidad.",
     "liability_title": "5. Limitación de Responsabilidad",
-    "liability_desc": "QuHealthy actúa exclusivamente como un facilitador tecnológico. No seremos responsables por negligencia médica, prescripciones erróneas o disputas directas que surjan entre el paciente y el proveedor de salud. En caso de una emergencia médica, usted debe contactar inmediatamente a los servicios de urgencia locales (ej. 911), y no utilizar nuestra plataforma.",
-    "contact": "¿Tiene alguna duda sobre estos términos? Contáctenos a legal@quhealthy.com."
-  },
- 
+    "liability_desc": "QuHealthy actúa exclusivamente como un facilitador tecnológico que conecta a pacientes y profesionales de la salud independientes. En la máxima medida permitida por la ley aplicable, QuHealthy no es responsable por negligencia médica, diagnósticos o prescripciones incorrectas, ni por controversias que surjan directamente entre un paciente y un proveedor de salud. Nada en esta sección limita responsabilidad que no pueda excluirse conforme a la ley aplicable, incluyendo la responsabilidad por negligencia grave o dolo de QuHealthy. En caso de una emergencia médica, contacta de inmediato a los servicios de emergencia locales — el 911 en México y Estados Unidos, o el número de emergencia de tu país — y no dependas de la Plataforma para atención de emergencia.",
+    "governing_law_title": "6. Ley Aplicable y Resolución de Controversias",
+    "governing_law_desc": "Estos Términos se rigen por las leyes de México, sin considerar principios de conflicto de leyes. Cualquier controversia se someterá a los tribunales del domicilio registrado de QuHealthy en Sinaloa, México, salvo que la ley de tu país de residencia te otorgue derechos de protección al consumidor que no puedan renunciarse, o te garantice acceso a tus tribunales locales — en cuyo caso aplicarán esas protecciones.",
+    "changes_title": "7. Cambios a Estos Términos",
+    "changes_desc": "Podemos actualizar estos Términos de tiempo en tiempo para reflejar cambios en nuestros servicios, nuestras prácticas, o la ley. Actualizaremos la fecha al inicio de esta página, y para cambios sustanciales, te daremos un aviso más visible, como un banner en la aplicación o un correo electrónico. Continuar usando la Plataforma después de que un cambio sustancial entre en vigor significa que aceptas los Términos actualizados; si no estás de acuerdo, debes dejar de usar la Plataforma.",
+    "contact": "¿Tienes dudas sobre estos Términos? Contáctanos en legal@quhealthy.com. Proporcionado por: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
+  }, 
   
   "PublicPrivacy": {
     "breadcrumb": "Legal",
