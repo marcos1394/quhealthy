@@ -34,7 +34,7 @@ export default function BlogPage() {
     t('categories.lifestyle')
   ];
 
-  const { data: posts, isLoading, error } = useSWR<BlogPost[]>("/api/analytics/blog/posts", fetcher);
+  const { data: posts, isLoading, error } = useSWR<BlogPost[]>("/api/intelligence/blog/posts", fetcher);
 
   // Filtro simple en cliente (luego podría pasarse al backend)
   const filteredPosts = posts?.filter(post => 
