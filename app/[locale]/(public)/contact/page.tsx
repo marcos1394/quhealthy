@@ -30,7 +30,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans selection:bg-medical-500/30">
+    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans selection:bg-slate-500/30">
       <section className="pt-32 pb-20 md:pt-40 md:pb-32">
         <div className="container mx-auto px-6 md:px-12 max-w-7xl">
           
@@ -42,7 +42,7 @@ export default function ContactPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="flex items-center gap-2 text-sm text-medical-600 dark:text-medical-400 font-semibold uppercase tracking-widest mb-6">
+              <div className="flex items-center gap-2 text-sm text-slate-900 dark:text-white font-semibold uppercase tracking-widest mb-6">
                 <Link href="/" className="hover:underline">QuHealthy</Link>
                 <ArrowRight className="w-4 h-4" />
                 <span>{t('breadcrumb')}</span>
@@ -61,7 +61,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">Correo Electrónico</h3>
-                    <a href="mailto:founders@quhealthy.org" className="text-medical-600 dark:text-medical-400 hover:underline">founders@quhealthy.org</a>
+                    <a href="mailto:founders@quhealthy.org" className="text-slate-900 dark:text-white hover:underline">founders@quhealthy.org</a>
                   </div>
                 </div>
 
@@ -98,7 +98,7 @@ export default function ContactPage() {
                       type="text" 
                       name="name"
                       required
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 outline-none transition-all text-slate-900 dark:text-white"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 outline-none transition-all text-slate-900 dark:text-white"
                       placeholder={t('form.name_ph')}
                     />
                   </div>
@@ -107,7 +107,7 @@ export default function ContactPage() {
                     <input 
                       type="text" 
                       name="company"
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 outline-none transition-all text-slate-900 dark:text-white"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 outline-none transition-all text-slate-900 dark:text-white"
                       placeholder="Acme Corp"
                     />
                   </div>
@@ -119,14 +119,14 @@ export default function ContactPage() {
                     type="email" 
                     name="email"
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 outline-none transition-all text-slate-900 dark:text-white"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 outline-none transition-all text-slate-900 dark:text-white"
                     placeholder={t('form.email_ph')}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('form.topic')}</label>
-                  <select name="topic" className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 outline-none transition-all text-slate-900 dark:text-white appearance-none">
+                  <select name="topic" className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 outline-none transition-all text-slate-900 dark:text-white appearance-none">
                     <option>{t('form.topics.support')}</option>
                     <option>{t('form.topics.billing')}</option>
                     <option>{t('form.topics.careers')}</option>
@@ -140,12 +140,12 @@ export default function ContactPage() {
                     rows={4}
                     name="message"
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-medical-500/50 focus:border-medical-500 outline-none transition-all text-slate-900 dark:text-white resize-none"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 outline-none transition-all text-slate-900 dark:text-white resize-none"
                     placeholder={t('form.message_ph')}
                   />
                 </div>
 
-                <Button disabled={isSubmitting} className="w-full bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-14 text-base font-semibold mt-4 group">
+                <Button disabled={isSubmitting} className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white rounded-xl h-14 text-base font-semibold mt-4 group">
                   {isSubmitting ? "Enviando..." : t('form.submit')}
                   {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
                 </Button>
