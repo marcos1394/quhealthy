@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Search, Calendar, User, Tag } from "lucide-react";
+import { ArrowRight, Search, Calendar, ChevronRight } from "lucide-react";
 import useSWR from "swr";
 import axiosInstance from "@/lib/axios";
 import { useTranslations, useLocale } from "next-intl";
@@ -36,7 +36,7 @@ export default function BlogPage() {
 
   const { data: posts, isLoading, error } = useSWR<BlogPost[]>("/api/intelligence/blog/posts", fetcher);
 
-  // Filtro simple en cliente (luego podría pasarse al backend)
+  // Filtro simple en cliente
   const filteredPosts = posts?.filter(post => 
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     post.keywords?.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -45,82 +45,104 @@ export default function BlogPage() {
   const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
   const regularPosts = filteredPosts.slice(1);
 
+  // Animaciones
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+      
       {/* Editorial Header */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <section className="pt-32 pb-12 md:pt-40 md:pb-16 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#0a0a0a]">
         <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-2xl"
-            >
-              <h1 className="text-5xl md:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">
-                {t('title_light')}<span className="text-medical-600 dark:text-medical-400 italic font-serif">{t('title_highlight')}</span>{t('title_dark')}
-              </h1>
-              <p className="text-xl text-slate-500 dark:text-slate-400 font-light leading-relaxed">
-                {t('subtitle')}
-              </p>
-            </motion.div>
-
-            {/* Search Bar */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="w-full md:w-80 relative"
-            >
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400" />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('search_ph')}
-                className="w-full bg-slate-100 dark:bg-slate-800/50 border border-transparent focus:border-medical-500 focus:bg-white dark:focus:bg-slate-800 rounded-full py-3 pl-11 pr-4 text-sm outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400"
-              />
-            </motion.div>
-          </div>
-
-          {/* Categories Pill */}
+          
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            {categories.map((cat, idx) => (
-              <button 
-                key={idx}
-                className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors ${idx === 0 ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-              >
-                {cat}
-              </button>
-            ))}
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
+              <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">QuHealthy</Link>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-black dark:text-white">Editorial</span>
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12">
+              <div className="max-w-3xl">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-black dark:text-white mb-6 leading-[1.1]">
+                  {t('title_light')}
+                  <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light px-2">
+                    {t('title_highlight')}
+                  </span>
+                  {t('title_dark')}
+                </h1>
+                <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                  {t('subtitle')}
+                </p>
+              </div>
+
+              {/* Search Bar (Flush Design) */}
+              <div className="w-full md:w-80 relative group">
+                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('search_ph')}
+                  className="w-full bg-transparent border-b border-gray-300 dark:border-gray-800 py-3 pl-8 pr-4 text-sm font-light outline-none transition-all focus:border-black dark:focus:border-white text-black dark:text-white placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            {/* Categories Tabs (Editorial Menu) */}
+            <div className="flex items-center gap-6 overflow-x-auto pt-4 pb-2 border-t border-gray-200 dark:border-white/10 scrollbar-hide">
+              {categories.map((cat, idx) => (
+                <button 
+                  key={idx}
+                  className={`whitespace-nowrap pb-2 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${
+                    idx === 0 
+                      ? 'border-black dark:border-white text-black dark:text-white' 
+                      : 'border-transparent text-gray-400 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
 
+      {/* Main Content Area */}
       <section className="py-16 md:py-24 min-h-[50vh]">
         <div className="container mx-auto px-6 md:px-12 max-w-7xl">
           
+          {/* Loading State */}
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-              <div className="w-8 h-8 border-4 border-slate-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p>{t('loading')}</p>
+            <div className="flex flex-col items-center justify-center py-32 text-gray-400 font-light">
+              <div className="w-6 h-6 border-2 border-black dark:border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-xs uppercase tracking-widest">{t('loading')}</p>
             </div>
           )}
 
+          {/* Error / Empty States */}
           {!isLoading && (!posts || posts.length === 0) && (
-            <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-8 h-8 text-slate-400" />
-              </div>
-              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2">{t('empty_title')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            <div className="text-center py-32 border-t border-b border-gray-200 dark:border-gray-800 my-10">
+              <Search className="w-8 h-8 text-gray-300 dark:text-gray-700 mx-auto mb-6" strokeWidth={1} />
+              <h3 className="text-xl font-semibold text-black dark:text-white mb-2">{t('empty_title')}</h3>
+              <p className="text-gray-500 dark:text-gray-400 font-light max-w-md mx-auto">
                 {t('empty_desc')}
               </p>
             </div>
@@ -128,7 +150,7 @@ export default function BlogPage() {
 
           {!isLoading && posts && posts.length > 0 && filteredPosts.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-slate-500 text-lg">{t('no_results')}</p>
+              <p className="text-gray-500 font-light text-lg">{t('no_results')}</p>
             </div>
           )}
 
@@ -136,38 +158,44 @@ export default function BlogPage() {
           {!isLoading && featuredPost && !searchQuery && (
             <Link href={`/${locale}/blog/${featuredPost.slug}`}>
               <motion.div 
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="mb-20 group cursor-pointer"
+                transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="group cursor-pointer grid md:grid-cols-2 gap-10 lg:gap-16 items-center mb-24 pb-20 border-b border-gray-200 dark:border-gray-800"
               >
-                <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center bg-white dark:bg-slate-900 p-4 md:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500">
-                  <div className="relative aspect-[4/3] md:aspect-auto md:h-full w-full rounded-2xl overflow-hidden">
-                    <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10" />
-                    <img src={featuredPost.imageUrl} alt={featuredPost.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
-                    <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5 text-medical-600 dark:text-medical-400" />
-                      <span className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider">{featuredPost.keywords?.[0] || 'Health Tech'}</span>
-                    </div>
+                <div className="relative aspect-[4/3] md:aspect-[4/5] w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
+                  <img 
+                    src={featuredPost.imageUrl} 
+                    alt={featuredPost.title} 
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                  />
+                  <div className="absolute top-4 left-4 z-20 bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 flex items-center">
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{featuredPost.keywords?.[0] || 'Health Tech'}</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col justify-center py-4">
+                  <div className="flex items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" /> 
+                      {new Date(featuredPost.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric'})}
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+                    <span>Editorial</span>
                   </div>
                   
-                  <div className="flex flex-col justify-center py-4 md:pr-6">
-                    <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">
-                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date(featuredPost.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</span>
-                      <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-                      <span className="flex items-center gap-1.5"><User className="w-4 h-4" /> QuHealthy Editorial</span>
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white mb-6 leading-tight group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                      {featuredPost.title}
-                    </h2>
-                    <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-8">
-                      {featuredPost.excerpt}
-                    </p>
-                    <div>
-                      <span className="inline-flex items-center gap-2 text-medical-600 dark:text-medical-400 font-semibold text-sm tracking-wide">
-                        {t('read_more')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    </div>
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-black dark:text-white mb-6 leading-[1.1] group-hover:underline decoration-1 underline-offset-8 transition-all">
+                    {featuredPost.title}
+                  </h2>
+                  
+                  <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed mb-10">
+                    {featuredPost.excerpt}
+                  </p>
+                  
+                  <div>
+                    <span className="inline-flex items-center text-black dark:text-white text-xs font-bold uppercase tracking-widest">
+                      {t('read_more')} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -176,48 +204,61 @@ export default function BlogPage() {
 
           {/* Grid Posts */}
           {!isLoading && regularPosts.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16"
+            >
               {regularPosts.map((post, idx) => (
                 <Link href={`/${locale}/blog/${post.slug}`} key={post.id || idx}>
                   <motion.article 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: idx * 0.1 }}
-                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                    variants={itemVariants}
+                    className="group cursor-pointer flex flex-col h-full"
                   >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
-                      <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{post.keywords?.[0] || 'Health Tech'}</span>
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-900 mb-6">
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                      />
+                      <div className="absolute top-4 left-4 z-20 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1">
+                        <span className="text-[9px] font-bold uppercase tracking-widest">{post.keywords?.[0] || 'Health Tech'}</span>
                       </div>
                     </div>
                     
-                    <div className="p-6 md:p-8 h-full flex flex-col">
-                      <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
-                        <span>{new Date(post.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</span>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+                        <span>{new Date(post.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</span>
                       </div>
-                      <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
+                      
+                      <h3 className="text-2xl font-semibold text-black dark:text-white mb-3 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-3">
                         {post.title}
                       </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6 line-clamp-3">
+                      
+                      <p className="text-gray-500 dark:text-gray-400 font-light leading-relaxed mb-6 line-clamp-3 flex-1">
                         {post.excerpt}
                       </p>
                       
-                      <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-                        <span className="text-xs font-semibold text-slate-900 dark:text-white">QuHealthy Editorial</span>
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-1 transition-all" />
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800 mt-auto">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Editorial</span>
+                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                       </div>
                     </div>
                   </motion.article>
                 </Link>
               ))}
-            </div>
+            </motion.div>
           )}
 
+          {/* Load More Button */}
           {!isLoading && regularPosts.length > 0 && (
-            <div className="mt-20 flex justify-center">
-              <Button variant="outline" className="rounded-full px-8 h-12 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+            <div className="mt-24 flex justify-center">
+              <Button 
+                variant="outline" 
+                className="rounded-none border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black uppercase text-xs font-bold tracking-widest h-14 px-10 transition-all"
+              >
                 {t('load_more')}
               </Button>
             </div>

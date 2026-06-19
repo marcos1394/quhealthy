@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, HeartHandshake, Sparkles, Compass, Fingerprint, Earth, BadgeCheck, UserRound } from "lucide-react";
+import { ArrowRight, HeartHandshake, Sparkles, Compass, Fingerprint, Earth, BadgeCheck, UserRound, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePublicStats } from "@/hooks/usePublicStats";
-
 
 export default function AboutPage() {
   const t = useTranslations("PublicAbout");
@@ -37,225 +36,284 @@ export default function AboutPage() {
     { icon: BadgeCheck, title: t("trust.t3_title"), description: t("trust.t3_desc") },
   ];
 
+  // Variantes de animación
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+  };
+
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans selection:bg-medical-500/30">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-medical-50/50 via-white to-white dark:from-medical-900/20 dark:via-slate-950 dark:to-slate-950 -z-10" />
-        <div className="container mx-auto px-6 md:px-12 max-w-5xl">
-          <div className="flex items-center gap-2 text-sm text-medical-600 dark:text-medical-400 font-semibold uppercase tracking-widest mb-6">
-            <Link href="/" className="hover:underline">QuHealthy</Link>
-            <ArrowRight className="w-4 h-4" />
-            <span>{t('breadcrumb')}</span>
-          </div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6"
-          >
-            {t('title_light')} <span className="text-medical-600 dark:text-medical-400 italic font-serif">{t('title_highlight')}</span> {t('title_dark')}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-light max-w-3xl leading-relaxed"
-          >
-            {t('subtitle')}
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Stats Section — only renders once real data has loaded. Never shows
-          placeholder or fabricated numbers; hides itself if the backend
-          endpoint isn't available yet. */}
-      {!statsLoading && statCards.length > 0 && (
-        <section className="py-20 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="text-center text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-12">
-              {t('stats_section_title')}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
-              {statCards.map((stat, idx) => (
-                <motion.div
-                  key={stat.key}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                >
-                  <div className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tighter mb-2">{stat.value}</div>
-                  <div className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Mission Section */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-6 md:px-12 max-w-3xl text-center">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+      
+      {/* Hero Section Editorial */}
+      <section className="pt-32 pb-20 md:pt-40 md:pb-24 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#0a0a0a]">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white mb-8">{t('mission_title')}</h2>
-            <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 font-light leading-relaxed">{t('mission_desc')}</p>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
+              <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">QuHealthy</Link>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-black dark:text-white">{t('breadcrumb')}</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-black dark:text-white mb-8 leading-[1.1] max-w-5xl">
+              {t('title_light')}
+              <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light px-2">
+                {t('title_highlight')}
+              </span>
+              {t('title_dark')}
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-500 dark:text-gray-400 font-light max-w-3xl leading-relaxed">
+              {t('subtitle')}
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-24 md:py-32 bg-slate-50 dark:bg-slate-900">
+      {/* Stats Section — Tipografía Masiva (Estilo Periódico) */}
+      {!statsLoading && statCards.length > 0 && (
+        <section className="py-20 md:py-28 bg-white dark:bg-[#0a0a0a]">
+          <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+            <div className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-12 flex items-center gap-4">
+              <span>{t('stats_section_title')}</span>
+              <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1" />
+            </div>
+            
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-16"
+            >
+              {statCards.map((stat) => (
+                <motion.div key={stat.key} variants={itemVariants} className="flex flex-col">
+                  <div className="text-5xl md:text-6xl lg:text-7xl font-semibold text-black dark:text-white tracking-tighter mb-4">
+                    {stat.value}
+                  </div>
+                  <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    {stat.label}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* Mission Section (Statement) */}
+      <section className="py-24 md:py-32 bg-gray-50/50 dark:bg-gray-900/20 border-y border-gray-200 dark:border-white/10">
+        <div className="container mx-auto px-6 md:px-12 max-w-4xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">Nuestro Manifiesto</h2>
+            <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-black dark:text-white mb-8 leading-[1.2]">
+              {t('mission_title')}
+            </h3>
+            <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+              {t('mission_desc')}
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Values Section (Arquitectónico a Corte Vivo) */}
+      <section className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a]">
         <div className="container mx-auto px-6 md:px-12 max-w-6xl">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">{t('values_title')}</h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 font-light max-w-2xl mx-auto">
+          <div className="mb-20 md:w-2/3">
+            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-black dark:text-white mb-6">
+              {t('values_title')}
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-light leading-relaxed">
               {t('values_subtitle')}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 md:gap-10">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid md:grid-cols-3 gap-12 lg:gap-16"
+          >
             {values.map((val, idx) => {
               const Icon = val.icon;
               return (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="flex flex-col gap-6 p-8 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 hover:bg-white dark:hover:bg-slate-950 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group cursor-default"
+                  variants={itemVariants}
+                  className="border-t border-black dark:border-white pt-8 group"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-6 h-6 text-slate-700 dark:text-slate-300" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">{val.title}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light">{val.description}</p>
-                  </div>
+                  <Icon className="w-8 h-8 text-black dark:text-white mb-8 opacity-50 group-hover:opacity-100 transition-opacity duration-300" strokeWidth={1.5} />
+                  <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
+                    {val.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light">
+                    {val.description}
+                  </p>
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Trust & Security Section — every claim here links to a real,
-          published policy. This is the "enterprise-grade" section: built
-          on what already exists, not on borrowed certifications. */}
-      <section className="py-24 md:py-32">
+      {/* Trust & Security Section */}
+      <section className="py-24 md:py-32 bg-gray-50/50 dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/10">
         <div className="container mx-auto px-6 md:px-12 max-w-6xl">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">{t('trust_title')}</h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 font-light max-w-2xl mx-auto">
+          <div className="mb-20 md:w-2/3">
+            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-black dark:text-white mb-6">
+              {t('trust_title')}
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-light leading-relaxed">
               {t('trust_subtitle')}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid md:grid-cols-3 gap-12 lg:gap-16 border-b border-gray-200 dark:border-gray-800 pb-20"
+          >
             {trustPillars.map((pillar, idx) => {
               const Icon = pillar.icon;
               return (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group cursor-default"
+                  variants={itemVariants}
+                  className="flex flex-col group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center mb-6 border border-slate-300 dark:border-slate-700 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    <Icon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                  <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center mb-8 group-hover:border-black dark:group-hover:border-white transition-colors duration-300">
+                    <Icon className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">{pillar.title}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{pillar.description}</p>
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-4">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light text-sm">
+                    {pillar.description}
+                  </p>
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm font-medium">
-            <Link href="/privacy" className="text-medical-600 dark:text-medical-400 hover:underline">
+          {/* Legal Links */}
+          <div className="flex flex-wrap items-center gap-8 mt-10">
+            <Link 
+              href="/privacy" 
+              className="group inline-flex items-center text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+            >
               {t('trust_cta_privacy')}
+              <ArrowRight className="w-3 h-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
             </Link>
-            <Link href="/cookies" className="text-medical-600 dark:text-medical-400 hover:underline">
+            <Link 
+              href="/cookies" 
+              className="group inline-flex items-center text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+            >
               {t('trust_cta_cookies')}
+              <ArrowRight className="w-3 h-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="py-24 md:py-32 bg-slate-50 dark:bg-slate-900">
+      <section className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/10">
         <div className="container mx-auto px-6 md:px-12 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">{t('team_title')}</h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 font-light max-w-2xl mx-auto">
+          <div className="mb-20">
+            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-black dark:text-white mb-6">
+              {t('team_title')}
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-light max-w-2xl">
               {t('team_subtitle')}
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid md:grid-cols-3 gap-16"
+          >
             {/* Founder card */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-full bg-slate-800 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
-                <UserRound className="w-7 h-7 text-slate-200" />
+            <motion.div variants={itemVariants} className="group">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-8 border border-transparent group-hover:border-gray-300 dark:group-hover:border-gray-700 transition-colors duration-300">
+                <UserRound className="w-6 h-6 text-black dark:text-white" strokeWidth={1} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_founder_name')}</h3>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_founder_role')}</p>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_founder_bio')}</p>
-            </div>
+              <h3 className="text-2xl font-semibold text-black dark:text-white mb-2">{t('team_founder_name')}</h3>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">{t('team_founder_role')}</p>
+              <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light text-sm">{t('team_founder_bio')}</p>
+            </motion.div>
 
-            {/* Partner 1: Fausto Acuña */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-full bg-slate-700 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
-                <UserRound className="w-7 h-7 text-slate-200" />
+            {/* Partner 1 */}
+            <motion.div variants={itemVariants} className="group">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-8 border border-transparent group-hover:border-gray-300 dark:group-hover:border-gray-700 transition-colors duration-300">
+                <UserRound className="w-6 h-6 text-black dark:text-white" strokeWidth={1} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_partner_fausto_name')}</h3>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_partner_fausto_role')}</p>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_partner_fausto_bio')}</p>
-            </div>
+              <h3 className="text-2xl font-semibold text-black dark:text-white mb-2">{t('team_partner_fausto_name')}</h3>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">{t('team_partner_fausto_role')}</p>
+              <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light text-sm">{t('team_partner_fausto_bio')}</p>
+            </motion.div>
 
-            {/* Partner 2: Pedro Ordoñez */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-full bg-slate-700 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
-                <UserRound className="w-7 h-7 text-slate-200" />
+            {/* Partner 2 */}
+            <motion.div variants={itemVariants} className="group">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-8 border border-transparent group-hover:border-gray-300 dark:group-hover:border-gray-700 transition-colors duration-300">
+                <UserRound className="w-6 h-6 text-black dark:text-white" strokeWidth={1} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_partner_pedro_name')}</h3>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_partner_pedro_role')}</p>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_partner_pedro_bio')}</p>
-            </div>
-          </div>
+              <h3 className="text-2xl font-semibold text-black dark:text-white mb-2">{t('team_partner_pedro_name')}</h3>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6">{t('team_partner_pedro_role')}</p>
+              <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-light text-sm">{t('team_partner_pedro_bio')}</p>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Closing CTA */}
-      <section className="py-24 md:py-32 bg-slate-900 dark:bg-white">
-        <div className="container mx-auto px-6 md:px-12 max-w-3xl text-center">
-          <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-white dark:text-slate-900 mb-6">{t('cta_title')}</h2>
-          <p className="text-lg text-slate-300 dark:text-slate-600 font-light mb-10 max-w-2xl mx-auto">{t('cta_desc')}</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {/* TODO: point these at your real provider-signup and contact routes */}
+      {/* Closing CTA (Alto Contraste) */}
+      <section className="py-24 md:py-32 bg-black dark:bg-white selection:bg-white/30 dark:selection:bg-black/30">
+        <div className="container mx-auto px-6 md:px-12 max-w-4xl text-center">
+          <h2 className="text-4xl md:text-6xl font-semibold tracking-tight text-white dark:text-black mb-8 leading-[1.1]">
+            {t('cta_title')}
+          </h2>
+          <p className="text-lg md:text-xl text-gray-400 dark:text-gray-600 font-light mb-12 max-w-2xl mx-auto">
+            {t('cta_desc')}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link
               href="/provider/register"
-              className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="group inline-flex items-center justify-center bg-white dark:bg-black text-black dark:text-white px-8 h-14 rounded-none text-xs font-bold uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
             >
-              {t('cta_provider_btn')} <ArrowRight className="w-4 h-4" />
+              {t('cta_provider_btn')} 
+              <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 border border-slate-700 dark:border-slate-300 text-white dark:text-slate-900 px-6 py-3 rounded-xl font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+              className="group inline-flex items-center justify-center border border-white/30 dark:border-black/30 text-white dark:text-black px-8 h-14 rounded-none text-xs font-bold uppercase tracking-widest hover:border-white dark:hover:border-black transition-colors"
             >
               {t('cta_contact_btn')}
             </Link>
           </div>
         </div>
       </section>
+      
     </div>
   );
 }

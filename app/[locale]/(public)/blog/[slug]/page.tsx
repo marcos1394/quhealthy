@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowLeft, Calendar, User, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 // Interfaz que coincide con el DTO del backend
@@ -17,7 +17,7 @@ interface BlogPost {
   keywords: string[];
   imageUrl: string;
   createdAt: string;
-  author?: string; // Podría venir en el futuro, por ahora por defecto
+  author?: string;
 }
 
 // Fetch the post from our Java Analytics Service
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const url = `https://www.quhealthy.org/${locale}/blog/${post.slug}`;
 
   return {
-    title: `${post.title} | QuHealthy Blog`,
+    title: `${post.title} | QuHealthy Editorial`,
     description: post.metaDescription || post.excerpt,
     keywords: post.keywords?.join(', '),
     openGraph: {
@@ -96,7 +96,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
 
   // Reading time estimation
   const wordCount = post.content.split(/\s+/).length;
-  const readingTime = Math.ceil(wordCount / 200); // 200 words per minute average
+  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
   // Generate JSON-LD Structured Data
   const jsonLd = {
@@ -122,76 +122,97 @@ export default async function BlogPostPage({ params }: { params: Params }) {
     description: post.metaDescription
   };
 
+  const backText = locale === 'en' ? 'Back to Editorial' : 'Volver al Editorial';
+
   return (
     <>
-      {/* Inject JSON-LD into the head */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       
-      <main className="min-h-screen bg-white dark:bg-slate-950 pt-32 pb-24 font-sans">
+      <main className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-32 pb-24 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
         <article className="container mx-auto px-6 md:px-12 max-w-4xl">
           
-          {/* Back button */}
-          <div className="mb-8">
-            <Link href={`/${locale}/blog`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-medical-600 dark:hover:text-medical-400 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver al blog
+          {/* Back button (Arquitectónico) */}
+          <div className="mb-12 border-b border-gray-200 dark:border-gray-800 pb-6">
+            <Link 
+              href={`/${locale}/blog`} 
+              className="group inline-flex items-center text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-3 group-hover:-translate-x-1 transition-transform" />
+              {backText}
             </Link>
           </div>
 
           {/* Header */}
-          <header className="mb-12">
-            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
+          <header className="mb-16">
+            <div className="flex flex-wrap items-center gap-4 text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-8">
               <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
+                <Calendar className="w-3.5 h-3.5 mr-2" strokeWidth={2} />
                 <time dateTime={post.createdAt}>{publishDate}</time>
               </div>
-              <span>•</span>
+              <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
               <div className="flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
-                <span>{readingTime} min de lectura</span>
-              </div>
-              <span>•</span>
-              <div className="flex items-center">
-                <User className="w-4 h-4 mr-2" />
-                <span>QuHealthy Editorial</span>
+                <Clock className="w-3.5 h-3.5 mr-2" strokeWidth={2} />
+                <span>{readingTime} min</span>
               </div>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-black dark:text-white leading-[1.1] mb-8 tracking-tight">
               {post.title}
             </h1>
 
-            {/* Tags */}
+            {/* Tags (Estilo Bloque Sólido) */}
             {post.keywords && post.keywords.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex flex-wrap gap-2 mb-12">
                 {post.keywords.map((kw, i) => (
-                  <span key={i} className="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
+                  <span 
+                    key={i} 
+                    className="border border-black dark:border-white text-black dark:text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1"
+                  >
                     {kw}
                   </span>
                 ))}
               </div>
             )}
 
-            {/* Featured Image */}
-            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900 shadow-lg relative">
+            {/* Featured Image (Corte vivo, sin redondeos, full width) */}
+            <div className="w-full aspect-[21/9] md:aspect-[16/9] bg-gray-100 dark:bg-gray-900 relative">
               <img 
                 src={post.imageUrl} 
                 alt={post.title} 
                 className="w-full h-full object-cover"
-                loading="lazy"
+                loading="eager" // Eager loading for LCP optimization on Hero image
               />
             </div>
           </header>
 
-          {/* Content (Rendered Markdown via tailwind typography) */}
-          <div className="prose prose-lg prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-medical-600 dark:prose-a:text-medical-400 hover:prose-a:text-medical-700 prose-img:rounded-xl">
+          {/* Content (Rendered Markdown via Custom Tailwind Typography) */}
+          <div className="prose prose-lg md:prose-xl prose-gray dark:prose-invert max-w-none 
+                          prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-black dark:prose-headings:text-white 
+                          prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:font-light prose-p:leading-relaxed 
+                          prose-a:text-black dark:prose-a:text-white prose-a:font-medium prose-a:no-underline prose-a:border-b prose-a:border-black/20 hover:prose-a:border-black dark:prose-a:border-white/30 dark:hover:prose-a:border-white transition-all
+                          prose-strong:text-black dark:prose-strong:text-white prose-strong:font-medium
+                          prose-blockquote:border-l-2 prose-blockquote:border-black dark:prose-blockquote:border-white prose-blockquote:text-gray-500 prose-blockquote:font-serif prose-blockquote:italic prose-blockquote:text-2xl prose-blockquote:leading-snug
+                          prose-img:rounded-none prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-800
+                          prose-ul:text-gray-600 dark:prose-ul:text-gray-300 prose-ul:font-light prose-li:marker:text-black dark:prose-li:marker:text-white">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {post.content}
             </ReactMarkdown>
           </div>
+
+          {/* Footer del Post (Author Bio Minimalista) */}
+          <footer className="mt-20 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                QuHealthy Editorial
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 font-light text-sm max-w-md leading-relaxed">
+                Nuestra IA analiza miles de artículos médicos y datos clínicos para traerte contenido preciso, verificado y fácil de digerir sobre salud y tecnología.
+              </p>
+            </div>
+          </footer>
 
         </article>
       </main>
