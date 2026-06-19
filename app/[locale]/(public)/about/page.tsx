@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Users, Target, Eye, Lock, Globe, ShieldCheck } from "lucide-react";
+import { ArrowRight, HeartHandshake, Sparkles, Compass, Fingerprint, Earth, BadgeCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePublicStats } from "@/hooks/usePublicStats";
@@ -28,15 +28,15 @@ export default function AboutPage() {
   }));
 
   const values = [
-    { icon: Users, title: t("values.v1_title"), description: t("values.v1_desc") },
-    { icon: Eye, title: t("values.v2_title"), description: t("values.v2_desc") },
-    { icon: Target, title: t("values.v3_title"), description: t("values.v3_desc") },
+    { icon: HeartHandshake, title: t("values.v1_title"), description: t("values.v1_desc") },
+    { icon: Sparkles, title: t("values.v2_title"), description: t("values.v2_desc") },
+    { icon: Compass, title: t("values.v3_title"), description: t("values.v3_desc") },
   ];
 
   const trustPillars = [
-    { icon: Lock, title: t("trust.t1_title"), description: t("trust.t1_desc") },
-    { icon: Globe, title: t("trust.t2_title"), description: t("trust.t2_desc") },
-    { icon: ShieldCheck, title: t("trust.t3_title"), description: t("trust.t3_desc") },
+    { icon: Fingerprint, title: t("trust.t1_title"), description: t("trust.t1_desc") },
+    { icon: Earth, title: t("trust.t2_title"), description: t("trust.t2_desc") },
+    { icon: BadgeCheck, title: t("trust.t3_title"), description: t("trust.t3_desc") },
   ];
 
   return (
@@ -131,13 +131,13 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="flex flex-col gap-6"
+                  className="flex flex-col gap-6 p-8 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 hover:bg-white dark:hover:bg-slate-950 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group cursor-default"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-white dark:bg-medical-900/30 flex items-center justify-center shrink-0 border border-medical-100 dark:border-medical-800">
-                    <Icon className="w-6 h-6 text-medical-600 dark:text-medical-400" />
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-6 h-6 text-slate-700 dark:text-slate-300" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">{val.title}</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">{val.title}</h3>
                     <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light">{val.description}</p>
                   </div>
                 </motion.div>
@@ -169,10 +169,10 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8"
+                  className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group cursor-default"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center mb-6 border border-medical-100 dark:border-medical-800">
-                    <Icon className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+                  <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center mb-6 border border-slate-300 dark:border-slate-700 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                    <Icon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">{pillar.title}</h3>
                   <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{pillar.description}</p>
@@ -204,32 +204,32 @@ export default function AboutPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {/* Founder card */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8">
-              <div className="w-16 h-16 rounded-full bg-medical-600 text-white flex items-center justify-center text-lg font-semibold mb-6">
-                MS
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
+              <div className="w-16 h-16 rounded-full bg-slate-800 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
+                <UserRound className="w-7 h-7 text-slate-200" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_founder_name')}</h3>
-              <p className="text-sm font-medium text-medical-600 dark:text-medical-400 mb-4">{t('team_founder_role')}</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_founder_role')}</p>
               <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_founder_bio')}</p>
             </div>
 
             {/* Partner 1: Fausto Acuña */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8">
-              <div className="w-16 h-16 rounded-full bg-medical-500 text-white flex items-center justify-center text-lg font-semibold mb-6">
-                FA
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
+              <div className="w-16 h-16 rounded-full bg-slate-700 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
+                <UserRound className="w-7 h-7 text-slate-200" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_partner_fausto_name')}</h3>
-              <p className="text-sm font-medium text-medical-600 dark:text-medical-400 mb-4">{t('team_partner_fausto_role')}</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_partner_fausto_role')}</p>
               <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_partner_fausto_bio')}</p>
             </div>
 
             {/* Partner 2: Pedro Ordoñez */}
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8">
-              <div className="w-16 h-16 rounded-full bg-medical-500 text-white flex items-center justify-center text-lg font-semibold mb-6">
-                PO
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 group">
+              <div className="w-16 h-16 rounded-full bg-slate-700 dark:bg-slate-800 text-white flex items-center justify-center text-lg font-semibold mb-6 group-hover:scale-110 transition-transform duration-300">
+                <UserRound className="w-7 h-7 text-slate-200" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">{t('team_partner_pedro_name')}</h3>
-              <p className="text-sm font-medium text-medical-600 dark:text-medical-400 mb-4">{t('team_partner_pedro_role')}</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-4">{t('team_partner_pedro_role')}</p>
               <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{t('team_partner_pedro_bio')}</p>
             </div>
           </div>
