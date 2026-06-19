@@ -3554,7 +3554,15 @@
     "loading": "Loading articles...",
     "read_more": "Read full article",
     "load_more": "Load more articles",
-    "no_results": "No articles found for your search."
+    "no_results": "No articles found for your search.",
+    "categories": {
+      "all": "All",
+      "mental_health": "Mental Health",
+      "nutrition": "Nutrition",
+      "dermatology": "Dermatology",
+      "innovation": "Medical Innovation",
+      "lifestyle": "Lifestyle"
+    }
   },
   "PublicCareers": {
     "breadcrumb": "Careers",

@@ -25,7 +25,14 @@ export default function BlogPage() {
   const t = useTranslations("PublicBlog");
   const locale = useLocale();
   const [searchQuery, setSearchQuery] = useState("");
-  const categories = ["Todos", "Salud Mental", "Nutrición", "Dermatología", "Innovación Médica", "Estilo de Vida"];
+  const categories = [
+    t('categories.all'),
+    t('categories.mental_health'),
+    t('categories.nutrition'),
+    t('categories.dermatology'),
+    t('categories.innovation'),
+    t('categories.lifestyle')
+  ];
 
   const { data: posts, isLoading, error } = useSWR<BlogPost[]>("/api/blog/posts", fetcher);
 
@@ -102,7 +109,7 @@ export default function BlogPage() {
           
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-              <div className="w-8 h-8 border-4 border-medical-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <div className="w-8 h-8 border-4 border-slate-500 border-t-transparent rounded-full animate-spin mb-4"></div>
               <p>{t('loading')}</p>
             </div>
           )}
