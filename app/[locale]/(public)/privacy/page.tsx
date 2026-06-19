@@ -13,7 +13,9 @@ export default function PrivacyPage() {
     { id: "usage", title: t('s3_title') },
     { id: "sharing", title: t('s4_title') },
     { id: "security", title: t('s5_title') },
-    { id: "rights", title: t('s6_title') },
+    { id: "transfers", title: t('s6_title') },
+    { id: "rights", title: t('s7_title') },
+    { id: "minors", title: t('s8_title') },
   ];
 
   return (
@@ -77,7 +79,7 @@ export default function PrivacyPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="w-full md:w-64 shrink-0 md:sticky md:top-32"
             >
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-6">Contenido</h3>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('toc')}</h3>
               <ul className="space-y-4">
                 {sections.map((sec) => (
                   <li key={sec.id}>
@@ -109,9 +111,9 @@ export default function PrivacyPage() {
               <h2 id="data" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s2_title')}</h2>
               <p>{t('s2_desc')}</p>
               <ul>
-                <li><strong>{t('s2_l1').split(':')[0]}:</strong> {t('s2_l1').split(':')[1]}</li>
-                <li><strong>{t('s2_l2').split(':')[0]}:</strong> {t('s2_l2').split(':')[1]}</li>
-                <li><strong>{t('s2_l3').split(':')[0]}:</strong> {t('s2_l3').split(':')[1]}</li>
+                <li><strong>{t('s2_l1').split(':')[0]}:</strong> {t('s2_l1').split(':').slice(1).join(':')}</li>
+                <li><strong>{t('s2_l2').split(':')[0]}:</strong> {t('s2_l2').split(':').slice(1).join(':')}</li>
+                <li><strong>{t('s2_l3').split(':')[0]}:</strong> {t('s2_l3').split(':').slice(1).join(':')}</li>
               </ul>
 
               <h2 id="usage" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s3_title')}</h2>
@@ -123,14 +125,21 @@ export default function PrivacyPage() {
               <h2 id="security" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s5_title')}</h2>
               <p>{t('s5_desc')}</p>
 
-              <h2 id="rights" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s6_title')}</h2>
+              <h2 id="transfers" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s6_title')}</h2>
               <p>{t('s6_desc')}</p>
+
+              <h2 id="rights" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s7_title')}</h2>
+              <p>{t('s7_desc')}</p>
               <ul>
-                <li>{t('s6_l1')}</li>
-                <li>{t('s6_l2')}</li>
-                <li>{t('s6_l3')}</li>
-                <li>{t('s6_l4')}</li>
+                <li>{t('s7_l1')}</li>
+                <li>{t('s7_l2')}</li>
+                <li>{t('s7_l3')}</li>
+                <li>{t('s7_l4')}</li>
               </ul>
+              <p>{t('s7_note')}</p>
+
+              <h2 id="minors" className="text-2xl font-semibold text-slate-900 dark:text-white mt-12 mb-6">{t('s8_title')}</h2>
+              <p>{t('s8_desc')}</p>
               
               <div className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 text-sm bg-medical-50 dark:bg-medical-900/10 p-6 rounded-2xl">
                 {t('contact')}

@@ -3601,41 +3601,53 @@
     "liability_desc": "QuHealthy acts exclusively as a technological facilitator. We will not be liable for medical negligence, incorrect prescriptions, or direct disputes arising between the patient and the healthcare provider. In the event of a medical emergency, you must immediately contact local emergency services (e.g., 911), and not use our platform.",
     "contact": "Do you have any questions about these terms? Contact us at legal@quhealthy.com."
   },
+  
+
   "PublicPrivacy": {
     "breadcrumb": "Legal",
-    "title": "Privacy Policy",
+    "title": "Privacy Notice",
     "subtitle": "We take your privacy with absolute seriousness. Learn how we protect, manage, and secure your clinical and personal information.",
     "badges": {
       "b1_title": "Medical-Grade Protection",
-      "b1_desc": "Compliance with industry standards.",
+      "b1_desc": "Built around recognized security standards for health data.",
       "b2_title": "E2E Encryption",
       "b2_desc": "Your data encrypted in transit and at rest.",
       "b3_title": "Total Control",
       "b3_desc": "You decide who sees your history."
     },
     "toc": "Table of Contents",
-    "intro": "At QuHealthy, we consider the privacy of your health information to be a fundamental human right. This document details our practices regarding how we collect, process, and safeguard your personal and clinical data.",
+    "intro": "At QuHealthy, we consider the privacy of your health information a fundamental right. This Privacy Notice (Aviso de Privacidad) details our practices regarding how we collect, process, and safeguard your personal and clinical data across Mexico, Latin America, and the United States.",
     "s1_title": "1. Introduction and Scope",
-    "s1_desc": "This Privacy Policy applies to all QuHealthy platform users, including patients, doctors, clinics, and website visitors. By using our services, you consent to the collection of your data under the terms described here.",
+    "s1_desc": "This Privacy Notice applies to all QuHealthy platform users — patients, doctors, clinics, and website visitors. It describes what personal data we collect, how we use it, and the rights available to you. Creating an account or booking an appointment means you've had the opportunity to review this notice. For sensitive health information specifically, we ask for your separate, explicit consent at the point you provide it, as described in Section 7.",
     "s2_title": "2. Information We Collect",
-    "s2_desc": "We collect different types of information to operate efficiently:",
+    "s2_desc": "We collect different categories of information to operate the platform:",
     "s2_l1": "Identity Data: Name, email, date of birth, and ID document.",
-    "s2_l2": "Health Information (PHI): Medical history, lab results, consultation notes, and prescriptions, entered by you or your medical providers.",
-    "s2_l3": "Technical Data: IP address, browser type, operating system, and device identifiers collected through cookies (subject to your consent).",
+    "s2_l2": "Health Information: Medical history, lab results, consultation notes, and prescriptions, entered by you or your healthcare provider. Under Mexican law, this is classified as sensitive personal data (datos personales sensibles); in a U.S. HIPAA-covered context, the equivalent term is Protected Health Information. Either way, it receives our highest level of protection and requires your express consent.",
+    "s2_l3": "Technical Data: IP address, browser type, operating system, and device identifiers, collected through cookies subject to your consent — see our Cookie Policy for details.",
     "s3_title": "3. How We Use Your Information",
-    "s3_desc": "We use your health data exclusively to facilitate medical care. QuHealthy will never sell your medical history to third parties, pharmaceutical companies, or insurance companies without your express, signed consent. Technical data is used for performance analytics and platform improvements.",
+    "s3_desc": "We use your health data exclusively to facilitate medical care. QuHealthy never sells medical history to third parties, pharmaceutical companies, or insurance companies, under any circumstances. Technical data is used, with your consent, for performance analytics and platform improvements.",
     "s4_title": "4. Data Sharing",
-    "s4_desc": "Your health information (PHI) is only shared with the healthcare professionals you choose to book an appointment with, or to whom you grant direct access from your patient dashboard. We may share anonymous and aggregated data (where it is impossible to identify you) with medical research institutions.",
+    "s4_desc": "Your health information is only shared with the healthcare professionals you choose to book an appointment with, or to whom you grant direct access from your patient dashboard. We may share anonymized, aggregated data — where it's not possible to identify you — with medical research institutions, under contractual confidentiality obligations. We never share your health information with advertisers, data brokers, or social media companies.",
     "s5_title": "5. Security and Standards",
-    "s5_desc": "The platform is built under the strictest cybersecurity standards. All sensitive data, including medical records and media (X-rays, photos), are stored with AES-256 encryption at rest and TLS 1.3 in transit. Our servers operate on infrastructure compliant with HIPAA (Health Insurance Portability and Accountability Act) guidelines.",
-    "s6_title": "6. Your Rights",
-    "s6_desc": "Depending on your jurisdiction (including GDPR, CCPA, or local Latin American regulations), you have the right to:",
-    "s6_l1": "Access a complete copy of your data in a machine-readable format.",
-    "s6_l2": "Request the rectification of inaccurate information.",
-    "s6_l3": "Request the total deletion of your account and associated data ('Right to be Forgotten').",
-    "s6_l4": "Revoke access previously granted to doctors or clinics.",
-    "contact": "To exercise your privacy rights or if you have questions about our security practices, please contact our Data Protection Officer (DPO) at privacy@quhealthy.com."
+    "s5_desc": "The platform is built under strict cybersecurity standards. Sensitive data, including medical records and media (X-rays, photos), is stored with AES-256 encryption at rest and TLS 1.3 in transit. We host on cloud infrastructure that offers HIPAA-eligible services. As we formalize healthcare relationships in the United States, we will pursue and clearly disclose any additional compliance certifications we obtain.",
+    "s6_title": "6. Cross-Border Transfers and Data Retention",
+    "s6_desc": "Some of our service providers — for example, payment processing and cloud infrastructure — may process data outside Mexico, including in the United States. Where this happens, we put contractual safeguards in place to protect your information to the standard described in this notice. We retain personal data only as long as necessary to provide the service, meet legal record-keeping obligations, or resolve disputes; once that period ends, data is securely deleted or anonymized.",
+    "s7_title": "7. Your Rights",
+    "s7_desc": "Depending on your location, you have rights over your personal data under Mexico's Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP), the California Consumer Privacy Act (CCPA), the EU's GDPR, or other applicable local law. In Mexico and most of Latin America, these are known as ARCO rights:",
+    "s7_l1": "Acceso (Access): Request a complete copy of the personal data we hold about you, in a machine-readable format.",
+    "s7_l2": "Rectificación (Rectification): Request correction of inaccurate or outdated information.",
+    "s7_l3": "Cancelación (Cancellation): Request deletion of your account and associated data — comparable to the 'right to be forgotten' — where there's no legal reason for us to keep it.",
+    "s7_l4": "Oposición (Objection): Object to certain uses of your data, and revoke access you've previously granted to doctors or clinics.",
+    "s7_note": "If you're in Mexico and believe your rights haven't been respected, you can file a complaint with the Secretaría Anticorrupción y Buen Gobierno (Dirección General de Datos Personales en el Sector Privado), Mexico's data protection authority.",
+    "s8_title": "8. Children's Privacy",
+    "s8_desc": "QuHealthy is not directed at, and we do not knowingly collect personal information directly from, individuals under 18. If a minor receives care booked through QuHealthy, this occurs under the account, supervision, and consent of a parent or legal guardian.",
+    "contact": "To exercise your privacy rights (ARCO, CCPA, or otherwise) or for questions about our security practices, contact our privacy team at privacy@quhealthy.com. Data controller: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
+
+
+
+
+
   "PublicCookies": {
     "breadcrumb": "Legal",
     "title": "Cookie Policy",
