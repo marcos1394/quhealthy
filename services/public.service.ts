@@ -1,4 +1,6 @@
 import axios from 'axios';
+import axiosInstance from '@/lib/axios';
+import { PlatformStats } from '@/types/public';
 
 // Usamos la variable de entorno que ya tienes configurada en tu proyecto
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
@@ -19,6 +21,14 @@ export const publicService = {
         }
       }
     );
+    return response.data;
+  },
+
+  /**
+   * Obtiene las estadísticas públicas de la plataforma.
+   */
+  getPlatformStats: async (): Promise<PlatformStats> => {
+    const response = await axiosInstance.get<PlatformStats>('/api/analytics/public/stats');
     return response.data;
   }
 };

@@ -3480,21 +3480,25 @@
     "error_save": "There was a problem saving preferences.",
     "loading_preferences": "Loading preferences..."
   },
+ 
+  
   "PublicAbout": {
     "breadcrumb": "Our Story",
     "title_light": "Reimagining ",
     "title_highlight": "health",
     "title_dark": " for a new generation.",
     "subtitle": "Building the digital infrastructure to connect millions of patients with the best specialists in Latin America.",
+    "stats_section_title": "Our Growing Network",
     "stats": {
       "patients": "Patients Served",
       "professionals": "Active Professionals",
-      "countries": "Latam Countries",
+      "countries": "Countries in LATAM",
       "rating": "Average Rating"
     },
     "mission_title": "The Mission",
     "mission_desc": "We believe that access to quality healthcare is a fundamental right. At QuHealthy, we are breaking down geographical barriers and administrative friction through cutting-edge technology, allowing anyone to find the right specialist in seconds, whether virtually or in-person.",
     "values_title": "Our Values",
+    "values_subtitle": "The principles that guide every line of code we write and every decision we make.",
     "values": {
       "v1_title": "Patient First",
       "v1_desc": "Every product, design, and business decision is made by asking first: Does this improve the patient's life?",
@@ -3503,10 +3507,36 @@
       "v3_title": "Pursuit of Excellence",
       "v3_desc": "We do not accept the status quo of the current healthcare system. We are here to change it radically through design and engineering."
     },
-    "team_title": "Leadership",
-    "team_subtitle": "Backed by a team of engineers, doctors, and designers from Silicon Valley and Latam.",
-    "team_btn": "Meet the team on LinkedIn"
+    "trust_title": "Built for Trust",
+    "trust_subtitle": "Trust isn't a tagline here — it's built into every technical and legal decision we make.",
+    "trust": {
+      "t1_title": "End-to-End Encryption",
+      "t1_desc": "Sensitive data, including medical records and imaging, is encrypted with AES-256 at rest and TLS 1.3 in transit.",
+      "t2_title": "Multi-Jurisdiction Compliance",
+      "t2_desc": "We build around Mexico's LFPDPPP, the CCPA in the U.S., and the principles shared across Latin American data protection law — not just one region's standard.",
+      "t3_title": "No Hidden Tracking",
+      "t3_desc": "We don't use advertising pixels on the platform, and we never sell or share health information with advertisers or data brokers."
+    },
+    "trust_cta_privacy": "Read our Privacy Notice",
+    "trust_cta_cookies": "Read our Cookie Policy",
+    "team_title": "Founding Team",
+    "team_subtitle": "Built and engineered hands-on, with strategic partners helping shape where QuHealthy goes next.",
+    "team_founder_name": "Marcos Sandoval Ruiz",
+    "team_founder_role": "Founder & CTO",
+    "team_founder_bio": "Engineer with a background spanning software development, process improvement, maritime-port operations, and financial services — building QuHealthy's entire technology stack from the ground up.",
+    "team_partner_fausto_name": "Fausto Acuña",
+    "team_partner_fausto_role": "Software Development Engineer",
+    "team_partner_fausto_bio": "Has extensive experience in this field.",
+    "team_partner_pedro_name": "Pedro Ordoñez",
+    "team_partner_pedro_role": "Industrial Engineer",
+    "team_partner_pedro_bio": "Has extensive experience in this field.",
+    "cta_title": "Building the Future of Healthcare in Latin America",
+    "cta_desc": "Whether you're a healthcare professional looking to grow your practice, or a partner who shares our vision — we'd like to hear from you.",
+    "cta_provider_btn": "Join as a Specialist",
+    "cta_contact_btn": "Contact Us"
   },
+
+
   "PublicContact": {
     "breadcrumb": "Contact",
     "title": "We are here to help.",

@@ -3503,33 +3503,64 @@
     "error_save": "Hubo un problema al guardar las preferencias.",
     "loading_preferences": "Cargando preferencias..."
   },
+ 
+
+  
   "PublicAbout": {
     "breadcrumb": "Nuestra Historia",
     "title_light": "Reimaginando la ",
     "title_highlight": "salud",
     "title_dark": " para una nueva generación.",
-    "subtitle": "Construyendo la infraestructura digital para conectar a millones de pacientes con los mejores especialistas de América Latina.",
+    "subtitle": "Construyendo la infraestructura digital para conectar a millones de pacientes con los mejores especialistas en Latinoamérica.",
+    "stats_section_title": "Nuestra Red en Crecimiento",
     "stats": {
       "patients": "Pacientes Atendidos",
       "professionals": "Profesionales Activos",
-      "countries": "Países de Latam",
+      "countries": "Países en LATAM",
       "rating": "Calificación Promedio"
     },
-    "mission_title": "La Misión",
-    "mission_desc": "Creemos que el acceso a salud de calidad es un derecho fundamental. En QuHealthy, estamos rompiendo las barreras geográficas y fricciones administrativas mediante tecnología de punta, permitiendo que cualquier persona encuentre al especialista correcto en segundos, ya sea de forma virtual o presencial.",
+    "mission_title": "Nuestra Misión",
+    "mission_desc": "Creemos que el acceso a atención médica de calidad es un derecho fundamental. En QuHealthy, estamos eliminando barreras geográficas y fricción administrativa a través de tecnología de punta, permitiendo que cualquier persona encuentre al especialista correcto en segundos, ya sea de forma virtual o presencial.",
     "values_title": "Nuestros Valores",
+    "values_subtitle": "Los principios que guían cada línea de código que escribimos y cada decisión que tomamos.",
     "values": {
-      "v1_title": "Primero el Paciente",
-      "v1_desc": "Cada decisión de producto, diseño y negocio se toma preguntándonos primero: ¿Esto mejora la vida del paciente?",
+      "v1_title": "El Paciente Primero",
+      "v1_desc": "Cada decisión de producto, diseño y negocio se toma preguntando primero: ¿esto mejora la vida del paciente?",
       "v2_title": "Transparencia Total",
-      "v2_desc": "Desde la experiencia de nuestros doctores hasta nuestras estructuras de precios. Construimos con ética médica y privacidad.",
+      "v2_desc": "Desde la experiencia de nuestros médicos hasta nuestra estructura de precios. Construimos con ética médica y privacidad.",
       "v3_title": "Búsqueda de la Excelencia",
-      "v3_desc": "No aceptamos el status quo del sistema de salud actual. Estamos aquí para cambiarlo radicalmente a través del diseño y la ingeniería."
+      "v3_desc": "No aceptamos el estado actual del sistema de salud. Estamos aquí para cambiarlo radicalmente a través del diseño y la ingeniería."
     },
-    "team_title": "Liderazgo",
-    "team_subtitle": "Respaldados por un equipo de ingenieros, médicos y diseñadores de Silicon Valley y Latam.",
-    "team_btn": "Conoce al equipo en LinkedIn"
+    "trust_title": "Construido para la Confianza",
+    "trust_subtitle": "La confianza no es un eslogan aquí — está en cada decisión técnica y legal que tomamos.",
+    "trust": {
+      "t1_title": "Cifrado de Extremo a Extremo",
+      "t1_desc": "Los datos sensibles, incluyendo expedientes médicos e imágenes, se cifran con AES-256 en reposo y TLS 1.3 en tránsito.",
+      "t2_title": "Cumplimiento Multi-Jurisdiccional",
+      "t2_desc": "Construimos en torno a la LFPDPPP de México, la CCPA en Estados Unidos, y los principios compartidos en la legislación de protección de datos de Latinoamérica — no solo el estándar de una región.",
+      "t3_title": "Sin Rastreo Oculto",
+      "t3_desc": "No usamos píxeles publicitarios en la plataforma, y nunca vendemos ni compartimos información de salud con anunciantes o corredores de datos."
+    },
+    "trust_cta_privacy": "Lee nuestro Aviso de Privacidad",
+    "trust_cta_cookies": "Lee nuestra Política de Cookies",
+    "team_title": "Equipo Fundador",
+    "team_subtitle": "Construido y desarrollado de forma directa, con socios estratégicos ayudando a definir hacia dónde crece QuHealthy.",
+    "team_founder_name": "Marcos Sandoval Ruiz",
+    "team_founder_role": "Fundador y CTO",
+    "team_founder_bio": "Ingeniero con experiencia en desarrollo de software, mejora de procesos, operaciones portuarias y servicios financieros — construyendo la infraestructura tecnológica de QuHealthy desde cero.",
+    "team_partner_fausto_name": "Fausto Acuña",
+    "team_partner_fausto_role": "Ingeniero en Desarrollo de Software",
+    "team_partner_fausto_bio": "Cuenta con experiencia en este ámbito.",
+    "team_partner_pedro_name": "Pedro Ordoñez",
+    "team_partner_pedro_role": "Ingeniero Industrial",
+    "team_partner_pedro_bio": "Cuenta con experiencia en este ámbito.",
+    "cta_title": "Construyendo el Futuro de la Salud en Latinoamérica",
+    "cta_desc": "Ya sea que seas un profesional de la salud buscando hacer crecer tu consulta, o un socio que comparte nuestra visión — nos encantaría saber de ti.",
+    "cta_provider_btn": "Únete como Especialista",
+    "cta_contact_btn": "Contáctanos"
   },
+
+
   "PublicContact": {
     "breadcrumb": "Contacto",
     "title": "Estamos aquí para ayudarte.",
