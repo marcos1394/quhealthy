@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Check, ShieldCheck, Star, Activity, Heart, Calendar, Sparkles, UserPlus, TrendingUp, Zap } from "lucide-react";
+import { Search, MapPin, Check, ShieldCheck, Star, Activity, Heart, Calendar, Sparkles, UserPlus, TrendingUp, Zap, Navigation } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,39 @@ const HeroSection: React.FC = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleGeolocation = () => {
+    if ("geolocation" in navigator) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`);
+            const data = await response.json();
+            const city = data.address.city || data.address.town || data.address.village || data.address.state || "";
+            if (city) {
+              setLocationQuery(city);
+            }
+          } catch (error) {
+            console.error("Error fetching location:", error);
+          } finally {
+            setIsLocating(false);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setIsLocating(false);
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    // Solicitar ubicación al cargar la landing para auto-completar
+    handleGeolocation();
+  }, []);
 
   const metrics = [
     { label: t('metrics.m1'), icon: ShieldCheck },
@@ -134,15 +167,22 @@ const HeroSection: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex-1 flex items-center px-4 py-3 md:py-0 group">
+                <div className="flex-1 flex items-center px-4 py-3 md:py-0 group relative">
                   <MapPin className="w-5 h-5 text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors shrink-0" />
                   <input
                     type="text"
                     placeholder={t('location_placeholder')}
-                    className="w-full bg-transparent border-none outline-none px-3 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
+                    className="w-full bg-transparent border-none outline-none px-3 pr-8 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                   />
+                  <button 
+                    onClick={handleGeolocation}
+                    title="Usar mi ubicación actual"
+                    className="absolute right-4 text-slate-400 hover:text-medical-500 transition-colors"
+                  >
+                    <Navigation className={`w-4 h-4 ${isLocating ? 'animate-pulse text-medical-500' : ''}`} />
+                  </button>
                 </div>
 
                 <Button

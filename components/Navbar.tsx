@@ -232,7 +232,33 @@ export const Navbar: React.FC = () => {
                 ? item.href.substring(1) 
                 : item.href;
 
-              return (
+              return targetHref.startsWith("#") ? (
+                <a
+                  key={item.name}
+                  href={targetHref}
+                  className={cn(
+                    "relative text-sm font-medium transition-colors duration-300 flex items-center gap-2 py-2 group",
+                    isActive
+                      ? "text-slate-900 dark:text-white"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  )}
+                >
+                  {Icon && <Icon size={16} className={cn("transition-colors", isActive ? "text-slate-900 dark:text-white" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")} />}
+                  {t(item.name)}
+                  
+                  {/* Premium Underline Indicator */}
+                  {isActive ? (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  ) : (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 transition-all origin-left duration-300 ease-out" />
+                  )}
+                </a>
+              ) : (
                 <Link
                   key={item.name}
                   href={targetHref}
@@ -366,7 +392,17 @@ export const Navbar: React.FC = () => {
                   ? item.href.substring(1) 
                   : item.href;
 
-                return (
+                return targetHref.startsWith("#") ? (
+                  <a
+                    key={item.name}
+                    href={targetHref}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
+                  >
+                    {Icon && <Icon size={18} className="text-slate-500 dark:text-slate-400" />}
+                    {t(item.name)}
+                  </a>
+                ) : (
                   <Link
                     key={item.name}
                     href={targetHref}
