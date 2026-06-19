@@ -61,7 +61,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">Correo Electrónico</h3>
-                    <a href="mailto:hola@quhealthy.com" className="text-medical-600 dark:text-medical-400 hover:underline">hola@quhealthy.com</a>
+                    <a href="mailto:founders@quhealthy.org" className="text-medical-600 dark:text-medical-400 hover:underline">founders@quhealthy.org</a>
                   </div>
                 </div>
 
