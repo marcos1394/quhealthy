@@ -28,7 +28,7 @@ export const publicService = {
    * Obtiene las estadísticas públicas de la plataforma.
    */
   getPlatformStats: async (): Promise<PlatformStats> => {
-    const response = await axiosInstance.get<PlatformStats>('/api/analytics/public/stats');
+    const response = await axiosInstance.get<PlatformStats>('/api/intelligence/public/stats');
     return response.data;
   }
 };
