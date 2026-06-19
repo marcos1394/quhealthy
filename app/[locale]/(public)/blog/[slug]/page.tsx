@@ -34,15 +34,18 @@ async function getPost(slug: string): Promise<BlogPost | null> {
   }
 }
 
+type Params = Promise<{ slug: string; locale: string }>;
+
 // Generate SEO Metadata dynamically
-export async function generateMetadata({ params }: { params: { slug: string, locale: string } }): Promise<Metadata> {
-  const post = await getPost(params.slug);
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const post = await getPost(slug);
   
   if (!post) {
     return { title: 'Post Not Found - QuHealthy' };
   }
 
-  const url = `https://www.quhealthy.org/${params.locale}/blog/${post.slug}`;
+  const url = `https://www.quhealthy.org/${locale}/blog/${post.slug}`;
 
   return {
     title: `${post.title} | QuHealthy Blog`,
@@ -77,14 +80,15 @@ export async function generateMetadata({ params }: { params: { slug: string, loc
   };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string, locale: string } }) {
-  const post = await getPost(params.slug);
+export default async function BlogPostPage({ params }: { params: Params }) {
+  const { slug, locale } = await params;
+  const post = await getPost(slug);
 
   if (!post) {
     notFound();
   }
 
-  const publishDate = new Date(post.createdAt).toLocaleDateString(params.locale === 'en' ? 'en-US' : 'es-MX', {
+  const publishDate = new Date(post.createdAt).toLocaleDateString(locale === 'en' ? 'en-US' : 'es-MX', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -131,7 +135,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string,
           
           {/* Back button */}
           <div className="mb-8">
-            <Link href={`/${params.locale}/blog`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-medical-600 dark:hover:text-medical-400 transition-colors">
+            <Link href={`/${locale}/blog`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-medical-600 dark:hover:text-medical-400 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al blog
             </Link>
