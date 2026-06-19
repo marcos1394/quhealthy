@@ -23,7 +23,7 @@ interface BlogPost {
 // Fetch the post from our Java Analytics Service
 async function getPost(slug: string): Promise<BlogPost | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blog/posts/${slug}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/blog/posts/${slug}`, {
       next: { revalidate: 3600 } // ISR: Cache for 1 hour
     });
     if (!res.ok) return null;
