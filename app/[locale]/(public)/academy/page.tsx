@@ -1,147 +1,198 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Search, BookOpen, Users, Clock, PlayCircle } from "lucide-react";
+import { ArrowRight, Search, BookOpen, Users, Clock, PlayCircle, ChevronRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 export default function AcademyPage() {
   const t = useTranslations("PublicAcademy");
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // TODO: Estos datos serán reemplazados por el fetch a tu backend
   const featuredCourses = [
     {
       id: "ai-rad",
       title: t('courses.c1_title'),
       desc: t('courses.c1_desc'),
       instructor: t('courses.c1_instructor'),
-      color: "from-blue-500 to-indigo-500"
+      color: "from-gray-800 to-black dark:from-gray-200 dark:to-white"
     },
     {
       id: "tele-ethics",
       title: t('courses.c2_title'),
       desc: t('courses.c2_desc'),
       instructor: t('courses.c2_instructor'),
-      color: "from-emerald-400 to-teal-500"
+      color: "from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100"
     },
     {
       id: "cardio-adv",
       title: t('courses.c3_title'),
       desc: t('courses.c3_desc'),
       instructor: t('courses.c3_instructor'),
-      color: "from-rose-400 to-red-500"
+      color: "from-gray-600 to-gray-800 dark:from-gray-400 dark:to-gray-200"
     }
   ];
 
+  // Variantes de animación
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20">
       
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-32 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="container mx-auto px-6 md:px-12 max-w-5xl text-center">
+      {/* Editorial Hero Section */}
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-[#0a0a0a]">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="inline-block border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase mb-6">
-              {t('breadcrumb')}
-            </span>
-            <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-slate-900 dark:text-white mb-6">
-              {t('title_light')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-medical-600 to-teal-500 italic font-serif">{t('title_highlight')}</span>{t('title_dark')}
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-light max-w-3xl mx-auto leading-relaxed mb-12">
-              {t('subtitle')}
-            </p>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
+              <Link href="/" className="hover:text-black dark:hover:text-white transition-colors">QuHealthy</Link>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-black dark:text-white">{t('breadcrumb')}</span>
+            </div>
 
-            <div className="max-w-2xl mx-auto relative group">
-              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-medical-500 transition-colors" />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-16">
+              <div className="max-w-3xl">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tight text-black dark:text-white mb-6 leading-[1.1]">
+                  {t('title_light')}
+                  <br />
+                  <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light pr-2">
+                    {t('title_highlight')}
+                  </span>
+                  {t('title_dark')}
+                </h1>
+                <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                  {t('subtitle')}
+                </p>
+              </div>
+            </div>
+
+            {/* Search Bar (Flush Design) */}
+            <div className="max-w-2xl relative group">
+              <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
               </div>
               <input 
                 type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('search_ph')}
-                className="w-full bg-slate-100 dark:bg-slate-800/50 border border-transparent focus:border-medical-500 focus:bg-white dark:focus:bg-slate-800 rounded-full h-16 pl-12 pr-6 text-lg outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 shadow-sm focus:shadow-md"
+                className="w-full bg-transparent border-b border-gray-300 dark:border-gray-800 py-4 pl-10 pr-6 text-lg font-light outline-none transition-all focus:border-black dark:focus:border-white text-black dark:text-white placeholder:text-gray-400"
               />
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-8 bg-slate-900 dark:bg-slate-950 border-b border-slate-800">
-        <div className="container mx-auto px-6 md:px-12 max-w-5xl">
-          <div className="grid grid-cols-3 gap-4 divide-x divide-slate-800">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <BookOpen className="w-5 h-5 text-medical-500" />
-                <span className="text-2xl font-bold text-white">45+</span>
+      {/* Stats Bar (Estilo Periódico Financiero) */}
+      <section className="border-b border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800">
+            <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
+              <div className="flex items-center gap-3 mb-2">
+                <BookOpen className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
+                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">45+</span>
               </div>
-              <p className="text-sm text-slate-400">{t('stats.courses')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.courses')}</p>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Users className="w-5 h-5 text-medical-500" />
-                <span className="text-2xl font-bold text-white">12k+</span>
+            <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
+              <div className="flex items-center gap-3 mb-2">
+                <Users className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
+                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">12k+</span>
               </div>
-              <p className="text-sm text-slate-400">{t('stats.students')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.students')}</p>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Clock className="w-5 h-5 text-medical-500" />
-                <span className="text-2xl font-bold text-white">500+</span>
+            <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
+              <div className="flex items-center gap-3 mb-2">
+                <Clock className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
+                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">500+</span>
               </div>
-              <p className="text-sm text-slate-400">{t('stats.hours')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.hours')}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Courses */}
-      <section className="py-24">
+      {/* Featured Courses (Directorio a Corte Vivo) */}
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">{t('featured_title')}</h2>
-            <Link href="#" className="hidden md:flex items-center gap-2 text-medical-600 dark:text-medical-400 font-medium hover:underline">
-              Ver catálogo completo <ArrowRight className="w-4 h-4" />
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+            <h2 className="text-3xl md:text-4xl font-semibold text-black dark:text-white tracking-tight">
+              {t('featured_title')}
+            </h2>
+            <Link 
+              href="#" 
+              className="group inline-flex items-center text-xs font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white transition-colors pb-1"
+            >
+              Ver catálogo completo <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16"
+          >
             {featuredCourses.map((course, idx) => (
               <motion.div 
                 key={course.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl dark:hover:shadow-medical-900/10 transition-all flex flex-col h-full"
+                variants={itemVariants}
+                className="group flex flex-col h-full cursor-pointer"
               >
-                {/* Course Thumbnail placeholder */}
-                <div className={`h-48 w-full bg-gradient-to-br ${course.color} relative overflow-hidden flex items-center justify-center`}>
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
-                  <PlayCircle className="w-16 h-16 text-white/50 group-hover:text-white/90 group-hover:scale-110 transition-all drop-shadow-md" />
+                {/* Course Thumbnail */}
+                <div className={`aspect-[4/3] w-full bg-gradient-to-br ${course.color} relative overflow-hidden mb-6`}>
+                  <img 
+                    src={`/api/placeholder/800/600`} // Placeholder para futura imagen real
+                    alt={course.title}
+                    className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60 group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors duration-500">
+                    <PlayCircle className="w-12 h-12 text-white opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" strokeWidth={1} />
+                  </div>
+                  <div className="absolute top-4 left-4 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1">
+                    <span className="text-[9px] font-bold uppercase tracking-widest">Especialidad</span>
+                  </div>
                 </div>
                 
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="text-xs font-bold text-medical-600 dark:text-medical-400 uppercase tracking-wider mb-3">Programa de Especialidad</div>
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 line-clamp-2">{course.title}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 font-light mb-6 flex-1 line-clamp-3">{course.desc}</p>
+                <div className="flex flex-col flex-1">
+                  <h3 className="text-2xl font-semibold text-black dark:text-white mb-3 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-2">
+                    {course.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 font-light mb-6 flex-1 line-clamp-3 leading-relaxed">
+                    {course.desc}
+                  </p>
                   
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                      <div className="w-8 h-8 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-xs font-bold text-black dark:text-white">
                         {course.instructor.charAt(0)}
                       </div>
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{course.instructor}</span>
+                      <span className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                        {course.instructor}
+                      </span>
                     </div>
-                    <Button variant="ghost" className="text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-900/30 rounded-full">
-                      {t('enroll_btn')}
-                    </Button>
+                    <div className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                      {t('enroll_btn')} <ArrowUpRight className="w-3 h-3 ml-1" />
+                    </div>
                   </div>
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
