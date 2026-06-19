@@ -4,17 +4,18 @@ import { motion } from "framer-motion";
 import { ArrowRight, Search, Calendar, User, Tag } from "lucide-react";
 import useSWR from "swr";
 import axiosInstance from "@/lib/axios";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Interfaz esperada del backend
 interface BlogPost {
   id: string;
   title: string;
+  slug: string;
   excerpt: string;
-  category: string;
-  date: string;
-  author: string;
+  keywords: string[];
+  createdAt: string;
   imageUrl: string;
 }
 
@@ -22,6 +23,7 @@ const fetcher = (url: string) => axiosInstance.get<BlogPost[]>(url).then(res => 
 
 export default function BlogPage() {
   const t = useTranslations("PublicBlog");
+  const locale = useLocale();
   const [searchQuery, setSearchQuery] = useState("");
   const categories = ["Todos", "Salud Mental", "Nutrición", "Dermatología", "Innovación Médica", "Estilo de Vida"];
 
@@ -125,80 +127,83 @@ export default function BlogPage() {
 
           {/* Featured Post */}
           {!isLoading && featuredPost && !searchQuery && (
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mb-20 group cursor-pointer"
-            >
-              <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center bg-white dark:bg-slate-900 p-4 md:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500">
-                <div className="relative aspect-[4/3] md:aspect-auto md:h-full w-full rounded-2xl overflow-hidden">
-                  <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10" />
-                  <img src={featuredPost.imageUrl} alt={featuredPost.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
-                  <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-medical-600 dark:text-medical-400" />
-                    <span className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider">{featuredPost.category}</span>
+            <Link href={`/${locale}/blog/${featuredPost.slug}`}>
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="mb-20 group cursor-pointer"
+              >
+                <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center bg-white dark:bg-slate-900 p-4 md:p-6 lg:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-500">
+                  <div className="relative aspect-[4/3] md:aspect-auto md:h-full w-full rounded-2xl overflow-hidden">
+                    <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10" />
+                    <img src={featuredPost.imageUrl} alt={featuredPost.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
+                    <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-medical-600 dark:text-medical-400" />
+                      <span className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider">{featuredPost.keywords?.[0] || 'Health Tech'}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col justify-center py-4 md:pr-6">
+                    <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">
+                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date(featuredPost.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                      <span className="flex items-center gap-1.5"><User className="w-4 h-4" /> QuHealthy Editorial</span>
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white mb-6 leading-tight group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
+                      {featuredPost.title}
+                    </h2>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-8">
+                      {featuredPost.excerpt}
+                    </p>
+                    <div>
+                      <span className="inline-flex items-center gap-2 text-medical-600 dark:text-medical-400 font-semibold text-sm tracking-wide">
+                        {t('read_more')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-col justify-center py-4 md:pr-6">
-                  <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">
-                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {featuredPost.date}</span>
-                    <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-                    <span className="flex items-center gap-1.5"><User className="w-4 h-4" /> {featuredPost.author}</span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white mb-6 leading-tight group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                    {featuredPost.title}
-                  </h2>
-                  <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-8">
-                    {featuredPost.excerpt}
-                  </p>
-                  <div>
-                    <span className="inline-flex items-center gap-2 text-medical-600 dark:text-medical-400 font-semibold text-sm tracking-wide">
-                      {t('read_more')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           )}
 
           {/* Grid Posts */}
           {!isLoading && regularPosts.length > 0 && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {regularPosts.map((post, idx) => (
-                <motion.article 
-                  key={post.id || idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
-                    <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{post.category}</span>
+                <Link href={`/${locale}/blog/${post.slug}`} key={post.id || idx}>
+                  <motion.article 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: idx * 0.1 }}
+                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
+                      <div className="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{post.keywords?.[0] || 'Health Tech'}</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="p-6 md:p-8">
-                    <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
-                      <span>{post.date}</span>
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6 line-clamp-3">
-                      {post.excerpt}
-                    </p>
                     
-                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-                      <span className="text-xs font-semibold text-slate-900 dark:text-white">{post.author}</span>
-                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-1 transition-all" />
+                    <div className="p-6 md:p-8 h-full flex flex-col">
+                      <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
+                        <span>{new Date(post.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3 leading-snug group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6 line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      
+                      <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-white">QuHealthy Editorial</span>
+                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
-                  </div>
-                </motion.article>
+                  </motion.article>
+                </Link>
               ))}
             </div>
           )}
