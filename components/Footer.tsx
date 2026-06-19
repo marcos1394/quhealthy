@@ -40,10 +40,17 @@ const Footer: React.FC = () => {
     }
   ];
 
+  const TikTokIcon = ({ size = 18 }: { size?: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+    </svg>
+  );
+
   const socialLinks = [
-    { icon: Instagram, href: "https://instagram.com/quhealthy", name: "Instagram", color: "hover:text-pink-500 dark:hover:text-pink-400" },
-    { icon: Twitter, href: "https://twitter.com/quhealthy", name: "Twitter", color: "hover:text-blue-500 dark:hover:text-blue-400" },
-    { icon: Facebook, href: "https://facebook.com/quhealthy", name: "Facebook", color: "hover:text-blue-600 dark:hover:text-blue-500" }
+    { icon: Instagram, href: "https://www.instagram.com/quhealthyorg/", name: "Instagram", color: "hover:text-pink-500 dark:hover:text-pink-400" },
+    { icon: Twitter, href: "https://x.com/suimcafee", name: "X (Twitter)", color: "hover:text-slate-900 dark:hover:text-white" },
+    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61590877116503", name: "Facebook", color: "hover:text-blue-600 dark:hover:text-blue-500" },
+    { icon: TikTokIcon, href: "https://www.tiktok.com/@quhealthy", name: "TikTok", color: "hover:text-black dark:hover:text-white" }
   ];
 
   return (
@@ -136,23 +143,16 @@ const Footer: React.FC = () => {
                   <div className="w-8 h-8 rounded-lg bg-medical-100 dark:bg-medical-500/10 flex items-center justify-center flex-shrink-0 mr-3 group-hover:bg-medical-200 dark:group-hover:bg-medical-500/20 transition-colors duration-200">
                     <Mail size={16} className="text-medical-600 dark:text-medical-400 transition-colors" />
                   </div>
-                  <a href="mailto:hola@quhealthy.com" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                    hola@quhealthy.com
+                  <a href="mailto:founders@quhealthy.org" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    founders@quhealthy.org
                   </a>
                 </li>
-                <li className="flex items-start group">
-                  <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-500/10 flex items-center justify-center flex-shrink-0 mr-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-500/20 transition-colors duration-200">
-                    <Phone size={16} className="text-teal-600 dark:text-teal-400 transition-colors" />
-                  </div>
-                  <a href="tel:+525512345678" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                    +52 (55) 1234 5678
-                  </a>
-                </li>
+
                 <li className="flex items-start group">
                   <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mr-3 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-500/20 transition-colors duration-200">
                     <MapPin size={16} className="text-emerald-600 dark:text-emerald-400 transition-colors" />
                   </div>
-                  <span className="text-slate-600 dark:text-slate-400">{t('contact.location')}</span>
+                  <span className="text-slate-600 dark:text-slate-400">Los Mochis, Sinaloa, México</span>
                 </li>
               </ul>
             </motion.div>
