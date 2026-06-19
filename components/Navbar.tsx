@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, LayoutDashboard, LogOut, User as UserIcon,
@@ -226,11 +225,17 @@ export const Navbar: React.FC = () => {
             {currentLinks.map((item: NavItem) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
+              
+              // Si estamos en la landing (pathname === "/") y el link es un ancla (empieza con "/#"),
+              // removemos la barra inicial para que el navegador haga scroll suave sin recargar.
+              const targetHref = (pathname === "/" && item.href.startsWith("/#"))
+                ? item.href.substring(1) 
+                : item.href;
 
               return (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  href={targetHref}
                   className={cn(
                     "relative text-sm font-medium transition-colors duration-300 flex items-center gap-2 py-2 group",
                     isActive
@@ -357,10 +362,14 @@ export const Navbar: React.FC = () => {
 
               {currentLinks.map((item: NavItem) => { // ✅ Tipado aquí también
                 const Icon = item.icon;
+                const targetHref = (pathname === "/" && item.href.startsWith("/#"))
+                  ? item.href.substring(1) 
+                  : item.href;
+
                 return (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={targetHref}
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-3 p-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
                   >
