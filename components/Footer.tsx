@@ -176,6 +176,12 @@ const Footer: React.FC = () => {
               <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.privacy')}</Link>
               <Link href="/terms" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.terms')}</Link>
               <Link href="/sitemap" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.sitemap')}</Link>
+              <button 
+                onClick={() => window.dispatchEvent(new Event("open_cookie_preferences"))}
+                className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
+              >
+                Manage Cookie Preferences
+              </button>
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
     const cspHeader = `
       default-src 'self';
       
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com; 
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com; 
       
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; 
       
