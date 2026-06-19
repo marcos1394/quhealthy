@@ -15,19 +15,46 @@ interface JobOpening {
   location: string;
   type: string;
   tag?: string;
+  // Optional: a dedicated application link (ATS, form, etc.) for this specific
+  // role. If your backend doesn't provide one yet, the UI falls back to a
+  // mailto with the role pre-filled in the subject — works today with zero
+  // extra infrastructure, and you can upgrade per-role later without any
+  // frontend changes.
+  applyUrl?: string;
 }
 
 const fetcher = (url: string) => axiosInstance.get<JobOpening[]>(url).then(res => res.data);
+const CAREERS_EMAIL = "careers@quhealthy.com"; // TODO: confirm this inbox exists and is monitored
+
+function buildMailto(subject: string) {
+  return `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent(subject)}`;
+}
 
 export default function CareersPage() {
   const t = useTranslations("PublicCareers");
-  const { data: jobOpenings, isLoading } = useSWR<JobOpening[]>("/api/careers/openings", fetcher);
+  const { data: jobOpenings, isLoading, error, mutate } = useSWR<JobOpening[]>(
+    "/api/careers/openings",
+    fetcher,
+    { revalidateOnFocus: false }
+  );
 
   const benefits = [
     { icon: Laptop, title: t('benefits.b1_title'), desc: t('benefits.b1_desc') },
     { icon: HeartPulse, title: t('benefits.b2_title'), desc: t('benefits.b2_desc') },
     { icon: Briefcase, title: t('benefits.b3_title'), desc: t('benefits.b3_desc') }
   ];
+
+  const handleApply = (job: JobOpening) => {
+    if (job.applyUrl) {
+      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+    } else {
+      window.location.href = buildMailto(`${t('apply')}: ${job.title}`);
+    }
+  };
+
+  const handleOpenApplication = () => {
+    window.location.href = buildMailto(t('open_app_title'));
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30">
@@ -49,7 +76,10 @@ export default function CareersPage() {
             <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-light max-w-3xl mx-auto leading-relaxed mb-10">
               {t('subtitle')}
             </p>
-            <Button className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full h-14 px-8 text-base font-medium shadow-xl hover:shadow-2xl transition-all">
+            <Button
+              onClick={() => document.getElementById('openings')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full h-14 px-8 text-base font-medium shadow-xl hover:shadow-2xl transition-all"
+            >
               {t('view_openings')} <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </motion.div>
@@ -89,7 +119,7 @@ export default function CareersPage() {
       </section>
 
       {/* Openings Section */}
-      <section className="py-24 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+      <section id="openings" className="py-24 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
         <div className="container mx-auto px-6 md:px-12 max-w-5xl">
           <div className="mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">{t('openings_title')}</h2>
@@ -104,7 +134,24 @@ export default function CareersPage() {
               </div>
             )}
 
-            {!isLoading && (!jobOpenings || jobOpenings.length === 0) && (
+            {/* Distinct from the empty state on purpose: a failed request should
+                never look identical to "we have no openings" — a candidate
+                shouldn't be told there's nothing here when it's actually just
+                a temporary backend error. */}
+            {!isLoading && error && (
+              <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="w-8 h-8 text-red-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">{t('error_title')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">{t('error_desc')}</p>
+                <Button variant="outline" onClick={() => mutate()} className="rounded-xl">
+                  {t('retry_btn')}
+                </Button>
+              </div>
+            )}
+
+            {!isLoading && !error && (!jobOpenings || jobOpenings.length === 0) && (
               <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
                 <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Briefcase className="w-8 h-8 text-slate-400" />
@@ -116,7 +163,7 @@ export default function CareersPage() {
               </div>
             )}
 
-            {!isLoading && jobOpenings && jobOpenings.map((job, idx) => (
+            {!isLoading && !error && jobOpenings && jobOpenings.map((job, idx) => (
               <motion.div 
                 key={job.id || idx}
                 initial={{ opacity: 0, x: -20 }}
@@ -144,7 +191,11 @@ export default function CareersPage() {
                 </div>
                 
                 <div className="mt-4 md:mt-0">
-                  <Button variant="ghost" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleApply(job)}
+                    className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                  >
                     {t('apply')} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
@@ -155,10 +206,14 @@ export default function CareersPage() {
           <div className="mt-16 bg-medical-50 dark:bg-medical-900/10 border border-medical-100 dark:border-medical-900/30 p-8 rounded-3xl text-center">
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">{t('open_app_title')}</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-6">{t('open_app_desc')}</p>
-            <Button className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-11 px-6 font-medium">
+            <Button onClick={handleOpenApplication} className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-11 px-6 font-medium">
               {t('open_app_btn')}
             </Button>
           </div>
+
+          <p className="mt-12 text-xs text-slate-400 dark:text-slate-500 max-w-2xl mx-auto text-center leading-relaxed">
+            {t('eeo_statement')}
+          </p>
         </div>
       </section>
     </div>

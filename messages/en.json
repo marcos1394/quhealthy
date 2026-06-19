@@ -3594,6 +3594,8 @@
       "lifestyle": "Lifestyle"
     }
   },
+ 
+  
   "PublicCareers": {
     "breadcrumb": "Careers",
     "title_light": "Build the ",
@@ -3604,24 +3606,27 @@
     "why_title": "Why join QuHealthy?",
     "why_subtitle": "We take care of our team, so they can take care of our users.",
     "benefits": {
-      "b1_title": "Remote and Flexible Work",
-      "b1_desc": "We believe in measuring results, not seat hours. Work from wherever you are happiest and most productive.",
-      "b2_title": "Premium Health Insurance",
-      "b2_desc": "Total health for you and your direct family, including dental, vision, and mental coverage.",
-      "b3_title": "Development Budget",
-      "b3_desc": "$1,500 USD annually for conferences, courses, books, or hardware that boosts your career."
+      "b1_title": "Remote & Flexible Work",
+      "b1_desc": "We believe in measuring results, not hours at a desk. Work from wherever helps you do your best work.",
+      "b2_title": "Health & Wellness Benefits",
+      "b2_desc": "We're building a benefits package that supports your health and wellbeing. Specifics are shared individually during the hiring process.",
+      "b3_title": "Investment in Your Growth",
+      "b3_desc": "We support continued learning — conferences, courses, certifications, the tools that help you grow. Details are discussed as part of the hiring process."
     },
     "openings_title": "Open Positions",
     "openings_subtitle": "Join a distributed team across Latin America.",
     "apply": "Apply",
     "loading": "Loading open positions...",
+    "error_title": "Something went wrong",
+    "error_desc": "We couldn't load open positions right now. Please try again in a moment.",
+    "retry_btn": "Try Again",
     "empty_title": "No open positions",
-    "empty_desc": "Our team is currently full. However, we are always looking for exceptional talent. Send us your information.",
+    "empty_desc": "We don't have any open roles right now, but we're always glad to hear from people who want to help build this. Send us your information below.",
     "open_app_title": "Can't find your role?",
     "open_app_desc": "We are always looking for exceptional talent. Send us your resume and tell us why you belong at QuHealthy.",
-    "open_app_btn": "Submit Open Application"
+    "open_app_btn": "Submit Open Application",
+    "eeo_statement": "QuHealthy is an equal opportunity space. We do not discriminate on the basis of race, color, gender, age, disability, religion, national origin, sexual orientation, gender identity, or any other characteristic protected by applicable law."
   },
-  
   
   "PublicTerms": {
     "breadcrumb": "Legal",

@@ -3618,32 +3618,38 @@
       "lifestyle": "Estilo de Vida"
     }
   },
+ 
+  
   "PublicCareers": {
-    "breadcrumb": "Bolsa de Trabajo",
+    "breadcrumb": "Carreras",
     "title_light": "Construye el ",
     "title_highlight": "futuro",
     "title_dark": " de la salud.",
     "subtitle": "Buscamos mentes brillantes y apasionadas que quieran resolver problemas difíciles y tener un impacto real en la calidad de vida de millones de personas.",
-    "view_openings": "Ver Posiciones Abiertas",
+    "view_openings": "Ver Vacantes Abiertas",
     "why_title": "¿Por qué unirte a QuHealthy?",
-    "why_subtitle": "Nos ocupamos de nuestro equipo, para que ellos puedan ocuparse de nuestros usuarios.",
+    "why_subtitle": "Cuidamos a nuestro equipo, para que ellos puedan cuidar a nuestros usuarios.",
     "benefits": {
       "b1_title": "Trabajo Remoto y Flexible",
-      "b1_desc": "Creemos en medir resultados, no horas de asiento. Trabaja desde donde seas más feliz y productivo.",
-      "b2_title": "Seguro Médico Premium",
-      "b2_desc": "Salud total para ti y tu familia directa, incluyendo cobertura dental, visual y mental.",
-      "b3_title": "Presupuesto de Desarrollo",
-      "b3_desc": "$1,500 USD anuales para conferencias, cursos, libros o hardware que impulse tu carrera."
+      "b1_desc": "Creemos en medir resultados, no horas frente a una pantalla. Trabaja desde donde te ayude a dar tu mejor versión.",
+      "b2_title": "Beneficios de Salud y Bienestar",
+      "b2_desc": "Estamos construyendo un paquete de beneficios que apoye tu salud y bienestar. Los detalles específicos se comparten de forma individual durante el proceso de contratación.",
+      "b3_title": "Inversión en tu Crecimiento",
+      "b3_desc": "Apoyamos tu aprendizaje continuo — conferencias, cursos, certificaciones, las herramientas que te ayuden a crecer. Los detalles se conversan como parte del proceso de contratación."
     },
-    "openings_title": "Posiciones Abiertas",
-    "openings_subtitle": "Únete a un equipo distribuido en toda América Latina.",
+    "openings_title": "Vacantes Abiertas",
+    "openings_subtitle": "Únete a un equipo distribuido en toda Latinoamérica.",
     "apply": "Aplicar",
-    "loading": "Cargando posiciones abiertas...",
-    "empty_title": "No hay posiciones abiertas",
-    "empty_desc": "En este momento nuestro equipo está completo. Sin embargo, siempre estamos buscando talento excepcional. Envíanos tu información.",
-    "open_app_title": "¿No encuentras tu posición?",
-    "open_app_desc": "Siempre estamos buscando talento excepcional. Envíanos tu currículum y cuéntanos por qué deberías estar en QuHealthy.",
-    "open_app_btn": "Enviar Solicitud Abierta"
+    "loading": "Cargando vacantes...",
+    "error_title": "Algo salió mal",
+    "error_desc": "No pudimos cargar las vacantes en este momento. Intenta de nuevo en un momento.",
+    "retry_btn": "Reintentar",
+    "empty_title": "No hay vacantes abiertas",
+    "empty_desc": "No tenemos vacantes abiertas en este momento, pero siempre nos da gusto conocer a personas que quieran ayudar a construir esto. Envíanos tu información abajo.",
+    "open_app_title": "¿No encuentras tu perfil?",
+    "open_app_desc": "Siempre estamos buscando talento excepcional. Envíanos tu CV y cuéntanos por qué perteneces a QuHealthy.",
+    "open_app_btn": "Enviar Aplicación Abierta",
+    "eeo_statement": "QuHealthy es un espacio de igualdad de oportunidades. No discriminamos por raza, color, género, edad, discapacidad, religión, origen nacional, orientación sexual, identidad de género, ni ninguna otra característica protegida por la ley aplicable."
   },
  
 
