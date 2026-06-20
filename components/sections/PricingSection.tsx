@@ -134,11 +134,7 @@ const PricingSection: React.FC = () => {
             <Loader2 className="w-6 h-6 text-black dark:text-white animate-spin" />
           </div>
         ) : (
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-gray-200 dark:border-gray-800 w-full"
-            style={{ '--plan-cols': displayPlans.length } as React.CSSProperties}
-          >
-            <style>{`@media (min-width: 1024px) { [style*="--plan-cols"] { grid-template-columns: repeat(var(--plan-cols), minmax(0, 1fr)) !important; } }`}</style>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-0 border-t border-l border-gray-200 dark:border-gray-800 w-full">
             
             {displayPlans.map((plan, index) => {
               const monthlyPrice = plan.price;
@@ -169,15 +165,15 @@ const PricingSection: React.FC = () => {
                     <h3 className={cn("text-3xl font-semibold mb-3 tracking-tight", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
                       {plan.title}
                     </h3>
-                    <p className={cn("text-sm font-light min-h-[40px] leading-relaxed", plan.isPopular ? "text-gray-400 dark:text-gray-500" : "text-gray-500 dark:text-gray-400")}>
+                    <p className={cn("text-sm font-light min-h-[40px] leading-relaxed break-words", plan.isPopular ? "text-gray-400 dark:text-gray-500" : "text-gray-500 dark:text-gray-400")}>
                       {plan.description}
                     </p>
                   </div>
 
                   {/* Precio Editorial */}
                   <div className={cn("mb-12 pb-8 border-b", plan.isPopular ? "border-gray-800 dark:border-gray-200" : "border-gray-200 dark:border-gray-800")}>
-                    <div className="flex items-baseline gap-2">
-                      <span className={cn("text-6xl lg:text-7xl font-semibold tracking-tighter", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
+                    <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+                      <span className={cn("text-5xl xl:text-6xl font-semibold tracking-tighter", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
                         {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
                       </span>
                       <span className={cn("text-[10px] font-bold uppercase tracking-widest", plan.isPopular ? "text-gray-500" : "text-gray-400")}>

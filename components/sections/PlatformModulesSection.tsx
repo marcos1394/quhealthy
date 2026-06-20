@@ -284,7 +284,6 @@ const PlatformModulesSection = () => {
                       key={mod.title}
                       className={cn(
                         "group p-8 md:p-10 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]",
-                        // Calculamos los bordes para mantener la cuadrícula perfecta (1px gap simulado)
                         idx % 2 === 0 ? "border-r border-b border-gray-200 dark:border-gray-800" : "border-b border-gray-200 dark:border-gray-800"
                       )}
                     >
@@ -301,6 +300,11 @@ const PlatformModulesSection = () => {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* ✨ NUEVO: Celdas vacías transparentes para lucir el Grid Arquitectónico */}
+                  {currentData.modules.length % 2 !== 0 && (
+                    <div className="hidden md:block bg-transparent border-b border-gray-200 dark:border-gray-800" />
+                  )}
                 </div>
 
                 {/* Acción al final */}
