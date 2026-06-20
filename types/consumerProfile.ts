@@ -16,6 +16,11 @@ export interface ConsumerProfile {
   // Discovery & Preferencias
   healthGoals: string[];
   preferredModality: string;   // "IN_PERSON" | "VIDEO_CALL" | "HOME_VISIT" | "ANY"
+
+  // Extra fields that come from the backend's getProfile response
+  bloodType?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 // Objeto por defecto para inicializar el formulario de forma segura
@@ -31,4 +36,7 @@ export const defaultConsumerProfile: ConsumerProfile = {
   currentMedications: [],
   healthGoals: [],
   preferredModality: "",
+  bloodType: "",
+  emergencyContactName: "",
+  emergencyContactPhone: "",
 };

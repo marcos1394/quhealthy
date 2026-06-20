@@ -29,6 +29,9 @@ export const useConsumerProfile = () => {
         currentMedications: data.currentMedications ?? [],
         healthGoals: data.healthGoals ?? [],
         preferredModality: data.preferredModality ?? "",
+        bloodType: data.bloodType ?? "",
+        emergencyContactName: data.emergencyContactName ?? "",
+        emergencyContactPhone: data.emergencyContactPhone ?? "",
       };
 
       setProfile(safeData);

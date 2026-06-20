@@ -12,6 +12,9 @@ import {
     User, Mail, Phone, Save, HeartPulse, AlertTriangle, Loader2, RotateCcw
 } from 'lucide-react';
 
+import { useSessionStore } from '@/stores/SessionStore';
+import { useConsumerProfile } from '@/hooks/useConsumerProfile';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,20 +41,45 @@ export default function PatientProfilePage() {
     const t = useTranslations('PatientProfile'); 
     const [isSaving, setIsSaving] = useState(false);
 
+    // Hooks de Backend y Sesión
+    const { user } = useSessionStore();
+    const { profile, isLoading, fetchProfile, updateProfile } = useConsumerProfile();
+
     // Formulario
     const form = useForm<PatientProfileValues>({
         resolver: zodResolver(patientProfileSchema),
         defaultValues: {
-            fullName: "Carlos Mendoza",
-            email: "carlos.mendoza@example.com",
-            phone: "+52 55 9876 5432",
-            bloodType: "O+",
-            allergies: "Penicilina, Nueces",
-            currentMedications: "Ninguna",
-            emergencyContactName: "Ana Mendoza",
-            emergencyContactPhone: "+52 55 1234 5678",
+            fullName: "",
+            email: "",
+            phone: "",
+            bloodType: "",
+            allergies: "",
+            currentMedications: "",
+            emergencyContactName: "",
+            emergencyContactPhone: "",
         }
     });
+
+    // Cargar Perfil
+    React.useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
+
+    // Rellenar formulario cuando el perfil carga
+    React.useEffect(() => {
+        if (!isLoading && profile) {
+            form.reset({
+                fullName: profile.fullName || "",
+                email: user?.email || "",
+                phone: profile.phoneNumber || "",
+                bloodType: profile.bloodType || "", 
+                allergies: profile.allergies?.join(', ') || "",
+                currentMedications: profile.currentMedications?.join(', ') || "",
+                emergencyContactName: profile.emergencyContactName || "",
+                emergencyContactPhone: profile.emergencyContactPhone || "",
+            });
+        }
+    }, [isLoading, profile, user, form]);
 
     // Detectar cambios sucios (dirty state)
     const isDirty = form.formState.isDirty;
@@ -59,9 +87,21 @@ export default function PatientProfilePage() {
     const onSubmit = async (data: PatientProfileValues) => {
         setIsSaving(true);
         try {
-            await new Promise(r => setTimeout(r, 1000));
-            toast.success("Expediente sincronizado con la base de datos central.");
-            form.reset(data);
+            const success = await updateProfile({
+                ...profile,
+                fullName: data.fullName,
+                phoneNumber: data.phone,
+                bloodType: data.bloodType || profile.bloodType || "",
+                emergencyContactName: data.emergencyContactName || profile.emergencyContactName || "",
+                emergencyContactPhone: data.emergencyContactPhone || profile.emergencyContactPhone || "",
+                allergies: data.allergies ? data.allergies.split(',').map(s => s.trim()).filter(Boolean) : [],
+                currentMedications: data.currentMedications ? data.currentMedications.split(',').map(s => s.trim()).filter(Boolean) : [],
+            });
+
+            if (success) {
+                toast.success("Expediente sincronizado con la base de datos central.");
+                form.reset(data); // Resetea para limpiar isDirty
+            }
         } catch (e) {
             handleApiError(e);
         } finally {
