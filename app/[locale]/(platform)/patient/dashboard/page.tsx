@@ -53,6 +53,13 @@ export default function ConsumerDashboardPage() {
     fetchMyScore();
   }, [fetchMyScore]);
 
+  // Abrir el modal automáticamente si es un paciente nuevo (scoreData null)
+  useEffect(() => {
+    if (!isScoreLoading && scoreData === null && dashboardError === null) {
+      setIsOnboardingOpen(true);
+    }
+  }, [isScoreLoading, scoreData, dashboardError]);
+
   // Pantallas de Carga/Error generales (Solo para los datos críticos del dashboard)
   if (isDashboardLoading) {
     return (
