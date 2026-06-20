@@ -42,7 +42,7 @@ export function HealthMetricsCarousel({ metrics, isLoading }: HealthMetricsCarou
       </h3>
 
       {/* Contenedor Grid Blueprint */}
-      <div className="grid grid-cols-2 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
         {isLoading ? (
           // Skeleton Loader Arquitectónico
           <>

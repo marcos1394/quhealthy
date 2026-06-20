@@ -105,22 +105,25 @@ export default function ConsumerDashboardPage() {
         <DashboardHeader firstName={firstName} />
 
         {/* --- SECCIÓN PRINCIPAL --- */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 mt-8">
+        <div className="flex flex-col gap-12 lg:gap-16 mt-8">
           
-          {/* --- COLUMNA IZQUIERDA (Gestión y Citas) --- */}
-          <div className="flex-1 min-w-0 flex flex-col gap-12">
+          {/* PRIMER BLOQUE: Próxima Cita */}
+          <div className="w-full">
             <NextAppointmentHero 
               appointment={nextAppointment}
               onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
               onSearch={() => router.push('/patient/discover')}
             />
-            
+          </div>
+
+          {/* SEGUNDO BLOQUE: Módulos (Full Width) */}
+          <div className="w-full">
             <QuickAccessCards />
           </div>
 
-          {/* --- COLUMNA DERECHA (Salud y Métricas) --- */}
-          <div className="w-full lg:w-80 xl:w-96 shrink-0 flex flex-col gap-12">
-            <div className="min-h-[300px]">
+          {/* TERCER BLOQUE: Salud y Métricas */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+            <div className="lg:col-span-4 xl:col-span-4">
               <HealthScoreWidget 
                 scoreData={scoreData}
                 isLoading={isScoreLoading}
@@ -128,10 +131,12 @@ export default function ConsumerDashboardPage() {
               />
             </div>
             
-            <HealthMetricsCarousel 
-              metrics={healthMetrics} 
-              isLoading={isDashboardLoading} 
-            />
+            <div className="lg:col-span-8 xl:col-span-8">
+              <HealthMetricsCarousel 
+                metrics={healthMetrics} 
+                isLoading={isDashboardLoading} 
+              />
+            </div>
           </div>
 
         </div>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { HealthScoreResponse } from '@/types/healthscore';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { Card, CardContent } from '../ui/card';
 
 interface HealthScoreWidgetProps {
   scoreData: HealthScoreResponse | null;
