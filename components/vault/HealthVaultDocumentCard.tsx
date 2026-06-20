@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import {
     FileText, Eye, BrainCircuit, Activity, Pill, AlertCircle,
-    Clock, CheckCircle2, AlertTriangle
+    Clock, CheckCircle2, AlertTriangle, Type
 } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
@@ -38,25 +38,25 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
         PENDING: {
             icon: Clock,
             text: t('ai_pending', { defaultValue: 'Analizando...' }),
-            color: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+            color: 'bg-transparent text-amber-600 dark:text-amber-400 border-amber-500/50',
             pulse: true
         },
         PROCESSED: {
             icon: BrainCircuit,
             text: t('ai_processed', { defaultValue: 'Analizado por IA' }),
-            color: 'bg-medical-50 text-medical-600 border-medical-200 dark:bg-medical-500/10 dark:text-medical-400 dark:border-medical-500/20',
+            color: 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white',
             pulse: false
         },
         FAILED: {
             icon: AlertTriangle,
             text: t('ai_failed', { defaultValue: 'Solo Almacenamiento' }),
-            color: 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700/50',
+            color: 'bg-transparent text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-700',
             pulse: false
         },
         UNSUPPORTED: {
             icon: FileText,
             text: t('ai_unsupported', { defaultValue: 'Documento Seguro' }),
-            color: 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700/50',
+            color: 'bg-transparent text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-700',
             pulse: false
         }
     };
@@ -70,27 +70,27 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
     const aiData = document.aiExtractedData;
 
     return (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 dark:hover:shadow-none transition-all duration-300 flex flex-col group hover:-translate-y-1">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none p-6 transition-all duration-300 flex flex-col group hover:border-black dark:hover:border-white">
 
             {/* Cabecera del Documento */}
             <div className="flex justify-between items-start mb-6">
                 <div className="flex gap-4 items-start w-full">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10 transition-colors">
+                    <div className="p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] group-hover:bg-black dark:group-hover:bg-white transition-colors shrink-0">
                         {document.documentType === 'NOTE' ? (
-                            <FileText className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-medical-500 transition-colors" strokeWidth={1.5} />
+                            <Type className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                         ) : (
-                            <FileText className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-medical-500 transition-colors" strokeWidth={1.5} />
+                            <FileText className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                         )}
                     </div>
                     <div className="flex-1 min-w-0 pt-1">
-                        <h3 className="font-bold text-slate-900 dark:text-white truncate text-base">
+                        <h3 className="font-bold text-black dark:text-white truncate text-base">
                             {document.title || document.fileName || 'Nota sin título'}
                         </h3>
-                        <div className="flex items-center gap-2 mt-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 mt-1.5 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             <span>{formatDate(document.uploadedAt)}</span>
                             {document.documentType !== 'NOTE' && (
                                 <>
-                                    <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                                    <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
                                     <span>{formatBytes(document.fileSizeBytes || 0)}</span>
                                 </>
                             )}
@@ -102,7 +102,7 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
             {/* Badge de Estado IA */}
             <div className="mb-6">
                 <Badge variant="outline" className={cn(
-                    "px-3 py-1.5 text-xs font-semibold border flex items-center w-fit gap-2 rounded-xl",
+                    "px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border flex items-center w-fit gap-2 rounded-none",
                     aiStatusConfig[currentStatus].color
                 )}>
                     <StatusIcon className={cn("w-3.5 h-3.5", aiStatusConfig[currentStatus].pulse && "animate-spin")} />
@@ -112,23 +112,23 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
 
             {/* Resultados de la IA */}
             {currentStatus === 'PROCESSED' && aiData && (
-                <div className="flex-1 bg-slate-50/50 dark:bg-slate-950/50 rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 mb-6 space-y-5 transition-colors group-hover:bg-slate-50 dark:group-hover:bg-slate-950">
+                <div className="flex-1 border border-gray-200 dark:border-gray-800 rounded-none p-5 mb-6 space-y-5 transition-colors">
 
                     {aiData.summary && (
-                        <p className="text-sm text-slate-600 dark:text-slate-300 font-medium italic leading-relaxed">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 font-medium italic leading-relaxed">
                             "{aiData.summary}"
                         </p>
                     )}
 
                     {aiData.medicalConditions && aiData.medicalConditions.length > 0 && (
                         <div>
-                            <div className="flex items-center gap-2 mb-3 text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-2 mb-3 text-gray-500 dark:text-gray-400">
                                 <Activity className="w-4 h-4" />
                                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">{t('findings', { defaultValue: 'Hallazgos' })}</span>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {aiData.medicalConditions.map((cond, i) => (
-                                    <span key={i} className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] font-bold tracking-wide text-slate-700 dark:text-slate-300 shadow-sm">
+                                    <span key={i} className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-none text-[11px] font-bold tracking-wide text-gray-700 dark:text-gray-300">
                                         {cond}
                                     </span>
                                 ))}
@@ -138,13 +138,13 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
 
                     {aiData.medications && aiData.medications.length > 0 && (
                         <div>
-                            <div className="flex items-center gap-2 mb-3 text-blue-500/80">
+                            <div className="flex items-center gap-2 mb-3 text-gray-500 dark:text-gray-400">
                                 <Pill className="w-4 h-4" />
                                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">{t('medications', { defaultValue: 'Medicamentos' })}</span>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {aiData.medications.map((med, i) => (
-                                    <span key={i} className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl text-[11px] font-bold tracking-wide text-blue-700 dark:text-blue-300">
+                                    <span key={i} className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-none text-[11px] font-bold tracking-wide text-gray-700 dark:text-gray-300">
                                         {med}
                                     </span>
                                 ))}
@@ -158,8 +158,8 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
 
             {/* Renderizado de Nota Pura */}
             {document.documentType === 'NOTE' && document.noteContent && (
-                <div className="flex-1 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl p-5 border border-amber-100 dark:border-amber-800/30 mb-6 transition-colors">
-                    <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed line-clamp-6">
+                <div className="flex-1 border border-gray-200 dark:border-gray-800 rounded-none p-5 mb-6 transition-colors">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed line-clamp-6">
                         {document.noteContent}
                     </p>
                 </div>
@@ -177,9 +177,9 @@ export function HealthVaultDocumentCard({ document, onView }: HealthVaultDocumen
                             onView(document.id);
                         }
                     }}
-                    className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 h-14 rounded-2xl font-bold transition-all hover:text-slate-900 dark:hover:text-white"
+                    className="w-full rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-all"
                 >
-                    <Eye className="w-5 h-5 mr-2" />
+                    <Eye className="w-4 h-4 mr-2" />
                     {document.documentType === 'NOTE' ? 'Leer Nota Completa' : t('btn_view', { defaultValue: 'Ver Documento' })}
                 </Button>
             </div>

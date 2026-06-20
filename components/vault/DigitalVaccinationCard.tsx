@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Share2, Printer, Syringe, User } from 'lucide-react';
@@ -63,23 +65,33 @@ export function DigitalVaccinationCard({ memberId }: DigitalVaccinationCardProps
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-sky-100 dark:border-sky-900 shadow-xl overflow-hidden print:shadow-none print:border-none print:rounded-none"
+            className="w-full max-w-2xl mx-auto bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none overflow-hidden print:shadow-none print:border-none"
         >
-            <div className="bg-sky-50 dark:bg-sky-900/20 p-6 md:p-8 border-b border-sky-100 dark:border-sky-800 flex justify-between items-start">
+            <div className="bg-gray-50 dark:bg-[#050505] p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 flex justify-between items-start">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm">
-                        <ShieldCheck className="w-8 h-8 text-sky-500" />
+                    <div className="w-12 h-12 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Cartilla Digital</h2>
-                        <p className="text-sky-600 dark:text-sky-400 font-semibold">{member.firstName} {member.lastName}</p>
+                        <h2 className="text-2xl font-semibold text-black dark:text-white uppercase tracking-tight">Cartilla Digital</h2>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">{member.firstName} {member.lastName}</p>
                     </div>
                 </div>
                 <div className="flex gap-2 print:hidden">
-                    <Button variant="outline" size="icon" onClick={handlePrint} className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <Printer className="w-5 h-5 text-slate-500" />
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handlePrint}
+                        className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white transition-colors"
+                    >
+                        <Printer className="w-5 h-5" />
                     </Button>
-                    <Button variant="default" size="icon" onClick={handleShare} className="rounded-full bg-sky-500 hover:bg-sky-600 text-white">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleShare}
+                        className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white transition-colors"
+                    >
                         <Share2 className="w-5 h-5" />
                     </Button>
                 </div>
@@ -87,46 +99,46 @@ export function DigitalVaccinationCard({ memberId }: DigitalVaccinationCardProps
 
             <div className="p-6 md:p-8 space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">Total Aplicadas</p>
-                        <p className="text-2xl font-black text-slate-900 dark:text-white">{appliedVaccines.length}</p>
+                    <div className="border border-gray-200 dark:border-gray-800 rounded-none p-4">
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest mb-1">Total Aplicadas</p>
+                        <p className="text-2xl font-bold text-black dark:text-white">{appliedVaccines.length}</p>
                     </div>
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl col-span-2 md:col-span-3 flex items-center gap-3">
-                        <Syringe className="w-8 h-8 text-sky-300" />
+                    <div className="border border-gray-200 dark:border-gray-800 rounded-none p-4 col-span-2 md:col-span-3 flex items-center gap-3">
+                        <Syringe className="w-8 h-8 text-gray-400 dark:text-gray-600" strokeWidth={1.5} />
                         <div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Este documento certifica el historial de vacunación registrado en el sistema.</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">Este documento certifica el historial de vacunación registrado en el sistema.</p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4 flex items-center gap-2">
                         Historial de Dosis
                     </h3>
                     {appliedVaccines.length > 0 ? (
                         <div className="space-y-3">
                             {appliedVaccines.map((v, i) => (
-                                <div key={i} className="flex justify-between items-center p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div key={i} className="flex justify-between items-center p-4 border border-gray-200 dark:border-gray-800 rounded-none hover:border-black dark:hover:border-white transition-colors">
                                     <div>
-                                        <p className="font-bold text-slate-900 dark:text-white">{v.name}</p>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">{v.diseasePrevented}</p>
+                                        <p className="font-bold text-black dark:text-white">{v.name}</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">{v.diseasePrevented}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">Aplicada</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">{v.appliedDate}</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Aplicada</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">{v.appliedDate}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-8 px-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                            <p className="text-slate-500 font-medium">Aún no hay vacunas registradas como aplicadas.</p>
+                        <div className="text-center py-8 px-4 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-none">
+                            <p className="text-gray-500 dark:text-gray-400 font-medium">Aún no hay vacunas registradas como aplicadas.</p>
                         </div>
                     )}
                 </div>
             </div>
             
-            <div className="bg-slate-50 dark:bg-slate-950 p-4 text-center text-xs text-slate-400 font-medium border-t border-slate-100 dark:border-slate-900">
+            <div className="bg-gray-50 dark:bg-[#050505] border-t border-gray-200 dark:border-gray-800 p-4 text-center text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                 Generado a través de QuHealthy &copy; {new Date().getFullYear()}
             </div>
         </motion.div>

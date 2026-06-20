@@ -33,7 +33,7 @@ export default function PatientVaultPage() {
     }, [fetchDocuments]);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30 transition-colors">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -41,15 +41,15 @@ export default function PatientVaultPage() {
                 className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-12"
             >
                 {/* --- CABECERA EDITORIAL --- */}
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
-                    <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-500/20 shadow-sm transition-colors w-fit">
-                        <ShieldCheck className="w-8 h-8 md:w-10 md:h-10 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
+                <div className="flex flex-col md:flex-row md:items-center gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+                    <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-7 h-7 text-black dark:text-white" strokeWidth={1.5} />
                     </div>
                     <div>
-                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                        <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white tracking-tight uppercase">
                             {t('title', { defaultValue: 'Mi Expediente Clínico' })}
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-3 text-base md:text-lg max-w-2xl font-medium leading-relaxed">
+                        <p className="text-gray-500 dark:text-gray-400 mt-3 text-base font-light leading-relaxed max-w-2xl">
                             {t('subtitle', { defaultValue: 'Tu bóveda de salud encriptada. Sube tus laboratorios o recetas y nuestra IA extraerá los datos clínicos relevantes automáticamente.' })}
                         </p>
                     </div>
@@ -66,9 +66,9 @@ export default function PatientVaultPage() {
 
                 {/* --- CARTILLAS DIGITALES --- */}
                 <section className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/80 pb-5">
-                        <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                            <Syringe className="w-6 h-6 text-sky-500" />
+                    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
+                        <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+                            <Syringe className="w-4 h-4" strokeWidth={1.5} />
                             Cartillas de Salud
                         </h2>
                     </div>
@@ -79,21 +79,21 @@ export default function PatientVaultPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl">
-                            <p className="text-slate-500">No tienes familiares registrados para mostrar cartillas.</p>
+                        <div className="text-center py-12 bg-white dark:bg-[#0a0a0a] border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-none">
+                            <p className="text-gray-500 dark:text-gray-400">No tienes familiares registrados para mostrar cartillas.</p>
                         </div>
                     )}
                 </section>
 
                 {/* --- LISTA DE DOCUMENTOS --- */}
                 <section className="space-y-8 pt-4">
-                    <div className="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800/80 pb-5">
-                        <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                            <FolderOpen className="w-6 h-6 text-medical-500" />
+                    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
+                        <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+                            <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                             {t('docs_title', { defaultValue: 'Tus Documentos' })}
                         </h2>
                         {!isLoading && documents.length > 0 && (
-                            <span className="px-4 py-1.5 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 rounded-full text-xs font-bold tracking-widest uppercase">
+                            <span className="border border-gray-300 dark:border-gray-700 rounded-none px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
                                 {documents.length} {documents.length === 1 ? 'Archivo' : 'Archivos'}
                             </span>
                         )}
@@ -102,11 +102,10 @@ export default function PatientVaultPage() {
                     {/* Estado: Cargando Inicial */}
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-32 gap-6">
-                            <div className="relative p-6 bg-medical-50 dark:bg-medical-500/20 rounded-full">
-                                <div className="absolute inset-0 border-4 border-medical-200 dark:border-medical-500/30 rounded-full animate-ping opacity-75"></div>
+                            <div className="border border-gray-200 dark:border-gray-800 p-6">
                                 <QhSpinner size="lg" />
                             </div>
-                            <p className="text-slate-500 dark:text-slate-400 font-bold tracking-widest uppercase text-sm animate-pulse">
+                            <p className="text-gray-500 dark:text-gray-400 font-bold tracking-widest uppercase text-[10px]">
                                 {t('loading', { defaultValue: 'Desencriptando tu bóveda...' })}
                             </p>
                         </div>
@@ -137,19 +136,16 @@ export default function PatientVaultPage() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5 }}
-                                    className="flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] text-center"
+                                    className="flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-[#0a0a0a] border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-none text-center"
                                 >
-                                    <div className="relative mb-6">
-                                        <div className="absolute -inset-4 bg-medical-50 dark:bg-medical-500/10 rounded-full blur-xl"></div>
-                                        <div className="relative p-6 bg-slate-50 dark:bg-slate-950 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm transform -rotate-6 transition-transform hover:rotate-0">
-                                            <FileText className="w-12 h-12 text-slate-300 dark:text-slate-600" strokeWidth={1.5} />
-                                        </div>
+                                    <div className="p-6 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] mb-6">
+                                        <FileText className="w-10 h-10 text-gray-400 dark:text-gray-600" strokeWidth={1.5} />
                                     </div>
 
-                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                                    <h3 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white mb-3">
                                         {t('empty_title', { defaultValue: 'Tu bóveda está vacía' })}
                                     </h3>
-                                    <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto font-medium leading-relaxed">
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto font-light leading-relaxed">
                                         {t('empty_desc', { defaultValue: 'Sube tu primer estudio de laboratorio, receta médica o nota de evolución usando el recuadro de arriba.' })}
                                     </p>
                                 </motion.div>
