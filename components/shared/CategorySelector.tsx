@@ -6,9 +6,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { Loader2, Check, Star, Search, X, Info, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
@@ -54,7 +52,7 @@ export default function CategorySelector({
     try {
       const subs = await onGetSubCategories(catId);
       setSubCategories(subs);
-      toast.success(`Specialty: ${categoryName}`);
+      toast.success(`Sector configurado: ${categoryName}`, { icon: <span role="img" aria-label="building">🏛️</span> });
     } catch (e) { handleApiError(e); }
     finally { setIsLoadingSub(false); }
   };
@@ -62,7 +60,7 @@ export default function CategorySelector({
   const handleSubChange = (subId: number) => {
     const subName = subCategories.find(s => s.id === subId)?.name;
     onSelectionChange(selectedCategoryId || 0, subId, selectedTagIds);
-    if (subName) toast.success(`Focus: ${subName}`);
+    if (subName) toast.success(`Enfoque: ${subName}`, { icon: <span role="img" aria-label="dart">🎯</span> });
   };
 
   const handleTagToggle = (tagId: number) => {
@@ -73,84 +71,121 @@ export default function CategorySelector({
   const filteredTags = tags.filter(tag => tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase()));
 
   const completionSteps = [
-    { label: "Specialty", completed: (selectedCategoryId || 0) > 0 },
-    { label: "Focus", completed: (selectedSubCategoryId || 0) > 0 },
-    { label: "Tags", completed: selectedTagIds.length > 0 }
+    { label: "Sector Principal", completed: (selectedCategoryId || 0) > 0 },
+    { label: "Enfoque Específico", completed: (selectedSubCategoryId || 0) > 0 },
+    { label: "Etiquetas", completed: selectedTagIds.length > 0 }
   ];
   const progress = (completionSteps.filter(s => s.completed).length / 3) * 100;
 
+  // ---------------------------------------------------------------------------
+  // EMPTY STATE (Architectural Waiting State)
+  // ---------------------------------------------------------------------------
   if (categories.length === 0 && !selectedCategoryId && !error) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors">
+        className="flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 transition-colors">
         <QhSpinner size="md" />
-        <p className="text-slate-700 dark:text-slate-300 font-medium mb-1">Waiting for sector selection...</p>
-        <p className="text-slate-500 text-sm font-light">Choose Health or Beauty to see options</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-6 mb-2">
+          Esperando Configuración de Sector
+        </p>
+        <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+          Selecciona tu disciplina primaria para habilitar opciones
+        </p>
       </motion.div>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // ERROR STATE
+  // ---------------------------------------------------------------------------
   if (error) {
     return (
-      <div className="p-5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-red-600 dark:text-red-400 font-semibold mb-1">Loading Error</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 font-light">{error}</p>
-            <Button onClick={() => window.location.reload()} size="sm" className="bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-none">Retry</Button>
+      <div className="border border-red-200 dark:border-red-900/50 bg-white dark:bg-[#0a0a0a] p-6 relative">
+        <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 border border-red-200 dark:border-red-900 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5 text-red-500" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
+              Error de Carga
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-light mb-4">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="rounded-none bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-10 px-6 text-[9px] font-bold uppercase tracking-widest"
+            >
+              Reintentar
+            </Button>
           </div>
         </div>
       </div>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // MAIN COMPONENT
+  // ---------------------------------------------------------------------------
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 space-y-5 transition-colors">
+    <div className="bg-white dark:bg-[#0a0a0a] p-8 md:p-10 border border-gray-200 dark:border-gray-800 space-y-10 transition-colors relative">
+      
+      {/* Background Grid Pattern (Blueprint) */}
+      <div className="absolute inset-0 opacity-10 dark:opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       {/* Progress Header */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">Configure Your Specialty</h3>
-          <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0">
-            {Math.round(progress)}% Complete
-          </Badge>
+      <div className="relative z-10 space-y-4">
+        <div className="flex items-end justify-between">
+          <h3 className="text-sm font-bold tracking-tight text-black dark:text-white uppercase">
+            Configuración de Especialidad
+          </h3>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-100 dark:bg-gray-900 px-2 py-1">
+            {Math.round(progress)}%
+          </span>
         </div>
-        <Progress value={progress} className="h-1.5 bg-slate-100 dark:bg-slate-800" />
-        <div className="flex gap-3">
+        
+        {/* Strict Progress Line */}
+        <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute top-0 left-0 h-full bg-black dark:bg-white" 
+          />
+        </div>
+
+        {/* Step Indicators */}
+        <div className="flex flex-wrap gap-4 pt-2">
           {completionSteps.map((step, index) => (
-            <div key={index} className={cn("flex items-center gap-1.5 text-xs font-medium transition-all", step.completed ? "text-medical-600 dark:text-medical-400" : "text-slate-400 dark:text-slate-500")}>
-              <div className={cn("w-5 h-5 rounded-full flex items-center justify-center border transition-all",
-                step.completed ? "bg-medical-600 dark:bg-medical-500 border-medical-500 text-white" : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700")}>
-                {step.completed ? <CheckCircle2 className="w-3 h-3" /> : <span className="text-[10px]">{index + 1}</span>}
+            <div key={index} className={cn("flex items-center gap-2 transition-all", step.completed ? "text-black dark:text-white" : "text-gray-400 dark:text-gray-600")}>
+              <div className={cn("w-4 h-4 flex items-center justify-center border transition-all",
+                step.completed ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black" : "border-gray-300 dark:border-gray-700 bg-transparent")}>
+                {step.completed ? <Check className="w-3 h-3" strokeWidth={3} /> : <span className="text-[8px] font-bold">{index + 1}</span>}
               </div>
-              <span className="hidden sm:inline">{step.label}</span>
-              {index < completionSteps.length - 1 && <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 hidden sm:block" />}
+              <span className="text-[9px] font-bold uppercase tracking-widest hidden sm:inline">{step.label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Step 1: Category */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 text-[10px] font-semibold">1</span>
-            Main Specialty
-          </label>
-          {(selectedCategoryId || 0) > 0 && <CheckCircle2 className="w-4 h-4 text-medical-600 dark:text-medical-400" />}
-        </div>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 space-y-4">
+        <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+          <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">1</span>
+          Sector Principal
+          {(selectedCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
+        </label>
         <Select value={selectedCategoryId?.toString()} onValueChange={(val) => handleCatChange(Number(val))} disabled={categories.length === 0}>
-          <SelectTrigger className={cn("w-full h-12 text-sm transition-all rounded-xl",
-            "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white",
-            (selectedCategoryId || 0) > 0 ? "border-medical-500/30 ring-1 ring-medical-500/10" : "")}>
-            <SelectValue placeholder="Select your specialty area..." />
+          <SelectTrigger className={cn("w-full h-14 rounded-none text-xs font-medium transition-all",
+            "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:ring-0 focus:border-black dark:focus:border-white",
+            (selectedCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}>
+            <SelectValue placeholder="Selecciona tu sector..." />
           </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200">
+          <SelectContent className="rounded-none bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 p-0 shadow-xl">
             {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id.toString()} className="py-2.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 bg-medical-50 dark:bg-medical-500/10 rounded-lg"><Star className="w-3 h-3 text-medical-600 dark:text-medical-400" /></div>
-                  <span className="font-medium">{cat.name}</span>
+              <SelectItem key={cat.id} value={cat.id.toString()} className="rounded-none cursor-pointer py-3 hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 bg-black dark:bg-white opacity-20" />
+                  <span className="text-xs uppercase tracking-wide">{cat.name}</span>
                 </div>
               </SelectItem>
             ))}
@@ -161,23 +196,28 @@ export default function CategorySelector({
       {/* Step 2: Subcategory */}
       <AnimatePresence>
         {(selectedCategoryId || 0) > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-semibold">2</span>
-                Specific Focus
-              </label>
-              {(selectedSubCategoryId || 0) > 0 && <CheckCircle2 className="w-4 h-4 text-medical-600 dark:text-medical-400" />}
-            </div>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="relative z-10 space-y-4 overflow-hidden">
+            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2" />
+            <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">2</span>
+              Enfoque Específico
+              {(selectedSubCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
+            </label>
             <Select value={selectedSubCategoryId?.toString()} onValueChange={(val) => handleSubChange(Number(val))} disabled={isLoadingSub}>
-              <SelectTrigger className={cn("w-full h-12 text-sm transition-all rounded-xl",
-                "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white",
-                (selectedSubCategoryId || 0) > 0 ? "border-medical-500/30 ring-1 ring-medical-500/10" : "")}>
-                {isLoadingSub ? <div className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /><span>Loading...</span></div> : <SelectValue placeholder="What is your main focus?" />}
+              <SelectTrigger className={cn("w-full h-14 rounded-none text-xs font-medium transition-all",
+                "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:ring-0 focus:border-black dark:focus:border-white",
+                (selectedSubCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}>
+                {isLoadingSub ? (
+                  <div className="flex items-center gap-3"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></div>
+                ) : (
+                  <SelectValue placeholder="¿Cuál es tu enfoque principal?" />
+                )}
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200">
+              <SelectContent className="rounded-none bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 p-0 shadow-xl">
                 {subCategories.map((sub) => (
-                  <SelectItem key={sub.id} value={sub.id.toString()} className="py-2.5"><span className="font-medium">{sub.name}</span></SelectItem>
+                  <SelectItem key={sub.id} value={sub.id.toString()} className="rounded-none cursor-pointer py-3 hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0">
+                    <span className="text-xs uppercase tracking-wide ml-2">{sub.name}</span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -188,59 +228,91 @@ export default function CategorySelector({
       {/* Step 3: Tags */}
       <AnimatePresence>
         {(selectedSubCategoryId || 0) > 0 && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-1">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold">3</span>
-                Tags
-                <span className="text-slate-400 text-xs font-light">(Optional)</span>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="relative z-10 space-y-5 overflow-hidden">
+            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">3</span>
+                Etiquetas / Filtros
+                <span className="text-gray-400 font-light lowercase tracking-normal ml-1">(Opcional)</span>
               </label>
-              <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-0 text-xs">
-                {selectedTagIds.length} selected
-              </Badge>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border border-gray-200 dark:border-gray-800 px-3 py-1 bg-gray-50 dark:bg-[#050505]">
+                {selectedTagIds.length} Seleccionadas
+              </span>
             </div>
+            
+            {/* Search Input (Flush) */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input value={tagSearchQuery} onChange={(e) => setTagSearchQuery(e.target.value)} placeholder="Search tags..."
-                className="pl-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 text-slate-900 dark:text-white rounded-xl" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
+              <Input 
+                value={tagSearchQuery} 
+                onChange={(e) => setTagSearchQuery(e.target.value)} 
+                placeholder="Buscar especialidades adicionales..."
+                className="pl-11 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-14 text-xs focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white" 
+              />
               {tagSearchQuery && (
-                <button type="button" onClick={() => setTagSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+                <button type="button" onClick={() => setTagSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            {/* Tags Grid */}
+            <div className="flex flex-wrap gap-2 pt-2">
               {filteredTags.map((tag) => {
                 const isSelected = selectedTagIds.includes(tag.id);
                 return (
-                  <motion.button key={tag.id} type="button" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  <motion.button 
+                    key={tag.id} 
+                    type="button" 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    whileHover={{ y: -2 }} 
                     onClick={() => handleTagToggle(tag.id)}
-                    className={cn("px-3 py-1.5 rounded-lg transition-all text-sm font-medium border",
-                      isSelected ? "text-white shadow-sm" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500")}
-                    style={{ backgroundColor: isSelected ? (tag.color ?? "#0ea5e9") : undefined, borderColor: isSelected ? (tag.color ?? "#0ea5e9") : undefined }}>
-                    {isSelected && <Check className="w-3 h-3 mr-1 inline-block" />}{tag.name}
+                    className={cn(
+                      "px-4 py-2.5 rounded-none border transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2",
+                      isSelected 
+                        ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white" 
+                        : "bg-white dark:bg-[#0a0a0a] text-gray-500 border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white"
+                    )}
+                  >
+                    {/* Indicador de color (LED Arquitectónico) si el backend lo provee */}
+                    <span 
+                      className="w-1.5 h-1.5" 
+                      style={{ backgroundColor: isSelected ? (tag.color ? "white" : "currentColor") : (tag.color || "#000") }} 
+                    />
+                    {tag.name}
                   </motion.button>
                 );
               })}
             </div>
+            
             {tagSearchQuery && filteredTags.length === 0 && (
-              <div className="text-center py-6">
-                <Info className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-500 font-light">No tags found for &quot;{tagSearchQuery}&quot;</p>
+              <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800">
+                <Info className="w-5 h-5 text-gray-400 mx-auto mb-3" strokeWidth={1.5} />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  No hay resultados para "{tagSearchQuery}"
+                </p>
               </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Completion Summary */}
+      {/* Completion Stamp (Blueprint Validation) */}
       {progress === 100 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-xl p-3.5 flex items-start gap-2.5">
-          <CheckCircle2 className="w-5 h-5 text-medical-600 dark:text-medical-400 flex-shrink-0 mt-0.5" />
+          className="relative z-10 border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]">
+          <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <Check className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
+          </div>
           <div>
-            <h4 className="text-sm font-medium text-medical-600 dark:text-medical-400 mb-0.5">Configuration Complete!</h4>
-            <p className="text-xs text-medical-600/80 dark:text-medical-400/80 font-light">Your specialty is configured with {selectedTagIds.length} tags.</p>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              Configuración Técnica Completa
+            </h4>
+            <p className="text-[9px] font-light uppercase tracking-widest text-gray-500">
+              Sector validado con {selectedTagIds.length} atributos.
+            </p>
           </div>
         </motion.div>
       )}
