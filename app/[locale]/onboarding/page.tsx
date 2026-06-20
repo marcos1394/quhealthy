@@ -120,7 +120,7 @@ export default function OnboardingChecklistPage() {
   // MAIN ONBOARDING VIEW
   // ---------------------------------------------------------------------------
   return (
-    <div className="relative overflow-hidden w-full min-h-[80vh] flex flex-col pt-12 md:pt-20 bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+    <div className="relative overflow-x-hidden w-full min-h-[80vh] flex flex-col pt-12 md:pt-20 bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
       <div className="max-w-3xl w-full mx-auto relative z-10 flex-1 flex flex-col px-6 md:px-0">
@@ -129,7 +129,7 @@ export default function OnboardingChecklistPage() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-16">
           <div className="border-l-2 border-black dark:border-white pl-4 mb-8">
             <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-              Setup
+              {t("setup_badge")}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tight mb-4">
@@ -145,7 +145,7 @@ export default function OnboardingChecklistPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-12">
             <div className="flex justify-between items-end mb-4">
               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                STEP 0{completedSteps + 1} <span className="mx-2 text-gray-300 dark:text-gray-700">/</span> 0{totalRequiredSteps}
+                {t("step")} 0{completedSteps + 1} <span className="mx-2 text-gray-300 dark:text-gray-700">/</span> 0{totalRequiredSteps}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                 {progressPercentage}%
@@ -232,10 +232,10 @@ export default function OnboardingChecklistPage() {
                       {activeStep.status === "UNDER_REVIEW" && (
                         <div className="border-l-2 border-blue-500 pl-4 py-1">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2">
-                            <Info className="w-3 h-3" /> En Revisión
+                            <Info className="w-3 h-3" /> {t("status_under_review")}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
-                            Nuestro equipo está revisando este documento. Te notificaremos pronto.
+                            {t("desc_under_review")}
                           </p>
                         </div>
                       )}
@@ -243,7 +243,7 @@ export default function OnboardingChecklistPage() {
                       {activeStep.status === "REJECTED" && activeStep.rejectionReason && (
                         <div className="border-l-2 border-red-500 pl-4 py-1">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-1 flex items-center gap-2">
-                            <AlertCircle className="w-3 h-3" /> Acción Requerida
+                            <AlertCircle className="w-3 h-3" /> {t("status_action_required")}
                           </p>
                           <p className="text-xs text-gray-600 dark:text-gray-300 font-light">
                             {activeStep.rejectionReason}
@@ -254,10 +254,10 @@ export default function OnboardingChecklistPage() {
                       {activeStep.isLocked && (
                         <div className="border-l-2 border-gray-300 dark:border-gray-700 pl-4 py-1">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-2">
-                            <Lock className="w-3 h-3" /> Bloqueado
+                            <Lock className="w-3 h-3" /> {t("status_locked")}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
-                            Completa los pasos anteriores para desbloquear.
+                            {t("desc_locked")}
                           </p>
                         </div>
                       )}
@@ -270,7 +270,7 @@ export default function OnboardingChecklistPage() {
                           className="w-full md:w-auto min-w-[200px] rounded-none bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 text-[10px] font-bold uppercase tracking-widest transition-all group border-0"
                         >
                           <span className="flex-1 text-center md:text-left">
-                            {activeStep.status === "REJECTED" ? "Corregir Info" : "Comenzar"}
+                            {activeStep.status === "REJECTED" ? t("btn_correct_info") : t("btn_start")}
                           </span>
                           <ArrowRight className="w-4 h-4 ml-4 group-hover:translate-x-1 transition-transform" />
                         </Button>

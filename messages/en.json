@@ -574,7 +574,16 @@
     "step_profile": "Profile",
     "step_kyc": "Identity",
     "step_license": "License",
-    "step_marketplace": "Marketplace"
+    "step_marketplace": "Marketplace",
+    "setup_badge": "Setup",
+    "step": "STEP",
+    "status_under_review": "Under Review",
+    "desc_under_review": "Our team is reviewing this document. We will notify you soon.",
+    "status_action_required": "Action Required",
+    "status_locked": "Locked",
+    "desc_locked": "Complete the previous steps to unlock.",
+    "btn_correct_info": "Correct Info",
+    "btn_start": "Start"
   },
   "OnboardingProfile": {
     "badge": "Step 1 of 4",
@@ -3480,8 +3489,6 @@
     "error_save": "There was a problem saving preferences.",
     "loading_preferences": "Loading preferences..."
   },
- 
-  
   "PublicAbout": {
     "breadcrumb": "Our Story",
     "title_light": "Reimagining ",
@@ -3535,8 +3542,6 @@
     "cta_provider_btn": "Join as a Specialist",
     "cta_contact_btn": "Contact Us"
   },
-
-
   "PublicContact": {
     "breadcrumb": "Contact",
     "title": "We are here to help.",
@@ -3594,8 +3599,6 @@
       "lifestyle": "Lifestyle"
     }
   },
- 
-  
   "PublicCareers": {
     "breadcrumb": "Careers",
     "title_light": "Build the ",
@@ -3627,7 +3630,6 @@
     "open_app_btn": "Submit Open Application",
     "eeo_statement": "QuHealthy is an equal opportunity space. We do not discriminate on the basis of race, color, gender, age, disability, religion, national origin, sexual orientation, gender identity, or any other characteristic protected by applicable law."
   },
-  
   "PublicTerms": {
     "breadcrumb": "Legal",
     "title": "Terms of Service",
@@ -3650,9 +3652,6 @@
     "changes_desc": "We may update these Terms from time to time to reflect changes in our services, our practices, or the law. We'll update the date at the top of this page, and for material changes, we'll provide more prominent notice, such as an in-app banner or an email. Continuing to use the Platform after a material change takes effect means you accept the updated Terms; if you don't agree, you should stop using the Platform.",
     "contact": "Questions about these Terms? Contact us at legal@quhealthy.com. Provided by: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
-
-  
-
   "PublicPrivacy": {
     "breadcrumb": "Legal",
     "title": "Privacy Notice",
@@ -3693,11 +3692,6 @@
     "s8_desc": "QuHealthy is not directed at, and we do not knowingly collect personal information directly from, individuals under 18. If a minor receives care booked through QuHealthy, this occurs under the account, supervision, and consent of a parent or legal guardian.",
     "contact": "To exercise your privacy rights (ARCO, CCPA, or otherwise) or for questions about our security practices, contact our privacy team at privacy@quhealthy.com. Data controller: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
-
-
-
-
-
   "PublicCookies": {
     "breadcrumb": "Legal",
     "title": "Cookie Policy",

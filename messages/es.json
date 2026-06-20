@@ -574,7 +574,16 @@
     "step_profile": "Perfil",
     "step_kyc": "Identidad",
     "step_license": "Licencia",
-    "step_marketplace": "Marketplace"
+    "step_marketplace": "Marketplace",
+    "setup_badge": "Configuración",
+    "step": "PASO",
+    "status_under_review": "En Revisión",
+    "desc_under_review": "Nuestro equipo está revisando este documento. Te notificaremos pronto.",
+    "status_action_required": "Acción Requerida",
+    "status_locked": "Bloqueado",
+    "desc_locked": "Completa los pasos anteriores para desbloquear.",
+    "btn_correct_info": "Corregir Info",
+    "btn_start": "Comenzar"
   },
   "OnboardingProfile": {
     "badge": "Paso 1 de 4",
@@ -3503,9 +3512,6 @@
     "error_save": "Hubo un problema al guardar las preferencias.",
     "loading_preferences": "Cargando preferencias..."
   },
- 
-
-  
   "PublicAbout": {
     "breadcrumb": "Nuestra Historia",
     "title_light": "Reimaginando la ",
@@ -3559,8 +3565,6 @@
     "cta_provider_btn": "Únete como Especialista",
     "cta_contact_btn": "Contáctanos"
   },
-
-
   "PublicContact": {
     "breadcrumb": "Contacto",
     "title": "Estamos aquí para ayudarte.",
@@ -3618,8 +3622,6 @@
       "lifestyle": "Estilo de Vida"
     }
   },
- 
-  
   "PublicCareers": {
     "breadcrumb": "Carreras",
     "title_light": "Construye el ",
@@ -3651,9 +3653,6 @@
     "open_app_btn": "Enviar Aplicación Abierta",
     "eeo_statement": "QuHealthy es un espacio de igualdad de oportunidades. No discriminamos por raza, color, género, edad, discapacidad, religión, origen nacional, orientación sexual, identidad de género, ni ninguna otra característica protegida por la ley aplicable."
   },
- 
-
-  
   "PublicTerms": {
     "breadcrumb": "Legal",
     "title": "Términos y Condiciones",
@@ -3675,8 +3674,7 @@
     "changes_title": "7. Cambios a Estos Términos",
     "changes_desc": "Podemos actualizar estos Términos de tiempo en tiempo para reflejar cambios en nuestros servicios, nuestras prácticas, o la ley. Actualizaremos la fecha al inicio de esta página, y para cambios sustanciales, te daremos un aviso más visible, como un banner en la aplicación o un correo electrónico. Continuar usando la Plataforma después de que un cambio sustancial entre en vigor significa que aceptas los Términos actualizados; si no estás de acuerdo, debes dejar de usar la Plataforma.",
     "contact": "¿Tienes dudas sobre estos Términos? Contáctanos en legal@quhealthy.com. Proporcionado por: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
-  }, 
-  
+  },
   "PublicPrivacy": {
     "breadcrumb": "Legal",
     "title": "Aviso de Privacidad",
@@ -3717,9 +3715,6 @@
     "s8_desc": "QuHealthy no está dirigido a, ni recopila intencionalmente información personal directamente de, personas menores de 18 años. Si un menor recibe atención agendada a través de QuHealthy, esto ocurre bajo la cuenta, supervisión y consentimiento de un padre, madre o tutor legal.",
     "contact": "Para ejercer tus derechos de privacidad (ARCO, CCPA u otros) o si tienes preguntas sobre nuestras prácticas de seguridad, contacta a nuestro equipo de privacidad en privacy@quhealthy.com. Responsable del tratamiento: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
   },
-
-
-
   "PublicCookies": {
     "breadcrumb": "Legal",
     "title": "Política de Cookies",
