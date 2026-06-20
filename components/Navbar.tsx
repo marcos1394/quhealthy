@@ -63,7 +63,8 @@ const LINKS: Record<string, NavItem[]> = {
 };
 
 export const Navbar: React.FC = () => {
-  const { user, role, isAuthenticated, isLoading, logout, initializeSession, _hasHydrated } = useSessionStore();
+  const { user, role, isAuthenticated, isLoading, initializeSession, _hasHydrated } = useSessionStore();
+  const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
