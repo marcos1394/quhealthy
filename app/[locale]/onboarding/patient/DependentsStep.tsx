@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { UserPlus, Baby, Heart, ShieldCheck, Plus, X, Loader2, Edit2, Trash2, Activity } from "lucide-react";
+import { UserPlus, Baby, Heart, Plus, X, Loader2, Trash2, Activity, Shield } from "lucide-react";
 import { toast } from "react-toastify";
 import { dependentService } from "@/services/dependent.service";
 import { Dependent, DependentRequest } from "@/types/dependent";
+import { cn } from "@/lib/utils";
 
 export const DependentsStep = () => {
   const [dependents, setDependents] = useState<Dependent[]>([]);
@@ -19,7 +23,6 @@ export const DependentsStep = () => {
     medicalNotes: "",
   });
 
-  // Campos adicionales visuales que inyectaremos en medicalNotes
   const [extraData, setExtraData] = useState({
     weightKg: "",
     heightCm: ""
@@ -42,13 +45,13 @@ export const DependentsStep = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar a este familiar?")) return;
+    if (!window.confirm("¿Seguro que deseas eliminar el expediente de este familiar?")) return;
     try {
       await dependentService.deleteDependent(id);
-      toast.success("Familiar eliminado correctamente");
+      toast.success("Expediente eliminado correctamente");
       loadDependents();
     } catch (error) {
-      toast.error("Error al eliminar familiar");
+      toast.error("Error al eliminar expediente");
     }
   };
 
@@ -57,7 +60,6 @@ export const DependentsStep = () => {
     try {
       setSaving(true);
       
-      // Inyectar peso y talla en las notas médicas temporalmente hasta que se actualice la DB
       let finalNotes = formData.medicalNotes || "";
       if (extraData.weightKg || extraData.heightCm) {
         const metrics = `[Biometría Inicial] Peso: ${extraData.weightKg || 'N/A'} kg, Estatura: ${extraData.heightCm || 'N/A'} cm.`;
@@ -69,10 +71,9 @@ export const DependentsStep = () => {
         medicalNotes: finalNotes
       });
 
-      toast.success("Familiar agregado con éxito");
+      toast.success("Expediente creado con éxito");
       setIsModalOpen(false);
       
-      // Reset form
       setFormData({
         firstName: "",
         lastName: "",
@@ -99,120 +100,130 @@ export const DependentsStep = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center py-4">
-        <UserPlus className="w-16 h-16 mx-auto text-blue-600 mb-4" />
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Familiares a cargo</h3>
-        <p className="text-slate-500 max-w-md mx-auto mt-2">
-          Agrega el perfil de tus hijos o adultos mayores para gestionar su esquema de vacunación y citas médicas desde tu cuenta.
+    <div className="space-y-8">
+      {/* Header Editorial */}
+      <div className="border-b border-gray-200 dark:border-gray-800 pb-6">
+        <h3 className="text-2xl font-semibold text-black dark:text-white tracking-tight">Familiares a cargo</h3>
+        <p className="text-gray-500 font-light mt-2 max-w-2xl text-sm">
+          Registra perfiles médicos secundarios para gestionar esquemas de vacunación y citas de dependientes (menores o adultos mayores).
         </p>
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-black dark:text-white" />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {dependents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {dependents.map((dep) => (
-                <div key={dep.id} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl relative shadow-sm hover:shadow-md transition group">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
-                        {dep.relationship === 'CHILD' ? <Baby className="w-5 h-5" /> : <Heart className="w-5 h-5" />}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white">{dep.firstName} {dep.lastName}</h4>
-                        <p className="text-xs text-slate-500">
-                          {dep.relationship} • {calculateAge(dep.dateOfBirth)} años
-                        </p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => handleDelete(dep.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                <div key={dep.id} className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-5 group hover:border-black dark:hover:border-white transition-colors relative flex items-start gap-4">
+                  <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+                    {dep.relationship === 'CHILD' ? <Baby className="w-5 h-5" strokeWidth={1.5} /> : <Heart className="w-5 h-5" strokeWidth={1.5} />}
                   </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                      {dep.firstName} {dep.lastName}
+                    </h4>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-light">
+                      {dep.relationship} <span className="mx-1">•</span> {calculateAge(dep.dateOfBirth)} años
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => handleDelete(dep.id)}
+                    className="w-8 h-8 flex items-center justify-center border border-transparent text-gray-400 hover:text-red-500 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                  </button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-              <p className="text-slate-500">Aún no has agregado dependientes.</p>
+            <div className="border border-dashed border-gray-300 dark:border-gray-700 p-10 text-center bg-gray-50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                No hay dependientes registrados en este expediente.
+              </p>
             </div>
           )}
 
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="w-full py-4 border-2 border-dashed border-blue-200 hover:border-blue-400 dark:border-blue-900 dark:hover:border-blue-700 bg-blue-50/50 hover:bg-blue-50 dark:bg-blue-900/10 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-semibold rounded-2xl transition flex items-center justify-center gap-2"
+            className="w-full h-14 border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
           >
-            <Plus className="w-5 h-5" /> Agregar Nuevo Dependiente
+            <Plus className="w-4 h-4" /> Agregar Perfil Dependiente
           </button>
         </div>
       )}
 
-      {/* MODAL FORMULARIO */}
+      {/* MODAL FORMULARIO (Architectural Overlay) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-blue-600" /> Nuevo Perfil Médico
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl border border-black dark:border-white shadow-2xl flex flex-col max-h-[90vh]">
+            
+            {/* Header Modal */}
+            <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505] flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black">
+                  <UserPlus className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  Creación de Expediente Secundario
+                </h3>
+              </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition"
+                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" strokeWidth={2} />
               </button>
             </div>
             
-            <form onSubmit={handleSave} className="p-5 overflow-y-auto max-h-[70vh]">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre(s) *</label>
+            <form onSubmit={handleSave} className="flex flex-col overflow-hidden flex-1">
+              <div className="p-6 overflow-y-auto space-y-6">
+                
+                {/* Nombre y Apellidos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Nombre(s) *</label>
                     <input 
                       required
                       type="text" 
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                       value={formData.firstName}
                       onChange={e => setFormData({...formData, firstName: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Apellidos *</label>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Apellidos *</label>
                     <input 
                       required
                       type="text" 
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                       value={formData.lastName}
                       onChange={e => setFormData({...formData, lastName: e.target.value})}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Fecha Nacimiento *</label>
+                {/* Fecha y Sexo */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Fecha Nacimiento *</label>
                     <input 
                       required
                       type="date" 
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                       value={formData.dateOfBirth}
                       onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sexo *</label>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Sexo *</label>
                     <select 
                       required
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
                       value={formData.gender}
                       onChange={e => setFormData({...formData, gender: e.target.value})}
                     >
@@ -223,11 +234,12 @@ export const DependentsStep = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Parentesco *</label>
+                {/* Parentesco */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Parentesco *</label>
                   <select 
                     required
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
                     value={formData.relationship}
                     onChange={e => setFormData({...formData, relationship: e.target.value})}
                   >
@@ -240,62 +252,65 @@ export const DependentsStep = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="col-span-2">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                      <Activity className="w-3 h-3" /> Biometría Inicial
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Peso (kg)</label>
-                    <input 
-                      type="number" 
-                      step="0.1"
-                      placeholder="Ej. 15.5"
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                      value={extraData.weightKg}
-                      onChange={e => setExtraData({...extraData, weightKg: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estatura (cm)</label>
-                    <input 
-                      type="number" 
-                      placeholder="Ej. 95"
-                      className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                      value={extraData.heightCm}
-                      onChange={e => setExtraData({...extraData, heightCm: e.target.value})}
-                    />
+                {/* Biometría (Architectural Note) */}
+                <div className="border-l-2 border-black dark:border-white pl-5 py-2 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4 flex items-center gap-2">
+                    <Activity className="w-3 h-3" /> Biometría Inicial
+                  </p>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[9px] uppercase tracking-widest text-gray-500">Peso (kg)</label>
+                      <input 
+                        type="number" 
+                        step="0.1"
+                        placeholder="Ej. 15.5"
+                        className="w-full h-10 rounded-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-3 outline-none"
+                        value={extraData.weightKg}
+                        onChange={e => setExtraData({...extraData, weightKg: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[9px] uppercase tracking-widest text-gray-500">Estatura (cm)</label>
+                      <input 
+                        type="number" 
+                        placeholder="Ej. 95"
+                        className="w-full h-10 rounded-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-3 outline-none"
+                        value={extraData.heightCm}
+                        onChange={e => setExtraData({...extraData, heightCm: e.target.value})}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notas Médicas Adicionales</label>
+                {/* Notas Médicas */}
+                <div className="space-y-2 pb-4">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Notas Clínicas Adicionales</label>
                   <textarea 
-                    rows={2}
-                    placeholder="Alergias, condiciones preexistentes..."
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                    rows={3}
+                    placeholder="Alergias, condiciones preexistentes, etc."
+                    className="w-full rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 p-4 transition-colors outline-none resize-none"
                     value={formData.medicalNotes}
                     onChange={e => setFormData({...formData, medicalNotes: e.target.value})}
                   />
                 </div>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+              {/* Footer Modal Actions */}
+              <div className="border-t border-gray-200 dark:border-gray-800 p-6 flex items-center justify-end gap-4 shrink-0 bg-white dark:bg-[#0a0a0a]">
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="px-6 h-12 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2.5 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition flex items-center gap-2"
+                  className="px-8 h-12 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {saving ? "Guardando..." : "Guardar Perfil"}
+                  {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {saving ? "Procesando..." : "Guardar Registro"}
                 </button>
               </div>
             </form>
