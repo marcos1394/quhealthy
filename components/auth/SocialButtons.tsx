@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'; // 🚀 ADDED: Para poder redirigir
 // ✅ Hook y Tipos alineados
 import { useAuth } from '@/hooks/useAuth';
 import { UserRole, AuthResponse } from '@/types/auth';
+import { consumerProfileService } from '@/services/consumerProfile.service';
 
 interface SocialAuthButtonsProps {
   role?: UserRole; // 'PROVIDER' | 'CONSUMER'
@@ -31,10 +32,8 @@ export default function SocialAuthButtons({
   // ==========================================
   // 🚀 LÓGICA DE ENRUTAMIENTO (EL EMBUDO)
   // ==========================================
-  const handleRedirection = (response: AuthResponse) => {
+  const handleRedirection = async (response: AuthResponse) => {
     const { status, role: userRole, user } = response;
-
-    // 🚀 La cookie __Secure-userRole ahora se asigna directamente desde el backend
 
     if (!status.emailVerified) {
       router.push('/verify-email');
@@ -42,7 +41,17 @@ export default function SocialAuthButtons({
     }
 
     if (userRole === 'CONSUMER') {
-      router.push('/onboarding/patient');
+      try {
+        const profile: any = await consumerProfileService.getProfile();
+        const step = profile?.onboardingStep || 0;
+        if (step >= 8) {
+          router.push('/patient/dashboard');
+        } else {
+          router.push('/onboarding/patient');
+        }
+      } catch (err) {
+        router.push('/onboarding/patient');
+      }
       return;
     }
 
@@ -76,7 +85,7 @@ export default function SocialAuthButtons({
 
         toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
         if (onSuccess) {
-          onSuccess(response);
+          await onSuccess(response);
         } else {
           // 🚀 Ejecutamos el embudo de redirección
           handleRedirection(response);

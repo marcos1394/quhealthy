@@ -36,6 +36,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
 import { handleApiError } from '@/lib/handleApiError';
 import { nukeCookies } from '@/stores/SessionStore';
+import { consumerProfileService } from '@/services/consumerProfile.service';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -88,25 +89,32 @@ export default function LoginPage() {
     return isEmailValid && formData.password.length >= 6;
   };
 
-  const handleAuthNavigation = (response: AuthResponse) => {
+  const handleAuthNavigation = async (response: AuthResponse) => {
     const role = response.role;
-    const isOnboardingComplete = response.status?.onboardingComplete;
-
-    // La cookie __Secure-userRole ahora se asigna directamente desde el backend para mayor seguridad.
 
     if (role === 'ADMIN') {
       router.push("/admin/dashboard");
     } else if (role === 'PROVIDER') {
+      const isOnboardingComplete = response.status?.onboardingComplete;
       if (isOnboardingComplete) {
         router.push("/provider/dashboard");
       } else {
         router.push("/onboarding");
       }
     } else if (role === 'CONSUMER') {
-      if (isOnboardingComplete) {
-        router.push("/patient/dashboard");
-      } else {
-        // Mandamos al nuevo layout del onboarding sin sidebar
+      try {
+        // Debemos esperar el endpoint del consumer profile para saber su step real
+        const profile: any = await consumerProfileService.getProfile();
+        const step = profile?.onboardingStep || 0;
+        const stepsLength = 8; // El número de pasos del onboarding (STEPS.length en ConsumerOnboardingWizard)
+        
+        if (step >= stepsLength) {
+          router.push("/patient/dashboard");
+        } else {
+          router.push("/onboarding/patient");
+        }
+      } catch (err) {
+        // Fallback en caso de error (ej: no se ha creado el perfil base)
         router.push("/onboarding/patient");
       }
     } else {
@@ -132,7 +140,7 @@ export default function LoginPage() {
       });
 
       toast.success(t('title'));
-      handleAuthNavigation(response);
+      await handleAuthNavigation(response);
 
     } catch (err: any) {
       console.error(err);
