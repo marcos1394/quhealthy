@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { UI_Course } from "@/types/catalog";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +18,6 @@ interface CoursesManagerProps {
   onSave: (course: UI_Course) => void;
   onDelete: (id: number) => void;
   onImageUpload: (id: number, file: File) => void;
-  // 🚀 Nuevas props de negocio para límites de plan
   canAdd?: boolean;
   currentUsage?: number;
   maxLimit?: number;
@@ -33,12 +30,12 @@ export function CoursesManager({
   onSave, 
   onDelete, 
   onImageUpload,
-  canAdd = true, // Default a true por seguridad
+  canAdd = true, 
   currentUsage,
   maxLimit
 }: CoursesManagerProps) {
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
-  const t = useTranslations('Marketplace.courses'); // 🚀 Alineado al estándar
+  const t = useTranslations('Marketplace.courses'); 
   const tGlobal = useTranslations('StoreCatalog.actions');
 
   const handleAddWrapper = () => {
@@ -51,110 +48,96 @@ export function CoursesManager({
   };
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl rounded-3xl overflow-hidden">
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
       
       {/* --- CABECERA (HEADER) --- */}
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-6 bg-white dark:bg-slate-900 gap-4">
-        <div className="space-y-3">
-          <CardTitle className="flex items-center gap-4 text-slate-900 dark:text-white text-2xl">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="p-3 bg-emerald-100 dark:bg-emerald-500/20 rounded-2xl border border-emerald-200 dark:border-emerald-500/30"
-            >
-              <GraduationCap className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-            </motion.div>
-            {t('title', { defaultValue: 'Cursos / Productos Digitales' })}
-          </CardTitle>
-          <CardDescription className="text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-3 text-base">
-            {t('description', { defaultValue: 'Vende acceso a cursos, e-books o videos exclusivos.' })}
-            
-            {/* 🚀 Indicador de ítems activos */}
-            {courses.length > 0 && (
-              <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 shadow-sm font-medium">
-                <Sparkles className="w-3 h-3 mr-1" />
-                {courses.length} {courses.length === 1 ? t('course_single', { defaultValue: 'Curso' }) : t('course_plural', { defaultValue: 'Cursos' })}
-              </Badge>
-            )}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505] gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <GraduationCap className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+              {t('title', { defaultValue: 'Cursos / Productos Digitales' })}
+            </h2>
+            <div className="flex flex-wrap items-center gap-3">
+              {courses.length > 0 && (
+                <span className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" strokeWidth={2} />
+                  {courses.length} {courses.length === 1 ? t('course_single', { defaultValue: 'Registro Activo' }) : t('course_plural', { defaultValue: 'Registros Activos' })}
+                </span>
+              )}
 
-            {/* 🚀 Indicador de Límite de Plan (Contrato de Consumo) */}
-            {typeof currentUsage === 'number' && typeof maxLimit === 'number' && (
-              <Badge variant="outline" className={cn(
-                "font-medium shadow-sm",
-                canAdd 
-                  ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20" 
-                  : "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
-              )}>
-                {currentUsage} / {maxLimit} {t('usage_limit', { defaultValue: 'usados' })}
-              </Badge>
-            )}
-          </CardDescription>
+              {typeof currentUsage === 'number' && typeof maxLimit === 'number' && (
+                <span className={cn(
+                  "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1",
+                  canAdd 
+                    ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black" 
+                    : "border-red-500 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
+                )}>
+                  Consumo: {currentUsage} / {maxLimit}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* 🚀 Botón protegido por regla de negocio */}
         <Button 
           onClick={handleAddWrapper} 
           disabled={!canAdd}
-          className={cn(
-            "shadow-md transition-all rounded-xl h-11 font-bold",
-            canAdd 
-              ? "bg-medical-600 hover:bg-medical-700 text-white hover:shadow-lg" 
-              : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700"
-          )}
+          className="w-full sm:w-auto rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed border-0"
         >
-          <Plus className="w-4 h-4 mr-2" /> 
-          {!canAdd ? t('limit_reached_btn', { defaultValue: 'Límite Lleno' }) : t('btn_add', { defaultValue: 'Nuevo Curso' })}
+          <Plus className="w-4 h-4 mr-2" strokeWidth={2} /> 
+          {!canAdd ? t('limit_reached_btn', { defaultValue: 'Límite Agotado' }) : t('btn_add', { defaultValue: 'Nuevo Curso' })}
         </Button>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-8 pt-8 p-6 md:p-8 bg-slate-50/30 dark:bg-slate-900/50">
+      <div className="p-6 md:p-8 space-y-8 bg-gray-50/50 dark:bg-[#050505]/50">
         
-        {/* --- ALERTA DE LÍMITE (Feedback UX) --- */}
+        {/* --- ALERTA DE LÍMITE (Margin Note) --- */}
         <AnimatePresence>
           {!canAdd && courses.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-3xl p-5 flex items-center gap-4 shadow-sm"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
             >
-              <div className="p-2 bg-red-100 dark:bg-red-500/20 rounded-xl">
-                <Info className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-red-800 dark:text-red-300 font-bold mb-1">
-                  {t('limit_alert_title', { defaultValue: 'Has llenado tu capacidad' })}
+              <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10 mb-8">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
+                  <Info className="w-3.5 h-3.5" /> {t('limit_alert_title', { defaultValue: 'Capacidad Máxima Alcanzada' })}
                 </p>
-                <p className="text-xs text-red-700 dark:text-red-300/80">
-                  {t('limit_alert_desc', { defaultValue: 'Archiva o elimina cursos antiguos para liberar espacio, o actualiza tu plan en la sección de facturación.' })}
+                <p className="text-xs text-red-700 dark:text-red-300 font-light">
+                  {t('limit_alert_desc', { defaultValue: 'Archiva o elimina cursos antiguos para liberar espacio en tu cuenta.' })}
                 </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* --- ESTADO VACÍO --- */}
+        {/* --- ESTADO VACÍO (Blueprint Empty State) --- */}
         {courses.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/30"
+            className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-400 dark:border-gray-600 bg-white dark:bg-[#0a0a0a]"
           >
-            <div className="p-6 bg-emerald-50 dark:bg-emerald-500/10 rounded-3xl mb-6 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-              <GraduationCap className="w-12 h-12 text-emerald-500 dark:text-emerald-400" />
+            <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-6">
+              <GraduationCap className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
             </div>
-            <p className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('empty_state', { defaultValue: 'No tienes cursos' })}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-md text-center leading-relaxed">
-              {t('empty_desc', { defaultValue: 'Sube un e-book o un video pregrabado para monetizar tu conocimiento.' })}
+            <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+              {t('empty_state', { defaultValue: 'Sin Material Educativo' })}
+            </p>
+            <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
+              {t('empty_desc', { defaultValue: 'Sube e-books, videos pregrabados o programas educativos para tus pacientes.' })}
             </p>
             <Button 
               onClick={handleAddWrapper}
               disabled={!canAdd}
-              className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl h-12 font-bold px-8 shadow-lg shadow-medical-500/20 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 disabled:shadow-none"
+              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-12 px-8 disabled:opacity-50 border-0"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              {!canAdd ? t('limit_reached_btn') : t('create_first', { defaultValue: 'Crear mi primer curso' })}
+              <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
+              {!canAdd ? t('limit_reached_btn') : t('create_first', { defaultValue: 'Registrar Primer Curso' })}
             </Button>
           </motion.div>
         ) : (
@@ -163,154 +146,175 @@ export function CoursesManager({
             {courses.map((course) => (
               <motion.div
                 key={course.id}
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
                 layout
+                className={cn(
+                  "border transition-colors bg-white dark:bg-[#0a0a0a]",
+                  course.isNew || course.hasUnsavedChanges 
+                    ? "border-black dark:border-white ring-1 ring-black dark:ring-white" 
+                    : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white"
+                )}
               >
-                <Card className={cn(
-                  "border transition-all duration-300 shadow-sm rounded-3xl overflow-hidden group",
-                  course.isNew 
-                    ? "border-emerald-300 dark:border-emerald-500/50 bg-emerald-50/30 dark:bg-emerald-900/10 shadow-lg shadow-emerald-500/10" 
-                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl",
-                  course.hasUnsavedChanges && !course.isNew ? "border-amber-300 dark:border-amber-500/50 bg-amber-50/30 dark:bg-amber-900/10" : ""
-                )}>
-                  <CardContent className="p-6 md:p-8">
-                    <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row">
 
-                      {/* 📸 Imagen de Portada */}
-                      <div className="flex flex-col items-center gap-3">
-                        <div
-                          className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900 overflow-hidden relative cursor-pointer group/image transition-all hover:border-emerald-500"
-                          onClick={() => fileInputRefs.current[course.id]?.click()}
-                        >
-                          {course.imageUrl ? (
-                            <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover group-hover/image:opacity-50 transition-opacity" />
-                          ) : (
-                            <FileVideo className="w-8 h-8 text-slate-400 dark:text-slate-600 group-hover/image:scale-110 transition-transform" />
-                          )}
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 flex items-center justify-center transition-opacity">
-                            <span className="text-white text-xs font-bold px-2 text-center">{t('change_cover', { defaultValue: 'Cambiar Portada' })}</span>
-                          </div>
+                  {/* 📸 Zona Lateral: Portada del Curso */}
+                  <div className="lg:w-64 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-6 md:p-8 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-bold text-gray-400">ID: {course.id < 0 ? 'NUEVO' : course.id}</span>
+                        {(course.isNew || course.hasUnsavedChanges) && (
+                          <span className="text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black px-2 py-1">
+                            Modificado
+                          </span>
+                        )}
+                      </div>
+
+                      <div
+                        className="w-full aspect-square border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black overflow-hidden relative cursor-pointer group hover:border-black dark:hover:border-white transition-colors mt-4"
+                        onClick={() => fileInputRefs.current[course.id]?.click()}
+                      >
+                        {course.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-screen" />
+                        ) : (
+                          <FileVideo className="w-8 h-8 text-gray-400" strokeWidth={1} />
+                        )}
+                        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-white border border-white px-2 py-1">
+                            {t('change_cover', { defaultValue: 'Actualizar' })}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
-                          {t('photo_label', { defaultValue: 'Portada' })}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          ref={el => { fileInputRefs.current[course.id] = el; }}
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              onImageUpload(course.id, e.target.files[0]);
-                            }
-                          }}
+                      </div>
+
+                      <span className="block text-center text-[9px] text-gray-500 uppercase tracking-widest font-bold mt-2">
+                        {t('photo_label', { defaultValue: 'Portada' })}
+                      </span>
+                      
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        ref={el => { fileInputRefs.current[course.id] = el; }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            onImageUpload(course.id, e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 📝 Zona Principal: Formulario */}
+                  <div className="flex-1 p-6 md:p-8 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                          {t('label_title', { defaultValue: 'Título del Programa / E-book' })}
+                        </label>
+                        <Input 
+                          value={course.name} 
+                          onChange={e => onUpdate(course.id, { name: e.target.value })} 
+                          placeholder={t('placeholder_title', { defaultValue: 'Ej: Guía de Nutrición...' })} 
+                          className={cn(
+                            "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors",
+                            !course.name ? "border-red-500" : ""
+                          )} 
                         />
                       </div>
-
-                      {/* 📝 Formulario */}
-                      <div className="flex-1 space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('label_title', { defaultValue: 'Título del Curso / E-book' })}</label>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                            {t('label_price', { defaultValue: 'Precio' })}
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                             <Input 
-                              value={course.name} 
-                              onChange={e => onUpdate(course.id, { name: e.target.value })} 
-                              placeholder={t('placeholder_title', { defaultValue: 'Ej: Guía de Nutrición...' })} 
-                              className={cn(
-                                "h-11 font-bold text-base bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white transition-all",
-                                "focus-visible:ring-emerald-500 focus-visible:border-emerald-500",
-                                !course.name ? "border-red-300 dark:border-red-500/50" : ""
-                              )} 
+                              type="number" 
+                              min="0" 
+                              value={course.price || ''} 
+                              onChange={e => onUpdate(course.id, { price: parseFloat(e.target.value) || 0 })} 
+                              className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 pl-8 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors" 
                             />
                           </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('label_price', { defaultValue: 'Precio' })}</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-bold">$</span>
-                                <Input 
-                                  type="number" 
-                                  min="0" 
-                                  value={course.price || ''} 
-                                  onChange={e => onUpdate(course.id, { price: parseFloat(e.target.value) || 0 })} 
-                                  className="h-11 pl-7 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold focus-visible:ring-emerald-500" 
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center"><Tag className="w-3 h-3 mr-1" /> {t('label_category', { defaultValue: 'Categoría' })}</label>
-                              <Input 
-                                value={course.category} 
-                                onChange={e => onUpdate(course.id, { category: e.target.value })} 
-                                placeholder={t('placeholder_category', { defaultValue: 'Cursos' })} 
-                                className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus-visible:ring-emerald-500" 
-                              />
-                            </div>
-                          </div>
                         </div>
-
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('label_desc', { defaultValue: 'Descripción Corta' })}</label>
-                          <Input 
-                            value={course.description} 
-                            onChange={e => onUpdate(course.id, { description: e.target.value })} 
-                            placeholder={t('placeholder_desc', { defaultValue: '¿Qué aprenderá el paciente?' })} 
-                            className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus-visible:ring-emerald-500" 
-                          />
-                        </div>
-
-                        <div className="bg-emerald-50 dark:bg-emerald-500/10 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 space-y-2">
-                          <label className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center">
-                            <Link2 className="w-4 h-4 mr-1" /> {t('label_url', { defaultValue: 'URL del Contenido (Privado)' })}
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                            <Tag className="w-3 h-3" strokeWidth={2} /> {t('label_category', { defaultValue: 'Categoría' })}
                           </label>
-                          <Input
-                            type="url"
-                            value={course.contentUrl || ''}
-                            onChange={e => onUpdate(course.id, { contentUrl: e.target.value })}
-                            placeholder={t('placeholder_url', { defaultValue: 'https://youtube.com/... o enlace de Drive' })}
-                            className="h-11 bg-white dark:bg-slate-950 border-emerald-200 dark:border-emerald-800/50 focus-visible:ring-emerald-500 text-slate-900 dark:text-white"
+                          <Input 
+                            value={course.category} 
+                            onChange={e => onUpdate(course.id, { category: e.target.value })} 
+                            placeholder={t('placeholder_category', { defaultValue: 'Cursos' })} 
+                            className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors" 
                           />
-                          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80 font-medium pt-1">
-                            {t('url_warning', { defaultValue: '⚠️ Este enlace solo será visible para el paciente DESPUÉS de haber pagado el curso.' })}
-                          </p>
-                        </div>
-
-                        {/* Acciones */}
-                        <div className="flex items-center justify-end gap-3 pt-2">
-                          <Button 
-                            variant="ghost" 
-                            onClick={() => onDelete(course.id)} 
-                            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 h-11 rounded-xl"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" /> {tGlobal('delete', { defaultValue: 'Eliminar' })}
-                          </Button>
-                          <Button
-                            onClick={() => onSave(course)}
-                            disabled={!course.hasUnsavedChanges && !course.isNew}
-                            className={cn(
-                              "rounded-xl h-11 font-bold shadow-sm transition-all px-6",
-                              course.hasUnsavedChanges || course.isNew 
-                                ? "bg-medical-600 hover:bg-medical-700 text-white shadow-md" 
-                                : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
-                            )}
-                          >
-                            <Save className="w-4 h-4 mr-2" /> 
-                            {course.isNew ? tGlobal('save_new', { defaultValue: 'Guardar' }) : tGlobal('save_changes', { defaultValue: 'Guardar Cambios' })}
-                          </Button>
                         </div>
                       </div>
-
                     </div>
-                  </CardContent>
-                </Card>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                        {t('label_desc', { defaultValue: 'Descripción y Temario' })}
+                      </label>
+                      <Input 
+                        value={course.description} 
+                        onChange={e => onUpdate(course.id, { description: e.target.value })} 
+                        placeholder={t('placeholder_desc', { defaultValue: '¿Qué aprenderá el paciente?' })} 
+                        className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors" 
+                      />
+                    </div>
+
+                    {/* URL Segura (Margin Note Warning) */}
+                    <div className="border-l-2 border-amber-500 pl-4 py-3 bg-amber-50 dark:bg-amber-900/10 space-y-3 mt-4">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400 flex items-center gap-2">
+                        <Link2 className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('label_url', { defaultValue: 'Enlace del Contenido (Acceso Privado)' })}
+                      </label>
+                      <Input
+                        type="url"
+                        value={course.contentUrl || ''}
+                        onChange={e => onUpdate(course.id, { contentUrl: e.target.value })}
+                        placeholder={t('placeholder_url', { defaultValue: 'https://youtube.com/privado o Drive' })}
+                        className="rounded-none bg-white dark:bg-[#0a0a0a] border-amber-200 dark:border-amber-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-amber-500 transition-colors"
+                      />
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">
+                        ⚠️ {t('url_warning', { defaultValue: 'El enlace se desbloquea para el paciente tras confirmar la transacción.' })}
+                      </p>
+                    </div>
+
+                    {/* Acciones */}
+                    <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => onDelete(course.id)} 
+                        className="rounded-none border border-transparent text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 transition-colors h-12 px-6 text-[10px] font-bold uppercase tracking-widest"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} /> {tGlobal('delete', { defaultValue: 'Purgar' })}
+                      </Button>
+                      <Button
+                        onClick={() => onSave(course)}
+                        disabled={!course.hasUnsavedChanges && !course.isNew}
+                        className={cn(
+                          "rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                          course.hasUnsavedChanges || course.isNew 
+                            ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" 
+                            : "bg-gray-100 text-gray-400 dark:bg-gray-900 cursor-not-allowed"
+                        )}
+                      >
+                        <Save className="w-4 h-4 mr-2" strokeWidth={2} /> 
+                        {course.isNew ? tGlobal('save_new', { defaultValue: 'Confirmar' }) : tGlobal('save_changes', { defaultValue: 'Sincronizar' })}
+                      </Button>
+                    </div>
+
+                  </div>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

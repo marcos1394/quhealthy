@@ -3,9 +3,8 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { HealthScoreResponse } from '@/types/healthscore';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
@@ -21,40 +20,41 @@ export function HealthScoreWidget({ scoreData, isLoading, onOpenOnboarding }: He
   // 🔄 ESTADO 1: Cargando
   if (isLoading) {
     return (
-      <Card className="h-full min-h-[300px] flex flex-col justify-center items-center p-6 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm">
+      <div className="h-full min-h-[300px] flex flex-col justify-center items-center p-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
          <QhSpinner size="md" />
-         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('loading')}</p>
-      </Card>
+         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4">
+           {t('loading')}
+         </p>
+      </div>
     );
   }
 
-  // ✨ ESTADO 2: Sin datos (CTA Gamificado)
+  // ✨ ESTADO 2: Sin datos (CTA Técnico y Estricto)
   if (!scoreData) {
     return (
-      <Card className="h-full relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-950 text-white border-0 shadow-xl group">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-medical-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-medical-500/30 transition-all duration-700"></div>
+      <div className="h-full min-h-[300px] border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-8 flex flex-col justify-between">
         
-        <CardContent className="p-6 md:p-8 flex flex-col h-full justify-center relative z-10">
-          <div className="p-3 bg-white/10 w-fit rounded-2xl mb-5 backdrop-blur-md border border-white/10 shadow-sm">
-            <Sparkles className="w-6 h-6 text-medical-300" />
+        <div>
+          <div className="w-12 h-12 border border-white/30 dark:border-black/30 flex items-center justify-center mb-6 bg-white/5 dark:bg-black/5">
+            <Sparkles className="w-5 h-5" strokeWidth={1.5} />
           </div>
           
-          <h3 className="text-xl md:text-2xl font-bold mb-3 leading-tight tracking-tight text-white">
+          <h3 className="text-2xl font-semibold mb-3 tracking-tight">
             {t('cta_title')}
           </h3>
           
-          <p className="text-sm text-slate-300 font-light mb-8 flex-1 leading-relaxed">
+          <p className="text-xs text-gray-400 dark:text-gray-600 font-light leading-relaxed max-w-sm mb-8">
             {t('cta_desc')}
           </p>
-          
-          <Button
-            onClick={onOpenOnboarding}
-            className="w-full bg-medical-500 hover:bg-medical-600 text-white font-bold py-6 rounded-xl shadow-[0_0_20px_rgba(14,165,233,0.3)] transition-all hover:scale-105 active:scale-95"
-          >
-            {t('cta_button')}
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+        
+        <Button
+          onClick={onOpenOnboarding}
+          className="w-full bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-none h-14 text-[10px] font-bold uppercase tracking-widest border-0 flex items-center justify-between px-6 transition-colors"
+        >
+          {t('cta_button')} <ArrowRight className="w-4 h-4" />
+        </Button>
+      </div>
     );
   }
 

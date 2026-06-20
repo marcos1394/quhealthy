@@ -4,131 +4,89 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Clock, User, ArrowRight, Wallet, Package, Star, ShoppingBag } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export function QuickAccessCards() {
   const router = useRouter();
   const t = useTranslations('PatientDashboard');
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: "spring", stiffness: 300, damping: 24 }
-    }
-  };
-
-  // Definición de las tarjetas para el Bento Grid
+  // Definición de módulos de acceso (Iconos y estéticas puramente monocromáticas)
   const cards = [
     {
       id: 'history',
-      title: t('card_history', { defaultValue: 'Historial Médico' }),
+      title: t('card_history', { defaultValue: 'Historial Clínico' }),
       desc: t('card_history_desc', { defaultValue: 'Diagnósticos, recetas y laboratorios.' }),
       icon: Clock,
-      href: '/patient/dashboard/appointments', // TODO: update routes later
-      colorClass: 'text-medical-500',
-      bgClass: 'bg-medical-50 dark:bg-medical-500/10',
-      colSpan: 'col-span-1 md:col-span-2 lg:col-span-1',
+      href: '/patient/dashboard/appointments',
     },
     {
       id: 'wallet',
-      title: t('card_wallet', { defaultValue: 'Mi Billetera' }),
-      desc: t('card_wallet_desc', { defaultValue: 'Saldo, recargas y movimientos.' }),
+      title: t('card_wallet', { defaultValue: 'Billetera Digital' }),
+      desc: t('card_wallet_desc', { defaultValue: 'Saldo, recargas y transacciones.' }),
       icon: Wallet,
       href: '/patient/wallet',
-      colorClass: 'text-emerald-500',
-      bgClass: 'bg-emerald-50 dark:bg-emerald-500/10',
-      colSpan: 'col-span-1',
     },
     {
       id: 'packages',
-      title: t('card_packages', { defaultValue: 'Paquetes y Suscripciones' }),
-      desc: t('card_packages_desc', { defaultValue: 'Consultas prepagadas activas.' }),
+      title: t('card_packages', { defaultValue: 'Suscripciones' }),
+      desc: t('card_packages_desc', { defaultValue: 'Consultas y paquetes prepagados.' }),
       icon: Package,
       href: '/patient/packages',
-      colorClass: 'text-purple-500',
-      bgClass: 'bg-purple-50 dark:bg-purple-500/10',
-      colSpan: 'col-span-1 md:col-span-2 lg:col-span-1',
     },
     {
       id: 'orders',
-      title: t('card_orders', { defaultValue: 'Mis Pedidos' }),
-      desc: t('card_orders_desc', { defaultValue: 'Seguimiento de farmacia.' }),
+      title: t('card_orders', { defaultValue: 'Logística / Pedidos' }),
+      desc: t('card_orders_desc', { defaultValue: 'Seguimiento de farmacia e insumos.' }),
       icon: ShoppingBag,
       href: '/patient/orders',
-      colorClass: 'text-amber-500',
-      bgClass: 'bg-amber-50 dark:bg-amber-500/10',
-      colSpan: 'col-span-1',
     },
     {
       id: 'reviews',
-      title: t('card_reviews', { defaultValue: 'Mis Reseñas' }),
-      desc: t('card_reviews_desc', { defaultValue: 'Tus evaluaciones médicas.' }),
+      title: t('card_reviews', { defaultValue: 'Evaluaciones' }),
+      desc: t('card_reviews_desc', { defaultValue: 'Auditoría de servicios médicos.' }),
       icon: Star,
       href: '/patient/reviews',
-      colorClass: 'text-yellow-500',
-      bgClass: 'bg-yellow-50 dark:bg-yellow-500/10',
-      colSpan: 'col-span-1',
     },
     {
       id: 'profile',
-      title: t('card_profile', { defaultValue: 'Mi Expediente' }),
-      desc: t('card_profile_desc', { defaultValue: 'Gestiona tu información personal.' }),
+      title: t('card_profile', { defaultValue: 'Expediente Base' }),
+      desc: t('card_profile_desc', { defaultValue: 'Identidad, demografía y vitales.' }),
       icon: User,
       href: '/patient/profile',
-      colorClass: 'text-blue-500',
-      bgClass: 'bg-blue-50 dark:bg-blue-500/10',
-      colSpan: 'col-span-1 md:col-span-2 lg:col-span-1',
     }
   ];
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
-    >
-      {cards.map((card) => (
-        <motion.div
-          key={card.id}
-          variants={itemVariants}
-          onClick={() => router.push(card.href)}
-          className={`relative group cursor-pointer overflow-hidden rounded-[2rem] bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 p-6 shadow-sm hover:shadow-xl transition-all duration-300 ${card.colSpan}`}
-        >
-          {/* Glassmorphism Highlight Effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          
-          <div className="flex flex-col h-full justify-between relative z-10">
-            <div className="flex items-start justify-between mb-4">
-              <div className={`p-3 rounded-2xl ${card.bgClass} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
-                <card.icon className={`w-6 h-6 ${card.colorClass}`} />
+    <div className="w-full">
+      <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-6">
+        Accesos a Módulos
+      </h3>
+      
+      {/* Blueprint Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            onClick={() => router.push(card.href)}
+            className="group cursor-pointer border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 flex flex-col justify-between min-h-[220px] transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]"
+          >
+            <div className="flex items-start justify-between mb-8">
+              <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+                <card.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+              <ArrowRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-black dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight mb-1">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
                 {card.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light leading-relaxed">
+              <p className="text-xs text-gray-500 font-light leading-relaxed">
                 {card.desc}
               </p>
             </div>
           </div>
-        </motion.div>
-      ))}
-    </motion.div>
+        ))}
+      </div>
+    </div>
   );
 }
