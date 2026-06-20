@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Syringe, ChevronLeft, CheckCircle2, Circle, Clock, ShieldCheck, FileCheck2, Loader2, ScanFace, Camera, FileUp, Sparkles, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Syringe, ChevronLeft, Check, Circle, Clock, ShieldCheck, 
+  FileCheck2, Loader2, ScanFace, Camera, FileUp, Sparkles, AlertCircle 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -55,14 +58,6 @@ function getAgeLabel(months: number) {
     if (months === 132) return '11 Años o 5º de primaria';
     return `${months} Meses`;
 }
-
-// Mapper to map AI extract IDs to numeric Catalog IDs if possible
-// This would need a better backend sync, but for demo:
-const ID_MAPPING: Record<string, string> = {
-    'bcg': 'Tuberculosis',
-    'hepb_1': 'Hepatitis B',
-    // We try to match by name roughly
-};
 
 export default function VaccinationsPage() {
     const params = useParams();
@@ -128,7 +123,7 @@ export default function VaccinationsPage() {
 
     const handleToggleVaccine = (vaccine: VaccinationStatusDto) => {
         if (vaccine.isApplied) {
-            toast.info("La vacuna ya fue aplicada. No se puede desmarcar.");
+            toast.info("La vacuna ya fue aplicada. No se puede revocar desde esta vista.");
         } else {
             setSelectedVaccineId(vaccine.vaccineCatalogId);
             setSelectedDate(new Date()); 
@@ -147,12 +142,12 @@ export default function VaccinationsPage() {
                 vaccineCatalogId: selectedVaccineId,
                 appliedDate: dateStr
             });
-            toast.success("Vacuna registrada exitosamente. Comprobante guardado en Bóveda.");
+            toast.success("Registro sincronizado exitosamente. Comprobante guardado en la bóveda.");
             setIsManualMarkModalOpen(false);
             await loadVaccines(member.id);
         } catch (err) {
             console.error(err);
-            toast.error("Hubo un error al registrar la vacuna.");
+            toast.error("Fallo de sincronización al registrar la vacuna.");
         } finally {
             setSimulatingAction(null);
             setSelectedVaccineId(null);
@@ -167,7 +162,7 @@ export default function VaccinationsPage() {
         formData.append('file', file);
 
         setIsScanning(true);
-        toast.info("Escaneando cartilla de vacunación con Inteligencia Artificial...");
+        toast.info("Analizando documento mediante motor OCR/IA...");
 
         try {
             const response = await apiClient.post('/api/onboarding/consumer/vault/vaccinations/extract', formData, {
@@ -177,11 +172,6 @@ export default function VaccinationsPage() {
             let markedCount = 0;
             for (const item of response.data) {
                 if (item.vaccineId && item.dateApplied) {
-                    // Try to match string ID with numeric ID (In real app, backend would return catalog ID)
-                    // We'll just try to match the prefix for demo or refresh
-                    // Actually, if we get matched dates, we'd fire the POST.
-                    // For now, we will just inform user that extraction needs backend ID mapping, or do a fuzzy match.
-                    
                     const catalogMatch = vaccinesData.find(v => 
                         v.diseasePrevented.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, '')) ||
                         v.name.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, ''))
@@ -198,15 +188,15 @@ export default function VaccinationsPage() {
             }
             
             if (markedCount > 0) {
-                toast.success(`¡Se registraron ${markedCount} vacunas encontradas en la imagen!`);
+                toast.success(`Extracción exitosa: ${markedCount} registros sincronizados.`);
                 loadVaccines(member.id);
             } else {
-                toast.warning("La IA no detectó vacunas nuevas o reconocibles en la imagen.");
+                toast.warning("El análisis no detectó registros nuevos o válidos en el documento.");
             }
             
         } catch (error) {
             console.error("Error extrayendo vacunas:", error);
-            toast.error("Hubo un error al leer la cartilla. Intenta tomar la foto más clara.");
+            toast.error("Fallo de análisis. Verifique la calidad de la imagen y vuelva a intentarlo.");
         } finally {
             setIsScanning(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -216,224 +206,254 @@ export default function VaccinationsPage() {
 
     if (isLoading || !member || isLoadingVaccines) {
         return (
-            <div className="flex flex-col justify-center items-center min-h-[60vh]">
+            <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
                 <QhSpinner size="lg" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-4 animate-pulse">
+                    Sincronizando Expediente...
+                </p>
             </div>
         );
     }
 
     return (
-        <><div className="mx-auto w-full max-w-5xl space-y-8 p-4 sm:p-6 lg:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex items-start gap-4">
-                    <Button variant="outline" size="icon" onClick={() => router.back()} className="h-11 w-11 shrink-0 rounded-xl border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-                        <ChevronLeft className="h-5 w-5 text-slate-500" />
-                    </Button>
-                    <div className="max-w-2xl">
-                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            Esquema infantil y comprobantes
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans text-black dark:text-white pb-32 selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+            <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-12">
+                
+                {/* --- HEADER --- */}
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+                    <div className="flex items-center gap-6">
+                        <button 
+                            onClick={() => router.back()} 
+                            className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+                        >
+                            <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
+                        </button>
+                        <div>
+                            <div className="mb-2 inline-flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                <Sparkles className="h-3 w-3" strokeWidth={2} />
+                                Expediente Clínico Oficial
+                            </div>
+                            <h1 className="text-3xl font-semibold tracking-tight uppercase mb-1">
+                                Esquema de Vacunación
+                            </h1>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Monitoreo y registro para <span className="text-black dark:text-white">{member.firstName} {member.lastName}</span>
+                            </p>
                         </div>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                            Cartilla de Vacunación
-                        </h1>
-                        <p className="mt-2 text-base leading-7 text-slate-500 dark:text-slate-400">
-                            Esquema oficial para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Avance</p>
-                        <ShieldCheck className="h-5 w-5 text-sky-500" />
-                    </div>
-                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{progress}%</p>
-                </div>
-                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Aplicadas</p>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-                    </div>
-                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{appliedCount}</p>
-                </div>
-                <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/10">
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">Con retraso</p>
-                        <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-300" />
-                    </div>
-                    <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{delayedCount}</p>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-5 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300">
-                        <ScanFace className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-slate-950 dark:text-white">Escanear cartilla</h3>
-                        <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">Sube una foto o PDF para detectar vacunas y fechas con IA.</p>
                     </div>
                 </div>
 
-                <div className="w-full flex-shrink-0 md:w-auto">
-                    <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
-                    <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                size="lg"
-                                disabled={isScanning}
-                                className="w-full rounded-2xl bg-slate-950 font-bold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 md:w-auto"
-                            >
-                                {isScanning ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Analizando con IA...
-                                    </>
-                                ) : (
-                                    <>
-                                        <ScanFace className="w-5 h-5" />
-                                        Escanear Cartilla
-                                    </>
-                                )}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="z-50 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-800 dark:bg-slate-900">
-                            <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <Camera className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
-                                <span className="font-medium">Tomar foto ahora</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="rounded-xl py-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <FileUp className="mr-3 h-5 w-5 text-slate-500 dark:text-slate-400" />
-                                <span className="font-medium">Subir desde dispositivo</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-
-            <div className="space-y-6">
-                {groupedVaccines.map((stage, idx) => (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        key={stage.ageGroup}
-                        className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200/50 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
-                    >
-                        <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                            <h2 className="font-bold text-lg flex items-center gap-2">
-                                <Clock className="w-5 h-5 text-medical-500" />
-                                {stage.ageGroup}
-                            </h2>
+                {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                        <div className="flex items-center justify-between gap-3 mb-6">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Avance General</p>
+                            <ShieldCheck className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
                         </div>
+                        <p className="text-3xl font-semibold tracking-tight">{progress}%</p>
+                    </div>
+                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                        <div className="flex items-center justify-between gap-3 mb-6">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Dosis Aplicadas</p>
+                            <Check className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-3xl font-semibold tracking-tight">{appliedCount}</p>
+                    </div>
+                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                        <div className="flex items-center justify-between gap-3 mb-6">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">Alertas / Retrasos</p>
+                            <AlertCircle className="h-4 w-4 text-red-500" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-3xl font-semibold tracking-tight text-red-500">{delayedCount}</p>
+                    </div>
+                </div>
 
-                        <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                            {stage.vaccines.map(vaccine => {
-                                const isApplied = vaccine.isApplied;
-                                const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
+                {/* --- MÓDULO DE ESCANEO (BLOQUE ARQUITECTÓNICO) --- */}
+                <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-black text-white dark:bg-white dark:text-black shrink-0">
+                            <ScanFace className="w-5 h-5" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Módulo de Extracción IA</h3>
+                            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light">
+                                Sube o captura una imagen de la cartilla física para sincronizar fechas automáticamente.
+                            </p>
+                        </div>
+                    </div>
 
-                                return (
-                                    <div key={vaccine.vaccineCatalogId} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                                        <div className="flex gap-4">
-                                            <button
-                                                onClick={() => handleToggleVaccine(vaccine)}
-                                                disabled={isSimulating}
-                                                className="mt-1 shrink-0 focus:outline-none"
-                                            >
-                                                {isSimulating ? (
-                                                    <Loader2 className="w-6 h-6 text-sky-500 animate-spin" />
-                                                ) : isApplied ? (
-                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500 transition-transform group-hover:scale-110" />
-                                                ) : (
-                                                    <Circle className="w-6 h-6 text-slate-300 dark:text-slate-600 transition-transform group-hover:scale-110" />
-                                                )}
-                                            </button>
-                                            <div>
-                                                <h4 className={cn(
-                                                    "font-bold text-base transition-colors",
-                                                    isApplied ? "text-slate-700 dark:text-slate-300" : "text-slate-900 dark:text-white"
-                                                )}>
-                                                    {vaccine.name}
-                                                </h4>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{vaccine.diseasePrevented} (Dosis {vaccine.doseNumber})</p>
+                    <div className="w-full shrink-0 md:w-auto">
+                        <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
+                        <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
 
-                                                {isApplied && vaccine.appliedDate && (
-                                                    <div className="flex items-center gap-2 mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md w-fit">
-                                                        <FileCheck2 className="w-3.5 h-3.5" />
-                                                        Aplicada el {vaccine.appliedDate}
-                                                    </div>
-                                                )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    disabled={isScanning}
+                                    className="w-full md:w-auto h-12 rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 px-8"
+                                >
+                                    {isScanning ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-3 animate-spin" /> Procesando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ScanFace className="w-4 h-4 mr-3" strokeWidth={1.5} /> Escanear Documento
+                                        </>
+                                    )}
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="z-50 w-64 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-0 shadow-none">
+                                <DropdownMenuItem 
+                                    onClick={() => cameraInputRef.current?.click()} 
+                                    className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
+                                >
+                                    <Camera className="mr-3 h-4 w-4" strokeWidth={1.5} /> Capturar Fotografía
+                                </DropdownMenuItem>
+                                <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
+                                <DropdownMenuItem 
+                                    onClick={() => fileInputRef.current?.click()} 
+                                    className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
+                                >
+                                    <FileUp className="mr-3 h-4 w-4" strokeWidth={1.5} /> Subir Archivo Local
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+
+                {/* --- ESQUEMA DE VACUNACIÓN (TABLAS) --- */}
+                <div className="space-y-8">
+                    {groupedVaccines.map((stage, idx) => (
+                        <div
+                            key={stage.ageGroup}
+                            className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col"
+                        >
+                            {/* Cabecera del Grupo */}
+                            <div className="bg-gray-50 dark:bg-[#050505] px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center">
+                                <h2 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-3">
+                                    <Clock className="w-4 h-4" strokeWidth={1.5} />
+                                    Fase: {stage.ageGroup}
+                                </h2>
+                            </div>
+
+                            {/* Filas de Vacunas */}
+                            <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                                {stage.vaccines.map(vaccine => {
+                                    const isApplied = vaccine.isApplied;
+                                    const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
+
+                                    return (
+                                        <div key={vaccine.vaccineCatalogId} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group">
+                                            
+                                            <div className="flex items-start gap-4">
+                                                {/* Checkbox Arquitectónico */}
+                                                <button
+                                                    onClick={() => handleToggleVaccine(vaccine)}
+                                                    disabled={isSimulating}
+                                                    className={cn(
+                                                        "mt-0.5 w-6 h-6 border flex items-center justify-center shrink-0 transition-colors focus:outline-none",
+                                                        isApplied 
+                                                          ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black" 
+                                                          : "border-gray-300 dark:border-gray-700 bg-transparent hover:border-black dark:hover:border-white"
+                                                    )}
+                                                >
+                                                    {isSimulating ? (
+                                                        <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />
+                                                    ) : isApplied ? (
+                                                        <Check className="w-4 h-4" strokeWidth={3} />
+                                                    ) : null}
+                                                </button>
+                                                
+                                                <div>
+                                                    <h4 className={cn(
+                                                        "text-sm font-bold uppercase tracking-widest transition-colors mb-1",
+                                                        isApplied ? "text-gray-500" : "text-black dark:text-white"
+                                                    )}>
+                                                        {vaccine.name}
+                                                    </h4>
+                                                    <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+                                                        {vaccine.diseasePrevented} (Dosis {vaccine.doseNumber})
+                                                    </p>
+
+                                                    {isApplied && vaccine.appliedDate && (
+                                                        <div className="flex items-center gap-2 mt-3 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border border-gray-300 dark:border-gray-700 px-2 py-1 w-fit bg-gray-50 dark:bg-[#050505]">
+                                                            <FileCheck2 className="w-3 h-3" strokeWidth={1.5} />
+                                                            Aplicada: {vaccine.appliedDate}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        {!isApplied && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                disabled={isSimulating}
-                                                onClick={() => handleToggleVaccine(vaccine)}
-                                                className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-xl border-slate-200 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-sky-500/10 hover:text-sky-600 dark:hover:text-sky-400"
-                                            >
-                                                Marcar Aplicada
-                                            </Button>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                            {!isApplied && (
+                                                <Button
+                                                    variant="outline"
+                                                    disabled={isSimulating}
+                                                    onClick={() => handleToggleVaccine(vaccine)}
+                                                    className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                                                >
+                                                    Registrar Dosis
+                                                </Button>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </motion.div>
-                ))}
+                    ))}
+                </div>
             </div>
-        </div><Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
-                <DialogContent className="sm:max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                    <DialogHeader>
-                        <DialogTitle>Registrar aplicación de vacuna</DialogTitle>
-                        <DialogDescription>
-                            Selecciona la fecha en la que se aplicó esta vacuna. Por defecto es la fecha de hoy.
+
+            {/* --- MODAL DE REGISTRO MANUAL --- */}
+            <Dialog open={isManualMarkModalOpen} onOpenChange={setIsManualMarkModalOpen}>
+                <DialogContent className="sm:max-w-md rounded-none bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 gap-0 shadow-2xl">
+                    <DialogHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                        <DialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
+                            Auditoría de Dosis
+                        </DialogTitle>
+                        <DialogDescription className="text-[10px] uppercase tracking-widest text-gray-500 mt-2">
+                            Seleccione la fecha cronológica de la aplicación. Por defecto se asigna la fecha actual.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="space-y-2 flex flex-col">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                Fecha de aplicación
+                    
+                    <div className="p-8 space-y-4">
+                        <div className="space-y-3 flex flex-col">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Fecha de Registro
                             </label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-full justify-start text-left font-normal rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900",
-                                            !selectedDate && "text-muted-foreground"
+                                            "w-full justify-start text-left rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-xs font-mono focus:ring-0",
+                                            !selectedDate && "text-gray-400"
                                         )}
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
+                                        <CalendarIcon className="mr-3 h-4 w-4" strokeWidth={1.5} />
+                                        {selectedDate ? format(selectedDate, "dd MMM yyyy", { locale: es }) : <span>Seleccionar fecha</span>}
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0 z-[60] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800" align="start">
+                                <PopoverContent className="w-auto p-0 z-[60] bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none" align="start">
                                     <Calendar
                                         mode="single"
                                         selected={selectedDate}
                                         onSelect={setSelectedDate}
                                         disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                                         initialFocus
-                                        locale={es} />
+                                        locale={es} 
+                                    />
                                 </PopoverContent>
                             </Popover>
                         </div>
                     </div>
-                    <DialogFooter className="sm:justify-end gap-2">
+
+                    <DialogFooter className="p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row gap-4">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => setIsManualMarkModalOpen(false)}
-                            className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white"
+                            className="rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto"
                         >
                             Cancelar
                         </Button>
@@ -441,13 +461,14 @@ export default function VaccinationsPage() {
                             type="button"
                             onClick={confirmManualMark}
                             disabled={!selectedDate || simulatingAction !== null}
-                            className="rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900"
+                            className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto border-0 disabled:opacity-50"
                         >
-                            {simulatingAction !== null ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileCheck2 className="w-4 h-4 mr-2" />}
-                            Guardar Registro
+                            {simulatingAction !== null ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileCheck2 className="w-4 h-4 mr-2" strokeWidth={1.5} />}
+                            Sincronizar
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog></>
+            </Dialog>
+        </div>
     );
 }

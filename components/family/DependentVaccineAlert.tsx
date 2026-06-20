@@ -36,21 +36,23 @@ export function DependentVaccineAlert({ memberId }: DependentVaccineAlertProps) 
                 <TooltipTrigger asChild>
                     <Link 
                         href={`/patient/dashboard/family/${memberId}/vaccinations`}
-                    className="absolute left-4 top-4 z-20 flex h-9 min-w-9 items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-2 text-rose-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+                        className="absolute left-4 top-4 z-20 flex h-8 items-center justify-center border border-red-500 bg-white dark:bg-[#0a0a0a] px-3 text-red-500 hover:bg-red-500 hover:text-white transition-colors rounded-none group"
                     >
-                        <span className="absolute inset-0 rounded-full bg-rose-500/20 animate-ping"></span>
-                        <AlertCircle className="relative h-4 w-4" />
-                        <span className="relative ml-1 text-xs font-bold">
-                            {delayedCount}
+                        <AlertCircle className="h-3.5 w-3.5 mr-2" strokeWidth={2} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">
+                            {delayedCount} Atraso{delayedCount > 1 ? 's' : ''}
                         </span>
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent className="z-50 max-w-xs border-rose-700 bg-rose-600 text-center text-white">
-                    <p className="font-medium text-sm">
-                        {delayedCount} vacuna{delayedCount > 1 ? 's' : ''} con retraso.
+                <TooltipContent 
+                    className="z-50 max-w-xs rounded-none border border-red-500 bg-red-500 text-white p-4"
+                    sideOffset={5}
+                >
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1">
+                        Atención Requerida
                     </p>
-                    <p className="text-xs text-rose-200 mt-1">
-                        Haz clic aquí para registrarlas si ya se aplicaron.
+                    <p className="text-xs font-light">
+                        El expediente indica {delayedCount} vacuna{delayedCount > 1 ? 's' : ''} con retraso. Haga clic para registrar la aplicación o programar una cita.
                     </p>
                 </TooltipContent>
             </Tooltip>

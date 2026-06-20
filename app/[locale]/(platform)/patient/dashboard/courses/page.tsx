@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
   PlayCircle,
@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { usePurchasedCourses } from "@/hooks/usePurchasedCourses";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export default function MyCoursesPage() {
   const { courses, isLoading, fetchCourses } = usePurchasedCourses();
@@ -34,188 +34,214 @@ export default function MyCoursesPage() {
   const latestCourse = courses[0];
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 p-4 sm:p-6 lg:p-8">
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <GraduationCap className="h-7 w-7 text-slate-800 dark:text-slate-100" />
-            </div>
-            <div className="max-w-2xl">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-medical-100 bg-medical-50 px-3 py-1 text-xs font-semibold text-medical-700 dark:border-medical-500/20 dark:bg-medical-500/10 dark:text-medical-300">
-                <Sparkles className="h-3.5 w-3.5" />
-                Biblioteca digital QuHealthy
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="mx-auto w-full max-w-7xl space-y-12 p-6 md:p-12 pb-24">
+        
+        {/* --- HEADER --- */}
+        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-gray-200 dark:border-gray-800 pb-8">
+            <div className="flex items-start gap-6">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+                <GraduationCap className="h-6 w-6 text-black dark:text-white" strokeWidth={1.5} />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                Mis Cursos
-              </h1>
-              <p className="mt-2 text-base leading-7 text-slate-500 dark:text-slate-400">
-                Accede a tus contenidos adquiridos, retoma el aprendizaje y consulta tus recursos digitales cuando los necesites.
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => fetchCourses()}
-            disabled={isLoading}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-medical-200 hover:bg-medical-50 hover:text-medical-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-medical-500/30 dark:hover:bg-medical-500/10 dark:hover:text-medical-300"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-            Actualizar
-          </button>
-        </div>
-
-        {!isLoading && courses.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Cursos adquiridos</p>
-                <Library className="h-5 w-5 text-medical-500" />
-              </div>
-              <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{courses.length}</p>
-            </div>
-            <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 shadow-sm dark:border-teal-500/20 dark:bg-teal-500/10">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-teal-700 dark:text-teal-300">Disponibles ahora</p>
-                <Video className="h-5 w-5 text-teal-600 dark:text-teal-300" />
-              </div>
-              <p className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{coursesWithContent}</p>
-            </div>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Última compra</p>
-                <CalendarCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-              </div>
-              <p className="mt-2 truncate text-lg font-bold text-slate-950 dark:text-white">
-                {latestCourse ? format(new Date(latestCourse.access.purchasedAt), "d MMM yyyy", { locale: es }) : "Sin datos"}
-              </p>
-            </div>
-          </div>
-        )}
-      </motion.div>
-
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((skeleton) => (
-            <div key={skeleton} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="aspect-video animate-pulse bg-slate-100 dark:bg-slate-800" />
-              <div className="space-y-4 p-5">
-                <div className="h-4 w-32 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
-                <div className="h-6 w-4/5 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
-                <div className="space-y-2">
-                  <div className="h-3 w-full animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
-                  <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+              <div className="max-w-2xl">
+                <div className="mb-3 inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                  <Sparkles className="h-3 w-3" strokeWidth={2} />
+                  Biblioteca Digital
                 </div>
-                <div className="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+                <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
+                  Mis Cursos Adquiridos
+                </h1>
+                <p className="text-xs font-light leading-relaxed text-gray-500">
+                  Accede a tus contenidos, retoma el aprendizaje y consulta tus recursos digitales cuando los necesites.
+                </p>
               </div>
             </div>
-          ))}
-        </div>
-      ) : courses.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="overflow-hidden rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20 sm:p-12"
-        >
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
-            <BookOpen className="h-8 w-8" />
-          </div>
-          <h3 className="mb-2 text-xl font-bold text-slate-950 dark:text-white">
-            No tienes cursos aún
-          </h3>
-          <p className="mx-auto mb-6 max-w-md text-slate-500 dark:text-slate-400">
-            Explora el catálogo de nuestros especialistas para encontrar contenido diseñado para ti.
-          </p>
-          <Button
-            variant="outline"
-            className="h-11 rounded-2xl"
-            onClick={() => window.location.href = '/patient/discover'}
-          >
-            Explorar Catálogo
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </motion.div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, index) => (
-            <motion.div
-              key={`${course.access.orderId}-${course.details.id}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/70 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:shadow-black/20"
+
+            <Button
+              onClick={() => fetchCourses()}
+              disabled={isLoading}
+              variant="outline"
+              className="rounded-none border border-black dark:border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors disabled:opacity-50 shrink-0"
             >
-              <div className="aspect-video relative overflow-hidden bg-slate-100 dark:bg-slate-800">
-                {course.details.imageUrl ? (
-                  <Image 
-                    src={course.details.imageUrl} 
-                    alt={course.details.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 via-white to-medical-50 dark:from-slate-900 dark:via-slate-900 dark:to-medical-500/10">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-medical-500 shadow-sm ring-1 ring-slate-200 dark:bg-slate-950 dark:ring-slate-800">
-                      <PlayCircle className="h-8 w-8" />
+              <RefreshCw className={cn("h-3.5 w-3.5 mr-2", isLoading && "animate-spin")} strokeWidth={2} />
+              Sincronizar
+            </Button>
+          </div>
+
+          {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
+          {!isLoading && courses.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Volumen Total</p>
+                  <Library className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{courses.length}</p>
+              </div>
+              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Disponibles Ahora</p>
+                  <Video className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{coursesWithContent}</p>
+              </div>
+              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Última Transacción</p>
+                  <CalendarCheck className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white truncate">
+                  {latestCourse ? format(new Date(latestCourse.access.purchasedAt), "dd MMM yyyy", { locale: es }) : "N/A"}
+                </p>
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* --- CONTENIDO --- */}
+        {isLoading ? (
+          /* SKELETONS ARQUITECTÓNICOS */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((skeleton) => (
+              <div key={skeleton} className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                <div className="aspect-video animate-pulse bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800" />
+                <div className="p-6 space-y-6">
+                  <div className="flex justify-between">
+                    <div className="h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-800" />
+                    <div className="h-4 w-16 animate-pulse bg-gray-200 dark:bg-gray-800" />
+                  </div>
+                  <div className="h-6 w-full animate-pulse bg-gray-200 dark:bg-gray-800" />
+                  <div className="space-y-2">
+                    <div className="h-2 w-full animate-pulse bg-gray-100 dark:bg-gray-900" />
+                    <div className="h-2 w-4/5 animate-pulse bg-gray-100 dark:bg-gray-900" />
+                  </div>
+                  <div className="h-12 w-full animate-pulse bg-gray-200 dark:bg-gray-800 mt-8" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : courses.length === 0 ? (
+          /* EMPTY STATE */
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] p-12 text-center flex flex-col items-center justify-center py-24"
+          >
+            <div className="flex h-16 w-16 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black mb-6">
+              <BookOpen className="h-6 w-6 text-gray-400" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+              Acervo Vacío
+            </h3>
+            <p className="mx-auto mb-8 max-w-md text-xs font-light leading-relaxed text-gray-500">
+              Explora el catálogo de nuestros especialistas para encontrar contenido en video, guías y programas diseñados para ti.
+            </p>
+            <Button
+              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+              onClick={() => window.location.href = '/patient/discover'}
+            >
+              Explorar Catálogo
+              <ArrowRight className="ml-3 h-4 w-4" strokeWidth={2} />
+            </Button>
+          </motion.div>
+        ) : (
+          /* GRID DE CURSOS */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <AnimatePresence>
+              {courses.map((course, index) => (
+                <motion.div
+                  key={`${course.access.orderId}-${course.details.id}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors"
+                >
+                  {/* IMAGEN DEL CURSO */}
+                  <div className="aspect-video relative overflow-hidden bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800">
+                    {course.details.imageUrl ? (
+                      <Image 
+                        src={course.details.imageUrl} 
+                        alt={course.details.name}
+                        fill
+                        className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-12 w-12 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black">
+                          <PlayCircle className="h-5 w-5 text-gray-400" strokeWidth={1.5} />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Overlay superior */}
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-white text-black border border-black dark:bg-black dark:text-white dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+                        <BookOpen className="h-3 w-3" strokeWidth={2} />
+                        Digital
+                      </span>
+                    </div>
+
+                    {/* Overlay inferior */}
+                    <div className="absolute bottom-4 left-4">
+                      <span className="bg-black/80 text-white backdrop-blur-sm border border-white/20 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <Clock className="h-3 w-3" strokeWidth={2} />
+                        Adquirido: {format(new Date(course.access.purchasedAt), "dd MMM yyyy", { locale: es })}
+                      </span>
                     </div>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
-                <div className="absolute left-4 top-4">
-                  <Badge className="border-none bg-white/90 px-3 py-1.5 text-slate-800 shadow-sm backdrop-blur dark:bg-slate-950/80 dark:text-slate-100">
-                    <BookOpen className="mr-1.5 h-3.5 w-3.5 text-medical-500" />
-                    Curso digital
-                  </Badge>
-                </div>
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur dark:bg-slate-950/80 dark:text-slate-200">
-                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    {format(new Date(course.access.purchasedAt), "d MMM yyyy", { locale: es })}
-                  </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/90 text-slate-900 opacity-0 shadow-sm backdrop-blur transition-all group-hover:opacity-100 dark:bg-slate-950/80 dark:text-white">
-                    <PlayCircle className="h-5 w-5" />
+
+                  {/* CONTENIDO DEL CURSO */}
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
+                      <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                        Orden #{course.access.orderId}
+                      </span>
+                      <span className={cn(
+                        "text-[9px] font-bold uppercase tracking-widest flex items-center gap-1",
+                        course.details.contentUrl ? "text-black dark:text-white" : "text-gray-400"
+                      )}>
+                        <Video className="h-3 w-3" strokeWidth={2} />
+                        {course.details.contentUrl ? "Disponible" : "Próximamente"}
+                      </span>
+                    </div>
+
+                    <h3 className="mb-3 line-clamp-2 text-lg font-semibold tracking-tight text-black dark:text-white">
+                      {course.details.name}
+                    </h3>
+                    
+                    <p className="mb-8 line-clamp-3 text-xs font-light leading-relaxed text-gray-500 dark:text-gray-400">
+                      {course.details.description}
+                    </p>
+
+                    <Button 
+                      className={cn(
+                        "mt-auto h-12 w-full rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6",
+                        course.details.contentUrl 
+                          ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0" 
+                          : "bg-gray-100 text-gray-400 border border-gray-200 dark:bg-[#050505] dark:border-gray-800 cursor-not-allowed"
+                      )}
+                      onClick={() => {
+                        if (course.details.contentUrl) {
+                          window.open(course.details.contentUrl, '_blank');
+                        } else {
+                          toast.info("El contenido fuente aún no ha sido enlazado por el proveedor.");
+                        }
+                      }}
+                    >
+                      <span className="flex items-center gap-2">
+                        <PlayCircle className="h-4 w-4" strokeWidth={2} />
+                        Ver Recurso
+                      </span>
+                      <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
+                    </Button>
                   </div>
-                </div>
-              </div>
-
-              <div className="flex min-h-[250px] flex-col p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <Badge className="border-none bg-slate-100 px-3 py-1 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                    Orden #{course.access.orderId}
-                  </Badge>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-medical-600 dark:text-medical-400">
-                    <Video className="h-3.5 w-3.5" />
-                    {course.details.contentUrl ? "Disponible" : "Próximamente"}
-                  </span>
-                </div>
-
-                <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-snug text-slate-950 dark:text-white">
-                  {course.details.name}
-                </h3>
-                
-                <p className="mb-5 line-clamp-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                  {course.details.description}
-                </p>
-
-                <Button 
-                  className="mt-auto h-12 w-full rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-                  onClick={() => {
-                    if (course.details.contentUrl) {
-                      window.open(course.details.contentUrl, '_blank');
-                    } else {
-                      toast.info("El contenido de este curso estará disponible pronto.");
-                    }
-                  }}
-                >
-                  <PlayCircle className="mr-2 h-4 w-4" />
-                  Ver Curso
-                  <ExternalLink className="ml-2 h-3.5 w-3.5 opacity-60" />
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

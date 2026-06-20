@@ -39,158 +39,172 @@ export default function EldercarePage() {
 
     if (isLoading || !member) {
         return (
-            <div className="flex flex-col justify-center items-center min-h-[60vh]">
+            <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white dark:bg-[#0a0a0a]">
                 <QhSpinner size="lg" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+                    Accediendo a expediente...
+                </p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-[#09090b] font-sans pb-32 text-slate-900 dark:text-white selection:bg-medical-500/30">
-            {/* Cinematic Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute top-0 right-0 w-[50%] h-[50%] rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[40%] h-[40%] rounded-full bg-blue-500/5 dark:bg-blue-500/10 blur-[100px]" />
-            </div>
-
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12 relative z-10 space-y-8">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans pb-32 text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+            
+            <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-12">
                 
                 {/* Header Back & Info */}
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-white dark:hover:bg-slate-800">
-                        <ChevronLeft className="w-6 h-6 text-slate-500" />
-                    </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold flex items-center gap-3">
-                            <HeartHandshake className="w-8 h-8 text-emerald-500" />
-                            Cuidados Geriátricos
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">
-                            Panel de seguimiento para <span className="font-semibold text-slate-700 dark:text-slate-200">{member.firstName} {member.lastName}</span>
-                        </p>
+                <div className="flex flex-col sm:flex-row sm:items-end gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+                    <div className="flex items-center gap-6">
+                        <button 
+                            onClick={() => router.back()} 
+                            className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+                        >
+                            <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
+                        </button>
+                        <div>
+                            <h1 className="text-3xl font-semibold tracking-tight uppercase flex items-center gap-3 mb-1">
+                                <HeartHandshake className="w-8 h-8" strokeWidth={1.5} />
+                                Cuidados Geriátricos
+                            </h1>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                Panel de seguimiento y telemetría para <span className="text-black dark:text-white">{member.firstName} {member.lastName}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Main Hero CTA */}
-                <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-[2.5rem] p-8 md:p-12 overflow-hidden shadow-xl shadow-emerald-500/20 text-white flex flex-col md:flex-row md:items-center justify-between gap-8">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-20 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
-                    
-                    <div className="relative z-10 max-w-xl">
-                        <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm font-semibold mb-6">
-                            <Activity className="w-4 h-4" />
-                            <span>Servicios a Domicilio</span>
-                        </div>
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                {/* Main Hero CTA (Blueprint Block) */}
+                <div className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex flex-col md:flex-row">
+                    <div className="p-8 md:p-12 flex-1">
+                        <span className="border border-white/30 dark:border-black/30 px-3 py-1 text-[9px] font-bold uppercase tracking-widest mb-6 inline-flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" strokeWidth={2} />
+                            Servicios a Domicilio
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-semibold mb-4 tracking-tight leading-tight">
                             Atención profesional en la comodidad de su hogar
                         </h2>
-                        <p className="text-emerald-50 text-lg mb-8 leading-relaxed">
-                            Solicita cuidadores, enfermeros o terapeutas físicos certificados para brindar la mejor atención a tus seres queridos cuando más lo necesitan.
+                        <p className="text-xs font-light text-gray-400 dark:text-gray-600 mb-8 max-w-xl leading-relaxed">
+                            Solicite cuidadores, enfermeros o terapeutas físicos certificados para brindar atención clínica a sus seres queridos con monitoreo constante.
                         </p>
                         <Button 
                             onClick={handleRequestCare}
-                            className="bg-white text-emerald-700 hover:bg-emerald-50 rounded-full h-14 px-8 font-bold text-base shadow-lg transition-transform hover:scale-105"
+                            className="rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center border-0"
                         >
                             Solicitar Asistencia
-                            <ArrowRight className="w-5 h-5 ml-2" />
+                            <ArrowRight className="w-4 h-4 ml-3" strokeWidth={2} />
                         </Button>
                     </div>
 
-                    <div className="relative z-10 hidden md:block">
-                        <div className="w-48 h-48 bg-white/10 rounded-[2rem] backdrop-blur-sm border border-white/20 p-6 flex flex-col justify-center items-center shadow-2xl rotate-3">
-                            <PhoneCall className="w-16 h-16 text-white mb-4" />
-                            <div className="font-bold text-lg">Asistencia 24/7</div>
-                            <div className="text-emerald-100 text-sm text-center mt-2">Cobertura total en servicios de cuidado</div>
+                    <div className="border-t md:border-t-0 md:border-l border-white/20 dark:border-black/20 p-8 md:w-64 flex flex-col items-center justify-center text-center bg-white/5 dark:bg-black/5">
+                        <PhoneCall className="w-10 h-10 mb-4 opacity-80" strokeWidth={1.5} />
+                        <div className="text-[10px] font-bold uppercase tracking-widest mb-2">
+                            Asistencia 24/7
+                        </div>
+                        <div className="text-[9px] font-light uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                            Cobertura Integral
                         </div>
                     </div>
                 </div>
 
                 {/* Dashboard Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
-                    {/* Signos Vitales (Simulado) */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-[2rem] p-6 sm:p-8 shadow-sm"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                                <HeartPulse className="w-6 h-6 text-rose-500" />
-                                Últimos Signos Vitales
+                    {/* Signos Vitales */}
+                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
+                        <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                                <HeartPulse className="w-4 h-4" strokeWidth={1.5} />
+                                Signos Vitales
                             </h3>
-                            <Button variant="ghost" size="sm" className="text-medical-500 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-full">
-                                <Plus className="w-4 h-4 mr-1" /> Registrar
+                            <Button 
+                                variant="outline" 
+                                className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                            >
+                                <Plus className="w-3 h-3 mr-2" strokeWidth={2} /> Registrar
                             </Button>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl flex items-center justify-between">
+                        <div className="flex-1 grid grid-cols-1 divide-y divide-gray-200 dark:divide-gray-800">
+                            {/* Presión Arterial */}
+                            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
                                 <div className="flex items-center gap-4">
-                                    <div className="bg-rose-100 dark:bg-rose-500/20 p-2.5 rounded-xl">
-                                        <HeartPulse className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                                    <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
+                                        <HeartPulse className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <div className="text-sm text-slate-500 font-medium">Presión Arterial</div>
-                                        <div className="font-bold text-lg text-slate-900 dark:text-white">120/80 <span className="text-xs text-slate-400 font-normal">mmHg</span></div>
+                                        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Presión Arterial</div>
+                                        <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                                            120/80 <span className="text-xs font-light text-gray-500 ml-1">mmHg</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-xs text-slate-400 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">Hoy 08:00 AM</div>
+                                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
+                                    Hoy 08:00 AM
+                                </span>
                             </div>
 
-                            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl flex items-center justify-between">
+                            {/* Temperatura */}
+                            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
                                 <div className="flex items-center gap-4">
-                                    <div className="bg-orange-100 dark:bg-orange-500/20 p-2.5 rounded-xl">
-                                        <Thermometer className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                                    <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
+                                        <Thermometer className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <div className="text-sm text-slate-500 font-medium">Temperatura</div>
-                                        <div className="font-bold text-lg text-slate-900 dark:text-white">36.5 <span className="text-xs text-slate-400 font-normal">°C</span></div>
+                                        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Temperatura</div>
+                                        <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                                            36.5 <span className="text-xs font-light text-gray-500 ml-1">°C</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-xs text-slate-400 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">Ayer 20:30 PM</div>
+                                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
+                                    Ayer 20:30 PM
+                                </span>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* Medicamentos Activos (Simulado) */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 rounded-[2rem] p-6 sm:p-8 shadow-sm"
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold flex items-center gap-2">
-                                <Pill className="w-6 h-6 text-medical-500" />
-                                Medicación Actual
+                    {/* Medicación Activa */}
+                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
+                        <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                                <Pill className="w-4 h-4" strokeWidth={1.5} />
+                                Medicación Activa
                             </h3>
-                            <Button variant="ghost" size="sm" className="text-medical-500 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-full">
-                                <Plus className="w-4 h-4 mr-1" /> Añadir
+                            <Button 
+                                variant="outline" 
+                                className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                            >
+                                <Plus className="w-3 h-3 mr-2" strokeWidth={2} /> Añadir
                             </Button>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="group border border-slate-100 dark:border-slate-800 hover:border-medical-200 dark:hover:border-medical-800 bg-white dark:bg-slate-900 p-5 rounded-2xl transition-colors">
-                                <div className="flex justify-between items-start mb-2">
+                        <div className="p-6">
+                            <div className="border border-gray-200 dark:border-gray-800 p-6 hover:border-black dark:hover:border-white transition-colors group">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                                     <div>
-                                        <h4 className="font-bold text-slate-900 dark:text-white text-base">Losartán</h4>
-                                        <p className="text-sm text-slate-500">50 mg • Tableta</p>
+                                        <h4 className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase mb-1">Losartán</h4>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">50 mg • Tableta oral</p>
                                     </div>
-                                    <div className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                                        <CalendarClock className="w-3.5 h-3.5" />
-                                        Cada 12 hrs
+                                    <div className="border border-black dark:border-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 w-fit">
+                                        <CalendarClock className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                        Cada 12 HRS
                                     </div>
                                 </div>
-                                <div className="flex gap-2 mt-4">
-                                    <div className="h-2 flex-1 bg-emerald-500 rounded-full" />
-                                    <div className="h-2 flex-1 bg-emerald-500 rounded-full" />
-                                    <div className="h-2 flex-1 bg-slate-200 dark:bg-slate-800 rounded-full" />
+                                
+                                {/* Progress Bar Estilo Blueprint */}
+                                <div className="flex gap-1 mb-3">
+                                    <div className="h-2 flex-1 bg-black dark:bg-white" />
+                                    <div className="h-2 flex-1 bg-black dark:bg-white" />
+                                    <div className="h-2 flex-1 bg-gray-200 dark:bg-gray-800" />
                                 </div>
-                                <p className="text-xs text-slate-400 mt-2 text-right">Próxima toma: 20:00 hrs</p>
+                                
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 text-right">
+                                    Próxima toma: 20:00 HRS
+                                </p>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                 </div>
 
