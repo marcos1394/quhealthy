@@ -91,37 +91,61 @@ export default function ConsumerOnboardingWizard() {
         );
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Sexo Biológico (Relevancia Clínica)</label>
-              <select 
-                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
-                value={data.biologicalSex}
-                onChange={(e) => updateData({ biologicalSex: e.target.value })}
-              >
-                <option value="">Selecciona...</option>
-                <option value="MALE">Masculino</option>
-                <option value="FEMALE">Femenino</option>
-                <option value="OTHER">Otro</option>
-              </select>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">Sexo Biológico (Relevancia Clínica)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "MALE", label: "Masculino" },
+                  { id: "FEMALE", label: "Femenino" },
+                  { id: "OTHER", label: "Otro" }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => updateData({ biologicalSex: option.id })}
+                    className={cn(
+                      "h-12 border text-[10px] sm:text-xs font-bold transition-all uppercase tracking-widest",
+                      data.biologicalSex === option.id
+                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Tipo de Sangre</label>
-              <select 
-                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
-                value={data.bloodType}
-                onChange={(e) => updateData({ bloodType: e.target.value })}
-              >
-                <option value="">Desconozco</option>
-                <option value="O+">O Positivo (O+)</option>
-                <option value="O-">O Negativo (O-)</option>
-                <option value="A+">A Positivo (A+)</option>
-                <option value="A-">A Negativo (A-)</option>
-                <option value="B+">B Positivo (B+)</option>
-                <option value="B-">B Negativo (B-)</option>
-                <option value="AB+">AB Positivo (AB+)</option>
-                <option value="AB-">AB Negativo (AB-)</option>
-              </select>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">Tipo de Sangre</label>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { id: "O+", label: "O+" },
+                  { id: "O-", label: "O-" },
+                  { id: "A+", label: "A+" },
+                  { id: "A-", label: "A-" },
+                  { id: "B+", label: "B+" },
+                  { id: "B-", label: "B-" },
+                  { id: "AB+", label: "AB+" },
+                  { id: "AB-", label: "AB-" },
+                  { id: "", label: "Desconozco" }
+                ].map((option, idx) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => updateData({ bloodType: option.id })}
+                    className={cn(
+                      "h-12 border font-bold transition-all",
+                      data.bloodType === option.id
+                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
+                      option.id === "" ? "col-span-4 text-[10px] uppercase tracking-widest" : "text-sm sm:text-base"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         );
