@@ -36,39 +36,15 @@ export function proxy(request: NextRequest) {
   // =========================================================================
   // 🛡️ 3. ROMPE-BUCLES (KILL SWITCH PARA HTTP-ONLY COOKIES)
   // =========================================================================
-  if (request.nextUrl.searchParams.get('clear_session') === 'true') {
-    const url = new URL(request.url);
-    url.searchParams.delete('clear_session');
-    const response = NextResponse.redirect(url);
+  const isClearSession = request.nextUrl.searchParams.get('clear_session') === 'true';
 
-    // B. Destruimos la cookie asegurando coincidencia de dominio con Java
-    response.cookies.set({
-      name: 'refreshToken',
-      value: '',
-      path: '/',
-      domain: 'quhealthy.org',
-      maxAge: 0,
-      secure: true,
-      sameSite: 'none'
-    });
-    
-    // También limpiamos el rol
-    response.cookies.set({
-      name: '__Secure-userRole',
-      value: '',
-      path: '/',
-      domain: 'quhealthy.org',
-      maxAge: 0,
-      secure: true,
-      sameSite: 'none'
-    });
-
-    // C. Limpiamos sin dominio explícito (para localhost y entornos de prueba)
-    response.cookies.delete('refreshToken');
-    response.cookies.delete('__Secure-userRole');
-
-    return response;
+  if (isClearSession) {
+    // Eliminamos del request actual para que las siguientes validaciones en el proxy actúen como si no hubiera sesión
+    request.cookies.delete('refreshToken');
+    request.cookies.delete('__Secure-userRole');
   }
+
+  const isTokenPresent = request.cookies.has('refreshToken');
 
   // 🛡️ 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
   // =========================================================================
@@ -93,14 +69,17 @@ export function proxy(request: NextRequest) {
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
 
   // 🛡️ Lógica de Protección (Sin token -> a Login)
-  if (isProtectedRoute && !hasToken) {
+  if (isProtectedRoute && !isTokenPresent) {
     const url = new URL(`${currentLocale}/login`, request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
 
   // 🛡️ Lógica Anti-rebote (Con token intentando ir a Login/Registro)
-  if (isAuthRoute && hasToken) {
+  // 🚀 FIX: Si la URL tiene expired=true, significa que el token falló en el frontend. NO redirigir de vuelta al dashboard.
+  const isExpired = request.nextUrl.searchParams.get('expired') === 'true';
+  
+  if (isAuthRoute && isTokenPresent && !isExpired) {
     const userRole = request.cookies.get('__Secure-userRole')?.value;
     
     // 🚀 Redirigir según el rol guardado en la cookie
@@ -115,7 +94,23 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`${currentLocale}/patient/dashboard`, request.url));
   }
 
-  return intlMiddleware(request);
+  // Obtener respuesta base
+  const response = intlMiddleware(request);
+
+  // Aplicar headers de destrucción de cookies si se activó el kill switch
+  if (isClearSession) {
+    const pastDate = 'Thu, 01 Jan 1970 00:00:00 GMT';
+    const commonOpts = `Path=/; Secure; SameSite=None; Expires=${pastDate}`;
+
+    response.headers.append('Set-Cookie', `refreshToken=; ${commonOpts}`);
+    response.headers.append('Set-Cookie', `__Secure-userRole=; ${commonOpts}`);
+    response.headers.append('Set-Cookie', `refreshToken=; Domain=quhealthy.org; ${commonOpts}`);
+    response.headers.append('Set-Cookie', `__Secure-userRole=; Domain=quhealthy.org; ${commonOpts}`);
+    response.headers.append('Set-Cookie', `refreshToken=; Domain=www.quhealthy.org; ${commonOpts}`);
+    response.headers.append('Set-Cookie', `__Secure-userRole=; Domain=www.quhealthy.org; ${commonOpts}`);
+  }
+
+  return response;
 }
 
 export const config = {
