@@ -35,12 +35,12 @@ export default function AcademyPage() {
 
   const { data: stats, isLoading: isStatsLoading } = useSWR<AcademyStats>(
     '/api/catalog/academy/public/stats',
-    (url) => axiosInstance.get(url).then(res => res.data)
+    (url: string) => axiosInstance.get(url).then(res => res.data)
   );
 
   const { data: featuredCourses, isLoading: isCoursesLoading } = useSWR<AcademyCourse[]>(
     '/api/catalog/academy/public/courses/featured',
-    (url) => axiosInstance.get(url).then(res => res.data)
+    (url: string) => axiosInstance.get(url).then(res => res.data)
   );
 
   // Variantes de animación
