@@ -2,137 +2,155 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Lightbulb, ShoppingBag, BookOpen, CheckCircle2, ArrowRight, Calendar, User, CreditCard, PlayCircle, Award, Package } from "lucide-react";
+import { Lightbulb, ShoppingBag, BookOpen, ArrowRight, Calendar, User, CreditCard, PlayCircle, Award, Package, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-// --- Abstract UI Mockup Components ---
+// --- Architectural Blueprint Mockups ---
 
 const AbstractQuHealthyMockup = () => (
-  <div className="w-full h-full relative flex items-center justify-center p-8">
-    {/* Fondo abstracto */}
-    <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900/40 rounded-[2rem]">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:24px_24px] opacity-20" />
-    </div>
+  <div className="w-full h-full relative flex items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
+    {/* Architectural Grid */}
+    <div 
+      className="absolute inset-0 opacity-20 dark:opacity-20 pointer-events-none" 
+      style={{ backgroundImage: 'linear-gradient(to right, #9ca3af 1px, transparent 1px), linear-gradient(to bottom, #9ca3af 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
+    />
     
+    {/* Wireframe Panel */}
     <motion.div 
-      animate={{ y: [0, -10, 0] }}
+      animate={{ y: [0, -5, 0] }}
       transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      className="relative z-10 w-full max-w-[280px] bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/50 dark:border-slate-700/50 p-5 overflow-hidden"
+      className="relative z-10 w-full max-w-[280px] bg-white dark:bg-black border border-black dark:border-white p-6"
     >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-          <Calendar className="w-5 h-5 text-slate-500" />
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
+        <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center">
+          <Calendar className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
         </div>
-        <div>
-          <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded-full mb-2" />
-          <div className="h-2 w-16 bg-slate-100 dark:bg-slate-600 rounded-full" />
+        <div className="space-y-1">
+          <div className="h-1.5 w-16 bg-black dark:bg-white" />
+          <div className="h-1.5 w-10 bg-gray-300 dark:bg-gray-700 ml-auto" />
         </div>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-            <div className="w-2 h-2 rounded-full bg-slate-400" />
-            <div className="flex-1">
-              <div className="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full mb-1.5" />
-              <div className="h-1.5 w-2/3 bg-slate-100 dark:bg-slate-600 rounded-full" />
+          <div key={i} className="flex items-start gap-4 p-3 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors cursor-pointer">
+            <div className="w-1.5 h-1.5 bg-black dark:bg-white mt-1" />
+            <div className="flex-1 space-y-2">
+              <div className="h-1.5 w-full bg-gray-300 dark:bg-gray-700" />
+              <div className="h-1.5 w-2/3 bg-gray-200 dark:bg-gray-800" />
             </div>
           </div>
         ))}
       </div>
     </motion.div>
 
+    {/* Floating Element */}
     <motion.div 
-      animate={{ y: [0, 10, 0] }}
+      animate={{ y: [0, 5, 0] }}
       transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      className="absolute right-4 bottom-12 w-40 bg-slate-900 dark:bg-white rounded-2xl p-4 shadow-2xl z-20 border border-slate-800 dark:border-slate-100"
+      className="absolute right-4 bottom-12 w-48 bg-black dark:bg-white border border-white dark:border-black p-5 z-20"
     >
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-100 flex items-center justify-center">
-          <User className="w-4 h-4 text-white dark:text-slate-900" />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-6 h-6 border border-white dark:border-black flex items-center justify-center">
+          <User className="w-3 h-3 text-white dark:text-black" />
         </div>
-        <div className="h-2 w-12 bg-slate-700 dark:bg-slate-200 rounded-full" />
+        <div className="h-1.5 w-16 bg-gray-500 dark:bg-gray-400" />
       </div>
-      <div className="h-2 w-full bg-slate-800 dark:bg-slate-100 rounded-full mb-2" />
-      <div className="h-2 w-4/5 bg-slate-800 dark:bg-slate-100 rounded-full" />
+      <div className="space-y-2">
+        <div className="h-1.5 w-full bg-gray-600 dark:bg-gray-300" />
+        <div className="h-1.5 w-4/5 bg-gray-600 dark:bg-gray-300" />
+      </div>
     </motion.div>
   </div>
 );
 
 const AbstractQuMarketMockup = () => (
-  <div className="w-full h-full relative flex items-center justify-center p-8">
-    <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900/40 rounded-[2rem]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,#cbd5e1_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_1px_1px,#475569_1px,transparent_0)] bg-[size:20px_20px] opacity-30" />
-    </div>
+  <div className="w-full h-full relative flex items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
+    {/* Dot Grid */}
+    <div 
+      className="absolute inset-0 opacity-30 dark:opacity-20" 
+      style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #9ca3af 1px, transparent 0)', backgroundSize: '16px 16px' }} 
+    />
 
-    <div className="flex gap-4 items-end relative z-10 w-full max-w-[340px]">
+    <div className="flex gap-6 items-end relative z-10 w-full max-w-[340px]">
+      {/* Wireframe Product Card */}
       <motion.div 
-        animate={{ y: [0, -8, 0] }}
+        animate={{ y: [0, -5, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="flex-1 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4"
+        className="flex-1 bg-white dark:bg-black border border-black dark:border-white p-4"
       >
-        <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-900/50 mb-4 flex items-center justify-center">
-          <Package className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+        <div className="aspect-square border border-gray-200 dark:border-gray-800 mb-4 flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a]">
+          <Package className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
         </div>
-        <div className="h-3 w-3/4 bg-slate-200 dark:bg-slate-700 rounded-full mb-2" />
-        <div className="h-2 w-1/2 bg-slate-100 dark:bg-slate-600 rounded-full mb-4" />
-        <div className="flex justify-between items-center">
-          <div className="h-4 w-12 bg-slate-900 dark:bg-white rounded-md" />
-          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700" />
+        <div className="h-2 w-3/4 bg-black dark:bg-white mb-2" />
+        <div className="h-1.5 w-1/2 bg-gray-300 dark:bg-gray-700 mb-6" />
+        <div className="flex justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-4">
+          <div className="h-3 w-12 bg-black dark:bg-white" />
+          <div className="w-6 h-6 border border-black dark:border-white flex items-center justify-center">
+            <Plus className="w-3 h-3" />
+          </div>
         </div>
       </motion.div>
 
+      {/* Wireframe Checkout Card */}
       <motion.div 
-        animate={{ y: [0, 8, 0] }}
+        animate={{ y: [0, 5, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="flex-1 bg-slate-900 dark:bg-white rounded-2xl shadow-2xl p-4 mb-8"
+        className="flex-1 bg-black dark:bg-white p-5 mb-8 border border-white dark:border-black"
       >
-        <div className="flex justify-between items-center mb-6">
-          <CreditCard className="w-5 h-5 text-white dark:text-slate-900" />
-          <div className="h-2 w-8 bg-slate-700 dark:bg-slate-200 rounded-full" />
+        <div className="flex justify-between items-center mb-6 border-b border-gray-800 dark:border-gray-200 pb-4">
+          <CreditCard className="w-5 h-5 text-white dark:text-black" strokeWidth={1.5} />
+          <div className="h-1.5 w-8 bg-gray-500 dark:bg-gray-400" />
         </div>
-        <div className="space-y-3 mb-6">
-          <div className="h-1.5 w-full bg-slate-800 dark:bg-slate-100 rounded-full" />
-          <div className="h-1.5 w-4/5 bg-slate-800 dark:bg-slate-100 rounded-full" />
+        <div className="space-y-3 mb-8">
+          <div className="h-1.5 w-full bg-gray-700 dark:bg-gray-200" />
+          <div className="h-1.5 w-4/5 bg-gray-700 dark:bg-gray-200" />
         </div>
-        <div className="h-8 w-full rounded-lg bg-white dark:bg-slate-900" />
+        <div className="h-8 w-full bg-white dark:bg-black flex items-center justify-center">
+          <div className="h-1.5 w-1/3 bg-black dark:bg-white" />
+        </div>
       </motion.div>
     </div>
   </div>
 );
 
 const AbstractQuBlocksMockup = () => (
-  <div className="w-full h-full relative flex flex-col items-center justify-center p-8">
-    <div className="absolute inset-0 bg-slate-100 dark:bg-slate-900/40 rounded-[2rem]">
-      <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-slate-200/50 to-transparent dark:from-slate-800/50" />
-    </div>
+  <div className="w-full h-full relative flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
+    {/* Diagonal Stripes Grid */}
+    <div 
+      className="absolute inset-0 opacity-10 dark:opacity-10 pointer-events-none" 
+      style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} 
+    />
 
+    {/* Wireframe Video Player */}
     <motion.div 
       whileHover={{ scale: 1.02 }}
-      className="relative z-10 w-full max-w-[320px] aspect-video bg-slate-900 dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden mb-6 flex items-center justify-center group cursor-pointer"
+      className="relative z-10 w-full max-w-[320px] aspect-video bg-black dark:bg-white border border-black dark:border-white mb-8 flex items-center justify-center cursor-pointer"
     >
-      <div className="absolute inset-0 bg-gradient-to-tr from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-800 opacity-50" />
-      <PlayCircle className="w-12 h-12 text-white/80 group-hover:text-white transition-colors group-hover:scale-110 duration-300 relative z-10" />
+      <div className="w-12 h-12 border border-white dark:border-black flex items-center justify-center group-hover:bg-white dark:group-hover:bg-black transition-colors duration-300">
+        <PlayCircle className="w-5 h-5 text-white dark:text-black group-hover:text-black dark:group-hover:text-white transition-colors" strokeWidth={1} />
+      </div>
       
-      {/* ProgressBar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-        <div className="h-full w-1/3 bg-white" />
+      {/* Strict Progress Bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 dark:bg-gray-200">
+        <div className="h-full w-1/3 bg-white dark:bg-black" />
       </div>
     </motion.div>
 
+    {/* Wireframe Certificate/Award */}
     <motion.div 
       animate={{ y: [0, -5, 0] }}
       transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      className="relative z-20 w-full max-w-[280px] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200/50 dark:border-slate-700/50 p-4 flex items-center gap-4"
+      className="relative z-20 w-full max-w-[280px] bg-white dark:bg-black border border-black dark:border-white p-4 flex items-center gap-5"
     >
-      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-        <Award className="w-5 h-5 text-slate-900 dark:text-white" />
+      <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+        <Award className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
       </div>
-      <div className="flex-1">
-        <div className="h-2 w-3/4 bg-slate-200 dark:bg-slate-600 rounded-full mb-2" />
-        <div className="h-1.5 w-1/2 bg-slate-100 dark:bg-slate-700 rounded-full" />
+      <div className="flex-1 space-y-2 border-l border-gray-200 dark:border-gray-800 pl-4">
+        <div className="h-1.5 w-3/4 bg-black dark:bg-white" />
+        <div className="h-1.5 w-1/2 bg-gray-400 dark:bg-gray-600" />
       </div>
     </motion.div>
   </div>
@@ -147,8 +165,6 @@ const SuiteSection: React.FC = () => {
       name: "QuHealthy",
       description: t('products.quhealthy.description'),
       icon: Lightbulb,
-      themeColor: "text-slate-900 dark:text-white",
-      bgClass: "bg-slate-100 dark:bg-slate-800",
       features: [
         t('products.quhealthy.features.0'),
         t('products.quhealthy.features.1'),
@@ -162,8 +178,6 @@ const SuiteSection: React.FC = () => {
       name: "QuMarket",
       description: t('products.qumarket.description'),
       icon: ShoppingBag,
-      themeColor: "text-slate-900 dark:text-white",
-      bgClass: "bg-slate-100 dark:bg-slate-800",
       features: [
         t('products.qumarket.features.0'),
         t('products.qumarket.features.1'),
@@ -177,8 +191,6 @@ const SuiteSection: React.FC = () => {
       name: "QuBlocks",
       description: t('products.qublocks.description'),
       icon: BookOpen,
-      themeColor: "text-slate-900 dark:text-white",
-      bgClass: "bg-slate-100 dark:bg-slate-800",
       features: [
         t('products.qublocks.features.0'),
         t('products.qublocks.features.1'),
@@ -191,23 +203,25 @@ const SuiteSection: React.FC = () => {
   ];
 
   return (
-    <section id="suite" className="py-24 md:py-32 bg-[#FAFAFA] dark:bg-[#0A0A0A] transition-colors duration-300">
+    <section id="suite" className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
       <div className="container mx-auto px-6 md:px-12 xl:px-24">
 
-        {/* Header - Minimalist Editorial */}
-        <div className="text-center max-w-3xl mx-auto mb-20 md:mb-32">
-          <span className="inline-block border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm px-4 py-1.5 rounded-full text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-widest uppercase mb-6 shadow-sm">
-            {t('badge')}
-          </span>
-          <h2 className="text-4xl md:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight">
+        {/* Editorial Header */}
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-24 md:mb-32">
+          <div className="border border-black dark:border-white px-4 py-1.5 mb-8">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-black dark:text-white">
+              {t('badge')}
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-black dark:text-white tracking-tight leading-[1.1] mb-6">
             {t('title')}
           </h2>
-          <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
             {t('description')}
           </p>
         </div>
 
-        <div className="space-y-32 md:space-y-40">
+        <div className="space-y-32 border-t border-gray-200 dark:border-gray-800 pt-32">
           {suiteProducts.map((product, index) => {
             const isEven = index % 2 === 0;
 
@@ -215,56 +229,61 @@ const SuiteSection: React.FC = () => {
               <div key={product.name} className={cn("grid lg:grid-cols-2 gap-12 lg:gap-24 items-center", !isEven ? "lg:flex-row-reverse" : "")}>
 
                 {/* ====================
-                    TEXT CONTENT (Editorial Slate)
+                    TEXT CONTENT (Editorial Rigor)
                     ==================== */}
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className={cn("space-y-8 lg:max-w-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/20 dark:shadow-none relative overflow-hidden group", !isEven ? "lg:col-start-2" : "")}
+                  className={cn("space-y-8 lg:max-w-xl", !isEven ? "lg:col-start-2" : "")}
                 >
-                  <div className="flex items-center gap-4 mb-2 relative z-10">
-                    <div className={cn("p-3.5 rounded-2xl relative shadow-sm border border-slate-100 dark:border-slate-700/50", product.bgClass, product.themeColor)}>
-                      <product.icon className="w-6 h-6 relative z-10" strokeWidth={1.5} />
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="w-14 h-14 border border-black dark:border-white flex items-center justify-center">
+                      <product.icon className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-3xl lg:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight relative z-10">
+                    <h3 className="text-4xl lg:text-5xl font-semibold text-black dark:text-white tracking-tight">
                       {product.name}
                     </h3>
                   </div>
 
-                  <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light relative z-10">
+                  <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                     {product.description}
                   </p>
 
-                  <div className="h-px bg-slate-200 dark:bg-slate-800/60 w-full max-w-sm my-8" />
+                  <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-10" />
 
-                  <ul className="space-y-5">
+                  <ul className="space-y-6">
                     {product.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-4">
-                        <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-slate-900 dark:text-white" />
-                        <span className="text-slate-700 dark:text-slate-300 font-medium text-base">{feature}</span>
+                      <li key={i} className="flex items-start gap-5 group">
+                        <div className="w-1.5 h-1.5 bg-black dark:bg-white mt-2 group-hover:scale-150 transition-transform" />
+                        <span className="text-black dark:text-gray-300 font-light text-base leading-relaxed tracking-wide">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="pt-8">
-                    <Link href="/discover" className="group inline-flex items-center gap-2 text-slate-900 dark:text-white font-semibold text-lg hover:opacity-80 transition-all">
-                      <span className="border-b-2 border-slate-900 dark:border-white pb-0.5">{product.explore}</span>
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                  <div className="pt-12">
+                    <Link 
+                      href="/discover" 
+                      className="group inline-flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white transition-colors pb-1"
+                    >
+                      {product.explore}
+                      <ArrowRight className="w-3 h-3 ml-3 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </motion.div>
 
                 {/* ====================
-                    VISUAL CONTENT (Abstract Mockups)
+                    VISUAL CONTENT (Architectural Wireframes)
                     ==================== */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className={cn("relative w-full aspect-[4/5] lg:aspect-square group", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
+                  className={cn("relative w-full aspect-square lg:aspect-[4/5]", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
                 >
                   <product.Mockup />
                 </motion.div>
@@ -274,10 +293,16 @@ const SuiteSection: React.FC = () => {
           })}
         </div>
 
-        <div className="text-center mt-32 pt-8 border-t border-slate-200 dark:border-slate-800">
-          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+        {/* Blueprint Footer */}
+        <div className="flex justify-between items-center mt-32 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
             {t('footer')}
           </p>
+          <div className="flex gap-1">
+            <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
+            <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
+            <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
+          </div>
         </div>
       </div>
     </section>
