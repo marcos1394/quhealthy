@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Syringe, ChevronLeft, Check, Circle, Clock, ShieldCheck, 
+  Syringe, ChevronLeft, ChevronDown, Check, Circle, Clock, ShieldCheck, 
   FileCheck2, Loader2, ScanFace, Camera, FileUp, Sparkles, AlertCircle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import { vaccinationService } from '@/services/vaccination.service';
 import { VaccinationStatusDto } from '@/types/vaccination';
@@ -323,22 +329,27 @@ export default function VaccinationsPage() {
                 </div>
 
                 {/* --- ESQUEMA DE VACUNACIÓN (TABLAS) --- */}
-                <div className="space-y-8">
+                <Accordion type="multiple" className="space-y-8">
                     {groupedVaccines.map((stage, idx) => (
-                        <div
+                        <AccordionItem
+                            value={stage.ageGroup}
                             key={stage.ageGroup}
-                            className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col"
+                            className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
                         >
                             {/* Cabecera del Grupo */}
-                            <div className="bg-gray-50 dark:bg-[#050505] px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center">
-                                <h2 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-3">
-                                    <Clock className="w-4 h-4" strokeWidth={1.5} />
-                                    Fase: {stage.ageGroup}
-                                </h2>
-                            </div>
+                            <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+                                <div className="flex items-center gap-3">
+                                    <Clock className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                                        Fase: {stage.ageGroup}
+                                    </h2>
+                                </div>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+                            </AccordionTrigger>
 
                             {/* Filas de Vacunas */}
-                            <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                            <AccordionContent className="p-0">
+                                <div className="divide-y divide-gray-200 dark:divide-gray-800">
                                 {stage.vaccines.map(vaccine => {
                                     const isApplied = vaccine.isApplied;
                                     const isSimulating = simulatingAction === vaccine.vaccineCatalogId;
@@ -399,9 +410,10 @@ export default function VaccinationsPage() {
                                     );
                                 })}
                             </div>
-                        </div>
+                            </AccordionContent>
+                        </AccordionItem>
                     ))}
-                </div>
+                </Accordion>
             </div>
 
             {/* --- MODAL DE REGISTRO MANUAL --- */}

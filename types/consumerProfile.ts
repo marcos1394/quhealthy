@@ -9,8 +9,8 @@ export interface ConsumerProfile {
   location: string;            // Solo ciudad o código postal (antes 'address')
 
   // Expediente Clínico – Arrays para Tags/Pills y futura extracción con IA
-  medicalConditions: string[]; // Antes 'medicalHistory: string'
-  allergies: string[];         // Antes 'allergies: string'
+  medicalConditions: any[]; // Antes 'medicalHistory: string'
+  allergies: any[];         // Antes 'allergies: string'
   currentMedications: string[];// Antes 'currentMedications: string'
 
   // Discovery & Preferencias
@@ -40,7 +40,6 @@ export const defaultConsumerProfile: ConsumerProfile = {
   healthGoals: [],
   preferredModality: "",
   bloodType: "",
-  emergencyContactName: "",
   emergencyContactName: "",
   emergencyContactPhone: "",
   profilePictureUrl: "",
