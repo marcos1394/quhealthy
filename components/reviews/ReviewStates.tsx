@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -9,10 +11,10 @@ export function ReviewLoader() {
     const t = useTranslations('PatientReviews');
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-4">
             <QhSpinner size="lg" />
-            <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">
-                {t('loading_validation', { defaultValue: 'Verificando tu cita de forma segura...' })}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-4 animate-pulse">
+                {t('loading_validation', { defaultValue: 'Verificando Integridad de la Cita...' })}
             </p>
         </div>
     );
@@ -23,24 +25,23 @@ export function ReviewError({ message }: { message: string }) {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 selection:bg-rose-500/30">
-            <div className="max-w-md w-full bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 shadow-sm text-center">
-                <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <AlertCircle className="w-8 h-8 text-rose-500 dark:text-rose-400" />
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 selection:bg-gray-200 dark:selection:bg-white/20">
+            <div className="max-w-md w-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 text-center">
+                <div className="w-16 h-16 border border-red-500 bg-white dark:bg-black flex items-center justify-center mx-auto mb-6">
+                    <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-                    {t('error_title', { defaultValue: 'Enlace no válido' })}
+                <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                    {t('error_title', { defaultValue: 'Enlace Clínico Inválido' })}
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 mb-8 font-light leading-relaxed">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-8">
                     {message}
                 </p>
                 <Button 
                     onClick={() => router.push('/dashboard')}
-                    variant="outline" 
-                    className="w-full rounded-xl h-12 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
                 >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    {t('btn_back_home', { defaultValue: 'Volver al Inicio' })}
+                    <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                    {t('btn_back_home', { defaultValue: 'Retornar al Sistema' })}
                 </Button>
             </div>
         </div>

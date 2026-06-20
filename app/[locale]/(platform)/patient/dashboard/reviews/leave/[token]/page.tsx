@@ -6,14 +6,13 @@ import { useLeaveReview } from '@/hooks/useLeaveReview';
 import { ReviewLoader, ReviewError } from '@/components/reviews/ReviewStates';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 
-// En Next.js App Router, los params en componentes cliente deben desenvolverse usando React.use()
 export default function LeaveReviewPage({ params }: { params: Promise<{ token: string }> }) {
     
-    // 1. Extraemos el token de la URL
+    // 1. Extraemos el token de la URL desencapsulando la promesa (Estándar App Router)
     const resolvedParams = use(params);
     const token = resolvedParams.token;
 
-    // 2. Inyectamos nuestro Hook de Negocio
+    // 2. Inyectamos nuestro Hook de Lógica
     const {
         isValidating,
         validationError,
@@ -25,7 +24,7 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ token: s
         submitReview
     } = useLeaveReview(token);
 
-    // 3. Renderizado Condicional de Estados
+    // 3. Renderizado Condicional de Estados (Utiliza los componentes ya refactorizados)
     if (isValidating) {
         return <ReviewLoader />;
     }
@@ -34,10 +33,14 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ token: s
         return <ReviewError message={validationError} />;
     }
 
-    // 4. Renderizado del Formulario Principal
+    // 4. Renderizado del Contenedor Principal
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex justify-center items-center p-4 font-sans selection:bg-medical-500/30">
-            <div className="max-w-xl w-full bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm transition-all">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex justify-center items-center py-12 px-4 sm:px-6 md:px-8 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+            <div className="max-w-2xl w-full">
+                {/* 
+                    Al inyectar el ReviewForm refactorizado, este ya posee sus propios 
+                    bordes rígidos, padding y estructura monocromática (Blueprint).
+                */}
                 <ReviewForm 
                     rating={rating}
                     setRating={setRating}

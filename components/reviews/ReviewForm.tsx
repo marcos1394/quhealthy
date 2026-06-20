@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Star, MessageSquareHeart, Loader2 } from 'lucide-react';
@@ -25,74 +27,81 @@ export function ReviewForm({ rating, setRating, comment, setComment, onSubmit, i
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
             {/* Header del Formulario */}
-            <div className="flex flex-col items-center text-center space-y-4 mb-2">
-                <div className="p-4 bg-amber-50 dark:bg-amber-500/10 rounded-full border border-amber-100 dark:border-amber-500/20">
-                    <MessageSquareHeart className="w-8 h-8 text-amber-500" strokeWidth={1.5} />
+            <div className="flex flex-col sm:flex-row sm:items-end gap-6 p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                <div className="w-16 h-16 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
+                    <MessageSquareHeart className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {t('title', { defaultValue: 'Califica tu experiencia' })}
+                    <h1 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-2">
+                        {t('title', { defaultValue: 'Evaluación de Servicio' })}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base font-light max-w-sm mx-auto">
-                        {t('subtitle', { defaultValue: 'Tu opinión ayuda a otros pacientes a encontrar al especialista ideal.' })}
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm">
+                        {t('subtitle', { defaultValue: 'Suministre datos cualitativos sobre la atención recibida.' })}
                     </p>
                 </div>
             </div>
 
-            {/* Estrellas Interactivas */}
-            <div className="flex flex-col items-center space-y-3 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">
-                    {t('label_rating', { defaultValue: 'Puntuación General' })}
-                </label>
-                <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                            key={star}
-                            onClick={() => setRating(star)}
-                            onMouseEnter={() => setHoverRating(star)}
-                            onMouseLeave={() => setHoverRating(0)}
-                            className={cn(
-                                "w-10 h-10 md:w-12 md:h-12 cursor-pointer transition-all duration-300",
-                                (hoverRating || rating) >= star
-                                    ? 'text-amber-400 fill-amber-400 scale-110 drop-shadow-sm'
-                                    : 'text-slate-200 dark:text-slate-700 hover:text-slate-300 dark:hover:text-slate-600'
-                            )}
-                        />
-                    ))}
+            {/* Formulario Principal */}
+            <div className="p-8 space-y-12">
+                {/* Estrellas Rígidas (Monocromáticas) */}
+                <div className="flex flex-col">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 block">
+                        {t('label_rating', { defaultValue: 'Puntuación Paramétrica' })}
+                    </label>
+                    <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                                key={star}
+                                onClick={() => setRating(star)}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                className={cn(
+                                    "w-12 h-12 cursor-pointer transition-colors border",
+                                    (hoverRating || rating) >= star
+                                        ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white fill-current p-2'
+                                        : 'bg-gray-50 text-gray-300 border-gray-200 dark:bg-[#050505] dark:text-gray-700 dark:border-gray-800 hover:border-black dark:hover:border-white fill-transparent p-2'
+                                )}
+                                strokeWidth={1}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* Comentario */}
+                <div>
+                    <label className="flex items-baseline gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">
+                        {t('label_comment', { defaultValue: 'Observaciones Textuales' })}
+                        <span className="text-gray-400 font-light">[{t('optional', { defaultValue: 'OPCIONAL'})}]</span>
+                    </label>
+                    <Textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-none min-h-[160px] p-4 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest"
+                        placeholder={t('comment_placeholder', { defaultValue: 'EJ. PROCEDIMIENTOS CUMPLIDOS, TIEMPOS DE ESPERA, ESTADO DE INSTALACIONES...' })}
+                    />
                 </div>
             </div>
 
-            {/* Comentario (Opcional pero recomendado) */}
-            <div className="space-y-3">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">
-                    {t('label_comment', { defaultValue: 'Cuéntanos más detalles' })} <span className="text-slate-400 font-normal ml-1">({t('optional', { defaultValue: 'Opcional'})})</span>
-                </label>
-                <Textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-2xl min-h-[140px] p-4 resize-none focus-visible:ring-medical-500 text-base"
-                    placeholder={t('comment_placeholder', { defaultValue: '¿Cómo fue el trato del doctor? ¿Las instalaciones estaban limpias?' })}
-                />
+            {/* Footer de Comandos */}
+            <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center gap-6">
+                <Button
+                    type="submit"
+                    disabled={isSubmitting || rating === 0}
+                    className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors disabled:opacity-50"
+                >
+                    {isSubmitting ? (
+                        <><Loader2 className="w-4 h-4 mr-3 animate-spin" /> {t('btn_submitting', { defaultValue: 'Procesando...' })}</>
+                    ) : (
+                        t('btn_submit', { defaultValue: 'Registrar Evaluación' })
+                    )}
+                </Button>
+                
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 text-center max-w-sm">
+                    {t('privacy_notice', { defaultValue: 'AVISO: LAS EVALUACIONES SON SOMETIDAS A PROCESOS DE MODERACIÓN PREVIO A SU INCORPORACIÓN PÚBLICA.' })}
+                </p>
             </div>
-
-            {/* Botón de Envío */}
-            <Button
-                type="submit"
-                disabled={isSubmitting || rating === 0}
-                className="w-full bg-medical-600 hover:bg-medical-700 dark:bg-medical-500 dark:hover:bg-medical-600 text-white h-14 text-lg rounded-2xl font-bold shadow-lg shadow-medical-500/20 transition-all disabled:opacity-50 disabled:shadow-none"
-            >
-                {isSubmitting ? (
-                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('btn_submitting', { defaultValue: 'Enviando...' })}</>
-                ) : (
-                    t('btn_submit', { defaultValue: 'Publicar Reseña' })
-                )}
-            </Button>
-            
-            <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
-                {t('privacy_notice', { defaultValue: 'Tu reseña será revisada por nuestro sistema antes de ser pública.' })}
-            </p>
         </form>
     );
 }

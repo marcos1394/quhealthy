@@ -1,8 +1,10 @@
+"use client";
+
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Star, Clock, CheckCircle2, AlertCircle, MessageCircleReply } from 'lucide-react';
 import { Review } from '@/types/reviews';
-import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ReviewHistoryCardProps {
     review: Review;
@@ -11,81 +13,94 @@ interface ReviewHistoryCardProps {
 export function ReviewHistoryCard({ review }: ReviewHistoryCardProps) {
     const t = useTranslations('PatientReviewsDashboard');
 
-    // Configuración visual según el estado de moderación (Gemini)
+    // Configuración visual arquitectónica
     const statusConfig = {
         APPROVED: {
-            color: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
-            icon: <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />,
+            color: 'border-black text-black bg-black/5 dark:border-white dark:text-white dark:bg-white/10',
+            icon: <CheckCircle2 className="w-3 h-3 mr-2" strokeWidth={2} />,
             label: t('status_approved', { defaultValue: 'Publicada' })
         },
         PENDING: {
-            color: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
-            icon: <Clock className="w-3.5 h-3.5 mr-1.5" />,
+            color: 'border-gray-500 text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600',
+            icon: <Clock className="w-3 h-3 mr-2" strokeWidth={2} />,
             label: t('status_pending', { defaultValue: 'En revisión' })
         },
         REJECTED: {
-            color: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
-            icon: <AlertCircle className="w-3.5 h-3.5 mr-1.5" />,
-            label: t('status_rejected', { defaultValue: 'Rechazada' })
+            color: 'border-red-500 text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400 dark:border-red-500',
+            icon: <AlertCircle className="w-3 h-3 mr-2" strokeWidth={2} />,
+            label: t('status_rejected', { defaultValue: 'Anulada' })
         }
     };
 
     const currentStatus = statusConfig[review.moderationStatus] || statusConfig.PENDING;
 
-    // Formateo de fecha
     const formattedDate = new Date(review.createdAt).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+        year: 'numeric', month: 'short', day: '2-digit'
+    }).toUpperCase();
 
     return (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:border-black dark:hover:border-white transition-colors">
+            
             {/* Header de la Tarjeta */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                            key={star}
-                            className={`w-5 h-5 ${star <= review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`}
-                        />
-                    ))}
-                    <span className="ml-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                                key={star}
+                                className={cn(
+                                    "w-3.5 h-3.5",
+                                    star <= review.rating 
+                                        ? "text-black fill-black dark:text-white dark:fill-white" 
+                                        : "text-gray-300 dark:text-gray-700 fill-transparent"
+                                )}
+                                strokeWidth={1}
+                            />
+                        ))}
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
                         {formattedDate}
                     </span>
                 </div>
-                <Badge variant="outline" className={`px-2.5 py-1 text-xs font-semibold rounded-full flex items-center w-fit ${currentStatus.color}`}>
+                <span className={cn(
+                    "px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center w-fit border",
+                    currentStatus.color
+                )}>
                     {currentStatus.icon}
                     {currentStatus.label}
-                </Badge>
+                </span>
             </div>
 
             {/* Comentario del Paciente */}
-            <p className="text-slate-700 dark:text-slate-300 font-light leading-relaxed mb-6">
-                {review.comment || <span className="italic text-slate-400">{t('no_comment', { defaultValue: 'Calificación sin comentario.' })}</span>}
-            </p>
-
-            {/* Respuesta del Doctor (Si existe) */}
-            {review.providerResponse && (
-                <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border-l-4 border-medical-500">
-                    <div className="flex items-center gap-2 mb-2">
-                        <MessageCircleReply className="w-4 h-4 text-medical-600 dark:text-medical-400" />
-                        <span className="font-bold text-sm text-slate-900 dark:text-white">
-                            {t('provider_reply', { defaultValue: 'Respuesta del Especialista' })}
-                        </span>
-                    </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 font-light leading-relaxed">
-                        {review.providerResponse}
-                    </p>
-                </div>
-            )}
-            
-            {/* Disclaimer si fue rechazada */}
-            {review.moderationStatus === 'REJECTED' && (
-                <p className="mt-4 text-xs text-rose-500/80 dark:text-rose-400/80 italic">
-                    {t('rejected_notice', { defaultValue: 'Esta reseña no cumple con nuestras normas comunitarias y no es visible al público.' })}
+            <div className="p-6 md:p-8">
+                <p className="text-sm font-light leading-relaxed text-black dark:text-white whitespace-pre-wrap">
+                    {review.comment || <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{t('no_comment', { defaultValue: '[REGISTRO SIN OBSERVACIONES TEXTUALES]' })}</span>}
                 </p>
-            )}
+
+                {/* Respuesta del Especialista */}
+                {review.providerResponse && (
+                    <div className="mt-8 border-l-2 border-black dark:border-white pl-4 py-1 bg-gray-50 dark:bg-[#050505]">
+                        <div className="flex items-center gap-2 mb-2 text-gray-500">
+                            <MessageCircleReply className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <span className="text-[9px] font-bold uppercase tracking-widest">
+                                {t('provider_reply', { defaultValue: 'Anotación del Especialista' })}
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
+                            {review.providerResponse}
+                        </p>
+                    </div>
+                )}
+                
+                {/* Disclaimer si fue rechazada */}
+                {review.moderationStatus === 'REJECTED' && (
+                    <div className="mt-6 border-t border-gray-200 dark:border-gray-800 pt-4">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-red-500">
+                            {t('rejected_notice', { defaultValue: 'NOTA: EL PRESENTE REGISTRO INFRINGIÓ LAS POLÍTICAS DE CONTENIDO Y FUE OCULTO AL PÚBLICO.' })}
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
