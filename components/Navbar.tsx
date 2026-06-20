@@ -48,8 +48,8 @@ const LINKS: Record<string, NavItem[]> = {
   ],
   CONSUMER: [
     { name: "links.consumer.discover", href: "/patient/discover", icon: Search },
-    { name: "links.consumer.appointments", href: "/patient/appointments", icon: Calendar },
-    { name: "links.consumer.favorites", href: "/patient/dependents", icon: Heart },
+    { name: "links.consumer.appointments", href: "/patient/dashboard/appointments", icon: Calendar },
+    { name: "links.consumer.favorites", href: "/patient/dashboard/favorites", icon: Heart },
   ],
   PROVIDER: [
     { name: "links.provider.dashboard", href: "/provider/dashboard", icon: LayoutDashboard },
@@ -161,12 +161,12 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/patient/appointments" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/patient/dashboard/appointments" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Calendar size={14} /> {t('links.consumer.appointments')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/patient/dependents" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/patient/dashboard/favorites" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Heart size={14} /> {t('links.consumer.favorites')}
                 </Link>
               </DropdownMenuItem>
