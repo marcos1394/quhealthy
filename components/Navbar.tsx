@@ -289,7 +289,7 @@ export const Navbar: React.FC = () => {
             <>
               <ThemeToggle />
               <LanguageToggle />
-              <Link href="/login">
+              <Link href="/login?clear_session=true">
                 <Button variant="ghost" className="rounded-none text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white hover:bg-transparent h-10 px-4 transition-colors">
                   {t('buttons.login')}
                 </Button>
@@ -315,7 +315,7 @@ export const Navbar: React.FC = () => {
                   </DropdownMenuItem>
                   
                   <DropdownMenuItem asChild className="rounded-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 p-4">
-                    <Link href="/register" className="flex items-center gap-4 w-full">
+                    <Link href="/register?clear_session=true" className="flex items-center gap-4 w-full">
                       <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center text-black dark:text-white">
                         <UserIcon size={14} />
                       </div>
@@ -406,7 +406,7 @@ export const Navbar: React.FC = () => {
                 </button>
               ) : (
                 <div className="p-6 flex flex-col gap-4 bg-gray-50 dark:bg-[#050505]">
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/login?clear_session=true" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full rounded-none border-black dark:border-white text-black dark:text-white h-12 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                       {t('buttons.login')}
                     </Button>
@@ -418,7 +418,7 @@ export const Navbar: React.FC = () => {
                         <span className="text-[9px] uppercase font-bold tracking-widest">Profesional</span>
                       </Button>
                     </Link>
-                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                    <Link href="/register?clear_session=true" onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full rounded-none bg-black dark:bg-white text-white dark:text-black h-16 flex-col gap-2 hover:opacity-80">
                         <UserIcon size={14} />
                         <span className="text-[9px] uppercase font-bold tracking-widest">Paciente</span>
