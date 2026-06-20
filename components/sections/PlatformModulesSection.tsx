@@ -6,10 +6,10 @@ import {
   CalendarDays, Users, ShoppingBag, Calculator, TrendingUp, 
   FileText, MessageCircle, Package, PackageCheck, CreditCard, 
   BadgeX, Handshake, UserCircle, LayoutDashboard, ChevronRight, 
-  Stethoscope, Search, Star, Shield, BookOpen, Wallet, Vault
+  Stethoscope, Search, Star, Shield, BookOpen, Wallet, Vault,
+  ArrowRight
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
 type RoleType = "provider" | "patient";
@@ -18,11 +18,9 @@ const PlatformModulesSection = () => {
   const t = useTranslations('PlatformModules');
   const [activeRole, setActiveRole] = useState<RoleType>("patient");
   
-  // We need state for active category per role
   const [activeProviderCat, setActiveProviderCat] = useState("provider_clinic");
   const [activePatientCat, setActivePatientCat] = useState("patient_health");
 
-  // Prevent hydration mismatch for translations
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -131,92 +129,90 @@ const PlatformModulesSection = () => {
 
   const currentData = currentCategories.find((c) => c.id === activeCategoryId) || currentCategories[0];
 
-  return (
-    <section id="platform-modules" className="py-24 md:py-32 bg-[#FAFAFA] dark:bg-[#0A0A0A] transition-colors duration-300 overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-slate-200/50 dark:bg-slate-800/20 blur-[100px]" />
-        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] rounded-full bg-slate-300/30 dark:bg-slate-900/40 blur-[100px]" />
-      </div>
+  // Configuración de animación arquitectónica
+  const customTransition = { duration: 0.6, ease: [0.16, 1, 0.3, 1] };
 
-      <div className="container mx-auto px-6 md:px-12 xl:px-24 relative z-10">
+  return (
+    <section id="platform-modules" className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 border-t border-gray-200 dark:border-gray-800 selection:bg-gray-200 dark:selection:bg-white/20">
+      
+      <div className="container mx-auto px-6 md:px-12 xl:px-24">
         
-        {/* Toggle Maestro */}
-        <div className="flex justify-center mb-12">
-          <div className="bg-slate-200/50 dark:bg-slate-900/50 backdrop-blur-md p-1.5 rounded-full flex items-center border border-slate-200 dark:border-slate-800 relative z-20">
+        {/* Toggle Maestro (Architectural Split Button) */}
+        <div className="flex justify-center mb-20">
+          <div className="flex items-center border border-black dark:border-white p-1">
             <button
               onClick={() => setActiveRole("patient")}
               className={cn(
-                "relative px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300",
-                activeRole === "patient" ? "text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                "px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 flex items-center gap-2",
+                activeRole === "patient" ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-500 hover:text-black dark:hover:text-white"
               )}
             >
-              {activeRole === "patient" && (
-                <motion.div layoutId="roleIndicator" className="absolute inset-0 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-200/50 dark:border-slate-700/50" />
-              )}
-              <span className="relative z-10">{t('switch_patient')}</span>
+              {t('switch_patient')}
             </button>
             <button
               onClick={() => setActiveRole("provider")}
               className={cn(
-                "relative px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300",
-                activeRole === "provider" ? "text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                "px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 flex items-center gap-2",
+                activeRole === "provider" ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-500 hover:text-black dark:hover:text-white"
               )}
             >
-              {activeRole === "provider" && (
-                <motion.div layoutId="roleIndicator" className="absolute inset-0 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-200/50 dark:border-slate-700/50" />
-              )}
-              <span className="relative z-10">{t('switch_provider')}</span>
+              {t('switch_provider')}
             </button>
           </div>
         </div>
 
-        {/* Header Dinámico */}
-        <div className="max-w-3xl mb-16 md:mb-24 mx-auto text-center">
-          <div className="inline-block border border-slate-200 dark:border-slate-800 rounded-full px-4 py-1.5 backdrop-blur-sm mb-6 bg-white/50 dark:bg-slate-900/50">
-            <span className="text-xs font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400">
+        {/* Header Dinámico (Editorial) */}
+        <div className="max-w-4xl mb-16 md:mb-24 mx-auto text-center flex flex-col items-center">
+          <div className="border-l-2 border-black dark:border-white pl-4 mb-8">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
               {t('badge')}
             </span>
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]">
+          
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-black dark:text-white mb-6 tracking-tight leading-[1.1] flex flex-col sm:block min-h-[120px] sm:min-h-0">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeRole}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
+                transition={customTransition}
               >
-                {t('title_start')} <span className="text-slate-500 dark:text-slate-400 font-serif italic">{activeRole === "provider" ? t('title_highlight_provider') : t('title_highlight_patient')}</span>
+                {t('title_start')} <br className="hidden md:block" />
+                <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light ml-2">
+                  {activeRole === "provider" ? t('title_highlight_provider') : t('title_highlight_patient')}
+                </span>
               </motion.div>
             </AnimatePresence>
           </h2>
+          
           <AnimatePresence mode="wait">
             <motion.p
               key={activeRole}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light max-w-2xl mx-auto"
+              transition={customTransition}
+              className="text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-light max-w-2xl mx-auto"
             >
               {activeRole === "provider" ? t('description_provider') : t('description_patient')}
             </motion.p>
           </AnimatePresence>
         </div>
 
-        {/* Layout Interactivo */}
-        <div className="grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-16 items-start">
+        {/* Layout Interactivo (Rigid Wireframe) */}
+        <div className="grid lg:grid-cols-[1fr_2fr] gap-0 border border-gray-200 dark:border-gray-800">
           
-          {/* Menú de Categorías (Izquierda) */}
-          <div className="flex flex-col gap-3 sticky top-32 z-20">
+          {/* Menú de Categorías (Izquierda - Flush Menu) */}
+          <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeRole}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="flex flex-col gap-3"
+                exit={{ opacity: 0, x: -10 }}
+                transition={customTransition}
+                className="flex flex-col h-full"
               >
                 {currentCategories.map((category) => {
                   const isActive = activeCategoryId === category.id;
@@ -227,25 +223,20 @@ const PlatformModulesSection = () => {
                       key={category.id}
                       onClick={() => setActiveCat(category.id)}
                       className={cn(
-                        "flex items-center gap-4 p-5 rounded-3xl text-left transition-all duration-300 group relative overflow-hidden",
+                        "flex items-center gap-4 p-6 md:p-8 text-left transition-all duration-300 group border-b border-gray-200 dark:border-gray-800 last:border-b-0 relative",
                         isActive 
-                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xl shadow-slate-900/10 dark:shadow-white/5 border-transparent" 
-                          : "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800"
+                          ? "bg-black text-white dark:bg-white dark:text-black" 
+                          : "hover:bg-gray-200/50 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-400"
                       )}
                     >
-                      <div className={cn(
-                        "p-3 rounded-2xl transition-colors",
-                        isActive 
-                          ? "bg-white/20 dark:bg-slate-900/10 text-white dark:text-slate-900" 
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-slate-700"
-                      )}>
-                        <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                      <div className="w-8 h-8 border border-current flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4" strokeWidth={1.5} />
                       </div>
-                      <span className="font-semibold text-lg flex-1 tracking-tight">
+                      <span className="text-sm font-semibold tracking-wide uppercase flex-1">
                         {category.title}
                       </span>
                       {isActive && (
-                        <motion.div layoutId="activeCatIndicator" className="absolute right-6 text-white/50 dark:text-slate-900/50">
+                        <motion.div layoutId="activeArrow" className="absolute right-6 opacity-50">
                           <ChevronRight className="w-5 h-5" />
                         </motion.div>
                       )}
@@ -256,66 +247,74 @@ const PlatformModulesSection = () => {
             </AnimatePresence>
           </div>
 
-          {/* Área de Visualización (Derecha) */}
-          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border border-slate-200/80 dark:border-slate-800/80 rounded-[2.5rem] p-8 md:p-12 min-h-[500px] shadow-sm relative overflow-hidden">
+          {/* Área de Visualización (Derecha - Diagrama Técnico) */}
+          <div className="bg-white dark:bg-[#0a0a0a] min-h-[500px] relative overflow-hidden flex flex-col">
             
+            {/* Grid de fondo decorativo */}
+            <div className="absolute inset-0 opacity-10 dark:opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeCategoryId}
-                initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="h-full flex flex-col"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={customTransition}
+                className="h-full flex flex-col relative z-10"
               >
                 {/* Categoría Header */}
-                <div className="mb-10">
-                  <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white mb-6 shadow-inner">
-                    <currentData.icon className="w-8 h-8" strokeWidth={1.5} />
+                <div className="p-8 md:p-12 border-b border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
+                      <currentData.icon className="w-8 h-8 text-black dark:text-white" strokeWidth={1} />
+                    </div>
+                    <h3 className="text-3xl lg:text-4xl font-semibold text-black dark:text-white tracking-tight">
+                      {currentData.title}
+                    </h3>
                   </div>
-                  <h3 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
-                    {currentData.title}
-                  </h3>
-                  <p className="text-lg text-slate-500 dark:text-slate-400 font-light leading-relaxed max-w-xl">
+                  <p className="text-lg text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-xl">
                     {currentData.description}
                   </p>
                 </div>
 
-                {/* Grid de Módulos */}
-                <div className="grid md:grid-cols-2 gap-5 mt-auto">
+                {/* Grid de Módulos (Blueprint Matrix) */}
+                <div className="grid md:grid-cols-2 gap-0 mt-auto bg-gray-200 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-800 flex-1">
                   {currentData.modules.map((mod, idx) => (
-                    <motion.div
+                    <div
                       key={mod.title}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + idx * 0.1 }}
-                      className="group p-6 rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm hover:shadow-xl hover:shadow-slate-200/20 dark:hover:shadow-none"
+                      className={cn(
+                        "group p-8 md:p-10 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]",
+                        // Calculamos los bordes para mantener la cuadrícula perfecta (1px gap simulado)
+                        idx % 2 === 0 ? "border-r border-b border-gray-200 dark:border-gray-800" : "border-b border-gray-200 dark:border-gray-800"
+                      )}
                     >
                       <div className="flex flex-col h-full">
-                        <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-all">
-                          <mod.icon className="w-5 h-5" strokeWidth={1.5} />
+                        <div className="mb-6 w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center group-hover:border-black dark:group-hover:border-white transition-colors">
+                          <mod.icon className="w-4 h-4 text-black dark:text-white opacity-60 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                         </div>
-                        <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
+                        <h4 className="text-lg font-semibold text-black dark:text-white mb-3 tracking-tight">
                           {mod.title}
                         </h4>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light flex-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-light flex-1">
                           {mod.description}
                         </p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
                 {/* Acción al final */}
-                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                <div className="p-8 md:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 bg-white dark:bg-[#0a0a0a]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {t('explore_all')}
                   </p>
-                  <Button asChild className="rounded-full px-8 py-6 text-sm font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
-                    <Link href="#pricing">
-                      {t('view_plans')}
-                    </Link>
-                  </Button>
+                  <Link 
+                    href="#pricing"
+                    className="w-full sm:w-auto flex items-center justify-center bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-8 py-5 text-[10px] font-bold uppercase tracking-widest transition-all group border-0"
+                  >
+                    {t('view_plans')}
+                    <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
 
               </motion.div>
