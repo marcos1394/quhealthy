@@ -252,7 +252,7 @@ export default function PatientProfilePage() {
                                             <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                                 Tipificación Sanguínea
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger className="h-12 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
                                                         <SelectValue placeholder="Seleccionar Parámetro" />
@@ -275,7 +275,7 @@ export default function PatientProfilePage() {
                                             <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                                 Sexo Biológico
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger className="h-12 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
                                                         <SelectValue placeholder="Seleccionar Parámetro" />
