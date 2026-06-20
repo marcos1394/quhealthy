@@ -4,13 +4,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, UploadCloud, X, Loader2, CheckCircle2, ScanFace, Camera, ArrowLeft, AlertCircle, FileCheck, Sparkles, Shield, Info } from "lucide-react";
+import { ShieldCheck, UploadCloud, X, Loader2, CheckCircle2, ScanFace, Camera, ArrowLeft, Lock, AlertCircle, FileCheck, Sparkles, Shield, Info, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useKycOnboarding } from "@/hooks/useKycOnboarding";
 import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
@@ -65,12 +62,13 @@ export default function KycPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: KycDocumentType) => { const f = e.target.files?.[0]; if (f) handleUpload(f, type); };
   const handleUpload = async (file: File, type: KycDocumentType) => { if (file.size > 10 * 1024 * 1024) { toast.warning("Max 10MB."); return; } await uploadDocument(file, type); };
 
+  // Strict Badges
   const getStatusBadge = (status?: KycVerificationStatus) => {
     switch (status) {
-      case "APPROVED": return <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 font-medium"><CheckCircle2 className="w-3 h-3 mr-1" />{t("approved")}</Badge>;
-      case "REJECTED": return <Badge className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-0 font-medium"><AlertCircle className="w-3 h-3 mr-1" />{t("rejected")}</Badge>;
-      case "PROCESSING": return <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 font-medium animate-pulse"><Loader2 className="w-3 h-3 mr-1 animate-spin" />{t("verifying")}</Badge>;
-      default: return <Badge variant="outline" className="text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700 font-medium">{t("pending")}</Badge>;
+      case "APPROVED": return <span className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1"><Check className="w-3 h-3" />{t("approved")}</span>;
+      case "REJECTED": return <span className="bg-red-500 text-white border border-red-500 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1"><AlertCircle className="w-3 h-3" />{t("rejected")}</span>;
+      case "PROCESSING": return <span className="bg-blue-500 text-white border border-blue-500 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 animate-pulse"><Loader2 className="w-3 h-3 animate-spin" />{t("verifying")}</span>;
+      default: return <span className="bg-gray-100 dark:bg-gray-900 text-gray-500 border border-gray-200 dark:border-gray-800 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">{t("pending")}</span>;
     }
   };
 
@@ -83,49 +81,57 @@ export default function KycPage() {
 
     return (
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className={cn("relative group rounded-xl border transition-all p-4 flex flex-col gap-3",
-          isApproved ? "border-medical-200 dark:border-medical-500/20 bg-medical-50/30 dark:bg-medical-500/5" : "",
-          isRejected ? "border-red-200 dark:border-red-500/20 bg-red-50/30 dark:bg-red-500/5" : "",
-          isProcessing ? "border-blue-200 dark:border-blue-500/20 bg-blue-50/30 dark:bg-blue-500/5 animate-pulse" : "",
-          !isApproved && !isRejected && !isProcessing ? "border-dashed border-slate-300 dark:border-slate-700 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/30 dark:hover:bg-medical-500/5" : ""
+        className={cn("relative group border p-6 flex flex-col gap-4 transition-colors",
+          isApproved ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]" : "",
+          isRejected ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "",
+          isProcessing ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10" : "",
+          !isApproved && !isRejected && !isProcessing ? "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]" : ""
         )}>
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div className="flex-1">
-            <Label className={cn("font-medium text-sm block mb-0.5", isApproved ? "text-medical-600 dark:text-medical-400" : "", isRejected ? "text-red-600 dark:text-red-400" : "", !isApproved && !isRejected ? "text-slate-700 dark:text-slate-300" : "")}>{label}</Label>
-            {description && <p className="text-xs text-slate-500 dark:text-slate-400 font-light">{description}</p>}
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block mb-1">{label}</Label>
+            {description && <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">{description}</p>}
           </div>
-          {getStatusBadge(docData?.verificationStatus)}
+          <div>{getStatusBadge(docData?.verificationStatus)}</div>
         </div>
+        
         <AnimatePresence>
           {isRejected && docData?.rejectionReason && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-500/20 flex gap-2 items-start">
-              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-              <div><p className="text-xs font-medium text-red-700 dark:text-red-400 mb-0.5">{t("rejection_reason")}</p><p className="text-xs text-red-600/80 dark:text-red-300/80 font-light">{docData.rejectionReason}</p></div>
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="border-l-2 border-red-500 pl-3 py-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-0.5">{t("rejection_reason")}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 font-light">{docData.rejectionReason}</p>
             </motion.div>
           )}
         </AnimatePresence>
+        
         {docData?.fileUrl ? (
-          <div className="relative h-40 w-full rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 group/preview">
+          <div className="relative h-48 w-full bg-gray-100 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 group/preview flex items-center justify-center p-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={docData.fileUrl} alt="Preview" className="w-full h-full object-contain" />
+            <img src={docData.fileUrl} alt="Preview" className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen" />
             {!isApproved && (
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center p-3 opacity-0 group-hover/preview:opacity-100 transition-all duration-300">
-                <Button size="sm" variant="secondary" onClick={() => inputRef.current?.click()} className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 rounded-lg text-xs"><UploadCloud className="w-3 h-3 mr-1" />{t("change_image")}</Button>
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-all duration-300">
+                <Button size="sm" onClick={() => inputRef.current?.click()} className="rounded-none bg-white text-black hover:bg-gray-200 h-10 px-6 text-[10px] font-bold uppercase tracking-widest">
+                  <UploadCloud className="w-3 h-3 mr-2" /> {t("change_image")}
+                </Button>
               </div>
             )}
           </div>
         ) : (
-          <div className="flex gap-2 h-32">
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={() => !isUp && inputRef.current?.click()}
-              className="flex-1 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 hover:bg-medical-50/50 dark:hover:bg-medical-500/5 hover:border-medical-500 dark:hover:border-medical-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all group/upload">
-              {isUp ? <><Loader2 className="w-6 h-6 animate-spin text-medical-600 dark:text-medical-400" /><span className="text-xs text-medical-600 dark:text-medical-400 font-medium">{t("uploading")}</span></> :
-                <><UploadCloud className="w-6 h-6 text-slate-400 group-hover/upload:text-medical-600 dark:group-hover/upload:text-medical-400 transition-colors" /><div className="text-center"><span className="text-xs text-slate-600 dark:text-slate-300 font-medium block">{t("upload_image")}</span><span className="text-[10px] text-slate-500 font-light">{t("file_hint")}</span></div></>}
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} onClick={() => !isUp && startCamera(type)}
-              className="w-28 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 hover:bg-blue-50 dark:hover:bg-blue-500/5 hover:border-blue-500 dark:hover:border-blue-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-all group/camera">
-              <Camera className="w-6 h-6 text-slate-400 group-hover/camera:text-blue-600 dark:group-hover/camera:text-blue-400 transition-colors" />
-              <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">{t("camera")}</span>
-            </motion.div>
+          <div className="flex flex-col sm:flex-row gap-2 h-auto sm:h-36">
+            <button type="button" onClick={() => !isUp && inputRef.current?.click()}
+              className="flex-1 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a] hover:border-black dark:hover:border-white flex flex-col items-center justify-center gap-3 transition-colors group/upload p-6">
+              {isUp ? (
+                <><Loader2 className="w-5 h-5 animate-spin text-black dark:text-white" /><span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">{t("uploading")}</span></>
+              ) : (
+                <><UploadCloud className="w-6 h-6 text-gray-400 group-hover/upload:text-black dark:group-hover/upload:text-white transition-colors" strokeWidth={1.5} />
+                <div className="text-center"><span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 block mb-1">{t("upload_image")}</span><span className="text-[9px] uppercase tracking-widest text-gray-400 font-light">{t("file_hint")}</span></div></>
+              )}
+            </button>
+            <button type="button" onClick={() => !isUp && startCamera(type)}
+              className="sm:w-32 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white flex flex-col items-center justify-center gap-3 transition-colors p-6 sm:p-0">
+              <Camera className="w-5 h-5" strokeWidth={1.5} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">{t("camera")}</span>
+            </button>
           </div>
         )}
         <input type="file" ref={inputRef} className="hidden" accept="image/png, image/jpeg, image/jpg" onChange={e => handleFileChange(e, type)} />
@@ -146,7 +152,7 @@ export default function KycPage() {
   };
 
   if (isInitialLoading) return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors">
+    <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       <QhSpinner size="lg" label={t("loading")} />
     </div>
   );
@@ -155,153 +161,186 @@ export default function KycPage() {
   const progress = calculateProgress();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-4 md:p-8 transition-colors duration-300">
-      {/* Camera Modal */}
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white pt-8 pb-20 px-6 md:px-12 selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      
+      {/* Camera Modal (Architectural Framing) */}
       <AnimatePresence>
         {isCameraOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-            <div className="relative w-full max-w-2xl aspect-[4/3] bg-black rounded-2xl overflow-hidden border border-slate-800">
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4 md:p-12">
+            <div className="relative w-full max-w-5xl aspect-video bg-black border border-gray-800">
+              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover grayscale" /> {/* Grayscale gives security cam vibe, remove if needed */}
               <canvas ref={canvasRef} className="hidden" />
+              
+              {/* Overlay Grid */}
               <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-                <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}
-                  className={cn("border-4 border-white/60", activeCaptureType === "SELFIE" ? "w-64 h-80 rounded-full" : "w-96 h-60 rounded-2xl")} />
-                <div className="mt-5 bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20">
-                  <p className="text-white text-sm font-medium flex items-center gap-2"><Info className="w-4 h-4" />{activeCaptureType === "SELFIE" ? t("camera_selfie_hint") : t("camera_doc_hint")}</p>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                <motion.div animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 3, repeat: Infinity }}
+                  className={cn("border border-white/60 relative", activeCaptureType === "SELFIE" ? "w-64 h-80" : "w-96 h-60")}>
+                  {/* Crosshairs */}
+                  <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-red-500" />
+                  <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-red-500" />
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-red-500" />
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-red-500" />
+                </motion.div>
+                <div className="mt-8 bg-black border border-white px-4 py-2">
+                  <p className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"><ScanFace className="w-4 h-4" />{activeCaptureType === "SELFIE" ? t("camera_selfie_hint") : t("camera_doc_hint")}</p>
                 </div>
               </div>
-              <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-6">
-                <Button variant="ghost" size="lg" onClick={stopCamera} className="rounded-full w-12 h-12 bg-slate-800/80 backdrop-blur-sm text-white hover:bg-slate-700 border border-slate-700"><X className="w-5 h-5" /></Button>
-                <motion.button whileTap={{ scale: 0.9 }} onClick={capturePhoto} className="w-18 h-18 rounded-full border-4 border-white bg-white/20 backdrop-blur-sm flex items-center justify-center"><div className="w-14 h-14 rounded-full bg-white" /></motion.button>
-                <div className="w-12" />
+              
+              <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-12 z-10">
+                <Button variant="ghost" onClick={stopCamera} className="rounded-none bg-black text-white hover:bg-white hover:text-black border border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                  Cancelar
+                </Button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={capturePhoto} className="w-16 h-16 rounded-none border border-white bg-black hover:bg-white hover:text-black transition-colors flex items-center justify-center group">
+                  <Camera className="w-6 h-6 text-white group-hover:text-black" />
+                </motion.button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+      <div className="max-w-6xl mx-auto space-y-12">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 px-3" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 w-4 h-4" />{t("back")}
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6">
+          <Button variant="ghost" className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest" onClick={() => router.back()}>
+            <ArrowLeft className="mr-3 w-4 h-4" />{t("back")}
           </Button>
-          <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 px-3 py-1.5">
-            <Sparkles className="w-3 h-3 mr-1.5" />{t("badge")}
-          </Badge>
+          <div className="border border-black dark:border-white px-4 py-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /> KYC Validation
+            </span>
+          </div>
         </div>
 
         {/* Title & Progress */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-full px-5 py-2">
-            <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("ai_badge")}</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
-          <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">{t("desc")}</p>
-          <div className="max-w-md mx-auto space-y-2">
-            <div className="flex justify-between text-sm"><span className="text-slate-500 font-light">{t("progress")}</span><span className="font-medium text-medical-600 dark:text-medical-400">{Math.round(progress)}%</span></div>
-            <Progress value={progress} className="h-2 bg-slate-200 dark:bg-slate-800" />
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <h1 className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tight">{t("title")}</h1>
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl font-light leading-relaxed">{t("desc")}</p>
+          
+          <div className="max-w-xl pt-4">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t("progress")}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">{Math.round(progress)}%</span>
+            </div>
+            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+              <motion.div className="absolute top-0 left-0 h-full bg-black dark:bg-white" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} />
+            </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* LEFT: Documents */}
-          <div className="lg:col-span-2 space-y-5">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-                <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-50 dark:bg-blue-500/10 rounded-xl"><ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" /></div>
-                    <div><CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">{t("id_title")}</CardTitle><CardDescription className="mt-0.5 font-light">{t("id_desc")}</CardDescription></div>
+          <div className="lg:col-span-2 space-y-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+              <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+                    <FileCheck className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
-                </CardHeader>
-                <CardContent className="pt-5 space-y-5">
-                  <Tabs value={activeTab} onValueChange={v => setActiveTab(v as UiDocType)} className="w-full">
-                    <TabsList className={cn("grid w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-11 p-1 rounded-lg", personType === 'MORAL' ? "grid-cols-3" : "grid-cols-2")}>
-                      <TabsTrigger value="ine" disabled={isIdentityApproved} className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">{t("ine_tab")}</TabsTrigger>
-                      <TabsTrigger value="passport" disabled={isIdentityApproved} className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">{t("passport_tab")}</TabsTrigger>
-                      {personType === 'MORAL' && (
-                        <TabsTrigger value="acta" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white h-9 rounded-md font-medium text-sm">Acta Const.</TabsTrigger>
-                      )}
-                    </TabsList>
-                  </Tabs>
-                  {activeTab === "ine" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UploadZone type="INE_FRONT" label={t("ine_front")} description={t("ine_front_desc")} inputRef={ineFrontInput} />
-                      <UploadZone type="INE_BACK" label={t("ine_back")} description={t("ine_back_desc")} inputRef={ineBackInput} />
-                    </div>
-                  )}
-                  {activeTab === "passport" && <UploadZone type="PASSPORT" label={t("passport_label")} description={t("passport_desc")} inputRef={passportInput} />}
-                  {activeTab === "acta" && personType === 'MORAL' && (
-                    <UploadZone type="ACTA_CONSTITUTIVA" label="Acta Constitutiva" description="Documento constitutivo de la empresa" inputRef={actaInput} />
-                  )}
-                </CardContent>
-              </Card>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">{t("id_title")}</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light mt-1">{t("id_desc")}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 md:p-8 space-y-6">
+                
+                {/* Flat Tabs */}
+                <Tabs value={activeTab} onValueChange={v => setActiveTab(v as UiDocType)} className="w-full">
+                  <TabsList className="flex w-full bg-transparent border-b border-gray-200 dark:border-gray-800 rounded-none h-12 p-0 space-x-6">
+                    <TabsTrigger value="ine" disabled={isIdentityApproved} className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full">
+                      {t("ine_tab")}
+                    </TabsTrigger>
+                    <TabsTrigger value="passport" disabled={isIdentityApproved} className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full">
+                      {t("passport_tab")}
+                    </TabsTrigger>
+                    {personType === 'MORAL' && (
+                      <TabsTrigger value="acta" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full">
+                        Acta Const.
+                      </TabsTrigger>
+                    )}
+                  </TabsList>
+                </Tabs>
+
+                {activeTab === "ine" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <UploadZone type="INE_FRONT" label={t("ine_front")} description={t("ine_front_desc")} inputRef={ineFrontInput} />
+                    <UploadZone type="INE_BACK" label={t("ine_back")} description={t("ine_back_desc")} inputRef={ineBackInput} />
+                  </div>
+                )}
+                {activeTab === "passport" && <UploadZone type="PASSPORT" label={t("passport_label")} description={t("passport_desc")} inputRef={passportInput} />}
+                {activeTab === "acta" && personType === 'MORAL' && (
+                  <UploadZone type="ACTA_CONSTITUTIVA" label="Acta Constitutiva" description="Documento constitutivo de la empresa" inputRef={actaInput} />
+                )}
+              </div>
             </motion.div>
 
             {/* Selfie */}
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-              <Card className={cn("border-slate-200 dark:border-slate-800 transition-all", isIdentityApproved ? "bg-white dark:bg-slate-900 shadow-sm" : "bg-slate-100/50 dark:bg-slate-900/40 opacity-60 cursor-not-allowed")}>
-                <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-5">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-xl", isIdentityApproved ? "bg-medical-50 dark:bg-medical-500/10" : "bg-slate-200 dark:bg-slate-800")}>
-                      <ScanFace className={cn("w-5 h-5", isIdentityApproved ? "text-medical-600 dark:text-medical-400" : "text-slate-400 dark:text-slate-600")} />
-                    </div>
-                    <div><CardTitle className="text-lg text-slate-900 dark:text-white font-semibold">{t("selfie_title")}</CardTitle><CardDescription className="mt-0.5 font-light">{t("selfie_desc")}</CardDescription></div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={cn("border border-gray-200 dark:border-gray-800 transition-all", isIdentityApproved ? "bg-white dark:bg-[#0a0a0a]" : "bg-gray-50 dark:bg-[#050505] opacity-50")}>
+              <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black shrink-0">
+                    <ScanFace className={cn("w-5 h-5", isIdentityApproved ? "text-black dark:text-white" : "text-gray-400")} strokeWidth={1.5} />
                   </div>
-                </CardHeader>
-                <CardContent className="pt-5">
-                  {isIdentityApproved ? (
-                    <UploadZone type="SELFIE" label={t("selfie_label")} description={t("selfie_hint")} inputRef={selfieInput} />
-                  ) : (
-                    <div className="p-5 rounded-xl border border-dashed border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/5 flex gap-3 items-start">
-                      <div className="p-1.5 bg-amber-100 dark:bg-amber-500/10 rounded-lg flex-shrink-0"><AlertCircle className="w-5 h-5 text-amber-500 dark:text-amber-400" /></div>
-                      <div><p className="text-amber-700 dark:text-amber-400 font-medium text-sm mb-0.5">{t("step_locked")}</p><p className="text-xs text-amber-600/80 dark:text-amber-300/80 font-light">{t("step_locked_desc")}</p></div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">{t("selfie_title")}</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light mt-1">{t("selfie_desc")}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 md:p-8">
+                {isIdentityApproved ? (
+                  <UploadZone type="SELFIE" label={t("selfie_label")} description={t("selfie_hint")} inputRef={selfieInput} />
+                ) : (
+                  <div className="border-l-2 border-gray-300 dark:border-gray-700 pl-4 py-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2 mb-1"><Lock className="w-3 h-3" /> {t("step_locked")}</p>
+                    <p className="text-xs text-gray-400 font-light">{t("step_locked_desc")}</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </div>
 
-          {/* RIGHT: Summary */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="space-y-5">
-            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm sticky top-8">
-              <CardHeader className="border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-slate-900 dark:text-white text-base font-semibold flex items-center gap-2">
-                  <FileCheck className="w-4 h-4 text-medical-600 dark:text-medical-400" />{t("status_title")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-5 space-y-5">
-                <div className="space-y-3">
-                  {[{ done: isIdentityApproved, icon: ShieldCheck, label: t("identification") }, { done: documents["SELFIE"]?.verificationStatus === "APPROVED", icon: ScanFace, label: t("proof_of_life") }, ...(personType === 'MORAL' ? [{ done: documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED", icon: FileCheck, label: "Acta Constitutiva" }] : [])].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-2.5">
-                        <div className={cn("w-8 h-8 rounded-full flex items-center justify-center border", item.done ? "bg-medical-600 dark:bg-medical-500 border-medical-500 dark:border-medical-400" : "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700")}>
-                          {item.done ? <CheckCircle2 className="w-4 h-4 text-white" /> : <item.icon className="w-4 h-4 text-slate-400 dark:text-slate-500" />}
-                        </div>
-                        <span className={cn("text-sm font-medium", item.done ? "text-medical-600 dark:text-medical-400" : "text-slate-500 dark:text-slate-400")}>{item.label}</span>
+          {/* RIGHT: Summary (Sticky Panel) */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="lg:sticky lg:top-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+            <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505]">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+                <ShieldCheck className="w-4 h-4" /> {t("status_title")}
+              </h3>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="space-y-4">
+                {[{ done: isIdentityApproved, icon: ShieldCheck, label: t("identification") }, { done: documents["SELFIE"]?.verificationStatus === "APPROVED", icon: ScanFace, label: t("proof_of_life") }, ...(personType === 'MORAL' ? [{ done: documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED", icon: FileCheck, label: "Acta Const." }] : [])].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50 pb-4 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("w-8 h-8 border flex items-center justify-center shrink-0", item.done ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black" : "border-gray-300 dark:border-gray-700 text-gray-400")}>
+                        {item.done ? <Check className="w-4 h-4" strokeWidth={2} /> : <item.icon className="w-4 h-4" strokeWidth={1.5} />}
                       </div>
-                      {item.done && <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 text-[10px]">OK</Badge>}
+                      <span className={cn("text-[10px] font-bold uppercase tracking-widest", item.done ? "text-black dark:text-white" : "text-gray-500")}>{item.label}</span>
                     </div>
-                  ))}
-                </div>
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                  <Button className={cn("w-full h-11 font-semibold shadow-none rounded-xl", isKycComplete() ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100" : "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed")} disabled={!isKycComplete()} onClick={handleFinishStep}>
-                    {isKycComplete() ? <><CheckCircle2 className="w-4 h-4 mr-2" />{t("confirm_continue")}</> : t("complete_docs")}
-                  </Button>
-                  {!isKycComplete() && <p className="text-xs text-center text-slate-500 dark:text-slate-400 font-light">{t("complete_docs_hint")}</p>}
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex items-start gap-2.5">
-                  <Shield className="w-4 h-4 text-slate-500 dark:text-slate-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-slate-600 dark:text-slate-400 font-light leading-relaxed">
-                    <p className="font-medium text-slate-700 dark:text-slate-300 mb-0.5">{t("data_protected_title")}</p>
-                    <p>{t("data_protected_desc")}</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                ))}
+              </div>
+
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-800">
+                <Button 
+                  onClick={handleFinishStep} 
+                  disabled={!isKycComplete()}
+                  className={cn("w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all", isKycComplete() ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" : "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-800")} 
+                >
+                  {isKycComplete() ? <><CheckCircle2 className="w-4 h-4 mr-3" /> {t("confirm_continue")}</> : t("complete_docs")}
+                </Button>
+                {!isKycComplete() && <p className="text-[9px] text-center text-gray-500 uppercase tracking-widest mt-4 font-light">{t("complete_docs_hint")}</p>}
+              </div>
+
+              {/* Data Protection Note */}
+              <div className="border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#050505]">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2"><Shield className="w-3 h-3" /> {t("data_protected_title")}</p>
+                <p className="text-[10px] text-gray-500 font-light leading-relaxed">{t("data_protected_desc")}</p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
