@@ -1,4 +1,3 @@
-// Ubicación: src/app/[locale]/(platform)/patient/booking/success/hybrid/page.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -11,24 +10,23 @@ import { toast } from 'react-toastify';
 import { Home, ShoppingBag, Truck, ReceiptText, Package, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 import { useBookingStore } from '@/hooks/useBookingStore';
-import { paymentService } from '@/services/payment.service'; // 🚀 Usamos el PaymentService
+import { paymentService } from '@/services/payment.service'; 
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 
-// Componentes modulares
+// Componentes modulares (Se mantiene la importación para no quebrar dependencias, 
+// pero en la implementación arquitectónica no se renderizan los efectos festivos)
 import { BackgroundEffects, Confetti } from '@/components/booking/success/SuccessEffects';
 
-// 🚀 NUEVAS INTERFACES ENTERPRISE (Alineadas con tu backend Java)
 interface ReceiptItemDto {
   quantity: number;
   name: string;
-  type: string; // 'SERVICE', 'PRODUCT', 'COURSE'
+  type: string; 
 }
 
 interface UnifiedReceiptResponse {
   transactionId: string;
-  date: string; // Timestamp de Stripe en segundos
+  date: string; 
   totalPaid: number;
   currency: string;
   paymentMethod: string;
@@ -40,27 +38,21 @@ interface UnifiedReceiptResponse {
 export default function HybridSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams(); 
-  const sessionId = searchParams.get('session_id'); // 🚀 Leemos el ID de Stripe de la URL
+  const sessionId = searchParams.get('session_id'); 
 
   const t = useTranslations('PatientBookingSuccess');
   const clearCart = useBookingStore((state) => state.clearCart);
 
   const [receipt, setReceipt] = useState<UnifiedReceiptResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
-    // 1. Apagar confetti después de 5s
-    const timer = setTimeout(() => setShowConfetti(false), 5000);
-
-    // 2. Vaciamos el carrito (ya no lo necesitamos para leer, solo para limpiar)
     clearCart();
 
-    // 3. Consultar el recibo unificado al Backend Enterprise
     const fetchReceipt = async () => {
       if (!sessionId) {
         setIsLoading(false);
-        return; // Si no hay ID en la URL, se mostrará el estado de error
+        return; 
       }
 
       try {
@@ -68,50 +60,53 @@ export default function HybridSuccessPage() {
         setReceipt(data);
       } catch (error) {
         console.error("Error al obtener el recibo unificado:", error);
-        toast.error("Hubo un problema al cargar el detalle de tu recibo.");
+        toast.error("ERROR: NO FUE POSIBLE RECUPERAR EL REGISTRO DE LA TRANSACCIÓN.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchReceipt();
-
-    return () => clearTimeout(timer);
   }, [sessionId, clearCart]);
 
 
   // ==========================================
-  // 🚦 ESTADOS DE CARGA Y ERROR
+  // 🚦 ESTADOS DE CARGA Y ERROR ARQUITECTÓNICOS
   // ==========================================
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 mt-4 font-medium">Generando tu recibo detallado...</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          Sincronizando Auditoría Financiera...
+        </p>
       </div>
     );
   }
 
   if (!receipt) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-red-50 dark:bg-red-500/10 p-5 rounded-full mb-6">
-          <ShoppingBag className="w-12 h-12 text-red-500" />
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <ShoppingBag className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Recibo no encontrado</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8 max-w-sm mx-auto">
-          No pudimos localizar la transacción <br/><span className="text-xs break-all">{sessionId}</span>
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Transacción Inubicable</h2>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
+          EL IDENTIFICADOR DE SESIÓN CARECE DE REGISTROS VÁLIDOS EN LA BASE DE DATOS. <br/>ID: <span className="font-mono text-[9px] break-all bg-gray-100 dark:bg-gray-900 px-1">{sessionId}</span>
         </p>
-        <Button onClick={() => router.push("/patient/dashboard")} className="h-12 px-8 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
-          Ir a mis compras
+        <Button 
+          onClick={() => router.push("/patient/dashboard")} 
+          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+        >
+          Retornar al Panel Principal
         </Button>
       </div>
     );
   }
 
   // ==========================================
-  // ✨ RENDERIZADO PRINCIPAL (TICKET DE COMPRA)
+  // ✨ RENDERIZADO PRINCIPAL (EXPEDIENTE TRANSACCIONAL)
   // ==========================================
 
   const formattedTotal = new Intl.NumberFormat('es-MX', {
@@ -119,118 +114,121 @@ export default function HybridSuccessPage() {
     currency: receipt.currency || 'MXN',
   }).format(receipt.totalPaid || 0);
 
-  // 🚀 FIX DE FECHA: Stripe manda el tiempo en Segundos (UNIX). Multiplicamos por 1000 para Milisegundos en JS.
   const formattedDate = format(
     new Date(parseInt(receipt.date) * 1000), 
-    "EEEE, d 'de' MMMM yyyy 'a las' HH:mm 'hrs'", 
+    "dd MMM yyyy - HH:mm 'HRS'", 
     { locale: es }
-  );
+  ).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8 pb-32 font-sans selection:bg-medical-500/30">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      
+      {/* Background técnico de puntos sutiles */}
       <BackgroundEffects />
-      <Confetti show={showConfetti} />
+      
+      {/* NOTA: Confetti está deshabilitado en el diseño arquitectónico (ya lo refactorizamos a render nulo antes), 
+        pero si se inyecta desde otro archivo, no mostrará colores festivos. 
+      */}
 
-      <div className="max-w-2xl mx-auto relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <div className="max-w-3xl mx-auto relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           
-          <div className="text-center mb-10">
-            <motion.div 
-              initial={{ scale: 0 }} 
-              animate={{ scale: 1 }} 
-              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              className="w-24 h-24 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10 border-4 border-white dark:border-slate-900"
-            >
-              <CheckCircle2 className="w-12 h-12 text-emerald-500" />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight text-slate-900 dark:text-white">
-              ¡Pago Exitoso!
+          <div className="text-center mb-12 flex flex-col items-center">
+            <div className="w-20 h-20 border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-8">
+              <CheckCircle2 className="w-10 h-10" strokeWidth={3} />
+            </div>
+            <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-3">
+              Liquidación Aprobada
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed font-medium">
-              Tu compra híbrida ha sido procesada correctamente. Hemos enviado el comprobante a tu correo electrónico.
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto">
+              LA ADQUISICIÓN HÍBRIDA HA SIDO PROCESADA CON ÉXITO. EL DOCUMENTO FISCAL HA SIDO EMITIDO AL CORREO DEL TITULAR.
             </p>
           </div>
 
-          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden rounded-3xl relative">
-            <div className="h-2 w-full bg-repeating-linear-gradient from-transparent to-transparent bg-[length:20px_20px] bg-gradient-to-r from-emerald-400 to-teal-500" />
-            
-            <CardContent className="p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-6 border-b border-dashed border-slate-200 dark:border-slate-700 gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Transacción</p>
-                  <p className="text-xs font-mono font-medium text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-                    {receipt.transactionId.replace('cs_test_', '***').substring(0, 15)}
-                  </p>
-                </div>
-                <div className="sm:text-right">
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Fecha</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white capitalize">{formattedDate}</p>
-                </div>
+          <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col">
+            {/* Header del Ticket */}
+            <div className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">ID Transaccional</p>
+                <p className="text-xs font-mono font-bold text-black dark:text-white bg-white dark:bg-black border border-gray-300 dark:border-gray-700 px-3 py-1.5 w-fit">
+                  {receipt.transactionId.replace('cs_test_', '***').substring(0, 18)}
+                </p>
               </div>
+              <div className="sm:text-right">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Marca Temporal</p>
+                <p className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{formattedDate}</p>
+              </div>
+            </div>
 
+            <div className="p-8 space-y-10">
+              
               {receipt.shippingAddress && (
-                <div className="mb-8 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="w-5 h-5 text-medical-500" />
-                    <h3 className="font-bold text-slate-900 dark:text-white">Dirección de Envío</h3>
+                <div className="border-l-2 border-black dark:border-white pl-4 py-2 bg-gray-50 dark:bg-[#050505]">
+                  <div className="flex items-center gap-3 mb-2 text-black dark:text-white">
+                    <Truck className="w-4 h-4" strokeWidth={1.5} />
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest">Coordenadas de Despliegue Logístico</h3>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-7">
+                  <p className="text-xs font-light text-black dark:text-white uppercase leading-relaxed">
                     {receipt.shippingAddress}
                   </p>
                 </div>
               )}
 
-              <div className="mb-8">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-                  <Package className="w-5 h-5 text-slate-400" /> Detalle de Compra
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+                  <Package className="w-4 h-4" strokeWidth={1.5} /> Relación de Activos Adquiridos
                 </h3>
                 
-                <div className="space-y-4">
+                <div className="divide-y divide-gray-200 dark:divide-gray-800">
                   {receipt.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/50 pb-3 last:border-0 last:pb-0">
-                      <span className="flex items-center gap-3">
-                        <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold px-2.5 py-1 rounded-md text-xs">
-                          {item.quantity}x
+                    <div key={idx} className="flex justify-between items-start py-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors -mx-4 px-4">
+                      <div className="flex items-start gap-4">
+                        <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest mt-0.5">
+                          {item.quantity}X
                         </span>
-                        <span>
-                          {item.name}
-                          <span className="block text-xs text-slate-400 font-normal mt-0.5">
-                            {item.type === 'SERVICE' ? 'Cita Médica' : 
-                             item.type === 'PRODUCT' ? 'Producto Físico' : 'Contenido Digital'}
-                          </span>
-                        </span>
-                      </span>
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-wider text-black dark:text-white mb-1">
+                            {item.name}
+                          </p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                            {item.type === 'SERVICE' ? 'PROCEDIMIENTO CLÍNICO' : 
+                             item.type === 'PRODUCT' ? 'BIEN FÍSICO' : 'ACTIVO INTANGIBLE'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
 
-              <div className="pt-6 border-t border-dashed border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <span className="text-lg font-bold text-slate-500">Total Pagado</span>
-                <span className="text-3xl font-black text-slate-900 dark:text-white">{formattedTotal}</span>
-              </div>
-            </CardContent>
+            {/* Total Footer */}
+            <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex justify-between items-end">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Liquidación Neta</span>
+              <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">{formattedTotal}</span>
+            </div>
+          </div>
 
-            <div className="absolute -left-4 top-[50%] w-8 h-8 bg-slate-50 dark:bg-slate-950 rounded-full" />
-            <div className="absolute -right-4 top-[50%] w-8 h-8 bg-slate-50 dark:bg-slate-950 rounded-full" />
-          </Card>
-
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={() => router.push("/patient/dashboard/orders")} 
               variant="outline" 
-              className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
             >
-              <ReceiptText className="w-5 h-5 mr-2" />
-              Ver mis compras
+              <ReceiptText className="w-4 h-4 mr-3" strokeWidth={1.5} />
+              Auditar Adquisiciones
             </Button>
             
             <Button 
               onClick={() => router.push("/patient/dashboard")} 
-              className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
             >
-              Ir a mi panel principal
-              <ArrowRight className="w-5 h-5 ml-2" />
+              Retornar al Panel Principal
+              <ArrowRight className="w-4 h-4 ml-3" strokeWidth={1.5} />
             </Button>
           </div>
 

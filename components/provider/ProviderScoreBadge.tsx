@@ -3,7 +3,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ShieldCheck, Sparkles, Award, TrendingUp, AlertCircle, Info } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { ProviderScoreResponse, ProviderScoreBand } from '@/types/providerScore';
 import { cn } from '@/lib/utils';
 
@@ -15,57 +14,60 @@ interface ProviderScoreBadgeProps {
 export function ProviderScoreBadge({ scoreData, className }: ProviderScoreBadgeProps) {
   const t = useTranslations('ProviderScore');
 
-  // Si no hay datos aún (está cargando o falló), mostramos un skeleton discreto
+  // Clases base arquitectónicas para la etiqueta
+  const baseClasses = "inline-flex items-center justify-center border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors";
+
+  // Si no hay datos aún (está cargando o falló), mostramos un skeleton discreto y rectangular
   if (!scoreData) {
     return (
-      <Badge className={cn("bg-slate-200/50 dark:bg-slate-800/50 text-transparent animate-pulse border-none shadow-none", className)}>
-        Cargando
-      </Badge>
+      <span className={cn(baseClasses, "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-transparent animate-pulse", className)}>
+        CARGANDO
+      </span>
     );
   }
 
   // CA-01: Si es nuevo (< 5 consultas)
   if (scoreData.isNewProvider || scoreData.band === 'NUEVO') {
     return (
-      <Badge className={cn("bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 shadow-md backdrop-blur-md", className)}>
-        <Info className="w-3 h-3 mr-1 text-slate-400" />
+      <span className={cn(baseClasses, "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-500", className)}>
+        <Info className="w-3 h-3 mr-1.5" strokeWidth={2} />
         {t('band_nuevo')}
-      </Badge>
+      </span>
     );
   }
 
-  // Lógica de Bandas y Colores (CA-01)
+  // Lógica de Bandas y Colores de Alto Contraste (CA-01)
   const getBandConfig = (band: ProviderScoreBand) => {
     switch (band) {
       case 'ELITE':
         return { 
-          color: 'bg-blue-500/90 dark:bg-blue-600/90 text-white border-blue-400 dark:border-blue-500', 
-          icon: <ShieldCheck className="w-3 h-3 mr-1 text-blue-100" />,
+          color: 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black', 
+          icon: <ShieldCheck className="w-3 h-3 mr-1.5" strokeWidth={2} />,
           label: t('band_elite')
         };
       case 'PREMIUM':
         return { 
-          color: 'bg-emerald-500/90 dark:bg-emerald-600/90 text-white border-emerald-400 dark:border-emerald-500', 
-          icon: <Sparkles className="w-3 h-3 mr-1 text-emerald-100" />,
+          color: 'border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500', 
+          icon: <Sparkles className="w-3 h-3 mr-1.5" strokeWidth={2} />,
           label: t('band_premium')
         };
       case 'ADVANCED':
         return { 
-          color: 'bg-amber-500/90 dark:bg-amber-600/90 text-white border-amber-400 dark:border-amber-500', 
-          icon: <Award className="w-3 h-3 mr-1 text-amber-100" />,
+          color: 'border-amber-500 bg-amber-500 text-black', 
+          icon: <Award className="w-3 h-3 mr-1.5" strokeWidth={2} />,
           label: t('band_advanced')
         };
       case 'IN_PROGRESS':
         return { 
-          color: 'bg-orange-500/90 dark:bg-orange-600/90 text-white border-orange-400 dark:border-orange-500', 
-          icon: <TrendingUp className="w-3 h-3 mr-1 text-orange-100" />,
+          color: 'border-orange-500 bg-orange-500 text-white', 
+          icon: <TrendingUp className="w-3 h-3 mr-1.5" strokeWidth={2} />,
           label: t('band_in_progress')
         };
       case 'LOW_QUALITY':
       default:
         return { 
-          color: 'bg-rose-500/90 dark:bg-rose-600/90 text-white border-rose-400 dark:border-rose-500', 
-          icon: <AlertCircle className="w-3 h-3 mr-1 text-rose-100" />,
+          color: 'border-red-600 bg-red-600 text-white dark:border-red-500 dark:bg-red-500', 
+          icon: <AlertCircle className="w-3 h-3 mr-1.5" strokeWidth={2} />,
           label: t('band_low')
         };
     }
@@ -74,9 +76,9 @@ export function ProviderScoreBadge({ scoreData, className }: ProviderScoreBadgeP
   const config = getBandConfig(scoreData.band);
 
   return (
-    <Badge className={cn("backdrop-blur-md border shadow-lg font-bold tracking-wide uppercase text-[10px]", config.color, className)}>
+    <span className={cn(baseClasses, config.color, className)}>
       {config.icon}
       {scoreData.score} • {config.label}
-    </Badge>
+    </span>
   );
 }
