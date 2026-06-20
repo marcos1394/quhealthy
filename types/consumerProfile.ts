@@ -19,6 +19,8 @@ export interface ConsumerProfile {
 
   // Extra fields that come from the backend's getProfile response
   bloodType?: string;
+  biologicalSex?: string;
+  dietaryPreference?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }

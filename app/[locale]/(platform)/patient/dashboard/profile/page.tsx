@@ -29,6 +29,7 @@ const patientProfileSchema = z.object({
     email: z.string().email("Correo electrónico inválido"),
     phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
     bloodType: z.string().optional(),
+    biologicalSex: z.string().optional(),
     allergies: z.string().optional(),
     currentMedications: z.string().optional(),
     emergencyContactName: z.string().min(3, "Nombre requerido").optional().or(z.literal('')),
@@ -73,6 +74,7 @@ export default function PatientProfilePage() {
                 email: user?.email || "",
                 phone: profile.phoneNumber || "",
                 bloodType: profile.bloodType || "", 
+                biologicalSex: profile.biologicalSex || "",
                 allergies: profile.allergies?.join(', ') || "",
                 currentMedications: profile.currentMedications?.join(', ') || "",
                 emergencyContactName: profile.emergencyContactName || "",
@@ -92,6 +94,7 @@ export default function PatientProfilePage() {
                 fullName: data.fullName,
                 phoneNumber: data.phone,
                 bloodType: data.bloodType || profile.bloodType || "",
+                biologicalSex: data.biologicalSex || profile.biologicalSex || "",
                 emergencyContactName: data.emergencyContactName || profile.emergencyContactName || "",
                 emergencyContactPhone: data.emergencyContactPhone || profile.emergencyContactPhone || "",
                 allergies: data.allergies ? data.allergies.split(',').map(s => s.trim()).filter(Boolean) : [],
@@ -218,6 +221,29 @@ export default function PatientProfilePage() {
                                                     {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "INDETERMINADO"].map(bt => (
                                                         <SelectItem key={bt} value={bt} className="text-xs uppercase tracking-widest focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
                                                             {bt}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage className="text-[9px] font-bold uppercase tracking-widest text-red-500" />
+                                        </FormItem>
+                                    )} />
+
+                                    <FormField control={form.control} name="biologicalSex" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'biologicalSex'> }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                                Sexo Biológico
+                                            </FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="h-12 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
+                                                        <SelectValue placeholder="Seleccionar Parámetro" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
+                                                    {["MALE", "FEMALE"].map(sex => (
+                                                        <SelectItem key={sex} value={sex} className="text-xs uppercase tracking-widest focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
+                                                            {sex === "MALE" ? "MASCULINO" : "FEMENINO"}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
