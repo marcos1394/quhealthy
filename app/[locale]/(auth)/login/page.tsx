@@ -104,7 +104,7 @@ export default function LoginPage() {
       }
     } else if (role === 'CONSUMER') {
       if (isOnboardingComplete) {
-        router.push("/patient/discover");
+        router.push("/patient/dashboard");
       } else {
         // Mandamos al nuevo layout del onboarding sin sidebar
         router.push("/onboarding/patient");
@@ -112,8 +112,6 @@ export default function LoginPage() {
     } else {
       router.push("/patient/discover");
     }
-
-    router.refresh();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
