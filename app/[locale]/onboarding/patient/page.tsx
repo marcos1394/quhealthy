@@ -421,7 +421,7 @@ export default function ConsumerOnboardingWizard() {
     return false;
   };
 
-  const showSkipButton = currentStep >= 6;
+  const showSkipButton = true;
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">

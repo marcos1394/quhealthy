@@ -34,6 +34,11 @@ export function useConsumerOnboarding(stepsLength: number) {
             allergies: profile.allergies ?? prev.allergies,
             currentMedications: profile.currentMedications ?? prev.currentMedications,
             healthGoals: profile.healthGoals ?? prev.healthGoals,
+            // Agregamos métricas biométricas al estado inicial para que no se pierdan
+            weightKg: profile.weightKg?.toString() ?? prev.weightKg,
+            heightCm: profile.heightCm?.toString() ?? prev.heightCm,
+            stressLevel: profile.stressLevel ?? prev.stressLevel,
+            sleepHoursAvg: profile.sleepHoursAvg?.toString() ?? prev.sleepHoursAvg,
           }));
         }
       } catch (err) {
@@ -45,6 +50,21 @@ export function useConsumerOnboarding(stepsLength: number) {
     };
     loadProfile();
   }, [stepsLength, router]);
+
+  // Auto-save debounce effect
+  useEffect(() => {
+    if (initialLoading) return;
+    
+    const handler = setTimeout(async () => {
+      try {
+        await consumerProfileService.updateProfile(data as any);
+      } catch (err) {
+        console.error("Auto-save failed", err);
+      }
+    }, 1500);
+
+    return () => clearTimeout(handler);
+  }, [data, initialLoading]);
 
   const updateData = (fields: Partial<ConsumerOnboardingData>) => {
     setData((prev) => ({ ...prev, ...fields }));
@@ -124,6 +144,9 @@ export function useConsumerOnboarding(stepsLength: number) {
   const handleSkip = async () => {
     setLoading(true);
     try {
+      // Explicit auto-save to ensure data isn't lost when skipping
+      await consumerProfileService.updateProfile(data as any).catch(console.error);
+
       if (currentStep < stepsLength - 1) {
         const nextStep = currentStep + 1;
         await consumerProfileService.updateOnboardingStep(nextStep);
