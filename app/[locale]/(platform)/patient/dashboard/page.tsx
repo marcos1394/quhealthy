@@ -15,12 +15,14 @@ import { QuickAccessCards } from '@/components/dashboard/QuickAccessCards';
 import { HealthScoreWidget } from '@/components/dashboard/HealthScoreWidget';
 import { HealthOnboardingModal } from '@/components/dashboard/HealthOnboardingModal';
 import { HealthMetricsCarousel } from '@/components/dashboard/HealthMetricsCarousel';
+import { HealthMetricInputModal } from '@/components/dashboard/HealthMetricInputModal';
 
 // Store & Hooks
 import { useSessionStore } from '@/stores/SessionStore';
 import { useConsumerDashboard } from '@/hooks/useConsumerDashboard';
 import { useHealthScore } from '@/hooks/useHealthScore';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { consumerProfileService } from '@/services/consumerProfile.service';
 
 export default function ConsumerDashboardPage() {
   const { user } = useSessionStore();
@@ -41,16 +43,36 @@ export default function ConsumerDashboardPage() {
     nextAppointment, 
     healthMetrics, 
     isLoading: isDashboardLoading, 
-    error: dashboardError 
+    error: dashboardError,
+    refreshDashboard
   } = useConsumerDashboard();
   
-  // 3. Estado local del Modal
+  // 3. Estado local del Modal Onboarding
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  // 4. Estado local del Modal Métricas
+  const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
+  const [selectedMetricKey, setSelectedMetricKey] = useState("");
 
   // Cargar el score al montar la página
   useEffect(() => {
     fetchMyScore();
   }, [fetchMyScore]);
+
+  const handleMetricClick = (key: string) => {
+    setSelectedMetricKey(key);
+    setIsMetricModalOpen(true);
+  };
+
+  const handleMetricSave = async (metricKey: string, value: number, secondaryValue?: number) => {
+    try {
+      await consumerProfileService.updateMetric(metricKey, value, secondaryValue);
+      await refreshDashboard();
+    } catch (err) {
+      console.error(err);
+      // Opcional: mostrar toast error
+    }
+  };
 
 
   // Pantallas de Carga/Error generales
@@ -129,6 +151,7 @@ export default function ConsumerDashboardPage() {
               <HealthMetricsCarousel 
                 metrics={healthMetrics} 
                 isLoading={isDashboardLoading} 
+                onMetricClick={handleMetricClick}
               />
             </div>
           </div>
@@ -141,6 +164,14 @@ export default function ConsumerDashboardPage() {
           onClose={() => setIsOnboardingOpen(false)} 
           onSubmit={submitHealthProfile}
           isSubmitting={isSubmitting}
+        />
+
+        {/* 🚀 MODAL DE INPUT MANUAL DE TELEMETRÍA */}
+        <HealthMetricInputModal
+          isOpen={isMetricModalOpen}
+          onClose={() => setIsMetricModalOpen(false)}
+          metricKey={selectedMetricKey}
+          onSave={handleMetricSave}
         />
       </motion.div>
     </div>

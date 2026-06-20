@@ -1,5 +1,5 @@
 // src/hooks/dashboard/useConsumerDashboard.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { appointmentService } from '@/services/appointment.service';
 import { Appointment } from '@/types/appointments'; // 🚀 Asegúrate de usar la ruta correcta a tu archivo de tipos
 
@@ -21,42 +21,40 @@ export const useConsumerDashboard = (profileId?: number) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        // Obtenemos el resumen del dashboard (métricas + próxima cita)
-        const summary = await appointmentService.getConsumerDashboardSummary(profileId);
+  const loadDashboard = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const summary = await appointmentService.getConsumerDashboardSummary(profileId);
 
-        // Mapeamos el DTO del backend a la interfaz Appointment esperada
-        const nextAppt = summary.upcomingAppointment ? {
-          id: summary.upcomingAppointment.id,
-          startTime: summary.upcomingAppointment.time, // <- Clave para evitar Invalid time value
-          providerNameSnapshot: summary.upcomingAppointment.providerName,
-          serviceNameSnapshot: summary.upcomingAppointment.type,
-          provider: {
-            specialty: summary.upcomingAppointment.specialty,
-            image: undefined,
-          }
-        } as Appointment : null;
+      const nextAppt = summary.upcomingAppointment ? {
+        id: summary.upcomingAppointment.id,
+        startTime: summary.upcomingAppointment.time,
+        providerNameSnapshot: summary.upcomingAppointment.providerName,
+        serviceNameSnapshot: summary.upcomingAppointment.type,
+        provider: {
+          specialty: summary.upcomingAppointment.specialty,
+          image: undefined,
+        }
+      } as Appointment : null;
 
-        setData({
-          nextAppointment: nextAppt,
-          healthMetrics: summary.healthMetrics || [],
-          pendingPrescriptionsCount: summary.pendingPrescriptionsCount || 0,
-          recentActivity: [], // Puedes llenar esto con citas recientes si lo deseas
-        });
-      } catch (err: unknown) {
-        console.error('Error fetching consumer dashboard summary:', err);
-        setError('No se pudo cargar la información del dashboard.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadDashboard();
+      setData({
+        nextAppointment: nextAppt,
+        healthMetrics: summary.healthMetrics || [],
+        pendingPrescriptionsCount: summary.pendingPrescriptionsCount || 0,
+        recentActivity: [],
+      });
+    } catch (err: unknown) {
+      console.error('Error fetching consumer dashboard summary:', err);
+      setError('No se pudo cargar la información del dashboard.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [profileId]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   return {
     nextAppointment: data.nextAppointment,
@@ -65,5 +63,6 @@ export const useConsumerDashboard = (profileId?: number) => {
     recentActivity: data.recentActivity,
     isLoading,
     error,
+    refreshDashboard: loadDashboard,
   };
 };

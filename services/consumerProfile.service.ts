@@ -58,5 +58,16 @@ export const consumerProfileService = {
         params: { query, size }
     });
     return response.data;
+  },
+
+  /**
+   * Actualiza una métrica específica de la telemetría del dashboard.
+   */
+  updateMetric: async (metricKey: string, value: number, secondaryValue?: number): Promise<void> => {
+    await axiosInstance.put(`${BASE_URL}/metrics`, {
+      metricKey,
+      value,
+      secondaryValue
+    });
   }
 };
