@@ -14,31 +14,33 @@ const logos = [
 
 export const LogoCarousel: React.FC = () => {
   return (
-    <div className="w-full mt-24 mb-4 lg:col-span-12">
-      <p className="text-center text-xs md:text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-10">
-        Nuestros Partners Tecnológicos
-      </p>
+    <div className="w-full mt-32 mb-10 lg:col-span-12 border-t border-gray-200 dark:border-gray-800 pt-12">
+      <div className="flex items-center gap-4 mb-12">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 whitespace-nowrap">
+          Nuestros Partners Tecnológicos
+        </span>
+        <div className="h-px bg-gray-200 dark:bg-gray-800 w-full"></div>
+      </div>
       
       <div className="relative flex overflow-hidden w-full group">
-        {/* Gradient Masks for fading edges */}
-        <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-[#FAFAFA] dark:from-[#0A0A0A] to-transparent z-10 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[#FAFAFA] dark:from-[#0A0A0A] to-transparent z-10 pointer-events-none"></div>
+        {/* Gradient Masks (Harder edges) */}
+        <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-white dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-white dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none"></div>
 
         <motion.div
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 30, ease: "linear", repeat: Infinity }}
-          className="flex whitespace-nowrap items-center gap-16 md:gap-24 px-8"
+          className="flex whitespace-nowrap items-center gap-20 md:gap-32 px-8"
         >
-          {/* Double the logos to create the infinite scroll effect smoothly */}
           {[...logos, ...logos].map((logo, index) => (
             <div 
               key={index} 
-              className="flex items-center justify-center shrink-0 opacity-40 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300"
+              className="flex items-center justify-center shrink-0 opacity-30 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-500"
             >
               <img 
                 src={logo.url} 
                 alt={logo.name} 
-                className="h-6 md:h-8 object-contain"
+                className="h-6 md:h-7 object-contain"
               />
             </div>
           ))}

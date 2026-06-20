@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Check, ShieldCheck, Star, Activity, Heart, Calendar, Sparkles, UserPlus, TrendingUp, Zap, Navigation } from "lucide-react";
+import { Search, MapPin, Check, ShieldCheck, Star, Activity, Heart, Calendar, UserPlus, TrendingUp, Zap, Navigation } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -19,15 +19,15 @@ const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: str
   }, [words]);
 
   return (
-    <div className="relative inline-block h-12 sm:h-14 md:h-20 lg:h-24 min-w-[130px] sm:min-w-[180px] md:min-w-[350px] align-bottom overflow-visible">
+    <div className="relative inline-block min-w-[140px] sm:min-w-[200px] md:min-w-[300px] align-bottom overflow-visible px-2">
       <AnimatePresence mode="popLayout">
         <motion.span
           key={index}
-          initial={{ y: 20, opacity: 0, scale: 0.9 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: -20, opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="absolute inset-x-0 bottom-1 md:bottom-2 text-slate-500 dark:text-slate-400 font-serif italic text-left pr-4 whitespace-nowrap"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -20, opacity: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-x-0 bottom-1 md:bottom-2 text-gray-400 dark:text-gray-500 font-serif italic text-left whitespace-nowrap"
         >
           {words[index]}{suffix}
         </motion.span>
@@ -71,7 +71,6 @@ const HeroSection: React.FC = () => {
   };
 
   useEffect(() => {
-    // Solicitar ubicación al cargar la landing para auto-completar
     handleGeolocation();
   }, []);
 
@@ -81,7 +80,6 @@ const HeroSection: React.FC = () => {
     { label: t('metrics.m3'), icon: Star },
   ];
 
-  // Palabras dinámicas basadas en el diccionario i18n
   const dynamicWords = [
     t('dynamic_words.0'),
     t('dynamic_words.1'),
@@ -89,7 +87,6 @@ const HeroSection: React.FC = () => {
     t('dynamic_words.3'),
   ];
 
-  // UI elements derived from translations
   const widgetT = {
     analysis: t('widgets.health_analysis'),
     updated: t('widgets.updated'),
@@ -99,29 +96,10 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative w-full bg-[#FAFAFA] dark:bg-[#0A0A0A] pt-24 pb-14 sm:pt-28 sm:pb-16 lg:pt-40 lg:pb-32 transition-colors duration-300 overflow-hidden">
-
-      {/* Premium Aurora Background - Monochromatic Slate */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div 
-          animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] rounded-full bg-slate-200/40 dark:bg-slate-800/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
-        />
-        <motion.div 
-          animate={{ x: [0, -40, 0], y: [0, 60, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear", delay: 2 }}
-          className="absolute top-[20%] -left-[10%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full bg-slate-300/30 dark:bg-slate-700/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
-        />
-        <motion.div 
-          animate={{ x: [0, 30, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 4 }}
-          className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] max-w-[900px] max-h-[900px] rounded-full bg-slate-200/50 dark:bg-slate-800/30 blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
-        />
-      </div>
+    <section className="relative w-full bg-white dark:bg-[#0a0a0a] pt-32 pb-16 md:pt-40 md:pb-24 transition-colors duration-300 overflow-hidden font-sans selection:bg-gray-200 dark:selection:bg-white/20">
 
       <div className="container mx-auto px-6 md:px-12 xl:px-24">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-12 gap-16 lg:gap-20 items-center">
 
           {/* =======================
               Columna Izquierda: Editorial Typography & Search
@@ -129,59 +107,58 @@ const HeroSection: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} // smooth ease out
-            className="lg:col-span-7 flex flex-col items-start text-left space-y-6 sm:space-y-8 lg:space-y-10 relative z-10"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-7 flex flex-col items-start text-left relative z-10"
           >
-            {/* Pill Badge Minimalista */}
-            <div className="inline-block border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 rounded-full px-4 py-1.5 backdrop-blur-md">
-              <span className="text-xs font-semibold tracking-wide uppercase text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-slate-900 dark:text-white animate-pulse" />
+            {/* Pill Badge Minimalista (Arquitectónico) */}
+            <div className="border-l-2 border-black dark:border-white pl-4 mb-8">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <Zap className="w-3 h-3 animate-pulse" strokeWidth={2} />
                 {t('badge')}
               </span>
             </div>
 
             {/* Editorial Headline with Typewriter */}
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight text-slate-900 dark:text-white leading-[1.08] md:leading-[1.05] relative z-20 flex flex-wrap items-end gap-x-2 sm:gap-x-3 w-full">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-semibold tracking-tight text-black dark:text-white leading-[1.05] mb-8 flex flex-wrap items-end gap-x-2 w-full">
               <span>{t('title_start')}</span>
               <TypewriterWords words={dynamicWords} suffix={t('title_end')} />
             </h1>
 
             {/* Description */}
-            <p className="text-base sm:text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed font-light">
+            <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed font-light mb-12">
               {t('description')}
             </p>
 
-            {/* Search Form - Premium Style */}
-            <div className="w-full max-w-2xl mt-1 sm:mt-4 relative z-30 group">
-              <div className="absolute -inset-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-[1.25rem] blur-xl opacity-40 dark:opacity-20 group-focus-within:opacity-100 group-focus-within:duration-500 transition-all duration-1000"></div>
-              <div className="relative flex flex-col md:flex-row shadow-2xl shadow-slate-900/5 dark:shadow-none bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-800 p-2 gap-2 group-focus-within:border-slate-300 dark:group-focus-within:border-slate-700 transition-colors">
+            {/* Search Form - Architect Style (Flush borders, no rounded corners) */}
+            <div className="w-full max-w-2xl relative z-30 group">
+              <div className="flex flex-col md:flex-row bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-colors">
 
-                <div className="flex-1 flex items-center px-4 py-3 md:py-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 group">
-                  <Search className="w-5 h-5 text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Ej. Nutriólogo en Reforma..."
-                      className="w-full bg-transparent border-none outline-none px-3 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                <div className="flex-1 flex items-center px-6 py-4 md:py-0 border-b md:border-b-0 md:border-r border-gray-300 dark:border-gray-800 group/input">
+                  <Search className="w-4 h-4 text-gray-400 group-focus-within/input:text-black dark:group-focus-within/input:text-white transition-colors shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Ej. Nutriólogo en Reforma..."
+                    className="w-full bg-transparent border-none outline-none px-4 text-black dark:text-white placeholder:text-gray-400 font-light text-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
 
-                <div className="flex-1 flex items-center px-4 py-3 md:py-0 group relative">
-                  <MapPin className="w-5 h-5 text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-white transition-colors shrink-0" />
+                <div className="flex-1 flex items-center px-6 py-4 md:py-0 group/location relative border-b md:border-b-0 border-gray-300 dark:border-gray-800">
+                  <MapPin className="w-4 h-4 text-gray-400 group-focus-within/location:text-black dark:group-focus-within/location:text-white transition-colors shrink-0" />
                   <input
                     type="text"
                     placeholder={t('location_placeholder')}
-                    className="w-full bg-transparent border-none outline-none px-3 pr-8 text-slate-900 dark:text-white placeholder:text-slate-400 font-light"
+                    className="w-full bg-transparent border-none outline-none px-4 pr-10 text-black dark:text-white placeholder:text-gray-400 font-light text-sm"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                   />
                   <button 
                     onClick={handleGeolocation}
                     title="Usar mi ubicación actual"
-                    className="absolute right-4 text-slate-400 hover:text-medical-500 transition-colors"
+                    className="absolute right-6 text-gray-400 hover:text-black dark:hover:text-white transition-colors"
                   >
-                    <Navigation className={`w-4 h-4 ${isLocating ? 'animate-pulse text-medical-500' : ''}`} />
+                    <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-pulse text-black dark:text-white' : ''}`} />
                   </button>
                 </div>
 
@@ -193,22 +170,21 @@ const HeroSection: React.FC = () => {
                     const query = params.toString();
                     router.push(`/patient/discover${query ? `?${query}` : ""}`);
                   }}
-                  className="w-full md:w-auto bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl px-8 py-6 h-auto text-base font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group overflow-hidden relative border-0"
+                  className="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-8 py-6 h-auto text-[10px] font-bold uppercase tracking-widest transition-all group/btn border-0"
                 >
-                  <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></span>
-                  <span className="relative group-hover:translate-x-1 transition-transform inline-block">
+                  <span className="relative group-hover/btn:translate-x-1 transition-transform inline-block">
                     {t('search_button')}
                   </span>
                 </Button>
               </div>
             </div>
 
-            {/* Micro-Metrics */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-6 pt-3 sm:pt-4 border-t border-slate-200/50 dark:border-slate-800/50 w-full max-w-2xl relative z-20">
+            {/* Micro-Metrics (Minimalist) */}
+            <div className="flex flex-wrap items-center gap-6 pt-6 w-full max-w-2xl relative z-20">
               {metrics.map((metric, idx) => (
                 <div key={idx} className="flex items-center gap-2 group cursor-default">
-                  <metric.icon className="w-4 h-4 text-slate-600 dark:text-slate-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{metric.label}</span>
+                  <metric.icon className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{metric.label}</span>
                 </div>
               ))}
             </div>
@@ -216,7 +192,7 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* =======================
-              Columna Derecha: UI Dinámica & Abstracta
+              Columna Derecha: Blueprint / Architectural Wireframe
               ======================= */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -224,148 +200,113 @@ const HeroSection: React.FC = () => {
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-5 relative hidden lg:block z-0"
           >
-            {/* Dynamic UI Container */}
-            <div className="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-3xl border border-slate-200/50 dark:border-slate-800/80 flex flex-col items-center justify-center p-8 shadow-2xl shadow-slate-200/20 dark:shadow-none transition-all duration-500 hover:shadow-slate-300/30 hover:border-slate-300/50 dark:hover:border-slate-700">
+            {/* Blueprint Grid Container */}
+            <div className="relative w-full aspect-[4/5] bg-gray-50/50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col justify-center p-8 group">
 
-              {/* Dynamic Animated Background Patterns */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-slate-50/80 via-transparent to-slate-100/40 dark:from-slate-800/20 dark:via-transparent dark:to-slate-900/10 pointer-events-none" />
-              <div className="absolute top-0 left-0 w-full h-full opacity-40 dark:opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(148, 163, 184, 0.2) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+              {/* Architectural Grid Background */}
+              <div 
+                className="absolute inset-0 opacity-30 dark:opacity-20 pointer-events-none" 
+                style={{ 
+                  backgroundImage: 'linear-gradient(to right, #9ca3af 1px, transparent 1px), linear-gradient(to bottom, #9ca3af 1px, transparent 1px)', 
+                  backgroundSize: '40px 40px' 
+                }} 
+              />
 
-              {/* Floating Dynamic Element 1: Health Analysis */}
+              {/* Floating Blueprint Element 1: Health Analysis */}
               <motion.div
-                animate={{ y: [0, -12, 0], rotate: [0, -1, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="w-full max-w-[320px] bg-white/90 dark:bg-slate-800/90 rounded-2xl p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-none border border-slate-100 dark:border-slate-700/50 mb-6 backdrop-blur-xl relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="w-full max-w-[320px] bg-white dark:bg-black border border-black dark:border-white p-5 mb-8 relative z-10 cursor-pointer"
               >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-300 to-slate-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="relative w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-900/40 flex items-center justify-center shadow-inner overflow-hidden">
-                      <div className="absolute inset-0 bg-slate-200/50 dark:bg-slate-700/50 animate-pulse" />
-                      <Activity className="w-5 h-5 text-slate-700 dark:text-slate-300 relative z-10" />
+                    <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-sm">{widgetT.analysis}</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
+                      <h3 className="font-semibold text-black dark:text-white text-sm tracking-tight">{widgetT.analysis}</h3>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">
                         {widgetT.updated}
                       </p>
                     </div>
                   </div>
                 </div>
-                {/* Progress Bar with pulse effect */}
-                <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden relative z-10">
+                {/* Minimalist Progress Bar */}
+                <div className="h-1 w-full bg-gray-200 dark:bg-gray-800 relative">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: "85%" }}
                     transition={{ duration: 1.5, delay: 0.5, type: "spring" }}
-                    className="h-full bg-slate-900 dark:bg-white rounded-full relative overflow-hidden"
-                  >
-                    <motion.div
-                      animate={{ x: ["-100%", "200%"] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
-                    />
-                  </motion.div>
+                    className="h-full bg-black dark:bg-white absolute top-0 left-0"
+                  />
                 </div>
               </motion.div>
 
-              {/* Floating Dynamic Element 2: Mini Stat Card (New) */}
+              {/* Floating Blueprint Element 2: Mini Stat */}
               <motion.div
-                animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute right-4 top-12 w-36 bg-white/90 dark:bg-slate-800/90 rounded-[1.25rem] p-4 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-700/50 backdrop-blur-xl z-10"
+                animate={{ x: [0, 10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute right-8 top-20 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-4 z-20"
               >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-6 h-6 border border-gray-200 dark:border-gray-800 flex items-center justify-center">
+                    <TrendingUp className="w-3 h-3 text-black dark:text-white" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">+24%</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">+24%</span>
                 </div>
-                <p className="text-xl font-bold text-slate-900 dark:text-white mb-0.5">14.2k</p>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Consultas</p>
+                <p className="text-2xl font-semibold text-black dark:text-white mb-1">14.2k</p>
+                <p className="text-[9px] uppercase tracking-widest text-gray-500 font-bold">Consultas</p>
               </motion.div>
 
-              {/* Floating Dynamic Element 3: Appointment */}
+              {/* Floating Blueprint Element 3: Appointment */}
               <motion.div
-                animate={{ y: [0, 15, 0], rotate: [0, 1, 0] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="w-full max-w-[280px] -ml-16 bg-white/90 dark:bg-slate-800/90 rounded-2xl p-5 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-none border border-slate-100 dark:border-slate-700/50 mb-8 backdrop-blur-xl relative z-20 group hover:-translate-y-1 transition-transform cursor-pointer"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="w-full max-w-[280px] ml-8 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 p-5 relative z-20 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-300">
-                        <Heart className="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:fill-slate-500 transition-colors" />
+                    <div className="w-10 h-10 border border-gray-200 dark:border-gray-800 flex items-center justify-center relative">
+                      <Heart className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                      <div className="absolute -bottom-2 -right-2 w-5 h-5 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 flex items-center justify-center">
+                        <UserPlus className="w-2.5 h-2.5 text-black dark:text-white" />
                       </div>
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border-2 border-slate-50 dark:border-slate-900 shadow-sm"
-                      >
-                        <UserPlus className="w-2.5 h-2.5 text-slate-700 dark:text-slate-300" />
-                      </motion.div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-sm">{widgetT.appointment}</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{widgetT.specialty}</p>
+                      <h3 className="font-semibold text-black dark:text-white text-sm tracking-tight">{widgetT.appointment}</h3>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">{widgetT.specialty}</p>
                     </div>
                   </div>
-                  <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700/50 rounded-xl flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors">
-                    <Calendar className="w-5 h-5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors" />
-                  </div>
+                  <Calendar className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
                 </div>
               </motion.div>
 
-              {/* Floating Dynamic Element 4: Fast Connect (New) */}
+              {/* Floating Info Footer (Architect Style) */}
               <motion.div
-                animate={{ x: [0, -10, 0], y: [0, 10, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-                className="absolute left-6 bottom-32 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full px-4 py-2 flex items-center gap-2 shadow-lg shadow-slate-900/20 dark:shadow-white/20 z-30"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
+                className="absolute bottom-0 left-0 w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 flex items-center justify-between z-30"
               >
-                <Zap className="w-3.5 h-3.5 fill-current animate-pulse" />
-                <span className="text-xs font-semibold tracking-wide">Conexión 24/7</span>
-              </motion.div>
-
-              {/* Minimalist Floating Card - Clean, Bottom Info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2, duration: 0.8, type: "spring", stiffness: 100 }}
-                className="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-100 dark:border-slate-800 p-4 rounded-[1.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-none flex items-center justify-between z-20"
-              >
-                <div className="flex -space-x-3 hover:space-x-1 transition-all duration-300">
-                  {[
-                    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100&h=100",
-                    "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=100&h=100",
-                    "https://images.unsplash.com/photo-1594824432258-293e5066c06a?auto=format&fit=crop&q=80&w=100&h=100",
-                    "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=100&h=100",
-                    "https://images.unsplash.com/photo-1618060932014-4deda4932554?auto=format&fit=crop&q=80&w=100&h=100"
-                  ].map((src, i) => (
-                    <motion.div
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
                       key={i}
-                      whileHover={{ y: -5, scale: 1.1, zIndex: 10 }}
-                      className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 overflow-hidden shadow-sm relative grayscale"
+                      className="w-8 h-8 border border-white dark:border-black bg-gray-200 dark:bg-gray-800 flex items-center justify-center grayscale"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={src}
-                        alt={`Avatar ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </motion.div>
+                      <span className="text-[8px] font-bold text-gray-500">U{i}</span>
+                    </div>
                   ))}
                 </div>
-                <div className="text-right pl-4">
-                  <div className="flex items-center justify-end gap-0.5 mb-1.5">
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1 mb-1">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200 fill-current" />
+                      <Star key={s} className="w-3 h-3 text-black dark:text-white fill-current" />
                     ))}
                   </div>
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <span className="font-bold text-slate-900 dark:text-white text-sm space-x-1">
-                      <span>+2.5k</span>
-                    </span> {widgetT.reviews}
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                    <span className="text-black dark:text-white mr-1">+2.5K</span> 
+                    {widgetT.reviews}
                   </p>
                 </div>
               </motion.div>
@@ -375,7 +316,7 @@ const HeroSection: React.FC = () => {
 
         </div>
         
-        {/* Logo Carousel Trust Section */}
+        {/* Logo Carousel */}
         <LogoCarousel />
       </div>
     </section>
