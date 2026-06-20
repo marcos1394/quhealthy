@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, Video, 
-  User, Stethoscope, Receipt, AlertCircle, FileText, CreditCard, MessageSquare
+  User, Stethoscope, Receipt, AlertCircle, FileText, CreditCard, MessageSquare, RotateCcw, XCircle, QrCode
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ import { chatService } from '@/services/chat.service';
 import { handleApiError } from '@/lib/handleApiError';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export default function PatientAppointmentDetailsPage() {
   const params = useParams();
@@ -28,7 +28,7 @@ export default function PatientAppointmentDetailsPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isStartingChat, setIsStartingChat] = useState(false);
 
-  // Usamos el hook maestro que ya tienes construido
+  // Hook maestro
   const {
     appointment,
     isLoading,
@@ -63,7 +63,7 @@ export default function PatientAppointmentDetailsPage() {
       await chatService.startConversation(appointment.consumerId, appointment.providerId);
       router.push('/patient/dashboard/messages');
     } catch (error) {
-      toast.error("Hubo un error al iniciar el chat.");
+      toast.error("Fallo de comunicación encriptada.");
       handleApiError(error);
     } finally {
       setIsStartingChat(false);
@@ -75,25 +75,30 @@ export default function PatientAppointmentDetailsPage() {
   // ==========================================
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 mt-4 font-medium">Cargando detalles de tu cita...</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          Desencriptando expediente clínico...
+        </p>
       </div>
     );
   }
 
   if (error || !appointment) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
-        <div className="bg-red-50 dark:bg-red-500/10 p-5 rounded-full mb-6">
-          <AlertCircle className="w-12 h-12 text-red-500" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] px-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Cita no encontrada</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8 text-center max-w-sm">
-          No pudimos localizar esta cita. Es posible que haya sido eliminada o que no tengas permisos para verla.
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Expediente Inaccesible</h2>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
+          El registro solicitado no existe o carece de permisos de visualización.
         </p>
-        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline" className="rounded-full">
-          Volver a mis citas
+        <Button 
+          onClick={() => router.push("/patient/dashboard/appointments")} 
+          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
+        >
+          <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} /> Retornar al Directorio
         </Button>
       </div>
     );
@@ -103,234 +108,279 @@ export default function PatientAppointmentDetailsPage() {
   // ✨ FORMATEO DE DATOS
   // ==========================================
   
-  // Usamos el mismo patrón de fechas que corregimos antes (lee la hora local directamente)
   const isOnline = appointment.type === 'ONLINE' || appointment.appointmentType === 'ONLINE';
-  const dateFormatted = format(new Date(appointment.startTime), "EEEE, d 'de' MMMM yyyy", { locale: es });
-  const timeFormatted = format(new Date(appointment.startTime), "HH:mm 'hrs'", { locale: es });
+  const dateFormatted = format(new Date(appointment.startTime), "dd MMM yyyy", { locale: es });
+  const timeFormatted = format(new Date(appointment.startTime), "HH:mm", { locale: es });
   
   const statusColorMap: Record<string, string> = {
-    'PENDING_PAYMENT': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-    'SCHEDULED': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
-    'COMPLETED': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    'CANCELLED': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    'PENDING_PAYMENT': 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 dark:text-amber-400',
+    'SCHEDULED': 'border-black text-black bg-gray-50 dark:border-white dark:bg-[#050505] dark:text-white',
+    'COMPLETED': 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 dark:text-emerald-400',
+    'CANCELLED': 'border-red-500 text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400',
   };
 
   const statusLabels: Record<string, string> = {
     'PENDING_PAYMENT': 'Pago Pendiente',
     'SCHEDULED': 'Confirmada',
     'COMPLETED': 'Finalizada',
-    'CANCELLED': 'Cancelada',
+    'CANCELLED': 'Anulada',
   };
 
-  const badgeClass = statusColorMap[appointment.status] || 'bg-slate-100 text-slate-800';
+  const badgeClass = statusColorMap[appointment.status] || 'border-gray-300 text-gray-500';
   const statusLabel = statusLabels[appointment.status] || appointment.status;
 
+  function t(arg0: string, arg1: { defaultValue: string; }): React.ReactNode {
+    throw new Error('Function not implemented.');
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 pb-24">
+      <div className="max-w-6xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
         
-        {/* HEADER */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/patient/dashboard/appointments')} className="rounded-full">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              Detalle de Cita
-              <span className={`text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider ${badgeClass}`}>
-                {statusLabel}
-              </span>
-            </h1>
-            <p className="text-slate-500 text-sm mt-1">Folio: #{appointment.id}</p>
+        {/* --- HEADER --- */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => router.push('/patient/dashboard/appointments')} 
+              className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+            >
+              <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
+            </button>
+            <div>
+              <div className="mb-2 flex flex-wrap items-center gap-3">
+                <span className="bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                  Folio: #{appointment.id}
+                </span>
+                <span className={cn(
+                  "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest",
+                  badgeClass
+                )}>
+                  {statusLabel}
+                </span>
+              </div>
+              <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase">
+                Auditoría de Cita Médica
+              </h1>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col lg:flex-row gap-12">
           
-          {/* COLUMNA IZQUIERDA: DETALLES PRINCIPALES */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* --- COLUMNA IZQUIERDA: DETALLES PRINCIPALES --- */}
+          <div className="flex-1 space-y-12">
             
-            {/* Tarjeta de Fecha y Hora */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="flex gap-4">
-                    <div className="bg-medical-50 dark:bg-medical-900/20 p-3 rounded-xl h-fit">
-                      <Calendar className="w-6 h-6 text-medical-600 dark:text-medical-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 font-medium mb-1">Fecha Programada</p>
-                      <p className="font-semibold text-slate-900 dark:text-white capitalize">{dateFormatted}</p>
-                    </div>
+            {/* Bloque: Fecha y Hora */}
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+              <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                  <Calendar className="w-4 h-4" strokeWidth={1.5} />
+                  Programación Temporal
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-gray-800">
+                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
+                    <Calendar className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
-                  <div className="flex gap-4">
-                    <div className="bg-medical-50 dark:bg-medical-900/20 p-3 rounded-xl h-fit">
-                      <Clock className="w-6 h-6 text-medical-600 dark:text-medical-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 font-medium mb-1">Hora y Duración</p>
-                      <p className="font-semibold text-slate-900 dark:text-white">
-                        {timeFormatted} <span className="text-slate-400 font-normal">({appointment.durationMinutes} min)</span>
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Fecha Acordada</p>
+                    <p className="text-xl font-semibold text-black dark:text-white tracking-tight uppercase">{dateFormatted}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
+                    <Clock className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Bloque Horario</p>
+                    <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
+                      {timeFormatted} HRS <span className="text-xs font-light text-gray-500 ml-2">[{appointment.durationMinutes} MIN]</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            {/* Tarjeta del Especialista y Servicio */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="w-5 h-5 text-slate-400" /> Datos del Especialista
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div>
-                  <p className="text-sm text-slate-500 mb-1">Profesional de la Salud</p>
-                  <p className="font-bold text-lg text-slate-900 dark:text-white capitalize">
-                    {appointment.providerNameSnapshot || 'Especialista'}
-                  </p>
+            {/* Bloque: Datos del Especialista y Servicio */}
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+              <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                  <User className="w-4 h-4" strokeWidth={1.5} />
+                  Detalles Clínicos
+                </h3>
+              </div>
+              <div className="p-8 space-y-8">
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                  <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 overflow-hidden">
+                    <span className="text-xl font-bold uppercase">{(appointment.providerNameSnapshot || 'E').charAt(0)}</span>
+                  </div>
+                  <div className="flex flex-col justify-center h-16">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Especialista Asignado</p>
+                    <p className="text-xl font-semibold tracking-tight uppercase text-black dark:text-white">
+                      {appointment.providerNameSnapshot || 'Especialista General'}
+                    </p>
+                  </div>
                 </div>
-                
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <p className="text-sm text-slate-500 mb-1 flex items-center gap-2">
-                    <Stethoscope className="w-4 h-4" /> Servicio a recibir
+
+                <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+                    <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} /> Procedimiento a Realizar
                   </p>
-                  <p className="font-medium text-slate-900 dark:text-white">
-                    {appointment.serviceNameSnapshot || appointment.serviceName || 'Consulta Médica'}
+                  <p className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase">
+                    {appointment.serviceNameSnapshot || appointment.serviceName || 'Consulta Integral'}
                   </p>
                 </div>
 
                 {appointment.consumerSymptoms && (
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-sm text-slate-500 mb-2">Tus notas o síntomas</p>
-                    <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl text-sm text-slate-700 dark:text-slate-300">
-                      {appointment.consumerSymptoms}
+                  <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                      <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> Observaciones del Paciente
+                    </p>
+                    <div className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] p-5 text-xs font-light text-black dark:text-white leading-relaxed uppercase tracking-wide">
+                      "{appointment.consumerSymptoms}"
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Tarjeta de Ubicación */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl h-fit">
-                  {isOnline ? (
-                    <Video className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                  ) : (
-                    <MapPin className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                  )}
+            {/* Bloque: Ubicación / Conexión */}
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+               <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                  <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                  Logística de Asistencia
+                </h3>
+              </div>
+              <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <div className="w-14 h-14 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                  {isOnline ? <Video className="w-6 h-6" strokeWidth={1.5} /> : <MapPin className="w-6 h-6" strokeWidth={1.5} />}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-slate-500 font-medium mb-1">
-                    {isOnline ? 'Videoconsulta' : 'Cita Presencial'}
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                    Modalidad: {isOnline ? 'TELEMEDICINA' : 'ATENCIÓN PRESENCIAL'}
                   </p>
+                  
                   {isOnline ? (
-                    <div>
-                      <p className="text-slate-900 dark:text-white mb-3">El enlace de la videollamada se activará minutos antes de tu cita.</p>
+                    <div className="space-y-3 mt-2">
+                      <p className="text-xs font-light leading-relaxed text-black dark:text-white">
+                        El enlace cifrado para la transmisión se activará minutos antes de su consulta.
+                      </p>
                       {appointment.meetLink ? (
-                        <a href={appointment.meetLink} target="_blank" rel="noreferrer" className="text-medical-600 dark:text-medical-400 font-medium hover:underline">
-                          Unirse a la llamada
+                        <a href={appointment.meetLink} target="_blank" rel="noreferrer" className="inline-flex border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest px-4 py-2 transition-colors">
+                          <Video className="w-3 h-3 mr-2" strokeWidth={1.5} /> Iniciar Transmisión
                         </a>
                       ) : (
-                        <span className="text-slate-400 text-sm">Enlace pendiente de generación</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500 flex items-center gap-1.5">
+                          <Clock className="w-3 h-3" strokeWidth={2} /> Enlace en generación
+                        </span>
                       )}
                     </div>
                   ) : (
-                    <p className="text-slate-900 dark:text-white font-medium">
-                      {appointment.locationAddress || 'Dirección por confirmar'}
+                    <p className="text-sm font-semibold tracking-tight text-black dark:text-white uppercase leading-relaxed mt-2">
+                      {appointment.locationAddress || 'DIRECCIÓN NO ESPECIFICADA. CONTACTE AL PROVEEDOR.'}
                     </p>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
           </div>
 
-          {/* COLUMNA DERECHA: ACCIONES Y QR */}
-          <div className="space-y-6">
+          {/* --- COLUMNA DERECHA: ACCIONES Y QR --- */}
+          <div className="w-full lg:w-80 xl:w-96 shrink-0 space-y-8">
             
-            {/* Tarjeta de Check-In QR */}
+            {/* Bloque: Check-In QR */}
             {appointment.status === 'SCHEDULED' && qrCodeUrl && (
-              <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden border-2 border-medical-500/20">
-                <CardHeader className="bg-medical-50 dark:bg-medical-900/10 pb-4 text-center border-b border-medical-100 dark:border-medical-900/30">
-                  <CardTitle className="text-medical-800 dark:text-medical-400 text-base">Check-in de Cita</CardTitle>
-                  <p className="text-xs text-medical-600/70 dark:text-medical-400/70">Muestra este código en recepción</p>
-                </CardHeader>
-                <CardContent className="p-6 flex flex-col items-center justify-center bg-white">
-                  <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
-                    <Image src={qrCodeUrl} alt="Código QR de tu cita" width={180} height={180} className="w-48 h-48" />
+              <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+                <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex flex-col items-center justify-center text-center bg-white dark:bg-[#0a0a0a]">
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-1">
+                    <QrCode className="w-4 h-4" strokeWidth={1.5} /> Identificación QR
+                  </h3>
+                  <p className="text-[9px] font-light uppercase tracking-widest text-gray-500">
+                    Escanear en Módulo de Recepción
+                  </p>
+                </div>
+                <div className="p-8 flex items-center justify-center">
+                  <div className="bg-white p-3 border border-gray-300">
+                    <Image src={qrCodeUrl} alt="Código QR Check-in" width={180} height={180} className="w-48 h-48 mix-blend-multiply" />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
-            {/* Tarjeta de Pagos y Recibos */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Receipt className="w-5 h-5 text-slate-400" /> Resumen Financiero
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 pt-0 space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500">Costo total</span>
-                  <span className="font-bold text-slate-900 dark:text-white">
+            {/* Bloque: Finanzas y Recibos */}
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+              <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505]">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                  <Receipt className="w-4 h-4" strokeWidth={1.5} /> Resumen Financiero
+                </h3>
+              </div>
+              <div className="p-6 md:p-8 space-y-8">
+                
+                <div className="flex flex-col items-end">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Importe Final</span>
+                  <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">
                     {new Intl.NumberFormat('es-MX', { style: 'currency', currency: appointment.currency || 'MXN' }).format(appointment.totalPrice || 0)}
                   </span>
                 </div>
                 
-                {appointment.paymentStatus === 'SETTLED' ? (
-                  <Button 
-                    onClick={downloadInvoice} 
-                    disabled={isDownloading}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
-                  >
-                    {isDownloading ? <QhSpinner size="sm" className="mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
-                    Descargar Recibo
-                  </Button>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="text-sm text-amber-600 text-center font-medium bg-amber-50 p-2 rounded-lg">
-                      Pendiente de pago
-                    </p>
+                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+                  {appointment.paymentStatus === 'SETTLED' ? (
                     <Button 
-                      onClick={handlePayNow} 
-                      disabled={isProcessingPayment}
-                      className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
+                      onClick={downloadInvoice} 
+                      disabled={isDownloading}
+                      className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6"
                     >
-                      {isProcessingPayment ? <QhSpinner size="sm" className="mr-2 text-white" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                      Pagar ahora
+                      {t('btn_receipt', { defaultValue: 'Extraer Recibo Fiscal' })}
+                      {isDownloading ? <QhSpinner size="sm" /> : <FileText className="w-4 h-4" strokeWidth={1.5} />}
                     </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Botones de Acción Extra (Reprogramar/Cancelar) */}
-            {(appointment.status === 'SCHEDULED' || appointment.status === 'COMPLETED') && appointment.paymentStatus === 'SETTLED' && (
-              <Button 
-                onClick={handleStartChat}
-                disabled={isStartingChat}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
-              >
-                {isStartingChat ? <QhSpinner size="sm" className="mr-2 text-white" /> : <MessageSquare className="w-4 h-4 mr-2" />}
-                Mensaje al Especialista
-              </Button>
-            )}
-
-            {appointment.status === 'SCHEDULED' && (
-              <div className="flex flex-col gap-3">
-                <Button variant="outline" className="w-full justify-start text-slate-600 rounded-full transition-colors">
-                  <Calendar className="w-4 h-4 mr-2" /> Reprogramar Cita
-                </Button>
-                <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors">
-                  <AlertCircle className="w-4 h-4 mr-2" /> Cancelar Cita
-                </Button>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
+                          Estado: Requiere Liquidación
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={handlePayNow} 
+                        disabled={isProcessingPayment}
+                        className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6 disabled:opacity-50"
+                      >
+                        {t('btn_pay', { defaultValue: 'Ejecutar Pago' })}
+                        {isProcessingPayment ? <QhSpinner size="sm" /> : <CreditCard className="w-4 h-4" strokeWidth={1.5} />}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
+
+            {/* Bloque de Comandos (Chat / Reprogramar / Cancelar) */}
+            <div className="space-y-4">
+              {(appointment.status === 'SCHEDULED' || appointment.status === 'COMPLETED') && appointment.paymentStatus === 'SETTLED' && (
+                <Button 
+                  onClick={handleStartChat}
+                  disabled={isStartingChat}
+                  className="w-full rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 disabled:opacity-50"
+                >
+                  Mensaje al Proveedor
+                  {isStartingChat ? <QhSpinner size="sm" /> : <MessageSquare className="w-4 h-4" strokeWidth={1.5} />}
+                </Button>
+              )}
+
+              {appointment.status === 'SCHEDULED' && (
+                <div className="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-800 pt-6">
+                  <Button variant="outline" className="w-full rounded-none border border-gray-300 dark:border-gray-700 text-gray-600 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6">
+                    <RotateCcw className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Reprogramar Cita
+                  </Button>
+                  <Button variant="outline" className="w-full rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6">
+                    <XCircle className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Anular Registro
+                  </Button>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>

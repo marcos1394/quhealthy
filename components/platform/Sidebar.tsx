@@ -252,9 +252,11 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
         <AnimatePresence>
           {!isCollapsed && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="overflow-hidden">
-              <Button variant="ghost" className="w-full justify-start gap-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 transition-all group">
-                <HelpCircle className="w-4 h-4 flex-shrink-0" /><span className="text-sm font-medium whitespace-nowrap">{t('support')}</span>
-              </Button>
+              <Link href="/patient/dashboard/support">
+                <Button variant="ghost" className="w-full justify-start gap-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-10 transition-all group">
+                  <HelpCircle className="w-4 h-4 flex-shrink-0" /><span className="text-sm font-medium whitespace-nowrap">{t('support')}</span>
+                </Button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>

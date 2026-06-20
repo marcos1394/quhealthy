@@ -8,6 +8,7 @@ import { getMessages } from 'next-intl/server';
 // Vercel Pro Observability
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 
 // Notificaciones (tema-aware + i18n error hydration)
 import { ToastProvider } from '@/components/providers/ToastProvider';
@@ -135,6 +136,25 @@ export default async function RootLayout({
             {/* Vercel Pro Analytics & Insights */}
             <Analytics />
             <SpeedInsights />
+            
+            {/* Chatwoot Live Chat */}
+            <Script id="chatwoot-widget" strategy="afterInteractive">
+              {`
+                (function(d,t) {
+                  var BASE_URL="https://app.chatwoot.com";
+                  var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+                  g.src=BASE_URL+"/packs/js/sdk.js";
+                  g.async = true;
+                  s.parentNode.insertBefore(g,s);
+                  g.onload=function(){
+                    window.chatwootSDK.run({
+                      websiteToken: '8NAP7B6kCJdHWj4S3vemxeJb',
+                      baseUrl: BASE_URL
+                    })
+                  }
+                })(document,"script");
+              `}
+            </Script>
           </CustomProvider>
         </NextIntlClientProvider>
 

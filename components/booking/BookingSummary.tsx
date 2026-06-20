@@ -1,4 +1,3 @@
-// components/booking/BookingSummary.tsx
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -12,26 +11,21 @@ import {
   ShoppingCart, 
   Loader2, 
   FileText, 
-  Globe, 
-  MapPin, 
-  Truck, 
-  Package,
+  Info,
   MonitorPlay,
-  Info
+  Package
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
   total: number;
-  providerColor: string;
+  providerColor: string; // Se mantiene por compatibilidad de API, pero la UI adopta el Manifiesto Monocromático
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
@@ -63,10 +57,8 @@ export function BookingSummary({
   const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
   const [isLoadingRates, setIsLoadingRates] = useState(true);
 
-  // Hook para acceder a los documentos del paciente
   const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
 
-  // Cargar documentos si decide compartir de forma granular
   useEffect(() => {
     if (shareVaultAccess && shareVaultMode === 'GRANULAR' && documents.length === 0) {
       fetchDocuments();
@@ -74,7 +66,7 @@ export function BookingSummary({
   }, [shareVaultAccess, shareVaultMode, documents.length, fetchDocuments]);
 
   // ==========================================
-  // FETCH DE DIVISAS (Con degradación elegante)
+  // FETCH DE DIVISAS
   // ==========================================
   useEffect(() => {
     let isMounted = true;
@@ -95,7 +87,7 @@ export function BookingSummary({
   }, []);
 
   // ==========================================
-  // CÁLCULOS MEMOIZADOS (Performance)
+  // CÁLCULOS MEMOIZADOS
   // ==========================================
   const cartAnalysis = useMemo(() => {
     const hasServices = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
@@ -107,7 +99,6 @@ export function BookingSummary({
   }, [cart]);
 
   const validationRules = useMemo(() => {
-    // Si no quiere agendar ahora, el tiempo SIEMPRE es válido.
     const isTimeValid = (cartAnalysis.hasServices && scheduleNow) ? (selectedDate !== null && selectedTime !== null) : true;
     const isReady = isTimeValid && !cartAnalysis.isEmpty;
 
@@ -147,25 +138,25 @@ export function BookingSummary({
       case 'SERVICE':
       case 'PACKAGE':
         return (
-          <Badge className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 font-medium">
-            <Clock className="w-3 h-3 mr-1.5 text-blue-500" />
-            {scheduleNow ? `${item.durationMinutes || 30} min` : 'Crédito'}
-          </Badge>
+          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
+            <Clock className="w-3 h-3" strokeWidth={2} />
+            {scheduleNow ? `${item.durationMinutes || 30} MIN` : 'CRÉDITO'}
+          </span>
         );
       case 'COURSE':
         return (
-          <Badge className="bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 font-medium">
-            <MonitorPlay className="w-3 h-3 mr-1.5" />
-            Digital
-          </Badge>
+          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
+            <MonitorPlay className="w-3 h-3" strokeWidth={2} />
+            DIGITAL
+          </span>
         );
       case 'PRODUCT':
       default:
         return (
-          <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 font-medium">
-            <Package className="w-3 h-3 mr-1.5" />
-            x{item.quantity || 1} físico
-          </Badge>
+          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
+            <Package className="w-3 h-3" strokeWidth={2} />
+            x{item.quantity || 1} FÍSICO
+          </span>
         );
     }
   };
@@ -177,54 +168,48 @@ export function BookingSummary({
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full lg:w-[400px]"
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full lg:w-[420px]"
     >
       <div className="sticky top-24">
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden rounded-3xl">
-          <CardContent className="p-0">
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col">
             
             {/* 🟦 HEADER DE RESUMEN */}
-            <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-4">
-                <div 
-                  className="p-3 rounded-2xl flex items-center justify-center text-white shadow-sm"
-                  style={{ backgroundColor: providerColor }}
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {(cartAnalysis.hasServices && scheduleNow) ? (t('cart_summary') || 'Resumen de tu cita') : 'Resumen de tu orden'}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {cart.length === 0 ? 'El carrito está vacío' : `${cart.length} artículo(s) seleccionados`}
-                  </p>
-                </div>
+            <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 flex items-start gap-5">
+              <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-black text-white dark:bg-white dark:text-black shrink-0">
+                <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                  {(cartAnalysis.hasServices && scheduleNow) ? (t('cart_summary') || 'Resumen de Cita') : 'Resumen de Orden'}
+                </h3>
+                <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                  {cart.length === 0 ? 'Sin selección actual' : `${cart.length} ÍTEM(S) SELECCIONADO(S)`}
+                </p>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-6 md:p-8 flex flex-col gap-8">
               
               {/* 💱 SELECTOR DE DIVISAS */}
               {!cartAnalysis.isEmpty && (
-                <div className="bg-slate-100/80 dark:bg-slate-800/50 p-1.5 rounded-xl flex border border-slate-200 dark:border-slate-700">
-                  {['MXN', 'USD', 'EUR'].map((cur) => (
+                <div className="flex border border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
+                  {['MXN', 'USD', 'EUR'].map((cur, index) => (
                     <button
                       key={cur}
                       onClick={() => setSelectedCurrency(cur)}
                       disabled={isLoadingRates}
-                      className={`
-                        flex-1 text-xs font-bold py-2.5 rounded-lg transition-all duration-200
-                        ${selectedCurrency === cur
-                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                        }
-                      `}
+                      className={cn(
+                        "flex-1 h-10 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center",
+                        selectedCurrency === cur
+                          ? "bg-black text-white dark:bg-white dark:text-black"
+                          : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111]",
+                        index !== 0 && "border-l border-black dark:border-white"
+                      )}
                       aria-label={`Cambiar moneda a ${cur}`}
                     >
                       {isLoadingRates && selectedCurrency === cur ? (
-                        <Loader2 className="w-3.5 h-3.5 mx-auto animate-spin" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />
                       ) : (
                         cur
                       )}
@@ -235,30 +220,28 @@ export function BookingSummary({
 
               {/* 🛒 LISTA DE ÍTEMS DEL CARRITO */}
               {cartAnalysis.isEmpty ? (
-                <div className="text-center py-8 px-4 text-slate-500 dark:text-slate-400">
-                  <ShoppingCart className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p>Aún no has agregado servicios o productos a tu compra.</p>
+                <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
+                  <ShoppingCart className="w-6 h-6 mx-auto mb-4 text-gray-400" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Directorio de adquisiciones vacío</p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-0 border-t border-gray-200 dark:border-gray-800">
                   {cart.map((item, idx) => (
                     <motion.div
                       key={`${item.id}-${idx}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="group flex flex-col p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-sm"
+                      className="flex flex-col py-4 border-b border-gray-200 dark:border-gray-800"
                     >
-                      <div className="flex justify-between items-start w-full gap-3">
+                      <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm text-slate-900 dark:text-white truncate" title={item.name}>
+                          <p className="text-xs font-bold uppercase tracking-widest text-black dark:text-white truncate mb-2" title={item.name}>
                             {item.name}
                           </p>
-                          <div className="mt-2 flex items-center gap-2">
-                            {renderItemIconAndBadge(item)}
-                          </div>
+                          {renderItemIconAndBadge(item)}
                         </div>
-                        <span className="font-bold text-base text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <span className="text-sm font-semibold tracking-tight text-black dark:text-white">
                           ${item.price.toLocaleString()}
                         </span>
                       </div>
@@ -267,52 +250,48 @@ export function BookingSummary({
                 </div>
               )}
 
-              <Separator className="bg-slate-100 dark:bg-slate-800" />
-
-              {/* El formulario de envío fue movido al CheckoutModal */}
-
               {/* 📝 NOTAS / SÍNTOMAS */}
               {(!cartAnalysis.isEmpty && scheduleNow) && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold">
-                    <FileText className="w-4 h-4 text-slate-400" />
-                    <h4>
-                      {cartAnalysis.hasServices ? t('label_symptoms') || 'Motivo de consulta' : 'Notas adicionales'} 
-                      <span className="text-slate-400 font-normal text-xs ml-1.5">({t('optional') || 'Opcional'})</span>
-                    </h4>
+                <div className="space-y-6">
+                  <div>
+                    <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                      <FileText className="w-3.5 h-3.5" strokeWidth={2} />
+                      {cartAnalysis.hasServices ? t('label_symptoms') || 'Observaciones Clínicas' : 'Especificaciones Adicionales'}
+                      <span className="font-light">[{t('optional') || 'OPCIONAL'}]</span>
+                    </label>
+                    <textarea
+                      value={symptoms}
+                      onChange={(e) => setSymptoms(e.target.value)}
+                      placeholder={cartAnalysis.hasServices 
+                        ? "EJ. CUADRO SINTOMATOLÓGICO, ANTECEDENTES RELEVANTES..." 
+                        : "INSTRUCCIONES DE PROCESAMIENTO..."}
+                      className="w-full bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-none p-4 text-xs text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-none placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
+                      rows={3}
+                      maxLength={300}
+                      disabled={isProcessing}
+                    />
                   </div>
-                  <textarea
-                    value={symptoms}
-                    onChange={(e) => setSymptoms(e.target.value)}
-                    placeholder={cartAnalysis.hasServices 
-                      ? "Ej. Me duele la espalda baja desde hace 3 días..." 
-                      : "Instrucciones especiales para tu pedido..."}
-                    className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-medical-500/50 transition-all resize-none"
-                    rows={2}
-                    maxLength={300}
-                    disabled={isProcessing}
-                  />
                   
-                  <div className="mt-4 p-4 bg-medical-50 dark:bg-medical-900/20 rounded-xl border border-medical-100 dark:border-medical-800/50 space-y-3">
+                  {/* COMPARTIR BÓVEDA MÉDICA */}
+                  <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-5 space-y-4">
                     <div className="flex items-start gap-3">
-                      <input 
-                        type="checkbox" 
+                      <Checkbox 
                         id="shareVaultAccess" 
                         checked={shareVaultAccess}
-                        onChange={(e) => {
-                          setShareVaultAccess(e.target.checked);
-                          if (!e.target.checked) {
+                        onCheckedChange={(checked) => {
+                          setShareVaultAccess(checked === true);
+                          if (!checked) {
                             setShareVaultMode('FULL');
                             setSelectedDocumentIds([]);
                           }
                         }}
                         disabled={isProcessing}
-                        className="mt-1 w-4 h-4 text-medical-600 rounded border-slate-300 focus:ring-medical-500"
+                        className="mt-0.5 rounded-none border-black dark:border-white data-[state=checked]:bg-black data-[state=checked]:text-white dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-black"
                       />
-                      <label htmlFor="shareVaultAccess" className="text-sm text-slate-700 dark:text-slate-300">
-                        <strong>Compartir mi expediente médico</strong>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Permite al médico visualizar tu historial para brindarte una mejor atención.
+                      <label htmlFor="shareVaultAccess" className="text-[10px] uppercase tracking-widest text-black dark:text-white cursor-pointer">
+                        <strong>Conceder Acceso a Expediente</strong>
+                        <p className="text-[9px] text-gray-500 mt-1 font-light leading-relaxed">
+                          Habilita la revisión de antecedentes y laboratorios por parte del especialista.
                         </p>
                       </label>
                     </div>
@@ -323,41 +302,41 @@ export function BookingSummary({
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="pl-7 space-y-3 pt-2"
+                          className="pl-7 space-y-4 pt-2 overflow-hidden"
                         >
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+                          <div className="flex flex-col gap-3">
+                            <label className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition-colors">
                               <input 
                                 type="radio" 
                                 name="vaultMode"
                                 checked={shareVaultMode === 'FULL'}
                                 onChange={() => setShareVaultMode('FULL')}
-                                className="w-4 h-4 text-medical-600 border-slate-300 focus:ring-medical-500"
+                                className="w-3.5 h-3.5 accent-black dark:accent-white"
                               />
-                              Todo (Recomendado)
+                              Acceso Integral (Recomendado)
                             </label>
-                            <label className="flex items-center gap-2 text-sm cursor-pointer text-slate-700 dark:text-slate-300">
+                            <label className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition-colors">
                               <input 
                                 type="radio" 
                                 name="vaultMode"
                                 checked={shareVaultMode === 'GRANULAR'}
                                 onChange={() => setShareVaultMode('GRANULAR')}
-                                className="w-4 h-4 text-medical-600 border-slate-300 focus:ring-medical-500"
+                                className="w-3.5 h-3.5 accent-black dark:accent-white"
                               />
-                              Seleccionar documentos
+                              Selección Granular
                             </label>
                           </div>
 
                           {shareVaultMode === 'GRANULAR' && (
-                            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 max-h-48 overflow-y-auto mt-2">
+                            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 p-4 max-h-48 overflow-y-auto">
                               {isLoadingDocs ? (
-                                <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-medical-500" /></div>
+                                <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-black dark:text-white" strokeWidth={1.5} /></div>
                               ) : documents.length === 0 ? (
-                                <p className="text-xs text-center text-slate-500 py-2">No tienes documentos en tu expediente aún.</p>
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-center text-gray-500 py-4">Sin documentos indexados.</p>
                               ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                   {documents.map(doc => (
-                                    <div key={doc.id} className="flex items-center gap-2 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded">
+                                    <div key={doc.id} className="flex items-start gap-3 group">
                                       <Checkbox 
                                         id={`doc-${doc.id}`}
                                         checked={selectedDocumentIds.includes(doc.id)}
@@ -368,8 +347,9 @@ export function BookingSummary({
                                             setSelectedDocumentIds(prev => prev.filter(id => id !== doc.id));
                                           }
                                         }}
+                                        className="mt-0.5 rounded-none border-gray-400 data-[state=checked]:bg-black data-[state=checked]:border-black dark:data-[state=checked]:bg-white dark:data-[state=checked]:border-white"
                                       />
-                                      <label htmlFor={`doc-${doc.id}`} className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer flex-1 truncate">
+                                      <label htmlFor={`doc-${doc.id}`} className="text-xs uppercase tracking-widest text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white cursor-pointer flex-1 truncate transition-colors">
                                         {doc.title || doc.documentType}
                                       </label>
                                     </div>
@@ -387,33 +367,33 @@ export function BookingSummary({
 
               {/* 💰 SECCIÓN DE TOTALES */}
               {!cartAnalysis.isEmpty && (
-                <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 border border-slate-100 dark:border-slate-700/50 space-y-4">
-                  <div className="flex justify-between items-center text-slate-500 dark:text-slate-400 text-sm">
-                    <span className="font-medium">Subtotal</span>
-                    <span className="font-semibold">${total.toLocaleString()} MXN</span>
+                <div className="border-t-2 border-black dark:border-white pt-6 mt-2 space-y-4">
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <span>Subtotal Operativo</span>
+                    <span className="text-black dark:text-white">${total.toLocaleString()} MXN</span>
                   </div>
 
-                  <Separator className="bg-slate-200 dark:bg-slate-700" />
-
-                  <div className="flex flex-col pt-1">
-                    <span className="font-bold text-slate-900 dark:text-white text-sm mb-1 uppercase tracking-wider opacity-80">
-                      Total a Pagar
+                  <div className="flex flex-col pt-2 border-t border-gray-200 dark:border-gray-800">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                      Liquidación Total
                     </span>
 
-                    <div className="text-right mt-1">
+                    <div className="text-right">
                       {currencyCalculations.isForeignCurrency ? (
                         <>
-                          <span className="text-4xl font-black text-slate-900 dark:text-white block leading-none tracking-tight" style={{ color: providerColor }}>
-                            ≈ ${currencyCalculations.convertedTotal} <span className="text-xl font-bold opacity-80">{selectedCurrency}</span>
+                          <span className="text-3xl font-semibold text-black dark:text-white block tracking-tight">
+                            ≈ ${currencyCalculations.convertedTotal} <span className="text-lg font-light text-gray-500">{selectedCurrency}</span>
                           </span>
-                          <div className="text-xs text-slate-500 dark:text-slate-400 mt-2.5 flex items-center justify-end gap-1.5 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg">
-                            <Info className="w-3.5 h-3.5 text-slate-400" />
-                            El cargo final en tu banco será de <strong>${total.toLocaleString()} MXN</strong>.
+                          <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-3 flex items-start justify-end gap-2 bg-gray-50 dark:bg-[#050505] p-3 border border-gray-200 dark:border-gray-800 text-right">
+                            <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" strokeWidth={2} />
+                            <span>
+                              El cargo definitivo será procesado en <strong>${total.toLocaleString()} MXN</strong>.
+                            </span>
                           </div>
                         </>
                       ) : (
-                        <span className="text-4xl font-black text-slate-900 dark:text-white block leading-none tracking-tight" style={{ color: providerColor }}>
-                          ${total.toLocaleString()} <span className="text-xl font-bold opacity-80">MXN</span>
+                        <span className="text-3xl font-semibold text-black dark:text-white block tracking-tight">
+                          ${total.toLocaleString()} <span className="text-lg font-light text-gray-500">MXN</span>
                         </span>
                       )}
                     </div>
@@ -422,55 +402,48 @@ export function BookingSummary({
               )}
 
               {/* 🚀 BOTÓN DE CHECKOUT INTELIGENTE */}
-              <Button
-                onClick={handleCheckoutClick}
-                disabled={!validationRules.isReady || isProcessing || cartAnalysis.isEmpty}
-                className={`
-                  w-full h-14 rounded-xl font-bold text-base shadow-sm transition-all duration-300 relative overflow-hidden
-                  ${(!validationRules.isReady || isProcessing || cartAnalysis.isEmpty)
-                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border-2 border-slate-200 dark:border-slate-700'
-                    : 'text-white border-2 hover:-translate-y-0.5 active:translate-y-0'
-                  }
-                `}
-                style={(!validationRules.isReady || isProcessing || cartAnalysis.isEmpty) ? {} : {
-                  backgroundColor: providerColor,
-                  borderColor: providerColor,
-                  boxShadow: `0 10px 25px -5px ${providerColor}60`
-                }}
-              >
-                {/* Lógica de Mensajes del Botón */}
-                {isProcessing ? (
-                  <span className="flex items-center">
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Procesando orden...
-                  </span>
-                ) : cartAnalysis.isEmpty ? (
-                  <span className="flex items-center">Carrito vacío</span>
-                ) : !validationRules.isTimeValid ? (
-                  <span className="flex items-center">
-                    <AlertCircle className="w-5 h-5 mr-2" />
-                    Selecciona horario
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    Proceder al Pago Seguro
-                    <Sparkles className="w-4 h-4 ml-2 opacity-80" />
-                  </span>
+              <div className="pt-4">
+                <Button
+                  onClick={handleCheckoutClick}
+                  disabled={!validationRules.isReady || isProcessing || cartAnalysis.isEmpty}
+                  className={cn(
+                    "w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center border-0",
+                    (!validationRules.isReady || isProcessing || cartAnalysis.isEmpty)
+                      ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
+                      : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                  )}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-3 animate-spin" strokeWidth={2} />
+                      Ejecutando Transacción...
+                    </>
+                  ) : cartAnalysis.isEmpty ? (
+                    "Directorio Vacío"
+                  ) : !validationRules.isTimeValid ? (
+                    <>
+                      <AlertCircle className="w-4 h-4 mr-3" strokeWidth={2} />
+                      Definir Parámetro Temporal
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                      Inicializar Pasarela Segura
+                    </>
+                  )}
+                </Button>
+                
+                {/* Trust Badge */}
+                {!cartAnalysis.isEmpty && validationRules.isReady && (
+                  <p className="text-center text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center justify-center gap-2 mt-4">
+                    <span className="w-1.5 h-1.5 bg-black dark:bg-white border border-transparent" />
+                    Protocolo de Pago Cifrado
+                  </p>
                 )}
-              </Button>
-              
-              {/* Trust Badge */}
-              {!cartAnalysis.isEmpty && validationRules.isReady && (
-                <p className="text-center text-xs text-slate-400 dark:text-slate-500 font-medium flex items-center justify-center gap-1.5 mt-4">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  Conexión encriptada vía Stripe
-                </p>
-              )}
+              </div>
 
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </motion.div>
   );

@@ -1,5 +1,6 @@
+"use client";
+
 import { format, isToday, isSameDay } from "date-fns";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface CalendarDayProps {
@@ -23,43 +24,38 @@ export function CalendarDay({
   const today = isToday(date);
 
   return (
-    <motion.button
+    <button
       onClick={() => onSelect(date)}
       disabled={isPast || !isCurrentMonth}
-      whileHover={!isPast && isCurrentMonth ? { scale: 1.05 } : {}}
-      whileTap={!isPast && isCurrentMonth ? { scale: 0.95 } : {}}
       className={cn(
-        "relative flex flex-col items-center justify-center h-16 rounded-2xl transition-all duration-300 border-2",
+        "relative flex flex-col items-center justify-center h-14 rounded-none transition-colors border",
         !isCurrentMonth || isPast
           ? "opacity-20 cursor-not-allowed border-transparent"
-          : "hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer border-transparent",
+          : "hover:border-black dark:hover:border-white cursor-pointer",
         selected
-          ? "shadow-2xl scale-105 z-10"
-          : "bg-slate-100/50 dark:bg-slate-800/50 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+          ? "z-10"
+          : "bg-gray-50 dark:bg-[#050505] border-transparent"
       )}
       style={selected ? {
         backgroundColor: providerColor,
         borderColor: providerColor,
-        boxShadow: `0 10px 40px -10px ${providerColor}80`
+        color: '#ffffff'
       } : {}}
     >
       {today && !selected && (
-        <span
-          className="absolute top-2 w-2 h-2 rounded-full animate-pulse"
-          style={{ backgroundColor: providerColor }}
-        />
+        <span className="absolute top-2 left-2 w-1.5 h-1.5 bg-black dark:bg-white" />
       )}
 
       <span className={cn(
-        "text-lg font-bold",
+        "text-xs font-bold uppercase tracking-widest",
         selected
           ? "text-white"
           : isCurrentMonth && !isPast
-            ? "text-slate-700 dark:text-slate-300"
-            : "text-slate-400 dark:text-slate-600"
+            ? "text-black dark:text-white"
+            : "text-gray-400 dark:text-gray-600"
       )}>
         {format(date, 'd')}
       </span>
-    </motion.button>
+    </button>
   );
 }

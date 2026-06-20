@@ -1,4 +1,3 @@
-// Ubicación: src/components/store/CheckoutModal.tsx
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -9,11 +8,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { StorefrontItem } from "@/types/storefront";
 import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
-import { storageService } from "@/services/storage.service"; // 🚀 Añadido el servicio de Storage
+import { storageService } from "@/services/storage.service"; 
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -36,10 +34,9 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   cart: StorefrontItem[];
-  // 🚀 FIX: prescriptionUrls ahora es de tipo string (JSON) para que encaje con el Hook
   onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined, destinationState: string | undefined) => void;
   isProcessing: boolean;
-  themeColor?: string;
+  themeColor?: string; // providerColor
 }
 
 interface AddressForm {
@@ -63,7 +60,7 @@ function isAddressComplete(f: AddressForm): boolean {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function CheckoutModal({
-  isOpen, onClose, cart, onConfirm, isProcessing, themeColor = "#7c3aed"
+  isOpen, onClose, cart, onConfirm, isProcessing, themeColor = "#000000"
 }: CheckoutModalProps) {
   // --- Derived flags ---
   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
@@ -76,9 +73,8 @@ export function CheckoutModal({
   const [uploadingId, setUploadingId] = useState<number | null>(null);
   const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
-  const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); // 🚀 Toggle de envío
+  const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); 
   
-  // 🚀 Nuevos estados para fecha y hora de recolección en sitio
   const [pickupDate, setPickupDate] = useState<Date>();
   const [pickupTimeStr, setPickupTimeStr] = useState<string>('');
 
@@ -115,171 +111,123 @@ export function CheckoutModal({
     let state = '';
     let zip = ''; 
 
-    if (parts.length > 0) {
-      street = parts[0];
-    }
+    if (parts.length > 0) street = parts[0];
+    if (parts.length >= 5) { colony = parts[1]; city = parts[parts.length - 3]; state = parts[parts.length - 2]; }
+    else if (parts.length === 4) { city = parts[1]; state = parts[2]; }
+    else if (parts.length === 3) { city = parts[0]; state = parts[1]; }
 
-    if (parts.length >= 5) {
-      colony = parts[1];
-      city = parts[parts.length - 3];
-      state = parts[parts.length - 2];
-    } else if (parts.length === 4) {
-      city = parts[1];
-      state = parts[2];
-    } else if (parts.length === 3) {
-      city = parts[0];
-      state = parts[1];
-      street = ''; 
-    }
-
-    setAddress({
-      street: street,
-      colony: colony,
-      city: city,
-      state: state,
-      zip: zip,
-    });
+    setAddress({ street, colony, city, state, zip });
   };
 
-  // 🚀 LÓGICA DIRECT-TO-CLOUD PARA LA RECETA
   const handleFileChange = async (itemId: number, file: File | null) => {
     if (!file) return;
     setUploadingId(itemId);
     setUploadErrors(prev => ({ ...prev, [itemId]: "" }));
     
     try {
-      // 1. Pedimos la Signed URL a nuestro backend (Java)
       const { signedUrl, fileKey } = await storageService.getPrescriptionUploadUrl(file.type);
-
-      // 2. Subimos el archivo a Google Cloud usando fetch y el verbo PUT
       await storageService.uploadDirectToCloud(file, signedUrl);
-
-      // 3. Guardamos el 'fileKey' interno de Google Cloud en nuestro estado local
       setPrescriptionUrls(prev => ({ ...prev, [itemId]: fileKey }));
-      
     } catch (error) {
       console.error(error);
-      setUploadErrors(prev => ({ ...prev, [itemId]: "Error al subir a la nube. Intenta de nuevo." }));
+      setUploadErrors(prev => ({ ...prev, [itemId]: "ERROR DE TRANSFERENCIA. REINTENTE." }));
     } finally {
       setUploadingId(null);
     }
   };
 
   const handleConfirm = () => {
-    const finalShippingAddress = hasPhysical 
-      ? (shippingMethod === 'PICKUP' ? 'PICKUP' : buildAddressString(address)) 
-      : undefined;
-    
-    // 🚀 Transformamos el objeto de recetas a un String JSON para el Backend
-    const finalPrescriptionUrls = Object.keys(prescriptionUrls).length > 0 
-      ? JSON.stringify(prescriptionUrls) 
-      : undefined;
-
-    // 🚀 Formateamos la fecha y hora a ISO String si aplica
-    const finalPickupTime = shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr 
-      ? `${format(pickupDate, "yyyy-MM-dd")}T${pickupTimeStr}:00` 
-      : undefined;
-
-    // 🚀 Extraemos el estado destino explícitamente para validación COFEPRIS
-    const finalDestinationState = hasPhysical && shippingMethod === 'DELIVERY'
-      ? address.state
-      : undefined;
-
+    const finalShippingAddress = hasPhysical ? (shippingMethod === 'PICKUP' ? 'PICKUP' : buildAddressString(address)) : undefined;
+    const finalPrescriptionUrls = Object.keys(prescriptionUrls).length > 0 ? JSON.stringify(prescriptionUrls) : undefined;
+    const finalPickupTime = shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr ? `${format(pickupDate, "yyyy-MM-dd")}T${pickupTimeStr}:00` : undefined;
+    const finalDestinationState = hasPhysical && shippingMethod === 'DELIVERY' ? address.state : undefined;
     onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime, finalDestinationState);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-4 sm:p-6"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       >
-        {/* Backdrop */}
+        {/* Backdrop Rigoroso */}
         <motion.div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         />
 
-        {/* Panel */}
+        {/* Panel Blueprint */}
         <motion.div
-          className="relative z-10 w-full sm:max-w-xl bg-white dark:bg-[#18181b] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden max-h-[85dvh] sm:max-h-[80dvh] flex flex-col"
-          initial={{ y: 60, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 60, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+          className="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white flex flex-col shadow-2xl max-h-[90vh]"
+          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 dark:border-white/5 flex-shrink-0">
+          {/* Header Editorial */}
+          <div className="flex items-center justify-between p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex-shrink-0">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Finalizar Pedido</h2>
-              <p className="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">
-                {[hasPhysical && "Dirección de envío", needsPrescription && "Receta médica"]
+              <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
+                Finalización de Contrato
+              </h2>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
+                {[hasPhysical && "Logística", needsPrescription && "Validación Clínica"]
                   .filter(Boolean).join(" · ")}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
-            >
-              <X className="w-5 h-5" />
+            <button onClick={onClose} className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white transition-colors bg-white dark:bg-black">
+              <X className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-6 py-5 space-y-7">
+          <div className="overflow-y-auto flex-1 p-6 md:p-8 space-y-12 custom-scrollbar">
 
-            {/* ── SECCIÓN 0: PRODUCTOS DIGITALES (SI TODO ES DIGITAL) ──────────────── */}
+            {/* ── SECCIÓN 0: PRODUCTOS DIGITALES ──────────────── */}
             {!hasPhysical && !needsPrescription && (
-              <section className="py-2">
-                <div className="flex flex-col items-center justify-center text-center space-y-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>
-                    <MonitorPlay className="w-8 h-8" />
+              <section className="py-6">
+                <div className="flex flex-col items-center justify-center text-center space-y-6 mb-10">
+                  <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                    <MonitorPlay className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Acceso a Contenido Digital</h3>
-                    <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
-                      Estás a un paso de acceder a tu contenido. Al confirmar el pago, se habilitará inmediatamente en tu cuenta.
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Acceso Digital Habilitado</h3>
+                    <p className="text-xs text-gray-500 font-light max-w-sm mx-auto leading-relaxed uppercase tracking-widest">
+                      LA DISPONIBILIDAD DEL CONTENIDO SE ACTIVARÁ AUTOMÁTICAMENTE TRAS CONFIRMAR LA LIQUIDACIÓN.
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-2 mb-6">
+                <div className="space-y-4 mb-10 border-t border-b border-gray-200 dark:border-gray-800 py-6">
                   {cart.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-white/10 overflow-hidden flex-shrink-0">
+                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 flex items-center justify-center overflow-hidden">
                           {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <MonitorPlay className="w-4 h-4 text-slate-400" />
-                            </div>
+                            <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
                           )}
                         </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-zinc-300 line-clamp-1">{item.name}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">{item.name}</span>
                       </div>
-                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-none whitespace-nowrap">
-                        100% Digital
-                      </Badge>
+                      <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] text-black dark:text-white ml-4">
+                        INTANGIBLE
+                      </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
-                    <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                    <span className="text-xs font-medium text-slate-600 dark:text-zinc-400">Acceso Inmediato</span>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                    <Zap className="w-4 h-4 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Ejecución Inmediata</span>
                   </div>
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    <span className="text-xs font-medium text-slate-600 dark:text-zinc-400">Pago Seguro</span>
+                  <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                    <ShieldCheck className="w-4 h-4 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Transacción Cifrada</span>
                   </div>
                 </div>
               </section>
@@ -288,118 +236,115 @@ export function CheckoutModal({
             {/* ── SECCIÓN 1: DIRECCIÓN DE ENVÍO ──────────────────────────── */}
             {hasPhysical && (
               <section>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20">
-                    <Truck className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+                <div className="flex items-center gap-3 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
+                  <div className="w-8 h-8 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                    <Truck className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">¿A dónde enviamos tu paquete?</h3>
-                    <p className="text-xs text-slate-400">Los siguientes artículos son físicos y requieren envío.</p>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Parámetros de Logística</h3>
+                    <p className="text-[9px] uppercase tracking-widest text-gray-500">Defina el vector de entrega para ítems físicos.</p>
                   </div>
                 </div>
 
                 {/* Items físicos */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-2 mb-8">
                   {cart.filter(i => !i.isDigital).map(i => (
-                    <Badge key={i.id} className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-none text-xs">
+                    <span key={i.id} className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-black dark:hover:border-white transition-colors cursor-default">
                       {i.name}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <div 
+                {/* 🚀 Selector Arquitectónico (Acento con themeColor) */}
+                <div className="grid grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 mb-8">
+                  <button 
                     className={cn(
-                      "p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-2",
-                      shippingMethod === 'DELIVERY' ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10" : "border-slate-200 dark:border-slate-800 hover:border-medical-300"
+                      "p-5 flex items-center justify-center gap-3 transition-colors text-[10px] font-bold uppercase tracking-widest"
                     )}
+                    style={shippingMethod === 'DELIVERY' ? { backgroundColor: themeColor, color: '#ffffff' } : {}}
                     onClick={() => setShippingMethod('DELIVERY')}
                   >
-                    <Truck className={cn("w-5 h-5", shippingMethod === 'DELIVERY' ? "text-medical-600" : "text-slate-400")} />
-                    <span className={cn("font-semibold text-sm", shippingMethod === 'DELIVERY' ? "text-medical-700 dark:text-medical-300" : "text-slate-600 dark:text-slate-400")}>Envío a domicilio</span>
-                  </div>
-                  <div 
+                    <Truck className="w-4 h-4" strokeWidth={shippingMethod === 'DELIVERY' ? 2 : 1.5} /> Domicilio
+                  </button>
+                  <button 
                     className={cn(
-                      "p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-2",
-                      shippingMethod === 'PICKUP' ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10" : "border-slate-200 dark:border-slate-800 hover:border-medical-300"
+                      "p-5 flex items-center justify-center gap-3 transition-colors text-[10px] font-bold uppercase tracking-widest border-l border-gray-300 dark:border-gray-700"
                     )}
+                    style={shippingMethod === 'PICKUP' ? { backgroundColor: themeColor, color: '#ffffff' } : {}}
                     onClick={() => setShippingMethod('PICKUP')}
                   >
-                    <Store className={cn("w-5 h-5", shippingMethod === 'PICKUP' ? "text-medical-600" : "text-slate-400")} />
-                    <span className={cn("font-semibold text-sm", shippingMethod === 'PICKUP' ? "text-medical-700 dark:text-medical-300" : "text-slate-600 dark:text-slate-400")}>Recoger en Clínica</span>
-                  </div>
+                    <Store className="w-4 h-4" strokeWidth={shippingMethod === 'PICKUP' ? 2 : 1.5} /> In-Situ
+                  </button>
                 </div>
 
                 {/* Formulario */}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {shippingMethod === 'DELIVERY' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
+                    <motion.div key="delivery" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-6 overflow-hidden">
                       <div className="relative">
-                    <InputField
-                      label="Calle y número"
-                      placeholder="Av. Siempre Viva 742"
-                      value={address.street}
-                      onChange={v => handleAddressChange("street", v)}
-                      icon={isAutocompleteLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-                    />
-                    
-                    {/* Autocomplete Suggestions */}
-                    <AnimatePresence>
-                      {suggestions.length > 0 && address.street.length > 2 && (
-                        <motion.ul 
-                          initial={{ opacity: 0, y: -10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-60 overflow-y-auto"
-                        >
-                          {suggestions.map((sug) => (
-                            <li 
-                              key={sug.place_id}
-                              onClick={() => handleSelectSuggestion(sug.place_id, sug.description)}
-                              className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-100 dark:border-slate-800 last:border-0 flex items-start gap-3 transition-colors"
+                        <InputField
+                          label="Calle y Número"
+                          placeholder="AV. CENTRAL 123"
+                          value={address.street}
+                          onChange={v => handleAddressChange("street", v)}
+                          icon={isAutocompleteLoading ? <Loader2 className="w-4 h-4 animate-spin text-gray-400" /> : <MapPin className="w-4 h-4 text-gray-400" />}
+                        />
+                        
+                        {/* Autocomplete Suggestions */}
+                        <AnimatePresence>
+                          {suggestions.length > 0 && address.street.length > 2 && (
+                            <motion.ul 
+                              initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
+                              className="absolute z-50 w-full mt-1 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-xl overflow-hidden max-h-60 overflow-y-auto rounded-none custom-scrollbar"
                             >
-                              <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                              <span className="leading-tight">{sug.description}</span>
-                            </li>
-                          ))}
-                        </motion.ul>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputField label="Colonia" placeholder="Centro" value={address.colony} onChange={v => handleAddressChange("colony", v)} />
-                    <InputField label="Código Postal" placeholder="81200" value={address.zip} onChange={v => handleAddressChange("zip", v)} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputField label="Ciudad" placeholder="Los Mochis" value={address.city} onChange={v => handleAddressChange("city", v)} />
-                    <InputField label="Estado" placeholder="Sinaloa" value={address.state} onChange={v => handleAddressChange("state", v)} />
-                  </div>
+                              {suggestions.map((sug) => (
+                                <li 
+                                  key={sug.place_id}
+                                  onClick={() => handleSelectSuggestion(sug.place_id, sug.description)}
+                                  className="px-4 py-3.5 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black cursor-pointer border-b border-gray-200 dark:border-gray-800 last:border-0 flex items-start gap-3 transition-colors"
+                                >
+                                  <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+                                  <span className="leading-relaxed">{sug.description}</span>
+                                </li>
+                              ))}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <InputField label="Colonia" placeholder="CENTRO" value={address.colony} onChange={v => handleAddressChange("colony", v)} />
+                        <InputField label="Código Postal" placeholder="81200" value={address.zip} onChange={v => handleAddressChange("zip", v)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <InputField label="Ciudad" placeholder="LOS MOCHIS" value={address.city} onChange={v => handleAddressChange("city", v)} />
+                        <InputField label="Estado" placeholder="SINALOA" value={address.state} onChange={v => handleAddressChange("state", v)} />
+                      </div>
                     </motion.div>
                   )}
 
-                  {/* Formulario PICKUP (Fecha y Hora) */}
+                  {/* Formulario PICKUP */}
                   {shippingMethod === 'PICKUP' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
-                      <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 text-xs text-medical-700 dark:text-medical-300">
-                        Selecciona el día y la hora aproximada en la que pasarás a la clínica a recoger tu producto.
+                    <motion.div key="pickup" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-6 overflow-hidden">
+                      <div className="p-5 bg-gray-50 dark:bg-[#050505] border border-gray-300 dark:border-gray-700 text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
+                        INDIQUE EL BLOQUE TEMPORAL PARA SU RECOLECCIÓN EN INSTALACIONES.
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-6">
                         <div>
-                          <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Fecha de Recolección</label>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-2.5">Fecha Programada</label>
                           <Popover>
                             <PopoverTrigger asChild>
                               <Button
-                                variant={"outline"}
+                                variant="outline"
                                 className={cn(
-                                  "w-full justify-start text-left font-normal rounded-xl bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-sm py-2.5 h-auto",
-                                  !pickupDate && "text-slate-400 dark:text-zinc-500"
+                                  "w-full justify-start text-left rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-[10px] font-bold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
+                                  !pickupDate && "text-gray-400"
                                 )}
                               >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {pickupDate ? format(pickupDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                                <CalendarIcon className="mr-3 h-4 w-4" strokeWidth={1.5} />
+                                {pickupDate ? format(pickupDate, "dd MMM yyyy", { locale: es }).toUpperCase() : <span>DD/MM/AAAA</span>}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[100] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl" align="start">
+                            <PopoverContent className="w-auto p-0 z-[100] rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a]" align="start">
                               <Calendar
                                 mode="single"
                                 selected={pickupDate}
@@ -412,15 +357,15 @@ export function CheckoutModal({
                           </Popover>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">Hora Aproximada</label>
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-2.5">Horario</label>
                           <Select value={pickupTimeStr} onValueChange={setPickupTimeStr}>
-                            <SelectTrigger className="w-full bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 rounded-xl py-2.5 h-auto text-sm">
-                              <SelectValue placeholder="Seleccionar hora" />
+                            <SelectTrigger className="w-full rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-[10px] font-bold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
+                              <SelectValue placeholder="HH:MM" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-48 z-[100] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl">
+                            <SelectContent className="max-h-64 z-[100] rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] custom-scrollbar">
                               {PICKUP_TIMES.map((time) => (
-                                <SelectItem key={time} value={time}>
-                                  {time} hrs
+                                <SelectItem key={time} value={time} className="text-[10px] font-bold uppercase tracking-widest focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
+                                  {time} HRS
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -435,10 +380,10 @@ export function CheckoutModal({
                 {shippingMethod === 'DELIVERY' && isAddressComplete(address) && (
                   <motion.div
                     initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                    className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-200 dark:border-emerald-500/20 flex items-start gap-2"
+                    className="mt-8 p-5 bg-gray-50 dark:bg-[#050505] border border-black dark:border-white flex items-center gap-3"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium leading-snug">
+                    <CheckCircle2 className="w-4 h-4 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-relaxed">
                       {buildAddressString(address)}
                     </p>
                   </motion.div>
@@ -448,70 +393,70 @@ export function CheckoutModal({
 
             {/* ── SECCIÓN 2: RECETAS MÉDICAS ─────────────────────────────── */}
             {needsPrescription && (
-              <section>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20">
-                    <ShieldCheck className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              <section className="pt-4">
+                <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+                  <div className="w-8 h-8 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">Receta Médica Requerida</h3>
-                    <p className="text-xs text-slate-400">Por regulación, necesitamos verificar tu receta.</p>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Auditoría de Prescripción</h3>
+                    <p className="text-[9px] uppercase tracking-widest text-gray-500">Documentación Clínica Obligatoria.</p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {itemsNeedingRx.map(item => {
                     const uploaded = !!prescriptionUrls[item.id];
                     const isUploading = uploadingId === item.id;
                     const error = uploadErrors[item.id];
 
                     return (
-                      <div key={item.id} className="border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
-                        <div className="flex items-center justify-between">
+                      <div key={item.id} className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] p-6 space-y-5 hover:border-black dark:hover:border-white transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
                           <div>
-                            <p className="font-semibold text-slate-900 dark:text-white text-sm">{item.name}</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-1.5">{item.name}</p>
                             {item.activeIngredient && (
-                              <p className="text-xs text-slate-400">{item.activeIngredient}</p>
+                              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">ACTIVO: {item.activeIngredient}</p>
                             )}
                           </div>
                           {uploaded && (
-                            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border-none text-xs flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Receta protegida
-                            </Badge>
+                            <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                              <CheckCircle2 className="w-3 h-3" strokeWidth={2} /> VERIFICADA
+                            </span>
                           )}
                         </div>
 
-                        {/* Drop zone */}
+                        {/* 🚀 Drop zone Arquitectónico (themeColor accent en icono) */}
                         <button
                           type="button"
                           onClick={() => fileInputRefs.current[item.id]?.click()}
                           disabled={isUploading}
                           className={cn(
-                            "w-full border-2 border-dashed rounded-xl p-4 flex flex-col items-center gap-2 transition-all",
+                            "w-full border-2 border-dashed p-8 flex flex-col items-center justify-center gap-3 transition-colors",
                             uploaded
-                              ? "border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/5"
-                              : "border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/5 hover:border-amber-400 dark:hover:border-amber-400/60",
+                              ? "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white"
+                              : "border-gray-400 dark:border-gray-600 bg-white dark:bg-black hover:border-black dark:hover:border-white",
                             "cursor-pointer"
                           )}
                         >
                           {isUploading ? (
-                            <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                            <Loader2 className="w-6 h-6 animate-spin" strokeWidth={1.5} style={{ color: themeColor }} />
                           ) : uploaded ? (
-                            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                            <CheckCircle2 className="w-6 h-6" strokeWidth={1.5} style={{ color: themeColor }} />
                           ) : (
-                            <Upload className="w-6 h-6 text-amber-500" />
+                            <Upload className="w-6 h-6" strokeWidth={1.5} style={{ color: themeColor }} />
                           )}
-                          <span className="text-xs font-medium text-slate-600 dark:text-zinc-300">
+                          
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white text-center">
                             {isUploading
-                              ? "Cifrando y subiendo receta..."
+                              ? "EJECUTANDO CIFRADO Y CARGA..."
                               : uploaded
-                                ? "Cambiar imagen de receta"
-                                : "Toca para subir una foto de tu receta"}
+                                ? "REEMPLAZAR ARCHIVO ADJUNTO"
+                                : "HAGA CLIC PARA ADJUNTAR DOCUMENTO CLÍNICO"}
                           </span>
-                          <span className="text-[10px] text-slate-400">JPG, PNG o PDF · Máx. 5 MB</span>
+                          <span className="text-[9px] uppercase tracking-widest text-gray-400">PDF, JPG, PNG · LÍMITE: 5 MB</span>
                         </button>
 
-                        {/* Hidden input */}
                         <input
                           ref={el => { fileInputRefs.current[item.id] = el; }}
                           type="file"
@@ -521,19 +466,19 @@ export function CheckoutModal({
                         />
 
                         {error && (
-                          <p className="text-xs text-rose-500 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {error}
-                          </p>
+                          <div className="p-3.5 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
+                            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} /> {error}
+                          </div>
                         )}
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 flex items-start gap-2">
-                  <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Tu receta será cifrada de extremo a extremo. Solo la verá el especialista para validar tu compra.
+                <div className="mt-8 p-5 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-start gap-3">
+                  <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+                  <p className="text-[9px] font-bold uppercase tracking-widest leading-relaxed">
+                    LA RECETA SERÁ CIFRADA DE EXTREMO A EXTREMO. USO EXCLUSIVO PARA AUDITORÍA DE DISPENSACIÓN POR PARTE DEL ESPECIALISTA.
                   </p>
                 </div>
               </section>
@@ -541,29 +486,29 @@ export function CheckoutModal({
           </div>
 
           {/* Footer CTA */}
-          <div className="flex-shrink-0 px-6 pb-6 pt-4 border-t border-slate-100 dark:border-white/5">
+          <div className="flex-shrink-0 p-6 md:p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             <Button
               onClick={handleConfirm}
               disabled={!canSubmit}
-              className="w-full h-12 text-base font-bold text-white rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              style={{ backgroundColor: themeColor }}
+              className="w-full rounded-none text-[10px] font-bold uppercase tracking-widest border-0 transition-colors disabled:opacity-50 h-14"
+              style={(!canSubmit) ? {} : { backgroundColor: themeColor, color: '#ffffff' }}
             >
               {isProcessing ? (
-                <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Procesando pago...</>
+                <><Loader2 className="w-4 h-4 mr-3 animate-spin" strokeWidth={2} /> PROCESANDO TRANSACCIÓN...</>
               ) : (
-                "Ir al Pago →"
+                "EJECUTAR PAGO SEGURO →"
               )}
             </Button>
 
             {/* Validation hints */}
             {!addressOk && (
-              <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
-                Completa la dirección de envío para continuar.
+              <p className="text-[9px] font-bold uppercase tracking-widest text-red-500 text-center mt-4 flex items-center justify-center gap-2">
+                 <AlertCircle className="w-3 h-3" strokeWidth={2}/> ERROR: COORDENADAS LOGÍSTICAS INCOMPLETAS.
               </p>
             )}
             {!rxOk && (
-              <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
-                Sube la(s) receta(s) médica(s) requeridas para continuar.
+              <p className="text-[9px] font-bold uppercase tracking-widest text-red-500 text-center mt-4 flex items-center justify-center gap-2">
+                 <AlertCircle className="w-3 h-3" strokeWidth={2}/> ERROR: DOCUMENTACIÓN CLÍNICA PENDIENTE.
               </p>
             )}
           </div>
@@ -573,7 +518,7 @@ export function CheckoutModal({
   );
 }
 
-// ── Sub-component: simple labeled input ──────────────────────────────────────
+// ── Sub-component: InputField Blueprint ──────────────────────────────────────
 function InputField({
   label, placeholder, value, onChange, icon,
 }: {
@@ -581,11 +526,11 @@ function InputField({
   onChange: (v: string) => void; icon?: React.ReactNode;
 }) {
   return (
-    <div>
-      <label className="text-xs font-semibold text-slate-500 dark:text-zinc-400 block mb-1">{label}</label>
+    <div className="space-y-2">
+      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">{label}</label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
             {icon}
           </div>
         )}
@@ -595,10 +540,8 @@ function InputField({
           value={value}
           onChange={e => onChange(e.target.value)}
           className={cn(
-            "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10",
-            "rounded-xl py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400",
-            "outline-none focus:ring-2 focus:ring-violet-500/30 transition-all",
-            icon ? "pl-9 pr-4" : "px-4"
+            "w-full rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest",
+            icon ? "pl-12 pr-4" : "px-4"
           )}
         />
       </div>
