@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 
 /**
@@ -55,17 +54,17 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="flex flex-col overflow-hidden bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
         
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-200 dark:border-gray-800">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-gray-100 dark:bg-[#111111] rounded-none">
                 <FileText className="w-6 h-6 text-black dark:text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black text-black dark:text-black dark:text-black dark:text-white mb-1">
+                <DialogTitle className="text-2xl font-black text-black dark:text-white mb-1">
                   Términos y Condiciones de Servicio
                 </DialogTitle>
                 <DialogDescription className="text-gray-500 dark:text-gray-400">
@@ -77,7 +76,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
               variant="ghost"
               size="default"
               onClick={onClose}
-              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-black dark:text-white"
+              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -87,12 +86,12 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none p-4"
+            className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-4"
           >
             <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-black dark:text-black dark:text-white flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-2">
+                <p className="text-sm font-semibold text-black dark:text-white mb-2">
                   Puntos Clave:
                 </p>
                 <ul className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
@@ -109,7 +108,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
         </DialogHeader>
 
         {/* Content */}
-        <ScrollArea className="h-[600px] px-6">
+        <div className="flex-1 overflow-y-auto px-6 py-2">
           <div className="space-y-6 py-6 text-gray-700 dark:text-gray-300">
             
             {/* Section 1 */}
@@ -301,10 +300,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-200 dark:border-gray-800 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 flex-shrink-0">
           <Button
             variant="outline"
             onClick={onClose}

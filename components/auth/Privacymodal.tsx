@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 
 /**
@@ -55,17 +54,17 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="flex flex-col overflow-hidden bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
         
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-200 dark:border-gray-800">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-gray-100 dark:bg-[#111111] rounded-none">
-                <Shield className="w-6 h-6 text-black dark:text-black dark:text-white" />
+                <Shield className="w-6 h-6 text-black dark:text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black text-black dark:text-black dark:text-black dark:text-white mb-1">
+                <DialogTitle className="text-2xl font-black text-black dark:text-white mb-1">
                   Política de Privacidad
                 </DialogTitle>
                 <DialogDescription className="text-gray-500 dark:text-gray-400">
@@ -77,7 +76,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               variant="ghost"
               size="default"
               onClick={onClose}
-              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-black dark:text-white"
+              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -87,12 +86,12 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none p-4"
+            className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-4"
           >
             <div className="flex items-start gap-3">
-              <Lock className="w-5 h-5 text-black dark:text-black dark:text-white flex-shrink-0 mt-0.5" />
+              <Lock className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-2">
+                <p className="text-sm font-semibold text-black dark:text-white mb-2">
                   Nuestro Compromiso Contigo:
                 </p>
                 <ul className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
@@ -109,7 +108,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
         </DialogHeader>
 
         {/* Content */}
-        <ScrollArea className="h-[600px] px-6">
+        <div className="flex-1 overflow-y-auto px-6 py-2">
           <div className="space-y-6 py-6 text-gray-700 dark:text-gray-300">
             
             {/* Introduction */}
@@ -125,7 +124,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
             {/* Section 1: Data Collection */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-blue-500/10 text-black dark:text-black dark:text-white border-blue-500/20">
+                <Badge className="bg-blue-500/10 text-black dark:text-white border-blue-500/20">
                   <Database className="w-3 h-3 mr-1" />
                   1
                 </Badge>
@@ -191,7 +190,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
             {/* Section 3: Data Sharing */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-emerald-500/10 text-black dark:text-black dark:text-white border-emerald-500/20">
+                <Badge className="bg-emerald-500/10 text-black dark:text-white border-emerald-500/20">
                   <UserCheck className="w-3 h-3 mr-1" />
                   3
                 </Badge>
@@ -206,21 +205,21 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               
               <div className="space-y-2 ml-4">
                 <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
-                  <h4 className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-1">Con Proveedores de Servicios:</h4>
+                  <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Con Proveedores de Servicios:</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Compartimos información necesaria con los profesionales de salud/belleza que reservas.
                   </p>
                 </div>
                 
                 <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
-                  <h4 className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-1">Con Procesadores de Pago:</h4>
+                  <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Con Procesadores de Pago:</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Stripe y otros procesadores reciben solo la información necesaria para completar transacciones.
                   </p>
                 </div>
                 
                 <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
-                  <h4 className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-1">Por Requerimiento Legal:</h4>
+                  <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Por Requerimiento Legal:</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Cuando sea requerido por ley, orden judicial o autoridades gubernamentales.
                   </p>
@@ -247,8 +246,8 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ml-4">
                 <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <Shield className="w-4 h-4 text-black dark:text-black dark:text-white" />
-                    <h4 className="text-sm font-semibold text-black dark:text-black dark:text-white">Cifrado SSL</h4>
+                    <Shield className="w-4 h-4 text-black dark:text-white" />
+                    <h4 className="text-sm font-semibold text-black dark:text-white">Cifrado SSL</h4>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Todas las comunicaciones están cifradas
@@ -265,10 +264,10 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
                   </p>
                 </div>
                 
-                <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none p-3">
+                <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <Database className="w-4 h-4 text-black dark:text-black dark:text-white" />
-                    <h4 className="text-sm font-semibold text-black dark:text-black dark:text-white">Almacenamiento Seguro</h4>
+                    <Database className="w-4 h-4 text-black dark:text-white" />
+                    <h4 className="text-sm font-semibold text-black dark:text-white">Almacenamiento Seguro</h4>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Servidores protegidos y monitoreados
@@ -312,7 +311,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
                   { title: 'Restricción', desc: 'Limitar cómo usamos tu información' }
                 ].map((right, index) => (
                   <li key={index} className="flex items-start gap-2 text-gray-500 dark:text-gray-400">
-                    <CheckCircle2 className="w-4 h-4 text-black dark:text-black dark:text-white flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-black dark:text-white flex-shrink-0 mt-0.5" />
                     <span>
                       <strong className="text-black dark:text-white">{right.title}:</strong> {right.desc}
                     </span>
@@ -341,7 +340,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               </p>
               
               <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800 ml-4">
-                <h4 className="text-sm font-semibold text-black dark:text-black dark:text-white mb-2">Tipos de cookies:</h4>
+                <h4 className="text-sm font-semibold text-black dark:text-white mb-2">Tipos de cookies:</h4>
                 <ul className="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400">
                   <li><strong>Esenciales:</strong> Necesarias para el funcionamiento básico</li>
                   <li><strong>Funcionales:</strong> Recuerdan tus preferencias</li>
@@ -419,10 +418,10 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-200 dark:border-gray-800 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 flex-shrink-0">
           <Button
             variant="outline"
             onClick={onClose}
