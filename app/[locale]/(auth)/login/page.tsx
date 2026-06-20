@@ -90,16 +90,25 @@ export default function LoginPage() {
 
   const handleAuthNavigation = (response: AuthResponse) => {
     const role = response.role;
+    const isOnboardingComplete = response.status?.onboardingComplete;
 
     // La cookie __Secure-userRole ahora se asigna directamente desde el backend para mayor seguridad.
 
     if (role === 'ADMIN') {
       router.push("/admin/dashboard");
     } else if (role === 'PROVIDER') {
-      router.push("/provider/dashboard");
+      if (isOnboardingComplete) {
+        router.push("/provider/dashboard");
+      } else {
+        router.push("/onboarding");
+      }
     } else if (role === 'CONSUMER') {
-      // 🔥 Ajuste: mandamos al nuevo layout del onboarding sin sidebar
-      router.push("/onboarding/patient");
+      if (isOnboardingComplete) {
+        router.push("/patient/discover");
+      } else {
+        // Mandamos al nuevo layout del onboarding sin sidebar
+        router.push("/onboarding/patient");
+      }
     } else {
       router.push("/patient/discover");
     }

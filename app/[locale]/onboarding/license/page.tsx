@@ -4,18 +4,13 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, UploadCloud, X, Loader2, CheckCircle2, FileText, Clock, AlertTriangle, BookOpen, ArrowLeft, Store, Sparkles, Shield, Info } from "lucide-react";
+import { GraduationCap, UploadCloud, X, Loader2, CheckCircle2, FileText, Clock, AlertTriangle, BookOpen, ArrowLeft, Store, Sparkles, Shield, Info, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useLicenseOnboarding } from "@/hooks/useLicenseOnboarding";
-import { useOnboardingChecklist } from "@/hooks/useOnboardingChecklist";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
-import { handleApiError } from '@/lib/handleApiError';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function LicensePage() {
@@ -52,141 +47,202 @@ export default function LicensePage() {
   const handleSubmit = async () => { if (!file) return; await uploadLicense(file); };
   const handleSkip = () => { if (!config.isSalud) { toast.info(t("skip")); router.push("/onboarding"); } };
 
+  // ---------------------------------------------------------------------------
+  // LOADING STATE
+  // ---------------------------------------------------------------------------
   if (pageLoading) return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 transition-colors">
-      <QhSpinner size="lg" label={t("loading")} />
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 transition-colors">
+      <QhSpinner size="lg" label="Validando Credenciales..." />
     </div>
   );
 
+  // ---------------------------------------------------------------------------
+  // APPROVED STATE (Architectural Grid)
+  // ---------------------------------------------------------------------------
   if (license?.verificationStatus === "APPROVED") {
-    const IconComponent = config.icon;
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-          <Card className="w-full max-w-md bg-white dark:bg-slate-900 border-medical-200 dark:border-medical-500/20 shadow-sm">
-            <CardContent className="pt-10 pb-8 text-center space-y-6">
-              <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.5 }} className="mx-auto bg-medical-50 dark:bg-medical-500/10 p-5 rounded-xl w-fit border border-medical-200 dark:border-medical-500/20">
-                <CheckCircle2 className="w-16 h-16 text-medical-600 dark:text-medical-400" />
-              </motion.div>
-              <div>
-                <h2 className="text-2xl font-medium mb-2 text-slate-900 dark:text-white">{config.successTitle}</h2>
-                <p className="text-slate-500 dark:text-slate-400 font-light">{t("approved_desc")}</p>
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl">
+          <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+            <div className="p-10 md:p-16 text-center border-b border-gray-200 dark:border-gray-800">
+              <div className="w-20 h-20 mx-auto border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black mb-8">
+                <Check className="w-8 h-8 text-black dark:text-white" strokeWidth={2} />
               </div>
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-5 text-left border border-slate-200 dark:border-slate-700 space-y-3">
-                <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("license_number")}</p><p className="text-slate-900 dark:text-white font-semibold text-lg">{license.extractedData?.licenseNumber || '—'}</p></div>
-                {license.extractedData?.careerName && <div><p className="text-xs text-slate-500 uppercase font-medium tracking-wider mb-1">{t("specialty")}</p><p className="text-slate-900 dark:text-white font-medium">{license.extractedData.careerName}</p></div>}
+              <h2 className="text-3xl font-semibold mb-4 text-black dark:text-white tracking-tight">{config.successTitle}</h2>
+              <p className="text-gray-500 dark:text-gray-400 font-light text-lg">{t("approved_desc")}</p>
+            </div>
+            
+            <div className="p-8 md:p-12">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-6">Datos Extraídos (Validación Oficial)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
+                  <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">{t("license_number")}</p>
+                  <p className="text-sm text-black dark:text-white font-mono">{license.extractedData?.licenseNumber || '—'}</p>
+                </div>
+                {license.extractedData?.careerName && (
+                  <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
+                    <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">{t("specialty")}</p>
+                    <p className="text-xs text-black dark:text-white font-bold">{license.extractedData.careerName}</p>
+                  </div>
+                )}
               </div>
-              <Button onClick={() => router.push("/onboarding")} className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-12 shadow-none rounded-xl">
-                <CheckCircle2 className="w-5 h-5 mr-2" />{t("continue_onboarding")}
+            </div>
+
+            <div className="p-8 md:p-12 border-t border-gray-200 dark:border-gray-800">
+              <Button 
+                onClick={() => router.push("/onboarding")} 
+                className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
+              >
+                {t("continue_onboarding")} <ArrowLeft className="w-4 h-4 ml-3 rotate-180" />
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // PENDING / PROCESSING STATE
+  // ---------------------------------------------------------------------------
   if (license?.verificationStatus === "PENDING" || license?.verificationStatus === "PROCESSING") return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-        <Card className="w-full max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-          <CardContent className="pt-10 pb-8 text-center space-y-6">
-            <div className="mx-auto bg-amber-50 dark:bg-amber-500/10 p-5 rounded-xl w-fit border border-amber-200 dark:border-amber-500/20">
-              <Clock className="w-14 h-14 text-amber-500 dark:text-amber-400 animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-xl font-medium mb-2 text-slate-900 dark:text-white">{t("pending_title")}</h2>
-              <p className="text-slate-500 dark:text-slate-400 font-light">{config.isSalud ? t("pending_desc_health") : t("pending_desc_beauty")}</p>
-            </div>
-            <Button variant="outline" onClick={() => router.push("/onboarding")} className="w-full border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 h-11 rounded-xl">
-              {t("back_onboarding")}
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl">
+        <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-10 md:p-16 text-center">
+          <div className="w-20 h-20 mx-auto border border-blue-500 flex items-center justify-center bg-blue-50/10 mb-8">
+            <Clock className="w-8 h-8 text-blue-500 animate-pulse" strokeWidth={1.5} />
+          </div>
+          <h2 className="text-2xl font-semibold mb-4 text-black dark:text-white tracking-tight">{t("pending_title")}</h2>
+          <p className="text-gray-500 dark:text-gray-400 font-light leading-relaxed mb-10 max-w-sm mx-auto">
+            {config.isSalud ? t("pending_desc_health") : t("pending_desc_beauty")}
+          </p>
+          <Button 
+            variant="outline" 
+            onClick={() => router.push("/onboarding")} 
+            className="w-full rounded-none border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest transition-colors"
+          >
+            {t("back_onboarding")}
+          </Button>
+        </div>
       </motion.div>
     </div>
   );
 
   const IconComponent = config.icon;
 
+  // ---------------------------------------------------------------------------
+  // MAIN UPLOAD FORM
+  // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 md:p-8 transition-colors duration-300">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-xl relative z-10 space-y-5">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white pl-0 hover:bg-transparent" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />{t("back")}
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 md:p-12 transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl relative z-10 space-y-8">
+        
+        {/* Header Actions */}
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
+          <Button variant="ghost" className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest text-gray-500" onClick={() => router.back()}>
+            <ArrowLeft className="mr-3 h-4 w-4" />{t("back")}
           </Button>
           {!config.isSalud && (
-            <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-0">
-              <Info className="w-3 h-3 mr-1" />{t("optional_step")}
-            </Badge>
+            <div className="border border-gray-300 dark:border-gray-700 px-3 py-1 bg-gray-50 dark:bg-[#050505]">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <Info className="w-3 h-3" /> {t("optional_step")}
+              </span>
+            </div>
           )}
         </div>
 
-        <AnimatePresence>
-          {license?.verificationStatus === "REJECTED" && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900 text-red-800 dark:text-red-200">
-                <AlertTriangle className="h-5 w-5" />
-                <AlertTitle className="font-semibold text-base">{t("rejected_title")}</AlertTitle>
-                <AlertDescription className="text-sm leading-relaxed mt-1">{license.rejectionReason || t("rejected_desc")}</AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-          <CardHeader className="text-center pb-5 border-b border-slate-100 dark:border-slate-800">
-            <div className="mx-auto p-4 rounded-xl w-fit mb-3 bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20">
-              <IconComponent className="w-10 h-10 text-medical-600 dark:text-medical-400" />
+        <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+          
+          {/* Form Header */}
+          <div className="border-b border-gray-200 dark:border-gray-800 p-8 md:p-12 bg-gray-50 dark:bg-[#050505] text-center">
+            <div className="w-16 h-16 mx-auto border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black mb-6">
+              <IconComponent className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
-            <CardTitle className="text-2xl font-medium text-slate-900 dark:text-white mb-1">{config.title}</CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400 font-light max-w-sm mx-auto">{config.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5 pt-6 p-6">
-            <div className="space-y-3">
-              <Label className="text-slate-700 dark:text-slate-300 font-medium text-sm">{t("file_label")}</Label>
+            <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-3">{config.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-light max-w-md mx-auto">{config.description}</p>
+          </div>
+
+          <div className="p-8 md:p-12 space-y-8">
+            
+            {/* Rejection Alert (Margin Note) */}
+            <AnimatePresence>
+              {license?.verificationStatus === "REJECTED" && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                  <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10 mb-8">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
+                      <AlertTriangle className="w-3.5 h-3.5" /> {t("rejected_title")}
+                    </p>
+                    <p className="text-xs text-red-700 dark:text-red-300 font-light leading-relaxed">
+                      {license.rejectionReason || t("rejected_desc")}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Upload Section */}
+            <div className="space-y-4">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block">{t("file_label")}</Label>
+              
               {preview ? (
-                <div className="relative group h-72 w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
+                <div className="relative group h-80 w-full border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-[#050505] p-2 flex items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button variant="destructive" onClick={removeFile} className="shadow-lg rounded-xl"><X className="w-4 h-4 mr-2" />{t("change_image")}</Button>
+                  <img src={preview} alt="Preview" className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen" />
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <Button onClick={removeFile} className="rounded-none bg-white text-black hover:bg-gray-200 h-12 px-6 text-[10px] font-bold uppercase tracking-widest">
+                      <X className="w-4 h-4 mr-2" /> {t("change_image")}
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div onClick={() => inputRef.current?.click()} className="h-72 w-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all group border-slate-300 dark:border-slate-700 hover:border-medical-500 dark:hover:border-medical-500 hover:bg-medical-50/50 dark:hover:bg-medical-500/5">
-                  <div className="p-4 rounded-xl transition-colors mb-3 bg-slate-100 dark:bg-slate-800 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10">
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors" />
+                <div 
+                  onClick={() => inputRef.current?.click()} 
+                  className="h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
+                >
+                  <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
+                    <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white text-base">{t("click_upload")}</p>
-                  <p className="text-xs text-slate-500 mt-1.5 font-light">{t("file_hint")}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">{t("click_upload")}</p>
+                  <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">{t("file_hint")}</p>
                 </div>
               )}
               <input type="file" ref={inputRef} className="hidden" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
             </div>
 
-            <div className="border rounded-xl p-4 flex gap-3 text-sm bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-              <BookOpen className="w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400 mt-0.5" />
-              <p className="leading-relaxed text-slate-600 dark:text-slate-400 font-light">{config.infoText}</p>
+            {/* Architectural Info Box */}
+            <div className="border-l-2 border-black dark:border-white pl-5 py-2 bg-gray-50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
+                <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} /> Validación
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                {config.infoText}
+              </p>
             </div>
 
-            <div className="flex gap-3 pt-1">
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
               {!config.isSalud && (
-                <Button variant="outline" className="flex-1 h-12 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl" onClick={handleSkip}>
+                <Button variant="outline" className="sm:flex-1 h-14 rounded-none border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[10px] font-bold uppercase tracking-widest transition-colors" onClick={handleSkip}>
                   {t("skip")}
                 </Button>
               )}
-              <Button className={cn("h-12 text-base font-semibold shadow-none rounded-xl", !config.isSalud ? "flex-1" : "w-full", "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100")} onClick={handleSubmit} disabled={isUploading || !file}>
-                {isUploading ? <><Loader2 className="w-5 h-5 animate-spin mr-2" />{t("analyzing")}</> : <><FileText className="w-5 h-5 mr-2" />{config.buttonText}</>}
+              <Button 
+                className={cn("h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors border-0", !config.isSalud ? "sm:flex-1" : "w-full", "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200")} 
+                onClick={handleSubmit} 
+                disabled={isUploading || !file}
+              >
+                {isUploading ? <><Loader2 className="w-4 h-4 animate-spin mr-3" />{t("analyzing")}</> : <><FileText className="w-4 h-4 mr-3" />{config.buttonText}</>}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-          <Shield className="w-3 h-3" /><span>{t("security_footer")}</span>
+          </div>
         </div>
+
+        {/* Security Footer */}
+        <div className="flex items-center justify-center gap-3">
+          <Shield className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("security_footer")}</span>
+        </div>
+
       </motion.div>
     </div>
   );
