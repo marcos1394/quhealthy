@@ -3,13 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, Loader2, Sparkles, Check, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +30,7 @@ export default function Step3ResetPassword({ resetToken }: Props) {
   const passwordRulesConfig = [ { regex: /.{8,}/ }, { regex: /[A-Z]/ }, { regex: /\d/ } ];
   const [passwordValidation, setPasswordValidation] = useState(passwordRulesConfig.map(r => ({ ...r, valid: false })));
 
-  const rulesMessages = [ t('new_password_placeholder'), "A-Z", "0-9" ];
+  const rulesMessages = [ "8 CHARS", "A-Z", "0-9" ];
 
   useEffect(() => {
     setPasswordValidation(passwordRulesConfig.map(rule => ({ ...rule, valid: rule.regex.test(newPassword) })));
@@ -55,74 +53,97 @@ export default function Step3ResetPassword({ resetToken }: Props) {
   };
 
   return (
-    <motion.form key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} onSubmit={handleSubmit} className="space-y-6">
+    <motion.form 
+      key="step3" 
+      initial={{ opacity: 0, x: 20 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: -20 }} 
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      onSubmit={handleSubmit} 
+      className="space-y-8"
+    >
       
-      <div className="space-y-2">
-        <Label className="text-slate-700 dark:text-slate-300 font-medium">{t('new_password_label')}</Label>
+      <div className="space-y-3 group relative">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 block group-focus-within:text-black dark:group-focus-within:text-white transition-colors">
+          {t('new_password_label')}
+        </label>
         <div className="relative">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <Input 
+          <input 
             type={showPassword ? "text" : "password"} 
             value={newPassword} 
             onChange={(e) => setNewPassword(e.target.value)} 
             placeholder={t('new_password_placeholder')}
-            className="pl-11 pr-12 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl" 
+            className="w-full bg-transparent border-0 border-b border-gray-300 dark:border-gray-800 py-3 pr-10 text-lg font-light outline-none transition-colors focus:border-black dark:focus:border-white text-black dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-700" 
             required 
           />
-          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+            {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
           </button>
         </div>
         
-        {/* Badges de Validación Restaurados */}
-        <div className="flex flex-wrap gap-2 mt-2">
+        {/* Architect Badges */}
+        <div className="flex flex-wrap gap-3 pt-2">
           {passwordValidation.map((rule, idx) => (
-            <span key={idx} className={cn("flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md transition-all", rule.valid ? "bg-medical-50 text-medical-600 dark:bg-medical-500/10 dark:text-medical-400" : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400")}>
-              {rule.valid && <Check size={12} strokeWidth={2} />}
+            <span 
+              key={idx} 
+              className={cn(
+                "text-[9px] font-bold uppercase tracking-widest pb-1 border-b-2 transition-all", 
+                rule.valid ? "border-black text-black dark:border-white dark:text-white" : "border-gray-200 text-gray-400 dark:border-gray-800 dark:text-gray-600"
+              )}
+            >
               {rulesMessages[idx]}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-slate-700 dark:text-slate-300 font-medium">{t('confirm_password_label')}</Label>
+      <div className="space-y-2 group relative">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 block group-focus-within:text-black dark:group-focus-within:text-white transition-colors">
+          {t('confirm_password_label')}
+        </label>
         <div className="relative">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <Input 
+          <input 
             type={showConfirmPassword ? "text" : "password"} 
             value={confirmPassword} 
             onChange={(e) => setConfirmPassword(e.target.value)} 
             placeholder={t('confirm_password_placeholder')}
-            className={cn("pl-11 pr-12 h-14 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl", confirmPassword && newPassword !== confirmPassword ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : "border-slate-200 dark:border-slate-800 focus:border-medical-500 focus:ring-medical-500/20")}
+            className={cn(
+              "w-full bg-transparent border-0 border-b py-3 pr-10 text-lg font-light outline-none transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700", 
+              confirmPassword && newPassword !== confirmPassword 
+                ? "border-red-500 text-red-500" 
+                : "border-gray-300 dark:border-gray-800 focus:border-black dark:focus:border-white text-black dark:text-white"
+            )}
             required 
           />
-          <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            {showConfirmPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+          <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+            {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
           </button>
         </div>
         {confirmPassword && newPassword !== confirmPassword && (
-          <p className="text-xs text-red-500 flex items-center gap-1.5 mt-1">
-            <AlertCircle className="w-3 h-3" />{t('passwords_not_match')}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-red-500 mt-2">
+            {t('passwords_not_match')}
           </p>
         )}
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-200">
-          <AlertDescription className="text-sm font-medium">{error}</AlertDescription>
+        <Alert variant="destructive" className="bg-transparent border border-red-500/50 text-red-600 dark:text-red-400 rounded-none mt-6">
+          <AlertDescription className="text-xs font-medium tracking-wide">{error}</AlertDescription>
         </Alert>
       )}
 
       <Button 
         type="submit" 
         disabled={loading || !passwordValidation.every(r => r.valid) || newPassword !== confirmPassword} 
-        className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl mt-4"
+        className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn mt-10"
       >
         {loading ? (
-          <><Loader2 className="animate-spin mr-2 w-5 h-5" />{t('updating')}</>
+          <span className="flex items-center"><Loader2 className="animate-spin mr-3 w-4 h-4" />{t('updating')}</span>
         ) : (
-          <><Sparkles className="mr-2 w-5 h-5 text-yellow-500 dark:text-yellow-600" />{t('reset_password_button')}</>
+          <>
+            <span>{t('reset_password_button')}</span>
+            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          </>
         )}
       </Button>
     </motion.form>

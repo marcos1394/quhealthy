@@ -7,8 +7,6 @@ import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -42,66 +40,74 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
   };
 
   return (
-    <motion.form key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-2">
-        <Label className="text-slate-700 dark:text-slate-300 font-medium">{t('recovery_method_label')}</Label>
+    <motion.form 
+      key="step1" 
+      initial={{ opacity: 0, x: 20 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: -20 }} 
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      onSubmit={handleSubmit} 
+      className="space-y-8"
+    >
+      <div className="space-y-2 group">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 block group-focus-within:text-black dark:group-focus-within:text-white transition-colors">
+          {t('recovery_method_label')}
+        </label>
         <Select value={deliveryMethod} onValueChange={(val: any) => setDeliveryMethod(val)}>
-          <SelectTrigger className="h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl">
+          <SelectTrigger className="h-14 bg-transparent border-0 border-b border-gray-300 dark:border-gray-800 text-black dark:text-white rounded-none shadow-none focus:ring-0 focus:border-black dark:focus:border-white px-0 text-lg font-light transition-colors">
             <SelectValue placeholder={t('select_method_placeholder')} />
           </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="OTP_EMAIL">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                <Mail className="w-4 h-4 text-slate-500" />
-                <span>{t('email_method')}</span>
+          <SelectContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-none shadow-xl">
+            <SelectItem value="OTP_EMAIL" className="focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
+              <div className="flex items-center gap-3 text-black dark:text-white py-1">
+                <Mail className="w-4 h-4 opacity-50" />
+                <span className="font-light">{t('email_method')}</span>
               </div>
             </SelectItem>
-            <SelectItem value="OTP_SMS">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                <Phone className="w-4 h-4 text-slate-500" />
-                <span>{t('sms_method')}</span>
+            <SelectItem value="OTP_SMS" className="focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
+              <div className="flex items-center gap-3 text-black dark:text-white py-1">
+                <Phone className="w-4 h-4 opacity-50" />
+                <span className="font-light">{t('sms_method')}</span>
               </div>
             </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-slate-700 dark:text-slate-300 font-medium">
+      <div className="space-y-2 group relative">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 block group-focus-within:text-black dark:group-focus-within:text-white transition-colors">
           {deliveryMethod === "OTP_EMAIL" ? t('your_email_label') : t('your_phone_label')}
-        </Label>
+        </label>
         <div className="relative">
-          {deliveryMethod === "OTP_EMAIL" ? (
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          ) : (
-            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          )}
-          <Input
+          <input
             type={deliveryMethod === "OTP_EMAIL" ? "email" : "tel"}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={deliveryMethod === "OTP_EMAIL" ? t('email_placeholder') : t('phone_placeholder')}
-            className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl"
+            className="w-full bg-transparent border-0 border-b border-gray-300 dark:border-gray-800 py-3 text-lg font-light outline-none transition-colors focus:border-black dark:focus:border-white text-black dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-700"
             required
           />
         </div>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-200">
-          <AlertDescription className="text-sm font-medium">{error}</AlertDescription>
+        <Alert variant="destructive" className="bg-transparent border border-red-500/50 text-red-600 dark:text-red-400 rounded-none">
+          <AlertDescription className="text-xs font-medium tracking-wide">{error}</AlertDescription>
         </Alert>
       )}
 
       <Button
         type="submit"
         disabled={loading || !email}
-        className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl mt-4"
+        className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn mt-8"
       >
         {loading ? (
-          <><Loader2 className="animate-spin mr-2 w-5 h-5" />{t('sending')}</>
+          <span className="flex items-center"><Loader2 className="animate-spin mr-3 w-4 h-4" />{t('sending')}</span>
         ) : (
-          <>{t('send_code_button')}<ArrowRight className="ml-2 w-5 h-5" /></>
+          <>
+            <span>{t('send_code_button')}</span>
+            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          </>
         )}
       </Button>
     </motion.form>

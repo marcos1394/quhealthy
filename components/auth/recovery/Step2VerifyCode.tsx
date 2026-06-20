@@ -2,15 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock, Loader2, RefreshCw, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -61,7 +58,6 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
     try {
       const res: any = await verifyRecoveryCode({ email, code });
       const resetToken = res.token || res.message; 
-      toast.success("✓");
       onSuccess(resetToken);
     } catch (err: any) {
       setError(err.message || "Código inválido");
@@ -77,68 +73,96 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
   };
 
   return (
-    <motion.form key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} onSubmit={handleSubmit} className="space-y-6">
+    <motion.form 
+      key="step2" 
+      initial={{ opacity: 0, x: 20 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: -20 }} 
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      onSubmit={handleSubmit} 
+      className="space-y-10"
+    >
       
-      <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-200 dark:border-medical-500/20 p-4 rounded-xl">
-        <div className="flex items-start gap-3">
-          <CheckCircle2 className="text-medical-600 dark:text-medical-400 w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-medical-700 dark:text-medical-400 mb-1">{t('code_sent_title')}</p>
-            <p className="text-xs text-medical-600 dark:text-medical-300">
-              {deliveryMethod === "OTP_EMAIL" ? t('check_email') : t('check_sms')} <span className="font-bold">{email}</span>
-            </p>
-          </div>
-        </div>
+      {/* Editorial Information Block */}
+      <div className="border-l-2 border-black dark:border-white pl-5 py-1">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+          {t('code_sent_title')}
+        </p>
+        <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+          {deliveryMethod === "OTP_EMAIL" ? t('check_email') : t('check_sms')} <br/>
+          <span className="font-medium text-black dark:text-white">{email}</span>
+        </p>
       </div>
 
-      <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-slate-500" />
-          <span className="text-sm text-slate-600 dark:text-slate-400">{t('code_valid_for')}</span>
+      <div className="space-y-4 group">
+        <div className="flex items-end justify-between">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 block group-focus-within:text-black dark:group-focus-within:text-white transition-colors">
+            {t('verification_code_label')}
+          </label>
+          <span className={cn(
+            "text-[10px] font-bold uppercase tracking-widest transition-colors", 
+            codeTimer < 60 ? "text-red-500" : "text-gray-400"
+          )}>
+            {formatTime(codeTimer)}
+          </span>
         </div>
-        <Badge variant="outline" className={cn("font-mono text-sm border-0", codeTimer < 60 ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" : "bg-medical-50 text-medical-600 dark:bg-medical-500/10 dark:text-medical-400")}>
-          {formatTime(codeTimer)}
-        </Badge>
-      </div>
-
-      <div className="space-y-3">
-        <Label className="text-slate-700 dark:text-slate-300 font-medium">{t('verification_code_label')}</Label>
-        <Input
+        
+        <input
           type="text"
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          placeholder={t('code_placeholder')}
-          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white h-16 text-center text-4xl tracking-[0.5em] font-mono focus:border-medical-500 focus:ring-medical-500/20 rounded-xl"
+          placeholder="000000"
+          className="w-full bg-transparent border-0 border-b-2 border-gray-300 dark:border-gray-800 text-black dark:text-white h-20 text-center text-4xl md:text-5xl tracking-[0.4em] font-light focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-200 dark:placeholder:text-gray-800"
           maxLength={6}
           required
           autoFocus
         />
-        <p className="text-xs text-slate-500 text-center font-light">{t('code_hint')}</p>
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">{t('code_hint')}</p>
+          
+          {canResend ? (
+            <button type="button" onClick={handleResendCode} className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:underline underline-offset-4 transition-all">
+              {t('resend_code_button')}
+            </button>
+          ) : (
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 dark:text-gray-700">
+              {t('wait_to_resend')}
+            </p>
+          )}
+        </div>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-200">
-          <AlertDescription className="text-sm font-medium">{error}</AlertDescription>
+        <Alert variant="destructive" className="bg-transparent border border-red-500/50 text-red-600 dark:text-red-400 rounded-none">
+          <AlertDescription className="text-xs font-medium tracking-wide">{error}</AlertDescription>
         </Alert>
       )}
 
-      <Button type="submit" disabled={loading || code.length !== 6} className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl">
-        {loading ? <><Loader2 className="animate-spin mr-2 w-5 h-5" />{t('verifying')}</> : <><CheckCircle2 className="mr-2 w-5 h-5" />{t('verify_code_button')}</>}
-      </Button>
+      <div className="pt-4 space-y-4">
+        <Button 
+          type="submit" 
+          disabled={loading || code.length !== 6} 
+          className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn"
+        >
+          {loading ? (
+            <span className="flex items-center"><Loader2 className="animate-spin mr-3 w-4 h-4" />{t('verifying')}</span>
+          ) : (
+            <>
+              <span>{t('verify_code_button')}</span>
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </>
+          )}
+        </Button>
 
-      <div className="text-center pt-2">
-        {canResend ? (
-          <Button type="button" variant="ghost" onClick={handleResendCode} className="text-medical-600 dark:text-medical-400 hover:text-medical-700 hover:bg-medical-50 dark:hover:bg-medical-500/10">
-            <RefreshCw className="w-4 h-4 mr-2" />{t('resend_code_button')}
-          </Button>
-        ) : (
-          <p className="text-sm text-slate-500 font-light">{t('wait_to_resend')} {formatTime(codeTimer)}</p>
-        )}
+        <button 
+          type="button" 
+          onClick={onGoBack} 
+          className="w-full flex items-center justify-center h-14 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors group/back"
+        >
+          <ArrowLeft className="w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover/back:opacity-100 group-hover/back:translate-x-0 transition-all" />
+          {t('change_method_button')}
+        </button>
       </div>
-
-      <Button type="button" variant="outline" onClick={onGoBack} className="w-full border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl h-12">
-        <ArrowLeft className="w-4 h-4 mr-2" />{t('change_method_button')}
-      </Button>
     </motion.form>
   );
 }
