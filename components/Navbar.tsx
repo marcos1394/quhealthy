@@ -63,20 +63,21 @@ const LINKS: Record<string, NavItem[]> = {
 };
 
 export const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, role, isAuthenticated, isLoading, logout, initializeSession, _hasHydrated } = useSessionStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-
-  const { user, role, isAuthenticated, isLoading, initializeSession, _hasHydrated } = useSessionStore();
-  const { logout } = useAuth();
   const t = useTranslations('Navbar');
   const locale = useLocale();
 
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
-    if (_hasHydrated) {
+    if (_hasHydrated && !hasInitialized.current && !isAuthenticated) {
+      hasInitialized.current = true;
       initializeSession();
     }
-  }, [_hasHydrated, initializeSession]);
+  }, [_hasHydrated, isAuthenticated, initializeSession]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -89,6 +90,9 @@ export const Navbar: React.FC = () => {
     toast.info(t('toast.logout'));
     setMobileMenuOpen(false);
   };
+
+  // We are loading auth if hydration is pending, or if we are loading and have a user in local storage
+  const isAuthLoading = !_hasHydrated || (isLoading && !!user);
 
   const currentLinks: NavItem[] = (isAuthenticated && role && LINKS[role])
     ? LINKS[role]
@@ -266,7 +270,7 @@ export const Navbar: React.FC = () => {
         {/* ACTIONS */}
         <div className="hidden md:flex items-center gap-4">
 
-          {isLoading && useSessionStore.getState().token ? (
+          {isAuthLoading ? (
             <div className="h-9 w-9 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] animate-pulse" />
           ) : isAuthenticated ? (
             <div className="flex items-center gap-5">
@@ -346,7 +350,15 @@ export const Navbar: React.FC = () => {
             className="md:hidden bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 overflow-hidden"
           >
             <div className="flex flex-col">
-              {isAuthenticated && (
+              {isAuthLoading ? (
+                <div className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <div className="h-12 w-12 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                    <div className="h-3 w-32 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                  </div>
+                </div>
+              ) : isAuthenticated && (
                 <div className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
                   <UserAvatar size="lg" />
                   <div>
@@ -379,7 +391,12 @@ export const Navbar: React.FC = () => {
                 }
               })}
 
-              {isAuthenticated ? (
+              {isAuthLoading ? (
+                <div className="flex flex-col gap-4 p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                  <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                </div>
+              ) : isAuthenticated ? (
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-4 p-6 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-left"
