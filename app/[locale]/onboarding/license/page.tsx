@@ -61,8 +61,8 @@ export default function LicensePage() {
   // ---------------------------------------------------------------------------
   if (license?.verificationStatus === "APPROVED") {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center pt-24 pb-12 px-6 md:pt-32 md:pb-24 md:px-12 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl my-auto">
           <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
             <div className="p-10 md:p-16 text-center border-b border-gray-200 dark:border-gray-800">
               <div className="w-20 h-20 mx-auto border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black mb-8">
@@ -106,8 +106,8 @@ export default function LicensePage() {
   // PENDING / PROCESSING STATE
   // ---------------------------------------------------------------------------
   if (license?.verificationStatus === "PENDING" || license?.verificationStatus === "PROCESSING") return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
-      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center pt-24 pb-12 px-6 md:pt-32 md:pb-24 md:px-12 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl my-auto">
         <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-10 md:p-16 text-center">
           <div className="w-20 h-20 mx-auto border border-blue-500 flex items-center justify-center bg-blue-50/10 mb-8">
             <Clock className="w-8 h-8 text-blue-500 animate-pulse" strokeWidth={1.5} />
@@ -134,8 +134,8 @@ export default function LicensePage() {
   // MAIN UPLOAD FORM
   // ---------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 md:p-12 transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl relative z-10 space-y-8">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center pt-24 pb-12 px-6 md:pt-32 md:pb-24 md:px-12 transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl relative z-10 space-y-8 my-auto">
         
         {/* Header Actions */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">

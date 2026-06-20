@@ -14,7 +14,6 @@ import {
 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface CancellationPolicyProps {
@@ -28,116 +27,108 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
   const charCount = policyText?.length || 0;
   const charLimit = 800;
 
-  // --- PLANTILLAS LEGALES DINÁMICAS (Ahora dentro para usar 't') ---
+  // --- PLANTILLAS LEGALES DINÁMICAS ---
   const POLICY_TEMPLATES = [
     {
       id: "flexible",
       name: t('templates.flexible.name'),
       icon: Shield,
-      color: "text-emerald-500 dark:text-emerald-400",
-      bgColor: "bg-emerald-50 dark:bg-emerald-500/10",
-      borderColor: "border-emerald-200 dark:border-emerald-500/30",
-      shadowColor: "shadow-emerald-500/10",
+      selectedClass: "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+      unselectedClass: "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
       text: t('templates.flexible.text')
     },
     {
       id: "moderate",
       name: t('templates.moderate.name'),
       icon: ShieldCheck,
-      color: "text-blue-500 dark:text-blue-400",
-      bgColor: "bg-blue-50 dark:bg-blue-500/10",
-      borderColor: "border-blue-200 dark:border-blue-500/30",
-      shadowColor: "shadow-blue-500/10",
+      selectedClass: "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+      unselectedClass: "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
       text: t('templates.moderate.text')
     },
     {
       id: "strict",
       name: t('templates.strict.name'),
       icon: ShieldAlert,
-      color: "text-purple-500 dark:text-purple-400",
-      bgColor: "bg-purple-50 dark:bg-purple-500/10",
-      borderColor: "border-purple-200 dark:border-purple-500/30",
-      shadowColor: "shadow-purple-500/10",
+      selectedClass: "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+      unselectedClass: "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
       text: t('templates.strict.text')
     }
   ];
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl">
-      <CardHeader>
-        <div className="flex items-start gap-3">
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200 }}
-            className="p-2 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-500/10 dark:to-orange-500/10 rounded-xl border border-red-100 dark:border-red-500/20"
-          >
-            <ShieldAlert className="w-5 h-5 text-red-500 dark:text-red-400" />
-          </motion.div>
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+      
+      {/* Header Interior */}
+      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <ShieldAlert className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
           <div>
-            <CardTitle className="text-xl font-black text-slate-900 dark:text-white mb-1">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
               {t('title')}
-            </CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">
+            </h2>
+            <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
               {t('description')}
-            </CardDescription>
+            </p>
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="space-y-6 pt-2">
+      <div className="p-6 md:p-8 space-y-8">
         
-        {/* Plantillas Rápidas */}
-        <div className="space-y-3">
-          <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        {/* Plantillas Rápidas (Grid Blueprint) */}
+        <div className="space-y-4">
+          <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block">
             {t('templates_label')}
           </Label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             {POLICY_TEMPLATES.map((template) => {
               const Icon = template.icon;
               const isSelected = policyText === template.text;
 
               return (
-                <motion.button
+                <button
                   key={template.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => onChange(template.text)}
                   className={cn(
-                    "flex flex-col items-start gap-3 p-4 rounded-xl border text-left transition-all duration-200 relative overflow-hidden",
-                    isSelected 
-                      ? `${template.bgColor} ${template.borderColor} shadow-lg ${template.shadowColor}` 
-                      : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                    "flex flex-col items-start gap-4 p-6 border-b border-r text-left transition-colors relative group",
+                    isSelected ? template.selectedClass : template.unselectedClass
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <Icon className={cn("w-5 h-5", template.color)} />
-                    <span className="font-bold text-slate-900 dark:text-white">{template.name}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-4 h-4" strokeWidth={isSelected ? 2 : 1.5} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{template.name}</span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-500 line-clamp-3">
+                  <p className={cn(
+                    "text-xs font-light leading-relaxed",
+                    isSelected ? "text-gray-700 dark:text-gray-300" : "text-gray-500"
+                  )}>
                     {template.text}
                   </p>
                   {isSelected && (
-                    <div className="absolute top-3 right-3">
-                      <CheckCircle2 className={cn("w-5 h-5", template.color)} />
+                    <div className="absolute top-4 right-4">
+                      <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
                     </div>
                   )}
-                </motion.button>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Editor Personalizado */}
-        <div className="space-y-3 pt-4">
-          <div className="flex justify-between items-center">
-            <Label className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-              <FileText className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+        {/* Editor Personalizado (Flush Textarea) */}
+        <div className="space-y-4 pt-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+            <Label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <FileText className="w-4 h-4" strokeWidth={1.5} />
               {t('editor_label')}
             </Label>
             <span className={cn(
-              "text-xs font-semibold",
-              charCount > charLimit ? "text-red-500 dark:text-red-400" : "text-slate-500"
+              "text-[9px] font-bold uppercase tracking-widest px-2 py-1 border",
+              charCount > charLimit 
+                ? "border-red-500 text-red-500" 
+                : "border-gray-300 dark:border-gray-700 text-gray-500"
             )}>
               {charCount}/{charLimit}
             </span>
@@ -147,29 +138,22 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
             value={policyText || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={t('editor_placeholder')}
-            className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 resize-none min-h-[150px] focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 text-slate-900 dark:text-slate-300 leading-relaxed"
+            className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm p-4 min-h-[160px] focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors resize-none font-light leading-relaxed text-black dark:text-white"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-500">
+          <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
             {t('editor_hint')}
           </p>
         </div>
 
-        {/* Tip Educativo */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl p-4 flex items-start gap-3 mt-6"
-        >
-          <TrendingDown className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-blue-800 dark:text-blue-300/80">
-            <p className="font-semibold text-blue-700 dark:text-blue-400 mb-1">
-              {t('tip_title')}
-            </p>
-            <p dangerouslySetInnerHTML={{ __html: t('tip_desc') }} />
-          </div>
-        </motion.div>
+        {/* Tip Educativo (Margin Note Format) */}
+        <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mt-8">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
+            <TrendingDown className="w-4 h-4" strokeWidth={1.5} /> {t('tip_title')}
+          </p>
+          <div className="text-xs text-gray-500 font-light leading-relaxed" dangerouslySetInnerHTML={{ __html: t('tip_desc') }} />
+        </div>
 
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

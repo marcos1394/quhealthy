@@ -11,6 +11,7 @@ import { VisualIdentitySection, IdentitySettings } from "@/components/marketplac
 import { PublicInfoSection, PublicInfoSettings } from "@/components/marketplace/PublicInfoSection";
 import EnhancedLocationPicker from "@/components/shared/location/MapModal";
 import { LocationData } from "@/types/location";
+import { cn } from "@/lib/utils";
 
 // Hook del backend
 import { useStoreProfile } from "@/hooks/useStoreProfile";
@@ -35,7 +36,7 @@ export default function IdentitySetupPage() {
   const [settings, setSettings] = useState<FullStoreSettings>({
     storeName: "",
     storeSlug: "",
-    primaryColor: "#9333ea",
+    primaryColor: "#000000", // Default técnico en vez del morado
     storeLogoUrl: "",
     bannerImageUrl: "",
     description: "",
@@ -55,7 +56,7 @@ export default function IdentitySetupPage() {
       setSettings({
         storeName: profile.displayName || "",
         storeSlug: profile.slug || "",
-        primaryColor: profile.primaryColor || "#9333ea",
+        primaryColor: profile.primaryColor || "#000000",
         storeLogoUrl: profile.logoUrl || "",
         bannerImageUrl: profile.bannerUrl || "",
         description: profile.bio || "",
@@ -124,8 +125,6 @@ export default function IdentitySetupPage() {
       setTimeout(() => {
         router.push("/provider/store");
       }, 800);
-    } else {
-      return;
     }
   };
 
@@ -162,11 +161,16 @@ export default function IdentitySetupPage() {
     handleChange('videoUrl', "");
   };
 
+  // ---------------------------------------------------------------------------
+  // LOADING STATE
+  // ---------------------------------------------------------------------------
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">{t('loading')}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
+          {t('loading')}
+        </p>
       </div>
     );
   }
@@ -174,102 +178,110 @@ export default function IdentitySetupPage() {
   const isPremiumUser = true;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
-      <div className="max-w-5xl mx-auto pb-16 relative">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto space-y-12 pb-24">
 
-        {/* 🚀 Top Bar Navigation */}
-        <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-24 z-50 backdrop-blur-xl mb-8">
+        {/* 🚀 Top Bar Navigation (Blueprint) */}
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 sticky top-0 bg-white dark:bg-[#0a0a0a] z-40 pt-4">
           <Button
             variant="ghost"
             onClick={() => router.push('/provider/store')}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="rounded-none text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors px-4"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={2} />
             {t('back')}
           </Button>
 
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-8"
+            className={cn(
+              "rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+              isSaving 
+                ? "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed" 
+                : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+            )}
           >
             {isSaving ? (
-              <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('btn_saving')}</>
+              <><Loader2 className="w-4 h-4 mr-3 animate-spin" /> {t('btn_saving')}</>
             ) : (
-              <><Save className="w-5 h-5 mr-2" /> {t('btn_save')}</>
+              <><Save className="w-4 h-4 mr-3" strokeWidth={2} /> {t('btn_save')}</>
             )}
           </Button>
         </div>
 
         {/* Header Contextual */}
-        <div className="px-2 mb-8">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-              <Sparkles className="w-8 h-8 text-medical-600 dark:text-medical-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {t('title')}
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 text-base md:text-lg">
-                {t('subtitle')}
-              </p>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+            <Sparkles className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2">
+              {t('title')}
+            </h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              {t('subtitle')}
+            </p>
           </div>
         </div>
 
-        <div className="space-y-10">
+        <div className="space-y-12">
+          
           {/* Sección 1: Identidad Visual */}
-          <VisualIdentitySection 
-            settings={settings}
-            onChange={handleChange}
-            onSaveField={async (key, value) => {
-              try {
-                await updateProfile({ [key === 'storeName' ? 'displayName' : 'slug']: value });
-                toast.success('Cambios guardados silenciosamente');
-              } catch (e) {
-                console.error("Error auto-saving", e);
-              }
-            }}
-            onImageUpload={handleImageUpload}
-            onImageDelete={handleImageDelete}
-          />
+          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+            <VisualIdentitySection 
+              settings={settings}
+              onChange={handleChange}
+              onSaveField={async (key, value) => {
+                try {
+                  await updateProfile({ [key === 'storeName' ? 'displayName' : 'slug']: value });
+                  toast.success('Dato sincronizado exitosamente');
+                } catch (e) {
+                  console.error("Error auto-saving", e);
+                }
+              }}
+              onImageUpload={handleImageUpload}
+              onImageDelete={handleImageDelete}
+            />
+          </div>
 
           {/* Sección 2: Info Pública y Video */}
-          <PublicInfoSection
-            settings={{
-              description: settings.description,
-              videoUrl: settings.videoUrl
-            }}
-            onChange={handleChange}
-            isPremium={isPremiumUser}
-            onUpgrade={() => toast.info(t('toast_upgrade'))}
-            onVideoUpload={handleVideoUpload}
-            onVideoDelete={handleVideoDelete}
-          />
+          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+            <PublicInfoSection
+              settings={{
+                description: settings.description,
+                videoUrl: settings.videoUrl
+              }}
+              onChange={handleChange}
+              isPremium={isPremiumUser}
+              onUpgrade={() => toast.info(t('toast_upgrade'))}
+              onVideoUpload={handleVideoUpload}
+              onVideoDelete={handleVideoDelete}
+            />
+          </div>
 
-          {/* Sección Eliminada: Contacto e Integraciones (Se movió a su propia página) */}
-
-          {/* 📍 SECCIÓN: Ubicación del Consultorio */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
-            {/* Background Glow sutil */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-medical-500/5 dark:bg-medical-500/10 rounded-full blur-3xl -z-10 pointer-events-none" />
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-              <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shrink-0">
-                <MapPin className="w-6 h-6 text-medical-600 dark:text-medical-400" />
-              </div>
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{t('location_title')}</h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                  {t('location_desc')}
-                </p>
+          {/* 📍 SECCIÓN: Ubicación del Consultorio (Blueprint Format) */}
+          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
+            
+            <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+                  <MapPin className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                    {t('location_title')}
+                  </h2>
+                  <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+                    {t('location_desc')}
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Contenedor del Mapa */}
-            <div className="w-full flex flex-col gap-4">
-              <div className="w-full min-h-[450px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div className="p-6 md:p-8">
+              <div className="w-full min-h-[450px] border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
                 <EnhancedLocationPicker
                   onLocationSelect={handleLocationSelect}
                   initialLocation={
@@ -284,6 +296,7 @@ export default function IdentitySetupPage() {
                 />
               </div>
             </div>
+            
           </div>
 
         </div>

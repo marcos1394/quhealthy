@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { 
   Link as LinkIcon, 
@@ -11,45 +10,38 @@ import {
   MessageCircle,
   Facebook,
   Instagram,
-  CheckCircle2
+  Check
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useSocial } from "@/hooks/useSocial";
-import { SocialPlatform } from "@/types/social";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 const PLATFORMS = [
   {
     id: "WHATSAPP",
     name: "WhatsApp Business",
     icon: MessageCircle,
-    color: "bg-emerald-500",
-    description: "Recibe mensajes de WhatsApp de tus pacientes directamente en el CRM."
+    description: "Recibe mensajes de WhatsApp de pacientes en el CRM."
   },
   {
     id: "FACEBOOK",
     name: "Facebook",
     icon: Facebook,
-    color: "bg-blue-600",
     description: "Conecta tu página para mensajes y publicación automática."
   },
   {
     id: "INSTAGRAM",
     name: "Instagram",
     icon: Instagram,
-    color: "bg-pink-600",
     description: "Conecta tu perfil de Instagram para inbox y posts."
   },
   {
     id: "EMAIL",
-    name: "Correo Electrónico (Gmail)",
+    name: "Correo Electrónico",
     icon: Mail,
-    color: "bg-red-500",
-    description: "Lee y responde correos de tus pacientes desde la plataforma."
+    description: "Lee y responde correos de pacientes desde la plataforma."
   }
 ];
 
@@ -72,10 +64,10 @@ export function ContactIntegrationsSection() {
   };
 
   const handleDisconnect = async (connectionId: string, platformName: string) => {
-    if (confirm(`¿Estás seguro de que deseas desconectar ${platformName}?`)) {
+    if (confirm(`¿Estás seguro de que deseas revocar el acceso a ${platformName}?`)) {
       try {
         await disconnectConnection(connectionId);
-        toast.success(`${platformName} desconectado correctamente`);
+        toast.success(`Protocolo ${platformName} desconectado correctamente`);
       } catch (error) {
         toast.error(`Error al desconectar ${platformName}`);
       }
@@ -83,36 +75,36 @@ export function ContactIntegrationsSection() {
   };
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-      <CardHeader>
-        <div className="flex items-start gap-3">
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200 }}
-            className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20"
-          >
-            <LinkIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </motion.div>
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+      
+      {/* Header Interior */}
+      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <LinkIcon className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
           <div>
-            <CardTitle className="text-xl font-black text-slate-900 dark:text-white mb-1">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
               Medios de Contacto e Integraciones
-            </CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">
-              Conecta tus redes sociales, WhatsApp y correo para centralizar tus mensajes en el CRM de QuHealthy.
-            </CardDescription>
+            </h2>
+            <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+              Conecta tus redes sociales, WhatsApp y correo para centralizar comunicación en el CRM.
+            </p>
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent>
+      <div>
         {loading && connections.length === 0 ? (
-          <div className="flex justify-center py-8">
-            <RefreshCw className="w-8 h-8 text-medical-500 animate-spin" />
+          <div className="flex flex-col justify-center items-center py-16 gap-4">
+            <QhSpinner size="md" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              Validando Conexiones...
+            </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {PLATFORMS.map((platform) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+            {PLATFORMS.map((platform, index) => {
               const activeConnection = connections.find(c => c.platform === platform.id);
               const isConnected = !!activeConnection;
 
@@ -120,61 +112,70 @@ export function ContactIntegrationsSection() {
                 <div 
                   key={platform.id} 
                   className={cn(
-                    "border rounded-xl p-5 flex flex-col justify-between transition-all",
+                    "p-6 md:p-8 flex flex-col justify-between transition-colors border-b border-gray-200 dark:border-gray-800 group",
+                    // Aseguramos que la columna izquierda tenga borde derecho en desktop
+                    index % 2 === 0 ? "md:border-r" : "",
                     isConnected 
-                      ? "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-900/10" 
-                      : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300"
+                      ? "bg-gray-50 dark:bg-[#050505]" 
+                      : "bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#050505]"
                   )}
                 >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className={cn("p-3 rounded-xl text-white", platform.color)}>
-                      <platform.icon className="w-6 h-6" />
+                  <div className="flex items-start gap-4 mb-8">
+                    <div className={cn(
+                      "w-12 h-12 flex items-center justify-center border transition-colors shrink-0",
+                      isConnected 
+                        ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black" 
+                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white group-hover:border-black dark:group-hover:border-white"
+                    )}>
+                      <platform.icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-bold text-slate-900 dark:text-white">{platform.name}</h3>
+                      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start gap-2 mb-2">
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">{platform.name}</h3>
                         {isConnected && (
-                          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none dark:bg-emerald-900/30 dark:text-emerald-400">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Conectado
-                          </Badge>
+                          <span className="self-start border border-black bg-black text-white dark:border-white dark:bg-white dark:text-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0">
+                            <Check className="w-3 h-3" strokeWidth={2} /> Enlazado
+                          </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-1">{platform.description}</p>
+                      <p className="text-xs text-gray-500 font-light leading-relaxed">
+                        {platform.description}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div className="mt-auto">
                     {isConnected ? (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {activeConnection.profileImageUrl && (
-                            <img src={activeConnection.profileImageUrl} alt="Profile" className="w-6 h-6 rounded-full" />
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                        <div className="flex items-center gap-3">
+                          {activeConnection.profileImageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={activeConnection.profileImageUrl} alt="Profile" className="w-8 h-8 border border-gray-300 dark:border-gray-700 object-cover grayscale" />
+                          ) : (
+                            <div className="w-8 h-8 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
+                              <platform.icon className="w-3.5 h-3.5 text-gray-400" />
+                            </div>
                           )}
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
-                            {activeConnection.platformUserName}
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white truncate max-w-[120px]">
+                            {activeConnection.platformUserName || "Cuenta Enlazada"}
                           </span>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                        <button 
                           onClick={() => handleDisconnect(activeConnection.id, platform.name)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
+                          className="h-8 px-4 border border-red-500 text-red-600 dark:text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-2"
                         >
-                          <Unlink className="w-4 h-4 mr-2" />
-                          Desconectar
-                        </Button>
+                          <Unlink className="w-3 h-3" strokeWidth={2} /> Desconectar
+                        </button>
                       </div>
                     ) : (
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
+                      <button 
                         onClick={() => handleConnect(platform.id)}
                         disabled={loading}
+                        className="w-full h-12 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <LinkIcon className="w-4 h-4 mr-2" />}
-                        Conectar {platform.name}
-                      </Button>
+                        {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <LinkIcon className="w-4 h-4" strokeWidth={1.5} />}
+                        Configurar Protocolo
+                      </button>
                     )}
                   </div>
                 </div>
@@ -182,7 +183,7 @@ export function ContactIntegrationsSection() {
             })}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

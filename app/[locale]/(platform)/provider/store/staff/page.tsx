@@ -12,6 +12,7 @@ import { useStaff } from "@/hooks/useStaff";
 import { UI_StaffMember } from "@/types/staff";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
+import { cn } from "@/lib/utils";
 
 export default function StaffSetupPage() {
   const router = useRouter();
@@ -117,9 +118,9 @@ export default function StaffSetupPage() {
   // --- RENDER ---
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex flex-col justify-center items-center gap-4 bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 dark:text-slate-400 font-semibold animate-pulse">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
           {t('loading')}
         </p>
       </div>
@@ -129,60 +130,66 @@ export default function StaffSetupPage() {
   const hasUnsavedChanges = staff.some(m => m.hasUnsavedChanges || m.isNew);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
-      <div className="max-w-4xl mx-auto space-y-8 pb-16">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto space-y-12 pb-24">
 
-        {/* 🚀 Top Bar Navigation */}
-        <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-20 z-40 backdrop-blur-xl">
+        {/* 🚀 Top Bar Navigation (Blueprint) */}
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 sticky top-0 bg-white dark:bg-[#0a0a0a] z-40 pt-4">
           <Button
             variant="ghost"
             onClick={() => router.push('/provider/store')}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="rounded-none text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors px-4"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={2} />
             {t('back')}
           </Button>
 
           <Button
             onClick={handleSaveAll}
             disabled={isSavingAll || !hasUnsavedChanges}
-            className="px-8"
+            className={cn(
+              "rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+              isSavingAll || !hasUnsavedChanges 
+                ? "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed" 
+                : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+            )}
           >
             {isSavingAll ? (
-              <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> {t('btn_saving')}</>
+              <><Loader2 className="w-4 h-4 mr-3 animate-spin" /> {t('btn_saving')}</>
             ) : (
-              <><Save className="w-5 h-5 mr-2" /> {t('btn_save')}</>
+              <><Save className="w-4 h-4 mr-3" strokeWidth={2} /> {t('btn_save')}</>
             )}
           </Button>
         </div>
 
         {/* Header Contextual */}
-        <div className="px-2">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-200 dark:border-orange-500/20 shadow-sm">
-              <Users className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {t('title')}
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 text-base md:text-lg">
-                {t('subtitle')}
-              </p>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+            <Users className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2">
+              {t('title')}
+            </h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              {t('subtitle')}
+            </p>
           </div>
         </div>
 
         {/* Integración del Componente Visual */}
-        <StaffManager
-          staff={staff}
-          onAdd={handleAddMember}
-          onUpdate={handleUpdateMember}
-          onDelete={handleDeleteMember}
-          onImageUpload={handleImageUpload}
-          isBusinessPlan={isBusinessPlan}
-          onUpgrade={() => toast.info(t('toast_upgrade'))}
-        />
+        {/* Nota: Es probable que <StaffManager /> también necesite una pasada de refactorización visual si tiene sombras o curvas */}
+        <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+          <StaffManager
+            staff={staff}
+            onAdd={handleAddMember}
+            onUpdate={handleUpdateMember}
+            onDelete={handleDeleteMember}
+            onImageUpload={handleImageUpload}
+            isBusinessPlan={isBusinessPlan}
+            onUpgrade={() => toast.info(t('toast_upgrade'))}
+          />
+        </div>
 
       </div>
     </div>

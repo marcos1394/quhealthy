@@ -8,9 +8,8 @@ import { useTranslations } from "next-intl";
 import {
   Store,
   Palette,
-  BriefcaseMedical,
   ShieldCheck,
-  CheckCircle2,
+  Check,
   ChevronRight,
   Sparkles,
   ArrowRight,
@@ -29,10 +28,7 @@ import {
   Share2
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -105,8 +101,7 @@ export default function StoreSetupPage() {
       description: t('steps.identity.desc'),
       icon: Palette,
       isComplete: isIdentityComplete,
-      path: "/provider/store/identity",
-      color: "medical"
+      path: "/provider/store/identity"
     },
     {
       id: "catalog",
@@ -115,8 +110,7 @@ export default function StoreSetupPage() {
       icon: ShoppingBag,
       isComplete: isCatalogComplete,
       path: "/provider/store/catalog",
-      badge: realCatalogCount > 0 ? `${realCatalogCount} ítems` : null,
-      color: "blue"
+      badge: realCatalogCount > 0 ? `${realCatalogCount} ítems` : null
     },
     {
       id: "policies",
@@ -124,8 +118,7 @@ export default function StoreSetupPage() {
       description: t('steps.policies.desc'),
       icon: ShieldCheck,
       isComplete: isPoliciesComplete,
-      path: "/provider/store/policies",
-      color: "emerald"
+      path: "/provider/store/policies"
     },
     {
       id: "staff",
@@ -133,35 +126,29 @@ export default function StoreSetupPage() {
       description: t('steps.staff.desc'),
       icon: Users,
       isComplete: isStaffComplete,
-      path: "/provider/store/staff",
-      color: "pink"
+      path: "/provider/store/staff"
     },
     {
       id: "integrations",
-      title: "Canales de Contacto", // You could use t() if it existed, but hardcoding for now
+      title: "Canales de Contacto", 
       description: "Conecta WhatsApp, Gmail y Redes Sociales.",
       icon: Share2,
-      isComplete: true, // We can mark it true so it doesn't block "publish" if they don't want to connect
-      path: "/provider/store/integrations",
-      color: "purple"
+      isComplete: true, 
+      path: "/provider/store/integrations"
     },
   ];
 
   const completedCount = steps.filter(s => s.isComplete).length;
   const progressPercentage = Math.round((completedCount / steps.length) * 100);
-  const isStoreReady = completedCount === steps.length; // 🚀 MODO: True = Centro de Mando, False = Asistente
+  const isStoreReady = completedCount === steps.length;
 
   // ==========================================
   // LOADING STATE
   // ==========================================
   if (isGlobalLoading) {
     return (
-      <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6 bg-slate-50 dark:bg-slate-950">
-        <QhSpinner size="lg" />
-        <div className="text-center space-y-2">
-          <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">{t('loading_title')}</p>
-          <p className="text-slate-500 dark:text-slate-400 text-sm animate-pulse">{t('loading_subtitle')}</p>
-        </div>
+      <div className="min-h-[70vh] flex flex-col justify-center items-center bg-white dark:bg-[#0a0a0a] selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+        <QhSpinner size="lg" label={t('loading_title')} />
       </div>
     );
   }
@@ -171,160 +158,160 @@ export default function StoreSetupPage() {
   // ============================================================================
   if (isStoreReady) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
-        <div className="max-w-6xl mx-auto space-y-8 pb-10">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+        <div className="max-w-6xl mx-auto space-y-12 pb-10">
           
           {/* Header del Centro de Mando */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-5">
-              <div className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-2xl border border-medical-100 dark:border-medical-500/20 shadow-inner">
-                <Store className="w-10 h-10 text-medical-600 dark:text-medical-400" />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-gray-200 dark:border-gray-800 pb-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+                <Store className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Centro de Mando
-                  </h1>
-                  <Badge variant={profile?.marketplaceVisible ? "success" : "secondary"} className="uppercase tracking-wider text-xs">
-                    {profile?.marketplaceVisible ? "Tienda Pública" : "Tienda Oculta"}
-                  </Badge>
+                <div className="flex items-center gap-4 mb-2">
+                  <h1 className="text-3xl font-semibold tracking-tight">Centro de Mando</h1>
+                  <span className={cn(
+                    "px-2 py-1 text-[9px] font-bold uppercase tracking-widest border",
+                    profile?.marketplaceVisible 
+                      ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black" 
+                      : "border-gray-300 text-gray-500 dark:border-gray-700"
+                  )}>
+                    {profile?.marketplaceVisible ? "Pública" : "Oculta"}
+                  </span>
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                  Gestiona tu catálogo, identidad y equipo desde aquí.
+                <p className="text-xs text-gray-500 font-light uppercase tracking-widest">
+                  Gestión integral de plataforma y catálogo
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 onClick={handleToggleVisibility} 
-                variant="outline" 
                 disabled={isPublishing}
-                className="h-12 rounded-xl font-bold border-slate-200 dark:border-slate-700"
+                variant="outline"
+                className="h-12 rounded-none border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
               >
-                {isPublishing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Settings className="w-4 h-4 mr-2" />}
+                {isPublishing ? <Loader2 className="w-4 h-4 mr-3 animate-spin" /> : <Settings className="w-4 h-4 mr-3" />}
                 {profile?.marketplaceVisible ? "Ocultar Tienda" : "Publicar Tienda"}
               </Button>
               
               <Button 
                 onClick={() => window.open(`/store/${profile?.slug}`, '_blank')}
                 disabled={!profile?.marketplaceVisible}
-                className="h-12 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 shadow-md"
+                className="h-12 rounded-none bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors border-0"
               >
-                <Eye className="w-4 h-4 mr-2" />
-                Ver Tienda en Vivo
+                <Eye className="w-4 h-4 mr-3" /> Ver en Vivo
               </Button>
             </div>
           </div>
 
-          {/* Grid de Gestión */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Grid de Gestión (Blueprint) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             
-            {/* Tarjeta: Catálogo (La más importante) */}
-            <Card className="lg:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <ShoppingBag className="w-6 h-6 text-emerald-500" />
-                  Catálogo e Inventario
-                </CardTitle>
-                <Button variant="ghost" onClick={() => router.push("/provider/store/catalog")} className="text-medical-600 dark:text-medical-400 font-bold">
-                  Gestionar <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                    <Stethoscope className="w-8 h-8 mx-auto mb-2 text-indigo-500" />
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeServices}</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Servicios</p>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                    <Pill className="w-8 h-8 mx-auto mb-2 text-rose-500" />
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeProducts}</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Productos</p>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                    <GraduationCap className="w-8 h-8 mx-auto mb-2 text-amber-500" />
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activeCourses}</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Cursos</p>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
-                    <Package className="w-8 h-8 mx-auto mb-2 text-blue-500" />
-                    <p className="text-3xl font-black text-slate-900 dark:text-white">{activePackages}</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Paquetes</p>
-                  </div>
+            {/* Bloque: Catálogo e Inventario */}
+            <div className="lg:col-span-2 border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+              <div className="p-8 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-4">
+                  <ShoppingBag className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                  <h3 className="text-sm font-bold uppercase tracking-widest">Catálogo e Inventario</h3>
                 </div>
-              </CardContent>
-            </Card>
+                <button onClick={() => router.push("/provider/store/catalog")} className="w-8 h-8 border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:border-black dark:hover:border-white transition-colors">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-0 flex-1">
+                <div className="p-6 text-center border-b md:border-b-0 border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
+                  <Stethoscope className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeServices}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servicios</p>
+                </div>
+                <div className="p-6 text-center border-b md:border-b-0 border-r md:border-r-0 lg:border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
+                  <Pill className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeProducts}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Productos</p>
+                </div>
+                <div className="p-6 text-center border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
+                  <GraduationCap className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeCourses}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Cursos</p>
+                </div>
+                <div className="p-6 text-center flex flex-col items-center justify-center">
+                  <Package className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activePackages}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Paquetes</p>
+                </div>
+              </div>
+            </div>
 
-            {/* Tarjeta: Equipo Médico */}
-            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-xl flex items-center justify-between">
-                  <span className="flex items-center gap-2"><Users className="w-6 h-6 text-pink-500" /> Personal</span>
-                  <Badge className="bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300">{activeStaffCount} activos</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Profesionales que brindan los servicios en tu clínica o de forma online.
+            {/* Bloque: Equipo Médico */}
+            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Users className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                  <h3 className="text-sm font-bold uppercase tracking-widest">Personal</h3>
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-widest border border-gray-300 dark:border-gray-700 px-2 py-1 bg-white dark:bg-black">
+                  {activeStaffCount} Activos
+                </span>
+              </div>
+              <div className="p-8 flex-1 flex flex-col justify-between">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                  Profesionales registrados para la atención y provisión de servicios.
                 </p>
-                <Button onClick={() => router.push("/provider/store/staff")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                <button onClick={() => router.push("/provider/store/staff")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                   Administrar Equipo
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
 
-            {/* Tarjeta: Identidad */}
-            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Palette className="w-6 h-6 text-medical-500" /> Identidad Visual
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+            {/* Bloque: Identidad */}
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
+                <Palette className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest">Identidad Visual</h3>
+              </div>
+              <div className="p-8 flex-1 flex flex-col justify-between">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
                   Logo, colores de marca, imágenes de portada y biografía de la tienda.
                 </p>
-                <Button onClick={() => router.push("/provider/store/identity")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                <button onClick={() => router.push("/provider/store/identity")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                   Editar Identidad
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
 
-            {/* Tarjeta: Políticas */}
-            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <ShieldCheck className="w-6 h-6 text-amber-500" /> Políticas y Legal
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Políticas de cancelación, reembolsos y términos de venta para tus pacientes.
+            {/* Bloque: Políticas */}
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
+                <ShieldCheck className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest">Legal y Políticas</h3>
+              </div>
+              <div className="p-8 flex-1 flex flex-col justify-between">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                  Políticas de cancelación, reembolsos y términos de venta.
                 </p>
-                <Button onClick={() => router.push("/provider/store/policies")} variant="outline" className="w-full h-12 rounded-xl font-bold">
+                <button onClick={() => router.push("/provider/store/policies")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                   Actualizar Políticas
-                </Button>
-              </CardContent>
-            </Card>
+                </button>
+              </div>
+            </div>
 
-            {/* Tarjeta: Integraciones */}
-            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Share2 className="w-6 h-6 text-purple-500" /> Canales y Redes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Conecta tus cuentas de WhatsApp, Gmail y redes sociales al CRM.
+            {/* Bloque: Integraciones */}
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
+                <Share2 className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest">Canales y Redes</h3>
+              </div>
+              <div className="p-8 flex-1 flex flex-col justify-between">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                  Conexiones a WhatsApp, Gmail, Calendario y Redes Sociales.
                 </p>
-                <Button onClick={() => router.push("/provider/store/integrations")} variant="outline" className="w-full h-12 rounded-xl font-bold">
-                  Conectar Canales
-                </Button>
-              </CardContent>
-            </Card>
+                <button onClick={() => router.push("/provider/store/integrations")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                  Configurar Canales
+                </button>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -336,136 +323,55 @@ export default function StoreSetupPage() {
   // 🚀 MODO 2: ASISTENTE DE CONFIGURACIÓN
   // ============================================================================
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
-      <div className="max-w-5xl mx-auto space-y-8 pb-10">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="max-w-4xl mx-auto space-y-12 pb-20">
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row lg:items-start justify-between gap-6"
-        >
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 mb-3">
-              <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-                <Store className="w-10 h-10 text-medical-600 dark:text-medical-400" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
-                <Badge className="mt-2 bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  {t('badge_marketplace')}
-                </Badge>
-              </div>
+        {/* Header Setup */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-gray-200 dark:border-gray-800 pb-8">
+          <div className="space-y-6">
+            <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
+              <Store className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg max-w-2xl leading-relaxed">
-              {t('subtitle')}
-            </p>
+            <div>
+              <div className="flex items-center gap-4 mb-2">
+                <h1 className="text-4xl font-semibold tracking-tight">{t('title')}</h1>
+                <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3" /> {t('badge_marketplace')}
+                </span>
+              </div>
+              <p className="text-gray-500 dark:text-gray-400 font-light text-lg max-w-xl">
+                {t('subtitle')}
+              </p>
+            </div>
           </div>
-
-          <AnimatePresence>
-            {isStoreReady && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Button
-                  onClick={handlePublishStore}
-                  disabled={isPublishing || profile?.marketplaceVisible}
-                  variant={profile?.marketplaceVisible ? "success" : "default"}
-                  size="lg"
-                  className="h-14 px-8 text-base font-bold shadow-lg transition-all group"
-                >
-                  {isPublishing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      {t('btn_publishing')}
-                    </>
-                  ) : profile?.marketplaceVisible ? (
-                    <>
-                      <CheckCircle2 className="w-5 h-5 mr-2" />
-                      {t('btn_active')}
-                      <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      {t('btn_publish')}
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
-        {/* Progress Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative">
-            {/* Animated Background Glow */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-medical-500/5 to-emerald-500/5 dark:from-medical-500/10 dark:to-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
-
-            <CardContent className="p-8 md:p-10 relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20">
-                    <Trophy className="w-7 h-7 text-medical-600 dark:text-medical-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-1">{t('progress_title')}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                      {t('progress_subtitle', { completed: completedCount, total: steps.length })}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {isStoreReady ? (
-                    <motion.div
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                      className="flex items-center gap-3 px-6 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20"
-                    >
-                      <Trophy className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{t('progress_complete')}</span>
-                    </motion.div>
-                  ) : (
-                    <span className="text-5xl font-bold bg-gradient-to-r from-medical-500 to-medical-700 bg-clip-text text-transparent">
-                      {progressPercentage}%
-                    </span>
-                  )}
-                </div>
+        {/* Progress Blueprint */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-3 mb-2">
+                <Trophy className="w-4 h-4" strokeWidth={1.5} /> {t('progress_title')}
+              </h3>
+              <p className="text-[10px] uppercase tracking-widest text-gray-500">
+                {t('progress_subtitle', { completed: completedCount, total: steps.length })}
+              </p>
+            </div>
+            
+            <div className="flex-1 max-w-md w-full">
+              <div className="flex justify-between items-end mb-3">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Avance</span>
+                <span className="text-2xl font-semibold tracking-tighter">{progressPercentage}%</span>
               </div>
-
-              <div className="space-y-3">
-                <Progress value={progressPercentage} className="h-3 shadow-inner" />
-
-                {!isStoreReady && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20"
-                  >
-                    <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                    <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-                      {t('missing_steps')}
-                    </p>
-                  </motion.div>
-                )}
+              <div className="w-full h-px bg-gray-300 dark:bg-gray-700 relative">
+                <motion.div className="absolute top-0 left-0 h-full bg-black dark:bg-white" initial={{ width: 0 }} animate={{ width: `${progressPercentage}%` }} transition={{ duration: 0.5 }} />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
 
         {/* Steps Checklist */}
-        <div className="space-y-4">
+        <div className="border-t border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isComplete = step.isComplete;
@@ -474,98 +380,53 @@ export default function StoreSetupPage() {
             return (
               <motion.div
                 key={step.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.1 + 0.2 }}
-                whileHover={{ scale: 1.005 }}
-                whileTap={{ scale: 0.995 }}
+                onClick={() => router.push(step.path)}
+                className={cn(
+                  "border-b border-r border-gray-200 dark:border-gray-800 p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 cursor-pointer transition-colors group",
+                  isComplete ? "bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a]" : "bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#050505]",
+                  isNext ? "bg-white dark:bg-[#0a0a0a] ring-1 ring-inset ring-black dark:ring-white" : ""
+                )}
               >
-                <Card
-                  onClick={() => router.push(step.path)}
-                  className={cn(
-                    "group cursor-pointer transition-all duration-300 border overflow-hidden relative",
-                    isComplete
-                      ? "bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 shadow-sm hover:shadow-md"
-                      : isNext
-                        ? "bg-white dark:bg-slate-900 border-medical-300 dark:border-medical-500/40 shadow-md ring-2 ring-medical-200 dark:ring-medical-500/20"
-                        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm hover:shadow-md"
-                  )}
-                >
-                  <CardContent className="p-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 md:p-8">
-
-                      {/* Left Side - Icon & Content */}
-                      <div className="flex items-start gap-5 flex-1">
-                        {/* Icon */}
-                        <motion.div
-                          className={cn(
-                            "w-14 h-14 rounded-xl flex items-center justify-center border transition-all flex-shrink-0 shadow-sm",
-                            isComplete
-                              ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                              : isNext
-                                ? "bg-medical-100 dark:bg-medical-500/20 border-medical-200 dark:border-medical-500/30 text-medical-600 dark:text-medical-400"
-                                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10 group-hover:border-medical-200 dark:group-hover:border-medical-500/20 group-hover:text-medical-600 dark:group-hover:text-medical-400"
-                          )}
-                          animate={isNext ? { scale: [1, 1.05, 1] } : {}}
-                          transition={{ duration: 2, repeat: isNext ? Infinity : 0, repeatDelay: 1 }}
-                        >
-                          {isComplete ? (
-                            <CheckCircle2 className="w-7 h-7" />
-                          ) : (
-                            <Icon className="w-7 h-7" />
-                          )}
-                        </motion.div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-                            <h3 className={cn(
-                              "text-lg font-bold",
-                              isComplete ? "text-emerald-700 dark:text-emerald-400" : "text-slate-900 dark:text-white"
-                            )}>
-                              {step.title}
-                            </h3>
-
-                            {isNext && (
-                              <Badge className="bg-medical-100 dark:bg-medical-500/20 text-medical-700 dark:text-medical-300 border-medical-200 dark:border-medical-500/30 animate-pulse">
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                {t('status_continue')}
-                              </Badge>
-                            )}
-
-                            {step.badge && (
-                              <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                {step.badge}
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                            {step.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Right Side - Status & Action */}
-                      <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:justify-center pl-20 sm:pl-0">
-                        {isComplete ? (
-                          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t('status_completed')}</span>
-                          </div>
-                        ) : (
-                          <span className={cn(
-                            "text-sm font-bold flex items-center gap-1 group-hover:underline transition-colors",
-                            isNext ? "text-medical-600 dark:text-medical-400" : "text-slate-500 dark:text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400"
-                          )}>
-                            {isNext ? t('status_continue') : t('status_configure')}
-                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </span>
-                        )}
-                      </div>
+                <div className="flex items-center gap-6">
+                  <div className={cn(
+                    "w-12 h-12 border flex items-center justify-center shrink-0 transition-colors",
+                    isComplete ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black group-hover:border-black dark:group-hover:border-white",
+                    isNext ? "border-black dark:border-white" : ""
+                  )}>
+                    {isComplete ? <Check className="w-5 h-5" strokeWidth={2} /> : <Icon className="w-5 h-5" strokeWidth={1.5} />}
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-sm font-bold uppercase tracking-widest">{step.title}</h3>
+                      {step.badge && (
+                        <span className="px-2 py-0.5 border border-gray-300 dark:border-gray-700 text-[8px] font-bold uppercase tracking-widest text-gray-500">
+                          {step.badge}
+                        </span>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                    <p className="text-xs text-gray-500 font-light">{step.description}</p>
+                  </div>
+                </div>
+
+                <div>
+                  {isComplete ? (
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      Completado <Check className="w-3.5 h-3.5" />
+                    </span>
+                  ) : (
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-transform",
+                      isNext ? "text-black dark:text-white" : "text-gray-400 group-hover:text-black dark:group-hover:text-white"
+                    )}>
+                      {isNext ? t('status_continue') : t('status_configure')}
+                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  )}
+                </div>
               </motion.div>
             );
           })}
@@ -574,83 +435,40 @@ export default function StoreSetupPage() {
         {/* Completion CTA */}
         <AnimatePresence>
           {isStoreReady && !profile?.marketplaceVisible && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-              <Card className="bg-gradient-to-br from-medical-50 via-emerald-50 to-blue-50 dark:from-medical-500/5 dark:via-emerald-500/5 dark:to-blue-500/5 border-medical-200 dark:border-medical-500/20 shadow-lg">
-                <CardContent className="p-8 md:p-10 text-center space-y-6">
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 10, -10, 0]
-                    }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <Trophy className="w-20 h-20 text-medical-500 mx-auto" />
-                  </motion.div>
-
-                  <div className="space-y-3">
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
-                      {t('ready_title')}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-300 max-w-lg mx-auto text-lg leading-relaxed">
-                      {t('ready_desc')}
-                    </p>
-                  </div>
-
-                  <Separator className="bg-medical-200 dark:bg-medical-500/20" />
-
-                  <Button
-                    onClick={handlePublishStore}
-                    disabled={isPublishing}
-                    size="lg"
-                    className="px-12 py-6 text-lg h-16 group"
-                  >
-                    {isPublishing ? (
-                      <>
-                        <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                        {t('btn_publishing')}
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
-                        {t('btn_publish')}
-                        <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <div className="border border-black dark:border-white p-10 md:p-16 text-center bg-gray-50 dark:bg-[#050505] mt-12">
+                <Trophy className="w-12 h-12 mx-auto mb-6 text-black dark:text-white" strokeWidth={1.5} />
+                <h3 className="text-2xl font-semibold tracking-tight mb-3">
+                  {t('ready_title')}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 font-light mb-10 max-w-lg mx-auto">
+                  {t('ready_desc')}
+                </p>
+                <Button
+                  onClick={handlePublishStore}
+                  disabled={isPublishing}
+                  className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 px-12 text-[10px] font-bold uppercase tracking-widest transition-colors w-full md:w-auto border-0"
+                >
+                  {isPublishing ? <Loader2 className="w-4 h-4 mr-3 animate-spin" /> : <Sparkles className="w-4 h-4 mr-3" />}
+                  {isPublishing ? t('btn_publishing') : t('btn_publish')}
+                </Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Help Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="bg-blue-50/50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20">
-            <CardContent className="p-6 flex items-start gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-500/10 rounded-xl border border-blue-200 dark:border-blue-500/20 flex-shrink-0">
-                <Info className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                <p className="font-bold text-blue-700 dark:text-blue-400 mb-2 text-base">{t('help_title')}</p>
-                <p>
-                  {t('help_desc').split('support@quhealthy.com')[0]}
-                  <a href="mailto:support@quhealthy.com" className="underline hover:text-blue-500 dark:hover:text-blue-300 font-semibold">
-                    support@quhealthy.com
-                  </a>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Help Footer (Architectural Note) */}
+        <div className="border-l-2 border-black dark:border-white pl-6 py-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
+            <Info className="w-3.5 h-3.5" strokeWidth={2} /> Soporte Técnico
+          </p>
+          <p className="text-xs text-gray-500 font-light">
+            {t('help_desc').split('support@quhealthy.com')[0]}
+            <a href="mailto:support@quhealthy.com" className="font-bold text-black dark:text-white hover:underline ml-1">
+              support@quhealthy.com
+            </a>
+          </p>
+        </div>
 
       </div>
     </div>

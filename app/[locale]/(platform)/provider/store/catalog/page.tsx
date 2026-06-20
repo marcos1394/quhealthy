@@ -9,8 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // Componentes UI genéricos
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 // Importamos los Managers
@@ -250,12 +248,11 @@ export default function CatalogSetupPage() {
   // ==========================================
   if (isLoading || isLoadingLimits) {
     return (
-      <div className="min-h-[70vh] flex flex-col justify-center items-center gap-6 bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
-        <div className="text-center space-y-2">
-          <p className="text-slate-700 dark:text-slate-300 font-bold text-lg">{t('loading_title', { defaultValue: 'Cargando Catálogo' })}</p>
-          <p className="text-slate-500 dark:text-slate-400 animate-pulse">{t('loading_subtitle', { defaultValue: 'Preparando tu inventario...' })}</p>
-        </div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
+          {t('loading_subtitle', { defaultValue: 'Preparando tu inventario...' })}
+        </p>
       </div>
     );
   }
@@ -264,56 +261,54 @@ export default function CatalogSetupPage() {
   const availableServicesForPackages = services.filter(s => !s.isNew && !s.hasUnsavedChanges);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
-      <div className="max-w-6xl mx-auto space-y-8 pb-20">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto space-y-12 pb-24">
 
-        {/* Sticky Top Bar Navigation */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="sticky top-20 z-40 backdrop-blur-xl">
-          <Card className="bg-white/95 dark:bg-slate-900/95 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <Button variant="ghost" onClick={() => router.push('/provider/store')} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group">
-                  <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                  {t('back', { defaultValue: 'Volver' })}
-                </Button>
+        {/* 🚀 Top Bar Navigation (Blueprint) */}
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 sticky top-0 bg-white dark:bg-[#0a0a0a] z-40 pt-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/provider/store')}
+            className="rounded-none text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors px-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={2} />
+            {t('back', { defaultValue: 'Volver' })}
+          </Button>
 
-                {hasUnsavedChanges && (
-                  <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20 animate-pulse">
-                    <Info className="w-3 h-3 mr-1" /> {t('unsaved', { defaultValue: 'Cambios sin guardar' })}
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+          {hasUnsavedChanges && (
+            <span className="border border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 animate-pulse">
+              <Info className="w-3.5 h-3.5" strokeWidth={2} /> {t('unsaved', { defaultValue: 'Cambios sin guardar' })}
+            </span>
+          )}
+        </div>
 
         {/* Header Contextual */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-              <ShoppingBag className="w-10 h-10 text-medical-600 dark:text-medical-400" />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+              <ShoppingBag className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-3">
                 {t('title', { defaultValue: 'Catálogo de Precios' })}
               </h1>
-              <div className="flex items-center gap-3 mt-2 flex-wrap">
-                <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20">
-                  <Sparkles className="w-3 h-3 mr-1" /> {t('badge', { defaultValue: 'Inventario Unificado' })}
-                </Badge>
-                <span className="text-slate-500 dark:text-slate-400 text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                  <Sparkles className="w-3 h-3" strokeWidth={2} /> {t('badge', { defaultValue: 'Inventario Unificado' })}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {services.length + packages.length + products.length + courses.length} Ítems Activos
                 </span>
               </div>
             </div>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg max-w-3xl leading-relaxed">
+          <p className="text-xs text-gray-500 font-light leading-relaxed max-w-2xl mt-4">
             {t('subtitle', { defaultValue: 'Configura los servicios, paquetes, productos y cursos que ofrecerás a tus pacientes.' })}
           </p>
         </motion.div>
 
-        {/* 🚀 NAVEGACIÓN DE PESTAÑAS (TABS) */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide border-b border-slate-200 dark:border-slate-800">
+        {/* 🚀 NAVEGACIÓN DE PESTAÑAS (TABS ARCHITECTURAL) */}
+        <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 scrollbar-hide">
           {[
             { id: 'SERVICES', label: 'Servicios', icon: BriefcaseMedical, count: services.length },
             { id: 'PACKAGES', label: 'Paquetes', icon: Package, count: packages.length },
@@ -324,23 +319,26 @@ export default function CatalogSetupPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-t-xl text-sm font-bold transition-all whitespace-nowrap border-b-2",
+                "flex items-center gap-3 px-6 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap border-r border-gray-200 dark:border-gray-800",
                 activeTab === tab.id
-                  ? "border-medical-600 text-medical-700 dark:text-medical-400 bg-white dark:bg-slate-900"
-                  : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                  ? "bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-t-2 border-t-black dark:border-t-white"
+                  : "bg-gray-50 dark:bg-[#050505] text-gray-500 hover:text-black dark:hover:text-white border-t-2 border-t-transparent hover:bg-white dark:hover:bg-[#0a0a0a]"
               )}
             >
-              <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-medical-600 dark:text-medical-400" : "")} />
+              <tab.icon className="w-4 h-4" strokeWidth={1.5} />
               {tab.label}
-              <Badge variant="secondary" className={cn("ml-2", activeTab === tab.id ? "bg-medical-100 dark:bg-medical-900/40 text-medical-700 dark:text-medical-300" : "bg-slate-100 dark:bg-slate-800 text-slate-500")}>
+              <span className={cn(
+                "border px-1.5 py-0.5 text-[9px]",
+                activeTab === tab.id ? "border-black dark:border-white" : "border-gray-300 dark:border-gray-700"
+              )}>
                 {tab.count}
-              </Badge>
+              </span>
             </button>
           ))}
         </div>
 
         {/* 🚀 CONTENIDO DE LAS PESTAÑAS (Enviando Banderas) */}
-        <div className="pt-4">
+        <div className="border border-t-0 border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] -mt-12 pt-12">
           <AnimatePresence mode="wait">
 
             {activeTab === 'SERVICES' && (
@@ -354,7 +352,6 @@ export default function CatalogSetupPage() {
                   onDelete={handleDeleteService}
                   onDuplicate={handleDuplicateService}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'SERVICES')}
-                  // 🚀 Props de negocio agregadas
                   canAdd={canAddService}
                   currentUsage={usage?.metrics?.services?.current}
                   maxLimit={usage?.metrics?.services?.limit}
@@ -369,11 +366,10 @@ export default function CatalogSetupPage() {
                   packages={packages}
                   // @ts-ignore
                   availableServices={availableServicesForPackages}
-                  onAdd={handleAddPackage} // Aseguramos inyectar onAdd
+                  onAdd={handleAddPackage} 
                   onSave={handleSavePackage}
                   onDelete={handleDeletePackage}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'PACKAGES')}
-                  // 🚀 Props de negocio agregadas
                   canAdd={canAddPackage}
                   currentUsage={usage?.metrics?.packages?.current}
                   maxLimit={usage?.metrics?.packages?.limit}
@@ -391,7 +387,6 @@ export default function CatalogSetupPage() {
                   onSave={handleSaveProduct}
                   onDelete={handleDeleteProduct}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'PRODUCTS')}
-                  // 🚀 Props de negocio agregadas
                   canAdd={canAddProduct}
                   currentUsage={usage?.metrics?.products?.current ?? 0}
                   maxLimit={usage?.metrics?.products?.limit ?? undefined}
@@ -409,7 +404,6 @@ export default function CatalogSetupPage() {
                   onSave={handleSaveCourse}
                   onDelete={handleDeleteCourse}
                   onImageUpload={(id, file) => handleImageUpload(id, file, 'COURSES')}
-                  // 🚀 Props de negocio agregadas
                   canAdd={canAddCourse}
                   currentUsage={usage?.metrics?.courses?.current ?? 0}
                   maxLimit={usage?.metrics?.courses?.limit ?? undefined}

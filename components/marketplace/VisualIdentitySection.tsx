@@ -20,23 +20,19 @@ import { toast } from "react-toastify";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { handleApiError } from '@/lib/handleApiError';
 
-
-// Color presets - SATISFICING
+// Color presets - Architectural Selection
 const colorPresets = [
-  { name: 'Purple', value: '#9333ea', category: 'popular' },
-  { name: 'Blue', value: '#3b82f6', category: 'popular' },
-  { name: 'Emerald', value: '#10b981', category: 'popular' },
-  { name: 'Pink', value: '#ec4899', category: 'popular' },
-  { name: 'Orange', value: '#f97316', category: 'warm' },
-  { name: 'Teal', value: '#14b8a6', category: 'cool' },
-  { name: 'Indigo', value: '#6366f1', category: 'cool' },
-  { name: 'Rose', value: '#f43f5e', category: 'warm' }
+  { name: 'Negro Puro', value: '#000000', category: 'neutral' },
+  { name: 'Grafito', value: '#333333', category: 'neutral' },
+  { name: 'Púrpura', value: '#9333ea', category: 'popular' },
+  { name: 'Azul', value: '#3b82f6', category: 'popular' },
+  { name: 'Esmeralda', value: '#10b981', category: 'popular' },
+  { name: 'Rosa', value: '#ec4899', category: 'popular' },
+  { name: 'Naranja', value: '#f97316', category: 'warm' },
+  { name: 'Índigo', value: '#6366f1', category: 'cool' }
 ];
 
 export interface IdentitySettings {
@@ -102,13 +98,8 @@ export function VisualIdentitySection({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      return;
-    }
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) return;
 
     setUploadingType(type);
 
@@ -132,136 +123,133 @@ export function VisualIdentitySection({
   };
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
       
-      {/* Header */}
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20"
-            >
-              <Palette className="w-5 h-5 text-medical-600 dark:text-medical-400" />
-            </motion.div>
+      {/* Header Interior */}
+      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+              <Palette className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white mb-1">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
                 Identidad Visual
-              </CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">
+              </h2>
+              <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
                 Personaliza la apariencia de tu perfil público
-              </CardDescription>
+              </p>
             </div>
           </div>
 
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setShowPreview(!showPreview)}
-            className="border-medical-200 dark:border-medical-500/30 text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10"
+            className="rounded-none border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors h-10 px-6"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            {showPreview ? 'Ocultar' : 'Ver'} Preview
+            <Eye className="w-3.5 h-3.5 mr-2" strokeWidth={2} />
+            {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
           </Button>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="space-y-8 pt-2">
+      <div className="p-6 md:p-8 space-y-12">
         
-        {/* Live Preview */}
+        {/* Live Preview (Architectural Rendering) */}
         <AnimatePresence>
           {showPreview && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-5 overflow-hidden"
+              className="overflow-hidden"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Eye className="w-4 h-4 text-medical-600 dark:text-medical-400" />
-                <p className="text-sm font-semibold text-medical-600 dark:text-medical-400">Vista Previa del Perfil</p>
-              </div>
-              
-              {/* Banner Preview */}
-              <div className="aspect-[3/1] bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden mb-4 relative">
-                {settings.bannerImageUrl ? (
-                  <img src={settings.bannerImageUrl} alt="Banner" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-                    <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-700" />
-                  </div>
-                )}
+              <div className="border border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505] mb-8">
+                <div className="flex items-center gap-2 mb-6">
+                  <Eye className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Renderizado de Perfil</p>
+                </div>
                 
-                {/* Logo Overlay */}
-                <div className="absolute bottom-4 left-4">
-                  {settings.storeLogoUrl ? (
-                    <img 
-                      src={settings.storeLogoUrl} 
-                      alt="Logo" 
-                      className="w-20 h-20 rounded-xl border-4 border-white dark:border-slate-900 shadow-xl object-cover"
-                    />
+                {/* Banner Preview */}
+                <div className="aspect-[3/1] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 relative mb-8">
+                  {settings.bannerImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={settings.bannerImageUrl} alt="Banner" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-20 h-20 rounded-xl border-4 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-slate-400 dark:text-slate-600" />
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-gray-300 dark:text-gray-700" strokeWidth={1} />
                     </div>
                   )}
+                  
+                  {/* Logo Overlay */}
+                  <div className="absolute -bottom-8 left-8">
+                    {settings.storeLogoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={settings.storeLogoUrl} 
+                        alt="Logo" 
+                        className="w-24 h-24 border border-black dark:border-white bg-white object-cover"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex items-center justify-center">
+                        <ImageIcon className="w-6 h-6 text-gray-300 dark:text-gray-700" strokeWidth={1} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Profile Info Preview */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {settings.storeName || 'Nombre de la Tienda'}
-                </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  quhealthy.com/{settings.storeSlug || 'tu-url'}
-                </p>
-                <Button 
-                  size="sm"
-                  style={{ backgroundColor: settings.primaryColor }}
-                  className="text-white"
-                >
-                  Agendar Cita
-                </Button>
+                {/* Profile Info Preview */}
+                <div className="pl-8 space-y-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-black dark:text-white tracking-tight">
+                      {settings.storeName || 'NOMBRE_ENTIDAD'}
+                    </h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
+                      quhealthy.com/{settings.storeSlug || 'url-entidad'}
+                    </p>
+                  </div>
+                  <button 
+                    className="h-10 px-6 text-[10px] font-bold uppercase tracking-widest text-white border border-transparent hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: settings.primaryColor }}
+                  >
+                    Agendar Cita
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Name and URL */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Store Name */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Nombre de la Tienda
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center justify-between">
+              Nombre de la Entidad
+              <span className="text-gray-400 font-light normal-case tracking-normal flex items-center gap-1">
+                <Info className="w-3 h-3" /> Visible en búsquedas
+              </span>
             </Label>
             <Input 
-              placeholder="Ej: QuHealthy Centro Médico / Dr. Marcos" 
+              placeholder="Ej: Centro Médico QuHealthy" 
               value={settings.storeName}
               onChange={(e) => onChange('storeName', e.target.value)}
               onBlur={() => onSaveField && onSaveField('storeName', settings.storeName)}
               className={cn(
-                "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 text-base transition-all text-slate-900 dark:text-white",
-                "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
-                !settings.storeName ? "border-red-500/50":""
+                "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors",
+                !settings.storeName ? "border-red-500 dark:border-red-500" : ""
               )}
             />
-            <p className="text-xs text-slate-500 flex items-center gap-1">
-              <Info className="w-3 h-3" />
-              Este nombre aparecerá en tu perfil público y búsquedas
-            </p>
           </div>
           
           {/* Store Slug */}
           <div className="space-y-3">
-            <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              URL Personalizada
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              URL Personalizada (Identificador)
             </Label>
-            <div className="flex group">
-              <span className="bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-200 dark:border-slate-700 rounded-l-lg px-4 py-3 text-sm text-slate-500 dark:text-slate-400 flex items-center group-focus-within:border-medical-500 transition-colors">
+            <div className="flex focus-within:ring-1 focus-within:ring-black dark:focus-within:ring-white transition-shadow">
+              <span className="bg-gray-100 dark:bg-gray-900 border border-r-0 border-gray-200 dark:border-gray-800 px-4 py-3 text-[10px] font-bold tracking-widest text-gray-500 flex items-center">
                 quhealthy.com/
               </span>
               <Input 
@@ -270,69 +258,65 @@ export function VisualIdentitySection({
                 onChange={(e) => handleSlugChange(e.target.value)}
                 onBlur={() => !slugError && onSaveField && onSaveField('storeSlug', settings.storeSlug)}
                 className={cn(
-                  "rounded-l-none bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 h-12 font-mono text-sm transition-all text-slate-900 dark:text-white",
-                  "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
-                  slugError && "border-red-500/50"
+                  "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 font-mono text-sm focus-visible:ring-0 focus-visible:border-none transition-colors w-full",
+                  slugError ? "border-red-500 dark:border-red-500 text-red-500" : ""
                 )}
               />
             </div>
             
             {/* Slug Validation Feedback */}
-            {slugError ? (
-              <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                <X className="w-3 h-3" />
-                {slugError}
-              </p>
-            ) : settings.storeSlug && (
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                URL disponible
-              </p>
-            )}
+            <div className="h-4">
+              {slugError ? (
+                <p className="text-[9px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+                  <X className="w-3 h-3" strokeWidth={2} /> {slugError}
+                </p>
+              ) : settings.storeSlug && (
+                <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-1.5">
+                  <Check className="w-3 h-3" strokeWidth={2} /> Identificador válido
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Image Uploads */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-gray-200 dark:border-gray-800 pt-8">
           
           {/* Logo Upload */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Logotipo
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                Logotipo Institucional
               </Label>
-              <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-500/20 text-xs">
+              <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500">
                 {getImageSpecs('logo').size}
-              </Badge>
+              </span>
             </div>
             
             {settings.storeLogoUrl ? (
-              <div className="relative group">
+              <div className="relative group border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-2 aspect-square">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={settings.storeLogoUrl} 
                   alt="Logo" 
-                  className="w-full aspect-square object-cover rounded-xl border border-slate-200 dark:border-slate-800"
+                  className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen"
                 />
-                <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
-                    size="default"
-                    variant="ghost"
                     onClick={() => logoInputRef.current?.click()}
-                    className="bg-white/10 hover:bg-white/20 text-white"
+                    className="rounded-none bg-white text-black hover:bg-gray-200 h-10 px-4 text-[9px] font-bold uppercase tracking-widest border-0"
                   >
-                    <RefreshCw className="w-5 h-5" />
+                    <RefreshCw className="w-3.5 h-3.5 mr-2" /> Actualizar
                   </Button>
                   {onImageDelete && (
                     <Button
-                      size="default"
-                      variant="ghost"
                       onClick={() => {
                         onImageDelete('logo');
-                        toast.success('Logo eliminado');
+                        toast.success('Logotipo revocado');
                       }}
-                      className="bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                      className="rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white h-10 px-4 text-[9px] font-bold uppercase tracking-widest"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-3.5 h-3.5 mr-2" /> Remover
                     </Button>
                   )}
                 </div>
@@ -340,24 +324,23 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => logoInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-medical-300 dark:hover:border-medical-500/50 transition-all cursor-pointer group bg-white dark:bg-slate-900/50"
+                className="aspect-square w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
               >
-                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
+                <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-4 group-hover:border-black dark:group-hover:border-white transition-colors">
                   {uploadingType === 'logo' ? (
-                    <RefreshCw className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin" />
+                    <RefreshCw className="w-6 h-6 text-black dark:text-white animate-spin" strokeWidth={1.5} />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400" />
+                    <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                   )}
                 </div>
-                <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white text-center mb-1">
                   Logo Cuadrado
                 </p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
                   JPG o PNG • Máx 5MB
                 </p>
               </div>
             )}
-            
             <input
               ref={logoInputRef}
               type="file"
@@ -368,43 +351,40 @@ export function VisualIdentitySection({
           </div>
 
           {/* Banner Upload */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                 Banner de Portada
               </Label>
-              <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-500/20 text-xs">
+              <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500">
                 {getImageSpecs('banner').size}
-              </Badge>
+              </span>
             </div>
             
             {settings.bannerImageUrl ? (
-              <div className="relative group">
+              <div className="relative group border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-2 h-[calc(100%-2rem)] min-h-[200px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={settings.bannerImageUrl} 
                   alt="Banner" 
-                  className="w-full aspect-[3/1] object-cover rounded-xl border border-slate-200 dark:border-slate-800"
+                  className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-screen"
                 />
-                <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
-                    size="default"
-                    variant="ghost"
                     onClick={() => bannerInputRef.current?.click()}
-                    className="bg-white/10 hover:bg-white/20 text-white"
+                    className="rounded-none bg-white text-black hover:bg-gray-200 h-10 px-4 text-[9px] font-bold uppercase tracking-widest border-0"
                   >
-                    <RefreshCw className="w-5 h-5" />
+                    <RefreshCw className="w-3.5 h-3.5 mr-2" /> Actualizar
                   </Button>
                   {onImageDelete && (
                     <Button
-                      size="default"
-                      variant="ghost"
                       onClick={() => {
                         onImageDelete('banner');
-                        toast.success('Banner eliminado');
+                        toast.success('Banner revocado');
                       }}
-                      className="bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                      className="rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white h-10 px-4 text-[9px] font-bold uppercase tracking-widest"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-3.5 h-3.5 mr-2" /> Remover
                     </Button>
                   )}
                 </div>
@@ -412,24 +392,23 @@ export function VisualIdentitySection({
             ) : (
               <div 
                 onClick={() => bannerInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-medical-300 dark:hover:border-medical-500/50 transition-all cursor-pointer group bg-white dark:bg-slate-900/50"
+                className="h-[calc(100%-2rem)] min-h-[200px] w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
               >
-                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-medical-50 dark:group-hover:bg-medical-500/20 group-hover:scale-110 transition-all">
+                <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-4 group-hover:border-black dark:group-hover:border-white transition-colors">
                   {uploadingType === 'banner' ? (
-                    <RefreshCw className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin" />
+                    <RefreshCw className="w-6 h-6 text-black dark:text-white animate-spin" strokeWidth={1.5} />
                   ) : (
-                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-medical-600 dark:group-hover:text-medical-400" />
+                    <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                   )}
                 </div>
-                <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white text-center mb-1">
                   Banner Horizontal
                 </p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
                   JPG o PNG • Máx 5MB
                 </p>
               </div>
             )}
-            
             <input
               ref={bannerInputRef}
               type="file"
@@ -441,50 +420,18 @@ export function VisualIdentitySection({
         </div>
 
         {/* Color Picker Section */}
-        <div className="space-y-4">
-          <Label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Color de Marca
+        <div className="space-y-4 border-t border-gray-200 dark:border-gray-800 pt-8">
+          <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block mb-4">
+            Acento Cromático Principal
           </Label>
 
-          {/* Color Presets */}
-          <div className="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-              Colores Populares
-            </p>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {colorPresets.map((preset) => (
-                <motion.button
-                  key={preset.value}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => onChange('primaryColor', preset.value)}
-                  className={cn(
-                    "w-full aspect-square rounded-lg border-2 transition-all relative",
-                    settings.primaryColor === preset.value
-                      ? "border-slate-900 dark:border-white shadow-lg scale-110"
-                      : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
-                  )}
-                  style={{ backgroundColor: preset.value }}
-                  title={preset.name}
-                >
-                  {settings.primaryColor === preset.value && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Check className="w-5 h-5 text-white drop-shadow-lg" />
-                    </div>
-                  )}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-
-          {/* Custom Color Picker */}
-          <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex flex-col lg:flex-row gap-8">
             
-            {/* Color Display */}
-            <div className="flex items-center gap-4 w-full sm:w-auto">
+            {/* Custom Color Input */}
+            <div className="flex items-center gap-4">
               <div className="relative">
                 <div 
-                  className="w-20 h-20 rounded-xl border-2 border-slate-200 dark:border-white/10 shadow-xl cursor-pointer relative overflow-hidden transition-transform hover:scale-105"
+                  className="w-14 h-14 border border-gray-300 dark:border-gray-700 cursor-pointer overflow-hidden group"
                   style={{ backgroundColor: settings.primaryColor }}
                 >
                   <input 
@@ -493,12 +440,17 @@ export function VisualIdentitySection({
                     onChange={(e) => onChange('primaryColor', e.target.value)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
+                  {/* Crosshair indicator on hover */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 transition-opacity flex items-center justify-center pointer-events-none">
+                    <div className="w-4 h-px bg-white mix-blend-difference absolute" />
+                    <div className="w-px h-4 bg-white mix-blend-difference absolute" />
+                  </div>
                 </div>
               </div>
               
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  Color Personalizado
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                  Valor Hexadecimal
                 </span>
                 <Input 
                   value={settings.primaryColor} 
@@ -507,69 +459,70 @@ export function VisualIdentitySection({
                     if (val && !val.startsWith('#')) val = '#' + val;
                     onChange('primaryColor', val);
                   }}
-                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-32 h-9 text-xs uppercase font-mono focus:border-medical-500 text-slate-900 dark:text-white"
+                  className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 w-32 h-10 text-xs uppercase font-mono focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
                   maxLength={7}
                   placeholder="#000000"
                 />
               </div>
             </div>
 
-            <div className="hidden sm:block w-px h-16 bg-slate-200 dark:bg-slate-800" />
+            <div className="hidden lg:block w-px h-14 bg-gray-200 dark:bg-gray-800" />
 
-            {/* Live Preview Button */}
-            <div className="flex-1 w-full bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                <div className="space-y-1">
-                  <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded" />
-                  <div className="w-16 h-2 bg-slate-100 dark:bg-slate-800 rounded" />
-                </div>
+            {/* Color Presets */}
+            <div className="flex-1">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                Selección Rápida
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {colorPresets.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => onChange('primaryColor', preset.value)}
+                    className={cn(
+                      "w-10 h-10 border transition-all relative flex items-center justify-center",
+                      settings.primaryColor === preset.value
+                        ? "border-black dark:border-white scale-110 z-10"
+                        : "border-gray-200 dark:border-gray-800 hover:border-gray-400"
+                    )}
+                    style={{ backgroundColor: preset.value }}
+                    title={preset.name}
+                  >
+                    {settings.primaryColor === preset.value && (
+                      <Check className="w-4 h-4 text-white mix-blend-difference" strokeWidth={2} />
+                    )}
+                  </button>
+                ))}
               </div>
-              <button 
-                className="px-4 py-2 rounded-lg text-sm font-bold text-white shadow-lg transition-all hover:scale-105"
-                style={{ backgroundColor: settings.primaryColor }}
-              >
-                Vista Previa
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Best Practices Tips */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-4"
-        >
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">
-                💡 Mejores Prácticas de Identidad Visual
-              </p>
-              <ul className="space-y-1.5 text-xs text-emerald-600 dark:text-emerald-300/80">
-                <li className="flex items-start gap-2">
-                  <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                  <span>Usa imágenes de alta calidad y profesionales</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                  <span>El logo debe ser legible en tamaños pequeños</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                  <span>Elige colores que transmitan profesionalismo</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                  <span>Mantén consistencia en todos tus materiales</span>
-                </li>
-              </ul>
+        {/* Best Practices Tips (Margin Note) */}
+        <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mt-12">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-4">
+            <Info className="w-4 h-4" strokeWidth={1.5} /> Directrices de Identidad
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-500 font-light">
+            <div className="flex items-center gap-3">
+              <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+              <span>Resolución nativa recomendada (1:1 y 3:1)</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+              <span>Legibilidad garantizada en dispositivos móviles</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+              <span>Acento cromático alineado con tu branding</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+              <span>Consistencia gráfica en el marketplace</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

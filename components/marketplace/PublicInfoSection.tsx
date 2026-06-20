@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -17,19 +16,14 @@ import {
   ArrowRight,
   UploadCloud,
   RefreshCw,
-  Trash2
+  Trash2,
+  Check
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { toast } from "react-toastify";
-import { handleApiError } from '@/lib/handleApiError';
 
 export interface PublicInfoSettings {
   description: string;
@@ -54,24 +48,19 @@ export function PublicInfoSection({
   onVideoUpload
 }: PublicInfoSectionProps) {
   const [showPreviewTips, setShowPreviewTips] = useState(false);
-  const [videoUrlError, setVideoUrlError] = useState<string>('');
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const charCount = settings.description.length;
   const charLimit = 500;
   const charPercent = (charCount / charLimit) * 100;
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
-      return;
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      return;
-    }
+    if (!file.type.startsWith('video/')) return;
+    if (file.size > 20 * 1024 * 1024) return;
 
     setIsUploadingVideo(true);
     if (onVideoUpload) {
@@ -85,14 +74,14 @@ export function PublicInfoSection({
   const getCharCountColor = () => {
     if (charPercent >= 90) return 'text-red-500 dark:text-red-400';
     if (charPercent >= 75) return 'text-amber-500 dark:text-amber-400';
-    return 'text-slate-500';
+    return 'text-gray-500';
   };
 
   const getProgressColor = () => {
     if (charPercent >= 90) return 'bg-red-500';
     if (charPercent >= 75) return 'bg-amber-500';
-    if (charPercent >= 50) return 'bg-medical-500';
-    return 'bg-emerald-500';
+    if (charPercent >= 50) return 'bg-black dark:bg-white';
+    return 'bg-gray-400 dark:bg-gray-600';
   };
 
   // Writing quality score
@@ -111,78 +100,68 @@ export function PublicInfoSection({
   const qualityScore = getQualityScore();
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-
-      {/* Header */}
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20"
-            >
-              <FileText className="w-5 h-5 text-medical-600 dark:text-medical-400" />
-            </motion.div>
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+      
+      {/* Header Interior */}
+      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+              <FileText className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white mb-1">
-                Sobre Mí
-              </CardTitle>
-              <CardDescription className="text-slate-500 dark:text-slate-400">
-                Conecta emocionalmente con tus pacientes
-              </CardDescription>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                Información Pública
+              </h2>
+              <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+                Biografía y Video de Bienvenida
+              </p>
             </div>
           </div>
 
-          {/* Preview Toggle */}
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setShowPreviewTips(!showPreviewTips)}
-            className="border-medical-200 dark:border-medical-500/30 text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10"
+            className="rounded-none border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors h-10 px-6"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            {showPreviewTips ? 'Ocultar' : 'Ver'} Tips
+            <Eye className="w-3.5 h-3.5 mr-2" strokeWidth={2} />
+            {showPreviewTips ? 'Ocultar Tips' : 'Ver Tips de Bio'}
           </Button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-6 pt-2">
+      <div className="p-6 md:p-8 space-y-12">
 
-        {/* Writing Tips */}
+        {/* Writing Tips (Margin Note Format) */}
         <AnimatePresence>
           {showPreviewTips && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-medical-50 dark:bg-medical-500/10 border border-medical-100 dark:border-medical-500/20 rounded-xl p-4 overflow-hidden"
+              className="overflow-hidden"
             >
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-medical-600 dark:text-medical-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-medical-700 dark:text-medical-400 mb-2">
-                    💡 Consejos para una bio efectiva:
-                  </p>
-                  <ul className="space-y-1.5 text-xs text-medical-600 dark:text-medical-300/80">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>Comienza con tu especialidad principal</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>Menciona años de experiencia y certificaciones</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>Habla de tu enfoque o filosofía de atención</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>Usa un tono cercano y profesional</span>
-                    </li>
-                  </ul>
+              <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mb-8">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-3">
+                  <Info className="w-4 h-4" strokeWidth={1.5} /> Estructura Recomendada
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-500 font-light">
+                  <div className="flex items-center gap-3">
+                    <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+                    <span>Comienza con tu especialidad principal</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+                    <span>Menciona años de experiencia y certificaciones</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+                    <span>Habla de tu enfoque o filosofía de atención</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Check className="w-3.5 h-3.5 text-black dark:text-white shrink-0" strokeWidth={2} /> 
+                    <span>Usa un tono cercano y profesional</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -190,258 +169,196 @@ export function PublicInfoSection({
         </AnimatePresence>
 
         {/* Descripción Pública */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <Label className="text-slate-700 dark:text-slate-300 font-bold text-sm uppercase tracking-wider">
-              Biografía / Descripción
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              Biografía / Reseña Profesional
             </Label>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Quality Score */}
               {charCount > 50 && (
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs",
-                    qualityScore >= 75 ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20" :
-                      qualityScore >= 50 ? "bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-100 dark:border-medical-500/20" :
-                        "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20"
-                  )}
-                >
-                  {qualityScore >= 75 ? '✓ Completa' :
-                    qualityScore >= 50 ? 'Buena' :
-                      'Básica'}
-                </Badge>
+                <span className={cn(
+                  "text-[9px] font-bold uppercase tracking-widest border px-2 py-0.5",
+                  qualityScore >= 75 ? "border-black dark:border-white text-black dark:text-white" :
+                  qualityScore >= 50 ? "border-gray-400 text-gray-500" :
+                  "border-amber-500 text-amber-600"
+                )}>
+                  {qualityScore >= 75 ? 'Calidad: Óptima' :
+                   qualityScore >= 50 ? 'Calidad: Buena' :
+                   'Calidad: Básica'}
+                </span>
               )}
 
               {/* Character Counter */}
               <span className={cn(
-                "text-xs font-bold",
+                "text-[9px] font-bold uppercase tracking-widest",
                 getCharCountColor()
               )}>
-                {charCount}/{charLimit}
+                {charCount} / {charLimit}
               </span>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <Progress
-            value={charPercent}
-            className={cn("h-1", getProgressColor())}
-          />
+          {/* Strict Progress Line */}
+          <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+            <motion.div 
+              className={cn("absolute top-0 left-0 h-full", getProgressColor())} 
+              initial={{ width: 0 }} 
+              animate={{ width: `${charPercent}%` }} 
+              transition={{ duration: 0.3 }} 
+            />
+          </div>
 
           <Textarea
-            placeholder="Ejemplo: Hola, soy el Dr. Marcos López, médico cirujano con 10 años de experiencia en medicina general y preventiva. Me apasiona brindar atención integral y personalizada, escuchando las necesidades de cada paciente para ofrecer el mejor tratamiento posible..."
+            placeholder="Ejemplo: Hola, soy el Dr. Marcos López, médico cirujano con 10 años de experiencia en medicina general y preventiva. Me apasiona brindar atención integral y personalizada..."
             rows={6}
             value={settings.description}
             onChange={(e) => onChange('description', e.target.value)}
             maxLength={charLimit}
             className={cn(
-              "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 resize-none leading-relaxed transition-all text-slate-900 dark:text-white",
-              "focus:border-medical-500 focus:ring-2 focus:ring-medical-500/20",
-              charPercent >= 90 ? "border-red-500/50 focus:border-red-500" : ""
+              "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 p-4 text-sm font-light focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors resize-none leading-relaxed text-black dark:text-white",
+              charPercent >= 90 ? "border-red-500 focus-visible:border-red-500" : ""
             )}
           />
-
-          <div className="flex items-start gap-2 text-xs text-slate-500">
-            <Info className="w-3 h-3 flex-shrink-0 mt-0.5" />
-            <p>
-              Esta información aparecerá en la parte superior de tu perfil público y en búsquedas.
-            </p>
-          </div>
+          <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+            Información visible en la cabecera de tu perfil público y resultados de búsqueda.
+          </p>
         </div>
 
         {/* Video de Bienvenida */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className={cn(
-            "rounded-2xl border transition-all duration-300",
-            isPremium
-              ? "bg-medical-50 dark:bg-medical-500/5 border-medical-100 dark:border-medical-500/20 shadow-sm"
-              : "bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800"
-          )}
-        >
-          <div className="p-5 space-y-4">
-
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-lg",
-                  isPremium ? "bg-medical-100 dark:bg-medical-500/10" : "bg-slate-100 dark:bg-slate-800"
-                )}>
-                  <Video className={cn(
-                    "w-5 h-5",
-                    isPremium ? "text-medical-600 dark:text-medical-400" : "text-slate-400 dark:text-slate-500"
-                  )} />
-                </div>
-                <div>
-                  <Label className={cn(
-                    "font-bold text-sm",
-                    isPremium ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"
-                  )}>
-                    Video de Bienvenida
-                  </Label>
-                  {isPremium && (
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Aumenta conversión hasta 40%
-                    </p>
-                  )}
-                </div>
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-12 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black shrink-0">
+                <Video className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
               </div>
-
-              {!isPremium ? (
-                <Badge className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-500/10 dark:to-orange-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-200 dark:border-yellow-500/20 px-3 py-1">
-                  <Crown className="w-3 h-3 mr-1" />
-                  Premium
-                </Badge>
-              ) : (
-                <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20">
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  Activo
-                </Badge>
-              )}
+              <div>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block mb-0.5">
+                  Video Pitch / Presentación
+                </Label>
+                {isPremium && (
+                  <span className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+                    Impacto directo en conversión
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Video Upload UI */}
-            <div className="space-y-2">
-              {settings.videoUrl ? (
-                <div className="relative group rounded-xl overflow-hidden bg-black aspect-video border border-slate-200 dark:border-slate-800">
-                  <video src={settings.videoUrl} controls className="w-full h-full object-contain" />
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => onVideoDelete && onVideoDelete()}
-                      className="bg-red-500/80 hover:bg-red-600"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  onClick={() => isPremium && videoInputRef.current?.click()}
-                  className={cn(
-                    "border-2 border-dashed rounded-xl p-8 text-center transition-all",
-                    isPremium
-                      ? "border-medical-200 dark:border-medical-500/30 hover:bg-medical-50 dark:hover:bg-medical-500/10 hover:border-medical-400 dark:hover:border-medical-500 cursor-pointer bg-white dark:bg-slate-900"
-                      : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 cursor-not-allowed opacity-50"
-                  )}
-                >
-                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                    {isUploadingVideo ? (
-                      <RefreshCw className="w-8 h-8 text-medical-600 dark:text-medical-400 animate-spin" />
-                    ) : (
-                      <UploadCloud className="w-8 h-8 text-slate-400" />
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold">
-                    Sube tu Video de Bienvenida
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">MP4 o WebM • Máx 20MB</p>
-                </div>
-              )}
+            {!isPremium ? (
+              <span className="border border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                <Crown className="w-3 h-3" strokeWidth={2} /> Feature Premium
+              </span>
+            ) : (
+              <span className="border border-black bg-black text-white dark:border-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                <Check className="w-3 h-3" strokeWidth={2} /> Activo
+              </span>
+            )}
+          </div>
 
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/mp4,video/webm"
-                className="hidden"
-                disabled={!isPremium}
-                onChange={handleVideoFileChange}
-              />
-            </div>
-
-            {/* Info/Upgrade Section */}
-            {isPremium ? (
-              <div className="bg-medical-50 dark:bg-medical-500/10 border border-medical-100 dark:border-medical-500/20 rounded-xl p-3">
-                <div className="flex items-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-medical-600 dark:text-medical-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-medical-600 dark:text-medical-300/80">
-                    <p className="font-semibold text-medical-700 dark:text-medical-400 mb-1">
-                      Plataformas compatibles:
-                    </p>
-                    <p>
-                      YouTube, Vimeo. Los perfiles con video tienen <strong>40% más conversión</strong> y
-                      generan mayor confianza en los pacientes.
-                    </p>
-                  </div>
+          {/* Video Upload UI */}
+          <div className="space-y-4">
+            {settings.videoUrl ? (
+              <div className="relative group border border-gray-200 dark:border-gray-800 bg-black aspect-video overflow-hidden">
+                <video src={settings.videoUrl} controls className="w-full h-full object-contain" />
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    onClick={() => onVideoDelete && onVideoDelete()}
+                    className="rounded-none border border-red-500 bg-black/50 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4 text-[9px] font-bold uppercase tracking-widest backdrop-blur-sm"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-2" /> Revocar Video
+                  </Button>
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-500/5 dark:to-orange-500/5 border border-yellow-200 dark:border-yellow-500/20 rounded-xl p-4">
-                <div className="flex items-start gap-3 mb-4">
-                  <Sparkles className="w-5 h-5 text-yellow-500 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400 mb-2">
-                      Aumenta tu conversión con video
-                    </p>
-                    <ul className="space-y-1.5 text-xs text-yellow-600 dark:text-yellow-300/80">
-                      <li className="flex items-start gap-2">
-                        <Zap className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                        <span><strong>+40% más conversión</strong> en reservas</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Zap className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                        <span>Los pacientes prefieren ver a su médico antes de agendar</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Zap className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                        <span>Transmite confianza y profesionalismo</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                {onUpgrade && (
-                  <Button
-                    onClick={onUpgrade}
-                    className="w-full"
-                  >
-                    <Crown className="w-4 h-4 mr-2" />
-                    Actualizar a Premium
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+              <div
+                onClick={() => isPremium && videoInputRef.current?.click()}
+                className={cn(
+                  "border border-dashed aspect-video md:aspect-[21/9] flex flex-col items-center justify-center transition-colors group",
+                  isPremium
+                    ? "border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] cursor-pointer"
+                    : "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] cursor-not-allowed opacity-60"
                 )}
+              >
+                <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-4 group-hover:border-black dark:group-hover:border-white transition-colors">
+                  {isUploadingVideo ? (
+                    <RefreshCw className="w-6 h-6 text-black dark:text-white animate-spin" strokeWidth={1.5} />
+                  ) : (
+                    <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                  )}
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                  Subir Archivo de Video
+                </p>
+                <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+                  MP4 o WebM • Máx 20MB
+                </p>
               </div>
             )}
-          </div>
-        </motion.div>
 
-        {/* Success Examples */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-4"
-        >
-          <div className="flex items-start gap-3">
-            <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">
-                📈 Impacto de un perfil completo:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="bg-emerald-100/50 dark:bg-emerald-500/5 rounded-lg p-2 text-center">
-                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">+65%</p>
-                  <p className="text-emerald-600 dark:text-emerald-300/80">Más vistas</p>
-                </div>
-                <div className="bg-emerald-100/50 dark:bg-emerald-500/5 rounded-lg p-2 text-center">
-                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">+40%</p>
-                  <p className="text-emerald-600 dark:text-emerald-300/80">Más citas</p>
-                </div>
-                <div className="bg-emerald-100/50 dark:bg-emerald-500/5 rounded-lg p-2 text-center">
-                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">+85%</p>
-                  <p className="text-emerald-600 dark:text-emerald-300/80">Confianza</p>
-                </div>
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/mp4,video/webm"
+              className="hidden"
+              disabled={!isPremium}
+              onChange={handleVideoFileChange}
+            />
+          </div>
+
+          {/* Info/Upgrade Section */}
+          {!isPremium && (
+            <div className="border-l-2 border-amber-500 pl-6 py-4 bg-amber-50 dark:bg-amber-900/10 mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4" strokeWidth={1.5} /> Mejora tu Conversión
+                </p>
+                <ul className="space-y-2 text-xs text-amber-800/80 dark:text-amber-300/80 font-light">
+                  <li className="flex items-center gap-2">
+                    <Zap className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    <span><strong>+40% conversión</strong> en reservas confirmadas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Zap className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    <span>Transmite confianza visual antes de agendar</span>
+                  </li>
+                </ul>
               </div>
+
+              {onUpgrade && (
+                <Button
+                  onClick={onUpgrade}
+                  className="rounded-none bg-amber-500 text-white hover:bg-amber-600 h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors shrink-0"
+                >
+                  <Crown className="w-4 h-4 mr-2" strokeWidth={2} />
+                  Upgrade Premium
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Success Examples (Blueprint Grid) */}
+        <div className="pt-8">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4" strokeWidth={1.5} /> Impacto de Expediente Completo
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800">
+            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
+              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">+65%</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Visualizaciones</p>
+            </div>
+            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
+              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">+40%</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Conversión</p>
+            </div>
+            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
+              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">+85%</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Confianza Media</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
