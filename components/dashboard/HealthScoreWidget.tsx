@@ -29,32 +29,31 @@ export function HealthScoreWidget({ scoreData, isLoading, onOpenOnboarding }: He
     );
   }
 
-  // ✨ ESTADO 2: Sin datos (CTA Técnico y Estricto)
+  // ✨ ESTADO 2: Sin datos (CTA Gamificado)
   if (!scoreData) {
     return (
-      <div className="h-full min-h-[300px] border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-8 flex flex-col justify-between">
-        
-        <div>
-          <div className="w-12 h-12 border border-white/30 dark:border-black/30 flex items-center justify-center mb-6 bg-white/5 dark:bg-black/5">
-            <Sparkles className="w-5 h-5" strokeWidth={1.5} />
+      <Card className="h-full rounded-none bg-black dark:bg-white text-white dark:text-black border-0 shadow-none relative overflow-hidden group">
+        <CardContent className="p-8 md:p-10 flex flex-col h-full justify-center relative z-10">
+          <div className="w-12 h-12 border border-white dark:border-black flex items-center justify-center mb-6 bg-transparent">
+            <Sparkles className="w-5 h-5 text-white dark:text-black" strokeWidth={1.5} />
           </div>
           
-          <h3 className="text-2xl font-semibold mb-3 tracking-tight">
+          <h3 className="text-2xl font-bold mb-4 tracking-tight">
             {t('cta_title')}
           </h3>
           
-          <p className="text-xs text-gray-400 dark:text-gray-600 font-light leading-relaxed max-w-sm mb-8">
+          <p className="text-xs font-light mb-10 flex-1 leading-relaxed opacity-80">
             {t('cta_desc')}
           </p>
-        </div>
-        
-        <Button
-          onClick={onOpenOnboarding}
-          className="w-full bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-none h-14 text-[10px] font-bold uppercase tracking-widest border-0 flex items-center justify-between px-6 transition-colors"
-        >
-          {t('cta_button')} <ArrowRight className="w-4 h-4" />
-        </Button>
-      </div>
+          
+          <Button
+            onClick={onOpenOnboarding}
+            className="w-full rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors"
+          >
+            {t('cta_button')}
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 

@@ -113,7 +113,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                         type="number"
                         value={formData.weightKg}
                         onChange={(e) => updateForm('weightKg', parseFloat(e.target.value))}
-                        className="w-full h-12 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors"
+                        className="w-full h-12 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors"
                       />
                     </div>
                     <div className="space-y-3">
@@ -124,7 +124,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                         type="number"
                         value={formData.heightCm}
                         onChange={(e) => updateForm('heightCm', parseFloat(e.target.value))}
-                        className="w-full h-12 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors"
+                        className="w-full h-12 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -144,7 +144,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                     <select
                       value={formData.activityLevel}
                       onChange={(e) => updateForm('activityLevel', e.target.value as ActivityLevel)}
-                      className="w-full h-12 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors appearance-none"
+                      className="w-full h-12 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors appearance-none"
                     >
                       <option value="SEDENTARY">{t('act_sedentary')}</option>
                       <option value="LIGHT">{t('act_light')}</option>
@@ -208,7 +208,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                       type="range" min="0" max="5" step="0.5"
                       value={formData.waterIntakeLiters}
                       onChange={(e) => updateForm('waterIntakeLiters', parseFloat(e.target.value))}
-                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer accent-black dark:accent-white"
+                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:dark:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full transition-all"
                     />
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                       type="range" min="1" max="10" step="1"
                       value={formData.stressLevel}
                       onChange={(e) => updateForm('stressLevel', parseInt(e.target.value))}
-                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer accent-black dark:accent-white"
+                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:dark:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full transition-all"
                     />
                   </div>
                   
@@ -251,7 +251,7 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                       type="range" min="3" max="12" step="0.5"
                       value={formData.sleepHoursAvg}
                       onChange={(e) => updateForm('sleepHoursAvg', parseFloat(e.target.value))}
-                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer accent-black dark:accent-white"
+                      className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:dark:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full transition-all"
                     />
                   </div>
                 </div>

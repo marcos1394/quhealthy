@@ -13,18 +13,18 @@ export const HealthScoreCard = ({ score = 85, title = "Health Score", subtitle =
     const strokeDashoffset = circumference - (score / 100) * circumference;
 
     return (
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group h-full">
-            <CardContent className="p-6 md:p-8 flex flex-col items-center justify-center text-center h-full">
-                <div className="flex justify-between w-full items-start mb-4">
-                    <Badge variant="outline" className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-medical-200 dark:border-medical-500/20 text-xs font-semibold">
-                        <ShieldCheck className="w-3 h-3 mr-1" /> Excellent
-                    </Badge>
-                    <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400">
+        <Card className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-none relative overflow-hidden h-full">
+            <CardContent className="p-8 md:p-10 flex flex-col items-center justify-center text-center h-full">
+                <div className="flex justify-between w-full items-start mb-6">
+                    <div className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center">
+                        <ShieldCheck className="w-3 h-3 mr-2" /> Excellent
+                    </div>
+                    <div className="p-2 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white">
                         <Activity className="w-4 h-4" />
                     </div>
                 </div>
 
-                <div className="relative flex items-center justify-center w-40 h-40 mb-4">
+                <div className="relative flex items-center justify-center w-40 h-40 mb-8">
                     {/* Background Circle */}
                     <svg className="absolute inset-0 w-full h-full transform -rotate-90">
                         <circle
@@ -32,9 +32,9 @@ export const HealthScoreCard = ({ score = 85, title = "Health Score", subtitle =
                             cy="80"
                             r={radius}
                             stroke="currentColor"
-                            strokeWidth="12"
+                            strokeWidth="4"
                             fill="transparent"
-                            className="text-slate-100 dark:text-slate-800"
+                            className="text-gray-200 dark:text-gray-800"
                         />
                         {/* Progress Circle */}
                         <motion.circle
@@ -48,8 +48,8 @@ export const HealthScoreCard = ({ score = 85, title = "Health Score", subtitle =
                             strokeWidth="12"
                             fill="transparent"
                             strokeDasharray={circumference}
-                            strokeLinecap="round"
-                            className="text-medical-500"
+                            strokeLinecap="square"
+                            className="text-black dark:text-white"
                         />
                     </svg>
                     <div className="absolute flex flex-col items-center justify-center">
@@ -57,22 +57,22 @@ export const HealthScoreCard = ({ score = 85, title = "Health Score", subtitle =
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.5, duration: 0.5 }}
-                            className="text-4xl font-bold text-slate-900 dark:text-white pb-1"
+                            className="text-5xl font-bold tracking-tight text-black dark:text-white pb-1"
                         >
                             {score}
                         </motion.span>
-                        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">/ 100</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">/ 100</span>
                     </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
-                <p className="text-sm font-light text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
+                <h3 className="text-xl font-semibold tracking-tight text-black dark:text-white mb-2">{title}</h3>
+                <p className="text-xs font-light text-gray-500 dark:text-gray-400 max-w-[200px]">
                     {subtitle}
                 </p>
 
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 w-full flex items-center justify-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-emerald-500" />
-                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300">Top 15% of users</span>
+                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 w-full flex items-center justify-center gap-3">
+                    <TrendingUp className="w-4 h-4 text-black dark:text-white" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Top 15% of users</span>
                 </div>
             </CardContent>
         </Card>
