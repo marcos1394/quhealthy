@@ -7,7 +7,7 @@ import { SecuritySettings } from "@/components/settings/SecuritySettings";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
 import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { WearablesSettings } from "@/components/settings/WearablesSettings";
-import { getPatientProfile, updatePatientProfile } from "@/services/onboarding.service";
+import { consumerProfileService } from "@/services/consumerProfile.service";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 
@@ -22,7 +22,7 @@ export default function SettingsPage() {
 
   const fetchProfile = async () => {
     try {
-      const data = await getPatientProfile();
+      const data = await consumerProfileService.getProfile();
       setProfile(data);
     } catch (error) {
       console.error("Error fetching profile", error);
@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const handleConsentChange = async (accepted: boolean) => {
     if (!profile) return false;
     try {
-      const updated = await updatePatientProfile({ ...profile, algorithmicConsentAccepted: accepted });
+      const updated = await consumerProfileService.updateProfile({ ...profile, algorithmicConsentAccepted: accepted });
       setProfile(updated);
       toast.success(accepted ? "Consentimiento otorgado." : "Consentimiento revocado.");
       return true;
