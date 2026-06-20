@@ -57,6 +57,10 @@ export const DependentsStep = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.gender || !formData.relationship) {
+      toast.error("Por favor selecciona el sexo y el parentesco.");
+      return;
+    }
     try {
       setSaving(true);
       
@@ -214,42 +218,63 @@ export const DependentsStep = () => {
                       required
                       type="date" 
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none dark:[&::-webkit-calendar-picker-indicator]:invert"
                       value={formData.dateOfBirth}
                       onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Sexo *</label>
-                    <select 
-                      required
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
-                      value={formData.gender}
-                      onChange={e => setFormData({...formData, gender: e.target.value})}
-                    >
-                      <option value="">Selecciona...</option>
-                      <option value="MALE">Masculino</option>
-                      <option value="FEMALE">Femenino</option>
-                    </select>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: "MALE", label: "Masculino" },
+                        { id: "FEMALE", label: "Femenino" }
+                      ].map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, gender: option.id })}
+                          className={cn(
+                            "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                            formData.gender === option.id
+                              ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                              : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white"
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Parentesco */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Parentesco *</label>
-                  <select 
-                    required
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
-                    value={formData.relationship}
-                    onChange={e => setFormData({...formData, relationship: e.target.value})}
-                  >
-                    <option value="">Selecciona...</option>
-                    <option value="CHILD">Hijo / Hija</option>
-                    <option value="PARENT">Padre / Madre</option>
-                    <option value="SPOUSE">Pareja / Cónyuge</option>
-                    <option value="SIBLING">Hermano / Hermana</option>
-                    <option value="OTHER">Otro</option>
-                  </select>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {[
+                      { id: "CHILD", label: "Hijo / Hija" },
+                      { id: "PARENT", label: "Padre / Madre" },
+                      { id: "SPOUSE", label: "Pareja / Cónyuge" },
+                      { id: "SIBLING", label: "Hermano / Hermana" },
+                      { id: "OTHER", label: "Otro" }
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, relationship: option.id })}
+                        className={cn(
+                          "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                          formData.relationship === option.id
+                            ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                            : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
+                          option.id === "OTHER" ? "col-span-2 md:col-span-1" : ""
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Biometría (Architectural Note) */}
