@@ -150,51 +150,56 @@ export default function LoginPage() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="flex min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
 
         {/* Left Panel - Editorial Image (Hidden on Mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-slate-100 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/hero_medical_lifestyle.png"
             alt="QuHealthy Authentication"
-            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal opacity-90"
+            className="absolute inset-0 w-full h-full object-cover object-center grayscale mix-blend-multiply dark:mix-blend-lighten opacity-80"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/40 dark:bg-black/60" />
 
           <div className="relative z-10 p-16 mt-auto">
-            <h2 className="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">
+            <h2 className="text-4xl lg:text-5xl font-semibold text-white mb-8 tracking-tight leading-[1.1]">
               {t(userType === 'consumer' ? 'consumer_area' : 'provider_area')}
             </h2>
 
-            <div className="space-y-4 mb-8">
+            <div className="space-y-4 mb-10">
               {benefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 text-slate-200 font-light text-lg"
+                  className="flex items-center gap-3 text-gray-200 font-light text-lg"
                 >
-                  <div className="p-1.5 rounded-full bg-medical-500/20 backdrop-blur-sm">
-                    <Check className="w-4 h-4 text-medical-400" strokeWidth={2} />
+                  <div className="p-1.5 rounded-full border border-white/30">
+                    <Check className="w-4 h-4 text-white" strokeWidth={2} />
                   </div>
                   <span>{benefit}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex items-center gap-3 backdrop-blur-md bg-white/10 p-4 rounded-xl border border-white/20 w-max">
-              <Shield className="w-8 h-8 text-medical-300" strokeWidth={1.5} />
-              <div>
-                <p className="text-white font-medium text-sm">{t('secure_connection')}</p>
-                <p className="text-slate-300 text-xs font-light">
-                  {t('secure_desc')}
-                </p>
+            {/* Bloque de Información Segura (Arquitectónico a corte vivo, homologado con recovery) */}
+            <div className="border-t border-white/20 pt-8 w-full max-w-md">
+              <div className="flex items-start gap-5">
+                <Shield className="w-6 h-6 text-white mt-0.5 opacity-80" strokeWidth={1.5} />
+                <div>
+                  <p className="text-white text-[10px] font-bold uppercase tracking-widest mb-2">
+                    {t('secure_connection')}
+                  </p>
+                  <p className="text-gray-300 text-sm font-light leading-relaxed">
+                    {t('secure_desc')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Panel - Minimalist Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -202,16 +207,16 @@ export default function LoginPage() {
             className="w-full max-w-md"
           >
             {/* Header */}
-            <div className="mb-10 text-center lg:text-left">
-              <Link href="/" className="inline-block mb-8">
-                <span className="text-2xl font-serif font-black tracking-tight text-slate-900 dark:text-white">
-                  QuHealthy<span className="text-medical-600 dark:text-medical-400">.</span>
+            <div className="mb-16 text-center lg:text-left">
+              <Link href="/" className="inline-block mb-12">
+                <span className="text-2xl font-serif italic tracking-tight text-black dark:text-white">
+                  QuHealthy.
                 </span>
               </Link>
-              <h1 className="text-3xl font-medium text-slate-900 dark:text-white mb-2 tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white mb-4 tracking-tight">
                 {t('title')}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 font-light">
+              <p className="text-gray-500 dark:text-gray-400 font-light leading-relaxed">
                 {t('subtitle')}
               </p>
             </div>
@@ -223,16 +228,16 @@ export default function LoginPage() {
               onValueChange={handleTabChange}
               className="w-full mb-8"
             >
-              <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-900 h-14 p-1 rounded-xl">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-900 h-14 p-1 rounded-xl">
                 <TabsTrigger
                   value="consumer"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-500 h-full rounded-lg text-sm font-medium transition-all"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-500 h-full rounded-lg text-sm font-medium transition-all"
                 >
                   <User className="w-4 h-4 mr-2" /> {t('consumer_tab')}
                 </TabsTrigger>
                 <TabsTrigger
                   value="provider"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-500 h-full rounded-lg text-sm font-medium transition-all"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-500 h-full rounded-lg text-sm font-medium transition-all"
                 >
                   <Stethoscope className="w-4 h-4 mr-2" /> {t('provider_tab')}
                 </TabsTrigger>
@@ -247,10 +252,10 @@ export default function LoginPage() {
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                <div className="w-full border-t border-gray-200 dark:border-gray-800" />
               </div>
               <div className="relative flex justify-center text-sm font-light">
-                <span className="px-4 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400">
+                <span className="px-4 bg-white dark:bg-[#0a0a0a] text-gray-500 dark:text-gray-400">
                   {t('or_continue')}
                 </span>
               </div>
@@ -302,11 +307,11 @@ export default function LoginPage() {
 
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 font-medium">
                   {t('email_label')}
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     id="email"
                     name="email"
@@ -314,7 +319,7 @@ export default function LoginPage() {
                     placeholder={userType === 'consumer' ? t('email_placeholder_consumer') : t('email_placeholder_provider')}
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
+                    className="pl-11 h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
                     required
                   />
                 </div>
@@ -323,18 +328,18 @@ export default function LoginPage() {
               {/* Password Field */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">
+                  <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
                     {t('password_label')}
                   </Label>
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-medical-600 dark:text-medical-400 hover:text-medical-700 font-medium transition-colors"
+                    className="text-sm text-black dark:text-white hover:underline font-medium transition-colors"
                   >
                     {t('forgot_password')}
                   </Link>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     id="password"
                     name="password"
@@ -342,14 +347,14 @@ export default function LoginPage() {
                     placeholder={t('password_placeholder')}
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-11 pr-12 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
+                    className="pl-11 pr-12 h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
                     required
                   />
                   <button
                     type="button"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
                   </button>
@@ -362,11 +367,11 @@ export default function LoginPage() {
                   id="remember"
                   checked={formData.rememberMe}
                   onCheckedChange={handleRememberMeChange}
-                  className="data-[state=checked]:bg-slate-900 dark:data-[state=checked]:bg-white border-slate-300 dark:border-slate-700 w-5 h-5"
+                  className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white border-gray-300 dark:border-gray-700 w-5 h-5"
                 />
                 <label
                   htmlFor="remember"
-                  className="text-sm text-slate-600 dark:text-slate-400 font-medium cursor-pointer select-none"
+                  className="text-sm text-gray-600 dark:text-gray-400 font-medium cursor-pointer select-none"
                 >
                   {t('remember_me')}
                 </label>
@@ -376,7 +381,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={!isFormValid() || loading}
-                className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl transition-all mt-4"
+                className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-xl transition-all mt-4"
               >
                 {loading ? (
                   <>
@@ -394,13 +399,13 @@ export default function LoginPage() {
 
             {/* Signup Link */}
             <div className="mt-12 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light mb-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-light mb-4">
                 {t('no_account')}
               </p>
 
               <Link
                 href={userType === 'consumer' ? "/register" : "/provider/register"}
-                className="inline-flex items-center justify-center w-full h-14 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group"
+                className="inline-flex items-center justify-center w-full h-14 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 transition-all group"
               >
                 {t('create_account')}
               </Link>
