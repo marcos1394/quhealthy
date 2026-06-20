@@ -3,7 +3,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Calendar, TrendingUp, CheckCircle2, XCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 
 interface AppointmentStatsProps {
   stats: {
@@ -18,54 +17,54 @@ export function AppointmentStats({ stats }: AppointmentStatsProps) {
   const t = useTranslations('PatientAppointments');
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('stat_total', { defaultValue: 'Total' })}</p>
-              <p className="text-2xl font-bold text-medical-600 dark:text-medical-400">{stats.total}</p>
-            </div>
-            <Calendar className="w-8 h-8 text-medical-300 dark:text-medical-600 opacity-50" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+      <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+            <Calendar className="w-4 h-4" strokeWidth={1.5} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('stat_total', { defaultValue: 'Total' })}</p>
+          <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{stats.total}</p>
+        </div>
+      </div>
 
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('stat_upcoming', { defaultValue: 'Próximas' })}</p>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.upcoming}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-blue-300 dark:text-blue-600 opacity-50" />
+      <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+            <TrendingUp className="w-4 h-4" strokeWidth={1.5} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('stat_upcoming', { defaultValue: 'Próximas' })}</p>
+          <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{stats.upcoming}</p>
+        </div>
+      </div>
 
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('stat_completed', { defaultValue: 'Completadas' })}</p>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.completed}</p>
-            </div>
-            <CheckCircle2 className="w-8 h-8 text-emerald-300 dark:text-emerald-600 opacity-50" />
+      <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+            <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('stat_completed', { defaultValue: 'Completadas' })}</p>
+          <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{stats.completed}</p>
+        </div>
+      </div>
 
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('stat_cancelled', { defaultValue: 'Canceladas' })}</p>
-              <p className="text-2xl font-bold text-rose-600 dark:text-red-400">{stats.cancelled}</p>
-            </div>
-            <XCircle className="w-8 h-8 text-rose-300 dark:text-red-600 opacity-50" />
+      <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+            <XCircle className="w-4 h-4" strokeWidth={1.5} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('stat_cancelled', { defaultValue: 'Canceladas' })}</p>
+          <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{stats.cancelled}</p>
+        </div>
+      </div>
     </div>
   );
 }

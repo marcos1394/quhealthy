@@ -3,7 +3,6 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -37,49 +36,56 @@ export function AppointmentFilters({
   const t = useTranslations('PatientAppointments');
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-      <CardContent className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          
-          {/* Pestañas de Estado */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="flex-1">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800 transition-colors">
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all">
-                {t('tab_upcoming', { defaultValue: 'Próximas' })}
-              </TabsTrigger>
-              <TabsTrigger value="past" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all">
-                {t('tab_past', { defaultValue: 'Pasadas' })}
-              </TabsTrigger>
-              <TabsTrigger value="cancelled" className="data-[state=active]:bg-rose-500 data-[state=active]:text-white transition-all">
-                {t('tab_cancelled', { defaultValue: 'Canceladas' })}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col xl:flex-row gap-6 items-center justify-between">
+      
+      {/* Pestañas de Estado */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} className="w-full xl:w-auto flex-1">
+        <TabsList className="w-full grid grid-cols-3 bg-gray-100 dark:bg-gray-900 rounded-none h-12 p-1">
+          <TabsTrigger 
+            value="upcoming" 
+            className="rounded-none text-[9px] font-bold uppercase tracking-widest data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black transition-colors"
+          >
+            {t('tab_upcoming', { defaultValue: 'Próximas' })}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="past" 
+            className="rounded-none text-[9px] font-bold uppercase tracking-widest data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black transition-colors"
+          >
+            {t('tab_past', { defaultValue: 'Pasadas' })}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="cancelled" 
+            className="rounded-none text-[9px] font-bold uppercase tracking-widest data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black transition-colors"
+          >
+            {t('tab_cancelled', { defaultValue: 'Canceladas' })}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-          {/* Barra de Búsqueda */}
-          <div className="relative flex-1 md:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('search_placeholder', { defaultValue: 'Buscar doctor o especialidad...' })}
-              className="pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white transition-colors focus-visible:ring-medical-500"
-            />
-          </div>
-
-          {/* Selector de Orden */}
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortValue)}>
-            <SelectTrigger className="w-full md:w-40 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white transition-colors focus:ring-medical-500">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
-              <SelectItem value="date">{t('sort_date', { defaultValue: 'Por Fecha' })}</SelectItem>
-              <SelectItem value="provider">{t('sort_provider', { defaultValue: 'Por Doctor' })}</SelectItem>
-            </SelectContent>
-          </Select>
-
+      <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto">
+        {/* Barra de Búsqueda */}
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('search_placeholder', { defaultValue: 'Buscar especialista...' })}
+            className="pl-11 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+          />
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Selector de Orden */}
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortValue)}>
+          <SelectTrigger className="w-full sm:w-48 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-[10px] font-bold uppercase tracking-widest focus:ring-0 focus:ring-offset-0 focus:border-black dark:focus:border-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="rounded-none border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+            <SelectItem value="date" className="text-[10px] font-bold uppercase tracking-widest focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">{t('sort_date', { defaultValue: 'Por Fecha' })}</SelectItem>
+            <SelectItem value="provider" className="text-[10px] font-bold uppercase tracking-widest focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">{t('sort_provider', { defaultValue: 'Por Doctor' })}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+    </div>
   );
 }

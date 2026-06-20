@@ -3,23 +3,23 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Calendar, Plus } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { Calendar, Plus } from 'lucide-react';
 
 // UI Components
 import { Button } from '@/components/ui/button';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 // Hooks & Types
 import { useAppointments } from '@/hooks/useAppointment';
 import { AppointmentResponse } from '@/types/appointments';
 
-// Modular Components (Los que acabamos de crear)
+// Modular Components
 import { AppointmentStats } from '@/components/appointments/AppointmentStats';
 import { AppointmentFilters, TabValue, SortValue } from '@/components/appointments/AppointmentFilters';
 import { AppointmentCard } from '@/components/appointments/AppointmentCard';
 import { AppointmentEmptyState } from '@/components/appointments/AppointmentEmptyState';
-import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function ConsumerAppointmentsPage() {
   const router = useRouter();
@@ -119,39 +119,42 @@ export default function ConsumerAppointmentsPage() {
   // --- ESTADO 1: CARGANDO ---
   if (isLoading) {
     return (
-      <div className="flex flex-col justify-center items-center h-[60vh] space-y-4 bg-slate-50 dark:bg-slate-950 transition-colors">
+      <div className="flex flex-col justify-center items-center min-h-screen gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 dark:text-slate-400 font-medium">{t('loading', { defaultValue: 'Cargando citas...' })}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
+          {t('loading', { defaultValue: 'Cargando registros...' })}
+        </p>
       </div>
     );
   }
 
   // --- ESTADO 2: PÁGINA PRINCIPAL ---
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30 transition-colors">
-      <div className="space-y-6 max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
 
         {/* --- CABECERA --- */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm transition-colors">
-              <Calendar className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+              <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {t('title', { defaultValue: 'Mis Citas' })}
+              <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2 uppercase">
+                {t('title', { defaultValue: 'Expediente de Citas' })}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1">
-                {t('subtitle', { defaultValue: 'Gestiona tu historial y próximas consultas.' })}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                {t('subtitle', { defaultValue: 'Gestión y auditoría de consultas médicas.' })}
               </p>
             </div>
           </div>
+          
           <Button 
             onClick={() => router.push('/discover')} 
-            className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full font-medium shadow-lg transition-all"
+            className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
           >
-            <Plus className="w-4 h-4 mr-2" /> 
-            {t('btn_new', { defaultValue: 'Agendar Cita' })}
+            <Plus className="w-4 h-4 mr-3" strokeWidth={2} /> 
+            {t('btn_new', { defaultValue: 'Programar Consulta' })}
           </Button>
         </div>
 
@@ -169,7 +172,7 @@ export default function ConsumerAppointmentsPage() {
         />
 
         {/* --- LISTA DE CITAS O ESTADO VACÍO --- */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <AnimatePresence mode="popLayout">
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((appt, index) => (
@@ -189,13 +192,13 @@ export default function ConsumerAppointmentsPage() {
           </AnimatePresence>
         </div>
 
-        {/* --- MODAL DE CANCELACIÓN --- */}
+        {/* --- MODAL DE CANCELACIÓN (Nota: El Modal mantiene sus propias clases, pero envuelve la lógica) --- */}
         <ConfirmationModal
           isOpen={cancelModalState.isOpen}
           onClose={() => setCancelModalState({ isOpen: false, appointment: null })}
           onConfirm={handleCancelAppointment}
-          title={t('btn_cancel', { defaultValue: 'Cancelar Cita' })}
-          message={`¿Estás seguro que deseas cancelar tu cita para ${cancelModalState.appointment?.serviceName} con el ${cancelModalState.appointment?.providerNameSnapshot}? Esta acción no se puede deshacer.`}
+          title={t('btn_cancel', { defaultValue: 'Anular Registro' })}
+          message={`¿Confirma la anulación del registro para ${cancelModalState.appointment?.serviceName} con ${cancelModalState.appointment?.providerNameSnapshot}? Esta acción no se puede deshacer.`}
           isLoading={isCanceling}
           variant="destructive"
         />
