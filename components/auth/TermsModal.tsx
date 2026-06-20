@@ -72,14 +72,6 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                 </DialogDescription>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="default"
-              onClick={onClose}
-              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </Button>
           </div>
 
           {/* Key Points Summary */}
