@@ -153,17 +153,17 @@ export default function ConsumerSignupPage() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="flex min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
 
         {/* Left Panel - Editorial Image (Hidden on Mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-slate-100 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/suite_patient_app.png"
             alt="QuHealthy Patient Sign Up"
-            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal opacity-90"
+            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 dark:from-black/90 dark:via-black/50 dark:to-transparent" />
 
           <div className="relative z-10 p-16 mt-auto">
             <h2 className="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">
@@ -174,23 +174,27 @@ export default function ConsumerSignupPage() {
               {benefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 text-slate-200 font-light text-lg"
+                  className="flex items-center gap-3 text-gray-200 font-light text-lg"
                 >
-                  <div className="p-1.5 rounded-full bg-medical-500/20 backdrop-blur-sm">
-                    <Check className="w-4 h-4 text-medical-400" strokeWidth={2} />
+                  <div className="p-1.5 rounded-full border border-white/30">
+                    <Check className="w-4 h-4 text-white" strokeWidth={2} />
                   </div>
                   <span>{benefit}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex items-center gap-3 backdrop-blur-md bg-white/10 p-4 rounded-xl border border-white/20 w-max">
-              <Shield className="w-8 h-8 text-medical-300" strokeWidth={1.5} />
-              <div>
-                <p className="text-white font-medium text-sm">{t('secure_connection')}</p>
-                <p className="text-slate-300 text-xs font-light">
-                  {t('secure_desc')}
-                </p>
+            <div className="border-t border-white/20 pt-8 w-full max-w-md">
+              <div className="flex items-start gap-5">
+                <Shield className="w-6 h-6 text-white mt-0.5 opacity-80" strokeWidth={1.5} />
+                <div>
+                  <p className="text-white text-[10px] font-bold uppercase tracking-widest mb-2">
+                    {t('secure_connection')}
+                  </p>
+                  <p className="text-gray-300 text-sm font-light leading-relaxed">
+                    {t('secure_desc')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -207,14 +211,14 @@ export default function ConsumerSignupPage() {
             {/* Header */}
             <div className="mb-10 text-center lg:text-left">
               <Link href="/" className="inline-block mb-8">
-                <span className="text-2xl font-serif font-black tracking-tight text-slate-900 dark:text-white">
+                <span className="text-2xl font-serif font-black tracking-tight text-black dark:text-white">
                   QuHealthy<span className="text-medical-600 dark:text-medical-400">.</span>
                 </span>
               </Link>
-              <h1 className="text-3xl font-medium text-slate-900 dark:text-white mb-2 tracking-tight">
+              <h1 className="text-3xl font-medium text-black dark:text-white mb-2 tracking-tight">
                 {t('title')}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 font-light">
+              <p className="text-gray-500 dark:text-gray-400 font-light">
                 {t('subtitle')}
               </p>
             </div>
@@ -224,10 +228,10 @@ export default function ConsumerSignupPage() {
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                <div className="w-full border-t border-gray-200 dark:border-gray-800" />
               </div>
               <div className="relative flex justify-center text-sm font-light">
-                <span className="px-4 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400">
+                <span className="px-4 bg-white dark:bg-[#0a0a0a] text-gray-500 dark:text-gray-400">
                   {t('or_register')}
                 </span>
               </div>
@@ -253,7 +257,7 @@ export default function ConsumerSignupPage() {
 
               {/* Name Field */}
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-medium">
+                <Label htmlFor="name" className="text-gray-700 dark:text-gray-300 font-medium">
                   {t('name_label')}
                 </Label>
                 <Input
@@ -262,14 +266,14 @@ export default function ConsumerSignupPage() {
                   placeholder={t('name_placeholder')}
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
+                  className="h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
                   required
                 />
               </div>
 
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">
+                <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 font-medium">
                   {t('email_label')}
                 </Label>
                 <Input
@@ -279,14 +283,14 @@ export default function ConsumerSignupPage() {
                   placeholder={t('email_placeholder')}
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
+                  className="h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
                   required
                 />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">
+                <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
                   {t('password_label')}
                 </Label>
                 <div className="relative">
@@ -297,14 +301,14 @@ export default function ConsumerSignupPage() {
                     placeholder={t('password_placeholder')}
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pr-12 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
+                    className="pr-12 h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
                     required
                   />
                   <button
                     type="button"
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    className="absolute right-3.5 top-1/2 -trangray-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
                   </button>
@@ -318,8 +322,8 @@ export default function ConsumerSignupPage() {
                       className={cn(
                         "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md transition-all",
                         rule.valid
-                          ? "bg-medical-50 text-medical-600 dark:bg-medical-500/10 dark:text-medical-400"
-                          : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                          ? "bg-gray-100 text-black dark:bg-gray-800 dark:text-white"
+                          : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                       )}
                     >
                       {rule.valid && <Check size={12} strokeWidth={2} />}
@@ -331,7 +335,7 @@ export default function ConsumerSignupPage() {
 
               {/* Confirm Password Field */}
               <div className="space-y-2 pt-1">
-                <Label htmlFor="confirmPassword" className="text-slate-700 dark:text-slate-300 font-medium">
+                <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300 font-medium">
                   {t('confirm_password_label')}
                 </Label>
                 <div className="relative">
@@ -343,10 +347,10 @@ export default function ConsumerSignupPage() {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     className={cn(
-                      "pr-12 h-14 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl transition-all",
+                      "pr-12 h-14 bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl transition-all",
                       formData.confirmPassword && formData.password !== formData.confirmPassword
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-slate-200 dark:border-slate-800 focus:border-medical-500 focus:ring-medical-500/20"
+                        : "border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10"
                     )}
                     required
                   />
@@ -354,7 +358,7 @@ export default function ConsumerSignupPage() {
                     type="button"
                     aria-label={showConfirmPassword ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    className="absolute right-3.5 top-1/2 -trangray-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
                   </button>
@@ -372,28 +376,28 @@ export default function ConsumerSignupPage() {
                   id="terms"
                   checked={formData.acceptTerms}
                   onCheckedChange={handleCheckboxChange}
-                  className="mt-1 data-[state=checked]:bg-slate-900 dark:data-[state=checked]:bg-white border-slate-300 dark:border-slate-700 w-5 h-5"
+                  className="mt-1 data-[state=checked]:bg-black dark:data-[state=checked]:bg-white border-gray-300 dark:border-gray-700 w-5 h-5"
                 />
                 <div className="grid gap-1.5 leading-none">
                   <label
                     htmlFor="terms"
-                    className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none"
                   >
                     {t('accept_privacy')}
                   </label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-light leading-relaxed">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed">
                     {t('accept_privacy_start')}
                     <button
                       type="button"
                       onClick={() => setShowPrivacyModal(true)}
-                      className="text-medical-600 dark:text-medical-400 hover:text-medical-700 underline"
+                      className="text-black dark:text-white hover:underline"
                     >
                       {t('privacy_policy')}
                     </button>
                     {t('and')}
                     <Link
                       href="/terms"
-                      className="text-medical-600 dark:text-medical-400 hover:text-medical-700 underline"
+                      className="text-black dark:text-white hover:underline"
                     >
                       {t('terms_of_service')}
                     </Link>.
@@ -405,7 +409,7 @@ export default function ConsumerSignupPage() {
               <Button
                 type="submit"
                 disabled={!isFormValid() || authLoading}
-                className="w-full h-14 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-none rounded-xl transition-all mt-4"
+                className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-xl transition-all mt-4"
               >
                 {authLoading ? (
                   <>
@@ -423,11 +427,11 @@ export default function ConsumerSignupPage() {
 
             {/* Login Link */}
             <div className="mt-10 text-center">
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-light">
                 {t('has_account')}{' '}
                 <Link
                   href="/login"
-                  className="text-medical-600 dark:text-medical-400 font-medium hover:underline"
+                  className="text-black dark:text-white font-medium hover:underline"
                 >
                   {t('login_here')}
                 </Link>
