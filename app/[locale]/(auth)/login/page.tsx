@@ -155,12 +155,16 @@ export default function LoginPage() {
         {/* Left Panel - Editorial Image (Hidden on Mobile) */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero_medical_lifestyle.png"
+          <motion.img
+            key={userType} // Fuerza a que la imagen se re-anime al cambiar de tab
+            initial={{ opacity: 0.5, scale: 1.05 }}
+            animate={{ opacity: 0.9, scale: 1 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            src={userType === "consumer" ? "/suite_patient_app.png" : "/hero_medical_lifestyle.png"}
             alt="QuHealthy Authentication"
-            className="absolute inset-0 w-full h-full object-cover object-center grayscale mix-blend-multiply dark:mix-blend-lighten opacity-80"
+            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal"
           />
-          <div className="absolute inset-0 bg-black/40 dark:bg-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 dark:from-black/90 dark:via-black/50 dark:to-transparent" />
 
           <div className="relative z-10 p-16 mt-auto">
             <h2 className="text-4xl lg:text-5xl font-semibold text-white mb-8 tracking-tight leading-[1.1]">
