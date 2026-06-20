@@ -9,7 +9,7 @@ import {
   Search, Heart, LucideIcon
 } from "lucide-react";
 import { toast } from 'react-toastify';
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 // Imports de lógica
 import { useSessionStore } from '@/stores/SessionStore';
@@ -47,14 +47,14 @@ const LINKS: Record<string, NavItem[]> = {
     { name: "links.guest.testimonials", href: "/#testimonials" },
   ],
   CONSUMER: [
-    { name: "links.consumer.discover", href: "/discover", icon: Search },
-    { name: "links.consumer.appointments", href: "/appointments", icon: Calendar },
-    { name: "links.consumer.favorites", href: "/favorites", icon: Heart },
+    { name: "links.consumer.discover", href: "/patient/discover", icon: Search },
+    { name: "links.consumer.appointments", href: "/patient/appointments", icon: Calendar },
+    { name: "links.consumer.favorites", href: "/patient/dependents", icon: Heart },
   ],
   PROVIDER: [
-    { name: "links.provider.dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "links.provider.calendar", href: "/dashboard/calendar", icon: Calendar },
-    { name: "links.provider.patients", href: "/dashboard/patients", icon: UserIcon },
+    { name: "links.provider.dashboard", href: "/provider/dashboard", icon: LayoutDashboard },
+    { name: "links.provider.calendar", href: "/provider/dashboard/calendar", icon: Calendar },
+    { name: "links.provider.patients", href: "/provider/dashboard/patients", icon: UserIcon },
   ],
   ADMIN: [
     { name: "links.admin.panel", href: "/admin", icon: LayoutDashboard },
@@ -70,6 +70,7 @@ export const Navbar: React.FC = () => {
   const { user, role, isAuthenticated, isLoading, initializeSession, _hasHydrated } = useSessionStore();
   const { logout } = useAuth();
   const t = useTranslations('Navbar');
+  const locale = useLocale();
 
   useEffect(() => {
     if (_hasHydrated) {
@@ -142,17 +143,17 @@ export const Navbar: React.FC = () => {
           {role === 'PROVIDER' ? (
             <>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/provider/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <LayoutDashboard size={14} /> {t('links.provider.dashboard')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/dashboard/calendar" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/provider/dashboard/calendar" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Calendar size={14} /> {t('links.provider.calendar')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/dashboard/marketing" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/provider/dashboard/marketing" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Megaphone size={14} /> {t('links.provider.marketing')}
                 </Link>
               </DropdownMenuItem>
@@ -160,12 +161,12 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/appointments" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/patient/appointments" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Calendar size={14} /> {t('links.consumer.appointments')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/favorites" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/patient/dependents" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Heart size={14} /> {t('links.consumer.favorites')}
                 </Link>
               </DropdownMenuItem>
@@ -173,7 +174,7 @@ export const Navbar: React.FC = () => {
           )}
 
           <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-            <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+            <Link href={role === 'PROVIDER' ? "/provider/settings" : "/patient/settings"} className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
               <Settings size={14} /> {t('user_menu.settings')}
             </Link>
           </DropdownMenuItem>
@@ -246,11 +247,13 @@ export const Navbar: React.FC = () => {
                 </>
               );
 
-              return targetHref.startsWith("#") ? (
-                <a key={item.name} href={targetHref} className={linkClasses}>{innerContent}</a>
-              ) : (
-                <Link key={item.name} href={targetHref} className={linkClasses}>{innerContent}</Link>
-              );
+              if (targetHref.startsWith("#")) {
+                return <a key={item.name} href={targetHref} className={linkClasses}>{innerContent}</a>;
+              } else if (targetHref.startsWith("/#")) {
+                return <a key={item.name} href={`/${locale}${targetHref.substring(1)}`} className={linkClasses}>{innerContent}</a>;
+              } else {
+                return <Link key={item.name} href={targetHref as any} className={linkClasses}>{innerContent}</Link>;
+              }
             })}
           </nav>
         )}
@@ -356,15 +359,19 @@ export const Navbar: React.FC = () => {
 
                 const linkClasses = "flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-colors";
 
-                return targetHref.startsWith("#") ? (
-                  <a key={item.name} href={targetHref} onClick={() => setMobileMenuOpen(false)} className={linkClasses}>
+                const innerContent = (
+                  <>
                     {Icon && <Icon size={14} />} {t(item.name)}
-                  </a>
-                ) : (
-                  <Link key={item.name} href={targetHref} onClick={() => setMobileMenuOpen(false)} className={linkClasses}>
-                    {Icon && <Icon size={14} />} {t(item.name)}
-                  </Link>
+                  </>
                 );
+
+                if (targetHref.startsWith("#")) {
+                  return <a key={item.name} href={targetHref} onClick={() => setMobileMenuOpen(false)} className={linkClasses}>{innerContent}</a>;
+                } else if (targetHref.startsWith("/#")) {
+                  return <a key={item.name} href={`/${locale}${targetHref.substring(1)}`} onClick={() => setMobileMenuOpen(false)} className={linkClasses}>{innerContent}</a>;
+                } else {
+                  return <Link key={item.name} href={targetHref as any} onClick={() => setMobileMenuOpen(false)} className={linkClasses}>{innerContent}</Link>;
+                }
               })}
 
               {isAuthenticated ? (
