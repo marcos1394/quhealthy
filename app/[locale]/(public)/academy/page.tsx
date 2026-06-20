@@ -5,35 +5,43 @@ import { ArrowRight, Search, BookOpen, Users, Clock, PlayCircle, ChevronRight, A
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import useSWR from "swr";
+import axiosInstance from "@/lib/axios";
+
+interface InstructorDto {
+  name: string;
+  avatarUrl?: string;
+}
+
+interface AcademyCourse {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  instructor: InstructorDto;
+  thumbnailUrl: string;
+  category: string;
+}
+
+interface AcademyStats {
+  totalCourses: number;
+  totalStudents: number;
+  totalHours: number;
+}
 
 export default function AcademyPage() {
   const t = useTranslations("PublicAcademy");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // TODO: Estos datos serán reemplazados por el fetch a tu backend
-  const featuredCourses = [
-    {
-      id: "ai-rad",
-      title: t('courses.c1_title'),
-      desc: t('courses.c1_desc'),
-      instructor: t('courses.c1_instructor'),
-      color: "from-gray-800 to-black dark:from-gray-200 dark:to-white"
-    },
-    {
-      id: "tele-ethics",
-      title: t('courses.c2_title'),
-      desc: t('courses.c2_desc'),
-      instructor: t('courses.c2_instructor'),
-      color: "from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100"
-    },
-    {
-      id: "cardio-adv",
-      title: t('courses.c3_title'),
-      desc: t('courses.c3_desc'),
-      instructor: t('courses.c3_instructor'),
-      color: "from-gray-600 to-gray-800 dark:from-gray-400 dark:to-gray-200"
-    }
-  ];
+  const { data: stats, isLoading: isStatsLoading } = useSWR<AcademyStats>(
+    '/api/catalog/academy/public/stats',
+    (url) => axiosInstance.get(url).then(res => res.data)
+  );
+
+  const { data: featuredCourses, isLoading: isCoursesLoading } = useSWR<AcademyCourse[]>(
+    '/api/catalog/academy/public/courses/featured',
+    (url) => axiosInstance.get(url).then(res => res.data)
+  );
 
   // Variantes de animación
   const containerVariants = {
@@ -103,21 +111,33 @@ export default function AcademyPage() {
             <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
               <div className="flex items-center gap-3 mb-2">
                 <BookOpen className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
-                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">45+</span>
+                {isStatsLoading ? (
+                  <div className="h-10 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                ) : (
+                  <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">{stats?.totalCourses || 0}+</span>
+                )}
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.courses')}</p>
             </div>
             <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
-                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">12k+</span>
+                {isStatsLoading ? (
+                  <div className="h-10 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                ) : (
+                  <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">{stats?.totalStudents || 0}+</span>
+                )}
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.students')}</p>
             </div>
             <div className="py-8 md:py-10 flex flex-col justify-center items-start md:items-center">
               <div className="flex items-center gap-3 mb-2">
                 <Clock className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
-                <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">500+</span>
+                {isStatsLoading ? (
+                  <div className="h-10 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                ) : (
+                  <span className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tighter">{stats?.totalHours || 0}+</span>
+                )}
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t('stats.hours')}</p>
             </div>
@@ -147,51 +167,65 @@ export default function AcademyPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16"
           >
-            {featuredCourses.map((course, idx) => (
-              <motion.div 
-                key={course.id}
-                variants={itemVariants}
-                className="group flex flex-col h-full cursor-pointer"
-              >
-                {/* Course Thumbnail */}
-                <div className={`aspect-[4/3] w-full bg-gradient-to-br ${course.color} relative overflow-hidden mb-6`}>
-                  <img 
-                    src={`/api/placeholder/800/600`} // Placeholder para futura imagen real
-                    alt={course.title}
-                    className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60 group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors duration-500">
-                    <PlayCircle className="w-12 h-12 text-white opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" strokeWidth={1} />
-                  </div>
-                  <div className="absolute top-4 left-4 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1">
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Especialidad</span>
-                  </div>
+            {isCoursesLoading ? (
+              <div className="col-span-full py-20 flex justify-center items-center">
+                <div className="animate-pulse flex items-center gap-2 text-gray-500">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
                 </div>
-                
-                <div className="flex flex-col flex-1">
-                  <h3 className="text-2xl font-semibold text-black dark:text-white mb-3 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 font-light mb-6 flex-1 line-clamp-3 leading-relaxed">
-                    {course.desc}
-                  </p>
+              </div>
+            ) : (!featuredCourses || featuredCourses.length === 0) ? (
+              <div className="col-span-full py-20 text-center text-gray-500 dark:text-gray-400 font-light">
+                No hay cursos destacados por el momento.
+              </div>
+            ) : (
+              featuredCourses.map((course) => (
+                <motion.div 
+                  key={course.id}
+                  variants={itemVariants}
+                  className="group flex flex-col h-full cursor-pointer"
+                >
+                  {/* Course Thumbnail */}
+                  <div className="aspect-[4/3] w-full bg-gray-100 dark:bg-gray-900 relative overflow-hidden mb-6">
+                    <img 
+                      src={course.thumbnailUrl || '/api/placeholder/800/600'}
+                      alt={course.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors duration-500">
+                      <PlayCircle className="w-12 h-12 text-white opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" strokeWidth={1} />
+                    </div>
+                    <div className="absolute top-4 left-4 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1">
+                      <span className="text-[9px] font-bold uppercase tracking-widest">{course.category || "Especialidad"}</span>
+                    </div>
+                  </div>
                   
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-200 dark:border-gray-800">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-xs font-bold text-black dark:text-white">
-                        {course.instructor.charAt(0)}
+                  <div className="flex flex-col flex-1">
+                    <h3 className="text-2xl font-semibold text-black dark:text-white mb-3 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 font-light mb-6 flex-1 line-clamp-3 leading-relaxed">
+                      {course.excerpt}
+                    </p>
+                    
+                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-200 dark:border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-xs font-bold text-black dark:text-white uppercase">
+                          {course.instructor?.name?.charAt(0) || "I"}
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                          {course.instructor?.name || "Instructor Invitado"}
+                        </span>
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
-                        {course.instructor}
-                      </span>
-                    </div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                      {t('enroll_btn')} <ArrowUpRight className="w-3 h-3 ml-1" />
+                      <div className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        {t('enroll_btn')} <ArrowUpRight className="w-3 h-3 ml-1" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </motion.div>
         </div>
       </section>
