@@ -2,19 +2,11 @@
 
 import axiosInstance from '@/lib/axios';
 import { MessageResponse } from '@/types/auth';
+import { ActiveSessionResponse, MfaEnableResponse, MfaSetupResponse } from '@/types/security';
 
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
-}
-
-export interface ActiveSession {
-  id: string;
-  device: string;
-  browser: string;
-  location: string;
-  lastActive: string;
-  isCurrent: boolean;
 }
 
 export const securityService = {
@@ -27,31 +19,29 @@ export const securityService = {
     return response.data;
   },
 
-  // 💻 2. Obtener Sesiones Activas (Requiere HT-019)
-  getActiveSessions: async (): Promise<ActiveSession[]> => {
-    try {
-      const response = await axiosInstance.get<ActiveSession[]>('/api/auth/sessions');
-      return response.data;
-    } catch (error: any) {
-      // 🛡️ MOCK temporal si el backend arroja 404 porque HT-019 no existe
-      if (error.response?.status === 404 || error.response?.status === 500) {
-        console.warn("HT-019 no implementado. Retornando datos mock de sesiones.");
-        return [
-          {
-            id: 'mock-1',
-            device: 'MacBook Air (M2)', // Un pequeño guiño a tu entorno
-            browser: 'Chrome',
-            location: 'Sinaloa, México',
-            lastActive: new Date().toISOString(),
-            isCurrent: true,
-          }
-        ];
-      }
-      throw error;
-    }
+  // 🛡️ MFA (Autenticación en 2 pasos)
+  setupMfa: async (): Promise<MfaSetupResponse> => {
+    const response = await axiosInstance.post<MfaSetupResponse>('/api/auth/mfa/setup');
+    return response.data;
   },
 
-  // 🚫 3. Revocar Sesión (Requiere HT-019)
+  enableMfa: async (code: string): Promise<MfaEnableResponse> => {
+    const response = await axiosInstance.post<MfaEnableResponse>('/api/auth/mfa/enable', { code });
+    return response.data;
+  },
+
+  disableMfa: async (password: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.delete<MessageResponse>('/api/auth/mfa', { data: { password } });
+    return response.data;
+  },
+
+  // 💻 2. Obtener Sesiones Activas
+  getActiveSessions: async (): Promise<ActiveSessionResponse[]> => {
+    const response = await axiosInstance.get<ActiveSessionResponse[]>('/api/auth/sessions');
+    return response.data;
+  },
+
+  // 🚫 3. Revocar Sesión
   revokeSession: async (sessionId: string): Promise<MessageResponse> => {
     const response = await axiosInstance.delete<MessageResponse>(
       `/api/auth/sessions/${sessionId}`
@@ -59,12 +49,23 @@ export const securityService = {
     return response.data;
   },
 
-  // 🔔 4. Notificaciones (Usa el que ya existe o uno nuevo)
+  revokeAllExceptCurrent: async (): Promise<MessageResponse> => {
+    const response = await axiosInstance.delete<MessageResponse>('/api/auth/sessions/all-except-current');
+    return response.data;
+  },
+
+  // 🔔 4. Notificaciones
   updateNotificationPreferences: async (fcmToken: string): Promise<MessageResponse> => {
     const response = await axiosInstance.put<MessageResponse>(
       '/api/auth/device-token',
       { fcmToken }
     );
+    return response.data;
+  },
+
+  // ⚠️ 5. Eliminar Cuenta
+  deleteAccount: async (password: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.delete<MessageResponse>('/api/auth/account', { data: { password } });
     return response.data;
   }
 };
