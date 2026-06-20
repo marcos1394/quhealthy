@@ -27,16 +27,16 @@ const nextConfig: NextConfig = {
     const cspHeader = `
       default-src 'self';
       
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com; 
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com; 
       
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; 
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://app.chatwoot.com; 
       
       img-src * data: blob: 'unsafe-inline';      
       font-src 'self' data: https://fonts.gstatic.com;
 
       media-src 'self' https://storage.googleapis.com;
       
-      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com;
+      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com;
       
       connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();

@@ -1,10 +1,7 @@
-// Ubicación: src/components/booking/success/AppointmentSummary.tsx
 "use client";
 
 import React from 'react';
-import { User, CalendarCheck, Calendar, MapPin, Clock, Phone, DollarSign, Check, FileText } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { User, CalendarCheck, Calendar, MapPin, FileText } from 'lucide-react';
 
 interface Props {
   t: any;
@@ -14,69 +11,91 @@ interface Props {
 
 export function AppointmentSummary({ t, appointment, formattedDateTime }: Props) {
   return (
-    <>
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-slate-200 dark:border-slate-700">
-          <FileText className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+        <div className="w-8 h-8 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+          <FileText className="w-4 h-4" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('cart_summary') || 'Resumen'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
+          {t('cart_summary', { defaultValue: 'Auditoría de Transacción' })}
+        </h2>
       </div>
 
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm mb-8">
-        <CardContent className="p-6 sm:p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* Provider */}
-            <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl"><User className="w-5 h-5 text-blue-500 dark:text-blue-400" /></div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_provider')}</p>
-                <p className="font-bold text-slate-900 dark:text-white text-lg">{appointment.providerNameSnapshot || 'Médico Asignado'}</p>
-                {appointment.providerPhoneSnapshot && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {appointment.providerPhoneSnapshot}</p>}
-              </div>
-            </div>
-
-            {/* Service */}
-            <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <div className="p-3 bg-pink-50 dark:bg-pink-500/10 rounded-xl"><CalendarCheck className="w-5 h-5 text-pink-500 dark:text-pink-400" /></div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_service')}</p>
-                <p className="font-bold text-slate-900 dark:text-white text-lg">{appointment.serviceNameSnapshot || appointment.serviceName}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {appointment.durationMinutes ? `${appointment.durationMinutes} min` : 'Estándar'} <span className="mx-1">•</span> {appointment.type === 'ONLINE' ? 'En línea' : 'Presencial'}</p>
-              </div>
-            </div>
-
-            {/* Date */}
-            <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl"><Calendar className="w-5 h-5 text-emerald-500 dark:text-emerald-400" /></div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_date')}</p>
-                <p className="font-bold text-slate-900 dark:text-white text-lg capitalize">{formattedDateTime}</p>
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-              <div className="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl"><MapPin className="w-5 h-5 text-amber-500 dark:text-amber-400" /></div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_location')}</p>
-                <p className="font-bold text-slate-900 dark:text-white text-base leading-tight mt-1">{appointment.type === 'ONLINE' ? 'Enlace por correo' : (appointment.locationAddress || 'Por confirmar')}</p>
-              </div>
+      <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+        
+        {/* Grid Blueprint de Datos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-800 border-b border-gray-200 dark:border-gray-800">
+          
+          {/* Especialista */}
+          <div className="p-6 md:p-8 flex items-start gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+            <User className="w-5 h-5 text-black dark:text-white mt-0.5" strokeWidth={1.5} />
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('label_provider', { defaultValue: 'Proveedor Clínico' })}</p>
+              <p className="font-bold text-sm uppercase tracking-wider text-black dark:text-white">
+                {appointment.providerNameSnapshot || 'ESPECIALISTA ASIGNADO'}
+              </p>
+              {appointment.providerPhoneSnapshot && (
+                <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-2">
+                  TEL: {appointment.providerPhoneSnapshot}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Price Banner */}
-          <div className="mt-6 flex items-start gap-4 p-5 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-200/50 dark:bg-slate-700/50 rounded-full blur-2xl -mr-10 -mt-10" />
-            <div className="p-3 bg-slate-200 dark:bg-slate-800 rounded-xl relative z-10"><DollarSign className="w-6 h-6 text-slate-700 dark:text-slate-300" /></div>
-            <div className="flex-1 relative z-10">
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('label_price')}</p>
-              <p className="font-bold text-3xl text-slate-900 dark:text-white">${(appointment.totalPrice || appointment.price || 0).toLocaleString('es-MX')} <span className="text-lg text-slate-700 dark:text-slate-300 font-bold ml-1">{appointment.currency || 'MXN'}</span></p>
+          {/* Servicio */}
+          <div className="p-6 md:p-8 flex items-start gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+            <CalendarCheck className="w-5 h-5 text-black dark:text-white mt-0.5" strokeWidth={1.5} />
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('label_service', { defaultValue: 'Procedimiento' })}</p>
+              <p className="font-bold text-sm uppercase tracking-wider text-black dark:text-white">
+                {appointment.serviceNameSnapshot || appointment.serviceName}
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-2">
+                DURACIÓN: {appointment.durationMinutes ? `${appointment.durationMinutes} MIN` : 'ESTÁNDAR'} | TIPO: {appointment.type === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
+              </p>
             </div>
-            <Badge className="bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30 hidden sm:flex items-center mt-2 relative z-10"><Check className="w-3 h-3 mr-1" /> Completado</Badge>
           </div>
-        </CardContent>
-      </Card>
-    </>
+
+          {/* Fecha */}
+          <div className="p-6 md:p-8 flex items-start gap-4 border-t border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+            <Calendar className="w-5 h-5 text-black dark:text-white mt-0.5" strokeWidth={1.5} />
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('label_date', { defaultValue: 'Parámetro Temporal' })}</p>
+              <p className="font-bold text-sm uppercase tracking-wider text-black dark:text-white">
+                {formattedDateTime}
+              </p>
+            </div>
+          </div>
+
+          {/* Ubicación */}
+          <div className="p-6 md:p-8 flex items-start gap-4 border-t border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+            <MapPin className="w-5 h-5 text-black dark:text-white mt-0.5" strokeWidth={1.5} />
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('label_location', { defaultValue: 'Coordenadas' })}</p>
+              <p className="font-bold text-xs uppercase tracking-wider text-black dark:text-white leading-relaxed">
+                {appointment.type === 'ONLINE' ? 'ENLACE DE TRANSMISIÓN REMOTA' : (appointment.locationAddress || 'POR DEFINIR. CONTACTE AL PROVEEDOR.')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Resumen Financiero */}
+        <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+              {t('label_price', { defaultValue: 'Liquidación Final' })}
+            </p>
+            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white">
+              ${(appointment.totalPrice || appointment.price || 0).toLocaleString('es-MX')} 
+              <span className="text-lg font-light text-gray-500 ml-2">{appointment.currency || 'MXN'}</span>
+            </p>
+          </div>
+          
+          <div className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black">
+            TRANSACCIÓN APROBADA
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
