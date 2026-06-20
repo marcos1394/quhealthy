@@ -23,35 +23,35 @@ export function QuickAccessCards() {
       title: t('card_wallet', { defaultValue: 'Billetera Digital' }),
       desc: t('card_wallet_desc', { defaultValue: 'Saldo, recargas y transacciones.' }),
       icon: Wallet,
-      href: '/patient/wallet',
+      href: '/patient/dashboard/wallet',
     },
     {
       id: 'packages',
       title: t('card_packages', { defaultValue: 'Suscripciones' }),
       desc: t('card_packages_desc', { defaultValue: 'Consultas y paquetes prepagados.' }),
       icon: Package,
-      href: '/patient/packages',
+      href: '/patient/dashboard/packages',
     },
     {
       id: 'orders',
       title: t('card_orders', { defaultValue: 'Logística / Pedidos' }),
       desc: t('card_orders_desc', { defaultValue: 'Seguimiento de farmacia e insumos.' }),
       icon: ShoppingBag,
-      href: '/patient/orders',
+      href: '/patient/dashboard/orders',
     },
     {
       id: 'reviews',
       title: t('card_reviews', { defaultValue: 'Evaluaciones' }),
       desc: t('card_reviews_desc', { defaultValue: 'Auditoría de servicios médicos.' }),
       icon: Star,
-      href: '/patient/reviews',
+      href: '/patient/dashboard/reviews',
     },
     {
       id: 'profile',
       title: t('card_profile', { defaultValue: 'Expediente Base' }),
       desc: t('card_profile_desc', { defaultValue: 'Identidad, demografía y vitales.' }),
       icon: User,
-      href: '/patient/profile',
+      href: '/patient/dashboard/profile',
     }
   ];
 
