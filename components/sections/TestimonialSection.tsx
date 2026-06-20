@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 const TestimonialsSection: React.FC = () => {
   const t = useTranslations('Testimonials');
@@ -30,73 +31,88 @@ const TestimonialsSection: React.FC = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-24 md:py-32 bg-[#FAFAFA] dark:bg-[#0A0A0A] transition-colors duration-300">
+    <section id="testimonials" className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 border-t border-gray-200 dark:border-gray-800 selection:bg-gray-200 dark:selection:bg-white/20">
       <div className="container mx-auto px-6 md:px-12 xl:px-24">
 
         {/* Header - Editorial Style */}
-        <div className="text-center mb-24 max-w-3xl mx-auto">
-          <span className="inline-block border border-slate-200 dark:border-slate-800 px-4 py-1.5 rounded-full text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-widest uppercase mb-6">
-            {t('badge')}
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-slate-900 dark:text-white mb-6 tracking-tight leading-[1.1]">
-            {t('title_start')} <span className="text-slate-500 dark:text-slate-400 font-serif italic">{t('title_highlight')}</span>
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-20 md:mb-24">
+          <div className="border border-black dark:border-white px-4 py-1.5 mb-8">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-black dark:text-white">
+              {t('badge')}
+            </span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-black dark:text-white mb-6 tracking-tight leading-[1.05]">
+            {t('title_start')} <br className="hidden md:block"/>
+            <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light">
+              {t('title_highlight')}
+            </span>
           </h2>
-          <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+          
+          <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 leading-relaxed font-light">
             {t('description')}
           </p>
         </div>
 
-        {/* Grid de Testimonios - Clean and spacious */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto">
+        {/* Grid de Testimonios - Blueprint Matrix */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 w-full max-w-7xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={`${testimonial.name}-${index}`}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col relative bg-white dark:bg-slate-900/40 p-8 rounded-[2rem] shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-100 dark:border-slate-800 backdrop-blur-sm"
+              transition={{ delay: index * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex flex-col relative bg-white dark:bg-[#0a0a0a] p-8 md:p-10 border-b border-r border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors duration-500"
             >
-              {/* Gran comilla decorativa editorial */}
-              <div className="absolute -top-4 -left-2 text-8xl font-serif leading-none h-12 z-0 select-none text-slate-200 dark:text-slate-800 opacity-50">
+              {/* Comilla tipográfica estricta */}
+              <div className="text-4xl font-serif text-gray-300 dark:text-gray-700 leading-none mb-6">
                 &ldquo;
               </div>
 
               {/* Testimonial text - Editorial */}
-              <blockquote className="relative z-10 text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed font-light mb-8 flex-1 pt-4">
+              <blockquote className="text-lg text-black dark:text-white leading-relaxed font-light mb-12 flex-1">
                 {testimonial.text}
               </blockquote>
 
-              {/* Footer con autor - Limpio y tipográfico */}
-              <div className="pt-6 border-t border-slate-100 dark:border-slate-800/60">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 grayscale">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="text-slate-900 dark:text-white font-medium text-base">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-slate-500 dark:text-slate-400 text-[10px] tracking-wider uppercase font-bold">
-                        {testimonial.role}
-                      </p>
-                    </div>
+              {/* Footer con autor - Riguroso y cuadrado */}
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-4 mt-auto">
+                <div className="flex items-center gap-4">
+                  {/* Avatar Cuadrado y Grayscale */}
+                  <div className="w-12 h-12 border border-black dark:border-white overflow-hidden shrink-0">
+                    <img 
+                      src={testimonial.avatar} 
+                      alt={testimonial.name} 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                    />
                   </div>
+                  <div>
+                    <h4 className="text-black dark:text-white font-bold text-xs uppercase tracking-wider mb-0.5">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-gray-500 dark:text-gray-400 text-[9px] tracking-widest uppercase font-bold">
+                      {testimonial.role}
+                    </p>
+                  </div>
+                </div>
 
-                  {/* Rating visual */}
-                  <div className="flex gap-0.5 shrink-0">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 text-slate-800 dark:text-slate-200 fill-current"
-                      />
-                    ))}
-                  </div>
+                {/* Rating visual (Estilo Arquitectónico) */}
+                <div className="flex gap-1 shrink-0">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-3.5 h-3.5 text-black dark:text-white fill-current"
+                      strokeWidth={1}
+                    />
+                  ))}
                 </div>
               </div>
             </motion.div>
+          ))}
+          
+          {/* Celdas vacías de relleno si alguna vez tienes menos de 3 (mantiene el plano arquitectónico intacto) */}
+          {testimonials.length % 3 !== 0 && Array.from({ length: 3 - (testimonials.length % 3) }).map((_, idx) => (
+            <div key={`empty-${idx}`} className="hidden md:block bg-transparent border-b border-r border-gray-200 dark:border-gray-800" />
           ))}
         </div>
 
