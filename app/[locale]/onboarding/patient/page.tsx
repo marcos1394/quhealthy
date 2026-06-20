@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, Target, UserPlus, ShieldAlert, Watch, ArrowRight } from "lucide-react";
+import { CheckCircle2, ChevronRight, Activity, HeartPulse, BrainCircuit, Apple, Target, UserPlus, ShieldAlert, Watch, ArrowRight, Check } from "lucide-react";
 import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
@@ -11,6 +11,7 @@ import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 import { WearablesStep } from "./WearablesStep";
 import { DependentsStep } from "./DependentsStep";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { cn } from "@/lib/utils";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
@@ -40,9 +41,9 @@ export default function ConsumerOnboardingWizard() {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
-        <QhSpinner size="lg" className="mb-4" />
-        <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando perfil...</p>
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+        <QhSpinner size="lg" className="mb-6" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Construyendo Expediente Base...</p>
       </div>
     );
   }
@@ -51,25 +52,39 @@ export default function ConsumerOnboardingWizard() {
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-6">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
-              <BrainCircuit className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Motor de Recomendaciones con IA</h3>
-              <p className="text-slate-600 dark:text-slate-300">
+          <div className="space-y-8">
+            <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505]">
+              <div className="flex items-center gap-3 mb-3">
+                <BrainCircuit className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Motor de Recomendaciones con IA</h3>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-2xl">
                 Para brindarte recomendaciones hiper-personalizadas (rutinas, prevención, dietas), QuHealthy utiliza inteligencia artificial. 
                 Tus datos de salud serán analizados mediante algoritmos de forma segura y anonimizada bajo la normativa LFPDPPP.
               </p>
             </div>
-            <label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-              <input 
-                type="checkbox" 
-                className="mt-1 w-5 h-5 text-blue-600 rounded border-gray-300"
-                checked={data.algorithmicConsentAccepted}
-                onChange={(e) => updateData({ algorithmicConsentAccepted: e.target.checked })}
-              />
+
+            <label className={cn(
+              "flex items-start gap-4 p-6 border transition-colors cursor-pointer group",
+              data.algorithmicConsentAccepted ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]" : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white"
+            )}>
+              <div className="relative flex items-start">
+                <input 
+                  type="checkbox" 
+                  className="sr-only"
+                  checked={data.algorithmicConsentAccepted}
+                  onChange={(e) => updateData({ algorithmicConsentAccepted: e.target.checked })}
+                />
+                <div className={cn(
+                  "w-5 h-5 border flex items-center justify-center transition-colors mt-0.5",
+                  data.algorithmicConsentAccepted ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+                )}>
+                  {data.algorithmicConsentAccepted && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                </div>
+              </div>
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white">Acepto el uso de mis datos para análisis algorítmico</p>
-                <p className="text-sm text-slate-500">He leído y acepto el Aviso de Privacidad y consiento explícitamente el tratamiento de mis datos de salud y biométricos.</p>
+                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Acepto el análisis algorítmico</p>
+                <p className="text-[10px] text-gray-500 font-light uppercase tracking-wide">Consiento el tratamiento de mis datos de salud y biométricos.</p>
               </div>
             </label>
           </div>
@@ -78,9 +93,9 @@ export default function ConsumerOnboardingWizard() {
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sexo Biológico (Relevante para análisis clínico)</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Sexo Biológico (Relevancia Clínica)</label>
               <select 
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
                 value={data.biologicalSex}
                 onChange={(e) => updateData({ biologicalSex: e.target.value })}
               >
@@ -91,9 +106,9 @@ export default function ConsumerOnboardingWizard() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo de Sangre</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Tipo de Sangre</label>
               <select 
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
                 value={data.bloodType}
                 onChange={(e) => updateData({ bloodType: e.target.value })}
               >
@@ -112,83 +127,90 @@ export default function ConsumerOnboardingWizard() {
         );
       case 2:
         return (
-          <div className="space-y-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-1 md:col-span-2">
-              <h3 className="font-semibold text-slate-900 dark:text-white">Medidas Corporales</h3>
-            </div>
+          <div className="space-y-8">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Peso Actual (kg)</label>
-              <input 
-                type="number" 
-                placeholder="Ej. 75"
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                value={data.weightKg}
-                onChange={(e) => updateData({ weightKg: e.target.value ? Number(e.target.value) : "" })}
-              />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">Medidas Corporales</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Peso Actual (kg)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Ej. 75"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    value={data.weightKg}
+                    onChange={(e) => updateData({ weightKg: e.target.value ? Number(e.target.value) : "" })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Estatura (cm)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Ej. 175"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    value={data.heightCm}
+                    onChange={(e) => updateData({ heightCm: e.target.value ? Number(e.target.value) : "" })}
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Estatura (cm)</label>
-              <input 
-                type="number" 
-                placeholder="Ej. 175"
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                value={data.heightCm}
-                onChange={(e) => updateData({ heightCm: e.target.value ? Number(e.target.value) : "" })}
-              />
-            </div>
+
             {data.weightKg && data.heightCm && (
-              <div className="col-span-1 md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl border border-blue-200 dark:border-blue-800 flex justify-between items-center">
-                <span className="font-medium">Tu Índice de Masa Corporal (IMC):</span>
-                <span className="text-xl font-bold">
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} 
+                className="p-6 bg-black text-white dark:bg-white dark:text-black flex justify-between items-center border border-black dark:border-white">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Índice de Masa Corporal (IMC)</span>
+                <span className="text-2xl font-semibold tracking-tighter">
                   {(Number(data.weightKg) / Math.pow(Number(data.heightCm) / 100, 2)).toFixed(1)}
                 </span>
-              </div>
+              </motion.div>
             )}
-            <div className="col-span-1 md:col-span-2 mt-4">
-              <h3 className="font-semibold text-slate-900 dark:text-white">Signos Vitales Históricos (Promedio)</h3>
-            </div>
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ritmo Cardíaco Reposo (bpm)</label>
-              <input 
-                type="number" 
-                placeholder="Ej. 65"
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                value={data.restingHeartRate}
-                onChange={(e) => updateData({ restingHeartRate: e.target.value ? Number(e.target.value) : "" })}
-              />
-            </div>
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Presión Sistólica (Alta)</label>
-                <input 
-                  type="number" 
-                  placeholder="Ej. 120"
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                  value={data.averageBloodPressureSystolic}
-                  onChange={(e) => updateData({ averageBloodPressureSystolic: e.target.value ? Number(e.target.value) : "" })}
-                />
-              </div>
-              <span className="text-xl font-bold pb-2 text-slate-400">/</span>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Presión Diastólica (Baja)</label>
-                <input 
-                  type="number" 
-                  placeholder="Ej. 80"
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                  value={data.averageBloodPressureDiastolic}
-                  onChange={(e) => updateData({ averageBloodPressureDiastolic: e.target.value ? Number(e.target.value) : "" })}
-                />
+              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2 pt-4">Signos Vitales (Promedio Histórico)</h3>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Ritmo Cardíaco Reposo (bpm)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Ej. 65"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    value={data.restingHeartRate}
+                    onChange={(e) => updateData({ restingHeartRate: e.target.value ? Number(e.target.value) : "" })}
+                  />
+                </div>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Presión Sistólica (Alta)</label>
+                    <input 
+                      type="number" 
+                      placeholder="Ej. 120"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      value={data.averageBloodPressureSystolic}
+                      onChange={(e) => updateData({ averageBloodPressureSystolic: e.target.value ? Number(e.target.value) : "" })}
+                    />
+                  </div>
+                  <span className="text-2xl font-light pb-2 text-gray-300 dark:text-gray-700">/</span>
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Presión Diastólica (Baja)</label>
+                    <input 
+                      type="number" 
+                      placeholder="Ej. 80"
+                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      value={data.averageBloodPressureDiastolic}
+                      onChange={(e) => updateData({ averageBloodPressureDiastolic: e.target.value ? Number(e.target.value) : "" })}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         );
       case 3:
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dieta Predominante</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Dieta Predominante</label>
               <select 
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
                 value={data.dietaryPreference}
                 onChange={(e) => updateData({ dietaryPreference: e.target.value })}
               >
@@ -202,21 +224,21 @@ export default function ConsumerOnboardingWizard() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Días de ejercicio a la semana</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Días de ejercicio a la semana</label>
                 <input 
                   type="number" 
                   placeholder="Ej. 3"
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                   value={data.exerciseDaysPerWeek}
                   onChange={(e) => updateData({ exerciseDaysPerWeek: e.target.value ? Number(e.target.value) : "" })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Minutos por día</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Minutos por día</label>
                 <input 
                   type="number" 
                   placeholder="Ej. 45"
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                   value={data.exerciseMinutesPerDay}
                   onChange={(e) => updateData({ exerciseMinutesPerDay: e.target.value ? Number(e.target.value) : "" })}
                 />
@@ -224,61 +246,81 @@ export default function ConsumerOnboardingWizard() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Horas promedio de sueño al día</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Horas promedio de sueño al día</label>
                 <input 
                   type="number" 
                   placeholder="Ej. 7.5"
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
                   value={data.sleepHoursAvg}
                   onChange={(e) => updateData({ sleepHoursAvg: e.target.value ? Number(e.target.value) : "" })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nivel de estrés general (1-10)</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Nivel de estrés general (1-10)</label>
                 <input 
                   type="range" 
                   min="1" max="10"
-                  className="w-full h-2 mt-4 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700"
+                  className="w-full h-2 mt-4 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer accent-black dark:accent-white"
                   value={data.stressLevel}
                   onChange={(e) => updateData({ stressLevel: Number(e.target.value) })}
                 />
-                <div className="flex justify-between text-xs text-slate-500 mt-2">
+                <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-400 mt-3">
                   <span>Muy Bajo (1)</span>
-                  <span className="font-bold text-blue-600">{data.stressLevel}</span>
+                  <span className="text-black dark:text-white text-xs">{data.stressLevel}</span>
                   <span>Extremo (10)</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-              <input 
-                type="checkbox" 
-                id="smoker"
-                className="w-5 h-5 text-blue-600 rounded border-gray-300"
-                checked={data.isSmoker}
-                onChange={(e) => updateData({ isSmoker: e.target.checked })}
-              />
-              <label htmlFor="smoker" className="font-medium text-slate-700 dark:text-slate-300 w-full cursor-pointer">Soy fumador(a) regular</label>
-            </div>
+
+            {/* Checkbox Arquitectónico (Smoker) */}
+            <label className={cn(
+              "flex items-center gap-4 p-5 border transition-colors cursor-pointer group mt-4",
+              data.isSmoker ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]" : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white"
+            )}>
+              <div className="relative flex items-center">
+                <input 
+                  type="checkbox" 
+                  className="sr-only"
+                  checked={data.isSmoker}
+                  onChange={(e) => updateData({ isSmoker: e.target.checked })}
+                />
+                <div className={cn(
+                  "w-5 h-5 border flex items-center justify-center transition-colors",
+                  data.isSmoker ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+                )}>
+                  {data.isSmoker && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                </div>
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">Soy fumador(a) regular</span>
+            </label>
+
           </div>
         );
       case 4:
         return (
-          <div className="space-y-6">
-             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl border border-blue-200 dark:border-blue-800 text-sm">
-                Esta sección utiliza el estándar médico CIE-10 (Clasificación Internacional de Enfermedades).
-             </div>
-             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Enfermedades Crónicas / Diagnósticos</label>
+          <div className="space-y-8">
+            <div className="border-l-2 border-black dark:border-white pl-4 py-2 bg-gray-50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                Catálogo Oficial CIE-10
+              </p>
+              <p className="text-xs text-gray-500 font-light">
+                Utiliza términos médicos estandarizados para mapear tus padecimientos crónicos.
+              </p>
+            </div>
+            
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Enfermedades Crónicas / Diagnósticos</label>
               <Icd10Autocomplete 
                 selectedConditions={data.medicalConditions}
                 onChange={(newConditions) => updateData({ medicalConditions: newConditions })}
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Alergias Conocidas</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Alergias Conocidas</label>
               <textarea 
-                placeholder="Ej. Penicilina, Nueces..."
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 min-h-[80px]"
+                placeholder="Ej. Penicilina, Nueces, etc..."
+                className="w-full rounded-none bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-4 text-sm font-light focus:border-black dark:focus:border-white focus:ring-0 transition-colors outline-none resize-none min-h-[100px]"
                 onChange={(e) => updateData({ allergies: [{ name: e.target.value }] })}
               />
             </div>
@@ -287,23 +329,41 @@ export default function ConsumerOnboardingWizard() {
       case 5:
         return (
           <div className="space-y-4">
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">¿Cuáles son tus objetivos principales?</h3>
-            {['Bajar de Peso', 'Mejorar longevidad', 'Manejar estrés y ansiedad', 'Mejorar calidad de sueño', 'Ganar masa muscular'].map(goal => (
-              <label key={goal} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                <input 
-                  type="checkbox" 
-                  className="w-5 h-5 text-blue-600 rounded border-gray-300"
-                  checked={data.healthGoals.includes(goal)}
-                  onChange={(e) => {
-                    const newGoals = e.target.checked 
-                      ? [...data.healthGoals, goal]
-                      : data.healthGoals.filter(g => g !== goal);
-                    updateData({ healthGoals: newGoals });
-                  }}
-                />
-                <span className="font-medium text-slate-700 dark:text-slate-300">{goal}</span>
-              </label>
-            ))}
+            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+              ¿Cuáles son tus objetivos principales?
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {['Bajar de Peso', 'Mejorar longevidad', 'Manejar estrés y ansiedad', 'Mejorar calidad de sueño', 'Ganar masa muscular'].map(goal => {
+                const isSelected = data.healthGoals.includes(goal);
+                return (
+                  <label key={goal} className={cn(
+                    "flex items-center gap-4 p-5 border transition-colors cursor-pointer group",
+                    isSelected ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]" : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white"
+                  )}>
+                    <div className="relative flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const newGoals = e.target.checked 
+                            ? [...data.healthGoals, goal]
+                            : data.healthGoals.filter(g => g !== goal);
+                          updateData({ healthGoals: newGoals });
+                        }}
+                      />
+                      <div className={cn(
+                        "w-5 h-5 border flex items-center justify-center transition-colors",
+                        isSelected ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black" : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+                      )}>
+                        {isSelected && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">{goal}</span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         );
       case 6:
@@ -324,73 +384,95 @@ export default function ConsumerOnboardingWizard() {
   const showSkipButton = currentStep >= 6;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
-      {/* Header / Progress */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">QuHealthy</h1>
-          <div className="text-sm font-medium text-slate-500">
-            Paso {currentStep + 1} de {STEPS.length}
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      
+      {/* Header / Progress (Architectural) */}
+      <div className="bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-serif italic tracking-tight text-black dark:text-white">QuHealthy.</h1>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 border border-gray-200 dark:border-gray-800 px-3 py-1">
+              Paso 0{currentStep + 1} / 0{STEPS.length}
+            </div>
           </div>
-        </div>
-        <div className="max-w-3xl mx-auto mt-4 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-blue-600 transition-all duration-500 ease-in-out"
-            style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
-          />
+          
+          <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+            <motion.div 
+              className="absolute top-0 left-0 h-full bg-black dark:bg-white"
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 w-full max-w-3xl mx-auto p-4 md:p-8 flex flex-col justify-center">
+      <div className="flex-1 w-full max-w-4xl mx-auto px-6 py-12 md:py-16 flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-200/20 dark:shadow-none border border-slate-100 dark:border-slate-800"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 p-8 md:p-12"
           >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                {React.createElement(STEPS[currentStep].icon, { className: "w-6 h-6" })}
+            <div className="flex flex-col md:flex-row md:items-center gap-6 mb-12 border-b border-gray-200 dark:border-gray-800 pb-8">
+              <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+                {React.createElement(STEPS[currentStep].icon, { className: "w-6 h-6 text-black dark:text-white", strokeWidth: 1.5 })}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-3xl font-semibold text-black dark:text-white tracking-tight">
                   {STEPS[currentStep].title}
                 </h2>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+                  Sección {currentStep + 1}
+                </p>
               </div>
             </div>
 
-            {renderStepContent()}
+            {/* Step Content */}
+            <div className="min-h-[300px]">
+              {renderStepContent()}
+            </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              {currentStep > 0 && (
-                <button 
-                  onClick={handleBack}
-                  disabled={loading}
-                  className="flex-1 min-w-[120px] py-4 px-6 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-                >
-                  Regresar
-                </button>
-              )}
-              {showSkipButton && (
-                <button 
-                  onClick={handleSkip}
-                  disabled={loading}
-                  className="flex-1 min-w-[120px] py-4 px-6 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-                >
-                  Saltar por ahora
-                </button>
-              )}
+            {/* Actions (Flush Buttons) */}
+            <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-center gap-4">
+              
+              <div className="flex w-full md:w-auto gap-4">
+                {currentStep > 0 && (
+                  <button 
+                    onClick={handleBack}
+                    disabled={loading}
+                    className="flex-1 md:flex-none h-14 px-8 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
+                  >
+                    Retroceder
+                  </button>
+                )}
+                {showSkipButton && (
+                  <button 
+                    onClick={handleSkip}
+                    disabled={loading}
+                    className="flex-1 md:flex-none h-14 px-8 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
+                  >
+                    Omitir
+                  </button>
+                )}
+              </div>
+
               <button
                 onClick={handleNext}
                 disabled={isNextDisabled() || loading}
-                className="flex-[2] min-w-[150px] py-4 px-6 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className={cn(
+                  "w-full md:flex-1 h-14 px-8 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-4 group",
+                  isNextDisabled() || loading 
+                    ? "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-800" 
+                    : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0"
+                )}
               >
-                {loading ? "Guardando..." : currentStep === STEPS.length - 1 ? "Ir al Dashboard" : "Continuar"}
-                {!loading && <ArrowRight className="w-5 h-5" />}
+                {loading ? "Sincronizando..." : currentStep === STEPS.length - 1 ? "Completar Registro" : "Guardar y Continuar"}
+                {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />}
               </button>
             </div>
           </motion.div>
