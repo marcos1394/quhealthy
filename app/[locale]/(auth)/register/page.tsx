@@ -211,8 +211,8 @@ export default function ConsumerSignupPage() {
             {/* Header */}
             <div className="mb-10 text-center lg:text-left">
               <Link href="/" className="inline-block mb-8">
-                <span className="text-2xl font-serif font-black tracking-tight text-black dark:text-white">
-                  QuHealthy<span className="text-medical-600 dark:text-medical-400">.</span>
+                <span className="text-2xl font-serif italic tracking-tight text-black dark:text-white">
+                  QuHealthy.
                 </span>
               </Link>
               <h1 className="text-3xl font-medium text-black dark:text-white mb-2 tracking-tight">

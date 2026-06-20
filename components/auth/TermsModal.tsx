@@ -55,20 +55,20 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-800 max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
         
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b border-gray-800">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-200 dark:border-gray-800">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <FileText className="w-6 h-6 text-purple-400" />
+              <div className="p-2 bg-gray-100 dark:bg-[#111111] rounded-none">
+                <FileText className="w-6 h-6 text-black dark:text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black text-white mb-1">
+                <DialogTitle className="text-2xl font-black text-black dark:text-black dark:text-black dark:text-white mb-1">
                   Términos y Condiciones de Servicio
                 </DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-gray-500 dark:text-gray-400">
                   QuHealthy Platform - Última actualización: {lastUpdated}
                 </DialogDescription>
               </div>
@@ -77,7 +77,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
               variant="ghost"
               size="default"
               onClick={onClose}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-black dark:text-white"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -87,15 +87,15 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4"
+            className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-200 dark:border-gray-800 rounded-none p-4"
           >
             <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 text-black dark:text-black dark:text-white flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-blue-400 mb-2">
+                <p className="text-sm font-semibold text-black dark:text-black dark:text-black dark:text-white mb-2">
                   Puntos Clave:
                 </p>
-                <ul className="space-y-1.5 text-xs text-blue-300/80">
+                <ul className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
                   {keyPoints.map((point, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
@@ -110,15 +110,15 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
         {/* Content */}
         <ScrollArea className="h-[600px] px-6">
-          <div className="space-y-6 py-6 text-gray-300">
+          <div className="space-y-6 py-6 text-gray-700 dark:text-gray-300">
             
             {/* Section 1 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   1
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Aceptación de Términos
                 </h3>
               </div>
@@ -133,10 +133,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 2 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   2
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Uso de la Plataforma
                 </h3>
               </div>
@@ -154,10 +154,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 3 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   3
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Servicios y Tarifas
                 </h3>
               </div>
@@ -175,10 +175,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 4 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   4
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Privacidad y Protección de Datos
                 </h3>
               </div>
@@ -196,10 +196,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 5 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   5
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Responsabilidades del Proveedor
                 </h3>
               </div>
@@ -217,10 +217,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 6 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   6
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Limitación de Responsabilidad
                 </h3>
               </div>
@@ -238,10 +238,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 7 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   7
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Terminación de Cuenta
                 </h3>
               </div>
@@ -256,10 +256,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 8 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   8
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Ley Aplicable y Jurisdicción
                 </h3>
               </div>
@@ -271,17 +271,17 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             {/* Section 9 */}
             <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
                   9
                 </Badge>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-black dark:text-white">
                   Contacto
                 </h3>
               </div>
               <p className="text-sm leading-relaxed">
                 Para preguntas sobre estos términos, contáctenos en:
               </p>
-              <div className="bg-gray-950 rounded-lg p-4 space-y-2 text-sm">
+              <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-4 space-y-2 text-sm">
                 <p><strong>Email:</strong> legal@quhealthy.com</p>
                 <p><strong>Teléfono:</strong> +52 55 1234 5678</p>
                 <p><strong>Dirección:</strong> Av. Reforma 123, CDMX, México</p>
@@ -289,10 +289,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             </section>
 
             {/* Important Notice */}
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-300/80">
-                <p className="font-semibold text-amber-400 mb-1">
+            <div className="bg-gray-50 dark:bg-[#111111] border-t border-gray-200 dark:border-gray-800 rounded-none p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="font-semibold text-black dark:text-white mb-1">
                   Aviso Importante
                 </p>
                 <p>
@@ -304,17 +304,17 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
         </ScrollArea>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-800 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-200 dark:border-gray-800 flex justify-end gap-3">
           <Button
             variant="outline"
             onClick={onClose}
-            className="border-gray-700 text-gray-300 hover:bg-gray-800"
+            className="border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-800"
           >
             Cerrar
           </Button>
           <Button
             onClick={onClose}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            className="bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-none"
           >
             He Leído y Acepto
           </Button>
