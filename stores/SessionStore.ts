@@ -202,6 +202,13 @@ export const useSessionStore = create<SessionState>()(
                 const currentLocale = localeMatch ? `/${localeMatch[1]}` : '/es';
                 // Si la sesión expiró estando en una zona protegida, lo pateamos a login con el flag
                 window.location.href = `${currentLocale}/login?clear_session=true&expired=true`;
+              } else {
+                // Si estamos en una zona pública, recargamos la página actual con clear_session para que el proxy borre las cookies HttpOnly
+                const currentUrl = new URL(window.location.href);
+                if (!currentUrl.searchParams.has('clear_session')) {
+                  currentUrl.searchParams.set('clear_session', 'true');
+                  window.location.href = currentUrl.toString();
+                }
               }
             }
 
