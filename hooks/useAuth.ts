@@ -133,7 +133,9 @@ export const useAuth = (): UseAuthReturn => {
     } finally {
       // Pase lo que pase, SIEMPRE matamos la sesión local y expulsamos al usuario
       useSessionStore.getState().clearSession();
-      router.push('/login');
+      const localeMatch = window.location.pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
+      const currentLocale = localeMatch ? `/${localeMatch[1]}` : '/es';
+      window.location.href = `${currentLocale}/login?clear_session=true`;
     }
   };
 

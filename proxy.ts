@@ -46,11 +46,26 @@ export function proxy(request: NextRequest) {
       name: 'refreshToken',
       value: '',
       path: '/',
-      domain: 'quhealthy.org', // 🚀 Aseguramos matar la cookie compartida
+      domain: 'quhealthy.org',
       maxAge: 0,
       secure: true,
       sameSite: 'none'
     });
+    
+    // También limpiamos el rol
+    response.cookies.set({
+      name: '__Secure-userRole',
+      value: '',
+      path: '/',
+      domain: 'quhealthy.org',
+      maxAge: 0,
+      secure: true,
+      sameSite: 'none'
+    });
+
+    // C. Limpiamos sin dominio explícito (para localhost y entornos de prueba)
+    response.cookies.delete('refreshToken');
+    response.cookies.delete('__Secure-userRole');
 
     return response;
   }

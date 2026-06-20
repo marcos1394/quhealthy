@@ -197,7 +197,11 @@ export const useSessionStore = create<SessionState>()(
                 /\/reviews/.test(currentPath);
 
               if (isProtectedRoute) {
-                window.location.href = '/login?expired=true';
+                // Obtenemos el locale actual
+                const localeMatch = window.location.pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
+                const currentLocale = localeMatch ? `/${localeMatch[1]}` : '/es';
+                // Si la sesión expiró estando en una zona protegida, lo pateamos a login con el flag
+                window.location.href = `${currentLocale}/login?clear_session=true&expired=true`;
               }
             }
 
