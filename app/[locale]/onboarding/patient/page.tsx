@@ -232,19 +232,31 @@ export default function ConsumerOnboardingWizard() {
         return (
           <div className="space-y-8">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Dieta Predominante</label>
-              <select 
-                className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
-                value={data.dietaryPreference}
-                onChange={(e) => updateData({ dietaryPreference: e.target.value })}
-              >
-                <option value="">Sin dieta específica</option>
-                <option value="MEDITERRANEAN">Mediterránea</option>
-                <option value="VEGAN">Vegana</option>
-                <option value="VEGETARIAN">Vegetariana</option>
-                <option value="KETO">Keto / Cetogénica</option>
-                <option value="PALEO">Paleo</option>
-              </select>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">Dieta Predominante</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { id: "", label: "Sin dieta específica" },
+                  { id: "MEDITERRANEAN", label: "Mediterránea" },
+                  { id: "VEGAN", label: "Vegana" },
+                  { id: "VEGETARIAN", label: "Vegetariana" },
+                  { id: "KETO", label: "Keto / Cetogénica" },
+                  { id: "PALEO", label: "Paleo" }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => updateData({ dietaryPreference: option.id })}
+                    className={cn(
+                      "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                      data.dietaryPreference === option.id
+                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -280,17 +292,21 @@ export default function ConsumerOnboardingWizard() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Nivel de estrés general (1-10)</label>
+                <div className="flex justify-between items-center mb-4">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">Nivel de estrés general (1-10)</label>
+                  <span className="text-[10px] font-bold text-black dark:text-white border border-gray-200 dark:border-gray-800 px-2 py-0.5">
+                    Nivel {data.stressLevel}
+                  </span>
+                </div>
                 <input 
                   type="range" 
-                  min="1" max="10"
-                  className="w-full h-2 mt-4 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer accent-black dark:accent-white"
+                  min="1" max="10" step="1"
+                  className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-none [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:dark:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-none transition-all"
                   value={data.stressLevel}
                   onChange={(e) => updateData({ stressLevel: Number(e.target.value) })}
                 />
                 <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-400 mt-3">
                   <span>Muy Bajo (1)</span>
-                  <span className="text-black dark:text-white text-xs">{data.stressLevel}</span>
                   <span>Extremo (10)</span>
                 </div>
               </div>
