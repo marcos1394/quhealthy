@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Send, Paperclip, Upload, FolderHeart, Loader2 } from 'lucide-react';
@@ -35,17 +37,14 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value);
         
-        // Emitir evento "escribiendo..."
         onTyping(true);
         
-        // Limpiar el evento después de 2 segundos de inactividad
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
             onTyping(false);
         }, 2000);
     };
 
-    // Cleanup al desmontar
     useEffect(() => {
         return () => {
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -65,13 +64,13 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
             const newDoc = await uploadDocument(file, 'GENERAL');
             if (newDoc) {
                 onSendMessage(`Adjunto documento clínico: ${newDoc.fileName}`, newDoc.id);
-                toast.success("Documento subido y adjuntado con éxito");
+                toast.success("Documento adjuntado exitosamente.");
             } else {
-                toast.error("Error al subir el archivo");
+                toast.error("Error de sincronización con la bóveda.");
             }
         } catch (error) {
             console.error("Error subiendo el archivo:", error);
-            toast.error("Error al subir el archivo");
+            toast.error("Fallo de subida. Verifique el archivo.");
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -89,38 +88,34 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
         />
         <form 
             onSubmit={handleSubmit} 
-            className="p-3 md:p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 shrink-0"
+            className="p-4 md:p-6 bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-800 flex items-center gap-4 shrink-0"
         >
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button 
                         type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-slate-400 hover:text-medical-500 shrink-0 hidden md:flex"
+                        variant="outline" 
+                        className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black w-12 h-12 p-0 flex items-center justify-center transition-colors shrink-0 hidden md:flex"
                         disabled={isUploading}
                     >
-                        {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Paperclip className="w-5 h-5" />}
+                        {isUploading ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} /> : <Paperclip className="w-4 h-4" strokeWidth={1.5} />}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl p-1 shadow-lg">
+                <DropdownMenuContent align="start" className="w-56 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-0 shadow-none">
                     <DropdownMenuItem 
-                        className="flex items-center gap-2 p-2.5 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+                        className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] focus:bg-gray-50 dark:focus:bg-[#050505] flex items-center gap-3 transition-colors"
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        <div className="bg-medical-50 dark:bg-medical-500/10 p-1.5 rounded-md text-medical-600 dark:text-medical-400">
-                            <Upload className="w-4 h-4" />
-                        </div>
-                        <span className="font-semibold text-sm">Subir desde equipo</span>
+                        <Upload className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">Carga Local</span>
                     </DropdownMenuItem>
+                    <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
                     <DropdownMenuItem 
-                        className="flex items-center gap-2 p-2.5 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 mt-1"
+                        className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] focus:bg-gray-50 dark:focus:bg-[#050505] flex items-center gap-3 transition-colors"
                         onClick={() => setIsVaultModalOpen(true)}
                     >
-                        <div className="bg-sky-50 dark:bg-sky-500/10 p-1.5 rounded-md text-sky-600 dark:text-sky-400">
-                            <FolderHeart className="w-4 h-4" />
-                        </div>
-                        <span className="font-semibold text-sm">Elegir de mi Bóveda</span>
+                        <FolderHeart className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">Extraer de Bóveda</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -128,17 +123,17 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
             <Input
                 value={message}
                 onChange={handleChange}
-                placeholder={t('input_placeholder', { defaultValue: 'Escribe un mensaje...' })}
-                className="flex-1 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 rounded-2xl px-4 h-12 focus-visible:ring-medical-500"
+                placeholder={t('input_placeholder', { defaultValue: 'REDACTAR TRANSMISIÓN...' })}
+                className="flex-1 rounded-none bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-12 px-4 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors placeholder:text-[10px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
             />
             
             <Button
                 type="submit"
                 disabled={!message.trim()}
-                className="bg-medical-600 hover:bg-medical-700 dark:bg-medical-500 dark:hover:bg-medical-600 text-white rounded-2xl px-4 h-12 shrink-0 shadow-sm transition-all"
+                className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors shrink-0 disabled:opacity-50"
             >
-                <Send className="w-5 h-5 md:mr-2" />
-                <span className="hidden md:inline font-semibold">{t('btn_send', { defaultValue: 'Enviar' })}</span>
+                <Send className="w-4 h-4 md:mr-3" strokeWidth={2} />
+                <span className="hidden md:inline">{t('btn_send', { defaultValue: 'Enviar' })}</span>
             </Button>
         </form>
         

@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Star, MapPin, ChevronRight, Search, Sparkles, Navigation, Package, MonitorPlay, Clock, ShoppingBag, Loader2, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 // Hooks
@@ -28,7 +27,7 @@ const SafeImage = ({ src, alt, fallback }: { src: string, alt: string, fallback:
         <img 
             src={src} 
             alt={alt} 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
             onError={() => setError(true)}
         />
     );
@@ -92,46 +91,48 @@ export default function PatientFavoritesDashboard() {
 
     const getItemPlaceholder = (type: TabType) => {
         switch (type) {
-            case 'PACKAGE': return <Package className="w-12 h-12 text-slate-300 dark:text-slate-600" />;
-            case 'COURSE': return <MonitorPlay className="w-12 h-12 text-slate-300 dark:text-slate-600" />;
-            case 'SERVICE': return <Clock className="w-12 h-12 text-slate-300 dark:text-slate-600" />;
-            case 'PRODUCT': return <ShoppingBag className="w-12 h-12 text-slate-300 dark:text-slate-600" />;
-            default: return <Sparkles className="w-12 h-12 text-slate-300 dark:text-slate-600" />;
+            case 'PACKAGE': return <Package className="w-8 h-8 text-gray-400" strokeWidth={1.5} />;
+            case 'COURSE': return <MonitorPlay className="w-8 h-8 text-gray-400" strokeWidth={1.5} />;
+            case 'SERVICE': return <Clock className="w-8 h-8 text-gray-400" strokeWidth={1.5} />;
+            case 'PRODUCT': return <ShoppingBag className="w-8 h-8 text-gray-400" strokeWidth={1.5} />;
+            default: return <Sparkles className="w-8 h-8 text-gray-400" strokeWidth={1.5} />;
         }
     };
 
     const getEmptyStateIcon = (type: TabType) => {
         switch (type) {
-            case 'PACKAGE': return <Package className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
-            case 'COURSE': return <MonitorPlay className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
-            case 'SERVICE': return <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
-            case 'PRODUCT': return <ShoppingBag className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
-            case 'PROVIDER': return <Search className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
-            default: return <Search className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />;
+            case 'PACKAGE': return <Package className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
+            case 'COURSE': return <MonitorPlay className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
+            case 'SERVICE': return <Clock className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
+            case 'PRODUCT': return <ShoppingBag className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
+            case 'PROVIDER': return <Search className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
+            default: return <Search className="w-6 h-6 text-gray-400" strokeWidth={1.5} />;
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-slate-500/30 pb-20">
-            <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-8">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 pb-24">
+            <div className="max-w-6xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
                 
                 {/* Header */}
-                <div className="flex items-center gap-5">
-                    <div className="p-3.5 bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-600 dark:to-slate-800 rounded-2xl shadow-lg shadow-slate-900/20 text-white">
-                        <Heart className="w-8 h-8 fill-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                            {t('title', { defaultValue: 'Mis Guardados' })}
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1.5 text-lg font-light">
-                            {t('subtitle', { defaultValue: 'Gestiona tus favoritos' })}
-                        </p>
+                <div className="flex flex-col sm:flex-row sm:items-end gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
+                            <Heart className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight uppercase mb-2">
+                                {t('title', { defaultValue: 'Archivo de Interés' })}
+                            </h1>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                {t('subtitle', { defaultValue: 'Directorio de perfiles y servicios guardados' })}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex gap-6 border-b border-slate-200 dark:border-slate-800 pb-px overflow-x-auto no-scrollbar">
+                {/* Tabs Blueprint */}
+                <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 no-scrollbar">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
@@ -141,164 +142,170 @@ export default function PatientFavoritesDashboard() {
                                     setActiveTab(tab.id);
                                 }
                             }}
-                            className={`pb-4 text-sm font-bold transition-colors relative whitespace-nowrap ${activeTab === tab.id ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+                            className={cn(
+                                "px-6 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap border-r border-gray-200 dark:border-gray-800",
+                                activeTab === tab.id
+                                    ? "bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-t-2 border-t-black dark:border-t-white"
+                                    : "bg-gray-50 dark:bg-[#050505] text-gray-500 hover:text-black dark:hover:text-white border-t-2 border-t-transparent hover:bg-white dark:hover:bg-[#0a0a0a]"
+                            )}
                         >
                             {tab.label}
-                            {activeTab === tab.id && (
-                                <motion.div layoutId="activeTabFav" className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white" />
-                            )}
                         </button>
                     ))}
                 </div>
 
-                {/* Contenido: Doctores Guardados */}
+                {/* Contenido: Especialistas Guardados */}
                 <AnimatePresence mode="wait">
                     {activeTab === 'PROVIDER' && (
-                        <motion.div key="provider-tab" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="pt-4">
-                        {savedProviders.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {savedProviders.map((provider) => (
-                                    <div key={provider.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 relative">
-                                        
-                                        {/* Portada */}
-                                        <div className="h-40 w-full relative bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
-                                            <SafeImage 
-                                                src={provider.imageUrl || ''} 
-                                                alt={provider.name} 
-                                                fallback={<User className="w-16 h-16 text-slate-300 dark:text-slate-600" />}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                        <motion.div key="provider-tab" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                            {savedProviders.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {savedProviders.map((provider) => (
+                                        <div key={provider.id} className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
                                             
-                                            {/* El mismo Corazón reutilizable */}
-                                            <div className="absolute top-3 right-3 z-10">
-                                                <FavoriteButton 
-                                                    entityType="PROVIDER" 
-                                                    entityId={provider.id} 
-                                                    initialIsFavorite={true}
+                                            {/* Portada */}
+                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center">
+                                                <SafeImage 
+                                                    src={provider.imageUrl || ''} 
+                                                    alt={provider.name} 
+                                                    fallback={<User className="w-8 h-8 text-gray-400" strokeWidth={1.5} />}
                                                 />
+                                                
+                                                <div className="absolute top-4 right-4 z-10">
+                                                    <FavoriteButton 
+                                                        entityType="PROVIDER" 
+                                                        entityId={provider.id} 
+                                                        initialIsFavorite={true}
+                                                    />
+                                                </div>
+
+                                                <div className="absolute bottom-4 left-4 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 px-2 py-1 flex items-center gap-1.5">
+                                                    <Star className="w-2.5 h-2.5 text-black dark:text-white fill-black dark:fill-white" />
+                                                    <span className="text-[9px] font-bold text-black dark:text-white">{provider.rating || 'N/A'}</span>
+                                                </div>
                                             </div>
 
-                                            <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg border border-white/20">
-                                                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                                                <span className="text-xs font-bold text-white">{provider.rating || '4.9'}</span>
+                                            {/* Info */}
+                                            <div className="p-6 flex flex-col flex-1">
+                                                <h3 className="font-semibold text-lg text-black dark:text-white tracking-tight uppercase mb-1 truncate">
+                                                    {provider.name}
+                                                </h3>
+                                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-6 truncate">
+                                                    {provider.category || 'Especialista'}
+                                                </p>
+
+                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6">
+                                                    <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500 truncate mr-4">
+                                                        <MapPin className="w-3 h-3 mr-1.5 shrink-0" strokeWidth={1.5} />
+                                                        {provider.city || 'Ubicación Remota'}
+                                                    </span>
+                                                    <Button 
+                                                        variant="outline"
+                                                        onClick={() => router.push(`/store/${provider.slug}`)}
+                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
+                                                    >
+                                                        Auditar Perfil <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        {/* Info */}
-                                        <div className="p-5">
-                                            <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight truncate">
-                                                {provider.name}
-                                            </h3>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-1">
-                                                {provider.category || 'Especialista'}
-                                            </p>
-
-                                            <div className="mt-5 flex items-center justify-between">
-                                                <span className="flex items-center text-xs font-medium text-slate-400 dark:text-slate-500">
-                                                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                                                    {provider.city || 'Consultorio'}
-                                                </span>
-                                                <Button 
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => router.push(`/store/${provider.slug}`)}
-                                                    className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                                >
-                                                    {t('view_profile', { defaultValue: 'Ver perfil' })} <ChevronRight className="w-3 h-3 ml-1" />
-                                                </Button>
-                                            </div>
-                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                /* Empty State Blueprint */
+                                <div className="flex flex-col items-center justify-center py-24 border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505]">
+                                    <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex items-center justify-center mb-6">
+                                        {getEmptyStateIcon('PROVIDER')}
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
-                                {getEmptyStateIcon('PROVIDER')}
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                                    {t('empty_providers_title', { defaultValue: 'Sin especialistas favoritos' })}
-                                </h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">
-                                    {t('empty_providers_desc', { defaultValue: 'Explora y guarda a tus especialistas de confianza.' })}
-                                </p>
-                                <Button 
-                                    onClick={() => router.push('/patient/dashboard/discover')}
-                                    className="rounded-full bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-                                >
-                                    <Navigation className="w-4 h-4 mr-2" /> {t('btn_explore', { defaultValue: 'Explorar' })}
-                                </Button>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2 text-center">
+                                        {t('empty_providers_title', { defaultValue: 'Registro Vacío' })}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
+                                        {t('empty_providers_desc', { defaultValue: 'Explore el catálogo general para auditar y guardar especialistas de confianza en su archivo personal.' })}
+                                    </p>
+                                    <Button 
+                                        onClick={() => router.push('/patient/discover')}
+                                        className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
+                                    >
+                                        <Navigation className="w-4 h-4 mr-3" strokeWidth={1.5} /> {t('btn_explore', { defaultValue: 'Navegar Catálogo' })}
+                                    </Button>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
 
-                {/* Contenido: Items Guardados (Packages, Courses, Services, Products) */}
-                {activeTab !== 'PROVIDER' && (
-                    <motion.div key={`item-tab-${activeTab}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="pt-4">
-                        {isLoadingItems ? (
-                            <div className="flex justify-center items-center py-20">
-                                <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-                            </div>
-                        ) : savedItems.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {savedItems.map((item) => (
-                                    <div key={item.id} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 relative flex flex-col">
-                                        <div className="h-40 w-full relative bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
-                                            <SafeImage 
-                                                src={item.imageUrl || ''} 
-                                                alt={item.name} 
-                                                fallback={getItemPlaceholder(activeTab)}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                    {/* Contenido: Items Guardados (Packages, Courses, Services, Products) */}
+                    {activeTab !== 'PROVIDER' && (
+                        <motion.div key={`item-tab-${activeTab}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                            {isLoadingItems ? (
+                                <div className="flex justify-center items-center py-32">
+                                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" strokeWidth={1.5} />
+                                </div>
+                            ) : savedItems.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {savedItems.map((item) => (
+                                        <div key={item.id} className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
                                             
-                                            <div className="absolute top-3 right-3 z-10">
-                                                <FavoriteButton 
-                                                    entityType={activeTab} 
-                                                    entityId={item.id!} 
-                                                    initialIsFavorite={true}
+                                            {/* Portada del Item */}
+                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center shrink-0">
+                                                <SafeImage 
+                                                    src={item.imageUrl || ''} 
+                                                    alt={item.name} 
+                                                    fallback={getItemPlaceholder(activeTab)}
                                                 />
+                                                <div className="absolute top-4 right-4 z-10">
+                                                    <FavoriteButton 
+                                                        entityType={activeTab} 
+                                                        entityId={item.id!} 
+                                                        initialIsFavorite={true}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="p-5 flex-1 flex flex-col justify-between">
-                                            <div>
-                                                <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight line-clamp-2">
+                                            {/* Info del Item */}
+                                            <div className="p-6 flex flex-col flex-1">
+                                                <h3 className="font-semibold text-lg text-black dark:text-white tracking-tight uppercase mb-2 line-clamp-2">
                                                     {item.name}
                                                 </h3>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
-                                                    {item.description || 'Sin descripción'}
+                                                <p className="text-xs text-gray-500 font-light line-clamp-3 mb-6">
+                                                    {item.description || 'Sin descripción detallada.'}
                                                 </p>
-                                            </div>
 
-                                            <div className="mt-5 flex items-center justify-between">
-                                                <span className="text-lg font-bold text-slate-900 dark:text-white">
-                                                    ${item.price?.toLocaleString()} <span className="text-sm font-normal text-slate-400">MXN</span>
-                                                </span>
-                                                <Button 
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => router.push(`/store/checkout/${item.id}`)}
-                                                    className="rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white"
-                                                >
-                                                    {t('buy_item', { defaultValue: 'Ver detalle' })} <ChevronRight className="w-3 h-3 ml-1" />
-                                                </Button>
+                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Inversión</span>
+                                                        <span className="text-sm font-semibold text-black dark:text-white tracking-tight">
+                                                            ${item.price?.toLocaleString()} <span className="text-[10px] font-normal text-gray-500">MXN</span>
+                                                        </span>
+                                                    </div>
+                                                    <Button 
+                                                        variant="outline"
+                                                        onClick={() => router.push(`/store/checkout/${item.id}`)}
+                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
+                                                    >
+                                                        {t('buy_item', { defaultValue: 'Ver Detalles' })} <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                /* Empty State Blueprint */
+                                <div className="flex flex-col items-center justify-center py-24 border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505]">
+                                    <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex items-center justify-center mb-6">
+                                        {getEmptyStateIcon(activeTab)}
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
-                                {getEmptyStateIcon(activeTab)}
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                                    {t('empty_items_title', { defaultValue: 'No hay elementos guardados' })}
-                                </h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">
-                                    {t('empty_items_desc', { defaultValue: 'Explora y guarda lo que más te interese para encontrarlo aquí.' })}
-                                </p>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2 text-center">
+                                        {t('empty_items_title', { defaultValue: 'Sin Entradas Registradas' })}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
+                                        {t('empty_items_desc', { defaultValue: 'Marque como favoritos los elementos del catálogo para almacenarlos en este directorio.' })}
+                                    </p>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
                 </AnimatePresence>
 
             </div>

@@ -1,7 +1,7 @@
-// src/components/ui/FavoriteButton.tsx
+"use client";
+
 import React from 'react';
 import { Heart } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useFavoriteToggle } from '@/hooks/useFavoriteToggle';
 
@@ -16,31 +16,23 @@ export function FavoriteButton({ entityType, entityId, initialIsFavorite = false
     const { isFavorite, toggleFavorite } = useFavoriteToggle(entityType, entityId, initialIsFavorite);
 
     return (
-        <motion.button
-            whileTap={{ scale: 0.8 }}
+        <button
             onClick={toggleFavorite}
             className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-full backdrop-blur-md border transition-all duration-300 shadow-sm z-20 group",
+                "flex items-center justify-center w-10 h-10 transition-colors z-20 group rounded-none border",
                 isFavorite 
-                    ? "bg-white dark:bg-slate-900 border-rose-200 dark:border-rose-900/50" 
-                    : "bg-black/20 dark:bg-black/50 border-white/20 hover:bg-black/40 text-white",
+                    ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black" 
+                    : "bg-white border-gray-300 dark:bg-[#0a0a0a] dark:border-gray-700 hover:border-black dark:hover:border-white text-gray-500 hover:text-black dark:hover:text-white",
                 className
             )}
         >
-            <motion.div
-                initial={false}
-                animate={isFavorite ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-                transition={{ duration: 0.3 }}
-            >
-                <Heart 
-                    className={cn(
-                        "w-4 h-4 transition-colors",
-                        isFavorite 
-                            ? "fill-rose-500 text-rose-500 dark:fill-rose-400 dark:text-rose-400" 
-                            : "fill-transparent"
-                    )} 
-                />
-            </motion.div>
-        </motion.button>
+            <Heart 
+                className={cn(
+                    "w-4 h-4 transition-all duration-300",
+                    isFavorite ? "fill-current scale-110" : "fill-transparent scale-100"
+                )} 
+                strokeWidth={isFavorite ? 0 : 1.5}
+            />
+        </button>
     );
 }
