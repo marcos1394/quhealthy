@@ -184,7 +184,7 @@ export const Navbar: React.FC = () => {
           )}
 
           <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-            <Link href={role === 'PROVIDER' ? "/provider/settings" : "/patient/settings"} className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+            <Link href={role === 'PROVIDER' ? "/provider/settings" : "/patient/dashboard/settings"} className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
               <Settings size={14} /> {t('user_menu.settings')}
             </Link>
           </DropdownMenuItem>
