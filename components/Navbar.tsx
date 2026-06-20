@@ -161,6 +161,11 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
+                <Link href="/patient/discover" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                  <Search size={14} /> {t('links.consumer.discover')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
                 <Link href="/patient/dashboard/appointments" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Calendar size={14} /> {t('links.consumer.appointments')}
                 </Link>
