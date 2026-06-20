@@ -65,7 +65,7 @@ const patientLinks = [
 ];
 
 const patientSettingsLinks = [
-  { key: "profile", href: "/patient/profile", icon: UserCircle, badge: null },
+  { key: "profile", href: "/patient/dashboard/profile", icon: UserCircle, badge: null },
   { key: "settings", href: "/patient/settings", icon: Settings, badge: null },
 ];
 

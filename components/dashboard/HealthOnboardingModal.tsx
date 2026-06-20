@@ -141,17 +141,29 @@ export function HealthOnboardingModal({ isOpen, onClose, onSubmit, isSubmitting 
                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
                       {t('activity_label')}
                     </label>
-                    <select
-                      value={formData.activityLevel}
-                      onChange={(e) => updateForm('activityLevel', e.target.value as ActivityLevel)}
-                      className="w-full h-12 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-none px-4 text-sm focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors appearance-none"
-                    >
-                      <option value="SEDENTARY">{t('act_sedentary')}</option>
-                      <option value="LIGHT">{t('act_light')}</option>
-                      <option value="MODERATE">{t('act_moderate')}</option>
-                      <option value="HIGH">{t('act_high')}</option>
-                      <option value="ATHLETE">{t('act_athlete')}</option>
-                    </select>
+                    <div className="grid grid-cols-1 gap-2">
+                      {[
+                        { id: 'SEDENTARY', label: t('act_sedentary') },
+                        { id: 'LIGHT', label: t('act_light') },
+                        { id: 'MODERATE', label: t('act_moderate') },
+                        { id: 'HIGH', label: t('act_high') },
+                        { id: 'ATHLETE', label: t('act_athlete') }
+                      ].map((act) => (
+                        <button
+                          key={act.id}
+                          type="button"
+                          onClick={() => updateForm('activityLevel', act.id as ActivityLevel)}
+                          className={cn(
+                            "w-full text-left px-4 h-12 text-[10px] font-bold uppercase tracking-widest border transition-colors rounded-none",
+                            formData.activityLevel === act.id
+                              ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
+                              : "bg-white text-gray-500 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:border-gray-800 dark:hover:border-white"
+                          )}
+                        >
+                          {act.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
