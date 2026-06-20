@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Instagram, Twitter, Facebook, Mail, Phone, MapPin, Heart } from "lucide-react";
+import { Instagram, Twitter, Facebook, Mail, MapPin, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { useTranslations } from "next-intl";
@@ -41,64 +41,62 @@ const Footer: React.FC = () => {
   ];
 
   const TikTokIcon = ({ size = 18 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
     </svg>
   );
 
   const socialLinks = [
-    { icon: Instagram, href: "https://www.instagram.com/quhealthyorg/", name: "Instagram", color: "hover:text-pink-500 dark:hover:text-pink-400" },
-    { icon: Twitter, href: "https://x.com/suimcafee", name: "X (Twitter)", color: "hover:text-slate-900 dark:hover:text-white" },
-    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61590877116503", name: "Facebook", color: "hover:text-blue-600 dark:hover:text-blue-500" },
-    { icon: TikTokIcon, href: "https://www.tiktok.com/@quhealthy", name: "TikTok", color: "hover:text-black dark:hover:text-white" }
+    { icon: Instagram, href: "https://www.instagram.com/quhealthyorg/", name: "Instagram" },
+    { icon: Twitter, href: "https://x.com/suimcafee", name: "X (Twitter)" },
+    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61590877116503", name: "Facebook" },
+    { icon: TikTokIcon, href: "https://www.tiktok.com/@quhealthy", name: "TikTok" }
   ];
 
   return (
-    <footer className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 py-16 font-sans transition-colors duration-300 border-t border-slate-200 dark:border-slate-800">
+    <footer className="bg-white dark:bg-[#0a0a0a] text-gray-500 dark:text-gray-400 pt-24 pb-12 transition-colors duration-300 border-t border-gray-200 dark:border-gray-800 selection:bg-gray-200 dark:selection:bg-white/20">
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-10">
+      <div className="container mx-auto px-6 md:px-12 xl:px-24">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-y-16 gap-x-8">
 
-          {/* Columna 1: Marca y Propuesta (Ocupa 4 espacios en MD y 2 en LG) */}
-          <div className="md:col-span-4 lg:col-span-2 space-y-6">
+          {/* Columna 1: Marca y Propuesta */}
+          <div className="md:col-span-4 lg:col-span-2 space-y-8 pr-0 lg:pr-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <Link href="/" className="inline-block group">
-                <span className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white transition-opacity group-hover:opacity-80">
-                  QuHealthy
+              <Link href="/" className="inline-block group mb-6">
+                <span className="text-3xl font-serif italic tracking-tight text-black dark:text-white">
+                  QuHealthy.
                 </span>
               </Link>
-              <p className="mt-4 text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-sm transition-colors duration-300">
+              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-sm font-light">
                 {t('brand_description')}
               </p>
 
-              <div className="mt-6 flex items-center space-x-5">
+              <div className="mt-8 flex items-center gap-2">
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
                   return (
-                    <motion.a
+                    <a
                       key={social.name}
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 ${social.color} transition-all duration-300 hover:scale-110 hover:border-gray-300 dark:hover:border-gray-700`}
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="w-10 h-10 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-colors duration-300"
                       aria-label={`Visítanos en ${social.name}`}
                     >
-                      <Icon size={18} />
-                    </motion.a>
+                      <Icon size={16} strokeWidth={1.5} />
+                    </a>
                   );
                 })}
               </div>
             </motion.div>
           </div>
 
-          {/* Columnas de Enlaces (Iteración limpia) */}
+          {/* Columnas de Enlaces (Arquitectura limpia) */}
           {footerLinks.map((column, columnIndex) => (
             <div key={column.title} className="lg:col-span-1">
               <motion.div
@@ -107,7 +105,7 @@ const Footer: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: columnIndex * 0.1 }}
               >
-                <h3 className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-wider mb-6 transition-colors duration-300">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-8">
                   {column.title}
                 </h3>
                 <ul className="space-y-4">
@@ -115,9 +113,8 @@ const Footer: React.FC = () => {
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="text-sm hover:text-medical-500 dark:hover:text-medical-400 transition-colors flex items-center group"
+                        className="text-sm font-light hover:text-black dark:hover:text-white transition-colors"
                       >
-                        <span className="w-0 group-hover:w-2 transition-all duration-300 overflow-hidden bg-medical-500 h-[2px] mr-0 group-hover:mr-2"></span>
                         {link.name}
                       </Link>
                     </li>
@@ -135,54 +132,69 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <h3 className="text-slate-900 dark:text-white font-bold text-sm uppercase tracking-wider mb-6 transition-colors duration-300">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-8">
                 {t('contact.title')}
               </h3>
-              <ul className="space-y-4 text-sm">
-                <li className="flex items-start group">
-                  <div className="w-8 h-8 rounded-lg bg-medical-100 dark:bg-medical-500/10 flex items-center justify-center flex-shrink-0 mr-3 group-hover:bg-medical-200 dark:group-hover:bg-medical-500/20 transition-colors duration-200">
-                    <Mail size={16} className="text-medical-600 dark:text-medical-400 transition-colors" />
-                  </div>
-                  <a href="mailto:founders@quhealthy.org" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                    founders@quhealthy.org
+              <ul className="space-y-6 text-sm font-light">
+                <li>
+                  <a href="mailto:founders@quhealthy.org" className="flex items-center gap-4 hover:text-black dark:hover:text-white transition-colors group">
+                    <div className="w-8 h-8 border border-gray-200 dark:border-gray-800 flex items-center justify-center group-hover:border-black dark:group-hover:border-white transition-colors">
+                      <Mail size={14} />
+                    </div>
+                    <span>founders@quhealthy.org</span>
                   </a>
                 </li>
 
-                <li className="flex items-start group">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mr-3 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-500/20 transition-colors duration-200">
-                    <MapPin size={16} className="text-emerald-600 dark:text-emerald-400 transition-colors" />
+                <li className="flex items-center gap-4 group">
+                  <div className="w-8 h-8 border border-gray-200 dark:border-gray-800 flex items-center justify-center transition-colors">
+                    <MapPin size={14} />
                   </div>
-                  <span className="text-slate-600 dark:text-slate-400">Los Mochis, Sinaloa, México</span>
+                  <span>Los Mochis, Sinaloa, México</span>
                 </li>
               </ul>
             </motion.div>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-900 transition-colors duration-300">
-          <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-600 gap-4">
-            <div className="flex flex-col md:flex-row items-center gap-2 text-center md:text-left flex-wrap justify-center">
-              <p className="text-center md:text-left text-xs">
-                {t('copyright.rights', { year: currentYear })} <br className="block md:hidden" />
-                Plataforma operada legalmente por <strong>Marcos Sandoval Ruiz</strong>.
+        {/* Blueprint Footer / Copyright */}
+        <div className="mt-24 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            
+            <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                &copy; {currentYear} QUHEALTHY.
+                <span className="hidden md:inline mx-2">|</span>
+                <span className="block md:inline mt-1 md:mt-0 font-light tracking-normal lowercase">
+                  Operado por Marcos Sandoval Ruiz.
+                </span>
               </p>
-              <span className="hidden md:inline">•</span>
-              <span className="flex items-center gap-1">
-                {t('copyright.made_with')} <Heart className="w-3 h-3 text-red-500 fill-current" /> {t('copyright.in')}
-              </span>
             </div>
-            <div className="flex flex-wrap justify-center gap-6">
-              <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.privacy')}</Link>
-              <Link href="/terms" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.terms')}</Link>
-              <Link href="/sitemap" className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors">{t('copyright.links.sitemap')}</Link>
+
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+              <Link href="/privacy" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                {t('copyright.links.privacy')}
+              </Link>
+              <Link href="/terms" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                {t('copyright.links.terms')}
+              </Link>
               <button 
                 onClick={() => window.dispatchEvent(new Event("open_cookie_preferences"))}
-                className="hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
+                className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors"
               >
-                Manage Cookie Preferences
+                Cookies
               </button>
             </div>
+
+          </div>
+
+          <div className="mt-8 flex items-center justify-center md:justify-start gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              {t('copyright.made_with')}
+            </span>
+            <Heart className="w-3 h-3 text-black dark:text-white fill-current" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              {t('copyright.in')}
+            </span>
           </div>
         </div>
       </div>
