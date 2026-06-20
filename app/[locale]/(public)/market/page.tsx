@@ -4,9 +4,24 @@ import { motion } from "framer-motion";
 import { ArrowRight, Search, ShoppingBag, Stethoscope, Cpu, Pill, Syringe, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import useSWR from "swr";
+import axiosInstance from "@/lib/axios";
+
+interface MarketProduct {
+  id: string;
+  slug: string;
+  title: string;
+  brand: string;
+  price: number;
+  currency: string;
+  rating: number;
+  thumbnailUrl: string;
+}
 
 export default function MarketPage() {
   const t = useTranslations("PublicMarket");
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
   const categories = [
@@ -16,13 +31,11 @@ export default function MarketPage() {
     { id: "supplies", icon: Syringe, label: t('categories.c4') }
   ];
 
-  // TODO: Estos datos serán reemplazados por el fetch al Backend (ver comentarios abajo)
-  const products = [
-    { id: "p1", title: t('products.p1_title'), brand: t('products.p1_brand'), price: t('products.p1_price'), rating: 4.9 },
-    { id: "p2", title: t('products.p2_title'), brand: t('products.p2_brand'), price: t('products.p2_price'), rating: 4.8 },
-    { id: "p3", title: t('products.p3_title'), brand: t('products.p3_brand'), price: t('products.p3_price'), rating: 4.7 },
-    { id: "p4", title: t('products.p4_title'), brand: t('products.p4_brand'), price: t('products.p4_price'), rating: 4.9 },
-  ];
+  const { data: products, isLoading } = useSWR<MarketProduct[]>(
+    '/api/catalog/market/public/products/trending',
+    (url) => axiosInstance.get(url).then(res => res.data),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
 
   // Variantes de animación
   const containerVariants = {
@@ -77,6 +90,11 @@ export default function MarketPage() {
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      router.push('/market/search?q=' + encodeURIComponent(searchQuery.trim()));
+                    }
+                  }}
                   placeholder={t('search_ph')}
                   className="w-full bg-transparent border-b border-gray-300 dark:border-gray-800 py-4 pl-10 pr-6 text-lg font-light outline-none transition-all focus:border-black dark:focus:border-white text-black dark:text-white placeholder:text-gray-400"
                 />
@@ -154,45 +172,60 @@ export default function MarketPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
           >
-            {products.map((product, idx) => (
-              <motion.div 
-                key={product.id}
-                variants={itemVariants}
-                className="group flex flex-col h-full cursor-pointer"
-              >
-                {/* Product Image Area */}
-                <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-900 relative p-4 flex items-center justify-center mb-6 overflow-hidden">
-                  <div className="absolute top-4 left-4 bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1 z-10">
-                    <Star className="w-2.5 h-2.5 text-white dark:text-black fill-current" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">{product.rating}</span>
-                  </div>
-                  {/* Placeholder Image */}
-                  <img 
-                    src={`/api/placeholder/400/500`} // Reemplazar con imagen real
-                    alt={product.title}
-                    className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-screen opacity-80 group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                  />
-                  
-                  {/* Quick Add Overlay */}
-                  <div className="absolute inset-x-0 bottom-0 bg-black/80 dark:bg-white/90 text-white dark:text-black py-4 text-center text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
-                    <ShoppingBag className="w-4 h-4" /> Agregar al Carrito
-                  </div>
+            {isLoading ? (
+              <div className="col-span-full py-20 flex justify-center items-center">
+                <div className="animate-pulse flex items-center gap-2 text-gray-500">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full" />
                 </div>
-                
-                <div className="flex flex-col flex-1">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                    {product.brand}
-                  </span>
-                  <h3 className="text-lg font-semibold text-black dark:text-white mb-2 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-2">
-                    {product.title}
-                  </h3>
-                  
-                  <div className="mt-auto pt-4 flex items-center justify-between">
-                    <span className="text-xl font-medium text-black dark:text-white">{product.price}</span>
+              </div>
+            ) : (!products || products.length === 0) ? (
+              <div className="col-span-full py-20 text-center text-gray-500 dark:text-gray-400 font-light">
+                No hay productos en tendencia por el momento.
+              </div>
+            ) : (
+              products.map((product) => (
+                <motion.div 
+                  key={product.id}
+                  variants={itemVariants}
+                  className="group flex flex-col h-full cursor-pointer"
+                >
+                  {/* Product Image Area */}
+                  <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-900 relative p-4 flex items-center justify-center mb-6 overflow-hidden">
+                    <div className="absolute top-4 left-4 bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1 z-10">
+                      <Star className="w-2.5 h-2.5 text-white dark:text-black fill-current" />
+                      <span className="text-[9px] font-bold uppercase tracking-widest">{product.rating}</span>
+                    </div>
+                    <img 
+                      src={product.thumbnailUrl || `/api/placeholder/400/500`}
+                      alt={product.title}
+                      className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-screen opacity-80 group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    />
+                    
+                    {/* Quick Add Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 bg-black/80 dark:bg-white/90 text-white dark:text-black py-4 text-center text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2">
+                      <ShoppingBag className="w-4 h-4" /> Agregar al Carrito
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  
+                  <div className="flex flex-col flex-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      {product.brand}
+                    </span>
+                    <h3 className="text-lg font-semibold text-black dark:text-white mb-2 leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all line-clamp-2">
+                      {product.title}
+                    </h3>
+                    
+                    <div className="mt-auto pt-4 flex items-center justify-between">
+                      <span className="text-xl font-medium text-black dark:text-white">
+                        ${product.price?.toLocaleString('en-US', { minimumFractionDigits: 2 })} {product.currency || 'MXN'}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </motion.div>
         </div>
       </section>

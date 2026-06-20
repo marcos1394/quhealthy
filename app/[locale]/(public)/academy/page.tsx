@@ -35,12 +35,14 @@ export default function AcademyPage() {
 
   const { data: stats, isLoading: isStatsLoading } = useSWR<AcademyStats>(
     '/api/catalog/academy/public/stats',
-    (url: string) => axiosInstance.get(url).then(res => res.data)
+    (url: string) => axiosInstance.get(url).then(res => res.data),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
   const { data: featuredCourses, isLoading: isCoursesLoading } = useSWR<AcademyCourse[]>(
     '/api/catalog/academy/public/courses/featured',
-    (url: string) => axiosInstance.get(url).then(res => res.data)
+    (url: string) => axiosInstance.get(url).then(res => res.data),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
   // Variantes de animación
