@@ -23,6 +23,7 @@ export interface ConsumerProfile {
   dietaryPreference?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
+  profilePictureUrl?: string;
 }
 
 // Objeto por defecto para inicializar el formulario de forma segura
@@ -40,5 +41,7 @@ export const defaultConsumerProfile: ConsumerProfile = {
   preferredModality: "",
   bloodType: "",
   emergencyContactName: "",
+  emergencyContactName: "",
   emergencyContactPhone: "",
+  profilePictureUrl: "",
 };

@@ -69,5 +69,19 @@ export const consumerProfileService = {
       value,
       secondaryValue
     });
+  },
+
+  /**
+   * Sube la foto de perfil del paciente
+   */
+  uploadProfilePicture: async (file: File): Promise<{ profilePictureUrl: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axiosInstance.post(`${BASE_URL}/picture`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   }
 };

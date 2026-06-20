@@ -14,6 +14,7 @@ import {
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { useConsumerProfile } from '@/hooks/useConsumerProfile';
+import { consumerProfileService } from '@/services/consumerProfile.service';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +42,8 @@ type PatientProfileValues = z.infer<typeof patientProfileSchema>;
 export default function PatientProfilePage() {
     const t = useTranslations('PatientProfile'); 
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploadingPicture, setIsUploadingPicture] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // Hooks de Backend y Sesión
     const { user } = useSessionStore();
@@ -70,12 +73,12 @@ export default function PatientProfilePage() {
     React.useEffect(() => {
         if (!isLoading && profile) {
             form.reset({
-                fullName: profile.fullName || "",
+                fullName: profile.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : ""),
                 email: user?.email || "",
                 phone: profile.phoneNumber || "",
                 bloodType: profile.bloodType || "", 
                 biologicalSex: profile.biologicalSex || "",
-                allergies: profile.allergies?.join(', ') || "",
+                allergies: profile.allergies?.map((a: any) => a?.name || a).join(', ') || "",
                 currentMedications: profile.currentMedications?.join(', ') || "",
                 emergencyContactName: profile.emergencyContactName || "",
                 emergencyContactPhone: profile.emergencyContactPhone || "",
@@ -97,7 +100,7 @@ export default function PatientProfilePage() {
                 biologicalSex: data.biologicalSex || profile.biologicalSex || "",
                 emergencyContactName: data.emergencyContactName || profile.emergencyContactName || "",
                 emergencyContactPhone: data.emergencyContactPhone || profile.emergencyContactPhone || "",
-                allergies: data.allergies ? data.allergies.split(',').map(s => s.trim()).filter(Boolean) : [],
+                allergies: data.allergies ? data.allergies.split(',').map(s => ({ name: s.trim() })).filter(a => a.name) : [],
                 currentMedications: data.currentMedications ? data.currentMedications.split(',').map(s => s.trim()).filter(Boolean) : [],
             });
 
@@ -112,6 +115,22 @@ export default function PatientProfilePage() {
         }
     };
 
+    const handlePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingPicture(true);
+        try {
+            await consumerProfileService.uploadProfilePicture(file);
+            toast.success("Foto de perfil actualizada.");
+            await fetchProfile(); // Recargar el perfil para obtener la URL
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            setIsUploadingPicture(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 pb-32">
             <div className="max-w-4xl mx-auto px-6 py-12 md:py-16 space-y-12">
@@ -119,8 +138,30 @@ export default function PatientProfilePage() {
                 {/* --- HEADER --- */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
                     <div className="flex items-start gap-6">
-                        <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-                            <User className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                        <div 
+                            className="relative group cursor-pointer w-20 h-20 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 overflow-hidden"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*" 
+                                ref={fileInputRef} 
+                                onChange={handlePictureUpload}
+                            />
+                            {isUploadingPicture ? (
+                                <Loader2 className="w-6 h-6 animate-spin text-black dark:text-white" />
+                            ) : profile?.profilePictureUrl ? (
+                                <img src={profile.profilePictureUrl} alt="Profile" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity duration-300" />
+                            ) : (
+                                <User className="w-8 h-8 text-black dark:text-white group-hover:opacity-0 transition-opacity duration-300" strokeWidth={1.5} />
+                            )}
+                            
+                            {!isUploadingPicture && (
+                                <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span className="text-[9px] font-bold text-white uppercase tracking-widest text-center px-2">Cambiar Foto</span>
+                                </div>
+                            )}
                         </div>
                         <div>
                             <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
@@ -152,7 +193,7 @@ export default function PatientProfilePage() {
                                 <FormField control={form.control} name="fullName" render={({ field }: { field: ControllerRenderProps<PatientProfileValues, 'fullName'> }) => (
                                     <FormItem>
                                         <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                            Denominación Legal
+                                            Nombre Completo
                                         </FormLabel>
                                         <FormControl>
                                             <Input {...field} className="h-12 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors" />
