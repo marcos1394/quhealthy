@@ -1,66 +1,74 @@
-// src/components/packages/SuggestedUpgrades.tsx
+"use client";
+
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight, Zap, Crown } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 export function SuggestedUpgrades() {
     const t = useTranslations('PatientPackages');
 
     return (
-        <div className="mt-16 pt-10 border-t border-slate-200 dark:border-slate-800 space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-                <Crown className="w-5 h-5 text-amber-500" />
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                    {t('upgrades_title', { defaultValue: 'Mejoras Sugeridas' })}
+        <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800 space-y-8">
+            <div className="flex items-center gap-3 mb-4">
+                <Crown className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
+                    {t('upgrades_title', { defaultValue: 'Auditoría de Oportunidades' })}
                 </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Upgrade 1: Paquete Familiar */}
-                <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 shadow-xl overflow-hidden relative group">
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
+                <div className="flex flex-col border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 md:p-10 hover:border-black dark:hover:border-white transition-colors group">
+                    <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest w-fit mb-6 inline-block">
+                        {t('upgrade_1_badge', { defaultValue: 'Sugerencia de Eficiencia' })}
+                    </span>
+                    
+                    <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
+                        {t('upgrade_1_title', { defaultValue: 'Plan Familiar' })}
+                    </h3>
+                    
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="text-gray-400 line-through text-sm font-medium">$500</span> 
+                        <span className="text-black dark:text-white text-lg font-bold tracking-tight">$350 MXN</span>
+                    </div>
 
-                    <CardContent className="p-8 relative z-10 flex flex-col h-full justify-end">
-                        <Badge className="bg-amber-500 text-white hover:bg-amber-600 border-0 shadow-sm w-fit mb-4">
-                            {t('upgrade_1_badge', { defaultValue: 'Recomendado para ti' })}
-                        </Badge>
-                        <h3 className="text-2xl font-bold mb-2">
-                            {t('upgrade_1_title', { defaultValue: 'Paquete Familiar' })}
-                            <span className="text-amber-400 line-through text-lg opacity-80 ml-2">$500</span> 
-                            <span className="text-emerald-400 ml-2">$350</span>
-                        </h3>
-                        <p className="text-slate-300 font-light mb-6">
-                            {t('upgrade_1_desc', { defaultValue: 'Añade a 3 miembros de tu familia a tus consultas con descuento. Incluye historial compartido.' })}
-                        </p>
-                        <Button className="w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-100 shadow-lg font-bold">
-                            {t('btn_details', { defaultValue: 'Ver Detalles' })} <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                    </CardContent>
-                </Card>
+                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-8 flex-grow">
+                        {t('upgrade_1_desc', { defaultValue: 'Expanda la cobertura a 3 dependientes adicionales asegurando tarifas preferenciales. Incluye base de datos médica unificada.' })}
+                    </p>
+                    
+                    <Button 
+                        variant="outline"
+                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest w-full sm:w-fit px-8 transition-colors flex items-center justify-between sm:justify-center border-0"
+                    >
+                        {t('btn_details', { defaultValue: 'Evaluar Contrato' })} <ArrowRight className="w-4 h-4 sm:ml-3" strokeWidth={1.5} />
+                    </Button>
+                </div>
 
                 {/* Upgrade 2: Salud Preventiva */}
-                <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 shadow-xl overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-32 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform duration-700" />
+                <div className="flex flex-col border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 md:p-10 hover:border-black dark:hover:border-white transition-colors group">
+                    <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white w-fit mb-6 inline-block bg-white dark:bg-[#0a0a0a]">
+                        {t('upgrade_2_badge', { defaultValue: 'Protocolo Preventivo' })}
+                    </span>
                     
-                    <CardContent className="p-8 relative z-10 flex flex-col h-full justify-end">
-                        <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-md border-0 shadow-sm w-fit mb-4">
-                            {t('upgrade_2_badge', { defaultValue: 'Salud Preventiva' })}
-                        </Badge>
-                        <h3 className="text-2xl font-bold mb-2">
-                            {t('upgrade_2_title', { defaultValue: 'Chequeo Anual Plus' })}
-                        </h3>
-                        <p className="text-indigo-100 font-light mb-6">
-                            {t('upgrade_2_desc', { defaultValue: 'Adelanta tus estudios de laboratorio del próximo año y ahorra un 40% adicional.' })}
-                        </p>
-                        <Button className="w-full sm:w-auto bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 shadow-lg font-bold">
-                            {t('btn_activate', { defaultValue: 'Activar Beneficio' })} <Zap className="w-4 h-4 ml-2 text-amber-300" />
-                        </Button>
-                    </CardContent>
-                </Card>
+                    <h3 className="text-2xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
+                        {t('upgrade_2_title', { defaultValue: 'Evaluación Anual Plus' })}
+                    </h3>
+                    
+                    <div className="flex items-center gap-3 mb-6">
+                        <span className="text-black dark:text-white text-lg font-bold tracking-tight">-40% DESCUENTO</span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-8 flex-grow">
+                        {t('upgrade_2_desc', { defaultValue: 'Programe su panel de laboratorios anual de manera anticipada para asegurar bloqueo de tarifas y análisis prioritario.' })}
+                    </p>
+                    
+                    <Button 
+                        className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest w-full sm:w-fit px-8 transition-colors flex items-center justify-between sm:justify-center border-0"
+                    >
+                        {t('btn_activate', { defaultValue: 'Autorizar Ejecución' })} <Zap className="w-4 h-4 sm:ml-3" strokeWidth={1.5} />
+                    </Button>
+                </div>
             </div>
         </div>
     );

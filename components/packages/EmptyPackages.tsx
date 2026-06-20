@@ -1,4 +1,5 @@
-// src/components/packages/EmptyPackages.tsx
+"use client";
+
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { PackageSearch } from 'lucide-react';
@@ -7,15 +8,15 @@ export function EmptyPackages() {
     const t = useTranslations('PatientPackages');
 
     return (
-        <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="bg-slate-50 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-slate-700">
-                <PackageSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+        <div className="flex flex-col items-center justify-center py-24 px-4 border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] text-center">
+            <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex items-center justify-center mb-6">
+                <PackageSearch className="w-6 h-6 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {t('empty_title', { defaultValue: 'Aún no tienes suscripciones' })}
+            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                {t('empty_title', { defaultValue: 'Directorio Vacío' })}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto font-light leading-relaxed">
-                {t('empty_desc', { defaultValue: 'Puedes comprar paquetes de servicios para obtener mejores precios en tus consultas y tratamientos recurrentes.' })}
+            <p className="text-xs text-gray-500 font-light max-w-sm mx-auto leading-relaxed">
+                {t('empty_desc', { defaultValue: 'Los paquetes clínicos y suscripciones de servicio aparecerán aquí para su gestión y redención de créditos.' })}
             </p>
         </div>
     );
