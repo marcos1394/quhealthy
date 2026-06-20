@@ -8,7 +8,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors duration-300">
       {/* 🚀 EL NAVBAR SE MONTA SOLO EN RUTAS PÚBLICAS */}
       <Navbar />
 
