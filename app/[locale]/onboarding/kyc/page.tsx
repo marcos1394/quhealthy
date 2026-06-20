@@ -117,7 +117,7 @@ export default function KycPage() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row gap-2 h-auto sm:h-36">
+          <div className="flex flex-col sm:flex-row gap-4 h-auto sm:h-36">
             <button type="button" onClick={() => !isUp && inputRef.current?.click()}
               className="flex-1 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a] hover:border-black dark:hover:border-white flex flex-col items-center justify-center gap-3 transition-colors group/upload p-6">
               {isUp ? (
@@ -264,7 +264,7 @@ export default function KycPage() {
                 </Tabs>
 
                 {activeTab === "ine" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-6">
                     <UploadZone type="INE_FRONT" label={t("ine_front")} description={t("ine_front_desc")} inputRef={ineFrontInput} />
                     <UploadZone type="INE_BACK" label={t("ine_back")} description={t("ine_back_desc")} inputRef={ineBackInput} />
                   </div>

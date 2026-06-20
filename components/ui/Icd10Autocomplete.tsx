@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, Loader2 } from "lucide-react";
 import { consumerProfileService } from "@/services/consumerProfile.service";
+import { cn } from "@/lib/utils";
 
 interface Icd10AutocompleteProps {
   selectedConditions: any[];
@@ -70,33 +71,43 @@ export function Icd10Autocomplete({ selectedConditions, onChange }: Icd10Autocom
 
   return (
     <div className="w-full relative" ref={wrapperRef}>
-      {/* Pills de seleccionados */}
+      
+      {/* Selected Blocks (Architectural Tags) */}
       {selectedConditions.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2 mb-4">
           {selectedConditions.map((condition, idx) => (
-            <div key={idx} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-3 py-1.5 rounded-full text-sm font-medium border border-blue-200 dark:border-blue-800">
-              <span className="opacity-60 text-xs mr-1">{condition.icd10Code}</span>
-              {condition.name}
+            <div 
+              key={idx} 
+              className="flex items-center gap-3 bg-gray-50 dark:bg-[#050505] text-black dark:text-white pl-3 pr-1 py-1.5 border border-gray-200 dark:border-gray-800"
+            >
+              {condition.icd10Code && (
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 border-r border-gray-200 dark:border-gray-800 pr-2">
+                  {condition.icd10Code}
+                </span>
+              )}
+              <span className="text-xs font-medium tracking-wide">
+                {condition.name}
+              </span>
               <button 
                 type="button"
                 onClick={() => handleRemove(condition.icd10Code || condition.name)}
-                className="ml-1 text-blue-400 hover:text-blue-600 dark:hover:text-blue-200"
+                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* Input de Búsqueda */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-slate-400" />
+      {/* Strict Search Input */}
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-gray-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors" strokeWidth={1.5} />
         </div>
         <input
           type="text"
-          className="w-full pl-10 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition"
+          className="w-full pl-12 pr-4 py-4 rounded-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] focus:border-black dark:focus:border-white focus:ring-0 outline-none transition-colors text-sm font-light text-black dark:text-white placeholder:text-gray-400"
           placeholder="Buscar enfermedad (ej. Diabetes, Hipertensión...)"
           value={query}
           onChange={(e) => {
@@ -107,31 +118,39 @@ export function Icd10Autocomplete({ selectedConditions, onChange }: Icd10Autocom
         />
       </div>
 
-      {/* Resultados Autocomplete */}
+      {/* Autocomplete Dropdown (Blueprint style) */}
       {isOpen && query.length > 0 && (
-        <div className="absolute z-20 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto">
+        <div className="absolute z-20 mt-[-1px] w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-2xl max-h-60 overflow-y-auto">
           {isLoading ? (
-            <div className="px-4 py-4 text-slate-500 text-sm flex items-center gap-2">
+            <div className="px-5 py-6 flex items-center gap-3 text-black dark:text-white">
               <Loader2 className="w-4 h-4 animate-spin" />
-              Buscando en catálogo oficial...
+              <span className="text-[10px] font-bold uppercase tracking-widest">
+                Consultando CIE-10...
+              </span>
             </div>
           ) : results.length > 0 ? (
             results.map((item) => (
               <div
                 key={item.code}
-                className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer flex justify-between items-center"
+                className="px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer flex justify-between items-center border-b border-gray-100 dark:border-gray-800/50 last:border-0 group transition-colors"
                 onClick={() => handleSelect(item)}
               >
-                <span className="text-slate-900 dark:text-white font-medium">{item.name}</span>
-                <span className="text-sm text-slate-500 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-md font-mono">{item.code}</span>
+                <span className="text-xs text-black dark:text-white font-medium pr-4 leading-relaxed">
+                  {item.name}
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors shrink-0">
+                  {item.code}
+                </span>
               </div>
             ))
           ) : (
-            <div className="px-4 py-3 text-slate-500 text-sm">
-              No se encontraron coincidencias en el catálogo.
+            <div className="px-5 py-6">
+              <p className="text-xs text-gray-500 font-light mb-4">
+                No se encontraron coincidencias en el catálogo oficial CIE-10.
+              </p>
               <button 
                 type="button"
-                className="block mt-2 text-blue-600 font-medium hover:underline"
+                className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white pb-0.5 hover:opacity-60 transition-opacity flex items-center gap-2"
                 onClick={() => {
                   if (!selectedConditions.some(c => c.name === query)) {
                     onChange([...selectedConditions, { name: query }]);
@@ -140,7 +159,7 @@ export function Icd10Autocomplete({ selectedConditions, onChange }: Icd10Autocom
                   setIsOpen(false);
                 }}
               >
-                + Agregar "{query}" como texto libre
+                + Registrar "{query}" Manualmente
               </button>
             </div>
           )}
