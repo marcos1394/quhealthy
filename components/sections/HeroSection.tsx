@@ -19,7 +19,7 @@ const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: str
   }, [words]);
 
   return (
-    <div className="relative inline-block min-w-[140px] sm:min-w-[200px] md:min-w-[300px] align-bottom overflow-visible px-2">
+    <div className="relative inline-block h-12 sm:h-16 md:h-20 lg:h-[100px] min-w-[140px] sm:min-w-[200px] md:min-w-[300px] align-bottom overflow-visible px-2">
       <AnimatePresence mode="popLayout">
         <motion.span
           key={index}
@@ -27,7 +27,7 @@ const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: str
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -20, opacity: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-x-0 bottom-1 md:bottom-2 text-gray-400 dark:text-gray-500 font-serif italic text-left whitespace-nowrap"
+          className="absolute inset-x-0 bottom-0 text-gray-400 dark:text-gray-500 font-serif italic text-left whitespace-nowrap"
         >
           {words[index]}{suffix}
         </motion.span>
