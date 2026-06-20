@@ -12,6 +12,13 @@ import { HealthVaultDocumentCard } from '@/components/vault/HealthVaultDocumentC
 import { DigitalVaccinationCard } from '@/components/vault/DigitalVaccinationCard';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { useFamily } from '@/hooks/useFamily';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ChevronDown, Syringe as SyringeIcon } from 'lucide-react';
 
 export default function PatientVaultPage() {
     const t = useTranslations('HealthVault');
@@ -73,11 +80,35 @@ export default function PatientVaultPage() {
                         </h2>
                     </div>
                     {family && family.length > 0 ? (
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <Accordion type="multiple" className="grid grid-cols-1 gap-6">
                             {family.map(member => (
-                                <DigitalVaccinationCard key={member.id} memberId={member.id} />
+                                <AccordionItem 
+                                    value={`member-${member.id}`} 
+                                    key={member.id}
+                                    className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
+                                >
+                                    <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
+                                                <SyringeIcon className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                                                    Cartilla Digital
+                                                </h2>
+                                                <p className="text-xs text-gray-500 font-medium mt-0.5">
+                                                    {member.firstName} {member.lastName}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+                                    </AccordionTrigger>
+                                    <AccordionContent className="p-0 border-t-0">
+                                        <DigitalVaccinationCard memberId={member.id} hideHeader={true} />
+                                    </AccordionContent>
+                                </AccordionItem>
                             ))}
-                        </div>
+                        </Accordion>
                     ) : (
                         <div className="text-center py-12 bg-white dark:bg-[#0a0a0a] border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-none">
                             <p className="text-gray-500 dark:text-gray-400">No tienes familiares registrados para mostrar cartillas.</p>

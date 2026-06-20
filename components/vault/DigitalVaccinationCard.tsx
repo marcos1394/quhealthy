@@ -8,12 +8,14 @@ import { useFamily } from '@/hooks/useFamily';
 import { vaccinationService } from '@/services/vaccination.service';
 import { VaccinationStatusDto } from '@/types/vaccination';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { cn } from '@/lib/utils';
 
 interface DigitalVaccinationCardProps {
     memberId: number;
+    hideHeader?: boolean;
 }
 
-export function DigitalVaccinationCard({ memberId }: DigitalVaccinationCardProps) {
+export function DigitalVaccinationCard({ memberId, hideHeader }: DigitalVaccinationCardProps) {
     const { family } = useFamily();
     const [vaccines, setVaccines] = useState<VaccinationStatusDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -65,9 +67,13 @@ export function DigitalVaccinationCard({ memberId }: DigitalVaccinationCardProps
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl mx-auto bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none overflow-hidden print:shadow-none print:border-none"
+            className={cn(
+                "w-full max-w-2xl mx-auto bg-white dark:bg-[#0a0a0a] overflow-hidden print:shadow-none print:border-none",
+                !hideHeader && "border border-gray-200 dark:border-gray-800 rounded-none"
+            )}
         >
-            <div className="bg-gray-50 dark:bg-[#050505] p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 flex justify-between items-start">
+            {!hideHeader && (
+                <div className="bg-gray-50 dark:bg-[#050505] p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 flex justify-between items-start">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
                         <ShieldCheck className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
@@ -96,6 +102,7 @@ export function DigitalVaccinationCard({ memberId }: DigitalVaccinationCardProps
                     </Button>
                 </div>
             </div>
+            )}
 
             <div className="p-6 md:p-8 space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
