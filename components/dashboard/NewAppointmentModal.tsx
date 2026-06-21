@@ -5,7 +5,6 @@ import { CalendarPlus, Check, ChevronsUpDown, Loader2, PlusCircle, UserPlus } fr
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { PatientClient, PatientDirectorySearchResult, PatientRegistrationPayload } from '@/types/patient';
 import { UI_Service } from '@/types/catalog';
 import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface NewAppointmentModalProps {
   isOpen: boolean;
@@ -229,81 +229,82 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="sm:max-w-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CalendarPlus className="w-5 h-5 text-medical-600" />
+        <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-8 rounded-none">
+          <DialogHeader className="mb-6 border-b border-black dark:border-white pb-6">
+            <DialogTitle className="font-serif italic text-2xl font-bold uppercase text-black dark:text-white flex items-center gap-3">
+              <CalendarPlus className="w-6 h-6" strokeWidth={1.5} />
               {t('new_appointment_modal.title')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-2">
               {t('new_appointment_modal.description')}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.patient_label')} *</label>
-              <div className="flex gap-2">
+              <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.patient_label')} *</label>
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Popover open={patientPickerOpen} onOpenChange={setPatientPickerOpen} modal={false}>
                   <PopoverTrigger asChild>
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
                       role="combobox"
-                      className="w-full justify-between rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                      className="w-full flex-1 flex items-center justify-between h-12 px-4 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-light uppercase"
                     >
                       <span className="truncate text-left">
                         {selectedPatient ? getPatientDisplayName(selectedPatient) : t('new_appointment_modal.patient_placeholder')}
                       </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" strokeWidth={1.5} />
+                    </button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="z-[9999] w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
+                    className="z-[9999] w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] overflow-hidden"
                     align="start"
-                    sideOffset={8}
+                    sideOffset={0}
                   >
-                    <Command shouldFilter={false} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                    <Command shouldFilter={false} className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white rounded-none">
                       <CommandInput
                         placeholder={t('new_appointment_modal.patient_search_placeholder')}
                         value={patientQuery}
                         onValueChange={setPatientQuery}
+                        className="rounded-none border-none focus:ring-0 text-xs font-light uppercase h-12 bg-gray-50 dark:bg-[#050505] border-b border-black dark:border-white"
                       />
-                      <CommandList className="max-h-[280px]">
+                      <CommandList className="max-h-[280px] rounded-none">
                         {isSearching ? (
-                          <div className="flex items-center gap-2 px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                          <div className="flex items-center gap-2 px-4 py-4 text-[10px] uppercase tracking-widest font-bold text-gray-500">
+                            <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
                             {t('new_appointment_modal.searching_patients')}
                           </div>
                         ) : null}
                         {!isSearching && displayedPatients.length === 0 && patientQuery.trim().length < 2 ? (
-                          <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">
+                          <div className="px-4 py-4 text-[10px] uppercase tracking-widest font-bold text-gray-500">
                             {t('new_appointment_modal.no_patients_available')}
                           </div>
                         ) : null}
-                        <CommandEmpty>{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
-                        <CommandGroup className="p-2">
+                        <CommandEmpty className="py-4 text-center text-[10px] uppercase tracking-widest font-bold text-gray-500">{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
+                        <CommandGroup className="p-0">
                           {displayedPatients.map((patient) => (
                             <CommandItem
                               key={patient.id}
                               value={String(patient.id)}
                               onSelect={() => handleSelectPatient(patient)}
-                              disabled={false} // 🚀 Forzamos a que esté activo siempre
-                              style={{ pointerEvents: 'auto', opacity: 1 }} // 🚀 Blindaje visual
-                              className="flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-slate-900 dark:text-white cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+                              disabled={false} 
+                              style={{ pointerEvents: 'auto', opacity: 1 }} 
+                              className="flex items-center justify-between gap-4 px-4 py-3 text-black dark:text-white cursor-pointer hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-b border-black dark:border-white last:border-0 rounded-none transition-colors group"
                             >
                               <div className="min-w-0">
-                                <p className="font-medium text-slate-900 dark:text-white truncate">
+                                <p className="text-[10px] uppercase font-bold tracking-widest truncate group-hover:text-white dark:group-hover:text-black">
                                   {getPatientDisplayName(patient)}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                <p className="text-[9px] uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-700 truncate mt-1">
                                   {getPatientDisplayEmail(patient) || getPatientDisplayPhone(patient) || t('new_appointment_modal.patient_record_id', { id: patient.id })}
                                 </p>
                               </div>
                               <Check
+                                strokeWidth={2}
                                 className={cn(
-                                  'h-4 w-4',
-                                  selectedPatient?.id === patient.id ? 'opacity-100 text-medical-600' : 'opacity-0'
+                                  'h-4 w-4 shrink-0',
+                                  selectedPatient?.id === patient.id ? 'opacity-100 group-hover:text-white dark:group-hover:text-black' : 'opacity-0'
                                 )}
                               />
                             </CommandItem>
@@ -314,42 +315,41 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   </PopoverContent>
                 </Popover>
 
-                <Button
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => setIsNewPatientModalOpen(true)}
-                  className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+                  className="shrink-0 h-12 px-6 flex items-center justify-center border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] uppercase font-bold tracking-widest"
                 >
-                  <UserPlus className="w-4 h-4 mr-2" />
+                  <UserPlus className="w-4 h-4 mr-2" strokeWidth={1.5} />
                   {t('new_appointment_modal.new_patient_button')}
-                </Button>
+                </button>
               </div>
               {selectedPatient ? (
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 px-4 py-3">
-                  <p className="font-medium text-slate-900 dark:text-white">{getPatientDisplayName(selectedPatient)}</p>
-                  <p className="text-sm text-slate-500">
-                    {getPatientDisplayEmail(selectedPatient) || t('new_appointment_modal.no_email')} {getPatientDisplayPhone(selectedPatient) ? `• ${getPatientDisplayPhone(selectedPatient)}` : ''}
+                <div className="mt-3 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] p-4 text-[10px] uppercase font-bold tracking-widest text-black dark:text-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+                  <p>{getPatientDisplayName(selectedPatient)}</p>
+                  <p className="text-gray-500 mt-1">
+                    {getPatientDisplayEmail(selectedPatient) || t('new_appointment_modal.no_email')} {getPatientDisplayPhone(selectedPatient) ? `| ${getPatientDisplayPhone(selectedPatient)}` : ''}
                   </p>
                 </div>
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.service_label')} *</label>
+                <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.service_label')} *</label>
                 <Select
                   value={formData.serviceId}
                   onValueChange={(value) => setFormData({ ...formData, serviceId: value })}
                 >
-                  <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
+                  <SelectTrigger className="h-12 rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white focus:ring-0 focus:border-black text-xs font-light uppercase">
                     <SelectValue placeholder={isLoadingCatalog ? t('new_appointment_modal.loading_services') : t('new_appointment_modal.service_placeholder')} />
                   </SelectTrigger>
-                  <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
                     {services.map((service: UI_Service) => (
                       <SelectItem
                         key={service.id}
                         value={String(service.id)}
-                        className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white"
+                        className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none"
                       >
                         {service.name}
                       </SelectItem>
@@ -359,21 +359,21 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.modality_label')} *</label>
+                <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.modality_label')} *</label>
                 <Select
                   value={formData.appointmentType}
                   onValueChange={(value) => setFormData({ ...formData, appointmentType: value })}
                   disabled={!selectedService || supportedTypes.length === 1}
                 >
-                  <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
+                  <SelectTrigger className="h-12 rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white focus:ring-0 focus:border-black text-xs font-light uppercase">
                     <SelectValue placeholder={t('new_appointment_modal.modality_placeholder')} />
                   </SelectTrigger>
-                  <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
                     {supportedTypes.map((type) => (
                       <SelectItem
                         key={type}
                         value={type}
-                        className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white"
+                        className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none"
                       >
                         {type === 'ONLINE' ? t('card.online') : t('card.in_person')}
                       </SelectItem>
@@ -383,53 +383,55 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.date_label')} *</label>
+                <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.date_label')} *</label>
                 <Input
                   type="date"
                   required
                   value={formData.appointmentDate}
                   onChange={(e) => setFormData({ ...formData, appointmentDate: e.target.value })}
+                  className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.time_label')} *</label>
+                <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.time_label')} *</label>
                 <Input
                   type="time"
                   required
                   value={formData.appointmentTime}
                   onChange={(e) => setFormData({ ...formData, appointmentTime: e.target.value })}
+                  className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.payment_method_label')}</label>
+              <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.payment_method_label')}</label>
               <Select
                 value={formData.paymentMethod}
                 onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
               >
-                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
+                <SelectTrigger className="h-12 rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white focus:ring-0 focus:border-black text-xs font-light uppercase">
                   <SelectValue placeholder={t('new_appointment_modal.payment_method_placeholder')} />
                 </SelectTrigger>
-                <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
-                  <SelectItem value="CASH" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+                  <SelectItem value="CASH" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_cash')}
                   </SelectItem>
-                  <SelectItem value="CREDIT_CARD" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                  <SelectItem value="CREDIT_CARD" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_credit_card')}
                   </SelectItem>
-                  <SelectItem value="DEBIT_CARD" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                  <SelectItem value="DEBIT_CARD" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_debit_card')}
                   </SelectItem>
-                  <SelectItem value="INSURANCE" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                  <SelectItem value="INSURANCE" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_insurance')}
                   </SelectItem>
-                  <SelectItem value="PACKAGE_BALANCE" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                  <SelectItem value="PACKAGE_BALANCE" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_package_balance')}
                   </SelectItem>
-                  <SelectItem value="BANK_TRANSFER" className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white">
+                  <SelectItem value="BANK_TRANSFER" className="text-[10px] uppercase tracking-widest font-bold focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none">
                     {t('new_appointment_modal.payment_bank_transfer')}
                   </SelectItem>
                 </SelectContent>
@@ -437,20 +439,24 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('new_appointment_modal.notes_label')}</label>
+              <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('new_appointment_modal.notes_label')}</label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 placeholder={t('new_appointment_modal.notes_placeholder')}
-                className="min-h-[110px] rounded-xl border-slate-200 dark:border-slate-700"
+                className="min-h-[110px] bg-white dark:bg-[#0a0a0a] rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="outline" onClick={handleClose} className="rounded-xl">
+            <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8 pt-4 border-t border-black dark:border-white">
+              <button 
+                type="button" 
+                onClick={handleClose} 
+                className="h-14 px-8 border border-black dark:border-white bg-transparent text-black dark:text-white text-[10px] uppercase tracking-widest font-bold hover:bg-gray-100 dark:hover:bg-[#111] transition-colors"
+              >
                 {t('new_appointment_modal.cancel')}
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
                 disabled={
                   isSubmitting ||
@@ -459,11 +465,11 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   !formData.appointmentDate ||
                   !formData.appointmentTime
                 }
-                className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+                className="h-14 px-8 bg-black text-white dark:bg-white dark:text-black text-[10px] uppercase tracking-widest font-bold shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlusCircle className="w-4 h-4 mr-2" />}
+                {isSubmitting ? <QhSpinner size="sm" className="text-current" /> : <PlusCircle className="w-5 h-5" strokeWidth={1.5} />}
                 {isSubmitting ? t('new_appointment_modal.creating') : t('new_appointment_modal.create')}
-              </Button>
+              </button>
             </div>
           </form>
         </DialogContent>

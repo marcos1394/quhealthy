@@ -4,7 +4,6 @@ import { format, parse } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -12,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 import { PatientRegistrationPayload } from '@/types/patient';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface NewPatientModalProps {
     isOpen: boolean;
@@ -33,9 +33,11 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
         birthDate: '',
         gender: undefined
     });
+    
     const selectedBirthDate = formData.birthDate
         ? parse(formData.birthDate, 'yyyy-MM-dd', new Date())
         : undefined;
+        
     const displayBirthDate = selectedBirthDate
         ? format(selectedBirthDate, locale === 'es' ? "d 'de' MMMM 'de' yyyy" : 'MMMM d, yyyy', { locale: dateLocale })
         : '';
@@ -68,49 +70,71 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                <DialogHeader>
-                    <DialogTitle>{t('new_patient_modal_title')}</DialogTitle>
-                    <DialogDescription>{t('new_patient_modal_description')}</DialogDescription>
+            <DialogContent className="sm:max-w-lg bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-8 rounded-none">
+                <DialogHeader className="mb-6 border-b border-black dark:border-white pb-6">
+                    <DialogTitle className="font-serif italic text-2xl font-bold uppercase text-black dark:text-white">
+                        {t('new_patient_modal_title')}
+                    </DialogTitle>
+                    <DialogDescription className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-2">
+                        {t('new_patient_modal_description')}
+                    </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('first_name_label')} *</label>
-                            <Input required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
+                            <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('first_name_label')} *</label>
+                            <Input 
+                                required 
+                                value={formData.firstName} 
+                                onChange={e => setFormData({...formData, firstName: e.target.value})} 
+                                className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
+                            />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('last_name_label')} *</label>
-                            <Input required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
+                            <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('last_name_label')} *</label>
+                            <Input 
+                                required 
+                                value={formData.lastName} 
+                                onChange={e => setFormData({...formData, lastName: e.target.value})} 
+                                className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
+                            />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('email_label')}</label>
-                        <Input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                        <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('email_label')}</label>
+                        <Input 
+                            type="email" 
+                            value={formData.email} 
+                            onChange={e => setFormData({...formData, email: e.target.value})} 
+                            className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
+                        />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('phone_label')}</label>
-                        <Input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                        <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('phone_label')}</label>
+                        <Input 
+                            value={formData.phone} 
+                            onChange={e => setFormData({...formData, phone: e.target.value})} 
+                            className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-black dark:border-white text-xs font-light focus-visible:ring-0 focus-visible:border-black uppercase"
+                        />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('birth_date_label')}</label>
+                            <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('birth_date_label')}</label>
                             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                 <PopoverTrigger asChild>
-                                    <Button
+                                    <button
                                         type="button"
-                                        variant="outline"
                                         className={cn(
-                                            "w-full h-10 justify-start text-left font-normal rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800",
-                                            !displayBirthDate && "text-slate-400 dark:text-slate-500"
+                                            "w-full h-12 px-4 flex items-center justify-start text-left font-normal rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs uppercase",
+                                            !displayBirthDate ? "text-gray-400" : "text-black dark:text-white font-light"
                                         )}
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                                        <CalendarIcon className="mr-3 h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
                                         {displayBirthDate || t('birth_date_placeholder')}
-                                    </Button>
+                                    </button>
                                 </PopoverTrigger>
                                 <PopoverContent
-                                    className="w-auto p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl"
+                                    className="w-auto p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]"
                                     align="start"
                                 >
                                     <Calendar
@@ -129,34 +153,38 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
                                         fromYear={1920}
                                         toYear={new Date().getFullYear()}
                                         locale={dateLocale}
-                                        className="rounded-xl"
+                                        className="rounded-none bg-white dark:bg-[#0a0a0a] text-black dark:text-white p-3 font-serif"
                                     />
                                 </PopoverContent>
                             </Popover>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{t('gender_label')}</label>
+                            <label className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{t('gender_label')}</label>
                             <div className="relative">
-                                <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10 pointer-events-none" />
+                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black dark:text-white z-10 pointer-events-none" strokeWidth={1.5} />
                                 <Select
                                     value={formData.gender}
                                     onValueChange={(value: 'MALE' | 'FEMALE' | 'OTHER') => setFormData({...formData, gender: value})}
                                 >
-                                    <SelectTrigger className="pl-10 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500">
+                                    <SelectTrigger className="pl-11 h-12 rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white focus:ring-0 focus:border-black text-xs font-light uppercase">
                                         <SelectValue placeholder={t('gender_placeholder')} />
                                     </SelectTrigger>
-                                    <SelectContent className="z-[80] bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
-                                        <SelectItem className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white" value="MALE">{t('gender_male')}</SelectItem>
-                                        <SelectItem className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white" value="FEMALE">{t('gender_female')}</SelectItem>
-                                        <SelectItem className="text-slate-900 dark:text-white focus:bg-slate-100 dark:focus:bg-slate-800 focus:text-slate-900 dark:focus:text-white" value="OTHER">{t('gender_other')}</SelectItem>
+                                    <SelectContent className="z-[100] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+                                        <SelectItem className="text-[10px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none" value="MALE">{t('gender_male')}</SelectItem>
+                                        <SelectItem className="text-[10px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none" value="FEMALE">{t('gender_female')}</SelectItem>
+                                        <SelectItem className="text-[10px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none" value="OTHER">{t('gender_other')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
                     </div>
-                    <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-                        {isSubmitting ? t('saving') : t('save_patient')}
-                    </Button>
+                    <button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className="w-full h-14 bg-black text-white dark:bg-white dark:text-black flex items-center justify-center text-[10px] uppercase tracking-widest font-bold shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] mt-8 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 gap-3"
+                    >
+                        {isSubmitting ? <><QhSpinner size="sm" className="text-current"/> {t('saving')}</> : t('save_patient')}
+                    </button>
                 </form>
             </DialogContent>
         </Dialog>
