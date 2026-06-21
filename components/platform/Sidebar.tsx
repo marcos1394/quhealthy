@@ -65,7 +65,7 @@ const patientSettingsLinks = [
 const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
   href: string; icon: any; label: string; badge?: { count: number; color: string } | null; isCollapsed: boolean; pathname: string | null;
 }) => {
-  const isActive = pathname === href || (href !== "/provider/dashboard" && pathname?.startsWith(href));
+  const isActive = pathname === href || (href !== "/provider/dashboard" && href !== "/patient/dashboard" && pathname?.startsWith(href));
 
   return (
     <Link href={href} title={isCollapsed ? label : ""}
@@ -74,11 +74,11 @@ const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
         isCollapsed ? "justify-center p-3 w-12 h-12 mx-auto" : "px-4 py-3 w-full",
         isActive
           ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-          : "bg-transparent text-gray-500 border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:text-black dark:hover:text-white"
+          : "bg-transparent text-gray-500 border-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white"
       )}>
       <div className={cn("relative z-10 flex items-center", isCollapsed ? "justify-center w-full" : "gap-4 flex-1")}>
         <Icon 
-          className={cn("w-4 h-4 flex-shrink-0 transition-colors", isActive ? "text-white dark:text-black" : "text-gray-500 group-hover:text-black dark:group-hover:text-white")} 
+          className={cn("w-4 h-4 flex-shrink-0 transition-colors", isActive ? "text-white dark:text-black" : "text-gray-500 group-hover:text-white dark:group-hover:text-black")} 
           strokeWidth={isActive ? 2 : 1.5} 
         />
         
