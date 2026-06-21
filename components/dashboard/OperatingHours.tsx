@@ -97,7 +97,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSaving && onClose()}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-4xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-4xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh] [&>button.absolute]:hidden">
         
         {/* HEADER ARQUITECTÓNICO */}
         <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white flex items-start justify-between shrink-0">
@@ -153,14 +153,14 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                           setSchedules(tmpl.apply(schedules)); 
                           toast.success(`MACRO "${tmpl.name}" APLICADA.`); 
                         }}
-                        className="flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-left group"
+                        className="flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] transition-all duration-300 hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.1)] text-left group"
                       >
-                        <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-black group-hover:border-white/30 dark:group-hover:bg-white dark:group-hover:border-black/30 dark:group-hover:text-black flex items-center justify-center shrink-0 transition-colors">
+                        <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0 transition-colors group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent">
                           <Icon className="w-5 h-5" strokeWidth={1.5} />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest">{tmpl.name}</p>
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-1">{tmpl.description}</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 mt-1 transition-colors">{tmpl.description}</p>
                         </div>
                       </button>
                     );
