@@ -96,29 +96,29 @@ export default function DashboardPage() {
     switch (status) {
       case "CONFIRMED":
       case "SCHEDULED": 
-        return <span className={cn(baseClass, "bg-[#22c55e] border-[#15803d] text-white")}>
+        return <span className={cn(baseClass, "bg-[#166534] border-[#14532d] text-white")}>
           <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
           {t('status_confirmed', { defaultValue: 'CONFIRMADA' })}
         </span>;
       case "PENDING_PAYMENT": 
       case "PENDING":
-        return <span className={cn(baseClass, "bg-[#facc15] border-[#a16207] text-black")}>
+        return <span className={cn(baseClass, "bg-[#b45309] border-[#78350f] text-white")}>
           <Clock className="w-3 h-3" strokeWidth={1.5} />
           {t('status_pending_payment', { defaultValue: 'PEND. PAGO' })}
         </span>;
       case "IN_PROGRESS": 
-        return <span className={cn(baseClass, "bg-[#3b82f6] border-[#1d4ed8] text-white animate-pulse")}>
+        return <span className={cn(baseClass, "bg-[#1e3a8a] border-[#1e3a8a] text-white animate-pulse")}>
           <Activity className="w-3 h-3" strokeWidth={1.5} />
           {t('status_in_progress', { defaultValue: 'EN CURSO' })}
         </span>;
       case "CANCELLED":
       case "CANCELED":
-        return <span className={cn(baseClass, "bg-[#ef4444] border-[#b91c1c] text-white")}>
+        return <span className={cn(baseClass, "bg-[#991b1b] border-[#7f1d1d] text-white")}>
           <XCircle className="w-3 h-3" strokeWidth={1.5} />
           {t('status_cancelled', { defaultValue: 'ANULADA' })}
         </span>;
       case "COMPLETED":
-        return <span className={cn(baseClass, "bg-[#3b82f6] border-[#1d4ed8] text-white")}>
+        return <span className={cn(baseClass, "bg-[#1e3a8a] border-[#1e3a8a] text-white")}>
           <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
           {t('status_completed', { defaultValue: 'COMPLETADA' })}
         </span>;

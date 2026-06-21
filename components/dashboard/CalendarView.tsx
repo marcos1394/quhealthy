@@ -47,15 +47,15 @@ export const CalendarView: React.FC = () => {
     setIsCancelling(false);
   };
 
-  // PALETA TÉCNICA (Blueprint con colores semánticos)
+  // PALETA TÉCNICA (Muted Jewel Tones)
   const getStatusTheme = (status?: string) => {
     const themes: Record<string, { bg: string; border: string; text: string; label: string }> = {
-      confirmed: { bg: "#22c55e", border: "#15803d", text: "#ffffff", label: t("confirmed", { defaultValue: 'CONFIRMADO' }) },
-      pending: { bg: "#facc15", border: "#a16207", text: "#000000", label: t("pending", { defaultValue: 'PENDIENTE' }) },
-      cancelled: { bg: "#ef4444", border: "#b91c1c", text: "#ffffff", label: t("cancelled", { defaultValue: 'ANULADO' }) },
-      completed: { bg: "#3b82f6", border: "#1d4ed8", text: "#ffffff", label: t("completed", { defaultValue: 'COMPLETADO' }) }
+      confirmed: { bg: "#166534", border: "#14532d", text: "#ffffff", label: t("confirmed", { defaultValue: 'CONFIRMADO' }) },
+      pending: { bg: "#b45309", border: "#78350f", text: "#ffffff", label: t("pending", { defaultValue: 'PENDIENTE' }) },
+      cancelled: { bg: "#991b1b", border: "#7f1d1d", text: "#ffffff", label: t("cancelled", { defaultValue: 'ANULADO' }) },
+      completed: { bg: "#1e3a8a", border: "#1e3a8a", text: "#ffffff", label: t("completed", { defaultValue: 'COMPLETADO' }) }
     };
-    return themes[status || ""] || { bg: "#ffffff", border: "#000000", text: "#000000", label: t("no_status", { defaultValue: 'SIN ESTADO' }) };
+    return themes[status || ""] || { bg: "#3f3f46", border: "#27272a", text: "#ffffff", label: t("no_status", { defaultValue: 'SIN ESTADO' }) };
   };
 
   const getStatusIcon = (status?: string) => {
@@ -79,16 +79,16 @@ export const CalendarView: React.FC = () => {
   });
 
   return (
-    <div className="h-full w-full flex flex-col space-y-6">
+    <div className="flex-1 w-full flex flex-col space-y-6">
       
       {/* PANEL DE CONTROL SUPERIOR */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-6 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-colors rounded-none">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 border border-[#15803d] bg-[#22c55e] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
+          <div className="flex items-center gap-2 border border-[#14532d] bg-[#166534] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
             <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
             {stats.confirmed} {t("confirmed", { defaultValue: 'CONFIRMADOS' })}
           </div>
-          <div className="flex items-center gap-2 border border-[#a16207] bg-[#facc15] text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
+          <div className="flex items-center gap-2 border border-[#78350f] bg-[#b45309] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
             <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
             {stats.pending} {t("pending", { defaultValue: 'PENDIENTES' })}
           </div>
