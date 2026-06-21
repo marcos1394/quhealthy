@@ -209,7 +209,7 @@ function CalendarContent() {
 
         {/* ÁREA DEL CALENDARIO (Contenedor Estricto) */}
         <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white transition-colors">
-          <div className="h-[80vh] min-h-[700px] w-full relative">
+          <div className="min-h-[850px] w-full relative p-4 md:p-6 flex flex-col">
             <CalendarView key={refreshKey} />
           </div>
         </div>
@@ -221,16 +221,16 @@ function CalendarContent() {
             { label: t('metrics.sync', { defaultValue: 'SINCRONIZACIÓN' }), value: isGoogleConnected ? t('metrics.real_time', { defaultValue: 'TIEMPO REAL' }) : t('metrics.manual', { defaultValue: 'MANUAL' }), icon: RefreshCcw },
             { label: t('metrics.booking_engine', { defaultValue: 'MOTOR DE RESERVAS' }), value: t('metrics.active', { defaultValue: 'ACTIVO' }), icon: Sparkles },
           ].map((metric, i) => (
-            <div key={i} className="bg-white dark:bg-[#0a0a0a] border-b border-r border-black/20 dark:border-white/20 p-6 md:p-8 flex flex-col justify-between transition-colors min-h-[160px] group hover:bg-gray-50 dark:hover:bg-[#050505]">
+            <div key={i} className="bg-white dark:bg-[#0a0a0a] border-b border-r border-black/20 dark:border-white/20 p-6 md:p-8 flex flex-col justify-between min-h-[160px] group transition-all duration-300 hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.1)]">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-black group-hover:border-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:border-white dark:group-hover:text-black transition-colors">
-                  <metric.icon className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0 transition-colors group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent">
+                  <metric.icon className="w-5 h-5" strokeWidth={1.5} />
                 </div>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                   {metric.label}
                 </span>
               </div>
-              <p className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+              <p className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black leading-none transition-colors">
                 {metric.value}
               </p>
             </div>

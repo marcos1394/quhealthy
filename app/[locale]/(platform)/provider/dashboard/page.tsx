@@ -94,24 +94,37 @@ export default function DashboardPage() {
     const baseClass = "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 flex items-center gap-1.5 rounded-none";
     
     switch (status) {
+      case "CONFIRMED":
       case "SCHEDULED": 
-        return <span className={cn(baseClass, "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400")}>
-          <span className="w-1.5 h-1.5 bg-emerald-500 shrink-0" />
+        return <span className={cn(baseClass, "bg-[#22c55e] border-[#15803d] text-white")}>
+          <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
           {t('status_confirmed', { defaultValue: 'CONFIRMADA' })}
         </span>;
       case "PENDING_PAYMENT": 
-        return <span className={cn(baseClass, "border-amber-500/30 bg-amber-50/50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400")}>
-          <span className="w-1.5 h-1.5 bg-amber-500 shrink-0" />
+      case "PENDING":
+        return <span className={cn(baseClass, "bg-[#facc15] border-[#a16207] text-black")}>
+          <Clock className="w-3 h-3" strokeWidth={1.5} />
           {t('status_pending_payment', { defaultValue: 'PEND. PAGO' })}
         </span>;
       case "IN_PROGRESS": 
-        return <span className={cn(baseClass, "border-blue-500/30 bg-blue-50/50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 animate-pulse")}>
-          <span className="w-1.5 h-1.5 bg-blue-500 shrink-0" />
+        return <span className={cn(baseClass, "bg-[#3b82f6] border-[#1d4ed8] text-white animate-pulse")}>
+          <Activity className="w-3 h-3" strokeWidth={1.5} />
           {t('status_in_progress', { defaultValue: 'EN CURSO' })}
         </span>;
+      case "CANCELLED":
+      case "CANCELED":
+        return <span className={cn(baseClass, "bg-[#ef4444] border-[#b91c1c] text-white")}>
+          <XCircle className="w-3 h-3" strokeWidth={1.5} />
+          {t('status_cancelled', { defaultValue: 'ANULADA' })}
+        </span>;
+      case "COMPLETED":
+        return <span className={cn(baseClass, "bg-[#3b82f6] border-[#1d4ed8] text-white")}>
+          <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+          {t('status_completed', { defaultValue: 'COMPLETADA' })}
+        </span>;
       default: 
-        return <span className={cn(baseClass, "border-gray-500/30 bg-gray-50/50 dark:bg-gray-900/10 text-gray-600 dark:text-gray-400")}>
-          <span className="w-1.5 h-1.5 bg-gray-500 shrink-0" />
+        return <span className={cn(baseClass, "bg-gray-100 border-gray-300 text-black dark:bg-[#111] dark:border-gray-800 dark:text-white")}>
+          <CalendarIcon className="w-3 h-3" strokeWidth={1.5} />
           {status}
         </span>;
     }

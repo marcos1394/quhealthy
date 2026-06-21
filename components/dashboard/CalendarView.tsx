@@ -47,15 +47,15 @@ export const CalendarView: React.FC = () => {
     setIsCancelling(false);
   };
 
-  // PALETA TÉCNICA (Blueprint)
+  // PALETA TÉCNICA (Blueprint con colores semánticos)
   const getStatusTheme = (status?: string) => {
     const themes: Record<string, { bg: string; border: string; text: string; label: string }> = {
-      confirmed: { bg: "#000", border: "#000", text: "#fff", label: t("confirmed", { defaultValue: 'CONFIRMADO' }) },
-      pending: { bg: "#fff", border: "#000", text: "#000", label: t("pending", { defaultValue: 'PENDIENTE' }) },
-      cancelled: { bg: "#fff", border: "#ef4444", text: "#ef4444", label: t("cancelled", { defaultValue: 'ANULADO' }) },
-      completed: { bg: "#f3f4f6", border: "#000", text: "#000", label: t("completed", { defaultValue: 'COMPLETADO' }) }
+      confirmed: { bg: "#22c55e", border: "#15803d", text: "#ffffff", label: t("confirmed", { defaultValue: 'CONFIRMADO' }) },
+      pending: { bg: "#facc15", border: "#a16207", text: "#000000", label: t("pending", { defaultValue: 'PENDIENTE' }) },
+      cancelled: { bg: "#ef4444", border: "#b91c1c", text: "#ffffff", label: t("cancelled", { defaultValue: 'ANULADO' }) },
+      completed: { bg: "#3b82f6", border: "#1d4ed8", text: "#ffffff", label: t("completed", { defaultValue: 'COMPLETADO' }) }
     };
-    return themes[status || ""] || { bg: "#fff", border: "#000", text: "#000", label: t("no_status", { defaultValue: 'SIN ESTADO' }) };
+    return themes[status || ""] || { bg: "#ffffff", border: "#000000", text: "#000000", label: t("no_status", { defaultValue: 'SIN ESTADO' }) };
   };
 
   const getStatusIcon = (status?: string) => {
@@ -84,11 +84,11 @@ export const CalendarView: React.FC = () => {
       {/* PANEL DE CONTROL SUPERIOR */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-6 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-colors rounded-none">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
+          <div className="flex items-center gap-2 border border-[#15803d] bg-[#22c55e] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
             <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
             {stats.confirmed} {t("confirmed", { defaultValue: 'CONFIRMADOS' })}
           </div>
-          <div className="flex items-center gap-2 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
+          <div className="flex items-center gap-2 border border-[#a16207] bg-[#facc15] text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
             <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
             {stats.pending} {t("pending", { defaultValue: 'PENDIENTES' })}
           </div>
