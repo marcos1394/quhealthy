@@ -1,7 +1,7 @@
 "use client";
 
 import { useBIStore } from "@/store/intelligence.store";
-import { Filter, X } from "lucide-react";
+import { Filter, X, ChevronDown } from "lucide-react";
 
 export function QueryBuilder() {
   const { filters, groupBy, setFilter, setGroupBy, clearFilters } = useBIStore();
@@ -17,16 +17,19 @@ export function QueryBuilder() {
           <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">
             DIMENSIÓN DE AGRUPACIÓN:
           </label>
-          <select 
-            value={groupBy}
-            onChange={(e) => setGroupBy(e.target.value)}
-            className="flex-1 sm:w-64 bg-gray-50 dark:bg-[#050505] border border-black dark:border-white text-black dark:text-white text-[10px] font-bold uppercase tracking-widest rounded-none focus:ring-0 focus:border-black dark:focus:border-white block p-3 outline-none cursor-pointer"
-          >
-            <option value="entidad">ENTIDAD FEDERATIVA</option>
-            <option value="nombre_institucion">INSTITUCIÓN RECTORA</option>
-            <option value="nivel_atencion">NIVEL DE ATENCIÓN</option>
-            <option value="nombre_tipo_establecimiento">TIPO DE ESTABLECIMIENTO</option>
-          </select>
+          <div className="relative flex-1 sm:w-64">
+            <select 
+              value={groupBy}
+              onChange={(e) => setGroupBy(e.target.value)}
+              className="w-full appearance-none bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white text-[10px] font-bold uppercase tracking-widest rounded-none focus:ring-0 focus:outline-none block pl-4 pr-10 py-3 cursor-pointer"
+            >
+              <option value="entidad">ENTIDAD FEDERATIVA</option>
+              <option value="nombre_institucion">INSTITUCIÓN RECTORA</option>
+              <option value="nivel_atencion">NIVEL DE ATENCIÓN</option>
+              <option value="nombre_tipo_establecimiento">TIPO DE ESTABLECIMIENTO</option>
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black dark:text-white pointer-events-none" strokeWidth={1.5} />
+          </div>
         </div>
 
         {/* ACTIVE FILTERS BADGES */}
