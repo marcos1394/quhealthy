@@ -80,7 +80,7 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
                 <FileText className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="text-xl md:text-2xl font-serif italic tracking-tight text-black dark:text-white uppercase mb-1">
+                <h3 className="text-xl md:text-2xl font-serif tracking-tight text-black dark:text-white uppercase mb-1">
                   Expediente de Consulta
                 </h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">

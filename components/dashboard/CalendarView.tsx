@@ -254,7 +254,7 @@ export const CalendarView: React.FC = () => {
             <>
               <div className="absolute top-0 left-0 right-0 h-2 bg-black dark:bg-white" />
               <DialogHeader className="pt-2 border-b border-black dark:border-white pb-6 mb-4">
-                <DialogTitle className="font-serif italic text-2xl font-bold uppercase text-black dark:text-white">{selectedEvent.title}</DialogTitle>
+                <DialogTitle className="font-serif text-2xl font-bold uppercase text-black dark:text-white">{selectedEvent.title}</DialogTitle>
                 <DialogDescription className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-2 flex items-center gap-2">
                   <CalendarIcon className="w-3 h-3" strokeWidth={2} />{t("event_detail.booking_id")}: #{selectedEvent.id}
                 </DialogDescription>

@@ -83,7 +83,7 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
           <CheckCircle className="w-10 h-10" strokeWidth={1.5} />
         </div>
         
-        <h2 className="text-3xl md:text-4xl font-serif italic font-bold text-black dark:text-white uppercase mb-4">
+        <h2 className="text-3xl md:text-4xl font-serif font-bold text-black dark:text-white uppercase mb-4">
           {t('consultation_finished')}
         </h2>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed">

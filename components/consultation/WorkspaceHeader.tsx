@@ -35,7 +35,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         <div>
-          <h1 className="text-xl md:text-2xl font-serif italic font-bold text-black dark:text-white flex items-center gap-3 uppercase">
+          <h1 className="text-xl md:text-2xl font-serif font-bold text-black dark:text-white flex items-center gap-3 uppercase">
             <Stethoscope className="w-5 h-5" strokeWidth={1.5} /> 
             {t('title_consultation')}
           </h1>

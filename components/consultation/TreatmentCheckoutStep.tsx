@@ -75,7 +75,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
         <div className="w-24 h-24 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-6">
           <Pill className="w-8 h-8" strokeWidth={1.5} />
         </div>
-        <h2 className="text-4xl font-serif italic font-bold uppercase text-black dark:text-white mb-4">
+        <h2 className="text-4xl font-serif font-bold uppercase text-black dark:text-white mb-4">
           {t('digital_prescription_closure')}
         </h2>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-lg mx-auto">
@@ -85,7 +85,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
 
       <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-8 mb-8 flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black dark:border-white pb-6 mb-6 gap-4">
-          <h3 className="font-serif italic font-bold text-2xl uppercase text-black dark:text-white flex items-center gap-3">
+          <h3 className="font-serif font-bold text-2xl uppercase text-black dark:text-white flex items-center gap-3">
             <Pill className="w-6 h-6" strokeWidth={1.5} />
             {t('rx_title')}
           </h3>

@@ -152,7 +152,7 @@ export const CashCheckoutModal = ({
                 <Banknote className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-serif italic font-bold text-2xl uppercase text-black dark:text-white">COBRO EFECTIVO</h3>
+                <h3 className="font-serif font-bold text-2xl uppercase text-black dark:text-white">COBRO EFECTIVO</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">{patientName}</p>
               </div>
             </div>
@@ -169,7 +169,7 @@ export const CashCheckoutModal = ({
             {/* Total a cobrar */}
             <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505] border border-black dark:border-white p-6 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">TOTAL A COBRAR</span>
-              <span className="font-serif italic text-4xl font-bold text-black dark:text-white">
+              <span className="font-serif text-4xl font-bold text-black dark:text-white">
                 ${totalAmount.toFixed(2)}
               </span>
             </div>
@@ -309,7 +309,7 @@ export const CashCheckoutModal = ({
                 <div className="h-px w-full bg-black dark:bg-white" />
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">FERIA A DAR:</span>
-                  <span className={`font-serif italic font-bold text-2xl ${isValid ? 'text-black dark:text-white' : 'text-gray-400'}`}>
+                  <span className={`font-serif font-bold text-2xl ${isValid ? 'text-black dark:text-white' : 'text-gray-400'}`}>
                     ${isValid ? correctChange.toFixed(2) : '0.00'}
                   </span>
                 </div>

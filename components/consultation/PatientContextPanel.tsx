@@ -25,19 +25,25 @@ export const PatientContextPanel: React.FC<PatientContextPanelProps> = ({
       </h2>
       
       {/* 👤 Ficha Rápida */}
-      <div className="text-center flex flex-col items-center">
-        <div className="w-24 h-24 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-6">
-          <span className="text-4xl font-serif italic font-bold">{displayInitial}</span>
-        </div>
-        <h3 className="text-xl font-serif italic font-bold text-black dark:text-white uppercase mb-2">
-          {displayFullName}
-        </h3>
-        {!isOfflinePatient ? (
-          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2 flex gap-2">
-            {patientProfile?.gender && <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile.gender}</span>}
-            <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile?.bloodType || 'SANGRE N/D'}</span>
+      <div className="flex flex-col border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+        <div className="p-6 flex items-center gap-4 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
+          <div className="w-16 h-16 border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+            <span className="text-3xl font-sans font-bold uppercase tracking-widest">{displayInitial}</span>
           </div>
-        ) : (
+          <div className="text-left flex-1">
+            <h3 className="text-lg font-sans font-bold text-black dark:text-white uppercase tracking-widest mb-1">
+              {displayFullName}
+            </h3>
+            {!isOfflinePatient && (
+              <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex flex-wrap gap-2">
+                {patientProfile?.gender && <span className="border border-black dark:border-white px-2 py-0.5 bg-gray-100 dark:bg-gray-900">{patientProfile.gender}</span>}
+                <span className="border border-black dark:border-white px-2 py-0.5 bg-gray-100 dark:bg-gray-900">{patientProfile?.bloodType || 'SANGRE N/D'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {isOfflinePatient && (
           <div className="mt-4 flex items-center justify-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest">
             <AlertTriangle className="w-3 h-3" strokeWidth={2} />
             <span>NO REGISTRADO EN APP</span>
@@ -50,7 +56,7 @@ export const PatientContextPanel: React.FC<PatientContextPanelProps> = ({
           {/* 📊 QuScore */}
           <div className="bg-gray-50 dark:bg-[#050505] p-6 border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] text-center">
             <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest mb-2">{t('qu_score')}</p>
-            <div className="text-4xl font-serif italic font-bold text-black dark:text-white leading-none mb-4">
+            <div className="text-4xl font-sans font-black text-black dark:text-white tracking-widest leading-none mb-4">
               {patientProfile?.quScore || '--'}
             </div>
             <span className="inline-block border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-white dark:bg-[#0a0a0a]">

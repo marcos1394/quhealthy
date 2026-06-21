@@ -63,7 +63,7 @@ export const ClinicalAssetsPanel: React.FC<ClinicalAssetsPanelProps> = ({
           {isOfflinePatient ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
               <ShieldAlert className="w-10 h-10 text-black dark:text-white mb-4" strokeWidth={1.5} />
-              <p className="font-serif italic font-bold text-xl text-black dark:text-white uppercase mb-2">Bóveda no disponible</p>
+              <p className="font-serif font-bold text-xl text-black dark:text-white uppercase mb-2">Bóveda no disponible</p>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                 EL PACIENTE NECESITA CREAR UNA CUENTA PARA GUARDAR DOCUMENTOS.
               </p>
@@ -103,7 +103,7 @@ export const ClinicalAssetsPanel: React.FC<ClinicalAssetsPanelProps> = ({
         <TabsContent value="prescription" className="flex-1 overflow-y-auto custom-scrollbar m-0 space-y-6 outline-none pr-4">
           <div className="bg-gray-50 dark:bg-[#050505] p-6 border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-black dark:border-white">
-              <h3 className="font-serif italic font-bold text-xl uppercase text-black dark:text-white">
+              <h3 className="font-serif font-bold text-xl uppercase text-black dark:text-white">
                 {t('rx_title')}
               </h3>
               <button className="flex items-center gap-2 bg-transparent border border-black dark:border-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">

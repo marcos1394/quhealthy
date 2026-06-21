@@ -41,7 +41,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
               <div className="w-20 h-20 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-6">
                 <Sparkles className="w-8 h-8" strokeWidth={1.5} />
               </div>
-              <h3 className="text-xl font-serif italic font-bold text-black dark:text-white uppercase mb-4">{t('clinical_copilot')}</h3>
+              <h3 className="text-xl font-serif font-bold text-black dark:text-white uppercase mb-4">{t('clinical_copilot')}</h3>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 max-w-xs mx-auto leading-relaxed">
                 {t('copilot_desc')}
               </p>

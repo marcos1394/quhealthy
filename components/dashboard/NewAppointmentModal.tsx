@@ -231,7 +231,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-8 rounded-none">
           <DialogHeader className="mb-6 border-b border-black dark:border-white pb-6">
-            <DialogTitle className="font-serif italic text-2xl font-bold uppercase text-black dark:text-white flex items-center gap-3">
+            <DialogTitle className="font-serif text-2xl font-bold uppercase text-black dark:text-white flex items-center gap-3">
               <CalendarPlus className="w-6 h-6" strokeWidth={1.5} />
               {t('new_appointment_modal.title')}
             </DialogTitle>

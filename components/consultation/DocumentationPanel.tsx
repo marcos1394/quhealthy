@@ -105,7 +105,7 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
               <Sparkles className="w-6 h-6" strokeWidth={1.5} />
             </div>
             
-            <h3 className="font-serif italic font-bold text-2xl text-black dark:text-white uppercase mb-4">
+            <h3 className="font-serif font-bold text-2xl text-black dark:text-white uppercase mb-4">
               Escriba Médico Inteligente
             </h3>
             

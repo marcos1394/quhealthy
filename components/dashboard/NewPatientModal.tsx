@@ -72,7 +72,7 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-lg bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-8 rounded-none">
                 <DialogHeader className="mb-6 border-b border-black dark:border-white pb-6">
-                    <DialogTitle className="font-serif italic text-2xl font-bold uppercase text-black dark:text-white">
+                    <DialogTitle className="font-serif text-2xl font-bold uppercase text-black dark:text-white">
                         {t('new_patient_modal_title')}
                     </DialogTitle>
                     <DialogDescription className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-2">
