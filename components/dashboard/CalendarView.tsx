@@ -10,6 +10,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import enLocale from "@fullcalendar/core/locales/en-gb";
+import { Calendar as CalendarIcon, Clock, User, CheckCircle2, XCircle, AlertCircle, Zap, Loader2, Trash2, Video, MapPin, Plus } from "lucide-react";
 import { useAppointments } from "@/hooks/useAppointment";
 import { useOperatingHours } from "@/hooks/useOperatingHours";
 import { CalendarEvent } from "@/types/appointments";
@@ -159,8 +160,9 @@ export const CalendarView: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <div className="p-2 md:p-6 w-full calendar-container">
-          <FullCalendar
+        <div className="p-2 md:p-6 w-full calendar-container overflow-x-auto custom-scrollbar">
+          <div className="min-w-[600px] md:min-w-0">
+            <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
             initialView={currentView}
             headerToolbar={{ 
@@ -201,6 +203,11 @@ export const CalendarView: React.FC = () => {
               if (ev) setSelectedEvent(ev); 
             }}
             viewDidMount={(info) => setCurrentView(info.view.type as any)}
+            windowResize={(info) => {
+              if (window.innerWidth < 768 && info.view.type === "timeGridWeek") {
+                info.view.calendar.changeView("timeGridDay");
+              }
+            }}
             eventMouseEnter={(info) => setHoveredEvent(String(info.event.id))}
             eventMouseLeave={() => setHoveredEvent(null)}
             eventContent={(eventInfo) => {
@@ -250,6 +257,7 @@ export const CalendarView: React.FC = () => {
               );
             }}
           />
+          </div>
         </div>
 
         {/* MOTOR CSS BLUEPRINT PARA FULLCALENDAR */}
@@ -299,6 +307,12 @@ export const CalendarView: React.FC = () => {
           .fc .fc-timegrid-col.fc-day-today { background: var(--fc-neutral-bg-color) !important; }
           .fc-timegrid-now-indicator-line { border-width: 1px; border-style: dashed; border-color: var(--fc-now-indicator-color); opacity: 0.5; }
           .fc-timegrid-now-indicator-arrow { display: none; }
+          .fc-header-toolbar { flex-wrap: wrap; gap: 12px; }
+          @media (max-width: 640px) {
+            .fc-toolbar-chunk { width: 100%; display: flex; justify-content: center; }
+            .fc-toolbar-chunk:first-child { justify-content: flex-start; }
+            .fc-toolbar-chunk:last-child { justify-content: flex-start; margin-top: 8px; }
+          }
         `}</style>
       </div>
 
