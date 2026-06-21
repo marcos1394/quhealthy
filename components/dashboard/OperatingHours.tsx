@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
-import { handleApiError } from '@/lib/handleApiError';
 
 interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
 
@@ -22,24 +21,21 @@ interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSav
 const DEFAULT_LOCATION_ID = 1;
 
 const daysOfWeek = [
-  { id: 1, key: "monday", short: "Mon" }, { id: 2, key: "tuesday", short: "Tue" }, { id: 3, key: "wednesday", short: "Wed" },
-  { id: 4, key: "thursday", short: "Thu" }, { id: 5, key: "friday", short: "Fri" }, { id: 6, key: "saturday", short: "Sat" }, { id: 0, key: "sunday", short: "Sun" }
+  { id: 1, key: "monday", short: "MON" }, { id: 2, key: "tuesday", short: "TUE" }, { id: 3, key: "wednesday", short: "WED" },
+  { id: 4, key: "thursday", short: "THU" }, { id: 5, key: "friday", short: "FRI" }, { id: 6, key: "saturday", short: "SAT" }, { id: 0, key: "sunday", short: "SUN" }
 ];
 
 const scheduleTemplates = [
   {
-    id: "standard", name: "Mon–Fri", description: "9:00 – 18:00", icon: Sun,
-    color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 hover:border-amber-300 dark:hover:border-amber-500/40",
+    id: "standard", name: "MON–FRI", description: "9:00 – 18:00", icon: Sun,
     apply: (s: UIDaySchedule[]) => s.map(d => ({ ...d, isActive: d.dayOfWeek >= 1 && d.dayOfWeek <= 5, openTime: "09:00", closeTime: "18:00" }))
   },
   {
-    id: "extended", name: "Mon–Sat Extended", description: "8:00 – 20:00", icon: Zap,
-    color: "text-medical-600 dark:text-medical-400", bg: "bg-medical-50 dark:bg-medical-500/10 border-medical-200 dark:border-medical-500/20 hover:border-medical-300 dark:hover:border-medical-500/40",
+    id: "extended", name: "MON–SAT EXT", description: "8:00 – 20:00", icon: Zap,
     apply: (s: UIDaySchedule[]) => s.map(d => ({ ...d, isActive: d.dayOfWeek >= 1 && d.dayOfWeek <= 6, openTime: "08:00", closeTime: "20:00" }))
   },
   {
-    id: "allweek", name: "Full Week", description: "9:00 – 17:00", icon: Calendar,
-    color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 hover:border-emerald-300 dark:hover:border-emerald-500/40",
+    id: "allweek", name: "FULL WEEK", description: "9:00 – 17:00", icon: Calendar,
     apply: (s: UIDaySchedule[]) => s.map(d => ({ ...d, isActive: true, openTime: "09:00", closeTime: "17:00" }))
   }
 ];
@@ -99,23 +95,23 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSaving && onClose()}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-2xl p-0 overflow-hidden rounded-xl transition-colors">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
         {/* Header */}
-        <div className="px-5 pt-5 pb-3.5 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800 relative">
+        <div className="px-6 py-5 bg-gray-50 dark:bg-[#111] border-b-2 border-black dark:border-white relative">
           <DialogHeader>
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-200 dark:border-medical-500/20">
-                  <Clock className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]">
+                  <Clock className="w-6 h-6" strokeWidth={2} />
                 </div>
                 <div className="text-left">
-                  <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">{t('title')}</DialogTitle>
-                  <DialogDescription className="text-slate-500 dark:text-slate-400 font-light text-sm">{t('subtitle')}</DialogDescription>
+                  <DialogTitle className="text-2xl font-serif font-bold tracking-widest uppercase">{t('title')}</DialogTitle>
+                  <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">{t('subtitle')}</DialogDescription>
                 </div>
               </div>
               {!isSaving && !isLoading && (
-                <Button variant="ghost" size="default" onClick={onClose} className="h-8 w-8 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-                  <X className="w-4 h-4" />
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10 border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#0a0a0a] rounded-none">
+                  <X className="w-5 h-5" strokeWidth={2} />
                 </Button>
               )}
             </div>
@@ -123,31 +119,31 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
         </div>
 
         {isLoading ? (
-          <div className="h-[350px] flex flex-col items-center justify-center">
+          <div className="h-[400px] flex flex-col items-center justify-center">
             <QhSpinner size="md" />
-            <p className="text-slate-500 dark:text-slate-400 font-light">{t('loading')}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-4 animate-pulse">{t('loading')}</p>
           </div>
         ) : (
           <div className="flex flex-col">
-            <div className="px-5 py-5 overflow-y-auto max-h-[60vh] custom-scrollbar space-y-6">
+            <div className="px-6 py-6 overflow-y-auto max-h-[65vh] custom-scrollbar space-y-8">
               {/* Templates */}
               <div>
-                <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
-                  <Settings className="w-3.5 h-3.5 text-slate-400" />
-                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{t('templates_label')}</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
+                  <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('templates_label')}</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {scheduleTemplates.map(tmpl => {
                     const Icon = tmpl.icon;
                     return (
                       <button key={tmpl.id} onClick={() => { setSchedules(tmpl.apply(schedules)); toast.success(`"${tmpl.name}" ${t('template_applied', { name: '' }).includes('applied') ? 'applied' : t('template_applied', { name: tmpl.name })}`); }}
-                        className={cn("flex items-center gap-2.5 p-2.5 rounded-xl border transition-all text-left group", tmpl.bg)}>
-                        <div className="p-1.5 bg-white dark:bg-slate-800 rounded-lg group-hover:scale-105 transition-transform border border-slate-200 dark:border-slate-700">
-                          <Icon className={cn("w-3.5 h-3.5", tmpl.color)} />
+                        className={cn("flex items-center gap-3 p-3 border-2 border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-left group shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]")}>
+                        <div className="p-2 border-2 border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+                          <Icon className="w-4 h-4" strokeWidth={2} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{tmpl.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 font-light">{tmpl.description}</p>
+                          <p className="text-xs font-bold uppercase tracking-widest">{tmpl.name}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mt-0.5">{tmpl.description}</p>
                         </div>
                       </button>
                     );
@@ -157,55 +153,55 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
               {/* Day Rows */}
               <div>
-                <div className="flex items-center justify-between mb-2.5 px-0.5">
-                  <div className="flex items-center gap-1.5">
-                    <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{t('your_week')}</p>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
+                    <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('your_week')}</p>
                   </div>
-                  <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 text-[10px]">
+                  <Badge variant="outline" className="border-2 border-black dark:border-white rounded-none text-[10px] font-bold uppercase tracking-widest px-2 py-1">
                     {Intl.DateTimeFormat().resolvedOptions().timeZone}
                   </Badge>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-700">
+                <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] divide-y-2 divide-black dark:divide-white">
                   {schedules.map(day => {
                     const info = daysOfWeek.find(d => d.id === day.dayOfWeek);
                     const hasError = validationErrors[day.dayOfWeek];
                     const isCopied = copiedFromDay === day.dayOfWeek;
                     return (
                       <div key={day.dayOfWeek}
-                        className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 transition-all",
-                          !day.isActive && "opacity-60", isCopied && "bg-emerald-50 dark:bg-emerald-500/10")}>
-                        <div className="flex items-center gap-3 min-w-[120px]">
+                        className={cn("flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 transition-colors",
+                          !day.isActive && "opacity-60", isCopied && "bg-black text-white dark:bg-white dark:text-black")}>
+                        <div className="flex items-center gap-4 min-w-[140px]">
                           <Switch checked={day.isActive} onCheckedChange={v => handleChange(day.dayOfWeek, "isActive", v)}
-                            className="data-[state=checked]:bg-medical-600 dark:data-[state=checked]:bg-medical-500" />
-                          <span className={cn("font-medium text-sm", day.isActive ? "text-slate-900 dark:text-white" : "text-slate-400")}>{t(`days.${info?.key}`)}</span>
+                            className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-200 border-2 border-black dark:border-white rounded-none [&>span]:rounded-none" />
+                          <span className={cn("font-bold text-sm uppercase tracking-widest", day.isActive ? (isCopied ? "text-white dark:text-black" : "text-black dark:text-white") : "text-gray-500")}>{t(`days.${info?.key?.toLowerCase()}`)}</span>
                         </div>
-                        <div className="flex flex-1 items-center justify-end gap-2">
+                        <div className="flex flex-1 items-center justify-end gap-3">
                           {day.isActive ? (
-                            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
-                              <div className={cn("relative rounded-lg border transition-colors", hasError ? "border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/5" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900")}>
+                            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
+                              <div className={cn("relative border-2", hasError ? "border-red-500 bg-red-50" : "border-black dark:border-white bg-white dark:bg-[#0a0a0a]")}>
                                 <Input type="time" value={day.openTime} onChange={e => handleChange(day.dayOfWeek, "openTime", e.target.value)}
-                                  className="w-[100px] h-8 border-0 bg-transparent text-sm font-medium text-center focus-visible:ring-0 focus-visible:ring-offset-0" />
+                                  className="w-[110px] h-10 border-0 bg-transparent text-sm font-bold tracking-widest text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-black dark:text-white" />
                               </div>
-                              <span className="text-slate-300 dark:text-slate-600 font-medium text-xs">{t('to')}</span>
-                              <div className={cn("relative rounded-lg border transition-colors", hasError ? "border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/5" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900")}>
+                              <span className={cn("font-bold text-[10px] uppercase tracking-widest", isCopied ? "text-white dark:text-black" : "text-gray-500")}>{t('to')}</span>
+                              <div className={cn("relative border-2", hasError ? "border-red-500 bg-red-50" : "border-black dark:border-white bg-white dark:bg-[#0a0a0a]")}>
                                 <Input type="time" value={day.closeTime} onChange={e => handleChange(day.dayOfWeek, "closeTime", e.target.value)}
-                                  className="w-[100px] h-8 border-0 bg-transparent text-sm font-medium text-center focus-visible:ring-0 focus-visible:ring-offset-0" />
+                                  className="w-[110px] h-10 border-0 bg-transparent text-sm font-bold tracking-widest text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-black dark:text-white" />
                               </div>
-                              <Button variant="ghost" size="sm" onClick={() => handleCopy(day.dayOfWeek)}
-                                className="h-8 px-2 text-xs text-medical-600 dark:text-medical-400 hover:text-medical-700 dark:hover:text-medical-300 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-lg hidden sm:flex items-center gap-1 border border-transparent hover:border-medical-200 dark:hover:border-medical-500/20">
-                                <Copy className="w-3 h-3" /><span className="hidden md:inline font-medium">{t('copy_all')}</span>
+                              <Button variant="ghost" size="icon" onClick={() => handleCopy(day.dayOfWeek)} title={t('copy_all')}
+                                className={cn("h-10 w-10 border-2 rounded-none transition-colors", isCopied ? "border-white dark:border-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white" : "border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black")}>
+                                <Copy className="w-4 h-4" strokeWidth={2} />
                               </Button>
                             </motion.div>
                           ) : (
-                            <div className="flex items-center gap-1.5 text-slate-400 h-8 px-3">
-                              <Moon className="w-3.5 h-3.5" /><span className="text-sm font-light">{t('closed')}</span>
+                            <div className="flex items-center gap-2 text-gray-500 h-10 px-4 border-2 border-dashed border-gray-300 dark:border-gray-700">
+                              <Moon className="w-4 h-4" strokeWidth={2} /><span className="text-[10px] font-bold uppercase tracking-widest">{t('closed')}</span>
                             </div>
                           )}
                         </div>
                         {hasError && (
-                          <div className="w-full sm:w-auto flex items-center gap-1 text-[10px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 px-2 py-0.5 rounded-md">
-                            <AlertCircle className="w-2.5 h-2.5" />{hasError}
+                          <div className="w-full md:w-auto flex items-center gap-2 text-[10px] font-bold tracking-widest text-red-600 border-2 border-red-600 bg-white px-3 py-1 mt-2 md:mt-0">
+                            <AlertCircle className="w-3 h-3" strokeWidth={2} />{hasError}
                           </div>
                         )}
                       </div>
@@ -216,31 +212,31 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
             </div>
 
             {!isLoading && activeCount === 0 && (
-              <div className="px-5 py-2.5 bg-amber-50 dark:bg-amber-500/5 border-t border-amber-200 dark:border-amber-500/20 flex items-center justify-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">{t('warning_no_days')}</p>
+              <div className="px-6 py-4 bg-black text-white dark:bg-white dark:text-black border-t-2 border-black dark:border-white flex items-center gap-3">
+                <AlertCircle className="w-5 h-5" strokeWidth={2} />
+                <p className="text-[10px] uppercase tracking-widest font-bold">{t('warning_no_days')}</p>
               </div>
             )}
 
-            <DialogFooter className="px-5 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between sm:justify-between">
-              <div className="hidden sm:block">
+            <DialogFooter className="px-6 py-5 bg-gray-50 dark:bg-[#111] border-t-2 border-black dark:border-white flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="w-full sm:w-auto text-left">
                 {hasChanges && (
-                  <span className="text-xs font-medium text-medical-600 dark:text-medical-400 flex items-center gap-1.5 animate-pulse">
-                    <div className="w-1.5 h-1.5 rounded-full bg-medical-600 dark:bg-medical-400" />{t('unsaved_changes')}
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                    <div className="w-2 h-2 bg-black dark:bg-white animate-pulse" />{t('unsaved_changes')}
                   </span>
                 )}
               </div>
-              <div className="flex gap-2 w-full sm:w-auto">
-                <Button variant="ghost" onClick={onClose} disabled={isSaving || isLoading}
-                  className="flex-1 sm:flex-none text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm">
+              <div className="flex gap-3 w-full sm:w-auto">
+                <Button variant="outline" onClick={onClose} disabled={isSaving || isLoading}
+                  className="flex-1 sm:flex-none border-2 border-black dark:border-white rounded-none shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] text-[10px] uppercase font-bold tracking-widest h-12 px-8 bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
                   {t('cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={isSaving || isLoading || Object.keys(validationErrors).length > 0 || !hasChanges}
-                  className={cn("flex-1 sm:flex-none min-w-[120px] rounded-xl font-semibold shadow-none transition-all text-sm",
-                    savingStep === "success" ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100")}>
+                  className={cn("flex-1 sm:flex-none min-w-[140px] border-2 border-black dark:border-white rounded-none shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] text-[10px] uppercase font-bold tracking-widest h-12 px-8 transition-colors",
+                    savingStep === "success" ? "bg-white text-black dark:bg-[#0a0a0a] dark:text-white" : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200")}>
                   <AnimatePresence mode="wait">
-                    {savingStep === "saving" && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" />{t('saving')}</motion.div>}
-                    {savingStep === "success" && <motion.div key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5" />{t('saved')}</motion.div>}
+                    {savingStep === "saving" && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />{t('saving')}</motion.div>}
+                    {savingStep === "success" && <motion.div key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4" strokeWidth={2} />{t('saved')}</motion.div>}
                     {savingStep === "idle" && <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{t('save')}</motion.div>}
                   </AnimatePresence>
                 </Button>
