@@ -36,7 +36,8 @@ export interface TimeBlock {
 export interface CreateTimeBlockPayload {
   startDateTime: string;
   endDateTime: string;
-  reason: string;
+  title: string;
+  reason?: string;
 }
 
 // ==========================================

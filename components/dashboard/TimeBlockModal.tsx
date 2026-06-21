@@ -107,6 +107,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
     const success = await createBlock({
       startDateTime: new Date(`${formData.startDate}T${formData.startTime}`).toISOString(),
       endDateTime: new Date(`${formData.endDate}T${formData.endTime}`).toISOString(), 
+      title: formData.title,
       reason: formData.title
     });
     if (success) { 
