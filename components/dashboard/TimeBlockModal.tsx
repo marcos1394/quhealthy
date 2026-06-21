@@ -91,7 +91,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh] [&>button.absolute]:hidden">
         
         {/* HEADER ARQUITECTÓNICO */}
         <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 flex items-start justify-between shrink-0">
@@ -138,24 +138,24 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
                     key={tmpl.id} 
                     onClick={() => applyTemplate(tmpl.id)} 
                     className={cn(
-                      "flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 transition-colors text-left group rounded-none",
+                      "flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 transition-all duration-300 text-left group rounded-none",
                       isSel 
                         ? "bg-black text-white dark:bg-white dark:text-black" 
-                        : "bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111]"
+                        : "bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.1)]"
                     )}
                   >
                     <div className={cn("w-10 h-10 border flex items-center justify-center shrink-0 transition-colors", 
                       isSel 
                         ? "border-white/30 dark:border-black/30 bg-black text-white dark:bg-white dark:text-black" 
-                        : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-white dark:group-hover:bg-[#0a0a0a]"
+                        : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent"
                     )}>
                       <Icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1", isSel ? "text-white dark:text-black" : "text-black dark:text-white")}>
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1 transition-colors", isSel ? "text-white dark:text-black" : "text-black dark:text-white group-hover:text-white dark:group-hover:text-black")}>
                         {tmpl.title}
                       </p>
-                      <p className={cn("text-[9px] font-bold uppercase tracking-widest", isSel ? "opacity-70" : "text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400")}>
+                      <p className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", isSel ? "opacity-70" : "text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600")}>
                         {fmtDuration(tmpl.duration)}
                       </p>
                     </div>
