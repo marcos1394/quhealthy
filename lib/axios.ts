@@ -71,8 +71,23 @@ axiosInstance.interceptors.request.use(
     }
 
     const token = useSessionStore.getState().token;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (config.headers) {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      
+      // 🚀 FIX: Safari bloquea cookies de 3ros por defecto (ITP). 
+      // Usamos localStorage (1st party) y enviamos el header X-Device-Id.
+      if (typeof window !== 'undefined') {
+        let deviceId = localStorage.getItem('qd_id');
+        if (!deviceId) {
+          deviceId = typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+          localStorage.setItem('qd_id', deviceId);
+        }
+        config.headers['X-Device-Id'] = deviceId;
+      }
     }
     return config;
   },
