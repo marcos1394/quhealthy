@@ -4,13 +4,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from 'react-toastify';
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Mic } from "lucide-react";
+import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save } from "lucide-react";
 
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
 import { QhSpinner } from '@/components/ui/QhSpinner'; 
 
-// Importaremos los pasos
+// Pasos
 import { PatientProfileStep } from "@/components/consultation/PatientProfileStep";
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
@@ -97,13 +97,9 @@ export default function ConsultationRoomPage() {
             const base64Data = base64AudioString.split(',')[1];
 
             try {
-              console.log("Enviando audio real a Gemini...");
-              
               await processAudioWithAi(base64Data);
-              
               setIsTranscribing(false);
               toast.success(t('ai_scribe_success') || "SÍNTESIS CLÍNICA COMPLETADA."); 
-
             } catch (error) {
               console.error("Error al procesar el audio con IA", error);
               setIsTranscribing(false);
@@ -155,7 +151,6 @@ export default function ConsultationRoomPage() {
         }
         
         setAppointmentType(appointment.type?.toLowerCase() || 'in_person');
-        
         setTotalPrice(appointment.totalPrice || 0);
         setPaymentMethod(appointment.paymentMethod || 'CASH');
         setPaymentStatus(appointment.paymentStatus || 'PENDING');
@@ -197,13 +192,11 @@ export default function ConsultationRoomPage() {
       const qty = item.quantity || 1;
       return sum + (price * qty);
     }, 0);
-    
     return totalPrice + productsTotal;
   };
 
   const handleCompleteClick = () => {
     const finalAmount = getGrandTotal();
-
     if (finalAmount > 0 && paymentMethod === 'CASH' && paymentStatus !== 'SETTLED') {
       setShowCashModal(true);
     } else {
@@ -220,8 +213,8 @@ export default function ConsultationRoomPage() {
 
   if (loadingAppointment || (isLoading && !isOfflinePatient)) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a] transition-colors">
-        <QhSpinner size="lg" className="text-black dark:text-white" />
+      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        <QhSpinner size="lg" />
         <p className="mt-6 text-[10px] uppercase tracking-widest font-bold text-gray-500 animate-pulse">
           {t('loading_environment', { defaultValue: 'DESPLEGANDO ENTORNO CLÍNICO...' })}
         </p>
@@ -233,7 +226,7 @@ export default function ConsultationRoomPage() {
 
   if (currentStep === 'success') {
     return (
-      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden transition-colors">
+      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
         <ConsultationSuccessStep 
           appointmentId={appointmentId}
           patientPhone={patientProfile?.phone}
@@ -244,7 +237,7 @@ export default function ConsultationRoomPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden relative transition-colors duration-300">
+    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] relative transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
       
       <CashCheckoutModal 
         isOpen={showCashModal}
@@ -259,6 +252,7 @@ export default function ConsultationRoomPage() {
         registerDenominations={registerDenominations}
       />
 
+      {/* HEADER TÉCNICO (Fijo) */}
       <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-6 md:px-10 py-8 flex flex-col gap-8 z-10 shrink-0">
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -270,7 +264,7 @@ export default function ConsultationRoomPage() {
               <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold uppercase tracking-tight text-black dark:text-white flex items-center gap-3">
+              <h1 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-black dark:text-white flex items-center gap-3">
                 {t('consultation_in_progress', { defaultValue: 'AUDITORÍA CLÍNICA EN CURSO' })}
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-2">
@@ -325,8 +319,9 @@ export default function ConsultationRoomPage() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden relative bg-white dark:bg-[#0a0a0a] p-6 md:p-10">
-        <div className="max-w-6xl mx-auto h-full">
+      {/* MAIN (CON SCROLL HABILITADO PARA NO CORTAR LOS RECUADROS) */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-white dark:bg-[#0a0a0a] p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+        <div className="max-w-6xl mx-auto pb-12">
           
           {currentStep === 'profile' && (
             <PatientProfileStep 
