@@ -1072,7 +1072,8 @@
     "block_time": "Bloquear Tiempo",
     "saving": "Guardando...",
     "created": "¡Creado!",
-    "success_toast": "¡Tiempo bloqueado!"
+    "success_toast": "¡Tiempo bloqueado!",
+    "success_msg": "El tiempo ha sido bloqueado exitosamente."
   },
   "DashboardDocuments": {
     "title": "Gestor de Documentos",

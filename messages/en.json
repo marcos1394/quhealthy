@@ -1072,7 +1072,8 @@
     "block_time": "Block Time",
     "saving": "Saving...",
     "created": "Created!",
-    "success_toast": "Time blocked!"
+    "success_toast": "Time blocked!",
+    "success_msg": "Time blocked successfully."
   },
   "DashboardDocuments": {
     "title": "Document Manager",

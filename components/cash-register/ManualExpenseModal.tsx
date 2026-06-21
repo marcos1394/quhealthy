@@ -1,10 +1,13 @@
+"use client";
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Banknote, X, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Banknote, X, CheckCircle2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { paymentService } from '@/services/payment.service';
 import { DenominationMap } from '@/types/cash-register';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { cn } from '@/lib/utils';
 
 const DENOMINATIONS = ['1000', '500', '200', '100', '50', '20', '10', '5', '2', '1', '0.5'];
 const denomLabel = (d: string) => parseFloat(d) >= 20 ? `$${d}` : `$${d}`;
@@ -61,11 +64,11 @@ export const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currentDenomina
         description: description.trim(),
         expenseDenominations: hasDenoms ? cleanDenoms(expenseDenoms) : undefined,
       });
-      toast.success('Gasto registrado y caja actualizada.');
+      toast.success('GASTO REGISTRADO EXITOSAMENTE.');
       onSuccess();
     } catch (error) {
       console.error('Error procesando gasto:', error);
-      toast.error('No se pudo registrar el gasto.');
+      toast.error('FALLO AL REGISTRAR EL GASTO EN CAJA.');
     } finally {
       setIsProcessing(false);
     }
@@ -75,123 +78,171 @@ export const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currentDenomina
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col rounded-none"
         >
-          <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-red-50/50 dark:bg-red-500/5 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-lg">
-                <Banknote className="w-5 h-5" />
+          {/* HEADER ARQUITECTÓNICO */}
+          <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0">
+                <Banknote className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 dark:text-white">Registrar Salida de Efectivo</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Gasto de caja chica</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                  Operación Contable
+                </p>
+                <h2 className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+                  REGISTRO DE GASTO
+                </h2>
               </div>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
-              <X className="w-5 h-5" />
+            <button 
+              onClick={onClose} 
+              className="w-12 h-12 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors shrink-0"
+            >
+              <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
             </button>
           </div>
 
-          <div className="p-5 space-y-5 overflow-y-auto flex-1">
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-bold text-slate-700 dark:text-zinc-300">Concepto del Gasto</label>
+          {/* BODY (BLUEPRINT GRID) */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
+            
+            <div className="grid grid-cols-1 gap-0">
+              {/* Concepto del Gasto */}
+              <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                   <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
+                   CONCEPTO DE LA SALIDA *
+                </label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ej. Garrafón de agua, papel higiénico..."
-                  className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                  placeholder="EJ. INSUMOS, PAPELERÍA..."
+                  className="w-full h-14 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
                 />
               </div>
 
+              {/* Monto Total (Si no hay desglose) */}
               {!hasDenoms && (
-                <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-zinc-300">Monto Total a Retirar ($)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={totalAmountStr}
-                    onChange={(e) => setTotalAmountStr(e.target.value)}
-                    placeholder="Ej. 50.00"
-                    className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold focus:ring-2 focus:ring-red-500 outline-none"
-                  />
+                <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                     <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">2</span>
+                     MONTO TOTAL A RETIRAR *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={totalAmountStr}
+                      onChange={(e) => setTotalAmountStr(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full h-14 pl-9 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-black dark:text-white text-xl font-semibold focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                    />
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className="space-y-3">
-              <button 
-                type="button"
-                onClick={() => setShowDenominations(!showDenominations)}
-                className="w-full flex items-center justify-between text-left p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50"
-              >
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  Desglosar denominaciones (Opcional)
-                </span>
-                {showDenominations ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-              </button>
-
-              {showDenominations && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }} 
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="grid grid-cols-3 gap-2"
+              {/* Desglose de Denominaciones */}
+              <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                <button 
+                  type="button"
+                  onClick={() => setShowDenominations(!showDenominations)}
+                  className="w-full flex items-center justify-between p-6 md:p-8 border-b border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none group"
                 >
-                  {DENOMINATIONS.map(denom => {
-                    const available = currentDenominations?.[denom] || 0;
-                    if (available <= 0) return null;
-                    return (
-                      <div key={`exp-${denom}`} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5">
-                        <div className="shrink-0 w-10">
-                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 block">{denomLabel(denom)}</span>
-                          <span className="text-[10px] text-slate-400">({available})</span>
-                        </div>
-                        <input
-                          type="number"
-                          min="0"
-                          max={available}
-                          value={expenseDenoms[denom] || ''}
-                          onChange={(e) => updateExpenseDenom(denom, parseInt(e.target.value) || 0)}
-                          className="w-full p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold text-center focus:ring-2 focus:ring-red-500 outline-none"
-                          placeholder="0"
-                        />
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">
+                    DESGLOSAR DENOMINACIONES (OPCIONAL)
+                  </span>
+                  {showDenominations ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
 
-            {hasDenoms && (
-              <div className="flex justify-between items-center bg-red-50 dark:bg-red-500/10 p-4 rounded-xl border border-red-200 dark:border-red-500/20">
-                <span className="text-sm font-bold text-red-700 dark:text-red-400">Total Desglosado:</span>
-                <span className="text-xl font-black text-red-700 dark:text-red-400">${expenseTotal.toFixed(2)}</span>
+                {showDenominations && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="border-b border-black/10 dark:border-white/10 overflow-hidden"
+                  >
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-gray-50 dark:bg-[#050505] border-t border-l border-black/10 dark:border-white/10">
+                      {DENOMINATIONS.map(denom => {
+                        const available = currentDenominations?.[denom] || 0;
+                        if (available <= 0) return null;
+                        return (
+                          <div key={`exp-${denom}`} className="border-r border-b border-black/10 dark:border-white/10 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                              {denomLabel(denom)}
+                            </span>
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-3">
+                              DISP: {available}
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              max={available}
+                              value={expenseDenoms[denom] || ''}
+                              onChange={(e) => updateExpenseDenom(denom, parseInt(e.target.value) || 0)}
+                              className="w-full h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white text-xs font-semibold text-center focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                              placeholder="0"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
               </div>
-            )}
 
-            {isOverBalance && (
-               <p className="text-xs text-red-500 font-medium text-center">
-                 ⚠️ El monto supera el balance esperado de tu caja (${maxExpectedBalance.toFixed(2)}).
-               </p>
-            )}
+              {/* Total Calculado */}
+              {hasDenoms && (
+                <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex items-center justify-between">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">TOTAL DESGLOSADO</span>
+                  <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">${expenseTotal.toFixed(2)}</span>
+                </div>
+              )}
+
+              {/* Alerta de Límite Excedido */}
+              {isOverBalance && (
+                <div className="p-6 md:p-8 flex items-start gap-4 border-b border-black/10 dark:border-white/10 bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 transition-colors">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={1.5} />
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 mb-1">
+                      FONDO INSUFICIENTE
+                    </p>
+                    <p className="text-xs font-semibold text-red-800 dark:text-red-300">
+                      EL MONTO SUPERA EL BALANCE ACTUAL DEL SISTEMA (${maxExpectedBalance.toFixed(2)}).
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            </div>
           </div>
 
-          <div className="p-5 border-t border-slate-100 dark:border-slate-800 flex gap-3 shrink-0">
-            <Button variant="ghost" onClick={onClose} className="flex-1">Cancelar</Button>
-            <Button 
-              onClick={handleRegisterExpense} 
-              disabled={!isValid || isProcessing}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          {/* FOOTER DE COMANDOS */}
+          <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row justify-end gap-4 shrink-0">
+            <button 
+              onClick={onClose} 
+              className="w-full sm:w-auto h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none"
             >
-              {isProcessing ? 'Registrando...' : <><CheckCircle2 className="w-4 h-4 mr-2"/> Registrar Gasto</>}
-            </Button>
+              CANCELAR
+            </button>
+            <button 
+              onClick={handleRegisterExpense} 
+              disabled={!isValid || isProcessing || isOverBalance}
+              className="w-full sm:w-auto h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-3 disabled:opacity-50 rounded-none"
+            >
+              {isProcessing ? (
+                <><QhSpinner size="sm" className="text-current" /> PROCESANDO...</>
+              ) : (
+                <><CheckCircle2 className="w-4 h-4" strokeWidth={1.5}/> REGISTRAR GASTO</>
+              )}
+            </button>
           </div>
         </motion.div>
       </div>

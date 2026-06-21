@@ -2,10 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Star, Calendar, User, FileText, Clock, MapPin, DollarSign, MessageSquare, Download, Share2, X, CheckCircle2, Video, Phone, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -13,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { HistoryEntry } from "./HistoryTable";
-import { handleApiError } from '@/lib/handleApiError';
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 type UserRole = "paciente" | "proveedor";
 
@@ -26,19 +23,19 @@ interface HistoryDetailModalProps {
 }
 
 const getRatingStars = (rating: number) => (
-  <div className="flex items-center gap-0.5">
+  <div className="flex items-center gap-1">
     {[...Array(5)].map((_, i) => (
-      <Star key={i} className={cn("w-5 h-5", i < rating ? "text-amber-500 fill-amber-500" : "text-slate-200 dark:text-slate-700")} />
+      <Star key={i} className={cn("w-4 h-4", i < rating ? "text-black dark:text-white fill-black dark:fill-white" : "text-gray-200 dark:text-gray-800")} strokeWidth={1.5} />
     ))}
   </div>
 );
 
 const getServiceIcon = (type: string) => {
   const normalized = type.toLowerCase();
-  if (normalized.includes("video") || normalized.includes("teleconsulta")) return <Video className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
-  if (normalized.includes("presencial") || normalized.includes("consulta")) return <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
-  if (normalized.includes("llamada") || normalized.includes("telefónica")) return <Phone className="w-5 h-5 text-slate-700 dark:text-slate-300" />;
-  return <FileText className="w-5 h-5 text-slate-400" />;
+  if (normalized.includes("video") || normalized.includes("teleconsulta")) return <Video className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />;
+  if (normalized.includes("presencial") || normalized.includes("consulta")) return <User className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />;
+  if (normalized.includes("llamada") || normalized.includes("telefónica")) return <Phone className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />;
+  return <FileText className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />;
 };
 
 export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, role, onOpenChange, onDownloadReceipt, onShare }) => {
@@ -50,19 +47,24 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
   const getStatusBadge = (status?: string) => {
     if (!status) return null;
     const configs: Record<string, { text: string; className: string; icon: React.ReactNode }> = {
-      completed: { text: t("status_completed" as never) || "Completed", className: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20", icon: <CheckCircle2 className="w-3 h-3" /> },
-      cancelled: { text: t("status_cancelled" as never) || "Cancelled", className: "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20", icon: <X className="w-3 h-3" /> },
-      pending: { text: t("status_pending" as never) || "Pending", className: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20", icon: <Clock className="w-3 h-3" /> },
+      completed: { text: t("status_completed" as never) || "COMPLETADO", className: "border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400", icon: <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> },
+      cancelled: { text: t("status_cancelled" as never) || "ANULADO", className: "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400", icon: <X className="w-3 h-3" strokeWidth={1.5} /> },
+      pending: { text: t("status_pending" as never) || "PENDIENTE", className: "border-gray-500/30 bg-gray-50 text-gray-700 dark:bg-[#111] dark:text-gray-400", icon: <Clock className="w-3 h-3" strokeWidth={1.5} /> },
+      rescheduled: { text: t("status_rescheduled" as never) || "REAGENDADO", className: "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400", icon: <Clock className="w-3 h-3" strokeWidth={1.5} /> },
     };
     const config = configs[status] || configs.completed;
-    return <Badge variant="outline" className={cn("flex items-center gap-1 text-xs", config.className)}>{config.icon}{config.text}</Badge>;
+    return (
+      <span className={cn("inline-flex items-center gap-1.5 px-2 py-1 text-[9px] font-bold uppercase tracking-widest border rounded-none whitespace-nowrap", config.className)}>
+        {config.icon}{config.text}
+      </span>
+    );
   };
 
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
       await onDownloadReceipt?.(entry);
-      toast.success(t("download_success"));
+      toast.success(t("download_success", { defaultValue: 'EXTRACCIÓN COMPLETADA.' }));
     } catch {
       return;
     } finally {
@@ -72,201 +74,243 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
 
   const handleShare = () => {
     onShare?.(entry);
-    toast.success(t("share_success"));
+    toast.success(t("share_success", { defaultValue: 'ENLACE OPERATIVO COPIADO.' }));
   };
 
   return (
     <Dialog open={!!entry} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl p-0 transition-colors">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 rounded-none overflow-hidden flex flex-col max-h-[90vh] shadow-2xl transition-colors">
 
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
-          <DialogHeader className="space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3.5 flex-1">
-                <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200 }}
-                  className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                  {getServiceIcon(entry.type)}
-                </motion.div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="flex items-center gap-2.5 mb-1">
-                    <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">{t("title")}</DialogTitle>
-                    {getStatusBadge(entry.status)}
-                  </div>
-                  <DialogDescription className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 text-sm font-light">
-                    <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{format(parseISO(entry.date), "EEEE d 'de' MMMM, yyyy", { locale: es })}</span>
-                  </DialogDescription>
-                </div>
-              </div>
-              <Button variant="ghost" size="default" onClick={() => onOpenChange(false)}
-                className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-8 w-8">
-                <X className="w-4 h-4" />
-              </Button>
+        {/* HEADER ARQUITECTÓNICO */}
+        <div className="flex items-start md:items-center justify-between p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              {getServiceIcon(entry.type)}
             </div>
-          </DialogHeader>
+            <div className="flex-1 min-w-0 pr-4">
+              <div className="flex items-center gap-3 mb-1">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                  REGISTRO • ID-{entry.id}
+                </p>
+                {getStatusBadge(entry.status)}
+              </div>
+              <DialogTitle className="text-xl md:text-2xl font-semibold text-black dark:text-white uppercase tracking-tight truncate leading-none mb-2">
+                {t("title", { defaultValue: 'EXPEDIENTE DE SERVICIO' })}
+              </DialogTitle>
+              <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+                <span>{format(parseISO(entry.date), "EEEE d 'de' MMMM, yyyy", { locale: es })}</span>
+              </DialogDescription>
+            </div>
+          </div>
+          <button 
+            onClick={() => onOpenChange(false)} 
+            className="w-12 h-12 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 transition-colors shrink-0 hover:bg-gray-50 dark:hover:bg-[#050505]"
+          >
+            <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+          </button>
         </div>
 
-        <div className="px-6 py-5 space-y-5">
+        {/* BODY (BLUEPRINT GRID) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
 
-          {/* Main Grid */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            {/* Person */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <User className="w-3 h-3" /> {role === "paciente" ? t("specialist_label") : t("patient_label")}
+          {/* Fila 1: Paciente y Servicio */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+            
+            {/* Persona */}
+            <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <User className="w-3 h-3" strokeWidth={1.5} /> 
+                {role === "paciente" ? t("specialist_label", { defaultValue: 'ESPECIALISTA' }) : t("patient_label", { defaultValue: 'PACIENTE' })}
               </p>
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
-                <p className="text-base font-semibold text-slate-900 dark:text-white">
-                  {role === "paciente" ? entry.provider?.name : entry.client?.name}
+              <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-1">
+                {role === "paciente" ? entry.provider?.name : entry.client?.name}
+              </p>
+              {role === "paciente" && entry.provider?.specialty && (
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                  {entry.provider.specialty}
                 </p>
-                {role === "paciente" && entry.provider?.specialty && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{entry.provider.specialty}</p>
-                )}
-                {entry.provider?.location && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-light">
-                    <MapPin className="w-3 h-3" />{entry.provider.location}
-                  </p>
-                )}
-              </div>
+              )}
+              {entry.provider?.location && (
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5 mt-2">
+                  <MapPin className="w-3 h-3" strokeWidth={1.5} />
+                  {entry.provider.location}
+                </p>
+              )}
             </div>
 
-            {/* Service */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3 h-3" /> {t("service_type")}
+            {/* Servicio */}
+            <div className="p-6 md:p-8 flex flex-col justify-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <FileText className="w-3 h-3" strokeWidth={1.5} /> 
+                {t("service_type", { defaultValue: 'CONCEPTO OPERATIVO' })}
               </p>
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
-                <p className="text-base font-semibold text-slate-900 dark:text-white">{entry.type}</p>
+              <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-3">
+                {entry.type}
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
                 {entry.duration && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                    <span className="font-medium">{entry.duration}</span>
-                  </p>
+                  <span className="flex items-center gap-1.5 px-2 py-1 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                    <Clock className="w-3 h-3" strokeWidth={1.5} />
+                    {entry.duration}
+                  </span>
                 )}
                 {entry.cost && (
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-semibold">
-                    <DollarSign className="w-3.5 h-3.5" />${entry.cost}
-                  </p>
+                  <span className="flex items-center gap-1.5 px-2 py-1 border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-[9px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                    <DollarSign className="w-3 h-3" strokeWidth={1.5} />
+                    {entry.cost}
+                  </span>
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Timeline de Servicio */}
+          {/* Fila 2: Timeline de Servicio */}
           {(entry.arrivedAt || entry.startedAt || entry.completedAt) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-2 mt-4">
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <Clock className="w-3 h-3" /> {t("service_timeline", { defaultValue: "Línea de Tiempo del Servicio" })}
-              </p>
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+            <div className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+              <div className="px-6 md:px-8 py-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                  <Clock className="w-3 h-3" strokeWidth={1.5} /> 
+                  {t("service_timeline", { defaultValue: "LÍNEA DE TIEMPO DEL SERVICIO" })}
+                </p>
+              </div>
+              
+              <div className="p-0">
                 {entry.arrivedAt && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><User className="w-4 h-4 text-emerald-500"/> {t("timeline_arrival", { defaultValue: "Llegada del paciente" })}</span>
-                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.arrivedAt), "HH:mm", { locale: es })}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 md:px-8 py-4 border-b border-black/10 dark:border-white/10 gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5}/> 
+                      {t("timeline_arrival", { defaultValue: "REGISTRO DE LLEGADA" })}
+                    </span>
+                    <span className="font-mono text-xs font-semibold text-black dark:text-white bg-gray-50 dark:bg-[#050505] px-2 py-1 border border-black/10 dark:border-white/10">
+                      {format(parseISO(entry.arrivedAt), "HH:mm", { locale: es })}
+                    </span>
                   </div>
                 )}
                 
                 {entry.arrivedAt && entry.startedAt && (
-                  <div className="flex justify-end -my-1">
-                    <span className="text-xs bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md font-medium border border-amber-200 dark:border-amber-500/20">
-                      ⏱️ {t("timeline_wait", { defaultValue: "Espera:" })} {Math.floor((new Date(entry.startedAt).getTime() - new Date(entry.arrivedAt).getTime())/60000)}m
+                  <div className="flex justify-end px-6 md:px-8 py-3 bg-gray-50 dark:bg-[#111] border-b border-black/10 dark:border-white/10">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <Clock className="w-3 h-3" strokeWidth={1.5} />
+                      {t("timeline_wait", { defaultValue: "TIEMPO DE ESPERA:" })} {Math.floor((new Date(entry.startedAt).getTime() - new Date(entry.arrivedAt).getTime())/60000)} MIN
                     </span>
                   </div>
                 )}
 
                 {entry.startedAt && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500"/> {t("timeline_start", { defaultValue: "Inicio de consulta" })}</span>
-                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.startedAt), "HH:mm", { locale: es })}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 md:px-8 py-4 border-b border-black/10 dark:border-white/10 gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5}/> 
+                      {t("timeline_start", { defaultValue: "INICIO DE CONSULTA" })}
+                    </span>
+                    <span className="font-mono text-xs font-semibold text-black dark:text-white bg-gray-50 dark:bg-[#050505] px-2 py-1 border border-black/10 dark:border-white/10">
+                      {format(parseISO(entry.startedAt), "HH:mm", { locale: es })}
+                    </span>
                   </div>
                 )}
 
                 {entry.startedAt && entry.completedAt && (
-                  <div className="flex justify-end -my-1">
-                    <span className="text-xs bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md font-medium border border-indigo-200 dark:border-indigo-500/20">
-                      ▶️ {t("timeline_consultation", { defaultValue: "Consulta:" })} {Math.floor((new Date(entry.completedAt).getTime() - new Date(entry.startedAt).getTime())/60000)}m
+                  <div className="flex justify-end px-6 md:px-8 py-3 bg-gray-50 dark:bg-[#111] border-b border-black/10 dark:border-white/10">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <Video className="w-3 h-3" strokeWidth={1.5} />
+                      {t("timeline_consultation", { defaultValue: "DURACIÓN DE CONSULTA:" })} {Math.floor((new Date(entry.completedAt).getTime() - new Date(entry.startedAt).getTime())/60000)} MIN
                     </span>
                   </div>
                 )}
 
                 {entry.completedAt && (
-                  <div className="flex justify-between items-center text-sm border-t border-slate-200 dark:border-slate-700 pt-3 mt-1">
-                    <span className="text-slate-500 dark:text-slate-400 font-light flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-indigo-500"/> {t("timeline_completed", { defaultValue: "Servicio Finalizado" })}</span>
-                    <span className="font-medium text-slate-900 dark:text-white">{format(parseISO(entry.completedAt), "HH:mm", { locale: es })}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 md:px-8 py-4 gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5}/> 
+                      {t("timeline_completed", { defaultValue: "SERVICIO FINALIZADO" })}
+                    </span>
+                    <span className="font-mono text-xs font-semibold text-black dark:text-white bg-gray-50 dark:bg-[#050505] px-2 py-1 border border-black/10 dark:border-white/10">
+                      {format(parseISO(entry.completedAt), "HH:mm", { locale: es })}
+                    </span>
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-
-          <Separator className="bg-slate-200 dark:bg-slate-800" />
 
           {/* Rating */}
           {entry.rating && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-2">
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <Star className="w-3 h-3" /> {role === "paciente" ? t("your_rating") : t("received_rating")}
-              </p>
-              <div className="bg-amber-50 dark:bg-amber-500/5 p-4 rounded-xl border border-amber-200 dark:border-amber-500/20 flex justify-between items-center">
-                <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    {t("stars_of", { rating: String(entry.rating) })}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
-                    {entry.rating >= 4.5 ? t("excellent") : entry.rating >= 3.5 ? t("good") : t("can_improve")}
-                  </p>
-                </div>
-                {getRatingStars(entry.rating)}
+            <div className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+                  <Star className="w-3 h-3" strokeWidth={1.5} /> 
+                  {role === "paciente" ? t("your_rating", { defaultValue: 'TU EVALUACIÓN' }) : t("received_rating", { defaultValue: 'EVALUACIÓN RECIBIDA' })}
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  {entry.rating >= 4.5 ? t("excellent", { defaultValue: 'EXCELENTE' }) : entry.rating >= 3.5 ? t("good", { defaultValue: 'BUENO' }) : t("can_improve", { defaultValue: 'MEJORABLE' })}
+                </p>
               </div>
-            </motion.div>
+              <div className="flex items-center gap-3">
+                {getRatingStars(entry.rating)}
+                <span className="text-sm font-semibold text-black dark:text-white border border-black/10 dark:border-white/10 px-2 py-1 bg-gray-50 dark:bg-[#050505]">
+                  {entry.rating.toFixed(1)}
+                </span>
+              </div>
+            </div>
           )}
 
           {/* Notes */}
           {entry.notes && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
-              <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <MessageSquare className="w-3 h-3" /> {t("service_notes")}
+            <div className="border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] p-6 md:p-8">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <MessageSquare className="w-3 h-3" strokeWidth={1.5} /> 
+                {t("service_notes", { defaultValue: 'OBSERVACIONES DEL SERVICIO' })}
               </p>
-              <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                <p className="text-sm text-slate-900 dark:text-white leading-relaxed">{entry.notes}</p>
-              </div>
-            </motion.div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                {entry.notes}
+              </p>
+            </div>
           )}
 
-          {/* Quick Actions */}
+          {/* Quick Actions (Inside Body) */}
           {(onDownloadReceipt || onShare) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-wrap gap-2">
+            <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] flex flex-wrap gap-4 border-b border-black/10 dark:border-white/10">
               {onDownloadReceipt && (
-                <Button variant="outline" size="sm" onClick={handleDownload} disabled={isDownloading}
-                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs">
-                  {isDownloading ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />{t("downloading")}</> : <><Download className="w-3.5 h-3.5 mr-1.5" />{t("download_receipt")}</>}
-                </Button>
+                <button 
+                  onClick={handleDownload} 
+                  disabled={isDownloading}
+                  className="h-10 px-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+                >
+                  {isDownloading ? <><QhSpinner size="sm" className="text-current" /> EXTRAYENDO...</> : <><Download className="w-3.5 h-3.5" strokeWidth={1.5} /> {t("download_receipt", { defaultValue: 'EXTRAER RECIBO' })}</>}
+                </button>
               )}
               {onShare && (
-                <Button variant="outline" size="sm" onClick={handleShare}
-                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs">
-                  <Share2 className="w-3.5 h-3.5 mr-1.5" />{t("share")}
-                </Button>
+                <button 
+                  onClick={handleShare}
+                  className="h-10 px-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none"
+                >
+                  <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} /> {t("share", { defaultValue: 'COMPARTIR' })}
+                </button>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
 
-        {/* Footer */}
-        <DialogFooter className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}
-            className="flex-1 sm:flex-none">
-            {t("close")}
-          </Button>
-          {role === "paciente" && !entry.rating && (
-            <Button className="flex-1 sm:flex-none">
-              <Star className="w-4 h-4 mr-2" />{t("rate_service")}
-            </Button>
-          )}
-        </DialogFooter>
+        {/* FOOTER DE COMANDOS ESTRICTO */}
+        <div className="bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 p-6 flex flex-col sm:flex-row justify-between gap-4 shrink-0">
+          <div className="flex-1" />
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button 
+              onClick={() => onOpenChange(false)}
+              className="h-12 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none w-full sm:w-auto"
+            >
+              {t("close", { defaultValue: 'CERRAR EXPEDIENTE' })}
+            </button>
+            {role === "paciente" && !entry.rating && (
+              <button 
+                className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none w-full sm:w-auto"
+              >
+                <Star className="w-3.5 h-3.5" strokeWidth={1.5} /> {t("rate_service", { defaultValue: 'EVALUAR SERVICIO' })}
+              </button>
+            )}
+          </div>
+        </div>
+
       </DialogContent>
     </Dialog>
   );

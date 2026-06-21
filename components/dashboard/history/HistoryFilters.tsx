@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Calendar, Filter, ListFilter, X, SlidersHorizontal, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
@@ -28,7 +26,6 @@ interface HistoryFiltersProps {
 export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
   searchTerm, filters, serviceTypes, onSearchTermChange, onFiltersChange, resultCount
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
   const t = useTranslations("DashboardHistory");
 
   const getActiveFiltersCount = () => {
@@ -51,157 +48,180 @@ export const HistoryFilters: React.FC<HistoryFiltersProps> = ({
 
   const getFilterLabel = (key: keyof FilterOptions, value: string) => {
     const labels: Record<string, Record<string, string>> = {
-      dateRange: { all: t("filter_period_all"), today: t("filter_period_today"), week: t("filter_period_week"), month: t("filter_period_month"), year: t("filter_period_year") },
-      status: { all: t("filter_status_all"), completed: t("filter_status_completed"), cancelled: t("filter_status_cancelled"), rescheduled: t("filter_status_rescheduled") }
+      dateRange: { all: t("filter_period_all", { defaultValue: "TODOS LOS PERIODOS" }), today: t("filter_period_today", { defaultValue: "HOY" }), week: t("filter_period_week", { defaultValue: "ESTA SEMANA" }), month: t("filter_period_month", { defaultValue: "ESTE MES" }), year: t("filter_period_year", { defaultValue: "ESTE AÑO" }) },
+      status: { all: t("filter_status_all", { defaultValue: "CUALQUIER ESTADO" }), completed: t("filter_status_completed", { defaultValue: "COMPLETADO" }), cancelled: t("filter_status_cancelled", { defaultValue: "ANULADO" }), rescheduled: t("filter_status_rescheduled", { defaultValue: "REAGENDADO" }) }
     };
     return labels[key]?.[value] || value;
   };
 
   return (
-    <div className="space-y-3">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className={cn(
-          "grid grid-cols-1 md:grid-cols-4 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 transition-all shadow-sm",
-          isFocused ? "border-slate-300 dark:border-slate-600 shadow-md" : ""
-        )}>
+    <div className="flex flex-col w-full">
+      
+      {/* PANEL DE FILTROS (GRID MATEMÁTICO) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
 
-        {/* Search */}
-        <div className="relative">
-          <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors pointer-events-none", isFocused || searchTerm ? "text-slate-600 dark:text-slate-300" : "text-slate-400")} />
+        {/* Buscador (Celda 1) */}
+        <div className="relative border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center transition-colors">
+          <Search className="absolute left-4 w-4 h-4 text-gray-400" strokeWidth={1.5} />
           <Input
-            placeholder={t("search_placeholder")}
-            className={cn(
-              "pl-10 pr-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white h-10 rounded-xl transition-all",
-              "focus-visible:ring-slate-300 dark:focus-visible:ring-slate-600",
-              searchTerm && "border-slate-300 dark:border-slate-600"
-            )}
-            value={searchTerm} onChange={(e) => onSearchTermChange(e.target.value)}
-            onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)}
+            placeholder={t("search_placeholder", { defaultValue: "BUSCAR POR ID O CONCEPTO..." })}
+            className="w-full h-14 pl-12 pr-12 border-0 bg-transparent rounded-none focus-visible:ring-0 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
+            value={searchTerm} 
+            onChange={(e) => onSearchTermChange(e.target.value)}
           />
           <AnimatePresence>
             {searchTerm && (
-              <motion.button aria-label="Clear search" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-                onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                <X className="w-3.5 h-3.5" />
+              <motion.button 
+                initial={{ opacity: 0, scale: 0.8 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={handleClearSearch} 
+                className="absolute right-4 w-6 h-6 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 text-gray-400 hover:text-black dark:hover:text-white transition-colors bg-gray-50 hover:bg-white dark:bg-[#050505] dark:hover:bg-[#0a0a0a]"
+              >
+                <X className="w-3 h-3" strokeWidth={1.5} />
               </motion.button>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Date Range */}
-        <Select value={filters.dateRange} onValueChange={(value) => onFiltersChange({ ...filters, dateRange: value })}>
-          <SelectTrigger className={cn(
-            "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.dateRange !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
-          )}>
-            <div className="flex items-center gap-2">
-              <Calendar className={cn("w-4 h-4", filters.dateRange !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
-              <SelectValue placeholder={t("filter_period")} />
-            </div>
-          </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="all">{t("filter_period_all")}</SelectItem>
-            <SelectItem value="today">{t("filter_period_today")}</SelectItem>
-            <SelectItem value="week">{t("filter_period_week")}</SelectItem>
-            <SelectItem value="month">{t("filter_period_month")}</SelectItem>
-            <SelectItem value="year">{t("filter_period_year")}</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Service Type */}
-        <Select value={filters.type} onValueChange={(value) => onFiltersChange({ ...filters, type: value })}>
-          <SelectTrigger className={cn(
-            "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.type !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
-          )}>
-            <div className="flex items-center gap-2">
-              <ListFilter className={cn("w-4 h-4", filters.type !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
-              <SelectValue placeholder={t("filter_service")} />
-            </div>
-          </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="all">{t("filter_service_all")}</SelectItem>
-            {serviceTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
-        {/* Status */}
-        <Select value={filters.status} onValueChange={(value) => onFiltersChange({ ...filters, status: value })}>
-          <SelectTrigger className={cn(
-            "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 h-10 rounded-xl transition-all text-slate-900 dark:text-white",
-            filters.status !== "all" ? "border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700" : ""
-          )}>
-            <div className="flex items-center gap-2">
-              <Filter className={cn("w-4 h-4", filters.status !== "all" ? "text-slate-700 dark:text-slate-300" : "text-slate-400")} />
-              <SelectValue placeholder={t("filter_status")} />
-            </div>
-          </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="all">{t("filter_status_all")}</SelectItem>
-            <SelectItem value="completed">✓ {t("filter_status_completed")}</SelectItem>
-            <SelectItem value="cancelled">✗ {t("filter_status_cancelled")}</SelectItem>
-            <SelectItem value="rescheduled">↻ {t("filter_status_rescheduled")}</SelectItem>
-          </SelectContent>
-        </Select>
-      </motion.div>
-
-      {/* Active Filters Bar */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2 flex-wrap">
-          {activeFiltersCount > 0 && (
-            <>
-              <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">{t("active_filters")}</span>
+        {/* Rango de Fechas (Celda 2) */}
+        <div className={cn(
+          "border-b border-r border-black/20 dark:border-white/20 flex items-center transition-colors",
+          filters.dateRange !== "all" ? "bg-gray-50 dark:bg-[#111]" : "bg-white dark:bg-[#0a0a0a]"
+        )}>
+          <Select value={filters.dateRange} onValueChange={(value) => onFiltersChange({ ...filters, dateRange: value })}>
+            <SelectTrigger className="w-full h-14 border-0 bg-transparent rounded-none focus:ring-0 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <div className="flex items-center gap-3">
+                <Calendar className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                <SelectValue placeholder={t("filter_period", { defaultValue: "PERIODO" })} />
               </div>
-              <AnimatePresence>
-                {searchTerm && (
-                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
-                      <Search className="w-2.5 h-2.5" />
-                      <span className="max-w-[100px] truncate">{searchTerm}</span>
-                      <button aria-label="Clear search" onClick={handleClearSearch} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
-                    </Badge>
-                  </motion.div>
-                )}
-                {filters.dateRange !== "all" && (
-                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
-                      <Calendar className="w-2.5 h-2.5" />
-                      {getFilterLabel("dateRange", filters.dateRange)}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
-                    </Badge>
-                  </motion.div>
-                )}
-                {filters.type !== "all" && (
-                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
-                      <ListFilter className="w-2.5 h-2.5" />
-                      {filters.type}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
-                    </Badge>
-                  </motion.div>
-                )}
-                {filters.status !== "all" && (
-                  <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 gap-1 text-xs">
-                      <Filter className="w-2.5 h-2.5" />
-                      {getFilterLabel("status", filters.status)}
-                      <button aria-label="Clear filter" onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 hover:text-slate-900 dark:hover:text-white"><X className="w-2.5 h-2.5" /></button>
-                    </Badge>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <Button variant="ghost" size="sm" onClick={handleResetFilters}
-                className="text-slate-400 hover:text-slate-900 dark:hover:text-white h-7 px-2.5 text-xs rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                <RotateCcw className="w-3 h-3 mr-1" />{t("clear_filters")}
-              </Button>
-            </>
-          )}
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
+              <SelectItem value="all" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_period_all", { defaultValue: "TODOS LOS PERIODOS" })}</SelectItem>
+              <SelectItem value="today" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_period_today", { defaultValue: "HOY" })}</SelectItem>
+              <SelectItem value="week" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_period_week", { defaultValue: "ESTA SEMANA" })}</SelectItem>
+              <SelectItem value="month" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_period_month", { defaultValue: "ESTE MES" })}</SelectItem>
+              <SelectItem value="year" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_period_year", { defaultValue: "ESTE AÑO" })}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* Tipo de Servicio (Celda 3) */}
+        <div className={cn(
+          "border-b border-r border-black/20 dark:border-white/20 flex items-center transition-colors",
+          filters.type !== "all" ? "bg-gray-50 dark:bg-[#111]" : "bg-white dark:bg-[#0a0a0a]"
+        )}>
+          <Select value={filters.type} onValueChange={(value) => onFiltersChange({ ...filters, type: value })}>
+            <SelectTrigger className="w-full h-14 border-0 bg-transparent rounded-none focus:ring-0 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <div className="flex items-center gap-3">
+                <ListFilter className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                <SelectValue placeholder={t("filter_service", { defaultValue: "CONCEPTO" })} />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
+              <SelectItem value="all" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_service_all", { defaultValue: "TODOS LOS CONCEPTOS" })}</SelectItem>
+              {serviceTypes.map(type => (
+                <SelectItem key={type} value={type} className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Estado (Celda 4) */}
+        <div className={cn(
+          "border-b border-r border-black/20 dark:border-white/20 flex items-center transition-colors",
+          filters.status !== "all" ? "bg-gray-50 dark:bg-[#111]" : "bg-white dark:bg-[#0a0a0a]"
+        )}>
+          <Select value={filters.status} onValueChange={(value) => onFiltersChange({ ...filters, status: value })}>
+            <SelectTrigger className="w-full h-14 border-0 bg-transparent rounded-none focus:ring-0 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <div className="flex items-center gap-3">
+                <Filter className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                <SelectValue placeholder={t("filter_status", { defaultValue: "ESTADO" })} />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
+              <SelectItem value="all" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_status_all", { defaultValue: "CUALQUIER ESTADO" })}</SelectItem>
+              <SelectItem value="completed" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_status_completed", { defaultValue: "COMPLETADO" })}</SelectItem>
+              <SelectItem value="cancelled" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_status_cancelled", { defaultValue: "ANULADO" })}</SelectItem>
+              <SelectItem value="rescheduled" className="text-[9px] font-bold uppercase tracking-widest rounded-none focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black">{t("filter_status_rescheduled", { defaultValue: "REAGENDADO" })}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* BARRA DE ESTADO DE FILTROS ACTIVOS */}
+      <div className="flex items-center justify-between gap-4 p-4 border-b border-l border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500 mr-2">
+            <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <span>{t("active_filters", { defaultValue: "FILTROS ACTIVOS" })}:</span>
+          </div>
+          
+          <AnimatePresence>
+            {searchTerm && (
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <div className="flex items-center gap-2 px-2 py-1 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                  <Search className="w-3 h-3 text-gray-500" strokeWidth={1.5} />
+                  <span className="max-w-[150px] truncate">{searchTerm}</span>
+                  <button onClick={handleClearSearch} className="ml-1 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                    <X className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+            
+            {filters.dateRange !== "all" && (
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <div className="flex items-center gap-2 px-2 py-1 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                  <Calendar className="w-3 h-3 text-gray-500" strokeWidth={1.5} />
+                  <span>{getFilterLabel("dateRange", filters.dateRange)}</span>
+                  <button onClick={() => onFiltersChange({ ...filters, dateRange: "all" })} className="ml-1 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                    <X className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+            
+            {filters.type !== "all" && (
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <div className="flex items-center gap-2 px-2 py-1 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                  <ListFilter className="w-3 h-3 text-gray-500" strokeWidth={1.5} />
+                  <span className="max-w-[150px] truncate">{filters.type}</span>
+                  <button onClick={() => onFiltersChange({ ...filters, type: "all" })} className="ml-1 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                    <X className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+            
+            {filters.status !== "all" && (
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <div className="flex items-center gap-2 px-2 py-1 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                  <Filter className="w-3 h-3 text-gray-500" strokeWidth={1.5} />
+                  <span>{getFilterLabel("status", filters.status)}</span>
+                  <button onClick={() => onFiltersChange({ ...filters, status: "all" })} className="ml-1 text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                    <X className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+            
+            {activeFiltersCount > 0 && (
+              <button 
+                onClick={handleResetFilters}
+                className="h-7 px-3 border border-transparent hover:border-black/20 dark:hover:border-white/20 text-gray-500 hover:text-black dark:hover:text-white bg-transparent hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none flex items-center gap-2"
+              >
+                <RotateCcw className="w-3 h-3" strokeWidth={1.5} />
+                {t("clear_filters", { defaultValue: "LIMPIAR" })}
+              </button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Contador de Resultados */}
         {resultCount !== undefined && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-slate-900 dark:text-white">{resultCount}</span> {resultCount !== 1 ? t("results") : t("result")}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap hidden sm:block">
+            <span className="text-black dark:text-white">{resultCount}</span> {resultCount !== 1 ? t("results", { defaultValue: "REGISTROS" }) : t("result", { defaultValue: "REGISTRO" })}
           </motion.div>
         )}
       </div>

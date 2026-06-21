@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { FileDown, Loader2, CheckCircle2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
@@ -29,7 +28,7 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = ({ entryCount, onExpo
     try {
       await onExport();
       setExportSuccess(true);
-      toast.success(t("export_success"));
+      toast.success(t("export_success", { defaultValue: "EXTRACCIÓN DE DATOS COMPLETADA." }));
       setTimeout(() => setExportSuccess(false), 3000);
     } catch {
       return;
@@ -40,39 +39,52 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = ({ entryCount, onExpo
 
   const handleShare = () => {
     onShare?.();
-    toast.success(t("share_success"));
+    toast.success(t("share_success", { defaultValue: "ENLACE OPERATIVO COPIADO." }));
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2.5">
+    <div className="flex flex-col sm:flex-row gap-0 border border-black/20 dark:border-white/20 w-full sm:w-auto bg-white dark:bg-[#0a0a0a]">
+      
       {onShare && (
-        <Button variant="outline" onClick={handleShare}
-          className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
-          <Share2 className="w-4 h-4 mr-2" />{t("share")}
-        </Button>
+        <button 
+          onClick={handleShare}
+          className="flex-1 sm:flex-none h-10 px-6 flex items-center justify-center gap-2 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+        >
+          <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+          {t("share", { defaultValue: "COMPARTIR" })}
+        </button>
       )}
 
-      <Button variant="outline" onClick={handleExport} disabled={isExporting || entryCount === 0}
+      <button 
+        onClick={handleExport} 
+        disabled={isExporting || entryCount === 0}
         className={cn(
-          "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium text-sm min-w-[140px] transition-colors",
-          exportSuccess ? "border-emerald-300 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : ""
-        )}>
+          "flex-1 sm:flex-none h-10 px-6 flex items-center justify-center gap-2 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none min-w-[160px] disabled:opacity-50",
+          exportSuccess 
+            ? "bg-black text-white dark:bg-white dark:text-black" 
+            : "bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111]"
+        )}
+      >
         <AnimatePresence mode="wait">
           {isExporting ? (
-            <motion.span key="exporting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
-              <Loader2 className="w-4 h-4 animate-spin" />{t("exporting")}
+            <motion.span key="exporting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+              {t("exporting", { defaultValue: "EXTRAYENDO..." })}
             </motion.span>
           ) : exportSuccess ? (
-            <motion.span key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" />{t("exported")}
+            <motion.span key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+              {t("exported", { defaultValue: "COMPLETADO" })}
             </motion.span>
           ) : (
-            <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
-              <FileDown className="w-4 h-4" />{t("export_csv")}
+            <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+              <FileDown className="w-3.5 h-3.5" strokeWidth={1.5} />
+              {t("export_csv", { defaultValue: "EXTRAER CSV" })}
             </motion.span>
           )}
         </AnimatePresence>
-      </Button>
+      </button>
+
     </div>
   );
 };

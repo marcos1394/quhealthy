@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ClipboardList, History, TrendingUp, FileDown } from "lucide-react";
+import { ClipboardList, History, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { parseISO, isAfter, isToday, startOfWeek, startOfMonth, startOfYear } from "date-fns";
 import { useTranslations } from "next-intl";
 
@@ -12,10 +12,9 @@ import { HistoryTable, HistoryEntry } from "@/components/dashboard/history/Histo
 import { HistoryDetailModal } from "@/components/dashboard/history/HistoryDetailModal";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
-// 🚀 1. Importamos nuestro hook del catálogo
 import { useCatalog } from "@/hooks/useCatalog";
-// 🚀 1. Importamos el nuevo Hook
 import { useHistory } from "@/hooks/useHistory";
+import { cn } from "@/lib/utils";
 
 type UserRole = "paciente" | "proveedor";
 
@@ -23,7 +22,6 @@ export default function ProviderHistoryPage() {
   const role: UserRole = "proveedor";
   const t = useTranslations("DashboardHistory");
 
-  // 🚀 2. Hooks de carga de datos
   const { 
     services, 
     packages, 
@@ -38,14 +36,11 @@ export default function ProviderHistoryPage() {
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({ dateRange: "all", type: "all", status: "all" });
 
-  // 🚀 3. Disparamos la carga de todo
   useEffect(() => {
     fetchInventory();
     fetchHistory();
   }, [fetchInventory, fetchHistory]);
 
-  // 🚀 4. REEMPLAZO MAGISTRAL: Construimos las opciones del filtro dinámicamente
-  // Juntamos los nombres de TODOS tus items (Servicios, Productos, Paquetes, Cursos)
   const serviceTypes = useMemo(() => {
     const allNames = [
       ...services.map(s => s.name),
@@ -53,11 +48,9 @@ export default function ProviderHistoryPage() {
       ...products.map(p => p.name),
       ...courses.map(c => c.name)
     ];
-    // Quitamos duplicados por si acaso
     return Array.from(new Set(allNames));
   }, [services, packages, products, courses]);
 
-  // Lógica de filtrado (Se queda igual)
   const filteredHistory = useMemo(() => {
     return historyData.filter(entry => {
       const lowerSearch = searchTerm.toLowerCase();
@@ -96,82 +89,104 @@ export default function ProviderHistoryPage() {
     document.body.removeChild(link);
   };
 
-  // Stats
   const completedCount = filteredHistory.filter(e => e.status === "completed").length;
   const cancelledCount = filteredHistory.filter(e => e.status === "cancelled").length;
   const rescheduledCount = filteredHistory.filter(e => e.status === "rescheduled").length;
 
-  // 🚀 5. Esperamos a que ambas cosas carguen (Catálogo + Historial)
   if (isLoadingHistory || catalogLoading) {
     return (
-      <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
-        <QhSpinner size="md" />
-        <p className="text-slate-500 dark:text-slate-400 font-light mt-4">{t("loading", { defaultValue: "Cargando tu historial..." })}</p>
+      <div className="flex flex-col justify-center items-center min-h-[80vh] bg-gray-50 dark:bg-[#050505] transition-colors">
+        <QhSpinner size="lg" className="text-black dark:text-white" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+          {t("loading", { defaultValue: "EXTRAYENDO HISTORIAL OPERATIVO..." })}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] pt-8 px-6 md:px-10 pb-16 transition-colors font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="max-w-7xl mx-auto space-y-8">
 
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
-            <div className="flex items-center gap-5">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
-                <History className="w-10 h-10 text-slate-700 dark:text-slate-300" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{t("title")}</h1>
-                <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">{t("subtitle")}</p>
-              </div>
+        {/* HEADER ARQUITECTÓNICO */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+          <div className="flex items-start gap-5">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+              <History className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                Auditoría Operativa
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+                {t("title", { defaultValue: 'HISTORIAL DE SERVICIOS' })}
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                {t("subtitle", { defaultValue: 'CONSULTA Y EXTRACCIÓN DE REGISTROS PASADOS.' })}
+              </p>
+            </div>
+          </div>
+          
+          <div className="shrink-0 w-full sm:w-auto">
             <HistoryHeader role={role} entryCount={filteredHistory.length} onExport={handleExport} />
           </div>
-        </motion.div>
+        </div>
 
-        {/* Stats Row */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {/* MÉTRICAS (GRID BLUEPRINT) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
           {[
-            { label: t("records"), value: filteredHistory.length, icon: ClipboardList, color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
-            { label: t("status_completed"), value: completedCount, icon: TrendingUp, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
-            { label: t("status_cancelled"), value: cancelledCount, icon: FileDown, color: "text-red-600 dark:text-red-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
-            { label: t("status_rescheduled"), value: rescheduledCount, icon: FileDown, color: "text-amber-600 dark:text-amber-400", bg: "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50" },
+            { label: t("records", { defaultValue: 'TOTAL' }), value: filteredHistory.length, icon: ClipboardList, color: "text-black dark:text-white" },
+            { label: t("status_completed", { defaultValue: 'COMPLETADOS' }), value: completedCount, icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400" },
+            { label: t("status_cancelled", { defaultValue: 'ANULADOS' }), value: cancelledCount, icon: XCircle, color: "text-red-600 dark:text-red-400" },
+            { label: t("status_rescheduled", { defaultValue: 'REAGENDADOS' }), value: rescheduledCount, icon: RefreshCw, color: "text-amber-600 dark:text-amber-400" },
           ].map((stat, i) => (
-            <div key={i} className={`p-5 rounded-2xl border ${stat.bg} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300`}>
-              <div className="flex items-center gap-2 mb-2">
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
+            <div key={i} className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] transition-colors hover:bg-gray-50 dark:hover:bg-[#111]">
+              <div className="flex items-center gap-3 mb-2">
+                <stat.icon className={cn("w-4 h-4", stat.color)} strokeWidth={1.5} />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                  {stat.label}
+                </span>
               </div>
-              <p className="text-3xl font-black text-slate-900 dark:text-white">{stat.value}</p>
+              <p className={cn("text-3xl md:text-4xl font-semibold tracking-tight leading-none mt-2", stat.color)}>
+                {stat.value}
+              </p>
             </div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Filters */}
-        <HistoryFilters
-          searchTerm={searchTerm} filters={filters} serviceTypes={serviceTypes}
-          onSearchTermChange={setSearchTerm} onFiltersChange={setFilters} resultCount={filteredHistory.length}
-        />
+        {/* SISTEMA DE FILTROS */}
+        <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-0 transition-colors">
+          <HistoryFilters
+            searchTerm={searchTerm} 
+            filters={filters} 
+            serviceTypes={serviceTypes}
+            onSearchTermChange={setSearchTerm} 
+            onFiltersChange={setFilters} 
+            resultCount={filteredHistory.length}
+          />
+        </div>
 
-        {/* Table / Empty */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors">
+        {/* TABLA DE RESULTADOS */}
+        <div className="bg-white dark:bg-[#0a0a0a] transition-colors">
           {filteredHistory.length > 0 ? (
             <HistoryTable entries={filteredHistory} role={role} onViewDetails={setSelectedEntry} />
           ) : (
-            <div className="text-center py-20">
-              <ClipboardList className="w-14 h-14 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
-              <p className="text-lg font-semibold text-slate-700 dark:text-slate-300">{t("no_results")}</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{t("no_results_hint")}</p>
+            <div className="flex flex-col items-center justify-center py-24 text-center border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+              <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
+                <ClipboardList className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+              </div>
+              <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+                {t("no_results", { defaultValue: 'CERO REGISTROS' })}
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs leading-relaxed">
+                {t("no_results_hint", { defaultValue: 'MODIFIQUE LOS PARÁMETROS DE BÚSQUEDA PARA ENCONTRAR COINCIDENCIAS.' })}
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {/* DETALLES DEL EXPEDIENTE (MODAL) */}
       <HistoryDetailModal entry={selectedEntry} role={role} onOpenChange={(isOpen) => !isOpen && setSelectedEntry(null)} />
     </div>
   );

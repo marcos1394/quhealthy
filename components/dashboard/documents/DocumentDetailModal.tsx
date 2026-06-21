@@ -2,16 +2,15 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Eye, Download, FileText, Calendar, HardDrive, ShieldCheck, AlertTriangle, CheckCircle, Clock, X, ExternalLink, Copy, Loader2, Image as ImageIcon, FileCode, Film } from "lucide-react";
+import { Trash2, Eye, Download, FileText, Calendar, HardDrive, ShieldCheck, AlertTriangle, CheckCircle2, Clock, X, ExternalLink, Copy, Loader2, Image as ImageIcon, FileCode, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
 import { Document } from "./DocumentCard";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { handleApiError } from '@/lib/handleApiError';
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface DocumentDetailModalProps {
   doc: Document | null; isOpen: boolean; onClose: () => void;
@@ -29,157 +28,217 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ doc, i
 
   const getStatusInfo = () => {
     switch (doc.status) {
-      case "verified": return { icon: <CheckCircle className="w-3.5 h-3.5" />, text: t('status.verified'), className: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20", description: t('status.verified_desc') };
-      case "pending": return { icon: <Clock className="w-3.5 h-3.5" />, text: t('status.pending'), className: "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20", description: t('status.pending_desc') };
-      case "rejected": return { icon: <AlertTriangle className="w-3.5 h-3.5" />, text: t('status.rejected'), className: "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20", description: t('status.rejected_desc') };
-      default: return { icon: <AlertTriangle className="w-3.5 h-3.5" />, text: "Unknown", className: "bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700", description: "" };
+      case "verified": return { icon: <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />, text: t('status.verified', { defaultValue: 'VERIFICADO' }), className: "border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400", description: t('status.verified_desc', { defaultValue: 'DOCUMENTO AUTENTICADO.' }) };
+      case "pending": return { icon: <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />, text: t('status.pending', { defaultValue: 'EN REVISIÓN' }), className: "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400", description: t('status.pending_desc', { defaultValue: 'PENDIENTE DE AUDITORÍA.' }) };
+      case "rejected": return { icon: <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} />, text: t('status.rejected', { defaultValue: 'RECHAZADO' }), className: "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400", description: t('status.rejected_desc', { defaultValue: 'DOCUMENTO INVÁLIDO.' }) };
+      default: return { icon: <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} />, text: "UNKNOWN", className: "border-gray-500/30 bg-gray-50 text-gray-600 dark:bg-[#111] dark:text-gray-400", description: "" };
     }
   };
   const statusInfo = getStatusInfo();
 
   const getFileTypeInfo = (type: string) => {
     const t = type.toLowerCase();
-    if (t.includes("pdf")) return { icon: <FileText className="w-10 h-10 text-red-500" />, canPreview: true };
-    if (["jpg", "png", "imagen"].some(x => t.includes(x))) return { icon: <ImageIcon className="w-10 h-10 text-blue-500" />, canPreview: true };
-    if (t.includes("certificado")) return { icon: <ShieldCheck className="w-10 h-10 text-amber-500" />, canPreview: true };
-    if (t.includes("video")) return { icon: <Film className="w-10 h-10 text-medical-500" />, canPreview: false };
-    return { icon: <FileCode className="w-10 h-10 text-slate-400" />, canPreview: false };
+    if (t.includes("pdf")) return { icon: <FileText className="w-6 h-6 text-red-500" strokeWidth={1.5} />, canPreview: true };
+    if (["jpg", "png", "imagen"].some(x => t.includes(x))) return { icon: <ImageIcon className="w-6 h-6 text-blue-500" strokeWidth={1.5} />, canPreview: true };
+    if (t.includes("certificado")) return { icon: <ShieldCheck className="w-6 h-6 text-amber-500" strokeWidth={1.5} />, canPreview: true };
+    if (t.includes("video")) return { icon: <Film className="w-6 h-6 text-emerald-500" strokeWidth={1.5} />, canPreview: false };
+    return { icon: <FileCode className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />, canPreview: false };
   };
   const fileTypeInfo = getFileTypeInfo(doc.type);
 
   const handleDelete = async () => {
     if (!showDeleteConfirm) { setShowDeleteConfirm(true); return; }
     setIsDeleting(true);
-    try { await onDelete?.(doc.id); toast.success("Document deleted"); onClose(); }
+    try { await onDelete?.(doc.id); toast.success("REGISTRO ELIMINADO."); onClose(); }
     catch (e) { handleApiError(e); setIsDeleting(false); }
   };
 
   const handleDownload = async () => {
     setIsDownloading(true);
-    try { await onDownload?.(doc); toast.success("Download started"); }
+    try { await onDownload?.(doc); toast.success("EXTRACCIÓN INICIADA."); }
     catch (e) { handleApiError(e); }
     finally { setIsDownloading(false); }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-xl max-h-[90vh] overflow-y-auto rounded-xl transition-colors">
-        <DialogHeader className="space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">{fileTypeInfo.icon}</div>
-              <div className="flex-1 min-w-0">
-                <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white truncate mb-0.5">{doc.name}</DialogTitle>
-                <DialogDescription className="text-slate-500 dark:text-slate-400 text-sm font-light">{doc.description || "Document uploaded to QuHealthy"}</DialogDescription>
-                <div className="mt-2">
-                  <Badge variant="outline" className={cn("flex items-center gap-1.5 w-fit", statusInfo.className)}>{statusInfo.icon}<span>{statusInfo.text}</span></Badge>
-                </div>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open && !isDownloading && !isDeleting) {
+        onClose();
+        setTimeout(() => setShowDeleteConfirm(false), 300);
+      }
+    }}>
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 rounded-none overflow-hidden flex flex-col max-h-[90vh] shadow-2xl transition-colors">
+        
+        {/* HEADER ARQUITECTÓNICO */}
+        <div className="flex items-start md:items-center justify-between p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              {fileTypeInfo.icon}
             </div>
-            <Button variant="ghost" size="default" onClick={onClose} className="text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-8 w-8"><X className="w-4 h-4" /></Button>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-4 py-3">
-          {/* Preview */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className={cn("w-full h-48 rounded-xl border-2 border-dashed overflow-hidden transition-all",
-              fileTypeInfo.canPreview ? "border-medical-200 dark:border-medical-500/20 bg-slate-50 dark:bg-slate-800/30" : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20")}>
-            {fileTypeInfo.canPreview && !previewError ? (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center space-y-2">
-                  <Eye className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
-                  <p className="text-xs text-slate-400 font-light">Preview available</p>
-                  <Button variant="outline" size="sm" className="border-medical-200 dark:border-medical-500/20 text-medical-600 dark:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-lg text-xs">
-                    <ExternalLink className="w-3 h-3 mr-1" />Open in new tab
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2">{fileTypeInfo.icon}<span className="text-xs font-light">Preview not available for this file type</span></div>
-            )}
-          </motion.div>
-
-          {/* Metadata */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider flex items-center gap-1"><HardDrive className="w-2.5 h-2.5" />File Type</p>
-              <p className="text-sm font-medium text-slate-900 dark:text-white uppercase bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg inline-block border border-slate-200 dark:border-slate-700">{doc.type}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider flex items-center gap-1"><Calendar className="w-2.5 h-2.5" />Upload Date</p>
-              <p className="text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg inline-block border border-slate-200 dark:border-slate-700">
-                {new Date(doc.uploadedAt).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })}
+            <div className="flex-1 min-w-0 pr-4">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 truncate">
+                Visor de Archivo • ID-{doc.id}
               </p>
+              <DialogTitle className="text-lg md:text-xl font-semibold text-black dark:text-white uppercase tracking-tight truncate leading-none mb-2">
+                {doc.name}
+              </DialogTitle>
+              <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 truncate">
+                {doc.description || "DOCUMENTO REGISTRADO EN SISTEMA"}
+              </DialogDescription>
             </div>
-            {doc.size && (
-              <div className="space-y-1">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider flex items-center gap-1"><HardDrive className="w-2.5 h-2.5" />Size</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg inline-block border border-slate-200 dark:border-slate-700">{doc.size}</p>
-              </div>
-            )}
-            <div className="space-y-1 md:col-span-2">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider flex items-center gap-1"><ShieldCheck className="w-2.5 h-2.5" />Verification Status</p>
-              <div className={cn("flex items-start gap-2.5 px-3 py-2.5 rounded-xl border", statusInfo.className)}>
-                {statusInfo.icon}
-                <div className="flex-1">
-                  <p className="font-medium text-xs mb-0.5">{statusInfo.text}</p>
-                  <p className="text-[10px] opacity-80 font-light">{statusInfo.description}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quick Actions */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-1.5">
-            <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(doc.url); toast.success("Link copied"); }}
-              className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs">
-              <Copy className="w-3 h-3 mr-1" />Copy Link
-            </Button>
-            {onShare && (
-              <Button variant="outline" size="sm" onClick={() => onShare(doc)}
-                className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs">
-                <ExternalLink className="w-3 h-3 mr-1" />Share
-              </Button>
-            )}
-          </motion.div>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="w-10 h-10 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 transition-colors shrink-0 hover:bg-gray-50 dark:hover:bg-[#050505]"
+          >
+            <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+          </button>
         </div>
 
-        <Separator className="bg-slate-200 dark:bg-slate-800" />
+        {/* BODY (BLUEPRINT GRID) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
+          
+          {/* Previsualizador de Archivo Técnico */}
+          <div className={cn(
+            "w-full h-48 md:h-64 border-b border-black/10 dark:border-white/10 flex flex-col items-center justify-center transition-colors",
+            fileTypeInfo.canPreview ? "bg-black text-white" : "bg-gray-50 dark:bg-[#050505] text-gray-400"
+          )}>
+            {fileTypeInfo.canPreview && !previewError ? (
+              <div className="text-center space-y-4">
+                <Eye className="w-8 h-8 text-gray-500 mx-auto" strokeWidth={1.5} />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                  VISTA PREVIA DISPONIBLE
+                </p>
+                <button className="flex items-center gap-2 border border-white/30 bg-transparent hover:bg-white hover:text-black transition-colors px-6 h-10 text-[9px] font-bold uppercase tracking-widest mx-auto">
+                  <ExternalLink className="w-3 h-3" strokeWidth={1.5} /> ABRIR VISOR
+                </button>
+              </div>
+            ) : (
+              <div className="text-center space-y-4">
+                <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mx-auto text-black dark:text-white">
+                  {fileTypeInfo.icon}
+                </div>
+                <p className="text-[9px] font-bold uppercase tracking-widest">
+                  VISTA PREVIA NO DISPONIBLE PARA ESTE FORMATO
+                </p>
+              </div>
+            )}
+          </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-          {onDelete && (
-            <div className="flex gap-1.5">
+          {/* Matriz de Metadatos */}
+          <div className="grid grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+            
+            <div className="border-r border-b border-black/10 dark:border-white/10 p-6 flex flex-col justify-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+                <HardDrive className="w-3 h-3" strokeWidth={1.5} /> FORMATO
+              </p>
+              <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                {doc.type}
+              </p>
+            </div>
+
+            <div className="border-b border-black/10 dark:border-white/10 p-6 flex flex-col justify-center">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+                <Calendar className="w-3 h-3" strokeWidth={1.5} /> REGISTRO
+              </p>
+              <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                {new Date(doc.uploadedAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
+              </p>
+            </div>
+
+            {doc.size && (
+              <div className="border-r border-b border-black/10 dark:border-white/10 p-6 flex flex-col justify-center">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+                  <HardDrive className="w-3 h-3" strokeWidth={1.5} /> PESO
+                </p>
+                <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                  {doc.size}
+                </p>
+              </div>
+            )}
+
+            {/* Estado de Verificación Integrado */}
+            <div className={cn("col-span-2 sm:col-span-1 p-6 flex flex-col justify-center border-b border-black/10 dark:border-white/10 transition-colors", statusInfo.className)}>
+              <p className="text-[9px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-2">
+                <ShieldCheck className="w-3 h-3" strokeWidth={1.5} /> AUDITORÍA
+              </p>
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
+                {statusInfo.icon} {statusInfo.text}
+              </div>
+            </div>
+          </div>
+
+          {/* Acciones de Vínculo */}
+          <div className="p-6 bg-gray-50 dark:bg-[#050505] flex flex-wrap gap-4 border-b border-black/10 dark:border-white/10">
+            <button 
+              onClick={() => { navigator.clipboard.writeText(doc.url); toast.success("ENLACE COPIADO."); }}
+              className="h-10 px-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none"
+            >
+              <Copy className="w-3 h-3" strokeWidth={1.5} /> COPIAR ENLACE
+            </button>
+            {onShare && (
+              <button 
+                onClick={() => onShare(doc)}
+                className="h-10 px-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none"
+              >
+                <ExternalLink className="w-3 h-3" strokeWidth={1.5} /> COMPARTIR
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* FOOTER DE COMANDOS ESTRICTO */}
+        <div className="bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 p-6 flex flex-col sm:flex-row justify-between gap-6 shrink-0">
+          
+          <div className="flex-1">
+            {onDelete && (
               <AnimatePresence mode="wait">
                 {showDeleteConfirm ? (
-                  <motion.div key="confirm" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex gap-1.5">
-                    <Button variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(false)} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-xs">Cancel</Button>
-                    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 rounded-lg text-xs">
-                      {isDeleting ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Deleting...</> : <><Trash2 className="w-3 h-3 mr-1" />Confirm</>}
-                    </Button>
+                  <motion.div key="confirm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex gap-0 border border-red-500">
+                    <button 
+                      onClick={() => setShowDeleteConfirm(false)} 
+                      className="h-12 px-6 flex-1 bg-white dark:bg-[#0a0a0a] text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none border-r border-red-500"
+                    >
+                      ANULAR
+                    </button>
+                    <button 
+                      onClick={handleDelete} 
+                      disabled={isDeleting} 
+                      className="h-12 px-6 flex-1 bg-red-600 text-white hover:bg-red-700 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+                    >
+                      {isDeleting ? <><QhSpinner size="sm" className="text-white" /> ELIMINANDO...</> : <><Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> CONFIRMAR ELIMINACIÓN</>}
+                    </button>
                   </motion.div>
                 ) : (
-                  <motion.div key="delete" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-                    <Button variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(true)}
-                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-xs">
-                      <Trash2 className="w-3 h-3 mr-1" />Delete
-                    </Button>
+                  <motion.div key="delete" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <button 
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="w-full sm:w-auto h-12 px-6 border border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> ELIMINAR ARCHIVO
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-          )}
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={onClose}
-              className="flex-1 sm:flex-none">
-              Close
-            </Button>
-            <Button onClick={handleDownload} disabled={isDownloading}
-              className="flex-1 sm:flex-none">
-              {isDownloading ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Downloading...</> : <><Download className="w-3.5 h-3.5 mr-1.5" />Download</>}
-            </Button>
+            )}
           </div>
-        </DialogFooter>
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button 
+              onClick={onClose}
+              className="h-12 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+            >
+              CERRAR VISOR
+            </button>
+            <button 
+              onClick={handleDownload} 
+              disabled={isDownloading}
+              className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none disabled:opacity-50"
+            >
+              {isDownloading ? <><QhSpinner size="sm" className="text-current" /> EXTRAYENDO...</> : <><Download className="w-3.5 h-3.5" strokeWidth={1.5} /> EXTRAER DOCUMENTO</>}
+            </button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

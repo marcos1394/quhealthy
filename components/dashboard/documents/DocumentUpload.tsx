@@ -8,12 +8,17 @@ import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Image as ImageIcon
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
-import { handleApiError } from '@/lib/handleApiError';
 
 interface DocumentUploadProps {
-  selectedFile: File | null; uploadProgress: number; isUploading: boolean;
-  onFileSelect: (file: File | null) => void; onFileUpload: () => void; onClear: () => void;
-  maxSizeMB?: number; acceptedFormats?: string[]; showPreview?: boolean;
+  selectedFile: File | null; 
+  uploadProgress: number; 
+  isUploading: boolean;
+  onFileSelect: (file: File | null) => void; 
+  onFileUpload: () => void; 
+  onClear: () => void;
+  maxSizeMB?: number; 
+  acceptedFormats?: string[]; 
+  showPreview?: boolean;
 }
 
 export const DocumentUpload: React.FC<DocumentUploadProps> = ({
@@ -43,10 +48,10 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   };
 
   const getFileIcon = (file: File | null) => {
-    if (!file) return <UploadCloud className="w-8 h-8 text-medical-600 dark:text-medical-400" />;
-    if (file.type.includes("pdf")) return <FileText className="w-8 h-8 text-red-500" />;
-    if (file.type.startsWith("image/")) return <ImageIcon className="w-8 h-8 text-blue-500" />;
-    return <FileCheck className="w-8 h-8 text-medical-600 dark:text-medical-400" />;
+    if (!file) return <UploadCloud className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />;
+    if (file.type.includes("pdf")) return <FileText className="w-5 h-5 text-red-500" strokeWidth={1.5} />;
+    if (file.type.startsWith("image/")) return <ImageIcon className="w-5 h-5 text-blue-500" strokeWidth={1.5} />;
+    return <FileCheck className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />;
   };
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
@@ -55,8 +60,9 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
   const handleFileSelection = (file: File) => {
     const v = validateFile(file);
-    if (!v.isValid) { setValidationError(v.error!); return; return; }
-    setValidationError(null); onFileSelect(file);
+    if (!v.isValid) { setValidationError(v.error!); return; }
+    setValidationError(null); 
+    onFileSelect(file);
     if (showPreview) generatePreview(file);
     toast.success(t('upload.file_selected'));
   };
@@ -64,110 +70,173 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const formatFileSize = (bytes: number) => bytes / 1024 / 1024 < 1 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
   return (
-    <div className="w-full space-y-3">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-        <Shield className="w-3.5 h-3.5 text-emerald-500" /><span className="font-light">{t('upload.secure_connection')}</span>
-      </motion.div>
+    <div className="w-full border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none transition-colors">
+      
+      {/* HEADER DE ESTADO (Telemetría) */}
+      <div className="border-b border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] p-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+          <Shield className="w-3.5 h-3.5" strokeWidth={1.5} />
+          {t('upload.secure_connection', { defaultValue: 'CONEXIÓN SEGURA E2EE' })}
+        </div>
+        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+          MAX: {maxSizeMB}MB
+        </div>
+      </div>
 
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
+      {/* ÁREA DE CARGA (Dropzone Blueprint) */}
+      <div 
+        onDragOver={handleDragOver} 
+        onDragLeave={handleDragLeave} 
+        onDrop={handleDrop}
         className={cn(
-          "relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 group overflow-hidden",
-          isDragging ? "border-medical-500 bg-medical-50 dark:bg-medical-500/10 scale-[1.02]" : "",
-          selectedFile && !isDragging ? "border-medical-300 dark:border-medical-500/30 bg-medical-50/30 dark:bg-medical-500/5" : "",
-          !selectedFile && !isDragging ? "border-slate-200 dark:border-slate-700 hover:border-medical-200 dark:hover:border-medical-500/30 hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer" : "",
-          validationError ? "border-red-300 dark:border-red-500/30 bg-red-50 dark:bg-red-500/5" : ""
-        )}>
+          "relative min-h-[220px] transition-colors duration-200 flex flex-col items-center justify-center p-8",
+          isDragging 
+            ? "bg-black text-white dark:bg-white dark:text-black border-2 border-dashed border-white dark:border-black" 
+            : "bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10"
+        )}
+      >
         <input ref={inputRef} type="file" onChange={e => e.target.files?.[0] && handleFileSelection(e.target.files[0])} className="hidden" id="file-upload" accept={acceptedFormats.join(",")} />
 
         <AnimatePresence mode="wait">
           {!selectedFile ? (
-            <motion.label key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              htmlFor="file-upload" className="relative cursor-pointer flex flex-col items-center justify-center min-h-[160px]">
-              <motion.div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl mb-4 border border-slate-200 dark:border-slate-700" whileHover={{ scale: 1.05 }}>
-                <UploadCloud className="w-8 h-8 text-medical-600 dark:text-medical-400" />
-              </motion.div>
-              <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">{t('upload.drag_here')}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 font-light">
-                or <span className="text-medical-600 dark:text-medical-400 underline font-medium">{t('upload.click_browse')}</span>
-              </p>
-              <div className="flex flex-wrap justify-center gap-1.5 text-[10px] text-slate-400">
-                {acceptedFormats.map(f => <span key={f} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">{f.toUpperCase()}</span>)}
+            <motion.label 
+              key="empty" 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              htmlFor="file-upload" 
+              className="cursor-pointer flex flex-col items-center text-center w-full group"
+            >
+              <div className={cn(
+                "w-12 h-12 border flex items-center justify-center mb-4 transition-colors",
+                isDragging 
+                  ? "border-white dark:border-black bg-transparent text-white dark:text-black" 
+                  : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black"
+              )}>
+                <UploadCloud className="w-5 h-5" strokeWidth={1.5} />
               </div>
-              <p className="text-[10px] text-slate-400 mt-2 font-light">Max size: {maxSizeMB}MB</p>
+              <p className={cn("text-xs font-bold uppercase tracking-widest mb-1", isDragging ? "text-inherit" : "text-black dark:text-white")}>
+                {t('upload.drag_here', { defaultValue: 'ARRASTRE EL ARCHIVO AQUÍ' })}
+              </p>
+              <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-6", isDragging ? "text-inherit opacity-70" : "text-gray-500")}>
+                O <span className="border-b border-current hover:opacity-70 transition-opacity pb-0.5">{t('upload.click_browse', { defaultValue: 'SELECCIONE DESDE EL EXPLORADOR' })}</span>
+              </p>
+              
+              <div className="flex flex-wrap justify-center gap-2">
+                {acceptedFormats.map(f => (
+                  <span key={f} className={cn(
+                    "px-2 py-1 text-[9px] font-bold uppercase tracking-widest border",
+                    isDragging ? "border-white/30 dark:border-black/30 bg-transparent" : "border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]"
+                  )}>
+                    {f.replace('.', '').toUpperCase()}
+                  </span>
+                ))}
+              </div>
             </motion.label>
           ) : (
-            <motion.div key="selected" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-              className="relative flex flex-col items-center space-y-4">
-              {previewUrl && selectedFile.type.startsWith("image/") ? (
-                <img src={previewUrl} alt="Preview" className="w-24 h-24 object-cover rounded-xl border-2 border-medical-200 dark:border-medical-500/30 shadow-sm" />
-              ) : (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200 }}
-                  className="p-4 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-200 dark:border-medical-500/20">
-                  {getFileIcon(selectedFile)}
-                </motion.div>
-              )}
-              <div className="text-center space-y-1">
-                <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[200px]">{selectedFile.name}</p>
-                <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-                  <span className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">{selectedFile.type.split("/")[1]?.toUpperCase() || "FILE"}</span>
-                  <span>•</span><span>{formatFileSize(selectedFile.size)}</span>
+            <motion.div 
+              key="selected" 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="w-full flex flex-col"
+            >
+              <div className="flex items-center gap-6 p-4 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] mb-6">
+                {previewUrl && selectedFile.type.startsWith("image/") ? (
+                  <img src={previewUrl} alt="Preview" className="w-14 h-14 object-cover border border-black/20 dark:border-white/20 shrink-0 bg-white" />
+                ) : (
+                  <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                    {getFileIcon(selectedFile)}
+                  </div>
+                )}
+                
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white truncate mb-1.5">
+                    {selectedFile.name}
+                  </p>
+                  <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                    <span className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-2 py-0.5">
+                      {selectedFile.type.split("/")[1]?.toUpperCase() || "FILE"}
+                    </span>
+                    <span>{formatFileSize(selectedFile.size)}</span>
+                  </div>
                 </div>
               </div>
+
               {isUploading ? (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-xs space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <div className="flex items-center gap-1.5 text-medical-600 dark:text-medical-400"><Loader2 className="w-3 h-3 animate-spin" /><span className="font-medium">Uploading...</span></div>
-                    <span className="text-medical-600 dark:text-medical-400 font-semibold">{uploadProgress}%</span>
+                <div className="w-full space-y-3">
+                  <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-black dark:text-white">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                      PROCESANDO TRANSFERENCIA...
+                    </div>
+                    <span className="text-black dark:text-white">{uploadProgress}%</span>
                   </div>
-                  <Progress value={uploadProgress} className="h-1.5 bg-slate-200 dark:bg-slate-700" />
-                  <p className="text-[10px] text-slate-400 text-center font-light">Don't close this window</p>
-                </motion.div>
+                  {/* Progress Bar Estricta */}
+                  <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-none overflow-hidden">
+                    <div className="h-full bg-black dark:bg-white transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                  </div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 text-center">
+                    MANTENGA ESTA VENTANA ABIERTA
+                  </p>
+                </div>
               ) : (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex gap-2">
-                  <Button variant="outline" onClick={() => { setPreviewUrl(null); setValidationError(null); onClear(); }}
-                    className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs">
-                    <X className="w-3 h-3 mr-1" />Cancel
-                  </Button>
-                  <Button onClick={onFileUpload}
-                    className="text-xs">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />Upload
-                  </Button>
-                </motion.div>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button 
+                    onClick={() => { setPreviewUrl(null); setValidationError(null); onClear(); }}
+                    className="flex-1 h-12 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+                  >
+                    <X className="w-3.5 h-3.5" strokeWidth={1.5} /> ANULAR
+                  </button>
+                  <button 
+                    onClick={onFileUpload}
+                    className="flex-1 h-12 flex items-center justify-center gap-2 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} /> INICIAR CARGA
+                  </button>
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
 
-        {isDragging && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-medical-500/10 dark:bg-medical-500/20 backdrop-blur-sm flex items-center justify-center rounded-xl border-2 border-medical-500">
-            <div className="text-center">
-              <UploadCloud className="w-10 h-10 text-medical-600 dark:text-medical-400 mx-auto mb-2 animate-bounce" />
-              <p className="text-sm font-medium text-slate-900 dark:text-white">Drop the file here</p>
-            </div>
-          </motion.div>
-        )}
-      </motion.div>
-
+      {/* BLOQUE DE ERROR DE VALIDACIÓN */}
       <AnimatePresence>
         {validationError && (
-          <motion.div initial={{ opacity: 0, y: -10, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -10, height: 0 }}
-            className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-xl">
-            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-0.5">Validation Error</p>
-              <p className="text-[10px] text-red-500 dark:text-red-300 font-light">{validationError}</p>
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: "auto" }} 
+            exit={{ opacity: 0, height: 0 }}
+            className="border-b border-black/10 dark:border-white/10"
+          >
+            <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={1.5} />
+              <div className="flex-1">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 mb-1">
+                  ERROR DE COMPATIBILIDAD
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  {validationError}
+                </p>
+              </div>
+              <button 
+                onClick={() => setValidationError(null)} 
+                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors p-1"
+              >
+                <X className="w-3 h-3" strokeWidth={1.5} />
+              </button>
             </div>
-            <button onClick={() => setValidationError(null)} className="text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"><X className="w-3 h-3" /></button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-start gap-1.5 text-[10px] text-slate-400 font-light">
-        <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0 mt-0.5" />
-        <p>Documents are verified automatically. You'll receive a notification when the process is complete.</p>
+      {/* FOOTER DE VERIFICACIÓN */}
+      <div className="bg-gray-50 dark:bg-[#050505] p-4 flex items-center gap-3 shrink-0">
+        <CheckCircle2 className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
+        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
+          {t('upload.verified_desc', { defaultValue: 'LOS DOCUMENTOS SERÁN AUDITADOS AUTOMÁTICAMENTE. SE NOTIFICARÁ AL COMPLETAR EL PROCESO.' })}
+        </p>
       </div>
     </div>
   );
