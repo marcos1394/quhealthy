@@ -28,39 +28,35 @@ export function ProviderReputationCard() {
     P5: <UserCheck className="w-4 h-4" strokeWidth={1.5} />
   };
 
-  // 🔥 Colores semánticos brutales (Añadimos ámbar para "Mejorable")
   const getProgressColorClass = (status: string) => {
     if (status === 'OPTIMAL') return 'bg-black dark:bg-white';
     if (status === 'IMPROVABLE') return 'bg-amber-500 dark:bg-amber-400'; 
-    return 'bg-gray-200 dark:bg-gray-800';
+    return 'bg-gray-300 dark:bg-gray-700';
   };
 
   if (isLoading) {
     return (
-      // 🔥 Sombra reducida a 4px para estados de carga
-      <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] min-h-[350px] flex flex-col items-center justify-center gap-4 transition-colors">
+      <div className="bg-gray-50 dark:bg-[#050505] border border-black dark:border-white min-h-[350px] flex flex-col items-center justify-center gap-6 transition-colors rounded-none">
         <QhSpinner size="md" className="text-black dark:text-white" />
-        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 animate-pulse">
-          {t('loading', { defaultValue: 'Auditando reputación...' })}
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+          {t('loading', { defaultValue: 'EXTRAYENDO AUDITORÍA DE REPUTACIÓN...' })}
         </p>
       </div>
     );
   }
 
-  // Estado: Proveedor Nuevo
+  // Estado: Proveedor Nuevo (Bloque Técnico)
   if (!myActionableScore || myActionableScore.isNewProvider || myActionableScore.band === 'NUEVO') {
     return (
-      // 🔥 Inversión de colores mejorada: borde doble para contraste en dark/light
-      <div className="bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white min-h-[350px] flex flex-col items-center justify-center p-8 text-center transition-colors">
-        <div className="w-16 h-16 border-2 border-current flex items-center justify-center mb-6 shrink-0">
-          <Sparkles className="w-8 h-8" strokeWidth={1.5} />
+      <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white min-h-[350px] flex flex-col items-center justify-center p-8 text-center transition-colors rounded-none">
+        <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6 shrink-0">
+          <Sparkles className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
         </div>
-        <h3 className="text-lg font-black uppercase tracking-wider mb-4">
-          {t('unlock_title', { defaultValue: 'Expediente en desarrollo' })}
+        <h3 className="text-lg font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+          {t('unlock_title', { defaultValue: 'EXPEDIENTE EN DESARROLLO' })}
         </h3>
-        {/* 🔥 Texto legible (xs) sin mayúsculas sostenidas en párrafos */}
-        <p className="text-xs font-bold uppercase tracking-wider opacity-70 max-w-sm leading-relaxed">
-          {t('unlock_desc', { defaultValue: 'El algoritmo Quscore requiere un volumen transaccional mínimo para generar una auditoría representativa.' })}
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mt-2">
+          {t('unlock_desc', { defaultValue: 'El algoritmo requiere un volumen transaccional mínimo para generar una métrica representativa.' })}
         </p>
       </div>
     );
@@ -68,98 +64,103 @@ export function ProviderReputationCard() {
 
   // Estado: Proveedor con Score
   return (
-    // 🔥 Sombra principal a 4px (Reservar 8px solo para alertas críticas en el dashboard)
-    <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex flex-col min-h-[350px] transition-colors">
+    <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col min-h-[350px] transition-colors rounded-none">
       
-      {/* Header */}
-      <div className="border-b border-black dark:border-white p-5 bg-gray-50 dark:bg-[#050505]">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-3">
-            <Sparkles className="w-4 h-4" strokeWidth={1.5} /> 
+      {/* Header Arquitectónico */}
+      <div className="border-b border-black dark:border-white p-6 md:p-8 bg-white dark:bg-[#0a0a0a] flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+            Métricas de Calidad
+          </p>
+          <h2 className="text-lg md:text-xl font-semibold uppercase tracking-tight text-black dark:text-white flex items-center gap-3 leading-none">
+            <Sparkles className="w-5 h-5" strokeWidth={1.5} /> 
             Auditoría Quscore
           </h2>
-          <ProviderScoreBadge scoreData={myActionableScore} />
         </div>
-        <p className="text-[11px] font-semibold text-gray-500">
-          {t('updated_at', { defaultValue: `Corte al: ${new Date(myActionableScore.lastCalculatedAt).toLocaleDateString()}` })}
-        </p>
+        <div className="flex flex-col md:items-end">
+          <ProviderScoreBadge scoreData={myActionableScore} />
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+            {t('updated_at', { defaultValue: `CORTE: ${new Date(myActionableScore.lastCalculatedAt).toLocaleDateString()}` })}
+          </p>
+        </div>
       </div>
 
-      {/* Body */}
-      <div className="p-5 flex-1 flex flex-col gap-6">
+      {/* Body: Grid Blueprint de Pilares */}
+      <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#050505]">
         <TooltipProvider delayDuration={200}>
           {myActionableScore.breakdown && Object.entries(myActionableScore.breakdown).map(([key, pillar]) => {
             const hasActions = pillar.actions && pillar.actions.length > 0;
             const isExpanded = expandedPillar === key;
 
             return (
-            <div key={key} className="space-y-2">
+            <div key={key} className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors">
               <div 
                 className={cn(
-                  "flex items-center justify-between py-1", 
-                  hasActions && "cursor-pointer hover:opacity-70 transition-opacity"
+                  "p-6 flex flex-col gap-4 group", 
+                  hasActions && "cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505]"
                 )}
                 onClick={() => hasActions && setExpandedPillar(isExpanded ? null : key)}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white">
-                    {pillarIcons[key]}
-                  </div>
-                  {/* 🔥 Títulos legibles pero técnicos */}
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-black dark:text-white">
-                    {pillar.name}
-                  </span>
-                  
-                  <Tooltip>
-                    <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Info className="w-3.5 h-3.5 text-gray-400 hover:text-black dark:hover:text-white cursor-help transition-colors" strokeWidth={2} />
-                    </TooltipTrigger>
-                    {/* 🔥 Tooltip mejorado: Texto normal (Sentence case) y 12px para lectura rápida */}
-                    <TooltipContent className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-3 rounded-none max-w-xs">
-                      <p className="text-xs font-semibold text-black dark:text-white leading-relaxed">
-                        {pillar.tooltip}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-black tracking-tight text-black dark:text-white tabular-nums">
-                    {pillar.percentage}%
-                  </span>
-                  {hasActions && (
-                    <div className="w-5 h-5 flex items-center justify-center border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#111]">
-                      {isExpanded ? <ChevronUp className="w-3 h-3 text-black dark:text-white" strokeWidth={2} /> : <ChevronDown className="w-3 h-3 text-black dark:text-white" strokeWidth={2} />}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+                      {pillarIcons[key]}
                     </div>
-                  )}
+                    
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                        {pillar.name}
+                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Info className="w-3.5 h-3.5 text-gray-400 hover:text-black dark:hover:text-white cursor-help transition-colors" strokeWidth={1.5} />
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-4 rounded-none max-w-xs shadow-xl">
+                          <p className="text-xs font-medium text-black dark:text-white leading-relaxed">
+                            {pillar.tooltip}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold tracking-widest text-black dark:text-white tabular-nums">
+                      {pillar.percentage}%
+                    </span>
+                    {hasActions && (
+                      <div className="w-6 h-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                        {isExpanded ? <ChevronUp className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} /> : <ChevronDown className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} />}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              
-              {/* 🔥 Barra de Progreso "Viga Estructural" (h-4 en vez de h-2.5) */}
-              <div className="h-4 w-full border border-black dark:border-white bg-gray-100 dark:bg-[#111]">
-                <div 
-                  className={cn("h-full transition-all duration-500", getProgressColorClass(pillar.status))}
-                  style={{ width: `${pillar.percentage}%` }}
-                />
+
+                {/* Barra de Progreso Milimétrica */}
+                <div className="h-2 w-full border border-black/10 dark:border-white/10 bg-gray-100 dark:bg-[#111] overflow-hidden">
+                  <div 
+                    className={cn("h-full transition-all duration-500", getProgressColorClass(pillar.status))}
+                    style={{ width: `${pillar.percentage}%` }}
+                  />
+                </div>
               </div>
 
-              {/* Panel de Acciones Expandible */}
+              {/* Panel de Acciones Expandible Técnico */}
               {hasActions && isExpanded && (
-                <div className="mt-3 p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] space-y-4">
+                <div className="p-6 border-t border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] space-y-5">
                   {pillar.potentialPoints && pillar.potentialPoints > 0 && (
-                    // 🔥 Semántica visual para el Delta (Ámbar en lugar de solo gris)
-                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-500 dark:border-amber-500/50 px-2 py-1 w-fit">
-                      <TrendingUp className="w-3 h-3" strokeWidth={2} />
-                      Delta positiva: +{pillar.potentialPoints} pts
+                    <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 border border-amber-500/30 px-3 py-1.5 w-fit">
+                      <TrendingUp className="w-3 h-3" strokeWidth={1.5} />
+                      DELTA PROYECTADA: +{pillar.potentialPoints} PTS
                     </div>
                   )}
-                  <ul className="space-y-3">
+                  <ul className="space-y-4">
                     {pillar.actions?.map((action, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        {/* 🔥 Viñeta minimalista cuadrada rellena */}
-                        <div className="w-2 h-2 bg-black dark:bg-white shrink-0 mt-1.5" />
-                        {/* 🔥 Acciones legibles: 11px, negrita, sin mayúsculas sostenidas */}
-                        <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <li key={idx} className="flex items-start gap-4">
+                        <div className="w-4 h-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="w-1.5 h-1.5 bg-black dark:bg-white" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
                           {action}
                         </span>
                       </li>
@@ -172,14 +173,14 @@ export function ProviderReputationCard() {
           })}
         </TooltipProvider>
 
+        {/* Footer Percentil */}
         {myActionableScore.percentile != null && (
-          <div className="mt-auto pt-6 border-t border-black dark:border-white text-center">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+          <div className="p-6 border-t border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-center mt-auto">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
               {t.rich('top_percentile', {
                 percent: 100 - myActionableScore.percentile,
-                // 🔥 Highlight visual más fuerte
-                highlight: (chunks) => <span className="text-black dark:text-white font-black bg-gray-100 dark:bg-[#111] px-1.5 py-0.5 border border-black dark:border-white">{chunks}</span>,
-                defaultValue: `Posicionado en el top ${100 - myActionableScore.percentile}% nacional`
+                highlight: (chunks) => <span className="text-black dark:text-white font-black bg-gray-50 dark:bg-[#050505] px-2 py-1 border border-black/20 dark:border-white/20 mx-1">{chunks}</span>,
+                defaultValue: `POSICIONADO EN EL TOP ${100 - myActionableScore.percentile}% NACIONAL`
               })}
             </p>
           </div>
