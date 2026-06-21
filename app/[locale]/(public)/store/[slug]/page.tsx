@@ -102,6 +102,7 @@ export default function PublicStorePage() {
   }
 
   const safePrimaryColor = store.primaryColor || '#000000';
+  const hasValidPrimaryColor = store.primaryColor && store.primaryColor !== '#000000' && store.primaryColor !== '#ffffff';
 
   const renderModalityBadge = (modality?: string) => {
     if (modality === 'ONLINE') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Video className="w-3 h-3" strokeWidth={1.5} /> {t('modality_online')}</span>;
@@ -125,7 +126,7 @@ export default function PublicStorePage() {
               entityType="PROVIDER" 
               entityId={store.providerId} 
               initialIsFavorite={favoriteProviderIds.has(store.providerId)} 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-none border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors" 
+              className="w-10 h-10 sm:w-12 sm:h-12" 
             />
           </div>
         </div>
@@ -165,8 +166,11 @@ export default function PublicStorePage() {
 
                 {/* Etiqueta de ubicación usando el color del backend en el texto/borde */}
                 <span 
-                  className="border px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-transparent"
-                  style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                  className={cn(
+                    "border px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-transparent",
+                    !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                  )}
+                  style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
                 >
                   <MapPin className="w-3 h-3" strokeWidth={1.5} />
                   <span className="truncate max-w-[200px]">{store.city || store.address || 'CONSULTORIO'}</span>
@@ -224,8 +228,13 @@ export default function PublicStorePage() {
             
             <button 
               onClick={() => setActiveTab('servicios')} 
-              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap" 
-              style={activeTab === 'servicios' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === 'servicios' 
+                  ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )} 
+              style={activeTab === 'servicios' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
             >
               {t('tab_services', { defaultValue: 'Servicios' })} 
               <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.services?.length || 0}</span>
@@ -233,8 +242,13 @@ export default function PublicStorePage() {
             
             <button 
               onClick={() => setActiveTab('paquetes')} 
-              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
-              style={activeTab === 'paquetes' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === 'paquetes' 
+                  ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )} 
+              style={activeTab === 'paquetes' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
             >
               {t('tab_packages', { defaultValue: 'Paquetes' })} 
               <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
@@ -242,8 +256,13 @@ export default function PublicStorePage() {
 
             <button 
               onClick={() => setActiveTab('productos')} 
-              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
-              style={activeTab === 'productos' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === 'productos' 
+                  ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )} 
+              style={activeTab === 'productos' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
             >
               <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> FARMACIA 
               <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.products?.length || 0}</span>
@@ -251,8 +270,13 @@ export default function PublicStorePage() {
 
             <button 
               onClick={() => setActiveTab('cursos')} 
-              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
-              style={activeTab === 'cursos' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === 'cursos' 
+                  ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )} 
+              style={activeTab === 'cursos' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
             >
               <GraduationCap className="w-3.5 h-3.5" strokeWidth={1.5} /> CURSOS 
               <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.courses?.length || 0}</span>
@@ -279,8 +303,11 @@ export default function PublicStorePage() {
                         <div className="flex flex-wrap items-center gap-3">
                           {service.category && (
                             <span 
-                              className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent"
-                              style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                              className={cn(
+                                "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                              )}
+                              style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
                             >
                               {service.category}
                             </span>
@@ -297,7 +324,6 @@ export default function PublicStorePage() {
                             entityType="SERVICE" 
                             entityId={service.id} 
                             initialIsFavorite={favoriteServiceIds.has(service.id)} 
-                            className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
                           />
                         </div>
                       </div>
@@ -368,7 +394,6 @@ export default function PublicStorePage() {
                         entityType="PACKAGE" 
                         entityId={pkg.id} 
                         initialIsFavorite={favoritePackageIds.has(pkg.id)} 
-                        className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
                       />
                     </div>
 
@@ -463,8 +488,11 @@ export default function PublicStorePage() {
                         <div className="p-6 flex flex-col flex-1">
                           <div className="flex justify-between items-start gap-4 mb-4">
                             <span 
-                              className="border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent"
-                              style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                              className={cn(
+                                "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                              )}
+                              style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
                             >
                               {product.category || 'BIEN FÍSICO'}
                             </span>
@@ -475,7 +503,6 @@ export default function PublicStorePage() {
                                 entityType="PRODUCT" 
                                 entityId={product.id} 
                                 initialIsFavorite={favoriteProductIds.has(product.id)} 
-                                className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
                               />
                             </div>
                           </div>
@@ -554,7 +581,6 @@ export default function PublicStorePage() {
                           entityType="COURSE" 
                           entityId={course.id} 
                           initialIsFavorite={favoriteCourseIds.has(course.id)} 
-                          className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
                         />
                       </div>
                     </div>

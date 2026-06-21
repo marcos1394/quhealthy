@@ -1,6 +1,4 @@
 import { Metadata } from 'next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Activity, Building2, BarChart3, Database } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -12,96 +10,105 @@ import { HealthcareExplorerTable } from '@/components/intelligence/HealthcareExp
 import { QueryBuilder } from '@/components/intelligence/QueryBuilder';
 
 export const metadata: Metadata = {
-  title: 'Inteligencia en Salud | QuHealthy',
-  description: 'Dashboard público e interactivo de establecimientos de salud en México georreferenciados por QuHealthy.',
+  title: 'Auditoría de Salud | QuHealthy',
+  description: 'Terminal de datos interactiva de establecimientos de salud georreferenciados.',
 };
 
 export default function IntelligencePage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-b from-blue-900 to-blue-800 dark:from-slate-900 dark:to-slate-950 text-white pt-24 pb-16 px-6">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-24 transition-colors duration-300 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+      
+      {/* Hero Section Arquitectónico */}
+      <div className="border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] pt-24 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <Activity className="h-8 w-8 text-blue-400" />
-            <h1 className="text-4xl font-bold tracking-tight">QuHealthy Health Intelligence</h1>
+          <div className="flex items-center gap-5 mb-6">
+            <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+              <Activity className="h-6 w-6" strokeWidth={1.5} />
+            </div>
+            <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white">
+              Inteligencia Epidemiológica
+            </h1>
           </div>
-          <p className="text-lg text-blue-100 max-w-2xl mb-8">
-            El censo más preciso y georreferenciado de establecimientos de salud en México.
-            Explora la distribución de la infraestructura médica del país en tiempo real.
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-3xl mb-12 leading-relaxed">
+            SISTEMA DE TELEMETRÍA Y CENSO GEORREFERENCIADO DE INFRAESTRUCTURA CLÍNICA EN MÉXICO. 
+            MONITOREO DE REDES DE SALUD PÚBLICA Y PRIVADA EN TIEMPO REAL.
           </p>
           
           <IntelligenceSummaryRow />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
         
         <QueryBuilder />
         
         {/* Mapa Principal */}
-        <Card className="border-0 shadow-xl overflow-hidden rounded-2xl">
-          <CardHeader className="bg-white dark:bg-slate-900 border-b pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <MapPin className="h-6 w-6 text-blue-600" />
-                  Mapa Nacional de Salud
-                </CardTitle>
-                <CardDescription>
-                  Visualiza la distribución geográfica de hospitales, clínicas y consultorios.
-                </CardDescription>
-              </div>
-              <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
-                <Database className="h-4 w-4" />
-                <span>Datos oficiales en tiempo real</span>
-              </div>
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
+          <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
+                <MapPin className="h-4 w-4" strokeWidth={1.5} />
+                Cartografía Nacional
+              </h2>
+              <p className="text-[9px] uppercase tracking-widest text-gray-500">
+                DISTRIBUCIÓN GEOGRÁFICA DE UNIDADES MÉDICAS REGISTRADAS.
+              </p>
             </div>
-          </CardHeader>
-          <CardContent className="p-0 bg-slate-100 dark:bg-slate-900 relative">
+            <div className="hidden sm:flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest">
+              <Database className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span>DATOS OFICIALES VIGENTES</span>
+            </div>
+          </div>
+          <div className="p-0 bg-gray-100 dark:bg-[#111] relative min-h-[500px]">
             <MapWrapper />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Paneles de Datos Analíticos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-indigo-500" />
-                Distribución por Estado
-              </CardTitle>
-              <CardDescription>Entidades con mayor infraestructura médica.</CardDescription>
-            </CardHeader>
-            <CardContent>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          
+          <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
+            <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
+                <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
+                Densidad por Estado
+              </h3>
+              <p className="text-[9px] uppercase tracking-widest text-gray-500">CONCENTRACIÓN DE INFRAESTRUCTURA TERRITORIAL.</p>
+            </div>
+            <div className="p-6">
               <StateDistributionChart />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-emerald-500" />
-                Distribución por Institución
-              </CardTitle>
-              <CardDescription>Desglose de establecimientos por dependencia.</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
+            <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
+                <Building2 className="h-4 w-4" strokeWidth={1.5} />
+                Segmentación Institucional
+              </h3>
+              <p className="text-[9px] uppercase tracking-widest text-gray-500">DESGLOSE DE ACTIVOS POR DEPENDENCIA RECTORA.</p>
+            </div>
+            <div className="p-6">
               <InstitutionDistributionChart />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
         </div>
 
         {/* Tabla Explorable */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Directorio Interactivo</CardTitle>
-            <CardDescription>Explora y filtra los datos a nivel granular, exportables para tu análisis.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
+          <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+              Registro Tabular Interactivo
+            </h2>
+            <p className="text-[9px] uppercase tracking-widest text-gray-500">
+              EXPLORACIÓN GRANULAR Y EXTRACCIÓN DE DATOS PARAMETRIZADOS.
+            </p>
+          </div>
+          <div className="p-6 overflow-x-auto">
             <HealthcareExplorerTable />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
       </div>
     </div>

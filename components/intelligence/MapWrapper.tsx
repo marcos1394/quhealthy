@@ -7,8 +7,10 @@ const DynamicMap = dynamic(
   { 
     ssr: false, 
     loading: () => (
-      <div className="w-full h-[600px] bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl flex items-center justify-center text-slate-500">
-        Cargando mapa interactivo...
+      <div className="w-full h-[500px] border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+          SINTETIZANDO CARTOGRAFÍA...
+        </p>
       </div>
     ) 
   }

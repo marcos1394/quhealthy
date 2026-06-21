@@ -202,7 +202,9 @@
           "discover": "Find Specialists",
           "market": "QuMarket (Store)",
           "academy": "QuBlocks (Academy)",
-          "doctors": "For Doctors"
+          "doctors": "For Doctors",
+          "intelligence": "Intelligence",
+          "quscore": "How QuScore works"
         }
       },
       "company": {

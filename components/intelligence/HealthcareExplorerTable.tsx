@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { Download, Search } from "lucide-react";
 import { useIntelligenceMap } from "@/hooks/useIntelligence";
 import { HealthcareMapDTO } from "@/types/intelligence";
+import { cn } from "@/lib/utils";
 
 export function HealthcareExplorerTable() {
   const { data: rawData, loading } = useIntelligenceMap();
@@ -41,7 +41,7 @@ export function HealthcareExplorerTable() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "quhealthy_establecimientos.csv");
+    link.setAttribute("download", "quhealthy_directorio_salud.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -51,55 +51,58 @@ export function HealthcareExplorerTable() {
   const totalPages = Math.ceil(filtered.length / pageSize);
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+    <div className="flex flex-col space-y-6">
+      
+      {/* Controles Superiores */}
+      <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4">
+        <div className="relative w-full sm:w-[400px]">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" strokeWidth={2} />
           <input 
             type="text" 
-            placeholder="Buscar por CLUES, Unidad, Estado o Institución..." 
+            placeholder="BUSCAR CLUES, UNIDAD O INSTITUCIÓN..." 
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-900"
+            className="w-full pl-12 pr-4 h-12 border border-black dark:border-white rounded-none text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:ring-0 bg-white dark:bg-[#0a0a0a] text-black dark:text-white placeholder:text-gray-400 transition-colors"
           />
         </div>
         <button 
           onClick={exportCSV}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 bg-black text-white dark:bg-white dark:text-black h-12 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
         >
-          <Download className="h-4 w-4" />
-          Exportar CSV ({filtered.length})
+          <Download className="h-4 w-4" strokeWidth={1.5} />
+          EXTRAER DATOS ({filtered.length})
         </button>
       </div>
 
-      <div className="border rounded-lg overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 border-b">
+      {/* Tabla Arquitectónica */}
+      <div className="border border-black dark:border-white overflow-x-auto bg-white dark:bg-[#0a0a0a]">
+        <table className="w-full text-left border-collapse min-w-[800px]">
+          <thead className="bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest text-gray-500 border-b border-black dark:border-white">
             <tr>
-              <th className="px-4 py-3 font-semibold">CLUES</th>
-              <th className="px-4 py-3 font-semibold">Unidad Médica</th>
-              <th className="px-4 py-3 font-semibold">Estado</th>
-              <th className="px-4 py-3 font-semibold">Institución</th>
-              <th className="px-4 py-3 font-semibold">Nivel</th>
+              <th className="px-6 py-4">CLUES</th>
+              <th className="px-6 py-4">Unidad Médica</th>
+              <th className="px-6 py-4">Entidad</th>
+              <th className="px-6 py-4">Institución</th>
+              <th className="px-6 py-4">Nivel</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-xs uppercase tracking-wider text-black dark:text-white">
             {loading ? (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">Cargando base de datos nacional...</td></tr>
+              <tr><td colSpan={5} className="px-6 py-12 text-center text-[10px] font-bold tracking-widest text-gray-400 animate-pulse">SINTETIZANDO BASE DE DATOS NACIONAL...</td></tr>
             ) : currentData.length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No se encontraron resultados</td></tr>
+              <tr><td colSpan={5} className="px-6 py-12 text-center text-[10px] font-bold tracking-widest text-gray-400">0 RESULTADOS ENCONTRADOS.</td></tr>
             ) : (
-              currentData.map(item => (
-                <tr key={item.clues} className="border-b last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/20">
-                  <td className="px-4 py-3 font-medium text-blue-600">{item.clues}</td>
-                  <td className="px-4 py-3 truncate max-w-xs" title={item.nombreUnidad}>{item.nombreUnidad}</td>
-                  <td className="px-4 py-3">{item.entidad}</td>
-                  <td className="px-4 py-3">
-                    <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs font-medium">
+              currentData.map((item, idx) => (
+                <tr key={item.clues} className={cn("border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors", idx === currentData.length - 1 && "border-b-0")}>
+                  <td className="px-6 py-4 font-mono font-bold">{item.clues}</td>
+                  <td className="px-6 py-4 truncate max-w-xs font-semibold" title={item.nombreUnidad}>{item.nombreUnidad}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold tracking-widest text-gray-500">{item.entidad}</td>
+                  <td className="px-6 py-4">
+                    <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-1 text-[9px] font-bold tracking-widest">
                       {item.nombreInstitucion}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-500">{item.nivelAtencion}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold tracking-widest text-gray-500">{item.nivelAtencion}</td>
                 </tr>
               ))
             )}
@@ -107,25 +110,26 @@ export function HealthcareExplorerTable() {
         </table>
       </div>
 
+      {/* Paginación Técnica */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-slate-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-500 gap-4">
           <div>
-            Mostrando {(page - 1) * pageSize + 1} a {Math.min(page * pageSize, filtered.length)} de {filtered.length} registros
+            ÍNDICE {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, filtered.length)} / {filtered.length}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-0 border border-black dark:border-white">
             <button 
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-3 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"
+              className="px-4 h-10 bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors border-r border-black dark:border-white"
             >
-              Anterior
+              ANTERIOR
             </button>
             <button 
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-3 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"
+              className="px-4 h-10 bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
             >
-              Siguiente
+              SIGUIENTE
             </button>
           </div>
         </div>
