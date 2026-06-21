@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { 
   ShieldCheck, Activity, UserCheck, Star, FileText, 
-  CheckCircle2, Info, ArrowRight, Award
+  CheckCircle2, Info, Award
 } from "lucide-react";
 import { providerScoreService } from "@/services/providerScore.service";
 import { QuScoreMethodologyResponse } from "@/types/providerScore";
@@ -24,133 +23,134 @@ export default function QuScoreMethodologyPage() {
 
   const getPillarIcon = (key: string) => {
     switch (key) {
-      case 'P1': return <ShieldCheck className="w-8 h-8 text-indigo-500" />;
-      case 'P2': return <Star className="w-8 h-8 text-amber-500" />;
-      case 'P3': return <UserCheck className="w-8 h-8 text-emerald-500" />;
-      case 'P4': return <Activity className="w-8 h-8 text-rose-500" />;
-      case 'P5': return <FileText className="w-8 h-8 text-blue-500" />;
-      default: return <Info className="w-8 h-8 text-slate-500" />;
-    }
-  };
-
-  const getBandColor = (bandName: string) => {
-    switch(bandName) {
-      case 'ELITE': return 'from-amber-400 to-amber-600';
-      case 'PREMIUM': return 'from-purple-500 to-purple-700';
-      case 'ADVANCED': return 'from-blue-500 to-blue-700';
-      case 'IN_PROGRESS': return 'from-slate-400 to-slate-600';
-      case 'NUEVO': return 'from-zinc-300 to-zinc-500';
-      default: return 'from-gray-400 to-gray-600';
+      case 'P1': return <ShieldCheck className="w-5 h-5" strokeWidth={1.5} />;
+      case 'P2': return <Star className="w-5 h-5" strokeWidth={1.5} />;
+      case 'P3': return <UserCheck className="w-5 h-5" strokeWidth={1.5} />;
+      case 'P4': return <Activity className="w-5 h-5" strokeWidth={1.5} />;
+      case 'P5': return <FileText className="w-5 h-5" strokeWidth={1.5} />;
+      default: return <Info className="w-5 h-5" strokeWidth={1.5} />;
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center">
         <QhSpinner size="lg" />
-        <p className="mt-4 text-slate-500 font-medium animate-pulse">Cargando Metodología QuScore...</p>
+        <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">SINTETIZANDO METODOLOGÍA...</p>
       </div>
     );
   }
 
   if (!methodology) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-500">
-        Error al cargar la información.
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">ERROR AL CARGAR LA INFORMACIÓN.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] font-sans selection:bg-purple-500/30 text-slate-900 dark:text-white pb-32">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
       
-      {/* HEADER HERO */}
-      <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-[#09090b] text-white py-24 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Badge className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md mb-6 px-4 py-1.5 uppercase tracking-widest text-xs">Transparencia QuHealthy</Badge>
-            <h1 className="text-4xl sm:text-6xl font-black mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">
+      {/* HERO EDITORIAL */}
+      <div className="border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] pt-24 pb-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-5 mb-6">
+            <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+              <Activity className="h-6 w-6" strokeWidth={1.5} />
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-serif italic tracking-tight text-black dark:text-white">
               ¿Cómo funciona el QuScore?
             </h1>
-            <p className="text-lg sm:text-xl text-purple-100 max-w-2xl mx-auto leading-relaxed">
-              {methodology.description}
-            </p>
-          </motion.div>
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-3xl leading-relaxed">
+            {methodology.description}
+          </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-20 space-y-12">
+      <div className="max-w-7xl mx-auto px-6 mt-12 space-y-16">
         
-        {/* METADATA */}
-        <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 p-6 flex flex-wrap justify-between items-center text-sm font-medium text-slate-500 dark:text-zinc-400 gap-4">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4" />
-            <span>Versión del Algoritmo: <strong className="text-slate-900 dark:text-white">{methodology.algorithmVersion}</strong></span>
+        {/* METADATA BAR */}
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col md:flex-row md:items-center justify-between p-0 divide-y md:divide-y-0 md:divide-x divide-black dark:divide-white text-[10px] font-bold uppercase tracking-widest">
+          <div className="p-4 flex-1 flex items-center gap-3">
+            <Info className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <span className="text-gray-500">ALGORITMO V:</span>
+            <span className="text-black dark:text-white">{methodology.algorithmVersion}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span>Última Revisión: <strong className="text-slate-900 dark:text-white">{new Date(methodology.lastReviewedAt).toLocaleDateString()}</strong></span>
+          <div className="p-4 flex-1 flex items-center gap-3">
+            <span className="text-gray-500">ÚLTIMA REVISIÓN:</span>
+            <span className="text-black dark:text-white">{new Date(methodology.lastReviewedAt).toLocaleDateString()}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span>Dudas o Feedback: <a href={`mailto:${methodology.feedbackContact}`} className="text-purple-600 dark:text-purple-400 hover:underline">{methodology.feedbackContact}</a></span>
+          <div className="p-4 flex-1 flex items-center gap-3">
+            <span className="text-gray-500">FEEDBACK:</span>
+            <a href={`mailto:${methodology.feedbackContact}`} className="text-black dark:text-white hover:underline">{methodology.feedbackContact}</a>
           </div>
         </div>
 
-        {/* 5 PILLARS */}
+        {/* 5 PILARES */}
         <div>
-          <h2 className="text-3xl font-bold mb-8 text-center text-slate-900 dark:text-white">Los 5 Pilares de la Calidad</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-2xl font-serif italic tracking-tight text-black dark:text-white mb-8">
+            Los 5 Pilares de la Calidad
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Object.entries(methodology.weights).map(([key, pillar], idx) => (
               <motion.div 
                 key={key}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl p-8 hover:shadow-xl transition-all group"
+                className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group cursor-default shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]"
               >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-2xl group-hover:scale-110 transition-transform">
+                <div className="p-6 border-b border-black dark:border-white flex justify-between items-center bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors">
+                  <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center group-hover:border-white dark:group-hover:border-black">
                     {getPillarIcon(key)}
                   </div>
-                  <span className="text-2xl font-black text-slate-900 dark:text-white">{pillar.weightPercentage}%</span>
+                  <span className="text-2xl font-black">{pillar.weightPercentage}%</span>
                 </div>
-                <h3 className="text-xl font-bold mb-3">{pillar.name}</h3>
-                <p className="text-slate-500 dark:text-zinc-400 text-sm mb-6 leading-relaxed min-h-[60px]">
-                  {pillar.description}
-                </p>
-                <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-white/10">
-                  {pillar.criteria.map((crit, cIdx) => (
-                    <div key={cIdx} className="flex items-start gap-2 text-sm text-slate-600 dark:text-zinc-300">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span>{crit}</span>
-                    </div>
-                  ))}
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-sm font-bold uppercase tracking-widest mb-4">{pillar.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 dark:group-hover:text-gray-600 mb-6 leading-relaxed flex-1">
+                    {pillar.description}
+                  </p>
+                  <div className="space-y-3 pt-6 border-t border-black dark:border-white group-hover:border-white dark:group-hover:border-black">
+                    {pillar.criteria.map((crit, cIdx) => (
+                      <div key={cIdx} className="flex items-start gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-700 group-hover:text-gray-300 dark:text-gray-300 dark:group-hover:text-gray-700">
+                        <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" strokeWidth={2} />
+                        <span>{crit}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        {/* BANDS */}
+        {/* BANDAS DE RECONOCIMIENTO */}
         <div>
-          <h2 className="text-3xl font-bold mb-8 text-center text-slate-900 dark:text-white">Niveles de Reconocimiento</h2>
-          <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
+          <h2 className="text-2xl font-serif italic tracking-tight text-black dark:text-white mb-8">
+            Niveles de Reconocimiento
+          </h2>
+          <div className="border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
             {methodology.scoreBands.map((band, idx) => (
-              <div key={idx} className={`p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 ${idx !== methodology.scoreBands.length - 1 ? 'border-b border-slate-100 dark:border-white/10' : ''}`}>
-                <div className={`w-32 shrink-0 py-2 px-4 rounded-full text-center font-bold text-white text-sm bg-gradient-to-r ${getBandColor(band.bandName)} shadow-md`}>
+              <div key={idx} className={`p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 ${idx !== methodology.scoreBands.length - 1 ? 'border-b border-black dark:border-white' : ''} bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors`}>
+                <div className="w-40 shrink-0 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-3 text-center text-[10px] font-bold uppercase tracking-widest">
                   {band.bandName}
                 </div>
                 <div className="flex-1">
-                  <div className="text-slate-500 dark:text-zinc-400 font-mono text-sm mb-1 uppercase tracking-widest">
+                  <div className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">
                     {band.minScore === 0 && band.maxScore === 0 
-                      ? 'No aplica' 
+                      ? 'NO APLICA' 
                       : `${band.minScore} - ${band.maxScore} PUNTOS`}
                   </div>
-                  <p className="text-slate-700 dark:text-zinc-200">{band.description}</p>
+                  <p className="text-black dark:text-white text-sm font-semibold">
+                    {band.description}
+                  </p>
                 </div>
                 {band.minScore >= 750 && (
-                  <div className="hidden sm:block">
-                    <Award className="w-10 h-10 text-slate-200 dark:text-white/5" />
+                  <div className="hidden md:flex shrink-0">
+                    <Award className="w-8 h-8 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
                 )}
               </div>
@@ -158,31 +158,23 @@ export default function QuScoreMethodologyPage() {
           </div>
         </div>
 
-        {/* TRANSPARENCY NOTE (CAT-P02) */}
-        <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-3xl p-6 sm:p-8 mt-8">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-amber-100 dark:bg-amber-500/20 rounded-xl">
-              <Award className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Transparencia en Resultados Patrocinados</h3>
-              <p className="text-slate-600 dark:text-zinc-300 text-sm leading-relaxed">
-                El QuScore es un algoritmo estrictamente orgánico y ético. En QuHealthy, cualquier clínica o especialista que decida invertir en promoción publicitaria siempre aparecerá claramente marcado con la etiqueta <strong>"Patrocinado"</strong> y agrupado de forma independiente. <strong className="text-slate-900 dark:text-white">Ningún pago o patrocinio puede alterar, comprar o influir en la calificación del QuScore</strong> ni en la posición dentro del ranking orgánico de resultados.
-              </p>
-            </div>
+        {/* NOTA DE TRANSPARENCIA */}
+        <div className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-8 shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col md:flex-row items-start gap-6">
+          <div className="p-4 border border-white dark:border-black shrink-0">
+            <Award className="w-6 h-6" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-4">
+              Transparencia en Resultados Patrocinados
+            </h3>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 dark:text-gray-600 leading-relaxed">
+              EL QUSCORE ES UN ALGORITMO ESTRICTAMENTE ORGÁNICO Y ÉTICO. CUALQUIER CLÍNICA O ESPECIALISTA QUE INVIERTA EN PROMOCIÓN APARECERÁ MARCADO CON LA ETIQUETA "PATROCINADO" DE FORMA INDEPENDIENTE. <br/><br/>
+              <span className="text-white dark:text-black border-b border-white dark:border-black">NINGÚN PAGO O PATROCINIO PUEDE ALTERAR LA CALIFICACIÓN DEL QUSCORE NI INFLUIR EN EL RANKING ORGÁNICO DE RESULTADOS.</span>
+            </p>
           </div>
         </div>
 
       </div>
     </div>
-  );
-}
-
-// Badge helper
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <span className={`inline-flex items-center justify-center rounded-full font-medium ${className}`}>
-      {children}
-    </span>
   );
 }
