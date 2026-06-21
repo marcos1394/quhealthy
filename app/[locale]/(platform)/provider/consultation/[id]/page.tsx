@@ -102,12 +102,12 @@ export default function ConsultationRoomPage() {
               await processAudioWithAi(base64Data);
               
               setIsTranscribing(false);
-              toast.success(t('ai_scribe_success') || "¡Notas clínicas generadas exitosamente!"); 
+              toast.success(t('ai_scribe_success') || "SÍNTESIS CLÍNICA COMPLETADA."); 
 
             } catch (error) {
               console.error("Error al procesar el audio con IA", error);
               setIsTranscribing(false);
-              toast.error("Hubo un error procesando el audio. Intenta de nuevo.");
+              toast.error("FALLO EN EL PROCESAMIENTO DE AUDIO. REINTENTE.");
             }
           };
         };
@@ -117,7 +117,7 @@ export default function ConsultationRoomPage() {
 
       } catch (error) {
         console.error("Error accediendo al micrófono:", error);
-        toast.error("Por favor, permite el acceso al micrófono en tu navegador.");
+        toast.error("ACCESO AL MICRÓFONO DENEGADO POR EL SISTEMA.");
       }
     }
   };
@@ -167,7 +167,7 @@ export default function ConsultationRoomPage() {
     };
 
     if (appointmentId) fetchAppointmentDetails();
-  }, [appointmentId]);
+  }, [appointmentId, t]);
 
   useEffect(() => {
     const fetchRegisterDenoms = async () => {
@@ -176,7 +176,7 @@ export default function ConsultationRoomPage() {
         if (register?.initialDenominations) {
           setRegisterDenominations(register.currentDenominations || register.initialDenominations);
         }
-      } catch { /* No hay caja abierta, no pasa nada */ }
+      } catch { /* Ignorar si falla o no hay caja abierta */ }
     };
     fetchRegisterDenoms();
   }, []);
@@ -220,9 +220,11 @@ export default function ConsultationRoomPage() {
 
   if (loadingAppointment || (isLoading && !isOfflinePatient)) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a]">
+      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a] transition-colors">
         <QhSpinner size="lg" className="text-black dark:text-white" />
-        <p className="mt-4 text-[10px] uppercase tracking-widest font-bold text-black dark:text-white">{t('loading_environment')}</p>
+        <p className="mt-6 text-[10px] uppercase tracking-widest font-bold text-gray-500 animate-pulse">
+          {t('loading_environment', { defaultValue: 'DESPLEGANDO ENTORNO CLÍNICO...' })}
+        </p>
       </div>
     );
   }
@@ -231,7 +233,7 @@ export default function ConsultationRoomPage() {
 
   if (currentStep === 'success') {
     return (
-      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden">
+      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden transition-colors">
         <ConsultationSuccessStep 
           appointmentId={appointmentId}
           patientPhone={patientProfile?.phone}
@@ -242,7 +244,7 @@ export default function ConsultationRoomPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden relative">
+    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden relative transition-colors duration-300">
       
       <CashCheckoutModal 
         isOpen={showCashModal}
@@ -257,72 +259,73 @@ export default function ConsultationRoomPage() {
         registerDenominations={registerDenominations}
       />
 
-      <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-8 py-6 flex flex-col gap-6 z-10 shrink-0">
+      <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-6 md:px-10 py-8 flex flex-col gap-8 z-10 shrink-0">
         
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <button 
               onClick={() => router.back()} 
-              className="border border-black dark:border-white w-12 h-12 flex justify-center items-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+              className="border border-black dark:border-white w-14 h-14 flex justify-center items-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0 rounded-none"
             >
               <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
             </button>
             <div>
-              <h1 className="text-2xl font-serif italic font-bold uppercase text-black dark:text-white flex items-center gap-3">
-                {t('consultation_in_progress')}
+              <h1 className="text-2xl font-bold uppercase tracking-tight text-black dark:text-white flex items-center gap-3">
+                {t('consultation_in_progress', { defaultValue: 'AUDITORÍA CLÍNICA EN CURSO' })}
               </h1>
-              <div className="flex items-center gap-3 mt-1">
+              <div className="flex flex-wrap items-center gap-3 mt-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                   {displayFullName} • {t('appointment_id', { id: appointmentId })}
                 </p>
                 {isOfflinePatient && (
-                  <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-0.5 text-[9px] uppercase font-bold tracking-widest">
-                    {t('local_catalog')}
+                  <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] uppercase font-bold tracking-widest">
+                    {t('local_catalog', { defaultValue: 'CENSO LOCAL' })}
                   </span>
                 )}
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <button className="hidden md:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-6 h-12 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors items-center gap-2">
-              <Save className="w-4 h-4" strokeWidth={1.5} /> {t('save_draft')}
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-8 h-14 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-3 rounded-none">
+              <Save className="w-4 h-4" strokeWidth={1.5} /> {t('save_draft', { defaultValue: 'GUARDAR BORRADOR' })}
             </button>
             {currentStep === 'treatment' && (
               <button 
                 onClick={handleCompleteClick} 
                 disabled={isSubmitting} 
-                className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-6 h-12 text-[10px] uppercase font-bold tracking-widest shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex items-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50"
+                className="flex-1 md:flex-none bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-8 h-14 text-[10px] uppercase font-bold tracking-widest shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex justify-center items-center gap-3 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:shadow-none rounded-none"
               >
-                <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> {t('finish_and_charge')}
+                <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> {t('finish_and_charge', { defaultValue: 'FINALIZAR Y COBRAR' })}
               </button>
             )}
           </div>
         </div>
 
-        <div className="flex items-center w-full max-w-3xl mx-auto border border-black dark:border-white bg-gray-50 dark:bg-[#050505] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+        {/* NAVEGADOR DE PASOS TIPO BLUEPRINT */}
+        <div className="flex items-center w-full max-w-4xl border border-black dark:border-white bg-gray-50 dark:bg-[#050505] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
           <button 
             onClick={() => setCurrentStep('profile')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <User className="w-4 h-4" strokeWidth={1.5} /> {t('step_clinical_context')}
+            <User className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_clinical_context', { defaultValue: 'CONTEXTO CLÍNICO' })}</span>
           </button>
           <button 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <Stethoscope className="w-4 h-4" strokeWidth={1.5} /> {t('step_evaluation')}
+            <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_evaluation', { defaultValue: 'EVALUACIÓN' })}</span>
           </button>
           <button 
             onClick={() => setCurrentStep('treatment')}
-            className={`flex-1 h-14 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <Pill className="w-4 h-4" strokeWidth={1.5} /> {t('step_prescription')}
+            <Pill className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_prescription', { defaultValue: 'PLAN DE ACCIÓN' })}</span>
           </button>
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden relative bg-white dark:bg-[#0a0a0a] p-8">
+      <main className="flex-1 overflow-hidden relative bg-white dark:bg-[#0a0a0a] p-6 md:p-10">
         <div className="max-w-6xl mx-auto h-full">
           
           {currentStep === 'profile' && (
