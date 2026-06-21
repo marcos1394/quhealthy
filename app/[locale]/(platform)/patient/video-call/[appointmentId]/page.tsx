@@ -10,7 +10,6 @@ import { es } from 'date-fns/locale';
 import { useAppointmentDetails } from '@/hooks/useAppointmentDetails';
 import { useSessionStore } from '@/stores/SessionStore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 export default function VideoCallLobbyPage() {
@@ -22,113 +21,162 @@ export default function VideoCallLobbyPage() {
   const rawId = params.appointmentId;
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
-  // 🚀 Reutilizamos el hook que ya tienes para traer la cita
+  // Hook maestro
   const { appointment, isLoading, error } = useAppointmentDetails(appointmentId);
 
-  // 1. ESTADO DE CARGA
+  // ==========================================
+  // 1. ESTADO DE CARGA ARQUITECTÓNICO
+  // ==========================================
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <QhSpinner size="lg" className="text-blue-600" />
-        <p className="text-blue-900 font-medium mt-4">Preparando sala virtual...</p>
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+        <QhSpinner size="lg" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          Sincronizando Módulo de Transmisión...
+        </p>
       </div>
     );
   }
 
+  // ==========================================
   // 2. ESTADO DE ERROR O ACCESO DENEGADO
+  // ==========================================
   if (error || !appointment || (user && appointment.consumerId !== user.id)) {
     return (
-      <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white p-5 rounded-full mb-6 shadow-sm">
-          <AlertCircle className="w-12 h-12 text-blue-500" />
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl font-bold text-blue-900">Acceso no disponible</h2>
-        <p className="text-blue-700 mt-2 mb-8 max-w-sm mx-auto">
-          No pudimos localizar esta videollamada o no tienes permisos para acceder a ella.
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+          Acceso Denegado
+        </h2>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
+          Credenciales insuficientes o identificador de sala inexistente.
         </p>
-        <Button onClick={() => router.push("/patient/dashboard")} className="bg-blue-600 hover:bg-blue-700 text-white">
-          Volver a mis citas
+        <Button 
+          onClick={() => router.push("/patient/dashboard")} 
+          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+        >
+          Retornar al Panel Principal
         </Button>
       </div>
     );
   }
 
+  // ==========================================
   // 3. VALIDACIÓN: ¿ES UNA CITA ONLINE?
+  // ==========================================
   if (appointment.type !== 'ONLINE') {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-blue-50 p-5 rounded-full mb-6">
-          <Calendar className="w-12 h-12 text-blue-600" />
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
+          <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl font-bold text-blue-900">Cita Presencial</h2>
-        <p className="text-blue-700 mt-2 mb-8 max-w-sm mx-auto">
-          Esta cita está programada para ser presencial en el consultorio. No requiere videollamada.
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+          Cita Presencial Confirmada
+        </h2>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8 leading-relaxed">
+          EL ENCUENTRO SE ENCUENTRA PROGRAMADO PARA ATENCIÓN FÍSICA EN INSTALACIONES. NO REQUIERE PROTOCOLO DE TRANSMISIÓN REMOTA.
         </p>
-        <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Volver a mis citas
+        <Button 
+          onClick={() => router.push("/patient/dashboard/appointments")} 
+          variant="outline" 
+          className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center"
+        >
+          <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} /> Retornar al Directorio
         </Button>
       </div>
     );
   }
 
-  const formattedDateTime = formatInTimeZone(new Date(appointment.startTime), 'UTC', "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", { locale: es });
+  // ==========================================
+  // 4. RENDERIZADO PRINCIPAL (SALA DE ESPERA)
+  // ==========================================
+  const formattedDateTime = formatInTimeZone(
+    new Date(appointment.startTime), 
+    'UTC', 
+    "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", 
+    { locale: es }
+  ).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center p-6 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="w-full max-w-xl">
         
         {/* Cabecera de la Sala */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-6 shadow-sm border border-blue-100">
-            <Video className="w-10 h-10 text-blue-600" />
+        <div className="text-center mb-10 flex flex-col items-center">
+          <div className="w-20 h-20 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center mb-6">
+            <Video className="w-8 h-8 text-black dark:text-white" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">Sala de Videollamada</h1>
-          <p className="text-blue-700">Tu especialista te está esperando en Google Meet.</p>
+          <h1 className="text-2xl font-bold uppercase tracking-tight text-black dark:text-white mb-2">
+            Módulo de Transmisión
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            CONEXIÓN ESTABLECIDA HACIA INFRAESTRUCTURA GOOGLE MEET.
+          </p>
         </div>
 
-        {/* Tarjeta Principal */}
-        <Card className="bg-white border-blue-100 shadow-md mb-6 overflow-hidden">
-          <CardContent className="p-0">
-            <div className="p-6 border-b border-blue-50 bg-blue-50/50">
-              <p className="text-sm font-bold text-blue-500 uppercase tracking-wider mb-1">Especialista</p>
-              <p className="text-xl font-bold text-blue-900">{appointment.providerNameSnapshot || 'Médico Asignado'}</p>
-              <p className="text-blue-700 font-medium">{appointment.serviceNameSnapshot || 'Consulta Virtual'}</p>
+        {/* Ficha Técnica Principal */}
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] mb-10">
+          <div className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+            <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+              Proveedor Clínico
+            </p>
+            <p className="text-xl font-bold text-black dark:text-white uppercase tracking-wider">
+              {appointment.providerNameSnapshot || 'MÉDICO ASIGNADO'}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+              {appointment.serviceNameSnapshot || 'CONSULTA VIRTUAL'}
+            </p>
+          </div>
+          
+          <div className="p-8 space-y-6">
+            <div className="flex items-center gap-5">
+              <Clock className="w-5 h-5 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+              <span className="text-xs font-bold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                {formattedDateTime}
+              </span>
             </div>
-            
-            <div className="p-6 space-y-4">
-              <div className="flex items-center gap-3 text-blue-800">
-                <Clock className="w-5 h-5 text-blue-500" />
-                <span className="font-medium capitalize">{formattedDateTime}</span>
-              </div>
-              <div className="flex items-center gap-3 text-blue-800">
-                <ShieldCheck className="w-5 h-5 text-blue-500" />
-                <span className="font-medium">Conexión cifrada de extremo a extremo por Google</span>
-              </div>
+            <div className="flex items-center gap-5">
+              <ShieldCheck className="w-5 h-5 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
+                CANAL DE COMUNICACIÓN CIFRADO DE EXTREMO A EXTREMO
+              </span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Botón de Acción Principal */}
         {appointment.meetLink ? (
           <Button 
             onClick={() => window.open(appointment.meetLink, '_blank')}
-            className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-2xl shadow-lg flex items-center justify-center transition-transform hover:scale-[1.02]"
+            className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border-0"
           >
-            <Video className="w-6 h-6 mr-2" />
-            Unirse a la llamada
-            <ExternalLink className="w-5 h-5 ml-2 opacity-70" />
+            <span className="flex items-center">
+              <Video className="w-4 h-4 mr-3" strokeWidth={1.5} />
+              INICIALIZAR TRANSMISIÓN
+            </span>
+            <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
           </Button>
         ) : (
-          <div className="bg-white border border-blue-100 rounded-2xl p-6 text-center shadow-sm">
-            <AlertCircle className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-            <p className="text-blue-900 font-bold mb-1">Enlace no disponible aún</p>
-            <p className="text-blue-700 text-sm">El médico generará el enlace momentos antes de la cita. Por favor, refresca la página más tarde.</p>
+          <div className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] p-8 text-center flex flex-col items-center">
+            <AlertCircle className="w-6 h-6 text-gray-400 mb-4" strokeWidth={1.5} />
+            <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+              ENLACE PENDIENTE
+            </p>
+            <p className="text-[9px] font-light uppercase tracking-widest text-gray-500 leading-relaxed">
+              EL ESPECIALISTA DESPLEGARÁ EL ENLACE DE CONEXIÓN PREVIO AL ENCUENTRO. <br className="hidden sm:block" /> POR FAVOR, ACTUALICE ESTA VENTA MÁS TARDE.
+            </p>
           </div>
         )}
 
-        <div className="mt-6 text-center">
-          <Button onClick={() => router.push("/patient/dashboard/appointments")} variant="ghost" className="text-blue-600 hover:bg-blue-100 hover:text-blue-800">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Volver atrás
+        <div className="mt-8 text-center">
+          <Button 
+            onClick={() => router.push("/patient/dashboard/appointments")} 
+            variant="ghost" 
+            className="rounded-none hover:bg-transparent hover:text-black dark:hover:text-white text-gray-500 text-[10px] font-bold uppercase tracking-widest transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} /> ABANDONAR MÓDULO
           </Button>
         </div>
 
