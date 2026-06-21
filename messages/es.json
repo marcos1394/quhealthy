@@ -1268,6 +1268,7 @@
     "gender_other": "Otro",
     "saving": "Guardando...",
     "save_patient": "Guardar Paciente",
+    "cancel_button": "Anular",
     "toast_patient_created": "Paciente creado exitosamente.",
     "toast_patient_updated": "Paciente actualizado exitosamente.",
     "toast_consent_requested": "Solicitud de acceso enviada al paciente.",
