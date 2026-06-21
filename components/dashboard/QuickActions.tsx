@@ -19,7 +19,7 @@ export const QuickActions = () => {
     ];
 
     return (
-        <div className="fixed bottom-6 lg:bottom-10 right-6 lg:right-10 z-50 flex flex-col items-end">
+        <div className="fixed bottom-24 lg:bottom-28 right-6 lg:right-10 z-50 flex flex-col items-end">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
