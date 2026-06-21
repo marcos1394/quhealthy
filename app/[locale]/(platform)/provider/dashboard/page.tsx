@@ -90,12 +90,26 @@ export default function DashboardPage() {
   const { plan, hasConfiguredStore, analytics, upcomingAppointments } = data;
 
   const getStatusBadge = (status: string) => {
-    const baseClass = "border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0";
+    // Base brutalista pero con fondos de color
+    const baseClass = "border border-black dark:border-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0";
+    
     switch (status) {
-      case "SCHEDULED": return <span className={cn(baseClass, "bg-white dark:bg-[#0a0a0a] text-black dark:text-white")}>{t('status_confirmed', { defaultValue: 'CONFIRMADA' })}</span>;
-      case "PENDING_PAYMENT": return <span className={cn(baseClass, "bg-gray-100 dark:bg-[#111] text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-700")}>{t('status_pending_payment', { defaultValue: 'PENDIENTE DE PAGO' })}</span>;
-      case "IN_PROGRESS": return <span className={cn(baseClass, "bg-black text-white dark:bg-white dark:text-black animate-pulse")}>{t('status_in_progress', { defaultValue: 'EN CURSO' })}</span>;
-      default: return <span className={cn(baseClass, "bg-gray-50 dark:bg-[#050505] text-gray-500")}>{status}</span>;
+      case "SCHEDULED": 
+        return <span className={cn(baseClass, "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300")}>
+          {t('status_confirmed', { defaultValue: 'Confirmada' })}
+        </span>;
+      case "PENDING_PAYMENT": 
+        return <span className={cn(baseClass, "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300")}>
+          {t('status_pending_payment', { defaultValue: 'Pendiente de pago' })}
+        </span>;
+      case "IN_PROGRESS": 
+        return <span className={cn(baseClass, "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 animate-pulse")}>
+          {t('status_in_progress', { defaultValue: 'En curso' })}
+        </span>;
+      default: 
+        return <span className={cn(baseClass, "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400")}>
+          {status}
+        </span>;
     }
   };
 
@@ -231,51 +245,58 @@ export default function DashboardPage() {
         </AnimatePresence>
       </div>
 
-      {/* --- MÉTRICAS CLAVE (KPIs) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        <SummaryCard 
-          title={t('revenue_title', { defaultValue: 'INGRESOS BRUTOS' })} 
-          value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
-          icon={BarChart2} 
-          trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
-        />
-        <SummaryCard 
-          title={t('completed_appointments', { defaultValue: 'CONSULTAS COMPLETADAS' })} 
-          value={analytics.completedAppointments.toString()}
-          icon={CheckCircle} 
-          trend={{ value: Math.abs(analytics.appointmentsGrowth || 0), isPositive: (analytics.appointmentsGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
-        />
-        <SummaryCard 
-          title={t('new_patients', { defaultValue: 'PACIENTES DE NUEVO INGRESO' })} 
-          value={analytics.newClients.toString()}
-          icon={Users} 
-          trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
-        />
-      </div>
-
-      {/* --- MÉTRICAS DE TIEMPO TÉCNICO --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-              <Timer className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">T/P ESPERA (HOY)</span>
-          </div>
-          <p className="text-4xl lg:text-5xl font-black tracking-tighter text-black dark:text-white leading-none">
-            {avgWaitTime} <span className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">MIN</span>
+      {/* --- MÉTRICAS CLAVE Y TIEMPOS UNIFICADOS --- */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6">
+        {/* KPI 1 */}
+        <div className="col-span-2 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+            {t('revenue_title', { defaultValue: 'Ingresos Brutos' })}
+          </p>
+          <p className="text-3xl md:text-4xl font-black tracking-tight text-black dark:text-white">
+            {analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
+          </p>
+          <p className={`text-xs font-bold mt-2 ${(analytics.revenueGrowth || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {(analytics.revenueGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.revenueGrowth || 0)}% vs mes anterior
           </p>
         </div>
 
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-              <PlayCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">T/P CONSULTA (HOY)</span>
-          </div>
-          <p className="text-4xl lg:text-5xl font-black tracking-tighter text-black dark:text-white leading-none">
-            {avgConsultationTime} <span className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">MIN</span>
+        {/* KPI 2 y 3 */}
+        <div className="col-span-1 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+            {t('completed_appointments', { defaultValue: 'Citas' })}
+          </p>
+          <p className="text-3xl md:text-4xl font-black tracking-tight text-black dark:text-white">
+            {analytics.completedAppointments.toString()}
+          </p>
+          <p className={`text-xs font-bold mt-2 ${(analytics.appointmentsGrowth || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {(analytics.appointmentsGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.appointmentsGrowth || 0)}%
+          </p>
+        </div>
+
+        <div className="col-span-1 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+            {t('new_patients', { defaultValue: 'Pacientes' })}
+          </p>
+          <p className="text-3xl md:text-4xl font-black tracking-tight text-black dark:text-white">
+            {analytics.newClients.toString()}
+          </p>
+          <p className={`text-xs font-bold mt-2 ${(analytics.clientsGrowth || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {(analytics.clientsGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.clientsGrowth || 0)}%
+          </p>
+        </div>
+
+        {/* Tiempos (Dentro del mismo grid) */}
+        <div className="col-span-1 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">T/P Espera</p>
+          <p className="text-3xl font-black tracking-tight text-black dark:text-white">
+            {avgWaitTime} <span className="text-sm font-bold text-gray-500">MIN</span>
+          </p>
+        </div>
+
+        <div className="col-span-1 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">T/P Consulta</p>
+          <p className="text-3xl font-black tracking-tight text-black dark:text-white">
+            {avgConsultationTime} <span className="text-sm font-bold text-gray-500">MIN</span>
           </p>
         </div>
       </div>
@@ -312,7 +333,7 @@ export default function DashboardPage() {
       </div>
 
       {/* --- PRÓXIMAS CITAS (AGENDA OPERATIVA) --- */}
-      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col transition-colors">
+      <div className="border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-sm overflow-hidden">
         <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
@@ -350,36 +371,39 @@ export default function DashboardPage() {
                 const formattedDate = format(dateObj, locale === 'es' ? "EEE d 'de' MMM" : "EEE, MMM d", { locale: dateLocale });
                 const formattedTime = format(dateObj, "HH:mm");
                 return (
-                  <div key={appt.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                  <div 
+                    key={appt.id} 
+                    onClick={() => router.push(`/provider/appointments/${appt.id}`)}
+                    className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 last:border-b-0"
+                  >
                     <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-4 mb-3">
-                        <p className="font-bold text-sm uppercase tracking-widest text-black dark:text-white">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <p className="font-bold text-sm text-black dark:text-white">
                           {appt.consumerName}
                         </p>
                         {getStatusBadge(appt.status)}
                       </div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                      <p className="text-xs font-medium text-gray-500 mb-3">
                         {appt.serviceName}
                       </p>
-                      <div className="flex flex-wrap items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        <div className="flex items-center gap-2 border border-black dark:border-white px-2 py-1 bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
-                          <Clock className="w-3 h-3" strokeWidth={1.5} />
-                          <span>{formattedDate} | {formattedTime} HRS</span>
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-gray-500">
+                        <div className="flex items-center gap-1.5 border border-gray-300 dark:border-gray-700 px-2 py-0.5 rounded-sm bg-white dark:bg-[#0a0a0a]">
+                          <Clock className="w-3 h-3" strokeWidth={2} />
+                          <span className="text-black dark:text-white">{formattedDate} | {formattedTime}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-black dark:text-white">
-                          {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5" strokeWidth={1.5} /> : <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />}
-                          <span>{appt.modality === "ONLINE" ? t('video_call', { defaultValue: 'TELEMEDICINA' }) : t('in_person', { defaultValue: 'PRESENCIAL' })}</span>
+                        <div className="flex items-center gap-1.5">
+                          {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5" strokeWidth={2} /> : <MapPin className="w-3.5 h-3.5" strokeWidth={2} />}
+                          <span>{appt.modality === "ONLINE" ? 'Telemedicina' : 'Presencial'}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <Button 
-                      onClick={() => router.push(`/provider/appointments/${appt.id}`)}
-                      className="w-full sm:w-auto shrink-0 bg-transparent border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors shadow-none sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
-                    >
-                      <Check className="w-4 h-4 mr-2" strokeWidth={2} />
-                      {t('manage', { defaultValue: 'GESTIONAR' })}
-                    </Button>
+                    {/* Botón siempre visible pero que no ocupa espacio innecesario */}
+                    <div className="shrink-0 self-end sm:self-center">
+                      <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-black dark:text-white group-hover:underline">
+                        Gestionar <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
+                      </span>
+                    </div>
                   </div>
                 );
               })}

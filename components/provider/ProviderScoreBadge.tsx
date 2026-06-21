@@ -14,60 +14,64 @@ interface ProviderScoreBadgeProps {
 export function ProviderScoreBadge({ scoreData, className }: ProviderScoreBadgeProps) {
   const t = useTranslations('ProviderScore');
 
-  // Clases base arquitectónicas para la etiqueta
-  const baseClasses = "inline-flex items-center justify-center border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors";
+  // 🔥 Base mejorada: Borde grueso (2px), tipografía legible (11px), peso negro
+  const baseClasses = "inline-flex items-center justify-center border-2 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider whitespace-nowrap transition-colors gap-1.5";
 
-  // Si no hay datos aún (está cargando o falló), mostramos un skeleton discreto y rectangular
+  // Estado de Carga: Bloque geométrico limpio (sin texto oculto)
   if (!scoreData) {
     return (
-      <span className={cn(baseClasses, "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-transparent animate-pulse", className)}>
-        CARGANDO
+      <span className={cn(baseClasses, "border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 animate-pulse w-20 h-6", className)}>
       </span>
     );
   }
 
-  // CA-01: Si es nuevo (< 5 consultas)
+  // Proveedor Nuevo: Etiqueta apagada pero con borde fuerte
   if (scoreData.isNewProvider || scoreData.band === 'NUEVO') {
     return (
-      <span className={cn(baseClasses, "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-500", className)}>
-        <Info className="w-3 h-3 mr-1.5" strokeWidth={2} />
+      <span className={cn(baseClasses, "border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-gray-500", className)}>
+        <Info className="w-3.5 h-3.5" strokeWidth={2} />
         {t('band_nuevo')}
       </span>
     );
   }
 
-  // Lógica de Bandas y Colores de Alto Contraste (CA-01)
+  // 🔥 Lógica de Bandas: Estilo "Sello / Parche Industrial"
+  // La clave aquí es el border-black / dark:border-white en TODAS las opciones
   const getBandConfig = (band: ProviderScoreBand) => {
     switch (band) {
       case 'ELITE':
         return { 
           color: 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black', 
-          icon: <ShieldCheck className="w-3 h-3 mr-1.5" strokeWidth={2} />,
+          icon: <ShieldCheck className="w-3.5 h-3.5" strokeWidth={2} />,
           label: t('band_elite')
         };
       case 'PREMIUM':
         return { 
-          color: 'border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500', 
-          icon: <Sparkles className="w-3 h-3 mr-1.5" strokeWidth={2} />,
+          // Verde esmeralda con borde negro = Sello de aprobación
+          color: 'border-black bg-emerald-500 text-white dark:border-white dark:bg-emerald-400 dark:text-black', 
+          icon: <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />,
           label: t('band_premium')
         };
       case 'ADVANCED':
         return { 
-          color: 'border-amber-500 bg-amber-500 text-black', 
-          icon: <Award className="w-3 h-3 mr-1.5" strokeWidth={2} />,
+          // Ámbar con borde negro = Etiqueta de advertencia/cuidado
+          color: 'border-black bg-amber-400 text-black dark:border-white dark:bg-amber-500 dark:text-black', 
+          icon: <Award className="w-3.5 h-3.5" strokeWidth={2} />,
           label: t('band_advanced')
         };
       case 'IN_PROGRESS':
         return { 
-          color: 'border-orange-500 bg-orange-500 text-white', 
-          icon: <TrendingUp className="w-3 h-3 mr-1.5" strokeWidth={2} />,
+          // Naranja con borde negro = Etiqueta de construcción
+          color: 'border-black bg-orange-500 text-white dark:border-white dark:bg-orange-400 dark:text-black', 
+          icon: <TrendingUp className="w-3.5 h-3.5" strokeWidth={2} />,
           label: t('band_in_progress')
         };
       case 'LOW_QUALITY':
       default:
         return { 
-          color: 'border-red-600 bg-red-600 text-white dark:border-red-500 dark:bg-red-500', 
-          icon: <AlertCircle className="w-3 h-3 mr-1.5" strokeWidth={2} />,
+          // Rojo con borde negro = Sello de alerta/rechazo
+          color: 'border-black bg-red-600 text-white dark:border-white dark:bg-red-500', 
+          icon: <AlertCircle className="w-3.5 h-3.5" strokeWidth={2} />,
           label: t('band_low')
         };
     }
@@ -78,7 +82,12 @@ export function ProviderScoreBadge({ scoreData, className }: ProviderScoreBadgeP
   return (
     <span className={cn(baseClasses, config.color, className)}>
       {config.icon}
-      {scoreData.score} • {config.label}
+      {/* 🔥 El número de score separado visualmente con un pipe rectangular */}
+      <span className="flex items-center gap-1.5">
+        <span className="font-mono">{scoreData.score}</span> 
+        <span className="w-px h-3 bg-current opacity-30"></span> 
+        <span>{config.label}</span>
+      </span>
     </span>
   );
 }
