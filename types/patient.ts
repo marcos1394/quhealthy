@@ -19,8 +19,9 @@ export interface PatientRegistrationPayload {
   lastName: string;
   email?: string;
   phone?: string;
-  birthDate?: string; // YYYY-MM-DD
-  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  birthDate: string; // YYYY-MM-DD
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+  preferredNotificationMethod?: string;
 }
 
 export interface PatientUpdatePayload {
