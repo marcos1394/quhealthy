@@ -33,7 +33,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
     const range = max - min || 1;
     
     return (
-      <div className="flex items-end gap-[3px] h-10 mt-4 border-b border-black dark:border-white pb-1">
+      <div className="flex items-end gap-[1px] h-10 mt-6 pt-2 border-t border-black/10 dark:border-white/10 w-full">
         {sparkline.map((point, index) => {
           const height = Math.max(((point - min) / range) * 100, 8); 
           return (
@@ -41,10 +41,10 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
               key={index} 
               style={{ height: `${height}%` }}
               className={cn(
-                "flex-1 transition-all duration-300", // 🔥 Quitamos el border para limpiar el ruido visual
+                "flex-1 transition-all duration-300", 
                 trend?.isPositive 
-                  ? "bg-black dark:bg-white" 
-                  : "bg-gray-300 dark:bg-gray-700"
+                  ? "bg-black/20 dark:bg-white/20 group-hover:bg-black dark:group-hover:bg-white" 
+                  : "bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-500"
               )} 
             />
           );
@@ -57,68 +57,63 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
     <div 
       onClick={onClick}
       className={cn(
-        "h-full flex flex-col bg-white dark:bg-[#0a0a0a] border border-black dark:border-white transition-all duration-200",
-        // 🔥 Sombra reducida a 4px para métricas (reservar 8px para alertas críticas)
-        onClick ? "cursor-pointer shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]" : ""
+        "h-full flex flex-col bg-white dark:bg-[#0a0a0a] border-b border-r border-gray-200 dark:border-gray-800 transition-colors group",
+        onClick ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505]" : ""
       )}
     >
-      <div className="p-5 md:p-6 flex-1 flex flex-col relative">
+      <div className="p-6 md:p-8 flex-1 flex flex-col relative">
         
-        {/* Etiqueta Superior */}
+        {/* Etiqueta Superior Estricta */}
         {badge && (
-          <div className="absolute top-4 right-4 z-20">
-            <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+          <div className="absolute top-6 right-6 z-20">
+            <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
               {badge}
             </span>
           </div>
         )}
 
         {/* Cabecera (Icono y Tendencia) */}
-        <div className="flex items-start justify-between mb-6">
-          {/* 🔥 Icono reducido (de 14 a 10) para mejor proporción */}
-          <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
-            <Icon className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+        <div className="flex items-start justify-between mb-8">
+          <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+            <Icon className="w-4 h-4" strokeWidth={1.5} />
           </div>
           
           {trend && (
             <div className={cn(
-              "border border-black dark:border-white px-2 py-0.5 flex items-center gap-1.5 text-[10px] font-bold",
+              "border px-2 py-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest",
               trend.isPositive 
-                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" 
-                : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+                ? "border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400" 
+                : "border-red-500/30 bg-red-50/50 text-red-600 dark:bg-red-900/10 dark:text-red-400"
             )}>
-              <TrendIcon className="w-3 h-3" strokeWidth={2.5} /> {Math.abs(trend.value)}%
+              <TrendIcon className="w-3 h-3" strokeWidth={2} /> {Math.abs(trend.value)}%
             </div>
           )}
         </div>
 
-        {/* Bloque de Datos */}
-        <div className="space-y-1.5">
-          {/* 🔥 Tipografía más legible (xs en lugar de 10px, tracking normal en lugar de widest) */}
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+        {/* Bloque de Datos (Telemetría) */}
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
             {title}
           </p>
           
           {loading ? (
-            <div className="h-9 border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 animate-pulse w-3/4 mt-2" />
+            <div className="h-10 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] animate-pulse w-3/4 mt-2" />
           ) : (
-            // 🔥 Tamaño de valor ligeramente reducido para que no rompa el grid en móviles
-            <p className="text-3xl md:text-4xl font-black tracking-tight text-black dark:text-white leading-none">
+            <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
               {value}
             </p>
           )}
 
           {comparison && (
-            <div className="flex items-center gap-2 pt-1">
-              <span className="text-[11px] font-medium text-gray-500">{comparison.label}:</span>
-              <span className="text-[11px] font-bold text-black dark:text-white">{comparison.value}</span>
+            <div className="flex items-center gap-2 pt-2">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{comparison.label}:</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">{comparison.value}</span>
             </div>
           )}
           
           {trend?.period && (
-            // 🔥 Quitado el "VS." en mayúsculas y mejorado el tamaño para legibilidad
-            <p className="text-[11px] font-medium text-gray-400 mt-1">
-              vs. {trend.period}
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+              VS. {trend.period}
             </p>
           )}
         </div>
@@ -127,12 +122,14 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
         {sparkline && renderSparkline()}
       </div>
 
-      {/* Bloque Descriptivo Estructural */}
+      {/* Bloque Descriptivo Estructural (Legible) */}
       {description && (
-        <div className="border-t border-black dark:border-white bg-gray-50 dark:bg-[#050505] p-4 flex items-start gap-3 shrink-0">
-          <Info className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0 mt-0.5" strokeWidth={1.5} />
-          {/* 🔥 ¡CRUCIAL! Mayúsculas sostenidas en párrafos largos = ilegible. Cambiado a Sentence case y tamaño 11px */}
-          <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+        <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-5 flex items-start gap-4 shrink-0">
+          <div className="w-6 h-6 border border-black/10 dark:border-white/10 flex items-center justify-center shrink-0 bg-white dark:bg-[#0a0a0a]">
+            <Info className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          {/* Se mantiene Sentence Case y peso ligero para máxima legibilidad */}
+          <p className="text-xs font-light text-gray-600 dark:text-gray-300 leading-relaxed pt-0.5">
             {description}
           </p>
         </div>
@@ -149,20 +146,19 @@ export const SummaryCardCompact: React.FC<SummaryCardProps> = (props) => {
     <div 
       onClick={onClick}
       className={cn(
-        "p-4 md:p-5 flex items-center justify-between border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] transition-all duration-200",
-        onClick ? "cursor-pointer hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]" : ""
+        "p-6 flex items-center justify-between border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-colors group",
+        onClick ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505]" : ""
       )}
     >
-      <div className="flex items-center gap-4">
-        {/* 🔥 Icono compacto acorde al diseño */}
-        <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
-          <Icon className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+      <div className="flex items-center gap-5">
+        <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+          <Icon className="w-4 h-4" strokeWidth={1.5} />
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
             {title}
           </p>
-          <p className="text-xl md:text-2xl font-black tracking-tight text-black dark:text-white leading-none">
+          <p className="text-xl md:text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
             {value}
           </p>
         </div>
@@ -170,12 +166,12 @@ export const SummaryCardCompact: React.FC<SummaryCardProps> = (props) => {
 
       {trend && (
         <div className={cn(
-          "border border-black dark:border-white px-2 py-0.5 flex items-center gap-1.5 text-[10px] font-bold shrink-0 ml-4",
+          "border px-2 py-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest shrink-0 ml-4",
           trend.isPositive 
-            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" 
-            : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+            ? "border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400" 
+            : "border-red-500/30 bg-red-50/50 text-red-600 dark:bg-red-900/10 dark:text-red-400"
         )}>
-          <TrendIcon className="w-3 h-3" strokeWidth={2.5} /> {Math.abs(trend.value)}%
+          <TrendIcon className="w-3 h-3" strokeWidth={2} /> {Math.abs(trend.value)}%
         </div>
       )}
     </div>
@@ -184,8 +180,9 @@ export const SummaryCardCompact: React.FC<SummaryCardProps> = (props) => {
 
 export const SummaryCardGrid: React.FC<{ children: React.ReactNode; columns?: number }> = ({ children, columns = 4 }) => {
   return (
+    // Estructura Blueprint Grid: gap-0 con bordes Top e Izquierdo en el contenedor padre
     <div className={cn(
-      "grid gap-4 md:gap-6", // 🔥 Gap ligeramente menor para acomodar las sombras reducidas
+      "grid gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]", 
       columns === 1 ? "grid-cols-1" : "", 
       columns === 2 ? "grid-cols-1 md:grid-cols-2" : "",
       columns === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "",

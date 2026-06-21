@@ -71,79 +71,88 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
   ];
 
   return (
-    <div className="h-full flex flex-col max-w-4xl mx-auto w-full transition-colors duration-300">
+    <div className="h-full flex flex-col max-w-5xl mx-auto w-full transition-colors duration-300">
       
-      {/* HEADER ARQUITECTÓNICO */}
+      {/* HEADER TÉCNICO */}
       <div className="text-center mb-10 flex flex-col items-center">
-        <div className="w-16 h-16 border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-6">
-          <Pill className="w-8 h-8" strokeWidth={1.5} />
+        <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6 shrink-0">
+          <Pill className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
+          Protocolo Farmacológico
+        </p>
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight uppercase text-black dark:text-white mb-3 leading-none">
           {t('digital_prescription_closure', { defaultValue: 'Cierre de Receta Digital' })}
         </h2>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-lg mx-auto">
-          {t('prescription_desc', { defaultValue: 'FORMULE LA PRESCRIPCIÓN CLÍNICA. LOS BIENES FÍSICOS DISPONIBLES EN INVENTARIO HABILITARÁN SU VENTA DIRECTA.' })}
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xl mx-auto mt-2 leading-relaxed">
+          {t('prescription_desc', { defaultValue: 'FORMULE LA PRESCRIPCIÓN CLÍNICA. LOS BIENES FÍSICOS DISPONIBLES EN INVENTARIO HABILITARÁN SU VENTA DIRECTA AL PACIENTE.' })}
         </p>
       </div>
 
-      {/* CONTENEDOR PRINCIPAL TÉCNICO */}
-      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 md:p-10 mb-8 flex flex-col transition-colors">
+      {/* CONTENEDOR PRINCIPAL */}
+      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] mb-8 flex flex-col rounded-none transition-colors">
         
         {/* Cabecera Interna */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 dark:border-gray-800 pb-6 mb-8 gap-4">
-          <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white flex items-center gap-3">
-            <Pill className="w-5 h-5" strokeWidth={1.5} />
-            {t('rx_title', { defaultValue: 'FORMULARIO DE INDICACIONES' })}
-          </h3>
-          <div className="flex items-center gap-3 bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest border border-black dark:border-white">
-            <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6 md:p-8 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Pill className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              {t('rx_title', { defaultValue: 'FORMULARIO DE INDICACIONES' })}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest shrink-0 border border-black dark:border-white">
+            <ShoppingBag className="w-3 h-3" strokeWidth={1.5} /> 
             <span>CATÁLOGO VINCULADO</span>
           </div>
         </div>
         
-        <div className="flex-1 flex flex-col gap-10">
+        <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#050505]">
           
-          {/* PANEL DE FORMULARIO (BLUEPRINT) */}
-          <div className="bg-gray-50 dark:bg-[#050505] p-6 md:p-8 border border-gray-300 dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              
-              {/* Buscador de Producto / Medicamento */}
-              <div className="space-y-3 relative" ref={dropdownRef}>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                  {t('medication', { defaultValue: 'PRINCIPIO ACTIVO' })} / PRODUCTO
-                </label>
-                <div className="relative">
-                  <Input 
-                    placeholder="ESCRIBA PARA BUSCAR EN INVENTARIO O TEXTO LIBRE..." 
-                    value={newRx.medicationName} 
-                    onChange={e => {
-                      setNewRx({...newRx, medicationName: e.target.value, catalogItemId: undefined});
-                      setShowDropdown(true);
-                    }} 
-                    onFocus={() => setShowDropdown(true)}
-                    className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border border-black dark:border-white text-[10px] font-semibold uppercase tracking-widest pl-12 pr-10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:font-bold transition-colors" 
-                  />
-                  <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" strokeWidth={2} />
-                  
-                  {isLoading && (
-                    <Loader2 className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-black dark:text-white animate-spin" />
-                  )}
-                </div>
+          {/* PANEL DE FORMULARIO (GRID BLUEPRINT) */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-0 border-b border-black dark:border-white">
+            
+            {/* Buscador de Producto / Medicamento */}
+            <div className="col-span-1 md:col-span-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 relative flex flex-col" ref={dropdownRef}>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
+                {t('medication', { defaultValue: 'PRINCIPIO ACTIVO' })} / PRODUCTO
+              </label>
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" strokeWidth={2} />
+                <Input 
+                  placeholder="ESCRIBA PARA BUSCAR EN INVENTARIO O TEXTO LIBRE..." 
+                  value={newRx.medicationName} 
+                  onChange={e => {
+                    setNewRx({...newRx, medicationName: e.target.value, catalogItemId: undefined});
+                    setShowDropdown(true);
+                  }} 
+                  onFocus={() => setShowDropdown(true)}
+                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest pl-12 pr-10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+                />
+                
+                {isLoading && (
+                  <Loader2 className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-black dark:text-white animate-spin" />
+                )}
+              </div>
 
-                {showDropdown && newRx.medicationName.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] max-h-60 overflow-y-auto custom-scrollbar">
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map(product => (
+              {/* Dropdown Estricto */}
+              {showDropdown && newRx.medicationName.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-50 bg-white dark:bg-[#0a0a0a] border-x border-b border-black dark:border-white max-h-60 overflow-y-auto custom-scrollbar shadow-xl">
+                  {filteredProducts.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-0">
+                      {filteredProducts.map(product => (
                         <div 
                           key={product.id} 
                           onClick={() => handleSelectProduct(product)}
-                          className="flex items-center gap-4 p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black cursor-pointer border-b border-gray-200 dark:border-gray-800 last:border-0 transition-colors group"
+                          className="flex items-center gap-4 p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black cursor-pointer border-b border-black/10 dark:border-white/10 last:border-0 transition-colors group"
                         >
                           {product.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover border border-black dark:border-white shrink-0 bg-white" />
+                            <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover border border-black/20 dark:border-white/20 shrink-0 bg-white" />
                           ) : (
-                            <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
                               <Package className="w-4 h-4 text-gray-400 group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} />
                             </div>
                           )}
@@ -159,184 +168,199 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                             </div>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-[9px] font-bold uppercase tracking-widest text-gray-500 text-center bg-gray-50 dark:bg-[#050505]">
-                        SIN COINCIDENCIAS. SE REGISTRARÁ COMO TEXTO LIBRE.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-6 text-[9px] font-bold uppercase tracking-widest text-gray-500 text-center bg-gray-50 dark:bg-[#050505]">
+                      SIN COINCIDENCIAS. SE REGISTRARÁ COMO TEXTO LIBRE (SIN VENTA).
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                    {t('dosage', { defaultValue: 'DOSIS' })}
-                  </label>
-                  <Input 
-                    placeholder={t('rx_dosage', { defaultValue: 'EJ. 1 TABLETA' })} 
-                    value={newRx.dosage} 
-                    onChange={e => setNewRx({...newRx, dosage: e.target.value})} 
-                    className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border border-black dark:border-white text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:font-bold transition-colors" 
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                    CANT. (VENTA)
-                  </label>
-                  <Input 
-                    type="number" 
-                    min="1" 
-                    placeholder="U." 
-                    value={newRx.quantity || 1} 
-                    onChange={e => setNewRx({...newRx, quantity: parseInt(e.target.value) || 1})} 
-                    className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border border-black dark:border-white text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:font-bold text-center transition-colors" 
-                  />
-                </div>
-              </div>
+            {/* Dosis */}
+            <div className="col-span-1 md:col-span-3 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">2</span>
+                {t('dosage', { defaultValue: 'DOSIS' })}
+              </label>
+              <Input 
+                placeholder={t('rx_dosage', { defaultValue: 'EJ. 1 TABLETA' })} 
+                value={newRx.dosage} 
+                onChange={e => setNewRx({...newRx, dosage: e.target.value})} 
+                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+              />
+            </div>
+
+            {/* Cantidad Venta */}
+            <div className="col-span-1 md:col-span-3 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">3</span>
+                CANT. (VENTA Opcional)
+              </label>
+              <Input 
+                type="number" 
+                min="1" 
+                placeholder="U." 
+                value={newRx.quantity || 1} 
+                onChange={e => setNewRx({...newRx, quantity: parseInt(e.target.value) || 1})} 
+                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold text-center transition-colors w-full" 
+              />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                  {t('frequency', { defaultValue: 'FRECUENCIA' })}
-                </label>
-                {newRx.frequencyEnum === 'CUSTOM' ? (
-                  <div className="flex gap-0 border border-black dark:border-white">
-                    <Input 
-                      placeholder="EJ. CADA 8 HORAS" 
-                      value={newRx.frequency} 
-                      onChange={e => setNewRx({...newRx, frequency: e.target.value})} 
-                      className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-0 text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:font-bold transition-colors" 
-                    />
-                    <button 
-                      onClick={() => setNewRx({...newRx, frequencyEnum: '', frequency: ''})}
-                      className="w-12 h-12 bg-gray-100 dark:bg-[#111] border-l border-black dark:border-white flex justify-center items-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
-                    >
-                      <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                ) : (
-                  <Select 
-                    value={newRx.frequencyEnum || ''} 
-                    onValueChange={(val) => {
-                      if (val === 'CUSTOM') {
-                        setNewRx({...newRx, frequencyEnum: val, frequency: ''});
-                      } else {
-                        const opt = FREQUENCY_OPTIONS.find(o => o.value === val);
-                        setNewRx({...newRx, frequencyEnum: val, frequency: opt?.readable || ''});
-                      }
-                    }}
+            {/* Frecuencia */}
+            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">4</span>
+                {t('frequency', { defaultValue: 'FRECUENCIA' })}
+              </label>
+              {newRx.frequencyEnum === 'CUSTOM' ? (
+                <div className="flex gap-0 border border-black/20 dark:border-white/20">
+                  <Input 
+                    placeholder="EJ. CADA 8 HORAS" 
+                    value={newRx.frequency} 
+                    onChange={e => setNewRx({...newRx, frequency: e.target.value})} 
+                    className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
+                  />
+                  <button 
+                    onClick={() => setNewRx({...newRx, frequencyEnum: '', frequency: ''})}
+                    className="w-12 h-12 bg-white dark:bg-[#0a0a0a] border-l border-black/20 dark:border-white/20 flex justify-center items-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
                   >
-                    <SelectTrigger className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border border-black dark:border-white text-[10px] font-semibold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
-                      <SelectValue placeholder="SELECCIONE..." />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-none border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] bg-white dark:bg-[#0a0a0a]">
-                      {FREQUENCY_OPTIONS.map(opt => (
-                        <SelectItem key={opt.value} value={opt.value} className="text-[10px] font-bold uppercase tracking-widest cursor-pointer focus:bg-gray-100 dark:focus:bg-[#111]">
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-              
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                  {t('duration', { defaultValue: 'DURACIÓN' })}
-                </label>
-                <div className="flex gap-0 border border-black dark:border-white">
-                  <Input 
-                    type="number"
-                    min="1"
-                    placeholder="DÍAS"
-                    value={newRx.durationDays || ''}
-                    onChange={e => {
-                      const days = e.target.value;
-                      setNewRx({
-                        ...newRx, 
-                        durationDays: days, 
-                        duration: days ? `POR ${days} DÍAS` : ''
-                      });
-                    }}
-                    className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-0 text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 w-20 shrink-0 text-center placeholder:text-gray-400 placeholder:font-bold border-r border-black dark:border-white transition-colors" 
-                  />
-                  <Input 
-                    placeholder="TEXTO LIBRE..." 
-                    value={newRx.duration} 
-                    onChange={e => setNewRx({...newRx, duration: e.target.value})} 
-                    className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border-0 text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:font-bold transition-colors" 
-                  />
+                    <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                  </button>
                 </div>
-              </div>
-              
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block">
-                  {t('extra_instructions', { defaultValue: 'INSTRUCCIONES EXTRA' })}
-                </label>
+              ) : (
+                <Select 
+                  value={newRx.frequencyEnum || ''} 
+                  onValueChange={(val) => {
+                    if (val === 'CUSTOM') {
+                      setNewRx({...newRx, frequencyEnum: val, frequency: ''});
+                    } else {
+                      const opt = FREQUENCY_OPTIONS.find(o => o.value === val);
+                      setNewRx({...newRx, frequencyEnum: val, frequency: opt?.readable || ''});
+                    }
+                  }}
+                >
+                  <SelectTrigger className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors w-full">
+                    <SelectValue placeholder="SELECCIONE..." />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-xl">
+                    {FREQUENCY_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-[10px] font-bold uppercase tracking-widest cursor-pointer focus:bg-gray-100 dark:focus:bg-[#111] rounded-none">
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            
+            {/* Duración */}
+            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">5</span>
+                {t('duration', { defaultValue: 'DURACIÓN' })}
+              </label>
+              <div className="flex gap-0 border border-black/20 dark:border-white/20">
                 <Input 
-                  placeholder={t('rx_instructions', { defaultValue: 'EJ. TOMAR CON ALIMENTOS' })} 
-                  value={newRx.instructions} 
-                  onChange={e => setNewRx({...newRx, instructions: e.target.value})} 
-                  className="bg-white dark:bg-[#0a0a0a] h-12 rounded-none border border-black dark:border-white text-[10px] font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:font-bold transition-colors" 
+                  type="number"
+                  min="1"
+                  placeholder="DÍAS"
+                  value={newRx.durationDays || ''}
+                  onChange={e => {
+                    const days = e.target.value;
+                    setNewRx({
+                      ...newRx, 
+                      durationDays: days, 
+                      duration: days ? `POR ${days} DÍAS` : ''
+                    });
+                  }}
+                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 w-20 shrink-0 text-center placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold border-r border-black/20 dark:border-white/20 transition-colors" 
+                />
+                <Input 
+                  placeholder="TEXTO LIBRE..." 
+                  value={newRx.duration} 
+                  onChange={e => setNewRx({...newRx, duration: e.target.value})} 
+                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
                 />
               </div>
             </div>
+            
+            {/* Instrucciones Extra */}
+            <div className="col-span-1 md:col-span-2 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">6</span>
+                {t('extra_instructions', { defaultValue: 'INSTRUCCIONES EXTRA' })}
+              </label>
+              <Input 
+                placeholder={t('rx_instructions', { defaultValue: 'EJ. TOMAR CON ALIMENTOS' })} 
+                value={newRx.instructions} 
+                onChange={e => setNewRx({...newRx, instructions: e.target.value})} 
+                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+              />
+            </div>
 
-            <button 
-              onClick={handleAddRx} 
-              disabled={!newRx.medicationName} 
-              className="w-full flex justify-center items-center gap-3 bg-black text-white dark:bg-white dark:text-black h-14 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] disabled:opacity-50 disabled:hover:bg-black border border-black dark:border-white"
-            >
-              <Plus className="w-4 h-4" strokeWidth={2} /> {t('rx_add_item', { defaultValue: 'AGREGAR INDICACIÓN' })}
-            </button>
+            {/* Botón de Agregar (Integrado al Grid) */}
+            <div className="col-span-1 md:col-span-6 bg-white dark:bg-[#0a0a0a]">
+              <button 
+                onClick={handleAddRx} 
+                disabled={!newRx.medicationName} 
+                className="w-full flex justify-center items-center gap-3 bg-black text-white dark:bg-white dark:text-black h-16 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:hover:bg-black rounded-none border-0"
+              >
+                <Plus className="w-4 h-4" strokeWidth={1.5} /> {t('rx_add_item', { defaultValue: 'AGREGAR INDICACIÓN A RECETA' })}
+              </button>
+            </div>
           </div>
 
-          {/* LISTA DE RECETA (ESTADO VACÍO O LLENO) */}
-          <div className="space-y-4 flex-1">
+          {/* LISTA DE RECETA */}
+          <div className="flex-1 bg-gray-50 dark:bg-[#050505]">
             {prescription.length === 0 ? (
-               <div className="h-full min-h-[200px] flex flex-col items-center justify-center border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505]">
-                 <Pill className="w-8 h-8 mb-4 text-gray-400" strokeWidth={1.5} />
+               <div className="h-full min-h-[250px] flex flex-col items-center justify-center p-10 text-center">
+                 <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-4">
+                   <Pill className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                 </div>
                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                   {t('rx_empty_state', { defaultValue: 'NO HAY INDICACIONES REGISTRADAS' })}
+                   {t('rx_empty_state', { defaultValue: 'RECETA EN BLANCO. AGREGA INDICACIONES EN EL PANEL SUPERIOR.' })}
                  </p>
                </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-0">
                 {prescription.map((item: any, index) => (
-                  <div key={item.id || index} className="flex flex-col sm:flex-row justify-between sm:items-center p-6 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] gap-6">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <h4 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white">
+                  <div key={item.id || index} className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+                    
+                    <div className="flex-1 p-6 flex flex-col justify-center">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <h4 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white">
                           {item.medicationName} 
                         </h4>
-                        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 bg-gray-50 dark:bg-[#050505]">
+                        <span className="border border-black/20 dark:border-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 bg-white dark:bg-[#0a0a0a]">
                           {item.dosage}
                         </span>
                         {item.catalogItemId && (
                           <span className="flex items-center text-[9px] font-bold bg-black text-white dark:bg-white dark:text-black px-2 py-0.5 border border-black dark:border-white">
-                            <ShoppingBag className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> INVENTARIO (X{item.quantity || 1})
+                            <ShoppingBag className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> VENTA DIRECTA (X{item.quantity || 1})
                           </span>
                         )}
                       </div>
                       
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
                         {t('take_medication', { frequency: item.frequency, duration: item.duration })}
                       </p>
                       
                       {item.instructions && (
                         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-3 flex items-start gap-2">
-                          <span className="text-black dark:text-white shrink-0">NOTA:</span> {item.instructions}
+                          <span className="border border-black/20 dark:border-white/20 px-1.5 bg-gray-50 dark:bg-[#050505] text-black dark:text-white shrink-0">NOTA</span> 
+                          {item.instructions}
                         </p>
                       )}
                     </div>
+
                     <button 
                       onClick={() => removePrescriptionItem(item.id)} 
-                      className="w-full sm:w-12 h-12 flex justify-center items-center border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors shrink-0"
+                      className="w-full sm:w-16 h-16 sm:h-auto border-t sm:border-t-0 sm:border-l border-black/10 dark:border-white/10 flex justify-center items-center text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 transition-colors shrink-0 bg-white dark:bg-[#0a0a0a]"
                     >
-                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                      <Trash2 className="w-5 h-5" strokeWidth={1.5} />
                     </button>
                   </div>
                 ))}
@@ -346,11 +370,11 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
         </div>
       </div>
 
-      {/* FOOTER DE COMANDOS */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-4">
+      {/* FOOTER DE COMANDOS ESTRICTO */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-2 shrink-0">
         <button 
           onClick={onBack} 
-          className="flex items-center justify-center gap-3 h-14 px-8 border border-black dark:border-white bg-transparent text-black dark:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors w-full sm:w-auto"
+          className="flex items-center justify-center gap-3 h-16 px-10 bg-transparent text-black dark:text-white border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors w-full sm:w-auto rounded-none"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> {t('btn_back_to_evaluation', { defaultValue: 'RETORNAR A EVALUACIÓN' })}
         </button>

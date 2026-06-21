@@ -141,67 +141,75 @@ export const CashCheckoutModal = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] rounded-none"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-none"
         >
-          {/* Header */}
-          <div className="flex items-start justify-between p-6 md:p-8 border-b border-black dark:border-white shrink-0 bg-white dark:bg-[#0a0a0a]">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex justify-center items-center shrink-0">
-                <Banknote className="w-5 h-5" strokeWidth={1.5} />
+          {/* Header Arquitectónico */}
+          <div className="flex items-start md:items-center justify-between p-6 md:p-8 border-b border-black dark:border-white shrink-0 bg-white dark:bg-[#0a0a0a]">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex justify-center items-center shrink-0">
+                <Banknote className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-bold text-xl uppercase tracking-tight text-black dark:text-white leading-none mb-1">
-                  COBRO EFECTIVO
-                </h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {patientName}
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                  Terminal de Caja
                 </p>
+                <h3 className="font-semibold text-xl md:text-2xl uppercase tracking-tight text-black dark:text-white leading-none mb-2">
+                  Liquidación en Efectivo
+                </h3>
+                <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  <span>{patientName}</span>
+                </div>
               </div>
             </div>
             <button 
               onClick={onClose} 
-              className="border border-black dark:border-white w-8 h-8 flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none"
+              className="w-12 h-12 flex items-center justify-center border border-transparent hover:border-black dark:hover:border-white text-gray-400 hover:text-black dark:hover:text-white transition-colors shrink-0 bg-gray-50 dark:bg-[#050505] hover:bg-black hover:dark:bg-white hover:dark:text-black"
             >
-              <X className="w-4 h-4" strokeWidth={1.5} />
+              <X className="w-5 h-5" strokeWidth={1.5} />
             </button>
           </div>
 
-          {/* Body */}
-          <div className="p-6 md:p-8 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
+          {/* Body Principal */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505]">
             
-            {/* Total a cobrar */}
-            <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505] border border-black dark:border-white p-8 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                TOTAL A LIQUIDAR
-              </span>
-              <span className="text-4xl md:text-5xl font-black tracking-tighter text-black dark:text-white leading-none">
-                ${totalAmount.toFixed(2)}
-              </span>
+            {/* Total a cobrar (Display Estricto) */}
+            <div className="border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex items-center justify-between p-6 md:p-8">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                  TOTAL A LIQUIDAR
+                </p>
+                <p className="text-4xl md:text-5xl font-semibold tracking-tighter text-black dark:text-white leading-none">
+                  ${totalAmount.toFixed(2)}
+                </p>
+              </div>
+              <div className="hidden sm:flex w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] items-center justify-center shrink-0">
+                 <Calculator className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+              </div>
             </div>
 
             {/* Efectivo Recibido */}
-            <div className="space-y-4">
+            <div className="flex flex-col">
               <button 
                 type="button"
                 onClick={() => setShowReceivedDenoms(!showReceivedDenoms)}
-                className="w-full flex items-center justify-between p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#111] transition-colors rounded-none"
+                className="w-full flex items-center justify-between p-6 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none group"
               >
-                <div className="flex items-center gap-3">
-                  <ArrowDown className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                <div className="flex items-center gap-4">
+                  <ArrowDown className="w-4 h-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black shrink-0" strokeWidth={1.5} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">
                     EFECTIVO RECIBIDO
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <span className={cn(
-                    "text-sm font-black tracking-tight", 
-                    isValid ? "text-green-600 dark:text-green-400" : "text-black dark:text-white"
+                    "text-sm font-semibold tracking-widest", 
+                    isValid ? "text-green-600 dark:text-green-400 group-hover:text-green-400 dark:group-hover:text-green-500" : ""
                   )}>
                     ${receivedTotal.toFixed(2)}
                   </span>
@@ -213,43 +221,45 @@ export const CashCheckoutModal = ({
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }} 
                   animate={{ opacity: 1, height: 'auto' }}
-                  className="grid grid-cols-3 sm:grid-cols-4 gap-3"
+                  className="border-b border-black dark:border-white"
                 >
-                  {DENOMINATIONS.map(denom => (
-                    <div key={`recv-${denom}`} className="flex flex-col gap-1.5">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 text-center border-b border-gray-200 dark:border-gray-800 pb-1">
-                        {denomLabel(denom)}
-                      </span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={receivedDenoms[denom] || ''}
-                        onChange={(e) => updateReceivedDenom(denom, parseInt(e.target.value) || 0)}
-                        className="w-full h-10 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white text-xs font-bold text-center focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white placeholder:text-gray-300 dark:placeholder:text-gray-700 transition-colors rounded-none"
-                        placeholder="0"
-                      />
-                    </div>
-                  ))}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 bg-white dark:bg-[#0a0a0a] border-t border-l border-black/10 dark:border-white/10">
+                    {DENOMINATIONS.map(denom => (
+                      <div key={`recv-${denom}`} className="border-r border-b border-black/10 dark:border-white/10 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                          {denomLabel(denom)}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={receivedDenoms[denom] || ''}
+                          onChange={(e) => updateReceivedDenom(denom, parseInt(e.target.value) || 0)}
+                          className="w-full h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white text-xs font-semibold text-center focus:outline-none focus:border-black dark:focus:border-white focus:ring-0 placeholder:text-gray-300 dark:placeholder:text-gray-700 transition-colors rounded-none"
+                          placeholder="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </motion.div>
               )}
             </div>
 
             {/* Cambio a Entregar */}
             {isValid && correctChange > 0 && (
-              <div className="space-y-4 pt-4 border-t border-black dark:border-white">
+              <div className="flex flex-col">
                 <button 
                   type="button"
                   onClick={() => setShowChangeDenoms(!showChangeDenoms)}
-                  className="w-full flex items-center justify-between p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#111] transition-colors rounded-none"
+                  className="w-full flex items-center justify-between p-6 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none group"
                 >
-                  <div className="flex items-center gap-3">
-                    <ArrowUp className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  <div className="flex items-center gap-4">
+                    <ArrowUp className="w-4 h-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black shrink-0" strokeWidth={1.5} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
                       CAMBIO A ENTREGAR
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-black tracking-tight text-red-600 dark:text-red-400">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold tracking-widest text-red-600 dark:text-red-400 group-hover:text-red-400 dark:group-hover:text-red-400">
                       ${correctChange.toFixed(2)}
                     </span>
                     {showChangeDenoms ? <ChevronUp className="w-4 h-4 shrink-0" /> : <ChevronDown className="w-4 h-4 shrink-0" />}
@@ -260,28 +270,28 @@ export const CashCheckoutModal = ({
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }} 
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="space-y-4"
+                    className="border-b border-black dark:border-white"
                   >
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 bg-red-50 dark:bg-red-900/10 border-t border-l border-red-200 dark:border-red-900/30">
                       {DENOMINATIONS.filter(d => parseFloat(d) >= 1).map(denom => {
                         const available = availableDenoms[denom] || 0;
                         const used = changeDenoms[denom] || 0;
                         if (available <= 0 && used <= 0) return null;
                         return (
-                          <div key={`change-${denom}`} className="flex flex-col gap-1 p-2 border border-black dark:border-white bg-red-50 dark:bg-red-900/10 rounded-none">
-                            <div className="flex flex-col items-center mb-1">
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400">{denomLabel(denom)}</span>
-                              <span className="text-[8px] font-bold uppercase tracking-widest text-red-400 dark:text-red-600 border-t border-red-200 dark:border-red-900/30 pt-0.5 mt-0.5 w-full text-center">
-                                DISP: {available}
-                              </span>
-                            </div>
+                          <div key={`change-${denom}`} className="border-r border-b border-red-200 dark:border-red-900/30 p-4 flex flex-col items-center justify-center">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 mb-1">
+                              {denomLabel(denom)}
+                            </span>
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-red-400 dark:text-red-600 mb-2">
+                              DISP: {available}
+                            </span>
                             <input
                               type="number"
                               min="0"
                               max={available}
                               value={used || ''}
                               onChange={(e) => updateChangeDenom(denom, parseInt(e.target.value) || 0)}
-                              className="w-full h-8 border border-red-500 dark:border-red-500/50 bg-white dark:bg-black text-black dark:text-white text-xs font-bold text-center focus:outline-none focus:ring-0 focus:border-red-600 rounded-none transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                              className="w-full h-10 border border-red-300 dark:border-red-500/50 bg-white dark:bg-black text-black dark:text-white text-xs font-semibold text-center focus:outline-none focus:border-red-600 focus:ring-0 rounded-none transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
                               placeholder="0"
                             />
                           </div>
@@ -289,7 +299,7 @@ export const CashCheckoutModal = ({
                       })}
                     </div>
                     {Math.abs(changeTotal - correctChange) > 0.01 && (
-                      <div className="p-3 border border-red-500 bg-red-50 dark:bg-red-900/20 text-center rounded-none">
+                      <div className="p-4 bg-red-50 dark:bg-red-900/20 text-center border-t border-red-200 dark:border-red-900/30">
                         <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
                           ATENCIÓN: LAS DENOMINACIONES SUMAN ${changeTotal.toFixed(2)} PERO EL CAMBIO CORRECTO ES ${correctChange.toFixed(2)}
                         </p>
@@ -300,25 +310,22 @@ export const CashCheckoutModal = ({
               </div>
             )}
 
-            {/* Resumen Final */}
-            <div className={cn(
-              "p-6 border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] rounded-none",
-              isValid ? "bg-white dark:bg-[#0a0a0a]" : "bg-gray-50 dark:bg-[#050505]"
-            )}>
+            {/* Resumen Final Estricto */}
+            <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">FONDO RECIBIDO:</span>
-                  <span className="font-bold text-sm tracking-tight text-black dark:text-white">${receivedTotal.toFixed(2)}</span>
+                  <span className="font-semibold text-sm tracking-widest text-black dark:text-white">${receivedTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">IMPORTE A COBRAR:</span>
-                  <span className="font-bold text-sm tracking-tight text-black dark:text-white">-${totalAmount.toFixed(2)}</span>
+                  <span className="font-semibold text-sm tracking-widest text-black dark:text-white">-${totalAmount.toFixed(2)}</span>
                 </div>
-                <div className="h-px w-full bg-black dark:bg-white" />
-                <div className="flex justify-between items-center">
+                <div className="h-px w-full bg-black/20 dark:bg-white/20" />
+                <div className="flex justify-between items-center pt-2">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">REMANENTE (CAMBIO):</span>
                   <span className={cn(
-                    "font-black text-2xl tracking-tighter leading-none", 
+                    "font-semibold text-2xl tracking-tighter leading-none", 
                     isValid ? "text-black dark:text-white" : "text-gray-400"
                   )}>
                     ${isValid ? correctChange.toFixed(2) : '0.00'}
@@ -328,23 +335,23 @@ export const CashCheckoutModal = ({
             </div>
           </div>
 
-          {/* Footer de Comandos */}
-          <div className="p-6 border-t border-black dark:border-white flex flex-col sm:flex-row gap-4 shrink-0 bg-white dark:bg-[#0a0a0a]">
+          {/* Footer de Comandos Estricto */}
+          <div className="p-6 md:p-8 border-t border-black dark:border-white flex flex-col sm:flex-row gap-4 shrink-0 bg-white dark:bg-[#0a0a0a]">
             <button 
               onClick={onClose} 
-              className="flex-1 h-14 border border-black dark:border-white bg-transparent text-black dark:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none"
+              className="flex-1 h-16 border border-black dark:border-white bg-transparent text-black dark:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none"
             >
               CANCELAR
             </button>
             <button 
               onClick={handleCheckout} 
               disabled={!isValid || isProcessing || (correctChange > 0 && Math.abs(changeTotal - correctChange) > 0.01)}
-              className="flex-1 h-14 flex items-center justify-center gap-3 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] disabled:opacity-50 disabled:shadow-none rounded-none"
+              className="flex-1 h-16 flex items-center justify-center gap-3 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:hover:bg-black rounded-none border-0"
             >
               {isProcessing ? (
-                <><QhSpinner size="sm" className="text-current"/> PROCESANDO...</>
+                <><QhSpinner size="sm" className="text-current"/> PROCESANDO CAJA...</>
               ) : (
-                <><CheckCircle2 className="w-4 h-4" strokeWidth={2} /> REGISTRAR COBRO</>
+                <><CheckCircle2 className="w-4 h-4" strokeWidth={1.5} /> REGISTRAR COBRO</>
               )}
             </button>
           </div>

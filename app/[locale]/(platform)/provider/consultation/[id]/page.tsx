@@ -213,7 +213,7 @@ export default function ConsultationRoomPage() {
 
   if (loadingAppointment || (isLoading && !isOfflinePatient)) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
         <p className="mt-6 text-[10px] uppercase tracking-widest font-bold text-gray-500 animate-pulse">
           {t('loading_environment', { defaultValue: 'DESPLEGANDO ENTORNO CLÍNICO...' })}
@@ -226,7 +226,7 @@ export default function ConsultationRoomPage() {
 
   if (currentStep === 'success') {
     return (
-      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="h-screen flex flex-col bg-gray-50 dark:bg-[#050505] overflow-hidden transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
         <ConsultationSuccessStep 
           appointmentId={appointmentId}
           patientPhone={patientProfile?.phone}
@@ -237,7 +237,7 @@ export default function ConsultationRoomPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] relative transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-[#050505] relative transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
       
       <CashCheckoutModal 
         isOpen={showCashModal}
@@ -259,20 +259,20 @@ export default function ConsultationRoomPage() {
           <div className="flex items-center gap-6">
             <button 
               onClick={() => router.back()} 
-              className="border border-black dark:border-white w-14 h-14 flex justify-center items-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0 rounded-none"
+              className="border border-black dark:border-white w-16 h-16 flex justify-center items-center text-black dark:text-white bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0 rounded-none"
             >
               <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
             </button>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-black dark:text-white flex items-center gap-3">
+              <h1 className="text-xl md:text-3xl font-semibold tracking-tight uppercase text-black dark:text-white flex items-center gap-3">
                 {t('consultation_in_progress', { defaultValue: 'AUDITORÍA CLÍNICA EN CURSO' })}
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {displayFullName} • {t('appointment_id', { id: appointmentId })}
+                  {displayFullName} <span className="mx-2 text-gray-300 dark:text-gray-700">|</span> {t('appointment_id', { id: appointmentId })}
                 </p>
                 {isOfflinePatient && (
-                  <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] uppercase font-bold tracking-widest">
+                  <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white px-2 py-1 text-[9px] uppercase font-bold tracking-widest">
                     {t('local_catalog', { defaultValue: 'CENSO LOCAL' })}
                   </span>
                 )}
@@ -281,14 +281,14 @@ export default function ConsultationRoomPage() {
           </div>
           
           <div className="flex items-center gap-4 w-full md:w-auto">
-            <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-8 h-14 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-3 rounded-none">
+            <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-8 h-16 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-3 rounded-none">
               <Save className="w-4 h-4" strokeWidth={1.5} /> {t('save_draft', { defaultValue: 'GUARDAR BORRADOR' })}
             </button>
             {currentStep === 'treatment' && (
               <button 
                 onClick={handleCompleteClick} 
                 disabled={isSubmitting} 
-                className="flex-1 md:flex-none bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-8 h-14 text-[10px] uppercase font-bold tracking-widest shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex justify-center items-center gap-3 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:shadow-none rounded-none"
+                className="flex-1 md:flex-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border border-transparent transition-colors h-16 px-10 text-[10px] uppercase font-bold tracking-widest flex justify-center items-center gap-3 disabled:opacity-50 rounded-none"
               >
                 <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> {t('finish_and_charge', { defaultValue: 'FINALIZAR Y COBRAR' })}
               </button>
@@ -296,31 +296,31 @@ export default function ConsultationRoomPage() {
           </div>
         </div>
 
-        {/* NAVEGADOR DE PASOS TIPO BLUEPRINT */}
-        <div className="flex items-center w-full max-w-4xl border border-black dark:border-white bg-gray-50 dark:bg-[#050505] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+        {/* NAVEGADOR DE PASOS TIPO BLUEPRINT GRID */}
+        <div className="flex items-center w-full max-w-4xl border border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
           <button 
             onClick={() => setCurrentStep('profile')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
             <User className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_clinical_context', { defaultValue: 'CONTEXTO CLÍNICO' })}</span>
           </button>
           <button 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
             <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_evaluation', { defaultValue: 'EVALUACIÓN' })}</span>
           </button>
           <button 
             onClick={() => setCurrentStep('treatment')}
-            className={`flex-1 h-14 text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`flex-1 h-14 text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
             <Pill className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_prescription', { defaultValue: 'PLAN DE ACCIÓN' })}</span>
           </button>
         </div>
       </header>
 
-      {/* MAIN (CON SCROLL HABILITADO PARA NO CORTAR LOS RECUADROS) */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-white dark:bg-[#0a0a0a] p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+      {/* MAIN MESA DE TRABAJO TÉCNICA */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-gray-50 dark:bg-[#050505] p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
         <div className="max-w-6xl mx-auto pb-12">
           
           {currentStep === 'profile' && (
