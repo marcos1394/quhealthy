@@ -9,21 +9,18 @@ import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Mic } from "luci
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
 import { QhSpinner } from '@/components/ui/QhSpinner'; 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
-// Importaremos los pasos (crearemos el primero abajo)
+// Importaremos los pasos
 import { PatientProfileStep } from "@/components/consultation/PatientProfileStep";
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
-import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; // 🚀 NUEVO
+import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; 
 
-// 🚀 NUEVO: Importamos el Modal de Caja
+// Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
 import { cashRegisterService } from "@/services/cash-register.service";
 import { DenominationMap } from "@/types/cash-register";
 
-// 🚀 Añadimos 'success' al final del pipeline
 type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
@@ -33,16 +30,14 @@ export default function ConsultationRoomPage() {
   
   const appointmentId = Number(params.id);
   
-  // 🚀 ESTADOS DE LA CITA Y PACIENTE
   const [currentStep, setCurrentStep] = useState<PipelineStep>('profile');
   const [consumerId, setConsumerId] = useState<number | null>(null);
-  const [patientDirectoryId, setPatientDirectoryId] = useState<number | null>(null); // 🚀 NUEVO: Para pacientes Offline
+  const [patientDirectoryId, setPatientDirectoryId] = useState<number | null>(null);
   const [isOfflinePatient, setIsOfflinePatient] = useState(false);
   const [patientName, setPatientName] = useState<string>("");
   const [appointmentType, setAppointmentType] = useState<string>('in_person');
   const [loadingAppointment, setLoadingAppointment] = useState(true); 
 
-  // 🚀 NUEVOS ESTADOS FINANCIEROS
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [paymentStatus, setPaymentStatus] = useState<string>('');
@@ -55,68 +50,53 @@ export default function ConsultationRoomPage() {
     addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
 
-  // 🚀 CAMBIO 1: Agregamos 'price', 'frequencyEnum' y 'durationDays' al estado inicial
   const [newRx, setNewRx] = useState<{
     medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; price: string | number;
     frequencyEnum?: string; durationDays?: number | string; catalogItemId?: number; quantity?: number;
   }>({ 
     medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
   });
+  
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   
-  // Referencias para manejar el micrófono sin causar re-renders innecesarios
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  // 🎙️ FUNCIÓN PARA INICIAR/DETENER GRABACIÓN BATCH
   const handleToggleRecording = async () => {
-    // SI ESTÁ GRABANDO -> DETENEMOS Y PROCESAMOS
     if (isRecording) {
       setIsRecording(false);
       setIsTranscribing(true);
 
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
-        
-        // Apagamos el micrófono para que desaparezca el icono rojo del navegador
         mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       }
     } 
-    // SI NO ESTÁ GRABANDO -> INICIAMOS
     else {
       try {
-        // 1. Pedimos permiso para usar el micrófono
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         
-        // 2. Configuramos el grabador
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
 
-        // 3. Vamos guardando los pedacitos de audio en memoria
         mediaRecorder.ondataavailable = (e) => {
           if (e.data.size > 0) {
             audioChunksRef.current.push(e.data);
           }
         };
 
-        // 4. Qué hacer cuando se detiene la grabación (Aquí ocurre la magia Batch)
         mediaRecorder.onstop = async () => {
-          // Unimos todos los pedazos en un solo archivo de audio webm
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           
-          // Lo convertimos a Base64 para poder mandarlo por JSON a Spring Boot
           const reader = new FileReader();
           reader.readAsDataURL(audioBlob);
           reader.onloadend = async () => {
             const base64AudioString = reader.result as string;
-            
-            // Limpiamos el string para quitar el prefijo (ej. "data:audio/webm;base64,")
             const base64Data = base64AudioString.split(',')[1];
 
             try {
-              // 🚀 AQUÍ ESTÁ LA CONEXIÓN REAL
               console.log("Enviando audio real a Gemini...");
               
               await processAudioWithAi(base64Data);
@@ -132,7 +112,6 @@ export default function ConsultationRoomPage() {
           };
         };
 
-        // 5. ¡A grabar!
         mediaRecorder.start();
         setIsRecording(true);
 
@@ -143,9 +122,8 @@ export default function ConsultationRoomPage() {
     }
   };
 
-  // 🚀 CAMBIO 2: Pasamos el precio al hook y aflojamos la regla de "dosage"
   const handleAddRx = () => {
-    if (newRx.medicationName) { // Quitamos la restricción de dosage aquí también
+    if (newRx.medicationName) {
       addPrescriptionItem({
         medicationName: newRx.medicationName,
         dosage: newRx.dosage,
@@ -155,10 +133,9 @@ export default function ConsultationRoomPage() {
         durationDays: newRx.durationDays ? Number(newRx.durationDays) : undefined,
         instructions: newRx.instructions,
         catalogItemId: newRx.catalogItemId,
-        price: Number(newRx.price) || 0, // 🚀 INYECTAMOS EL PRECIO A LA RECETA FINAL
+        price: Number(newRx.price) || 0,
         quantity: newRx.quantity || 1
       });
-      // Limpiamos todo incluyendo el precio
       setNewRx({ medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 });
     }
   };
@@ -168,20 +145,17 @@ export default function ConsultationRoomPage() {
       try {
         const appointment = await appointmentService.getAppointmentById(appointmentId);
         
-        // 🚀 LÓGICA MEJORADA PARA PACIENTES
         if (appointment.consumerId) {
           setConsumerId(appointment.consumerId);
           setIsOfflinePatient(false);
         } else {
           setIsOfflinePatient(true);
           setPatientDirectoryId(appointment.patientDirectoryId ?? null); 
-          // 🚀 FIX: Leemos el Snapshot porque el consumer es nulo
           setPatientName(appointment.consumerNameSnapshot || appointment.consumer?.name || t('patient_directory_placeholder'));
         }
         
         setAppointmentType(appointment.type?.toLowerCase() || 'in_person');
         
-        // 🚀 NUEVO: Guardamos los datos financieros
         setTotalPrice(appointment.totalPrice || 0);
         setPaymentMethod(appointment.paymentMethod || 'CASH');
         setPaymentStatus(appointment.paymentStatus || 'PENDING');
@@ -195,13 +169,11 @@ export default function ConsultationRoomPage() {
     if (appointmentId) fetchAppointmentDetails();
   }, [appointmentId]);
 
-  // 🚀 NUEVO: Obtener denominaciones de la caja activa
   useEffect(() => {
     const fetchRegisterDenoms = async () => {
       try {
         const register = await cashRegisterService.getCurrentRegister();
         if (register?.initialDenominations) {
-          // Hidratar las denominaciones en tiempo real si están disponibles
           setRegisterDenominations(register.currentDenominations || register.initialDenominations);
         }
       } catch { /* No hay caja abierta, no pasa nada */ }
@@ -209,37 +181,29 @@ export default function ConsultationRoomPage() {
     fetchRegisterDenoms();
   }, []);
 
-  // 2. CARGAR EXPEDIENTE (App u Offline)
   useEffect(() => {
-    // Si tiene cuenta en la app
     if (consumerId && !isOfflinePatient) {
       loadPatientRecord(t('toast_load_error'));
     } 
-    // 🚀 NUEVO: Si es paciente offline, le pasamos ID y Nombre
     else if (isOfflinePatient && patientDirectoryId) {
       loadPatientRecord(t('toast_load_error'), patientDirectoryId, patientName);
     }
   }, [consumerId, isOfflinePatient, patientDirectoryId, patientName, loadPatientRecord, t]);
 
-  // 🚀 NUEVO: Calculamos el Gran Total (Consulta + Productos)
   const getGrandTotal = () => {
-    // Sumamos el precio de cada item en la receta multiplicada por su cantidad (si no tiene precio, suma 0)
     const productsTotal = prescription.reduce((sum, item) => {
-      // Usamos item.price o asume 0 si no existe
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const price = Number((item as any).price) || 0; 
       const qty = item.quantity || 1;
       return sum + (price * qty);
     }, 0);
     
-    return totalPrice + productsTotal; // totalPrice es el costo base de la consulta
+    return totalPrice + productsTotal;
   };
 
-  // 🚀 INTERCEPTOR ACTUALIZADO
   const handleCompleteClick = () => {
     const finalAmount = getGrandTotal();
 
-    // Validamos usando el Gran Total en lugar del totalPrice estático
     if (finalAmount > 0 && paymentMethod === 'CASH' && paymentStatus !== 'SETTLED') {
       setShowCashModal(true);
     } else {
@@ -247,7 +211,6 @@ export default function ConsultationRoomPage() {
     }
   };
 
-  // 🚀 COMPLETAR CLÍNICA (El guardado final de SOAP/PDF)
   const executeClinicalCompletion = async () => {
     const success = await completeConsultation(t('toast_success'), t('toast_error'));
     if (success) {
@@ -257,107 +220,109 @@ export default function ConsultationRoomPage() {
 
   if (loadingAppointment || (isLoading && !isOfflinePatient)) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-slate-50 dark:bg-slate-950">
-        <QhSpinner size="lg" />
-        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium">{t('loading_environment')}</p>
+      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-[#0a0a0a]">
+        <QhSpinner size="lg" className="text-black dark:text-white" />
+        <p className="mt-4 text-[10px] uppercase tracking-widest font-bold text-black dark:text-white">{t('loading_environment')}</p>
       </div>
     );
   }
 
   const displayFullName = isOfflinePatient ? patientName : (patientProfile?.fullName || patientName || t('patient_placeholder'));
 
-  // 🚀 NUEVO: Si la consulta terminó, renderizamos la vista de éxito a pantalla completa
   if (currentStep === 'success') {
     return (
-      <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden">
+      <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden">
         <ConsultationSuccessStep 
           appointmentId={appointmentId}
-          patientPhone={patientProfile?.phone} // O la propiedad donde guardes el teléfono en tu BD
-          onClose={() => router.push('/provider/dashboard/appointments')} // Volver al dashboard al terminar
+          patientPhone={patientProfile?.phone}
+          onClose={() => router.push('/provider/dashboard/appointments')}
         />
       </div>
     );
   }
 
-  // 🚀 RETURN NORMAL DEL PIPELINE (Se mantiene igual que el tuyo)
   return (
-    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
+    <div className="h-screen flex flex-col bg-white dark:bg-[#0a0a0a] overflow-hidden relative">
       
-      {/* 🚀 NUEVO: Renderizamos el Modal de Caja (Flota encima de todo) */}
       <CashCheckoutModal 
         isOpen={showCashModal}
         onClose={() => setShowCashModal(false)}
         onSuccess={() => {
           setShowCashModal(false);
-          // Si el cobro fue exitoso, forzamos el guardado del expediente
           executeClinicalCompletion();
         }}
         appointmentId={appointmentId}
-        totalAmount={getGrandTotal()} // 🚀 AQUÍ inyectamos el total dinámico
+        totalAmount={getGrandTotal()} 
         patientName={displayFullName}
         registerDenominations={registerDenominations}
       />
 
-      {/* 🚀 HEADER Y PIPELINE (STEPPER) */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col gap-4 shadow-sm z-10 shrink-0">
+      <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-8 py-6 flex flex-col gap-6 z-10 shrink-0">
         
-        {/* Fila Superior: Info y Botones de Acción Global */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-slate-500 hover:bg-slate-100">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => router.back()} 
+              className="border border-black dark:border-white w-12 h-12 flex justify-center items-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            </button>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h1 className="text-2xl font-serif italic font-bold uppercase text-black dark:text-white flex items-center gap-3">
                 {t('consultation_in_progress')}
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
-                {displayFullName} • {t('appointment_id', { id: appointmentId })}
-                {isOfflinePatient && <Badge variant="secondary" className="text-[10px] h-4 bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">{t('local_catalog')}</Badge>}
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {displayFullName} • {t('appointment_id', { id: appointmentId })}
+                </p>
+                {isOfflinePatient && (
+                  <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-0.5 text-[9px] uppercase font-bold tracking-widest">
+                    {t('local_catalog')}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="text-slate-600 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800 h-10 hidden md:flex">
-              <Save className="w-4 h-4 mr-2" /> {t('save_draft')}
-            </Button>
+          <div className="flex items-center gap-4">
+            <button className="hidden md:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-6 h-12 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors items-center gap-2">
+              <Save className="w-4 h-4" strokeWidth={1.5} /> {t('save_draft')}
+            </button>
             {currentStep === 'treatment' && (
-              <Button onClick={handleCompleteClick} disabled={isSubmitting} className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 h-10 px-6 shadow-sm">
-                <CheckCircle className="w-4 h-4 mr-2" /> {t('finish_and_charge')}
-              </Button>
+              <button 
+                onClick={handleCompleteClick} 
+                disabled={isSubmitting} 
+                className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-6 h-12 text-[10px] uppercase font-bold tracking-widest shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] flex items-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> {t('finish_and_charge')}
+              </button>
             )}
           </div>
         </div>
 
-        {/* 🚀 Fila Inferior: BARRA DE NAVEGACIÓN DEL PIPELINE */}
-        <div className="flex items-center w-full max-w-3xl mx-auto bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl">
-          <Button 
-            variant={currentStep === 'profile' ? 'default' : 'ghost'} 
+        <div className="flex items-center w-full max-w-3xl mx-auto border border-black dark:border-white bg-gray-50 dark:bg-[#050505] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+          <button 
             onClick={() => setCurrentStep('profile')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'profile' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <User className="w-4 h-4 mr-2" /> {t('step_clinical_context')}
-          </Button>
-          <Button 
-            variant={currentStep === 'evaluation' ? 'default' : 'ghost'} 
+            <User className="w-4 h-4" strokeWidth={1.5} /> {t('step_clinical_context')}
+          </button>
+          <button 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'evaluation' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 h-14 border-r border-black dark:border-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <Stethoscope className="w-4 h-4 mr-2" /> {t('step_evaluation')}
-          </Button>
-          <Button 
-            variant={currentStep === 'treatment' ? 'default' : 'ghost'} 
+            <Stethoscope className="w-4 h-4" strokeWidth={1.5} /> {t('step_evaluation')}
+          </button>
+          <button 
             onClick={() => setCurrentStep('treatment')}
-            className={`flex-1 rounded-lg h-10 ${currentStep === 'treatment' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold' : 'text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'}`}
+            className={`flex-1 h-14 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
           >
-            <Pill className="w-4 h-4 mr-2" /> {t('step_prescription')}
-          </Button>
+            <Pill className="w-4 h-4" strokeWidth={1.5} /> {t('step_prescription')}
+          </button>
         </div>
       </header>
 
-      {/* 🚀 ÁREA DE TRABAJO (Cambia según el Step activo) */}
-      <main className="flex-1 overflow-hidden relative bg-slate-50/50 dark:bg-slate-950 p-6">
+      <main className="flex-1 overflow-hidden relative bg-white dark:bg-[#0a0a0a] p-8">
         <div className="max-w-6xl mx-auto h-full">
           
           {currentStep === 'profile' && (
@@ -368,7 +333,7 @@ export default function ConsultationRoomPage() {
               consumerId={consumerId}
               isOfflinePatient={isOfflinePatient}
               displayFullName={displayFullName}
-              patientDirectoryId={patientDirectoryId} // Pasamos el ID del directorio
+              patientDirectoryId={patientDirectoryId} 
               onNext={() => setCurrentStep('evaluation')}
             />
           )}

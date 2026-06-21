@@ -4,15 +4,11 @@ import {
   User, ShieldAlert, History, FileCheck, AlertTriangle, 
   ArrowRight, BookOpen, Activity, Pill, Users 
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { VaultDocument } from '@/types/ehr';
 import { PastConsultationModal } from '@/components/consultation/PastConsultationModal';
 
 interface PatientProfileStepProps {
-  patientProfile: any; // Usamos any temporalmente para aceptar los nuevos campos
+  patientProfile: any;
   vaultDocuments: VaultDocument[];
   vaultAccessDenied?: boolean;
   consumerId?: number | null;
@@ -44,183 +40,186 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
       setIsRequestingAccess(true);
       const axiosInstance = (await import('@/lib/axios')).default;
       await axiosInstance.post(`/api/onboarding/provider/vault/permissions/request/${consumerId}`);
-      import('react-toastify').then(({ toast }) => toast.success("Solicitud de acceso enviada al paciente exitosamente."));
+      import('react-toastify').then(({ toast }) => toast.success("SOLICITUD ENVIADA AL PACIENTE."));
     } catch (error) {
-      import('react-toastify').then(({ toast }) => toast.error("Hubo un error al enviar la solicitud. Intenta más tarde."));
+      import('react-toastify').then(({ toast }) => toast.error("ERROR AL ENVIAR SOLICITUD."));
     } finally {
       setIsRequestingAccess(false);
     }
   };
 
-  // Función auxiliar para renderizar arrays o texto de historial
   const renderHistoryData = (data: any, fallbackText: string) => {
-    if (!data || data === "Ninguno") return <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+    if (!data || data === "Ninguno") return <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{fallbackText}</span>;
     
-    // Si es un arreglo (ej: ["Aspirina"] o [{name: "Aspirina"}])
     if (Array.isArray(data)) {
       if (data.length === 0 || data[0] === "Ninguno") {
-        return <span className="text-sm text-slate-500 dark:text-slate-400 italic">{fallbackText}</span>;
+        return <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{fallbackText}</span>;
       }
       return data.map((item, idx) => {
-        // Extraemos el texto en caso de que sea un objeto (evitando el Error #31 de React)
         const text = typeof item === 'object' && item !== null ? (item.name || item.disease || JSON.stringify(item)) : item;
-        return <Badge key={idx} variant="outline" className="dark:border-slate-700 dark:text-slate-300 m-0.5">{String(text)}</Badge>;
+        return (
+          <span key={idx} className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
+            {String(text)}
+          </span>
+        );
       });
     }
 
-    // Si no es arreglo pero es un objeto individual
     if (typeof data === 'object' && data !== null) {
       const text = data.name || data.disease || JSON.stringify(data);
-      return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{String(text)}</span>;
+      return <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">{String(text)}</span>;
     }
 
-    // Si es un string o número
-    return <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{String(data)}</span>;
+    return <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">{String(data)}</span>;
   };
 
   return (
-    <div className="h-full flex flex-col md:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="h-full flex flex-col md:flex-row gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       
       {/* 👤 COLUMNA IZQUIERDA: RESUMEN DEL PACIENTE */}
-      <div className="w-full md:w-1/3 flex flex-col gap-4">
-        <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
-          <div className={`h-24 ${isOfflinePatient ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-medical-100 dark:bg-medical-900/30'}`}></div>
-          <CardContent className="px-6 pb-6 relative pt-0 text-center">
-            <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-full mx-auto flex items-center justify-center -mt-12 mb-4 border-4 border-white dark:border-slate-900 shadow-sm">
-              <div className={`w-full h-full rounded-full flex items-center justify-center ${isOfflinePatient ? 'bg-amber-50 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400' : 'bg-medical-50 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400'}`}>
-                <span className="text-3xl font-bold">{displayInitial}</span>
-              </div>
+      <div className="w-full md:w-1/3 flex flex-col gap-8">
+        
+        {/* TARJETA DE IDENTIDAD */}
+        <div className="border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] bg-white dark:bg-[#0a0a0a] flex flex-col">
+          <div className="h-24 bg-black dark:bg-white border-b border-black dark:border-white"></div>
+          <div className="px-6 pb-6 relative pt-0 text-center flex flex-col items-center">
+            <div className="w-24 h-24 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex items-center justify-center -mt-12 mb-6">
+              <span className="text-4xl font-serif italic font-bold text-black dark:text-white">{displayInitial}</span>
             </div>
             
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{displayFullName}</h2>
+            <h2 className="text-xl font-serif italic font-bold text-black dark:text-white uppercase mb-4">{displayFullName}</h2>
             
-            {/* 🚀 FIX: Datos antropométricos y de sangre precisos */}
-            <div className="flex flex-wrap justify-center items-center gap-2 mt-2 text-sm text-slate-600 dark:text-slate-300 font-medium">
-               {patientProfile?.bloodType && <span>🩸 {patientProfile.bloodType}</span>}
-               {patientProfile?.weightKg && <span>• {patientProfile.weightKg} kg</span>}
-               {patientProfile?.heightCm && <span>• {patientProfile.heightCm} cm</span>}
+            <div className="flex flex-wrap justify-center items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+               {patientProfile?.bloodType && <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">🩸 {patientProfile.bloodType}</span>}
+               {patientProfile?.weightKg && <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile.weightKg} KG</span>}
+               {patientProfile?.heightCm && <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile.heightCm} CM</span>}
             </div>
 
             {isOfflinePatient && (
-              <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-800">
-                <BookOpen className="w-3.5 h-3.5" />
-                {t('local_directory_patient')}
+              <div className="mt-6 flex items-center justify-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest">
+                <BookOpen className="w-3 h-3" strokeWidth={2} />
+                <span>{t('local_directory_patient')}</span>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* ⚠️ ALERGIAS Y SIGNOS (Enriquecido) */}
-        <Card className="border-slate-200 dark:border-slate-800 shadow-sm flex-1 bg-white dark:bg-slate-900 overflow-y-auto custom-scrollbar max-h-[500px]">
-          <CardContent className="p-5 space-y-5">
+        {/* ⚠️ ALERGIAS Y SIGNOS */}
+        <div className="border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] bg-white dark:bg-[#0a0a0a] flex-1 flex flex-col overflow-y-auto custom-scrollbar max-h-[500px]">
+          <div className="p-6 flex flex-col gap-8">
             
             {!isOfflinePatient && (
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">{t('qu_score')}</span>
-                <Badge variant="outline" className="border-medical-200 text-medical-700 dark:border-medical-800 dark:text-medical-400 font-bold text-base bg-white dark:bg-slate-900">
+              <div className="flex items-center justify-between p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">{t('qu_score')}</span>
+                <span className="text-base font-bold text-black dark:text-white border-l border-black dark:border-white pl-4">
                   {patientProfile?.quScore || '--'}
-                </Badge>
+                </span>
               </div>
             )}
 
             <div>
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4 text-amber-500" /> {t('allergies')}
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-4">
+                <AlertTriangle className="w-4 h-4" strokeWidth={1.5} /> {t('allergies')}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {renderHistoryData(patientProfile?.allergies, t('no_allergies_registered'))}
               </div>
             </div>
 
-            <Separator className="bg-slate-100 dark:bg-slate-800" />
+            <div className="border-t border-black dark:border-white" />
 
             <div>
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
-                <ShieldAlert className="w-4 h-4 text-medical-500" /> {t('conditions')}
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-4">
+                <ShieldAlert className="w-4 h-4" strokeWidth={1.5} /> {t('conditions')}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {renderHistoryData(patientProfile?.chronicConditions, t('no_chronic_conditions'))}
               </div>
             </div>
 
-            {/* 🚀 NUEVAS SECCIONES DEL ENDPOINT */}
-            <Separator className="bg-slate-100 dark:bg-slate-800" />
+            <div className="border-t border-black dark:border-white" />
 
             <div>
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-3">
-                <Pill className="w-4 h-4 text-indigo-500" /> {t('current_medication')}
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-4">
+                <Pill className="w-4 h-4" strokeWidth={1.5} /> {t('current_medication')}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {renderHistoryData(patientProfile?.currentMedications, t('no_medications_registered'))}
               </div>
             </div>
 
-            <Separator className="bg-slate-100 dark:bg-slate-800" />
+            <div className="border-t border-black dark:border-white" />
 
             <div>
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-teal-500" /> {t('surgical_history')}
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-4">
+                <Activity className="w-4 h-4" strokeWidth={1.5} /> {t('surgical_history')}
               </h4>
-              {renderHistoryData(patientProfile?.surgicalHistory, t('no_surgeries_registered'))}
+              <div className="flex flex-wrap gap-2">
+                {renderHistoryData(patientProfile?.surgicalHistory, t('no_surgeries_registered'))}
+              </div>
             </div>
 
-            <Separator className="bg-slate-100 dark:bg-slate-800" />
+            <div className="border-t border-black dark:border-white" />
 
             <div>
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-medical-500" /> {t('family_history')}
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-4">
+                <Users className="w-4 h-4" strokeWidth={1.5} /> {t('family_history')}
               </h4>
-              {renderHistoryData(patientProfile?.familyHistory, t('no_family_history_registered'))}
+              <div className="flex flex-wrap gap-2">
+                {renderHistoryData(patientProfile?.familyHistory, t('no_family_history_registered'))}
+              </div>
             </div>
 
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* 🗂️ COLUMNA DERECHA: EXPEDIENTE Y BÓVEDA */}
-      <div className="w-full md:w-2/3 flex flex-col gap-4">
-        <Card className="border-slate-200 dark:border-slate-800 shadow-sm flex-1 flex flex-col bg-white dark:bg-slate-900">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <h3 className="font-bold text-lg flex items-center gap-2 text-slate-900 dark:text-white">
-              <History className="w-5 h-5 text-medical-500" />
+      <div className="w-full md:w-2/3 flex flex-col gap-8">
+        <div className="border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col bg-white dark:bg-[#0a0a0a] flex-1">
+          <div className="p-6 border-b border-black dark:border-white flex justify-between items-center bg-gray-50 dark:bg-[#050505]">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+              <History className="w-4 h-4" strokeWidth={1.5} />
               {isOfflinePatient ? t('local_consultation_history') : t('vault_title')}
             </h3>
           </div>
           
-          <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="p-0 flex-1 flex flex-col overflow-y-auto custom-scrollbar">
             {vaultAccessDenied ? (
-              <div className="p-8 text-center h-full flex flex-col items-center justify-center text-slate-500">
-                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                  <ShieldAlert className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+              <div className="p-12 text-center flex-1 flex flex-col items-center justify-center">
+                <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center mb-6">
+                  <ShieldAlert className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
-                <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Expediente Privado</h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                  El paciente mantiene su expediente médico restringido. Para visualizar el historial completo, envíale una solicitud de acceso a su app.
+                <h4 className="font-serif italic font-bold text-xl text-black dark:text-white uppercase mb-4">Expediente Privado</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8 leading-relaxed">
+                  EL PACIENTE MANTIENE SU EXPEDIENTE MÉDICO RESTRINGIDO. PARA VISUALIZAR EL HISTORIAL COMPLETO, ENVÍALE UNA SOLICITUD DE ACCESO.
                 </p>
-                <Button 
+                <button 
                   onClick={handleRequestAccess} 
                   disabled={isRequestingAccess}
-                  className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 shadow-sm"
+                  className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors px-8 py-4 text-[10px] font-bold uppercase tracking-widest"
                 >
-                  {isRequestingAccess ? 'Enviando...' : 'Solicitar Acceso al Expediente'}
-                </Button>
+                  {isRequestingAccess ? 'ENVIANDO SOLICITUD...' : 'SOLICITAR ACCESO AL EXPEDIENTE'}
+                </button>
               </div>
             ) : vaultDocuments.length === 0 ? (
-              <div className="p-8 text-center h-full flex flex-col items-center justify-center text-slate-500">
-                <History className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">{t('no_history')}</h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+              <div className="p-12 text-center flex-1 flex flex-col items-center justify-center">
+                <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center mb-6">
+                  <History className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <h4 className="font-serif italic font-bold text-xl text-black dark:text-white uppercase mb-4">{t('no_history')}</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto leading-relaxed">
                   {isOfflinePatient 
                     ? t('no_past_consultations_local') 
                     : t('vault_empty')}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-black dark:divide-white">
                 {vaultDocuments.map(doc => (
                   <div 
                     key={doc.id} 
-                    className="flex items-center p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                    className="flex flex-col sm:flex-row sm:items-center p-6 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group"
                     onClick={() => {
                       if (doc.documentType === 'CONSULTA_PREVIA') {
                         setSelectedPastConsultation({
@@ -232,26 +231,35 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                       }
                     }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-medical-50 dark:bg-medical-900/30 flex items-center justify-center mr-4 group-hover:bg-medical-100 dark:group-hover:bg-medical-900/50 transition-colors">
-                      <FileCheck className="w-5 h-5 text-medical-600 dark:text-medical-400" />
+                    <div className="flex items-center gap-6 flex-1 mb-4 sm:mb-0">
+                      <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 group-hover:border-white dark:group-hover:border-black">
+                        <FileCheck className="w-5 h-5" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm uppercase tracking-widest truncate">{doc.title || doc.fileName || 'NOTA SIN TÍTULO'}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-2">
+                          {doc.documentType} <span className="mx-2">|</span> {new Date(doc.uploadDate).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-slate-900 dark:text-white truncate">{doc.title || doc.fileName || 'Nota sin título'}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{doc.documentType} • {new Date(doc.uploadDate).toLocaleDateString()}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity dark:text-medical-400 dark:hover:bg-medical-900/20">{t('view_btn')}</Button>
+                    <button className="border border-black dark:border-white bg-transparent px-6 py-3 text-[9px] font-bold uppercase tracking-widest group-hover:border-white dark:group-hover:border-black shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      {t('view_btn')}
+                    </button>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* 🚀 BOTÓN PARA AVANZAR AL SIGUIENTE PASO */}
-        <div className="flex justify-end pt-2">
-          <Button onClick={onNext} className="bg-medical-600 hover:bg-medical-700 dark:bg-medical-500 dark:hover:bg-medical-600 text-white h-12 px-8 rounded-xl text-base shadow-lg shadow-medical-600/20">
-            {t('continue_to_evaluation')} <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
+        <div className="flex justify-end pt-4">
+          <button 
+            onClick={onNext} 
+            className="flex items-center justify-center gap-4 bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors px-10 py-5 text-[10px] font-bold uppercase tracking-widest shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]"
+          >
+            {t('continue_to_evaluation')} <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+          </button>
         </div>
       </div>
 

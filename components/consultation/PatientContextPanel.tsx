@@ -1,8 +1,6 @@
 import React from 'react';
 import { useTranslations } from "next-intl";
 import { User, AlertTriangle, ShieldAlert } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { PatientClinicalProfile } from '@/types/ehr';
 
 interface PatientContextPanelProps {
@@ -20,78 +18,85 @@ export const PatientContextPanel: React.FC<PatientContextPanelProps> = ({
   const displayInitial = displayFullName.charAt(0).toUpperCase();
 
   return (
-    <aside className="w-full lg:w-1/4 lg:min-w-[280px] lg:max-w-[350px] bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 p-4 overflow-y-auto custom-scrollbar flex flex-col gap-4">
-      <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center uppercase tracking-wider">
-        <User className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" /> {t('patient_profile')}
+    <aside className="w-full lg:w-1/4 lg:min-w-[280px] lg:max-w-[350px] bg-white dark:bg-[#0a0a0a] border-b lg:border-b-0 lg:border-r border-black dark:border-white p-6 overflow-y-auto custom-scrollbar flex flex-col gap-8 z-0">
+      
+      <h2 className="text-[10px] font-bold text-black dark:text-white flex items-center gap-3 uppercase tracking-widest">
+        <User className="w-4 h-4" strokeWidth={1.5} /> {t('patient_profile')}
       </h2>
       
       {/* 👤 Ficha Rápida */}
-      <div className="text-center">
-        <div className="w-20 h-20 bg-medical-100 dark:bg-medical-900/30 rounded-full mx-auto flex items-center justify-center mb-3">
-          <span className="text-2xl font-bold text-medical-700 dark:text-medical-400">{displayInitial}</span>
+      <div className="text-center flex flex-col items-center">
+        <div className="w-24 h-24 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-6">
+          <span className="text-4xl font-serif italic font-bold">{displayInitial}</span>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{displayFullName}</h3>
+        <h3 className="text-xl font-serif italic font-bold text-black dark:text-white uppercase mb-2">
+          {displayFullName}
+        </h3>
         {!isOfflinePatient ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {patientProfile?.gender} • {patientProfile?.bloodType || 'Sangre N/D'}
-          </p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2 flex gap-2">
+            {patientProfile?.gender && <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile.gender}</span>}
+            <span className="border border-gray-300 dark:border-gray-700 px-2 py-1">{patientProfile?.bloodType || 'SANGRE N/D'}</span>
+          </div>
         ) : (
-          <p className="text-sm text-amber-600 dark:text-amber-500 mt-1 font-medium flex items-center justify-center gap-1">
-            <AlertTriangle className="w-4 h-4" /> Paciente no registrado en App
-          </p>
+          <div className="mt-4 flex items-center justify-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-[9px] font-bold uppercase tracking-widest">
+            <AlertTriangle className="w-3 h-3" strokeWidth={2} />
+            <span>NO REGISTRADO EN APP</span>
+          </div>
         )}
       </div>
 
       {!isOfflinePatient && (
-        <>
+        <div className="flex flex-col gap-6">
           {/* 📊 QuScore */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center shadow-sm">
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('qu_score')}</p>
-            <div className="text-3xl font-black text-medical-600 dark:text-medical-400 leading-none mb-2">
+          <div className="bg-gray-50 dark:bg-[#050505] p-6 border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] text-center">
+            <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest mb-2">{t('qu_score')}</p>
+            <div className="text-4xl font-serif italic font-bold text-black dark:text-white leading-none mb-4">
               {patientProfile?.quScore || '--'}
             </div>
-            <Badge variant="outline" className="border-medical-200 text-medical-700 dark:border-medical-500/30 dark:text-medical-400">
-              {patientProfile?.quScoreBand || 'Sin calcular'}
-            </Badge>
+            <span className="inline-block border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-white dark:bg-[#0a0a0a]">
+              {patientProfile?.quScoreBand || 'SIN CALCULAR'}
+            </span>
           </div>
 
           {/* ⚠️ Alergias y Condiciones */}
-          <div className="space-y-4">
+          <div className="space-y-6 pt-4 border-t border-black dark:border-white">
             <div>
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> {t('allergies')}
+              <p className="text-[10px] font-bold text-black dark:text-white flex items-center gap-3 mb-3 uppercase tracking-widest">
+                <AlertTriangle className="w-4 h-4" strokeWidth={1.5} /> {t('allergies')}
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {patientProfile?.allergies?.length ? (
                   patientProfile.allergies.map(a => (
-                    <Badge key={a} variant="secondary" className="bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                    <span key={a} className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
                       {a}
-                    </Badge>
+                    </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400 dark:text-slate-500">{t('no_data')}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">{t('no_data')}</span>
                 )}
               </div>
             </div>
-            <Separator className="dark:bg-slate-800" />
+            
+            <div className="border-t border-gray-300 dark:border-gray-700" />
+            
             <div>
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
-                <ShieldAlert className="w-3.5 h-3.5 text-blue-500" /> {t('conditions')}
+              <p className="text-[10px] font-bold text-black dark:text-white flex items-center gap-3 mb-3 uppercase tracking-widest">
+                <ShieldAlert className="w-4 h-4" strokeWidth={1.5} /> {t('conditions')}
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {patientProfile?.chronicConditions?.length ? (
                   patientProfile.chronicConditions.map(c => (
-                    <Badge key={c} variant="outline" className="text-xs dark:border-slate-700 dark:text-slate-300">
+                    <span key={c} className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
                       {c}
-                    </Badge>
+                    </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400 dark:text-slate-500">{t('no_data')}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">{t('no_data')}</span>
                 )}
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </aside>
   );

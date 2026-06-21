@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileText, ClipboardList, Stethoscope, BriefcaseMedical, FileDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ehrService } from '@/services/ehr.service';
 import { appointmentService } from '@/services/appointment.service';
 import { ClinicalNotesDto } from '@/types/ehr';
@@ -37,7 +36,7 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
         setNotes(data);
       } catch (err) {
         console.error('Error fetching clinical notes', err);
-        setError('No se pudieron cargar las notas clínicas. Es posible que esta consulta no haya sido completada.');
+        setError('NO SE PUDIERON CARGAR LAS NOTAS CLÍNICAS. ES POSIBLE QUE ESTA CONSULTA NO HAYA SIDO COMPLETADA.');
       } finally {
         setIsLoading(false);
       }
@@ -67,106 +66,132 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/50 backdrop-blur-sm">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] w-full max-w-3xl flex flex-col max-h-[90vh] rounded-none overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-medical-50/50 dark:bg-medical-900/10 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-medical-100 dark:bg-medical-900/30 text-medical-600 dark:text-medical-400 rounded-lg">
-                <FileText className="w-5 h-5" />
+          <div className="flex items-start md:items-center justify-between p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                <FileText className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-white">Expediente de Consulta Previa</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{patientName} • {new Date(consultationDate).toLocaleDateString()}</p>
+                <h3 className="text-xl md:text-2xl font-serif italic tracking-tight text-black dark:text-white uppercase mb-1">
+                  Expediente de Consulta
+                </h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  {patientName} <span className="mx-2">|</span> {new Date(consultationDate).toLocaleDateString()}
+                </p>
               </div>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
-              <X className="w-5 h-5" />
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-black dark:hover:text-white transition-colors border border-transparent hover:border-black dark:hover:border-white p-2 shrink-0"
+            >
+              <X className="w-5 h-5" strokeWidth={1.5} />
             </button>
           </div>
 
           {/* Body */}
-          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+          <div className="p-6 md:p-8 overflow-y-auto flex-1 custom-scrollbar">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center h-48 space-y-4">
+              <div className="flex flex-col items-center justify-center h-48 space-y-6">
                 <QhSpinner size="lg" />
-                <p className="text-sm text-slate-500 font-medium">Recuperando expediente clínico...</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+                  RECUPERANDO EXPEDIENTE CLÍNICO...
+                </p>
               </div>
             ) : error ? (
-              <div className="flex flex-col items-center justify-center h-48 space-y-4 text-center">
-                <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700" />
-                <p className="text-slate-500 dark:text-slate-400">{error}</p>
+              <div className="flex flex-col items-center justify-center h-48 space-y-6 text-center">
+                <FileText className="w-12 h-12 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-red-500 max-w-sm">{error}</p>
               </div>
             ) : notes ? (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 
                 {/* SOAP: Subjetivo */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-2 text-slate-700 dark:text-slate-300">
-                    <ClipboardList className="w-4 h-4 text-blue-500" />
-                    <h4 className="font-bold text-sm uppercase tracking-wider">Subjetivo</h4>
+                <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-6">
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black dark:border-white">
+                    <ClipboardList className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      Subjetivo
+                    </h4>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                    {notes.subjective || <span className="italic text-slate-400">Sin registro</span>}
+                  <p className="text-xs font-light leading-relaxed text-black dark:text-white whitespace-pre-wrap">
+                    {notes.subjective || <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">SIN REGISTRO</span>}
                   </p>
                 </div>
 
                 {/* SOAP: Objetivo */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-2 text-slate-700 dark:text-slate-300">
-                    <Stethoscope className="w-4 h-4 text-teal-500" />
-                    <h4 className="font-bold text-sm uppercase tracking-wider">Objetivo</h4>
+                <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-6">
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black dark:border-white">
+                    <Stethoscope className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      Objetivo
+                    </h4>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                    {notes.objective || <span className="italic text-slate-400">Sin registro</span>}
+                  <p className="text-xs font-light leading-relaxed text-black dark:text-white whitespace-pre-wrap">
+                    {notes.objective || <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">SIN REGISTRO</span>}
                   </p>
                 </div>
 
                 {/* SOAP: Análisis */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-2 text-slate-700 dark:text-slate-300">
-                    <BriefcaseMedical className="w-4 h-4 text-indigo-500" />
-                    <h4 className="font-bold text-sm uppercase tracking-wider">Análisis / Diagnóstico</h4>
+                <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-6">
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black dark:border-white">
+                    <BriefcaseMedical className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      Análisis / Diagnóstico
+                    </h4>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                    {notes.assessment || <span className="italic text-slate-400">Sin registro</span>}
+                  <p className="text-xs font-light leading-relaxed text-black dark:text-white whitespace-pre-wrap">
+                    {notes.assessment || <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">SIN REGISTRO</span>}
                   </p>
                 </div>
 
                 {/* SOAP: Plan */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-2 text-slate-700 dark:text-slate-300">
-                    <FileText className="w-4 h-4 text-medical-500" />
-                    <h4 className="font-bold text-sm uppercase tracking-wider">Plan y Tratamiento</h4>
+                <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-6">
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-black dark:border-white">
+                    <FileText className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      Plan y Tratamiento
+                    </h4>
                   </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                    {notes.plan || <span className="italic text-slate-400">Sin registro</span>}
+                  <p className="text-xs font-light leading-relaxed text-black dark:text-white whitespace-pre-wrap">
+                    {notes.plan || <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">SIN REGISTRO</span>}
                   </p>
                 </div>
 
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-48 space-y-4 text-center">
-                <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700" />
-                <p className="text-slate-500 dark:text-slate-400">Expediente vacío.</p>
+              <div className="flex flex-col items-center justify-center h-48 space-y-6 text-center">
+                <FileText className="w-12 h-12 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EXPEDIENTE VACÍO.</p>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800 shrink-0 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+          <div className="p-6 border-t border-black dark:border-white bg-gray-50 dark:bg-[#050505] shrink-0 flex flex-col sm:flex-row justify-between items-center gap-4">
             {notes ? (
-              <Button onClick={handleDownloadPrescription} variant="secondary" className="flex items-center gap-2">
-                <FileDown className="w-4 h-4" />
-                Ver Receta Médica
-              </Button>
-            ) : <div />}
-            <Button onClick={onClose} variant="outline" className="px-6">Cerrar Expediente</Button>
+              <button 
+                onClick={handleDownloadPrescription} 
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-black text-white dark:bg-white dark:text-black px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+              >
+                <FileDown className="w-4 h-4" strokeWidth={1.5} />
+                VER RECETA MÉDICA
+              </button>
+            ) : <div className="hidden sm:block" />}
+            
+            <button 
+              onClick={onClose} 
+              className="w-full sm:w-auto bg-transparent border border-black dark:border-white px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+            >
+              CERRAR EXPEDIENTE
+            </button>
           </div>
         </motion.div>
       </div>
