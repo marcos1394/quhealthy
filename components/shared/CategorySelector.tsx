@@ -4,12 +4,14 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
-import { Loader2, Check, Star, Search, X, Info, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
+import { Loader2, Star, Search, X, Info, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
 import { CategoryResponse, SubCategoryResponse, TagResponse } from "@/types/onboarding";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
@@ -32,6 +34,8 @@ export default function CategorySelector({
   const [subCategories, setSubCategories] = useState<SubCategoryResponse[]>([]);
   const [isLoadingSub, setIsLoadingSub] = useState(false);
   const [tagSearchQuery, setTagSearchQuery] = useState("");
+  const [openCat, setOpenCat] = useState(false);
+  const [openSub, setOpenSub] = useState(false);
 
   const loadInitialSubCategories = useCallback(async () => {
     if (selectedCategoryId && selectedCategoryId > 0) {
@@ -174,23 +178,55 @@ export default function CategorySelector({
           Sector Principal
           {(selectedCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
         </label>
-        <Select value={selectedCategoryId?.toString()} onValueChange={(val) => handleCatChange(Number(val))} disabled={categories.length === 0}>
-          <SelectTrigger className={cn("w-full h-14 rounded-none text-xs font-medium transition-all",
-            "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:ring-0 focus:border-black dark:focus:border-white",
-            (selectedCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}>
-            <SelectValue placeholder="Selecciona tu sector..." />
-          </SelectTrigger>
-          <SelectContent className="rounded-none bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 p-0 shadow-xl">
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id.toString()} className="rounded-none cursor-pointer py-3 hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-4 bg-black dark:bg-white opacity-20" />
-                  <span className="text-xs uppercase tracking-wide">{cat.name}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={openCat} onOpenChange={setOpenCat}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={openCat}
+              disabled={categories.length === 0}
+              className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
+                "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
+                (selectedCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
+            >
+              <span className="truncate">
+                {selectedCategoryId && selectedCategoryId > 0
+                  ? categories.find((cat) => cat.id === selectedCategoryId)?.name
+                  : "Selecciona tu sector..."}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-none border-gray-200 dark:border-gray-800 shadow-xl" align="start">
+            <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
+              <CommandInput placeholder="Buscar sector..." className="h-10 text-xs" />
+              <CommandList className="max-h-[300px] overflow-y-auto">
+                <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron sectores.</CommandEmpty>
+                <CommandGroup>
+                  {categories.map((cat) => (
+                    <CommandItem
+                      key={cat.id}
+                      value={cat.name}
+                      onSelect={() => {
+                        handleCatChange(cat.id);
+                        setOpenCat(false);
+                      }}
+                      className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedCategoryId === cat.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {cat.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </motion.div>
 
       {/* Step 2: Subcategory */}
@@ -203,24 +239,57 @@ export default function CategorySelector({
               Enfoque Específico
               {(selectedSubCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
             </label>
-            <Select value={selectedSubCategoryId?.toString()} onValueChange={(val) => handleSubChange(Number(val))} disabled={isLoadingSub}>
-              <SelectTrigger className={cn("w-full h-14 rounded-none text-xs font-medium transition-all",
-                "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:ring-0 focus:border-black dark:focus:border-white",
-                (selectedSubCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}>
-                {isLoadingSub ? (
-                  <div className="flex items-center gap-3"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></div>
-                ) : (
-                  <SelectValue placeholder="¿Cuál es tu enfoque principal?" />
-                )}
-              </SelectTrigger>
-              <SelectContent className="rounded-none bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 p-0 shadow-xl">
-                {subCategories.map((sub) => (
-                  <SelectItem key={sub.id} value={sub.id.toString()} className="rounded-none cursor-pointer py-3 hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0">
-                    <span className="text-xs uppercase tracking-wide ml-2">{sub.name}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openSub} onOpenChange={setOpenSub}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openSub}
+                  disabled={isLoadingSub}
+                  className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
+                    "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
+                    (selectedSubCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
+                >
+                  <span className="truncate flex items-center gap-2">
+                    {isLoadingSub ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></>
+                    ) : selectedSubCategoryId && selectedSubCategoryId > 0
+                      ? subCategories.find((sub) => sub.id === selectedSubCategoryId)?.name
+                      : "¿Cuál es tu enfoque principal?"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-none border-gray-200 dark:border-gray-800 shadow-xl" align="start">
+                <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
+                  <CommandInput placeholder="Buscar enfoque..." className="h-10 text-xs" />
+                  <CommandList className="max-h-[300px] overflow-y-auto">
+                    <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron enfoques.</CommandEmpty>
+                    <CommandGroup>
+                      {subCategories.map((sub) => (
+                        <CommandItem
+                          key={sub.id}
+                          value={sub.name}
+                          onSelect={() => {
+                            handleSubChange(sub.id);
+                            setOpenSub(false);
+                          }}
+                          className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedSubCategoryId === sub.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {sub.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </motion.div>
         )}
       </AnimatePresence>
