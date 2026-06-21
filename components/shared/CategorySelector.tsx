@@ -207,9 +207,7 @@ export default function CategorySelector({
                     <CommandItem
                       key={cat.id}
                       value={cat.name}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                      onPointerUp={(e) => {
                         handleCatChange(cat.id);
                         setOpenCat(false);
                       }}
@@ -276,9 +274,7 @@ export default function CategorySelector({
                         <CommandItem
                           key={sub.id}
                           value={sub.name}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
+                          onPointerUp={(e) => {
                             handleSubChange(sub.id);
                             setOpenSub(false);
                           }}
