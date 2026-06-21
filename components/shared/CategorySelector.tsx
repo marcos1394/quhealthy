@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -36,6 +36,38 @@ export default function CategorySelector({
   const [tagSearchQuery, setTagSearchQuery] = useState("");
   const [openCat, setOpenCat] = useState(false);
   const [openSub, setOpenSub] = useState(false);
+
+  // iOS Safari touch tracking
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEndCat = (e: React.TouchEvent, id: number) => {
+    if (touchStartY.current !== null) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = Math.abs(touchStartY.current - touchEndY);
+      // Si la diferencia es menor a 5px, se considera un tap (no un scroll)
+      if (diff < 5) {
+        e.preventDefault();
+        handleCatChange(id);
+        setTimeout(() => setOpenCat(false), 50);
+      }
+    }
+  };
+
+  const handleTouchEndSub = (e: React.TouchEvent, id: number) => {
+    if (touchStartY.current !== null) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = Math.abs(touchStartY.current - touchEndY);
+      if (diff < 5) {
+        e.preventDefault();
+        handleSubChange(id);
+        setTimeout(() => setOpenSub(false), 50);
+      }
+    }
+  };
 
   const loadInitialSubCategories = useCallback(async () => {
     if (selectedCategoryId && selectedCategoryId > 0) {
@@ -207,14 +239,17 @@ export default function CategorySelector({
                     <CommandItem
                       key={cat.id}
                       value={cat.name}
-                      onPointerUp={(e) => {
+                      onTouchStart={handleTouchStart}
+                      onTouchEnd={(e) => handleTouchEndCat(e, cat.id)}
+                      onClick={() => {
                         handleCatChange(cat.id);
-                        setOpenCat(false);
+                        setTimeout(() => setOpenCat(false), 50);
                       }}
                       onSelect={() => {
                         handleCatChange(cat.id);
-                        setOpenCat(false);
+                        setTimeout(() => setOpenCat(false), 50);
                       }}
+                      style={{ cursor: "pointer", zIndex: 50 }}
                       className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
                     >
                       <Check
@@ -274,14 +309,17 @@ export default function CategorySelector({
                         <CommandItem
                           key={sub.id}
                           value={sub.name}
-                          onPointerUp={(e) => {
+                          onTouchStart={handleTouchStart}
+                          onTouchEnd={(e) => handleTouchEndSub(e, sub.id)}
+                          onClick={() => {
                             handleSubChange(sub.id);
-                            setOpenSub(false);
+                            setTimeout(() => setOpenSub(false), 50);
                           }}
                           onSelect={() => {
                             handleSubChange(sub.id);
-                            setOpenSub(false);
+                            setTimeout(() => setOpenSub(false), 50);
                           }}
+                          style={{ cursor: "pointer", zIndex: 50 }}
                           className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
                         >
                           <Check
