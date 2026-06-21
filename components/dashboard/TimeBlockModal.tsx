@@ -7,10 +7,11 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useTimeBlock } from "@/hooks/useTimeBlock";
 import { useTranslations } from "next-intl";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface TimeBlockModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; initialDate?: Date; }
 
@@ -90,49 +91,45 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-2xl p-0 overflow-hidden rounded-none shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
         
         {/* HEADER ARQUITECTÓNICO */}
-        <div className="px-6 py-6 bg-gray-50 dark:bg-[#050505] border-b border-black dark:border-white relative">
-          <DialogHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
-                  <Calendar className="w-6 h-6" strokeWidth={1.5} />
-                </div>
-                <div className="text-left">
-                  <DialogTitle className="text-xl md:text-2xl font-bold tracking-tight uppercase">
-                    {t('title', { defaultValue: 'BLOQUEO DE AGENDA' })}
-                  </DialogTitle>
-                  <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                    {t('subtitle', { defaultValue: 'RESTRINGIR DISPONIBILIDAD PARA CITAS EN UN PERIODO ESPECÍFICO.' })}
-                  </DialogDescription>
-                </div>
-              </div>
-              {!loading && (
-                <button 
-                  onClick={onClose} 
-                  className="w-10 h-10 border border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#0a0a0a] flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              )}
+        <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 flex items-start justify-between shrink-0">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
-          </DialogHeader>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                {t('subtitle', { defaultValue: 'RESTRINGIR DISPONIBILIDAD OPERATIVA.' })}
+              </p>
+              <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight uppercase leading-none text-black dark:text-white">
+                {t('title', { defaultValue: 'BLOQUEO DE AGENDA' })}
+              </DialogTitle>
+            </div>
+          </div>
+          {!loading && (
+            <button 
+              onClick={onClose} 
+              className="w-12 h-12 border border-transparent hover:border-black/20 dark:hover:border-white/20 bg-transparent hover:bg-gray-50 dark:hover:bg-[#050505] flex items-center justify-center transition-colors shrink-0"
+            >
+              <X className="w-5 h-5 text-gray-500 hover:text-black dark:hover:text-white" strokeWidth={1.5} />
+            </button>
+          )}
         </div>
 
-        {/* CUERPO DEL MODAL */}
-        <div className="px-6 py-8 overflow-y-auto max-h-[65vh] custom-scrollbar space-y-10">
+        {/* CUERPO DEL MODAL (GRID BLUEPRINT) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
           
           {/* MACROS (Templates) */}
-          <div>
+          <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
             <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
-              <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
-                {t('templates_label', { defaultValue: 'MACROS RÁPIDAS' })}
+              <Sparkles className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                {t('templates_label', { defaultValue: 'MACROS DE CONFIGURACIÓN RÁPIDA' })}
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-black/20 dark:border-white/20">
               {blockTemplates.map(tmpl => {
                 const Icon = tmpl.icon; 
                 const isSel = selectedTemplate === tmpl.id;
@@ -141,24 +138,24 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
                     key={tmpl.id} 
                     onClick={() => applyTemplate(tmpl.id)} 
                     className={cn(
-                      "flex flex-col items-center gap-3 p-4 border transition-colors rounded-none text-center group",
+                      "flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 transition-colors text-left group rounded-none",
                       isSel 
-                        ? "border-black dark:border-white bg-black text-white dark:bg-white dark:text-black shadow-[4px_4px_0_0_currentColor]" 
-                        : "border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:shadow-[4px_4px_0_0_currentColor] hover:-translate-y-[2px] hover:-translate-x-[2px]"
+                        ? "bg-black text-white dark:bg-white dark:text-black" 
+                        : "bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111]"
                     )}
                   >
                     <div className={cn("w-10 h-10 border flex items-center justify-center shrink-0 transition-colors", 
                       isSel 
-                        ? "border-white dark:border-black bg-black text-white dark:bg-white dark:text-black" 
-                        : "border-black dark:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-transparent group-hover:border-white dark:group-hover:border-black"
+                        ? "border-white/30 dark:border-black/30 bg-black text-white dark:bg-white dark:text-black" 
+                        : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-white dark:group-hover:bg-[#0a0a0a]"
                     )}>
                       <Icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1", isSel ? "text-white dark:text-black" : "text-black dark:text-white group-hover:text-inherit")}>
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-1", isSel ? "text-white dark:text-black" : "text-black dark:text-white")}>
                         {tmpl.title}
                       </p>
-                      <p className={cn("text-[9px] font-bold uppercase tracking-widest", isSel ? "opacity-70" : "text-gray-500 group-hover:text-inherit group-hover:opacity-70")}>
+                      <p className={cn("text-[9px] font-bold uppercase tracking-widest", isSel ? "opacity-70" : "text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400")}>
                         {fmtDuration(tmpl.duration)}
                       </p>
                     </div>
@@ -168,109 +165,115 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
             </div>
           </div>
 
-          <div className="w-full h-px bg-black dark:bg-white" />
+          {/* FORMULARIO DE ENTRADA (CELDAS DE DATOS) */}
+          <div className="grid grid-cols-1 gap-0">
+            
+            {/* MOTIVO */}
+            <div className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 md:p-8 flex flex-col">
+              <Label className="flex items-center text-[9px] uppercase font-bold tracking-widest text-gray-500 mb-3 gap-2">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
+                {t('event_title_label', { defaultValue: 'MOTIVO / ETIQUETA DEL BLOQUEO' })}
+              </Label>
+              <Input 
+                name="title" 
+                value={formData.title} 
+                onChange={handleInput} 
+                placeholder={t('event_title_placeholder', { defaultValue: 'EJ. RECESO, ASUNTOS PERSONALES...' })}
+                className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-xs font-semibold uppercase tracking-widest transition-colors focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none w-full" 
+                disabled={loading} 
+              />
+            </div>
 
-          {/* MOTIVO (Título) */}
-          <div className="space-y-3">
-            <Label className="flex items-center text-[10px] uppercase font-bold tracking-widest text-gray-500">
-              {t('event_title_label', { defaultValue: 'MOTIVO / ETIQUETA DEL BLOQUEO' })}
-            </Label>
-            <Input 
-              name="title" 
-              value={formData.title} 
-              onChange={handleInput} 
-              placeholder={t('event_title_placeholder', { defaultValue: 'EJ. RECESO, ASUNTOS PERSONALES...' })}
-              className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white h-12 text-sm font-bold uppercase tracking-widest transition-colors focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]" 
-              disabled={loading} 
-            />
-          </div>
-
-          {/* SELECTORES DE FECHA Y HORA */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-            <div className="space-y-4 p-6 bg-gray-50 dark:bg-[#050505] border border-black dark:border-white">
-              <div className="flex items-center justify-between border-b border-black dark:border-white pb-3">
-                <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
-                  <Clock className="w-4 h-4" strokeWidth={1.5} />
-                  {t('start', { defaultValue: 'INICIO' })}
+            {/* SELECTORES DE FECHA Y HORA */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+              
+              {/* Inicio */}
+              <div className="p-6 md:p-8 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col">
+                <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-3 mb-4">
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
+                    <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                    {t('start', { defaultValue: 'INICIO' })}
+                  </div>
+                  <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 text-[9px] uppercase font-bold tracking-widest px-2 py-1">
+                    {t('from', { defaultValue: 'DESDE' })}
+                  </span>
                 </div>
-                <span className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white text-[9px] uppercase font-bold tracking-widest px-2 py-1">
-                  {t('from', { defaultValue: 'DESDE' })}
-                </span>
-              </div>
-              <div className="space-y-4 flex flex-col">
-                <Input 
-                  type="date" 
-                  name="startDate" 
-                  value={formData.startDate} 
-                  onChange={handleInput}
-                  className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors" 
-                  disabled={loading} 
-                />
-                <Input 
-                  type="time" 
-                  name="startTime" 
-                  value={formData.startTime} 
-                  onChange={handleInput}
-                  className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors" 
-                  disabled={loading} 
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4 p-6 bg-gray-50 dark:bg-[#050505] border border-black dark:border-white">
-              <div className="flex items-center justify-between border-b border-black dark:border-white pb-3">
-                <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
-                  <Clock className="w-4 h-4" strokeWidth={1.5} />
-                  {t('end', { defaultValue: 'TÉRMINO' })}
+                <div className="flex flex-col gap-4">
+                  <Input 
+                    type="date" 
+                    name="startDate" 
+                    value={formData.startDate} 
+                    onChange={handleInput}
+                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+                    disabled={loading} 
+                  />
+                  <Input 
+                    type="time" 
+                    name="startTime" 
+                    value={formData.startTime} 
+                    onChange={handleInput}
+                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+                    disabled={loading} 
+                  />
                 </div>
-                <span className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white text-[9px] uppercase font-bold tracking-widest px-2 py-1">
-                  {t('until', { defaultValue: 'HASTA' })}
-                </span>
               </div>
-              <div className="space-y-4 flex flex-col">
-                <Input 
-                  type="date" 
-                  name="endDate" 
-                  value={formData.endDate} 
-                  onChange={handleInput}
-                  className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors" 
-                  disabled={loading} 
-                />
-                <Input 
-                  type="time" 
-                  name="endTime" 
-                  value={formData.endTime} 
-                  onChange={handleInput}
-                  className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors" 
-                  disabled={loading} 
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* BLOQUE DE ERROR */}
-          {validationError && (
-            <div className="bg-red-50 dark:bg-red-900/10 border border-red-500 p-4 flex items-start gap-4">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" strokeWidth={1.5} />
-              <div className="flex-1 text-left mt-0.5">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-1">
-                  {t('validation_error', { defaultValue: 'ERROR DE VALIDACIÓN' })}
-                </p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  {validationError}
-                </p>
+              {/* Término */}
+              <div className="p-6 md:p-8 flex flex-col">
+                <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-3 mb-4">
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
+                    <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                    {t('end', { defaultValue: 'TÉRMINO' })}
+                  </div>
+                  <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 text-[9px] uppercase font-bold tracking-widest px-2 py-1">
+                    {t('until', { defaultValue: 'HASTA' })}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <Input 
+                    type="date" 
+                    name="endDate" 
+                    value={formData.endDate} 
+                    onChange={handleInput}
+                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+                    disabled={loading} 
+                  />
+                  <Input 
+                    type="time" 
+                    name="endTime" 
+                    value={formData.endTime} 
+                    onChange={handleInput}
+                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+                    disabled={loading} 
+                  />
+                </div>
               </div>
             </div>
-          )}
+
+            {/* BLOQUE DE ERROR */}
+            {validationError && (
+              <div className="bg-red-50 dark:bg-red-900/10 border-b border-red-500/30 p-6 flex items-start gap-4">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={1.5} />
+                <div className="flex-1 text-left">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-1">
+                    {t('validation_error', { defaultValue: 'ERROR DE VALIDACIÓN' })}
+                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                    {validationError}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* FOOTER Y COMANDOS */}
-        <DialogFooter className="flex-col sm:flex-row gap-4 p-6 bg-gray-50 dark:bg-[#050505] border-t border-black dark:border-white">
+        {/* FOOTER DE COMANDOS ESTRICTO */}
+        <DialogFooter className="flex-col sm:flex-row gap-4 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 shrink-0">
           <Button 
             variant="outline" 
             onClick={onClose} 
             disabled={loading}
-            className="flex-1 sm:flex-none h-14 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none text-[10px] uppercase font-bold tracking-widest transition-colors px-8"
+            className="flex-1 sm:flex-none h-14 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none text-[10px] uppercase font-bold tracking-widest transition-colors px-10"
           >
             {t('cancel', { defaultValue: 'ANULAR' })}
           </Button>
@@ -278,16 +281,16 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
             onClick={handleSave} 
             disabled={loading || !isValid}
             className={cn(
-              "flex-1 sm:flex-none min-w-[200px] h-14 border border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] text-[10px] uppercase font-bold tracking-widest transition-colors px-8 disabled:opacity-50 disabled:shadow-none",
+              "flex-1 sm:flex-none min-w-[220px] h-14 border rounded-none text-[10px] uppercase font-bold tracking-widest transition-colors px-10 disabled:opacity-50",
               savingStep === "success" 
-                ? "bg-white text-black dark:bg-[#0a0a0a] dark:text-white" 
-                : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                ? "border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white" 
+                : "border-black dark:border-white bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0"
             )}
           >
             <AnimatePresence mode="wait">
               {savingStep === "saving" && (
                 <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-3">
-                  <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> {t('saving', { defaultValue: 'PROCESANDO...' })}
+                  <QhSpinner size="sm" className="text-current" /> {t('saving', { defaultValue: 'PROCESANDO...' })}
                 </motion.div>
               )}
               {savingStep === "success" && (

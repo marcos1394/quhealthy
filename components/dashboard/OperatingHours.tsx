@@ -8,8 +8,7 @@ import { useOperatingHours, UIDaySchedule } from "@/hooks/useOperatingHours";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -17,7 +16,6 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
 
 // 🚀 TODO: Reemplazar con un selector de sede cuando se implemente la UI multi-sede.
-// Por ahora usamos la sede principal del proveedor (1 = primera sede de la lista).
 const DEFAULT_LOCATION_ID = 1;
 
 const daysOfWeek = [
@@ -99,53 +97,53 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSaving && onClose()}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-4xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
         
         {/* HEADER ARQUITECTÓNICO */}
-        <div className="px-6 py-6 bg-gray-50 dark:bg-[#050505] border-b border-black dark:border-white relative flex items-start justify-between">
+        <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white flex items-start justify-between shrink-0">
           <div className="flex items-center gap-5">
-            <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
-              <Clock className="w-6 h-6" strokeWidth={1.5} />
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Clock className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
-            <div className="text-left">
-              <DialogTitle className="text-xl md:text-2xl font-bold tracking-tight uppercase">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                {t('subtitle', { defaultValue: 'CONFIGURACIÓN DE ESCAPARATE DIGITAL' })}
+              </p>
+              <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight uppercase leading-none text-black dark:text-white">
                 {t('title', { defaultValue: 'MATRIZ DE DISPONIBILIDAD' })}
               </DialogTitle>
-              <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                {t('subtitle', { defaultValue: 'CONFIGURACIÓN DE HORARIOS OPERATIVOS Y ESCAPARATE DIGITAL.' })}
-              </DialogDescription>
             </div>
           </div>
           {!isSaving && !isLoading && (
             <button 
               onClick={onClose} 
-              className="w-10 h-10 border border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#0a0a0a] flex items-center justify-center transition-colors"
+              className="w-12 h-12 border border-transparent hover:border-black/20 dark:hover:border-white/20 bg-transparent hover:bg-gray-50 dark:hover:bg-[#050505] flex items-center justify-center transition-colors shrink-0"
             >
-              <X className="w-5 h-5" strokeWidth={1.5} />
+              <X className="w-5 h-5 text-gray-500 hover:text-black dark:hover:text-white" strokeWidth={1.5} />
             </button>
           )}
         </div>
 
         {isLoading ? (
-          <div className="h-[400px] flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+          <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505] min-h-[400px]">
             <QhSpinner size="md" className="text-black dark:text-white" />
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
               {t('loading', { defaultValue: 'EXTRAYENDO REGISTROS HORARIOS...' })}
             </p>
           </div>
         ) : (
-          <div className="flex flex-col">
-            <div className="px-6 py-8 overflow-y-auto max-h-[65vh] custom-scrollbar space-y-10 bg-white dark:bg-[#0a0a0a]">
+          <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-[#050505]">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 space-y-10">
               
-              {/* PLANTILLAS TÉCNICAS */}
+              {/* PLANTILLAS TÉCNICAS (GRID BLUEPRINT) */}
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <Settings className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
-                  <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
-                    {t('templates_label', { defaultValue: 'MACROS DE CONFIGURACIÓN' })}
+                  <Settings className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    {t('templates_label', { defaultValue: 'MACROS DE CONFIGURACIÓN RÁPIDA' })}
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-black/20 dark:border-white/20">
                   {scheduleTemplates.map(tmpl => {
                     const Icon = tmpl.icon;
                     return (
@@ -155,14 +153,14 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                           setSchedules(tmpl.apply(schedules)); 
                           toast.success(`MACRO "${tmpl.name}" APLICADA.`); 
                         }}
-                        className="flex items-center gap-4 p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-left group"
+                        className="flex flex-col items-start gap-4 p-5 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-left group"
                       >
-                        <div className="w-10 h-10 border border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black flex items-center justify-center shrink-0 transition-colors">
+                        <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-black group-hover:border-white/30 dark:group-hover:bg-white dark:group-hover:border-black/30 dark:group-hover:text-black flex items-center justify-center shrink-0 transition-colors">
                           <Icon className="w-5 h-5" strokeWidth={1.5} />
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest">{tmpl.name}</p>
-                          <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mt-1">{tmpl.description}</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-1">{tmpl.description}</p>
                         </div>
                       </button>
                     );
@@ -174,17 +172,17 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
-                    <p className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
+                    <CalendarDays className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                       {t('your_week', { defaultValue: 'SECUENCIA SEMANAL' })}
                     </p>
                   </div>
-                  <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
-                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  <span className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                    ZONA HORARIA: {Intl.DateTimeFormat().resolvedOptions().timeZone}
                   </span>
                 </div>
                 
-                <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] divide-y divide-gray-200 dark:divide-gray-800">
+                <div className="border-t border-l border-black/20 dark:border-white/20 bg-transparent flex flex-col">
                   {schedules.map(day => {
                     const info = daysOfWeek.find(d => d.id === day.dayOfWeek);
                     const hasError = validationErrors[day.dayOfWeek];
@@ -194,9 +192,9 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                       <div 
                         key={day.dayOfWeek}
                         className={cn(
-                          "flex flex-col md:flex-row md:items-center justify-between gap-6 p-4 md:p-6 transition-colors",
-                          !day.isActive && "bg-gray-50 dark:bg-[#050505]", 
-                          isCopied && "bg-black text-white dark:bg-white dark:text-black"
+                          "flex flex-col md:flex-row md:items-center justify-between gap-6 p-4 md:p-6 border-b border-r border-black/20 dark:border-white/20 transition-colors",
+                          day.isActive ? "bg-white dark:bg-[#0a0a0a]" : "bg-gray-50 dark:bg-[#050505]", 
+                          isCopied && "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
                         )}
                       >
                         {/* Control de Activación */}
@@ -204,11 +202,11 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                           <Switch 
                             checked={day.isActive} 
                             onCheckedChange={v => handleChange(day.dayOfWeek, "isActive", v)}
-                            className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-gray-700 border border-black dark:border-white rounded-none [&>span]:rounded-none" 
+                            className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-gray-700 border border-black/20 dark:border-white/20 rounded-none [&>span]:rounded-none" 
                           />
                           <span className={cn(
                             "font-bold text-[10px] uppercase tracking-widest", 
-                            day.isActive ? (isCopied ? "text-white dark:text-black" : "text-black dark:text-white") : "text-gray-400"
+                            day.isActive ? (isCopied ? "text-white dark:text-black" : "text-black dark:text-white") : "text-gray-400 dark:text-gray-600"
                           )}>
                             {info?.short}
                           </span>
@@ -218,25 +216,25 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                         <div className="flex flex-1 items-center justify-start md:justify-end gap-3">
                           {day.isActive ? (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-wrap items-center gap-3">
-                              <div className={cn("relative border", hasError ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-black dark:border-white bg-white dark:bg-[#0a0a0a]")}>
+                              <div className={cn("relative border", hasError ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]")}>
                                 <Input 
                                   type="time" 
                                   value={day.openTime} 
                                   onChange={e => handleChange(day.dayOfWeek, "openTime", e.target.value)}
-                                  className={cn("w-[120px] h-10 border-0 bg-transparent text-[10px] font-bold uppercase tracking-widest text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none", isCopied ? "text-black dark:text-white" : "text-black dark:text-white")} 
+                                  className={cn("w-[120px] h-10 border-0 bg-transparent text-[10px] font-bold uppercase tracking-widest text-center focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none", isCopied ? "text-white dark:text-black" : "text-black dark:text-white")} 
                                 />
                               </div>
                               
-                              <span className={cn("font-bold text-[9px] uppercase tracking-widest", isCopied ? "text-white dark:text-black" : "text-gray-500")}>
+                              <span className={cn("font-bold text-[9px] uppercase tracking-widest", isCopied ? "text-white dark:text-black" : "text-gray-400 dark:text-gray-500")}>
                                 {t('to', { defaultValue: 'A' })}
                               </span>
                               
-                              <div className={cn("relative border", hasError ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-black dark:border-white bg-white dark:bg-[#0a0a0a]")}>
+                              <div className={cn("relative border", hasError ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]")}>
                                 <Input 
                                   type="time" 
                                   value={day.closeTime} 
                                   onChange={e => handleChange(day.dayOfWeek, "closeTime", e.target.value)}
-                                  className={cn("w-[120px] h-10 border-0 bg-transparent text-[10px] font-bold uppercase tracking-widest text-center focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none", isCopied ? "text-black dark:text-white" : "text-black dark:text-white")} 
+                                  className={cn("w-[120px] h-10 border-0 bg-transparent text-[10px] font-bold uppercase tracking-widest text-center focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none", isCopied ? "text-white dark:text-black" : "text-black dark:text-white")} 
                                 />
                               </div>
                               
@@ -246,16 +244,16 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                                 className={cn(
                                   "h-10 w-10 border flex items-center justify-center transition-colors shrink-0", 
                                   isCopied 
-                                    ? "border-white dark:border-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white" 
-                                    : "border-black dark:border-white bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                                    ? "border-white/30 dark:border-black/30 hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white" 
+                                    : "border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black"
                                 )}
                               >
                                 <Copy className="w-4 h-4" strokeWidth={1.5} />
                               </button>
                             </motion.div>
                           ) : (
-                            <div className="flex items-center gap-3 text-gray-400 h-10 px-6 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
-                              <Moon className="w-4 h-4" strokeWidth={1.5} />
+                            <div className="flex items-center gap-3 text-gray-400 h-10 px-6 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+                              <Moon className="w-3.5 h-3.5" strokeWidth={1.5} />
                               <span className="text-[9px] font-bold uppercase tracking-widest">
                                 {t('closed', { defaultValue: 'INACTIVO' })}
                               </span>
@@ -265,8 +263,8 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                         
                         {/* Mensaje de Error Integrado */}
                         {hasError && (
-                          <div className="w-full md:w-auto flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 border border-red-500 bg-red-50 dark:bg-red-900/10 px-3 py-1 mt-2 md:mt-0">
-                            <AlertCircle className="w-3 h-3" strokeWidth={1.5} />{hasError}
+                          <div className="w-full md:w-auto flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 border border-red-500/30 bg-red-50 dark:bg-red-900/10 px-3 py-1.5 mt-2 md:mt-0">
+                            <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} />{hasError}
                           </div>
                         )}
                       </div>
@@ -274,25 +272,26 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                   })}
                 </div>
               </div>
+
+              {/* AVISO DE DÍAS CERO */}
+              {!isLoading && activeCount === 0 && (
+                <div className="px-6 py-4 border border-amber-500/50 bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-400 flex items-center gap-4">
+                  <AlertCircle className="w-5 h-5" strokeWidth={1.5} />
+                  <p className="text-[9px] font-bold uppercase tracking-widest">
+                    {t('warning_no_days', { defaultValue: 'ADVERTENCIA: EL ESCAPARATE DIGITAL SE ENCUENTRA ACTUALMENTE SIN DISPONIBILIDAD OPERATIVA.' })}
+                  </p>
+                </div>
+              )}
+
             </div>
 
-            {/* AVISO DE DÍAS CERO */}
-            {!isLoading && activeCount === 0 && (
-              <div className="px-6 py-4 bg-black text-white dark:bg-white dark:text-black flex items-center gap-4">
-                <AlertCircle className="w-5 h-5" strokeWidth={1.5} />
-                <p className="text-[9px] font-bold uppercase tracking-widest">
-                  {t('warning_no_days', { defaultValue: 'ADVERTENCIA: ESCAPARATE ACTUALMENTE SIN DISPONIBILIDAD OPERATIVA.' })}
-                </p>
-              </div>
-            )}
-
             {/* FOOTER DE COMANDOS */}
-            <DialogFooter className="px-6 py-6 bg-gray-50 dark:bg-[#050505] border-t border-black dark:border-white flex flex-col sm:flex-row items-center justify-between gap-6">
+            <DialogFooter className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row items-center justify-between gap-6 shrink-0">
               <div className="w-full sm:w-auto text-left">
                 {hasChanges && (
                   <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
                     <div className="w-2 h-2 bg-black dark:bg-white animate-pulse" />
-                    {t('unsaved_changes', { defaultValue: 'ALTERACIONES PENDIENTES' })}
+                    {t('unsaved_changes', { defaultValue: 'ALTERACIONES PENDIENTES DE GUARDADO' })}
                   </span>
                 )}
               </div>
@@ -300,7 +299,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                 <Button 
                   onClick={onClose} 
                   disabled={isSaving || isLoading}
-                  className="w-full sm:w-auto border border-black dark:border-white rounded-none bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest h-12 px-8"
+                  className="w-full sm:w-auto border border-black dark:border-white rounded-none bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest h-14 px-8"
                 >
                   {t('cancel', { defaultValue: 'ANULAR' })}
                 </Button>
@@ -308,10 +307,10 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                   onClick={handleSave} 
                   disabled={isSaving || isLoading || Object.keys(validationErrors).length > 0 || !hasChanges}
                   className={cn(
-                    "w-full sm:w-auto border border-black dark:border-white rounded-none text-[10px] font-bold uppercase tracking-widest h-12 px-10 transition-colors shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] disabled:opacity-50 disabled:shadow-none",
+                    "w-full sm:w-auto border rounded-none text-[10px] font-bold uppercase tracking-widest h-14 px-10 transition-colors disabled:opacity-50",
                     savingStep === "success" 
-                      ? "bg-white text-black dark:bg-[#0a0a0a] dark:text-white" 
-                      : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                      ? "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white" 
+                      : "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white hover:bg-gray-800 dark:hover:bg-gray-200 border-0"
                   )}
                 >
                   <AnimatePresence mode="wait">
