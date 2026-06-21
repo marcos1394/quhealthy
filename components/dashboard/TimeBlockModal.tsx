@@ -54,15 +54,47 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
     }
   }, [formData, t]);
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      
+      if (name === "startDate" || name === "startTime") {
+        if (prev.startDate && prev.startTime && prev.endDate && prev.endTime) {
+           const prevStart = new Date(`${prev.startDate}T${prev.startTime}`);
+           const prevEnd = new Date(`${prev.endDate}T${prev.endTime}`);
+           const prevDiffMins = Math.floor((prevEnd.getTime() - prevStart.getTime()) / 60000);
+           
+           if (prevDiffMins > 0 && next.startDate && next.startTime) {
+              const newStart = new Date(`${next.startDate}T${next.startTime}`);
+              const newEnd = new Date(newStart.getTime() + prevDiffMins * 60000);
+              
+              // Only auto-shift if the new date doesn't throw invalid date
+              if (!isNaN(newEnd.getTime())) {
+                next.endDate = newEnd.toISOString().split("T")[0];
+                next.endTime = `${String(newEnd.getHours()).padStart(2, "0")}:${String(newEnd.getMinutes()).padStart(2, "0")}`;
+              }
+           }
+        }
+      }
+      
+      if (name === "endDate" || name === "endTime") {
+         setSelectedTemplate(null);
+      }
+      
+      return next;
+    });
+  };
 
   const applyTemplate = (id: string) => {
     const tmpl = blockTemplates.find(x => x.id === id); if (!tmpl) return;
     const startStr = formData.startDate || new Date().toISOString().split("T")[0];
-    const startObj = new Date(`${startStr}T12:00:00`);
+    const startTimeStr = formData.startTime || "12:00";
+    const startObj = new Date(`${startStr}T${startTimeStr}:00`);
     const endObj = new Date(startObj.getTime() + tmpl.duration * 60000);
     setFormData({
-      title: tmpl.title, startDate: startStr, startTime: "12:00", endDate: endObj.toISOString().split("T")[0],
+      title: tmpl.title, startDate: startStr, startTime: startTimeStr, endDate: endObj.toISOString().split("T")[0],
       endTime: `${String(endObj.getHours()).padStart(2, "0")}:${String(endObj.getMinutes()).padStart(2, "0")}`
     });
     setSelectedTemplate(id); 
