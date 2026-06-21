@@ -10,8 +10,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import enLocale from "@fullcalendar/core/locales/en-gb";
-import { Calendar as CalendarIcon, Clock, User, CheckCircle2, XCircle, AlertCircle, Zap, Loader2, Trash2, Video, MapPin, Plus } from "lucide-react";
 import { useAppointments } from "@/hooks/useAppointment";
+import { useOperatingHours } from "@/hooks/useOperatingHours";
 import { CalendarEvent } from "@/types/appointments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 export const CalendarView: React.FC = () => {
   const { fetchAppointments, reschedule, cancel, isLoading } = useAppointments();
+  const { fetchSchedules } = useOperatingHours();
   const t = useTranslations("DashboardCalendarView");
   const locale = useLocale();
   const fullCalendarLocale = locale === "es" ? esLocale : enLocale;
@@ -31,8 +32,40 @@ export const CalendarView: React.FC = () => {
   const [isNewApptModalOpen, setIsNewApptModalOpen] = useState(false);
   const [selectedDateSlot, setSelectedDateSlot] = useState<Date | null>(null);
 
+  const [slotMinTime, setSlotMinTime] = useState("07:00:00");
+  const [slotMaxTime, setSlotMaxTime] = useState("22:00:00");
+  const [fcBusinessHours, setFcBusinessHours] = useState<any[]>([{
+    daysOfWeek: [1, 2, 3, 4, 5, 6],
+    startTime: "08:00",
+    endTime: "20:00",
+  }]);
+
   const loadEvents = useCallback(async () => { const data = await fetchAppointments(); setEvents(data); }, [fetchAppointments]);
   useEffect(() => { loadEvents(); }, [loadEvents]);
+
+  useEffect(() => {
+    const loadHours = async () => {
+      const schedules = await fetchSchedules(1);
+      const activeDays = schedules.filter(s => s.isActive);
+      if (activeDays.length > 0) {
+        let minTime = "23:59";
+        let maxTime = "00:00";
+        const newFcBusinessHours = activeDays.map(s => {
+          if (s.openTime < minTime) minTime = s.openTime;
+          if (s.closeTime > maxTime) maxTime = s.closeTime;
+          return {
+            daysOfWeek: [s.dayOfWeek],
+            startTime: s.openTime,
+            endTime: s.closeTime
+          };
+        });
+        setSlotMinTime(`${minTime}:00`);
+        setSlotMaxTime(`${maxTime}:00`);
+        setFcBusinessHours(newFcBusinessHours);
+      }
+    };
+    loadHours();
+  }, [fetchSchedules]);
 
   const handleEventDrop = async (info: any) => {
     const success = await reschedule(Number(info.event.id), info.event.start.toISOString());
@@ -75,7 +108,14 @@ export const CalendarView: React.FC = () => {
 
   const processedEvents = events.map(ev => {
     const theme = getStatusTheme(ev.extendedProps?.status);
-    return { ...ev, backgroundColor: theme.bg, borderColor: theme.border, textColor: theme.text, className: "editorial-calendar-event" };
+    return { 
+      ...ev, 
+      backgroundColor: theme.bg, 
+      borderColor: theme.border, 
+      textColor: theme.text, 
+      display: "block",
+      className: "editorial-calendar-event" 
+    };
   });
 
   return (
@@ -138,21 +178,18 @@ export const CalendarView: React.FC = () => {
             }}
             height="auto"
             allDaySlot={false} 
-            slotMinTime="07:00:00" 
-            slotMaxTime="22:00:00"
+            slotMinTime={slotMinTime} 
+            slotMaxTime={slotMaxTime}
             expandRows={true} 
             stickyHeaderDates={true} 
             nowIndicator={true}
+            scrollTime={new Date().toTimeString().substring(0,8)}
             events={processedEvents as any} 
             editable={true} 
             droppable={true} 
             selectable={true} 
             dayMaxEvents={4}
-            businessHours={{
-              daysOfWeek: [1, 2, 3, 4, 5, 6],
-              startTime: "08:00",
-              endTime: "20:00",
-            }}
+            businessHours={fcBusinessHours}
             selectConstraint="businessHours"
             dateClick={(info) => {
               setSelectedDateSlot(info.date);
@@ -172,10 +209,15 @@ export const CalendarView: React.FC = () => {
               
               if (eventInfo.view.type === "dayGridMonth") {
                 return (
-                  <div className="flex items-center gap-2 overflow-hidden px-1 py-0.5">
-                    <div className="w-1.5 h-1.5 shrink-0 border border-inherit" style={{ backgroundColor: theme.text === '#fff' ? '#000' : 'transparent' }} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest truncate" style={{ color: theme.text }}>
-                      {eventInfo.timeText} {eventInfo.event.title}
+                  <div 
+                    className="flex flex-col gap-0.5 overflow-hidden px-1.5 py-1 w-full rounded-none"
+                    style={{ backgroundColor: theme.bg, color: theme.text, borderLeft: `3px solid ${theme.border}` }}
+                  >
+                    <span className="text-[9px] font-bold uppercase tracking-widest truncate leading-tight opacity-90">
+                      {eventInfo.timeText}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest truncate leading-tight">
+                      {eventInfo.event.title}
                     </span>
                   </div>
                 );
