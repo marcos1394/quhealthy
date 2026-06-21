@@ -378,7 +378,13 @@ export default function DashboardPage() {
                 return (
                   <div 
                     key={appt.id} 
-                    onClick={() => router.push(`/provider/appointments/${appt.id}`)}
+                    onClick={() => {
+                      if (appt.status === 'IN_PROGRESS') {
+                        router.push(`/provider/consultation/${appt.id}`);
+                      } else {
+                        router.push('/provider/dashboard/appointments');
+                      }
+                    }}
                     className="p-6 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-black/10 dark:border-white/10 last:border-b-0"
                   >
                     <div className="flex-1">
