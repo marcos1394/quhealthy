@@ -106,7 +106,7 @@ export const CalendarView: React.FC = () => {
       </div>
 
       {/* CONTENEDOR DEL CALENDARIO */}
-      <div className="relative flex-1 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col transition-colors min-h-[600px] rounded-none">
+      <div className="relative w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col transition-colors rounded-none">
         <AnimatePresence>
           {isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -119,7 +119,7 @@ export const CalendarView: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <div className="p-4 md:p-6 flex-1 calendar-container">
+        <div className="p-2 md:p-6 w-full calendar-container">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
             initialView={currentView}
@@ -136,7 +136,7 @@ export const CalendarView: React.FC = () => {
               day: t("buttons.day", { defaultValue: 'DÍA' }),
               list: t("buttons.list", { defaultValue: 'LISTA' })
             }}
-            height="100%" 
+            height="auto"
             allDaySlot={false} 
             slotMinTime="07:00:00" 
             slotMaxTime="22:00:00"

@@ -209,7 +209,7 @@ function CalendarContent() {
 
         {/* ÁREA DEL CALENDARIO (Contenedor Estricto) */}
         <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white transition-colors">
-          <div className="min-h-[850px] w-full relative p-4 md:p-6 flex flex-col">
+          <div className="w-full relative p-4 md:p-6 flex flex-col">
             <CalendarView key={refreshKey} />
           </div>
         </div>
