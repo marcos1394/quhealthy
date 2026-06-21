@@ -251,84 +251,52 @@ export default function DashboardPage() {
         </AnimatePresence>
       </div>
 
-      {/* --- MÉTRICAS CLAVE (BLUEPRINT GRID MATRIZ) --- */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
-        
+      {/* --- MÉTRICAS CLAVE Y TIEMPOS UNIFICADOS --- */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
         {/* KPI 1 */}
-        <div className="col-span-2 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
-            {t('revenue_title', { defaultValue: 'INGRESOS BRUTOS' })}
-          </p>
-          <div>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
-              {analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
-            </p>
-            <div className="flex items-center mt-3">
-              <span className={cn(
-                "px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border",
-                (analytics.revenueGrowth || 0) >= 0 
-                  ? "border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400" 
-                  : "border-red-500/30 bg-red-50/50 text-red-600 dark:bg-red-900/10 dark:text-red-400"
-              )}>
-                {(analytics.revenueGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.revenueGrowth || 0)}% VS MES ANT.
-              </span>
-            </div>
-          </div>
+        <div className="col-span-2">
+          <SummaryCard 
+            title={t('revenue_title', { defaultValue: 'Ingresos Brutos' })} 
+            value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
+            icon={BarChart2} 
+            trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'mes anterior' }) }} 
+          />
         </div>
 
-        {/* KPI 2 */}
-        <div className="col-span-1 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
-            {t('completed_appointments', { defaultValue: 'CITAS' })}
-          </p>
-          <div>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
-              {analytics.completedAppointments.toString()}
-            </p>
-            <div className="flex items-center mt-3">
-              <span className={cn(
-                "text-[9px] font-bold uppercase tracking-widest",
-                (analytics.appointmentsGrowth || 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
-              )}>
-                {(analytics.appointmentsGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.appointmentsGrowth || 0)}%
-              </span>
-            </div>
-          </div>
+        {/* KPI 2 y 3 */}
+        <div className="col-span-1">
+          <SummaryCard 
+            title={t('completed_appointments', { defaultValue: 'Citas' })} 
+            value={analytics.completedAppointments.toString()}
+            icon={CheckCircle} 
+            trend={{ value: Math.abs(analytics.appointmentsGrowth || 0), isPositive: (analytics.appointmentsGrowth || 0) >= 0 }} 
+          />
         </div>
 
-        {/* KPI 3 */}
-        <div className="col-span-1 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
-            {t('new_patients', { defaultValue: 'PACIENTES' })}
-          </p>
-          <div>
-            <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
-              {analytics.newClients.toString()}
-            </p>
-            <div className="flex items-center mt-3">
-              <span className={cn(
-                "text-[9px] font-bold uppercase tracking-widest",
-                (analytics.clientsGrowth || 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
-              )}>
-                {(analytics.clientsGrowth || 0) >= 0 ? '↑' : '↓'} {Math.abs(analytics.clientsGrowth || 0)}%
-              </span>
-            </div>
-          </div>
+        <div className="col-span-1">
+          <SummaryCard 
+            title={t('new_patients', { defaultValue: 'Pacientes' })} 
+            value={analytics.newClients.toString()}
+            icon={Users} 
+            trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0 }} 
+          />
         </div>
 
         {/* Tiempos (Dentro del mismo grid) */}
-        <div className="col-span-1 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">T/P ESPERA</p>
-          <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
-            {avgWaitTime} <span className="text-xs font-bold text-gray-500 dark:text-gray-600 tracking-widest">MIN</span>
-          </p>
+        <div className="col-span-1">
+          <SummaryCard 
+            title="T/P Espera"
+            value={`${avgWaitTime} MIN`}
+            icon={Timer} 
+          />
         </div>
 
-        <div className="col-span-1 border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">T/P CONSULTA</p>
-          <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white leading-none">
-            {avgConsultationTime} <span className="text-xs font-bold text-gray-500 dark:text-gray-600 tracking-widest">MIN</span>
-          </p>
+        <div className="col-span-1">
+          <SummaryCard 
+            title="T/P Consulta"
+            value={`${avgConsultationTime} MIN`}
+            icon={PlayCircle} 
+          />
         </div>
       </div>
 

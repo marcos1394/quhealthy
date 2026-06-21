@@ -80,7 +80,10 @@ export function ProviderReputationCard() {
         <div className="flex flex-col md:items-end">
           <ProviderScoreBadge scoreData={myActionableScore} />
           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-2">
-            {t('updated_at', { defaultValue: `CORTE: ${new Date(myActionableScore.lastCalculatedAt).toLocaleDateString()}` })}
+            {t('updated_at', { 
+              date: new Date(myActionableScore.lastCalculatedAt).toLocaleDateString(),
+              defaultValue: `CORTE: ${new Date(myActionableScore.lastCalculatedAt).toLocaleDateString()}` 
+            })}
           </p>
         </div>
       </div>
