@@ -210,62 +210,65 @@ export default function CategorySelector({
           Sector Principal
           {(selectedCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
         </label>
-        <Popover open={openCat} onOpenChange={setOpenCat}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={openCat}
-              disabled={categories.length === 0}
-              className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
-                "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
-                (selectedCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
-            >
-              <span className="truncate">
-                {selectedCategoryId && selectedCategoryId > 0
-                  ? categories.find((cat) => cat.id === selectedCategoryId)?.name
-                  : "Selecciona tu sector..."}
-              </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-none border-gray-200 dark:border-gray-800 shadow-xl" align="start">
-            <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
-              <CommandInput placeholder="Buscar sector..." className="h-10 text-xs" />
-              <CommandList className="max-h-[300px] overflow-y-auto">
-                <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron sectores.</CommandEmpty>
-                <CommandGroup>
-                  {categories.map((cat) => (
-                    <CommandItem
-                      key={cat.id}
-                      value={cat.name}
-                      onTouchStart={handleTouchStart}
-                      onTouchEnd={(e) => handleTouchEndCat(e, cat.id)}
-                      onClick={() => {
-                        handleCatChange(cat.id);
-                        setTimeout(() => setOpenCat(false), 50);
-                      }}
-                      onSelect={() => {
-                        handleCatChange(cat.id);
-                        setTimeout(() => setOpenCat(false), 50);
-                      }}
-                      style={{ cursor: "pointer", zIndex: 50 }}
-                      className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedCategoryId === cat.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {cat.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={openCat}
+            disabled={categories.length === 0}
+            onClick={() => setOpenCat(!openCat)}
+            className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
+              "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
+              (selectedCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
+          >
+            <span className="truncate">
+              {selectedCategoryId && selectedCategoryId > 0
+                ? categories.find((cat) => cat.id === selectedCategoryId)?.name
+                : "Selecciona tu sector..."}
+            </span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+
+          {openCat && (
+            <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 shadow-xl rounded-none">
+              <Command className="bg-transparent rounded-none">
+                <CommandInput placeholder="Buscar sector..." className="h-10 text-xs" />
+                <CommandList className="max-h-[300px] overflow-y-auto">
+                  <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron sectores.</CommandEmpty>
+                  <CommandGroup>
+                    {categories.map((cat) => (
+                      <CommandItem
+                        key={cat.id}
+                        value={cat.name}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={(e) => handleTouchEndCat(e, cat.id)}
+                        onClick={() => {
+                          handleCatChange(cat.id);
+                          setOpenCat(false);
+                        }}
+                        onSelect={() => {
+                          handleCatChange(cat.id);
+                          setOpenCat(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                        className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedCategoryId === cat.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {cat.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </div>
+          )}
+        </div>
       </motion.div>
 
       {/* Step 2: Subcategory */}
@@ -278,64 +281,67 @@ export default function CategorySelector({
               Enfoque Específico
               {(selectedSubCategoryId || 0) > 0 && <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />}
             </label>
-            <Popover open={openSub} onOpenChange={setOpenSub}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openSub}
-                  disabled={isLoadingSub}
-                  className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
-                    "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
-                    (selectedSubCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
-                >
-                  <span className="truncate flex items-center gap-2">
-                    {isLoadingSub ? (
-                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></>
-                    ) : selectedSubCategoryId && selectedSubCategoryId > 0
-                      ? subCategories.find((sub) => sub.id === selectedSubCategoryId)?.name
-                      : "¿Cuál es tu enfoque principal?"}
-                  </span>
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-none border-gray-200 dark:border-gray-800 shadow-xl" align="start">
-                <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
-                  <CommandInput placeholder="Buscar enfoque..." className="h-10 text-xs" />
-                  <CommandList className="max-h-[300px] overflow-y-auto">
-                    <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron enfoques.</CommandEmpty>
-                    <CommandGroup>
-                      {subCategories.map((sub) => (
-                        <CommandItem
-                          key={sub.id}
-                          value={sub.name}
-                          onTouchStart={handleTouchStart}
-                          onTouchEnd={(e) => handleTouchEndSub(e, sub.id)}
-                          onClick={() => {
-                            handleSubChange(sub.id);
-                            setTimeout(() => setOpenSub(false), 50);
-                          }}
-                          onSelect={() => {
-                            handleSubChange(sub.id);
-                            setTimeout(() => setOpenSub(false), 50);
-                          }}
-                          style={{ cursor: "pointer", zIndex: 50 }}
-                          className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedSubCategoryId === sub.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {sub.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                role="combobox"
+                aria-expanded={openSub}
+                disabled={isLoadingSub}
+                onClick={() => setOpenSub(!openSub)}
+                className={cn("w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
+                  "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
+                  (selectedSubCategoryId || 0) > 0 ? "border-black dark:border-white" : "")}
+              >
+                <span className="truncate flex items-center gap-2">
+                  {isLoadingSub ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></>
+                  ) : selectedSubCategoryId && selectedSubCategoryId > 0
+                    ? subCategories.find((sub) => sub.id === selectedSubCategoryId)?.name
+                    : "¿Cuál es tu enfoque principal?"}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+
+              {openSub && (
+                <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 shadow-xl rounded-none">
+                  <Command className="bg-transparent rounded-none">
+                    <CommandInput placeholder="Buscar enfoque..." className="h-10 text-xs" />
+                    <CommandList className="max-h-[300px] overflow-y-auto">
+                      <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron enfoques.</CommandEmpty>
+                      <CommandGroup>
+                        {subCategories.map((sub) => (
+                          <CommandItem
+                            key={sub.id}
+                            value={sub.name}
+                            onTouchStart={handleTouchStart}
+                            onTouchEnd={(e) => handleTouchEndSub(e, sub.id)}
+                            onClick={() => {
+                              handleSubChange(sub.id);
+                              setOpenSub(false);
+                            }}
+                            onSelect={() => {
+                              handleSubChange(sub.id);
+                              setOpenSub(false);
+                            }}
+                            style={{ cursor: "pointer" }}
+                            className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none"
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedSubCategoryId === sub.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {sub.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
