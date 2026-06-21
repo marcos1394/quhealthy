@@ -1,8 +1,11 @@
+"use client";
+
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldCheck, Star, UserCheck, Activity, FileText, ArrowRight } from "lucide-react";
 import { ProviderScoreResponse } from "@/types/providerScore";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface QuScoreModalProps {
   isOpen: boolean;
@@ -17,21 +20,22 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
 
   const getPillarIcon = (key: string) => {
     switch (key) {
-      case 'P1': return <ShieldCheck className="w-5 h-5 text-indigo-500" />;
-      case 'P2': return <Star className="w-5 h-5 text-amber-500" />;
-      case 'P3': return <UserCheck className="w-5 h-5 text-emerald-500" />;
-      case 'P4': return <Activity className="w-5 h-5 text-rose-500" />;
-      case 'P5': return <FileText className="w-5 h-5 text-blue-500" />;
+      case 'P1': return <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />;
+      case 'P2': return <Star className="w-4 h-4" strokeWidth={1.5} />;
+      case 'P3': return <UserCheck className="w-4 h-4" strokeWidth={1.5} />;
+      case 'P4': return <Activity className="w-4 h-4" strokeWidth={1.5} />;
+      case 'P5': return <FileText className="w-4 h-4" strokeWidth={1.5} />;
       default: return null;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  // Convertimos los colores de estado a un lenguaje arquitectónico (escalas de llenado o patrones)
+  const getStatusFill = (status: string) => {
     switch(status) {
-      case 'OPTIMAL': return 'bg-emerald-500';
-      case 'IMPROVABLE': return 'bg-amber-500';
-      case 'LOW': return 'bg-rose-500';
-      default: return 'bg-slate-300';
+      case 'OPTIMAL': return 'bg-black dark:bg-white';
+      case 'IMPROVABLE': return 'bg-gray-400 dark:bg-gray-500';
+      case 'LOW': return 'bg-gray-200 dark:bg-gray-800';
+      default: return 'bg-gray-300';
     }
   };
 
@@ -39,70 +43,86 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* OVERLAY */}
+          {/* OVERLAY TÉCNICO */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
           />
 
-          {/* MODAL */}
+          {/* MODAL BLUEPRINT */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white dark:bg-[#18181b] rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] z-50 flex flex-col max-h-[90vh]"
           >
             {/* HEADER */}
-            <div className="relative bg-gradient-to-br from-indigo-900 to-purple-900 p-6 text-white text-center">
+            <div className="relative border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-6 md:p-8 flex items-end justify-between flex-shrink-0">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md"
+                className="absolute top-4 right-4 w-8 h-8 border border-gray-600 dark:border-gray-300 flex items-center justify-center hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
               
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4 shadow-inner">
-                <span className="text-3xl font-black">{scoreData.score}</span>
+              <div>
+                <h2 className="text-xl font-bold uppercase tracking-tight mb-1">
+                  Desglose QuScore
+                </h2>
+                <p className="text-[9px] font-bold uppercase tracking-widest opacity-70">
+                  Auditoría de Transparencia Algorítmica
+                </p>
               </div>
-              <h2 className="text-2xl font-bold mb-1">Desglose del QuScore</h2>
-              <p className="text-purple-200 text-sm opacity-90">Transparencia algorítmica para tu tranquilidad</p>
+              
+              <div className="text-5xl font-black tracking-tighter leading-none border-l border-gray-700 dark:border-gray-300 pl-6">
+                {scoreData.score}
+              </div>
             </div>
 
             {/* BODY */}
-            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-[#0a0a0a]">
+              
               {scoreData.isNewProvider && (
-                <div className="p-4 mb-6 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 text-center">
-                  <p className="text-sm text-slate-500 dark:text-zinc-400">
-                    Este profesional es nuevo en QuHealthy. Aún no tiene suficientes consultas para calcular su score completo.
+                <div className="p-4 mb-8 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed text-center">
+                    AVISO: VOLUMEN DE DATOS INSUFICIENTE. EL ESPECIALISTA AÚN NO CUMPLE EL LÍMITE TRANSACCIONAL PARA UN CÁLCULO ALGORÍTMICO COMPLETO.
                   </p>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {Object.entries(scoreData.breakdown).map(([key, pillar]) => (
-                  <div key={key} className="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl p-4 transition-all hover:border-slate-200 dark:hover:border-white/10">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white dark:bg-zinc-800 rounded-lg shadow-sm">
+                  <div key={key} className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
                           {getPillarIcon(key)}
                         </div>
-                        <div>
-                          <h4 className="font-bold text-slate-900 dark:text-white text-sm">{pillar.name}</h4>
-                          <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-[200px] truncate">{pillar.tooltip}</p>
+                        <div className="pt-0.5">
+                          <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white mb-1">
+                            {pillar.name}
+                          </h4>
+                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[220px] leading-relaxed">
+                            {pillar.tooltip}
+                          </p>
                         </div>
                       </div>
-                      <span className="font-black text-slate-900 dark:text-white">{pillar.percentage}%</span>
+                      <span className="text-lg font-bold text-black dark:text-white tabular-nums tracking-tight">
+                        {pillar.percentage}%
+                      </span>
                     </div>
-                    {/* Barra de Progreso */}
-                    <div className="h-2 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    
+                    {/* Barra de Progreso Arquitectónica */}
+                    <div className="h-3 w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${pillar.percentage}%` }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        className={`h-full rounded-full ${getStatusColor(pillar.status)}`}
+                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                        className={cn("h-full", getStatusFill(pillar.status))}
                       />
                     </div>
                   </div>
@@ -110,15 +130,17 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
               </div>
 
               {/* ACTION BUTTON */}
-              <button 
-                onClick={() => {
-                  onClose();
-                  router.push('/es/como-funciona-el-quscore');
-                }}
-                className="w-full mt-6 py-4 flex items-center justify-center gap-2 text-sm font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-xl transition-colors"
-              >
-                Conoce la metodología pública <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-800">
+                <button 
+                  onClick={() => {
+                    onClose();
+                    router.push('/es/como-funciona-el-quscore');
+                  }}
+                  className="w-full h-12 flex items-center justify-center gap-3 border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[10px] font-bold uppercase tracking-widest transition-colors"
+                >
+                  Consultar Metodología Pública <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
           </motion.div>
         </>

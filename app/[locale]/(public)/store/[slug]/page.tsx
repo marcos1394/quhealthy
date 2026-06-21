@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 import { useStorefront } from "@/hooks/useStorefront";
@@ -54,14 +53,13 @@ export default function PublicStorePage() {
 
   const { store, isLoading, isError } = useStorefront(slug);
 
-  // ✅ CORRECCIÓN DEL BUCLE INFINITO: Solo dependemos de valores primitivos
   useEffect(() => {
     if (store && slug) {
       setProvider(
         store.providerId,
         slug,
         store.displayName,
-        store.primaryColor || '#9333ea'
+        store.primaryColor || '#000000'
       );
       fetchSingleScore(store.providerId);
     }
@@ -71,165 +69,192 @@ export default function PublicStorePage() {
     addToCart(item, slug);
   };
 
-  const hexToRgb = (hex: string) => {
-    if (!hex) return '147, 51, 234';
-    const cleanHex = hex.replace('#', '');
-    const r = parseInt(cleanHex.slice(0, 2), 16) || 147;
-    const g = parseInt(cleanHex.slice(2, 4), 16) || 51;
-    const b = parseInt(cleanHex.slice(4, 6), 16) || 234;
-    return `${r}, ${g}, ${b}`;
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
-        <p className="text-slate-500 dark:text-zinc-400 font-medium animate-pulse">{t('loading')}</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          EXTRAYENDO EXPEDIENTE COMERCIAL...
+        </p>
       </div>
     );
   }
 
   if (isError || !store) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] flex flex-col items-center justify-center px-4 text-center">
-        <div className="p-4 bg-rose-100 dark:bg-red-500/10 rounded-full mb-6">
-          <AlertCircle className="w-16 h-16 text-rose-500 dark:text-red-500" />
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{t('error_title')}</h1>
-        <p className="text-slate-500 dark:text-zinc-400 max-w-md">{t('error_desc')}</p>
-        <Button variant="outline" onClick={() => window.history.back()} className="mt-8 border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-white/5">
-          {t('error_back')}
+        <h1 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Directorio Inaccesible</h1>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8">
+          EL CATÁLOGO SOLICITADO NO EXISTE O SE ENCUENTRA TEMPORALMENTE FUERA DE SERVICIO.
+        </p>
+        <Button 
+          variant="outline" 
+          onClick={() => window.history.back()} 
+          className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+        >
+          Retornar a Búsqueda
         </Button>
       </div>
     );
   }
 
-  const safePrimaryColor = store.primaryColor || '#9333ea';
-  const primaryRgb = hexToRgb(safePrimaryColor);
+  const safePrimaryColor = store.primaryColor || '#000000';
 
   const renderModalityBadge = (modality?: string) => {
-    if (modality === 'ONLINE') return <Badge className="bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1"><Video className="w-3 h-3" /> {t('modality_online')}</Badge>;
-    if (modality === 'IN_PERSON') return <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1"><Building2 className="w-3 h-3" /> {t('modality_in_person')}</Badge>;
-    if (modality === 'HYBRID') return <Badge className="bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1"><Globe className="w-3 h-3" /> {t('modality_hybrid')}</Badge>;
+    if (modality === 'ONLINE') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Video className="w-3 h-3" strokeWidth={1.5} /> {t('modality_online')}</span>;
+    if (modality === 'IN_PERSON') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Building2 className="w-3 h-3" strokeWidth={1.5} /> {t('modality_in_person')}</span>;
+    if (modality === 'HYBRID') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Globe className="w-3 h-3" strokeWidth={1.5} /> {t('modality_hybrid')}</span>;
     return null;
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] pb-32 font-sans selection:bg-purple-500/30 text-slate-900 dark:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
 
-      {/* --- HERO SECTION COMPLETAMENTE RESTAURADO --- */}
-      <div className="relative pb-8">
-        <div className="h-64 sm:h-80 w-full relative overflow-hidden">
-          {store.bannerUrl ? (
-            <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover opacity-80 dark:opacity-60" />
-          ) : (
-            <div className="w-full h-full bg-slate-200 dark:bg-zinc-900" />
+      {/* --- HERO SECTION ARQUITECTÓNICO --- */}
+      <div className="w-full border-b border-gray-200 dark:border-gray-800">
+        
+        {/* Banner */}
+        <div className="h-48 sm:h-64 w-full relative bg-gray-100 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
+          {store.bannerUrl && (
+            <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover grayscale opacity-80" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#09090b] dark:via-[#09090b]/80 dark:to-transparent" />
           <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
-            <FavoriteButton entityType="PROVIDER" entityId={store.providerId} initialIsFavorite={favoriteProviderIds.has(store.providerId)} className="w-10 h-10 sm:w-12 sm:h-12 bg-black/20 hover:bg-black/40 backdrop-blur-xl border-white/20 shadow-2xl" />
+            <FavoriteButton 
+              entityType="PROVIDER" 
+              entityId={store.providerId} 
+              initialIsFavorite={favoriteProviderIds.has(store.providerId)} 
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-none border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors" 
+            />
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 relative -mt-32 z-10">
-          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full blur-2xl opacity-30 dark:opacity-50 animate-pulse" style={{ backgroundColor: safePrimaryColor }} />
-              <div className="relative w-36 h-36 rounded-full border-4 border-slate-50 dark:border-[#09090b] shadow-2xl overflow-hidden bg-white dark:bg-zinc-900 flex-shrink-0">
-                {store.logoUrl ? (
-                  <img src={store.logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-slate-300 dark:text-white/50">{store.displayName.charAt(0)}</div>
-                )}
-              </div>
+        {/* Datos Clínicos */}
+        <div className="max-w-5xl mx-auto px-6 relative">
+          <div className="flex flex-col sm:flex-row items-start gap-8 pb-10">
+            
+            {/* Logo Cuadrado Rígido */}
+            <div className="w-32 h-32 border border-black dark:border-white bg-white dark:bg-black flex-shrink-0 -mt-16 relative z-10 flex items-center justify-center overflow-hidden">
+              {store.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={store.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-4xl font-bold uppercase">{store.displayName.charAt(0)}</span>
+              )}
             </div>
 
-            <div className="flex-1 pb-2 space-y-3">
-              <h1 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{store.displayName}</h1>
-              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 text-sm font-medium">
-                <Badge className="bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/20 text-slate-900 dark:text-white border-slate-200 dark:border-none backdrop-blur-md px-3 py-1.5 shadow-sm">
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400 mr-1.5" />
+            <div className="flex-1 pt-2 sm:pt-4">
+              <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">
+                {store.displayName}
+              </h1>
+              
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                  <Star className="w-3 h-3 fill-current" strokeWidth={1} />
                   {store.rating || '4.9'} ({store.reviewsCount || t('new_label')})
-                </Badge>
+                </span>
                 
                 {singleScore && (
-                  <Badge 
+                  <button 
                     onClick={() => setShowQuScoreModal(true)}
-                    className="cursor-pointer bg-gradient-to-r from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30 backdrop-blur-md px-3 py-1.5 shadow-sm flex items-center transition-all"
+                    className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white text-gray-600 dark:text-gray-400 px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors"
                   >
-                    <Info className="w-4 h-4 mr-1.5 text-purple-500" />
-                    QuScore: {singleScore.score} 
-                    <span className="ml-2 opacity-60 text-xs hidden sm:inline">¿Cómo se calcula?</span>
-                  </Badge>
+                    <Info className="w-3 h-3" strokeWidth={2} />
+                    QUSCORE: {singleScore.score}
+                  </button>
                 )}
-                <Badge className="bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-white/10 backdrop-blur-md px-3 py-1.5 shadow-sm flex items-center">
-                  <MapPin className="w-4 h-4 mr-1.5 opacity-70" />
-                  <span className="truncate max-w-[200px]">{store.city || store.address || 'Consultorio'}</span>
-                </Badge>
+
+                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                  <MapPin className="w-3 h-3" strokeWidth={1.5} />
+                  <span className="truncate max-w-[200px]">{store.city || store.address || 'UBICACIÓN NO ESPECIFICADA'}</span>
+                </span>
+
                 {store.languages && store.languages.length > 0 && (
-                  <Badge className="bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-white/10 backdrop-blur-md px-3 py-1.5 shadow-sm hidden sm:flex">
-                    <Globe className="w-4 h-4 mr-1.5 opacity-70" />
+                  <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest hidden sm:flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                    <Globe className="w-3 h-3" strokeWidth={1.5} />
                     {store.languages.join(", ")}
-                  </Badge>
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-3xl">
+                {store.bio || t('default_bio', { defaultValue: 'PERFIL PROFESIONAL NO DETALLADO.' })}
+              </p>
+
+              {/* Tags Técnicos */}
+              {store.tags && store.tags.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2 max-w-3xl">
+                  {store.tags.map((tag, idx) => (
+                    <span key={idx} className="bg-gray-100 dark:bg-[#111] text-gray-600 dark:text-gray-400 text-[9px] font-bold uppercase tracking-widest px-2 py-1 flex items-center gap-1.5 border border-gray-200 dark:border-gray-800">
+                      <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Botones de Contacto */}
+              <div className="mt-8 flex gap-4">
+                {store.whatsappEnabled && (
+                  <Button className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white h-10 text-[9px] font-bold uppercase tracking-widest transition-colors px-6">
+                    <MessageCircle className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> WHATSAPP
+                  </Button>
+                )}
+                {store.instagramUrl && (
+                  <Button
+                    onClick={() => window.open(store.instagramUrl || "", '_blank')}
+                    className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white h-10 text-[9px] font-bold uppercase tracking-widest transition-colors px-6"
+                  >
+                    <Instagram className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> INSTAGRAM
+                  </Button>
                 )}
               </div>
             </div>
-          </div>
-
-          <p className="mt-8 text-slate-600 dark:text-zinc-400 leading-relaxed text-[15px] sm:text-base text-center sm:text-left max-w-2xl">
-            {store.bio || t('default_bio')}
-          </p>
-
-          {/* 🚀 TAGS RESTAURADOS */}
-          {store.tags && store.tags.length > 0 && (
-            <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-2 max-w-2xl">
-              {store.tags.map((tag, idx) => (
-                <span key={idx} className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 text-xs px-3 py-1 rounded-full flex items-center">
-                  <CheckCircle2 className="w-3 h-3 mr-1.5 opacity-60" style={{ color: safePrimaryColor }} />
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* 🚀 BOTONES DE CONTACTO RESTAURADOS */}
-          <div className="mt-8 flex justify-center sm:justify-start gap-3">
-            {store.whatsappEnabled && (
-              <Button className="rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/20 transition-all shadow-sm">
-                <MessageCircle className="w-4 h-4 mr-2" /> WhatsApp
-              </Button>
-            )}
-            {store.instagramUrl && (
-              <Button
-                onClick={() => window.open(store.instagramUrl || "", '_blank')}
-                className="rounded-full bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-500/20 border border-pink-200 dark:border-pink-500/20 transition-all shadow-sm"
-              >
-                <Instagram className="w-4 h-4 mr-2" /> Instagram
-              </Button>
-            )}
           </div>
         </div>
       </div>
 
-      {/* --- MENÚ TIPO PÍLDORA (Scrollable) --- */}
-      <div className="sticky top-0 z-40 bg-slate-50/80 dark:bg-[#09090b]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 pt-4 pb-4">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 w-full overflow-x-auto scrollbar-hide">
+      {/* --- NAVEGACIÓN TABULAR ARQUITECTÓNICA --- */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex w-full overflow-x-auto custom-scrollbar">
             
-            <button onClick={() => setActiveTab('servicios')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'servicios' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'servicios' ? { backgroundColor: safePrimaryColor } : {}}>
-              {t('tab_services', { defaultValue: 'Servicios' })} <Badge className="bg-black/20 text-white border-none px-1.5 py-0 min-w-0">{store.services?.length || 0}</Badge>
+            <button 
+              onClick={() => setActiveTab('servicios')} 
+              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap" 
+              style={activeTab === 'servicios' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+            >
+              {t('tab_services', { defaultValue: 'Servicios' })} 
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.services?.length || 0}</span>
             </button>
             
-            <button onClick={() => setActiveTab('paquetes')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'paquetes' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'paquetes' ? { backgroundColor: safePrimaryColor } : {}}>
-              {t('tab_packages', { defaultValue: 'Paquetes' })} <Sparkles className={cn("w-4 h-4", activeTab === 'paquetes' ? "text-yellow-300" : "")} />
+            <button 
+              onClick={() => setActiveTab('paquetes')} 
+              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
+              style={activeTab === 'paquetes' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+            >
+              {t('tab_packages', { defaultValue: 'Paquetes' })} 
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
 
-            <button onClick={() => setActiveTab('productos')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'productos' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'productos' ? { backgroundColor: safePrimaryColor } : {}}>
-              <ShoppingBag className="w-4 h-4" /> Farmacia <Badge className="bg-black/20 text-white border-none px-1.5 py-0 min-w-0">{store.products?.length || 0}</Badge>
+            <button 
+              onClick={() => setActiveTab('productos')} 
+              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
+              style={activeTab === 'productos' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+            >
+              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> FARMACIA 
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.products?.length || 0}</span>
             </button>
 
-            <button onClick={() => setActiveTab('cursos')} className={cn("px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap", activeTab === 'cursos' ? "text-white shadow-lg" : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")} style={activeTab === 'cursos' ? { backgroundColor: safePrimaryColor } : {}}>
-              <GraduationCap className="w-4 h-4" /> Cursos <Badge className="bg-black/20 text-white border-none px-1.5 py-0 min-w-0">{store.courses?.length || 0}</Badge>
+            <button 
+              onClick={() => setActiveTab('cursos')} 
+              className="h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap text-gray-500 hover:text-black dark:hover:text-white" 
+              style={activeTab === 'cursos' ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : { borderColor: 'transparent' }}
+            >
+              <GraduationCap className="w-3.5 h-3.5" strokeWidth={1.5} /> CURSOS 
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.courses?.length || 0}</span>
             </button>
 
           </div>
@@ -237,67 +262,87 @@ export default function PublicStorePage() {
       </div>
 
       {/* --- CONTENIDO PRINCIPAL --- */}
-      <div className="max-w-3xl mx-auto px-4 mt-8">
+      <div className="max-w-5xl mx-auto px-6 mt-10">
         <AnimatePresence mode="wait">
 
           {/* VISTA 1: SERVICIOS */}
           {activeTab === 'servicios' && (
-             <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+             <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
              {store.services && store.services.length > 0 ? (
                store.services.map((service) => (
-                 <div key={service.id} className="group relative bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 rounded-2xl p-6 transition-all duration-300 overflow-hidden shadow-sm">
+                 <div key={service.id} className="relative bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group">
+                   
                    <div className="absolute top-4 right-4 z-20">
-                     <FavoriteButton entityType="SERVICE" entityId={service.id} initialIsFavorite={favoriteServiceIds.has(service.id)} className="bg-slate-100 dark:bg-black/20 hover:bg-slate-200 dark:hover:bg-black/50 backdrop-blur-md border-slate-200 dark:border-white/10 text-slate-400 dark:text-white" />
+                     <FavoriteButton 
+                        entityType="SERVICE" 
+                        entityId={service.id} 
+                        initialIsFavorite={favoriteServiceIds.has(service.id)} 
+                        className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                      />
                    </div>
-                   <div className="absolute inset-0 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" style={{ background: `radial-gradient(circle at right top, ${safePrimaryColor}, transparent 50%)` }} />
-                   <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-between sm:items-start pr-10">
-                     <div className="space-y-3 flex-1">
-                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                         {service.category && <Badge className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-none px-2 py-0.5 text-[10px] uppercase tracking-wider">{service.category}</Badge>}
-                         {renderModalityBadge(service.modality)}
-                         <span className="flex items-center text-xs font-semibold text-slate-400 dark:text-zinc-500 ml-1"><Clock className="w-3.5 h-3.5 mr-1" /> {service.durationMinutes || 0} min</span>
-                       </div>
-                       <h3 className="font-bold text-xl text-slate-900 dark:text-white group-hover:text-slate-800 dark:group-hover:text-zinc-100 transition-colors">{service.name}</h3>
-                       <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-md">{service.description}</p>
-                       <div className="flex flex-wrap gap-2 pt-2">
-                         {service.searchTags && service.searchTags.map((tag, idx) => (
-                           <span key={idx} className="flex items-center text-[11px] text-slate-400 dark:text-zinc-500 font-medium"><TagIcon className="w-3 h-3 mr-1 opacity-50" /> {tag}</span>
-                         ))}
-                         {service.cancellationPolicy === 'flexible' && (
-                           <span className="flex items-center text-[11px] text-emerald-600 dark:text-emerald-400/80 font-medium ml-2"><ShieldCheck className="w-3 h-3 mr-1" /> {t('cancellation_flexible')}</span>
-                         )}
-                       </div>
+
+                   <div className="space-y-4 flex-1 pr-12">
+                     <div className="flex flex-wrap items-center gap-3">
+                       {service.category && (
+                         <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                           {service.category}
+                         </span>
+                       )}
+                       {renderModalityBadge(service.modality)}
+                       <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                         <Clock className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {service.durationMinutes || 0} MIN
+                       </span>
                      </div>
-                     <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start mt-4 sm:mt-0 gap-3 border-t border-slate-100 dark:border-white/5 sm:border-t-0 pt-4 sm:pt-0 min-w-[120px]">
-                       <div className="flex flex-col items-start sm:items-end">
-                         {service.compareAtPrice && service.compareAtPrice > service.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through mb-0.5">${service.compareAtPrice}</span>}
-                         <span className="text-2xl font-bold text-slate-900 dark:text-white leading-none">${service.price}</span>
-                       </div>
-                       {(() => {
-                         const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
-                         return (
-                           <Button 
-                             onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
-                             variant={isInCart ? "outline" : "default"}
-                             className={cn(
-                               "rounded-xl px-6 w-full font-bold transition-all transform shadow-sm hover:scale-105",
-                               isInCart 
-                                 ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20" 
-                                 : "text-white shadow-lg hover:brightness-110"
-                             )} 
-                             style={!isInCart ? { backgroundColor: safePrimaryColor, boxShadow: `0 8px 25px -5px rgba(${primaryRgb}, 0.4)` } : {}}
-                           >
-                             {isInCart ? 'Quitar del carrito' : t('btn_book')} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
-                           </Button>
-                         );
-                       })()}
+                     <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
+                       {service.name}
+                     </h3>
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
+                       {service.description}
+                     </p>
+                     <div className="flex flex-wrap gap-3 pt-2">
+                       {service.searchTags && service.searchTags.map((tag, idx) => (
+                         <span key={idx} className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                           <TagIcon className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {tag}
+                         </span>
+                       ))}
+                       {service.cancellationPolicy === 'flexible' && (
+                         <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white pb-0.5 ml-2">
+                           <ShieldCheck className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {t('cancellation_flexible')}
+                         </span>
+                       )}
                      </div>
+                   </div>
+
+                   <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px]">
+                     <div className="flex flex-col items-start md:items-end">
+                       {service.compareAtPrice && service.compareAtPrice > service.price && (
+                         <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${service.compareAtPrice}</span>
+                       )}
+                       <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">${service.price}</span>
+                     </div>
+                     {(() => {
+                       const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
+                       return (
+                         <Button 
+                           onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
+                           className={cn(
+                             "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                             isInCart 
+                               ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
+                               : "text-white"
+                           )} 
+                           style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
+                         >
+                           {isInCart ? 'REMOVER' : t('btn_book', { defaultValue: 'AGREGAR' })} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
+                         </Button>
+                       );
+                     })()}
                    </div>
                  </div>
                ))
              ) : (
-               <div className="text-center py-12 border border-slate-200 dark:border-white/5 rounded-2xl bg-white dark:bg-white/5 shadow-sm">
-                 <p className="text-slate-500 dark:text-zinc-500 font-medium">{t('empty_services')}</p>
+               <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_services', { defaultValue: 'CATÁLOGO DE SERVICIOS NO DISPONIBLE.' })}</p>
                </div>
              )}
            </motion.div>
@@ -308,51 +353,67 @@ export default function PublicStorePage() {
             <motion.div key="paquetes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.packages && store.packages.length > 0 ? (
                 store.packages.map((pkg) => (
-                  <div key={pkg.id} className="relative bg-gradient-to-br from-white/80 dark:from-white/10 to-slate-50 dark:to-white/5 border border-slate-200 dark:border-white/20 rounded-[2rem] p-1 transition-all shadow-lg overflow-hidden group">
-                    <div className="absolute top-5 right-5 z-20">
-                      <FavoriteButton entityType="PACKAGE" entityId={pkg.id} initialIsFavorite={favoritePackageIds.has(pkg.id)} className="bg-white/80 dark:bg-black/20 hover:bg-white dark:hover:bg-black/50 backdrop-blur-md text-slate-400 dark:text-white border-slate-200 dark:border-white/20" />
+                  <div key={pkg.id} className="relative border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col sm:flex-row gap-8 justify-between">
+                    
+                    <div className="absolute top-6 right-6 z-20">
+                      <FavoriteButton 
+                        entityType="PACKAGE" 
+                        entityId={pkg.id} 
+                        initialIsFavorite={favoritePackageIds.has(pkg.id)} 
+                        className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                      />
                     </div>
-                    <div className="absolute inset-0 opacity-10 dark:opacity-20 group-hover:opacity-20 dark:group-hover:opacity-40 transition-opacity duration-700 blur-xl" style={{ backgroundColor: safePrimaryColor }} />
-                    <div className="relative bg-white/95 dark:bg-[#09090b]/90 backdrop-blur-2xl rounded-[1.8rem] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 justify-between items-center z-10 border border-slate-100 dark:border-white/5">
-                      <div className="space-y-3 w-full sm:w-auto flex-1">
-                        <Badge className="bg-amber-50 dark:bg-yellow-500/20 text-amber-700 dark:text-yellow-300 border-amber-200 dark:border-yellow-500/30 font-bold uppercase tracking-widest text-[10px]">{t('badge_special')}</Badge>
-                        <h3 className="font-bold text-2xl text-slate-900 dark:text-white">{pkg.name}</h3>
-                        <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-md">{pkg.description}</p>
-                        <ul className="space-y-2 mt-4">
-                          <li className="flex items-center text-sm text-slate-600 dark:text-zinc-300 font-medium"><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: safePrimaryColor }} /> {t('includes_services')}</li>
-                          <li className="flex items-center text-sm text-slate-600 dark:text-zinc-300 font-medium"><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: safePrimaryColor }} /> {t('preferential_price')}</li>
-                        </ul>
+
+                    <div className="space-y-4 w-full sm:w-auto flex-1 pr-10">
+                      <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                        <Sparkles className="w-3 h-3" strokeWidth={2} /> {t('badge_special', { defaultValue: 'OFERTA ESTRUCTURAL' })}
+                      </span>
+                      <h3 className="font-bold text-xl uppercase tracking-wider text-black dark:text-white">{pkg.name}</h3>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">{pkg.description}</p>
+                      
+                      <ul className="space-y-3 mt-6 border-t border-gray-200 dark:border-gray-800 pt-6">
+                        <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                          <CheckCircle2 className="w-3.5 h-3.5 mr-3" strokeWidth={2} style={{ color: safePrimaryColor }} /> 
+                          {t('includes_services', { defaultValue: 'INCLUYE MÚLTIPLES SESIONES' })}
+                        </li>
+                        <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                          <CheckCircle2 className="w-3.5 h-3.5 mr-3" strokeWidth={2} style={{ color: safePrimaryColor }} /> 
+                          {t('preferential_price', { defaultValue: 'VALORACIÓN PREFERENCIAL' })}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-6 border-t border-gray-200 dark:border-gray-800 sm:border-none pt-6 sm:pt-0 min-w-[180px]">
+                      <div className="text-left sm:text-right">
+                        {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
+                          <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">${pkg.compareAtPrice}</span>
+                        )}
+                        <span className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">${pkg.price}</span>
                       </div>
-                      <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-4 bg-slate-50 dark:bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-slate-100 dark:border-white/5 sm:border-none">
-                        <div className="text-left sm:text-right">
-                          {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through block mb-1">${pkg.compareAtPrice}</span>}
-                          <span className="text-3xl font-bold bg-clip-text text-transparent leading-none" style={{ backgroundImage: `linear-gradient(to right, ${safePrimaryColor}, #333)` }}>${pkg.price}</span>
-                        </div>
-                        {(() => {
-                          const isInCart = cart.some(c => c.id === pkg.id && c.type === pkg.type);
-                          return (
-                            <Button 
-                              onClick={() => isInCart ? removeFromCart(pkg.id) : handleAddToCart(pkg)} 
-                              variant={isInCart ? "outline" : "default"}
-                              className={cn(
-                                "rounded-xl px-8 py-6 text-base font-bold transition-transform shadow-xl hover:scale-105 hover:brightness-110",
-                                isInCart 
-                                  ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
-                                  : "text-white"
-                              )} 
-                              style={!isInCart ? { backgroundColor: safePrimaryColor, boxShadow: `0 0 30px -5px rgba(${primaryRgb}, 0.5)` } : {}}
-                            >
-                              {isInCart ? 'Quitar' : t('btn_promo')}
-                            </Button>
-                          );
-                        })()}
-                      </div>
+                      
+                      {(() => {
+                        const isInCart = cart.some(c => c.id === pkg.id && c.type === pkg.type);
+                        return (
+                          <Button 
+                            onClick={() => isInCart ? removeFromCart(pkg.id) : handleAddToCart(pkg)} 
+                            className={cn(
+                              "rounded-none px-8 h-14 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              isInCart 
+                                ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
+                                : "text-white"
+                            )} 
+                            style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
+                          >
+                            {isInCart ? 'REMOVER' : t('btn_promo', { defaultValue: 'ADQUIRIR PAQUETE' })}
+                          </Button>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 border border-slate-200 dark:border-white/5 rounded-2xl bg-white dark:bg-white/5 shadow-sm">
-                  <p className="text-slate-500 dark:text-zinc-500 font-medium">{t('empty_packages')}</p>
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_packages', { defaultValue: 'NO HAY PAQUETES CONFIGURADOS.' })}</p>
                 </div>
               )}
             </motion.div>
@@ -362,56 +423,70 @@ export default function PublicStorePage() {
           {activeTab === 'productos' && (
             <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               {store.products && store.products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {store.products.map((product) => {
-                    // 🚀 REGLAS DE NEGOCIO DE INVENTARIO
                     const isOutOfStock = product.stockQuantity === 0 && !product.isDigital;
                     const isLowStock = !product.isDigital && product.stockQuantity != null && product.stockQuantity > 0 && product.stockQuantity <= 5;
 
                     return (
-                      <div key={product.id} className={cn("bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden transition-all group flex flex-col", isOutOfStock ? "opacity-75 grayscale-[0.5]" : "hover:shadow-lg")}>
-                        <div className="h-48 bg-slate-100 dark:bg-zinc-800 relative overflow-hidden flex items-center justify-center">
+                      <div key={product.id} className={cn(
+                        "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-colors flex flex-col hover:border-black dark:hover:border-white", 
+                        isOutOfStock ? "opacity-60" : ""
+                      )}>
+                        
+                        {/* Box Image */}
+                        <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
                           {product.imageUrl ? (
-                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal p-4" />
                           ) : (
-                            <Box className="w-12 h-12 text-slate-300 dark:text-zinc-600" />
+                            <Box className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
                           )}
 
-                          <div className="absolute top-3 right-3 z-20">
-                            <FavoriteButton entityType="PRODUCT" entityId={product.id} initialIsFavorite={favoriteProductIds.has(product.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-slate-200 dark:border-white/20 text-slate-400 dark:text-white" />
+                          <div className="absolute top-4 right-4 z-20">
+                            <FavoriteButton 
+                              entityType="PRODUCT" 
+                              entityId={product.id} 
+                              initialIsFavorite={favoriteProductIds.has(product.id)} 
+                              className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                            />
                           </div>
 
-                          {/* 🚀 ETIQUETA FLOTANTE DE AGOTADO */}
                           {isOutOfStock && (
-                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
-                              <Badge className="bg-rose-500 text-white border-none text-sm px-3 py-1 uppercase tracking-widest">Agotado</Badge>
+                            <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
+                              <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                                INVENTARIO AGOTADO
+                              </span>
                             </div>
                           )}
                         </div>
 
-                        <div className="p-5 flex flex-col flex-1 relative z-20">
-                          <div className="flex justify-between items-start mb-2">
-                            <Badge className="w-fit bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-300 border-none text-[10px] uppercase">
-                              {product.category || 'Producto'}
-                            </Badge>
-                            {/* 🚀 ALERTA DE POCO STOCK */}
+                        <div className="p-6 flex flex-col flex-1">
+                          <div className="flex justify-between items-start mb-4">
+                            <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                              {product.category || 'BIEN FÍSICO'}
+                            </span>
+                            
                             {isLowStock && (
-                              <span className="text-[10px] font-bold text-rose-500 dark:text-rose-400 flex items-center animate-pulse">
-                                <AlertCircle className="w-3 h-3 mr-1" /> ¡Solo quedan {product.stockQuantity}!
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 flex items-center">
+                                <AlertCircle className="w-3 h-3 mr-1" strokeWidth={2} /> STOCK: {product.stockQuantity}
                               </span>
                             )}
                           </div>
 
-                          <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-1 mb-1">{product.name}</h3>
-                          <p className="text-sm text-slate-500 dark:text-zinc-400 line-clamp-2 mb-4 flex-1">{product.description}</p>
+                          <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-2 mb-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-3 mb-6 flex-1 leading-relaxed">
+                            {product.description}
+                          </p>
 
-                          <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100 dark:border-white/5">
+                          <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800">
                             <div className="flex flex-col">
-                              {/* 🚀 PRECIO TACHADO PARA PRODUCTOS */}
                               {product.compareAtPrice && product.compareAtPrice > product.price && (
-                                <span className="text-xs font-bold text-slate-400 dark:text-zinc-500 line-through mb-0.5">${product.compareAtPrice}</span>
+                                <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">${product.compareAtPrice}</span>
                               )}
-                              <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">${product.price}</span>
+                              <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">${product.price}</span>
                             </div>
 
                             {(() => {
@@ -420,17 +495,15 @@ export default function PublicStorePage() {
                                 <Button
                                   disabled={isOutOfStock}
                                   onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)}
-                                  variant={isInCart ? "outline" : "default"}
                                   className={cn(
-                                    "rounded-xl shadow-md transition-transform",
-                                    !isOutOfStock && "hover:scale-105",
+                                    "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest transition-colors border-0",
                                     isInCart
-                                      ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none"
-                                      : (isOutOfStock ? "bg-slate-200 text-slate-400 dark:bg-white/5 dark:text-zinc-600 cursor-not-allowed shadow-none" : "text-white")
+                                      ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
+                                      : (isOutOfStock ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed" : "text-white")
                                   )}
                                   style={!isInCart && !isOutOfStock ? { backgroundColor: safePrimaryColor } : {}}
                                 >
-                                  {isOutOfStock ? 'Agotado' : (isInCart ? 'Quitar' : 'Agregar')}
+                                  {isOutOfStock ? 'AGOTADO' : (isInCart ? 'REMOVER' : 'AGREGAR')}
                                 </Button>
                               );
                             })()}
@@ -441,10 +514,10 @@ export default function PublicStorePage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-16 border border-slate-200 dark:border-white/5 rounded-3xl bg-white dark:bg-white/5 shadow-sm">
-                  <ShoppingBag className="w-12 h-12 text-slate-300 dark:text-zinc-700 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Farmacia Vacía</h3>
-                  <p className="text-slate-500 dark:text-zinc-400">El especialista aún no ha subido productos físicos.</p>
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <ShoppingBag className="w-8 h-8 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">INVENTARIO VACÍO</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EL ESPECIALISTA NO CUENTA CON PRODUCTOS FÍSICOS LISTADOS.</p>
                 </div>
               )}
             </motion.div>
@@ -455,45 +528,55 @@ export default function PublicStorePage() {
             <motion.div key="cursos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.courses && store.courses.length > 0 ? (
                 store.courses.map((course) => (
-                  <div key={course.id} className="group flex flex-col sm:flex-row bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden hover:shadow-xl transition-all">
-                    <div className="w-full sm:w-1/3 h-48 sm:h-auto bg-slate-100 dark:bg-zinc-800 relative overflow-hidden">
+                  <div key={course.id} className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors group">
+                    <div className="w-full sm:w-1/3 h-48 sm:h-auto border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] relative flex items-center justify-center overflow-hidden">
                       {course.imageUrl ? (
-                        <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center"><PlayCircle className="w-12 h-12 text-slate-300 dark:text-zinc-600" /></div>
+                        <PlayCircle className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
                       )}
-                      <div className="absolute top-3 right-3 sm:left-3 sm:right-auto z-20">
-                        <FavoriteButton entityType="COURSE" entityId={course.id} initialIsFavorite={favoriteCourseIds.has(course.id)} className="bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 backdrop-blur-md border-slate-200 dark:border-white/20 text-slate-400 dark:text-white" />
-                      </div>
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <PlayCircle className="w-12 h-12 text-white drop-shadow-lg" />
+                      
+                      <div className="absolute top-4 right-4 sm:left-4 sm:right-auto z-20">
+                        <FavoriteButton 
+                          entityType="COURSE" 
+                          entityId={course.id} 
+                          initialIsFavorite={favoriteCourseIds.has(course.id)} 
+                          className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                        />
                       </div>
                     </div>
-                    <div className="p-6 flex flex-col justify-between flex-1">
+                    
+                    <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
                       <div>
-                        <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-none mb-2 text-[10px] uppercase tracking-wider">
-                          <GraduationCap className="w-3 h-3 mr-1" /> Contenido Digital
-                        </Badge>
-                        <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-2">{course.name}</h3>
-                        <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed mb-4">{course.description}</p>
+                        <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit mb-4 text-black dark:text-white">
+                          <GraduationCap className="w-3 h-3" strokeWidth={1.5} /> ACTIVO INTANGIBLE
+                        </span>
+                        <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
+                          {course.name}
+                        </h3>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
+                          {course.description}
+                        </p>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto border-t border-slate-100 dark:border-white/5 pt-4">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">${course.price}</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-gray-200 dark:border-gray-800 pt-6">
+                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                          ${course.price}
+                        </span>
                         {(() => {
                           const isInCart = cart.some(c => c.id === course.id && c.type === course.type);
                           return (
                             <Button 
                               onClick={() => isInCart ? removeFromCart(course.id) : handleAddToCart(course)} 
-                              variant={isInCart ? "outline" : "default"}
                               className={cn(
-                                "rounded-xl w-full sm:w-auto font-bold shadow-lg transition-transform hover:scale-105",
+                                "rounded-none w-full sm:w-auto h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
                                 isInCart 
-                                  ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 shadow-none" 
+                                  ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
                                   : "text-white"
                               )} 
                               style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
                             >
-                              {isInCart ? 'Quitar' : 'Comprar Acceso'}
+                              {isInCart ? 'REMOVER DE SELECCIÓN' : 'ADQUIRIR ACCESO DIGITAL'}
                             </Button>
                           );
                         })()}
@@ -502,10 +585,10 @@ export default function PublicStorePage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-16 border border-slate-200 dark:border-white/5 rounded-3xl bg-white dark:bg-white/5 shadow-sm">
-                  <GraduationCap className="w-12 h-12 text-slate-300 dark:text-zinc-700 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Sin Cursos Disponibles</h3>
-                  <p className="text-slate-500 dark:text-zinc-400">El especialista aún no ha publicado contenido digital.</p>
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <GraduationCap className="w-8 h-8 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">SIN RESULTADOS DIGITALES</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EL ESPECIALISTA NO HA PUBLICADO CONTENIDO FORMATIVO.</p>
                 </div>
               )}
             </motion.div>
@@ -514,23 +597,37 @@ export default function PublicStorePage() {
         </AnimatePresence>
       </div>
 
-      {/* --- BOTTOM DOCK --- */}
+      {/* --- BOTTOM DOCK (PANEL FIJO) --- */}
       <AnimatePresence>
         {cart.length > 0 && (
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-6 left-0 w-full z-50 px-4">
-            <div className="max-w-2xl mx-auto bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-[2rem] shadow-2xl p-3 flex items-center justify-between">
-              <div className="flex flex-col pl-4">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('cart_summary')}</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{cart.length} Ítems • ${totalCart}</span>
-                  <button 
-                    onClick={clearCart}
-                    className="text-xs text-slate-400 hover:text-rose-500 underline transition-colors ml-2"
-                  >
-                    Vaciar
-                  </button>
+          <motion.div 
+            initial={{ y: 100 }} 
+            animate={{ y: 0 }} 
+            exit={{ y: 100 }} 
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-0 left-0 w-full z-50 border-t border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
+          >
+            <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              
+              <div className="flex items-center gap-6 w-full sm:w-auto">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                    {t('cart_summary', { defaultValue: 'Auditoría de Orden' })}
+                  </span>
+                  <div className="flex items-center gap-4 mt-1">
+                    <span className="font-bold text-lg tracking-tight text-black dark:text-white leading-none">
+                      {cart.length} ÍTEMS • ${totalCart}
+                    </span>
+                    <button 
+                      onClick={clearCart}
+                      className="text-[9px] font-bold uppercase tracking-widest text-gray-400 hover:text-red-500 border-b border-transparent hover:border-red-500 transition-colors"
+                    >
+                      Anular
+                    </button>
+                  </div>
                 </div>
               </div>
+
               <Button
                 onClick={() => {
                   const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
@@ -555,15 +652,16 @@ export default function PublicStorePage() {
                   }
                 }}
                 disabled={isProcessing}
-                className="rounded-full px-8 py-6 font-bold text-base shadow-xl hover:scale-105"
+                className="w-full sm:w-auto rounded-none h-14 px-10 font-bold text-[10px] uppercase tracking-widest transition-colors border-0"
                 style={{ backgroundColor: safePrimaryColor, color: '#fff' }}
               >
                 {isProcessing ? (
-                  <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Procesando...</>
+                  <><Loader2 className="w-4 h-4 mr-3 animate-spin" strokeWidth={2} /> VERIFICANDO...</>
                 ) : (
-                  <>{t('btn_continue')} <ChevronRight className="w-5 h-5 ml-2" /></>
+                  <>{t('btn_continue', { defaultValue: 'PROCESAR TRANSACCIÓN' })} <ChevronRight className="w-4 h-4 ml-3" strokeWidth={2} /></>
                 )}
               </Button>
+
             </div>
           </motion.div>
         )}
