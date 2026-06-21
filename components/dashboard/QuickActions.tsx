@@ -4,34 +4,44 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Users, Calendar, Settings, FileText, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const QuickActions = () => {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
+    // Textos adaptados al formato técnico de terminal
     const actions = [
-        { icon: Calendar, label: "New Appointment", href: "/provider/dashboard/appointments?action=new", color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10" },
-        { icon: Users, label: "Add Patient", href: "/provider/dashboard/patients?action=new", color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
-        { icon: FileText, label: "Upload Document", href: "/provider/dashboard/documents?action=upload", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10" },
-        { icon: Settings, label: "Store Settings", href: "/provider/store", color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10" },
+        { icon: Calendar, label: "AGENDAR CONSULTA", href: "/provider/dashboard/appointments?action=new" },
+        { icon: Users, label: "NUEVO PACIENTE", href: "/provider/dashboard/patients?action=new" },
+        { icon: FileText, label: "SUBIR DOCUMENTO", href: "/provider/dashboard/documents?action=upload" },
+        { icon: Settings, label: "CONFIGURACIÓN", href: "/provider/store" },
     ];
 
     return (
-        <div className="fixed bottom-6 lg:bottom-10 right-6 lg:right-10 z-50">
+        <div className="fixed bottom-6 lg:bottom-10 right-6 lg:right-10 z-50 flex flex-col items-end">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 15, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className="absolute bottom-16 right-0 mb-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 15 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="mb-4 w-64 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] rounded-none overflow-hidden"
                     >
-                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quick Actions</h4>
+                        {/* Cabecera del Panel */}
+                        <div className="p-4 bg-gray-50 dark:bg-[#050505] border-b border-black dark:border-white flex justify-between items-center">
+                            <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">COMANDOS RÁPIDOS</h4>
+                            <button 
+                                onClick={() => setIsOpen(false)} 
+                                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors border-b border-transparent hover:border-black dark:hover:border-white pb-0.5"
+                            >
+                                <X className="w-4 h-4" strokeWidth={2} />
+                            </button>
                         </div>
-                        <div className="p-2 space-y-1">
+                        
+                        {/* Lista de Acciones */}
+                        <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-[#0a0a0a]">
                             {actions.map((action, idx) => (
                                 <button
                                     key={idx}
@@ -39,12 +49,12 @@ export const QuickActions = () => {
                                         setIsOpen(false);
                                         router.push(action.href);
                                     }}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group text-left"
+                                    className="w-full flex items-center gap-4 p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group text-left rounded-none border-0"
                                 >
-                                    <div className={`p-1.5 rounded-lg ${action.bg}`}>
-                                        <action.icon className={`w-4 h-4 ${action.color}`} />
+                                    <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent group-hover:border-white dark:group-hover:border-black transition-colors shrink-0">
+                                        <action.icon className="w-4 h-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} />
                                     </div>
-                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">
                                         {action.label}
                                     </span>
                                 </button>
@@ -54,20 +64,24 @@ export const QuickActions = () => {
                 )}
             </AnimatePresence>
 
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            {/* Disparador Físico */}
+            <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-medical-600 dark:bg-medical-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-medical-700 dark:hover:bg-medical-600 transition-colors border-4 border-white dark:border-slate-950"
+                className={cn(
+                    "w-14 h-14 flex items-center justify-center transition-all duration-200 rounded-none",
+                    "border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black",
+                    "shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]",
+                    "hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]"
+                )}
                 aria-label="Toggle quick actions"
             >
                 <motion.div
                     animate={{ rotate: isOpen ? 45 : 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
-                    <Plus className="w-6 h-6" />
+                    <Plus className="w-6 h-6" strokeWidth={2} />
                 </motion.div>
-            </motion.button>
+            </button>
         </div>
     );
 };

@@ -4,26 +4,20 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
-import { enUS } from "date-fns/locale";
-import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature } from "lucide-react";
+import { es, enUS } from "date-fns/locale";
+import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature, Timer, PlayCircle } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { onboardingService } from "@/services/onboarding.service";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
-import { Timer, PlayCircle } from "lucide-react";
-
-// 🚀 IMPORTAMOS EL NUEVO COMPONENTE DE REPUTACIÓN (Score)
-import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -35,15 +29,14 @@ export default function DashboardPage() {
   const { data, isLoading, refetch } = useDashboardData(dateRange);
   const { appointments: allAppointments } = useProviderAppointments();
 
-  // 🚀 NUEVO ESTADO: ¿Necesita configurar su receta?
+  // 🚀 ESTADO: ¿Necesita configurar su receta?
   const [needsPrescriptionSetup, setNeedsPrescriptionSetup] = useState(false);
 
-  // 🚀 EFECTO SILENCIOSO: Verificar si ya tiene logo o color
+  // 🚀 EFECTO: Verificar si ya tiene logo o color
   useEffect(() => {
     const checkPrescriptionSetup = async () => {
       try {
         const status = await onboardingService.getOnboardingStatus();
-        // Lógica: Si su color es el por defecto (o nulo) y NO tiene logo subido...
         if (
           (!status.prescriptionColor || status.prescriptionColor.toUpperCase() === '#8B5CF6' || status.prescriptionColor.toUpperCase() === '#10B981') &&
           !status.prescriptionLogoUrl
@@ -51,16 +44,20 @@ export default function DashboardPage() {
           setNeedsPrescriptionSetup(true);
         }
       } catch (error) {
-        console.error("No se pudo verificar la configuración de la receta", error);
+        console.error("Fallo de lectura en configuración de receta", error);
       }
     };
     checkPrescriptionSetup();
   }, []);
 
+  // --- ESTADO 1: CARGANDO (BLUEPRINT) ---
   if (isLoading) {
     return (
-      <div className="min-h-[70vh] flex justify-center items-center flex-col gap-5 bg-slate-50 dark:bg-slate-950 transition-colors">
-        <QhSpinner size="lg" label={t('loading_title')} />
+      <div className="min-h-[70vh] flex flex-col justify-center items-center bg-white dark:bg-[#0a0a0a] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        <QhSpinner size="lg" />
+        <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+          {t('loading_title', { defaultValue: 'EXTRAYENDO TELEMETRÍA DEL SISTEMA...' })}
+        </p>
       </div>
     );
   }
@@ -68,15 +65,22 @@ export default function DashboardPage() {
   // --- ESTADO 2: ERROR ---
   if (!data) {
     return (
-      <div className="min-h-[70vh] flex flex-col justify-center items-center text-center px-4 bg-slate-50 dark:bg-slate-950 transition-colors">
-        <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-xl flex items-center justify-center border border-red-200 dark:border-red-500/20 mb-5">
-          <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400" />
+      <div className="min-h-[70vh] flex flex-col justify-center items-center text-center px-6 bg-white dark:bg-[#0a0a0a] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        <div className="w-16 h-16 border-2 border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-8 h-8 text-red-500" strokeWidth={1.5} />
         </div>
-        <div className="space-y-3 max-w-md">
-          <h3 className="text-xl font-medium text-slate-900 dark:text-white">{t('error_title')}</h3>
-          <p className="text-slate-500 dark:text-slate-400 font-light">{t('error_desc')}</p>
-          <Button onClick={() => refetch()} variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-            <RefreshCw className="w-4 h-4 mr-2" />{t('error_retry')}
+        <div className="space-y-4 max-w-md flex flex-col items-center">
+          <h3 className="text-xl font-bold uppercase tracking-widest text-black dark:text-white">
+            {t('error_title', { defaultValue: 'ERROR DE CONEXIÓN' })}
+          </h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
+            {t('error_desc', { defaultValue: 'NO SE PUDO ESTABLECER CONEXIÓN CON EL SERVIDOR DE DATOS. COMPRUEBE SU RED Y REINTENTE.' })}
+          </p>
+          <Button 
+            onClick={() => refetch()} 
+            className="mt-4 rounded-none bg-transparent border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+          >
+            <RefreshCw className="w-4 h-4 mr-3" strokeWidth={2} />{t('error_retry', { defaultValue: 'REINTENTAR CONEXIÓN' })}
           </Button>
         </div>
       </div>
@@ -86,11 +90,12 @@ export default function DashboardPage() {
   const { plan, hasConfiguredStore, analytics, upcomingAppointments } = data;
 
   const getStatusBadge = (status: string) => {
+    const baseClass = "border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0";
     switch (status) {
-      case "SCHEDULED": return <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0">{t('status_confirmed')}</Badge>;
-      case "PENDING_PAYMENT": return <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0">{t('status_pending_payment')}</Badge>;
-      case "IN_PROGRESS": return <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 animate-pulse">{t('status_in_progress')}</Badge>;
-      default: return <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-0">{status}</Badge>;
+      case "SCHEDULED": return <span className={cn(baseClass, "bg-white dark:bg-[#0a0a0a] text-black dark:text-white")}>{t('status_confirmed', { defaultValue: 'CONFIRMADA' })}</span>;
+      case "PENDING_PAYMENT": return <span className={cn(baseClass, "bg-gray-100 dark:bg-[#111] text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-700")}>{t('status_pending_payment', { defaultValue: 'PENDIENTE DE PAGO' })}</span>;
+      case "IN_PROGRESS": return <span className={cn(baseClass, "bg-black text-white dark:bg-white dark:text-black animate-pulse")}>{t('status_in_progress', { defaultValue: 'EN CURSO' })}</span>;
+      default: return <span className={cn(baseClass, "bg-gray-50 dark:bg-[#050505] text-gray-500")}>{status}</span>;
     }
   };
 
@@ -123,227 +128,268 @@ export default function DashboardPage() {
   const avgConsultationTime = consultationTimes.length ? Math.round(consultationTimes.reduce((a, b) => a + b, 0) / consultationTimes.length) : 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 pb-10">
+    <div className="space-y-8 pb-16 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
 
-      {/* --- HEADER & SUBSCRIPTION BANNER --- */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-6">
+      {/* --- HEADER TÉCNICO & BANNER DE SUSCRIPCIÓN --- */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-black dark:border-white">
         <div>
-          <h1 className="text-3xl md:text-4xl font-medium text-slate-900 dark:text-white tracking-tight mb-1.5">{t('welcome')}</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg font-light">{t('welcome_desc')}</p>
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-black dark:text-white mb-2">
+            {t('welcome', { defaultValue: 'PANEL DE CONTROL GENERAL' })}
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            {t('welcome_desc', { defaultValue: 'TELEMETRÍA, CITAS Y GESTIÓN OPERATIVA.' })}
+          </p>
         </div>
+        
+        {/* Etiqueta de Plan (Neo-Brutalista) */}
         <div className={cn(
-          "flex items-center justify-between gap-5 px-4 py-2.5 rounded-xl border transition-colors",
-          plan.status === "TRIAL" ? "bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20" :
-            plan.status === "EXPIRED" ? "bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20" :
-              "bg-medical-50 dark:bg-medical-500/5 border-medical-200 dark:border-medical-500/20"
+          "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] transition-colors bg-white dark:bg-[#0a0a0a]",
+          plan.status === "EXPIRED" ? "border-red-500" : "border-black dark:border-white"
         )}>
-          <div className="flex items-center gap-2.5">
-            <div className={cn("p-1.5 rounded-lg",
-              plan.status === "TRIAL" ? "bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400" : "bg-medical-100 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400")}>
-              <Crown className="w-4 h-4" />
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              "w-10 h-10 border flex items-center justify-center shrink-0",
+              plan.status === "EXPIRED" ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
+            )}>
+              <Crown className={cn("w-5 h-5", plan.status === "EXPIRED" ? "text-red-500" : "text-black dark:text-white")} strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">{plan.name}</p>
-              <div className="flex items-center gap-1 mt-0.5">
-                <Clock className="w-3 h-3 text-slate-400" />
-                <span className={cn("text-xs font-medium", plan.daysLeft <= 3 ? "text-red-500 dark:text-red-400" : "text-slate-500 dark:text-slate-400")}>
-                  {plan.daysLeft} {t('days_remaining')}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">PLAN: {plan.name}</p>
+              <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest">
+                <Clock className="w-3 h-3 text-gray-400" strokeWidth={2} />
+                <span className={cn(plan.daysLeft <= 3 ? "text-red-500" : "text-gray-500")}>
+                  {plan.daysLeft} {t('days_remaining', { defaultValue: 'DÍAS RESTANTES' })}
                 </span>
               </div>
             </div>
           </div>
-          <Button size="sm" onClick={() => router.push("/provider/settings/subscription")}
-            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold rounded-lg shadow-none text-xs transition-colors">
-            {t('upgrade_plan')}
+          <Button 
+            onClick={() => router.push("/provider/settings/subscription")}
+            className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-10 px-4 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors w-full sm:w-auto"
+          >
+            {t('upgrade_plan', { defaultValue: 'ACTUALIZAR LICENCIA' })}
           </Button>
         </div>
       </div>
 
-      {/* --- CTA: CONFIGURE PRESCRIPTION (Receta Médica) --- */}
-      <AnimatePresence>
-        {needsPrescriptionSetup && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-6">
-            <Card className="bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20 shadow-sm overflow-hidden relative group transition-colors">
-              <CardContent className="p-5 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5 relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-600 dark:bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <FileSignature className="w-6 h-6 text-white" />
+      {/* --- CTAS REQUERIDOS (CONFIGURACIÓN) --- */}
+      <div className="space-y-6">
+        <AnimatePresence>
+          {needsPrescriptionSetup && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+              <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                    <FileSignature className="w-5 h-5" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-0.5">
-                      {t('setup_prescription_title', { fallback: 'Personaliza tu Receta Médica' })}
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                      {t('setup_prescription_title', { fallback: 'MÓDULO DE RECETA INCOMPLETO' })}
                     </h3>
-                    <p className="text-slate-600 dark:text-slate-400 max-w-xl font-light text-sm">
-                      {t('setup_prescription_desc', { fallback: 'Sube tu logotipo, firma digital y configura tus colores institucionales para emitir recetas verdaderamente profesionales.' })}
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-2xl leading-relaxed">
+                      {t('setup_prescription_desc', { fallback: 'REQUIERE CONFIGURAR FIRMA DIGITAL, LOGOTIPO Y CÓDIGO CROMÁTICO PARA EMISIÓN DE DOCUMENTOS OFICIALES.' })}
                     </p>
                   </div>
                 </div>
-                <Button size="lg" onClick={() => router.push("/provider/settings/prescription")}
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 px-6 shadow-none rounded-xl transition-colors">
-                  {t('setup_prescription_cta', { fallback: 'Configurar ahora' })} <ArrowRight className="w-4 h-4 ml-2" />
+                <Button 
+                  onClick={() => router.push("/provider/settings/prescription")}
+                  className="w-full md:w-auto shrink-0 bg-transparent text-black dark:text-white border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                >
+                  {t('setup_prescription_cta', { fallback: 'INICIALIZAR CONFIGURACIÓN' })} <ArrowRight className="w-4 h-4 ml-3" strokeWidth={2} />
                 </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* --- CTA: CONFIGURE STORE --- */}
-      <AnimatePresence>
-        {!hasConfiguredStore && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-6">
-            <Card className="bg-medical-50 dark:bg-medical-500/5 border-medical-200 dark:border-medical-500/20 shadow-sm overflow-hidden relative group transition-colors">
-              <CardContent className="p-5 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5 relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-medical-600 dark:bg-medical-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <Store className="w-6 h-6 text-white" />
+        <AnimatePresence>
+          {!hasConfiguredStore && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+              <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+                    <Store className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-0.5">{t('empty_store_title')}</h3>
-                    <p className="text-slate-600 dark:text-slate-400 max-w-xl font-light text-sm">
-                      {t('empty_store_desc')}
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                      {t('empty_store_title', { defaultValue: 'ESCAPARATE DIGITAL INACTIVO' })}
+                    </h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-2xl leading-relaxed">
+                      {t('empty_store_desc', { defaultValue: 'SU DIRECTORIO PÚBLICO Y CATÁLOGO DE SERVICIOS AÚN NO HAN SIDO CONFIGURADOS.' })}
                     </p>
                   </div>
                 </div>
-                <Button size="lg" onClick={() => router.push("/provider/store")}
-                  className="w-full md:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold h-11 px-6 shadow-none rounded-xl transition-colors">
-                  {t('setup_store')}<ArrowRight className="w-4 h-4 ml-2" />
+                <Button 
+                  onClick={() => router.push("/provider/store")}
+                  className="w-full md:w-auto shrink-0 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border border-black dark:border-white rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                >
+                  {t('setup_store', { defaultValue: 'HABILITAR ESCAPARATE' })} <ArrowRight className="w-4 h-4 ml-3" strokeWidth={2} />
                 </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* --- KEY METRICS --- */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <SummaryCard title={t('revenue_title')} value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
-          icon={BarChart2} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month') }} />
-        <SummaryCard title={t('completed_appointments')} value={analytics.completedAppointments.toString()}
-          icon={CheckCircle} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: Math.abs(analytics.appointmentsGrowth || 0), isPositive: (analytics.appointmentsGrowth || 0) >= 0, period: t('previous_month') }} />
-        <SummaryCard title={t('new_patients')} value={analytics.newClients.toString()}
-          icon={Users} color="text-pink-600 dark:text-pink-400" bgColor="bg-pink-50 dark:bg-pink-500/10" borderColor="border-slate-200 dark:border-slate-800"
-          trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0, period: t('previous_month') }} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* --- TIME METRICS --- */}
-      <div className="grid grid-cols-2 gap-5">
-        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-2">
-            <Timer className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Promedio Espera (Hoy)</span>
+      {/* --- MÉTRICAS CLAVE (KPIs) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <SummaryCard 
+          title={t('revenue_title', { defaultValue: 'INGRESOS BRUTOS' })} 
+          value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
+          icon={BarChart2} 
+          trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
+        />
+        <SummaryCard 
+          title={t('completed_appointments', { defaultValue: 'CONSULTAS COMPLETADAS' })} 
+          value={analytics.completedAppointments.toString()}
+          icon={CheckCircle} 
+          trend={{ value: Math.abs(analytics.appointmentsGrowth || 0), isPositive: (analytics.appointmentsGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
+        />
+        <SummaryCard 
+          title={t('new_patients', { defaultValue: 'PACIENTES DE NUEVO INGRESO' })} 
+          value={analytics.newClients.toString()}
+          icon={Users} 
+          trend={{ value: Math.abs(analytics.clientsGrowth || 0), isPositive: (analytics.clientsGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'MES ANTERIOR' }) }} 
+        />
+      </div>
+
+      {/* --- MÉTRICAS DE TIEMPO TÉCNICO --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Timer className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">T/P ESPERA (HOY)</span>
           </div>
-          <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">{avgWaitTime} <span className="text-sm font-medium opacity-70">min</span></p>
+          <p className="text-4xl lg:text-5xl font-black tracking-tighter text-black dark:text-white leading-none">
+            {avgWaitTime} <span className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">MIN</span>
+          </p>
         </div>
-        <div className="bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-2">
-            <PlayCircle className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Promedio Consulta (Hoy)</span>
+
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] p-6 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <PlayCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">T/P CONSULTA (HOY)</span>
           </div>
-          <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-100">{avgConsultationTime} <span className="text-sm font-medium opacity-70">min</span></p>
+          <p className="text-4xl lg:text-5xl font-black tracking-tighter text-black dark:text-white leading-none">
+            {avgConsultationTime} <span className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">MIN</span>
+          </p>
         </div>
       </div>
 
-      {/* --- MAIN GRID: CHART & REPUTATION --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
+      {/* --- GRID PRINCIPAL: GRÁFICO & REPUTACIÓN --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
 
         {/* Gráfico Financiero */}
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[350px] flex flex-col p-6 shadow-sm transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h4 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-medical-600 dark:text-medical-400" /> {t('financial_summary')}
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] min-h-[350px] flex flex-col transition-colors">
+          <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BarChart2 className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                {t('financial_summary', { defaultValue: 'HISTÓRICO FINANCIERO' })}
               </h4>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-light mt-0.5">{t('financial_growth')}</p>
             </div>
             <div className={cn(
-              "px-2.5 py-1 rounded-md text-xs font-semibold border",
+              "px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-black dark:border-white",
               (analytics.revenueGrowth || 0) >= 0 
-                ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
-                : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20"
+                ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400"
             )}>
-              {(analytics.revenueGrowth || 0) > 0 ? '+' : ''}{analytics.revenueGrowth || 0}% Top
+              {(analytics.revenueGrowth || 0) > 0 ? '+' : ''}{analytics.revenueGrowth || 0}% TOP
             </div>
           </div>
-          <RevenueChart />
-        </Card>
+          <div className="p-6 flex-1">
+            <RevenueChart />
+          </div>
+        </div>
 
-        {/* 🚀 TARJETA DE REPUTACIÓN DEL PROVEEDOR (El componente que acabamos de arreglar) */}
+        {/* 🚀 TARJETA DE REPUTACIÓN DEL PROVEEDOR (Neo-Brutalista Integrada) */}
         <ProviderReputationCard />
 
       </div>
 
-      {/* --- UPCOMING APPOINTMENTS --- */}
-      <div className="mt-5">
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col transition-colors">
-          <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-3.5">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-medical-600 dark:text-medical-400" /> {t('upcoming_title')}
-              </CardTitle>
-              {upcomingAppointments.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={() => router.push("/provider/appointments")}
-                  className="text-medical-600 dark:text-medical-400 hover:text-medical-700 dark:hover:text-medical-300 text-xs transition-colors">
-                  {t('view_all')}
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar max-h-[400px]">
-            {upcomingAppointments.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center p-7 text-center min-h-[220px]">
-                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-                  <CalendarDays className="w-6 h-6 text-slate-400 dark:text-slate-600" />
-                </div>
-                <h4 className="text-base font-medium text-slate-700 dark:text-slate-300 mb-1">{t('no_appointments_title')}</h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto font-light">
-                  {t('no_appointments_desc')}
-                </p>
+      {/* --- PRÓXIMAS CITAS (AGENDA OPERATIVA) --- */}
+      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col transition-colors">
+        <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              {t('upcoming_title', { defaultValue: 'AGENDA OPERATIVA (PRÓXIMAS 24H)' })}
+            </h4>
+          </div>
+          {upcomingAppointments.length > 0 && (
+            <button 
+              onClick={() => router.push("/provider/appointments")}
+              className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white border-b border-transparent hover:border-black dark:hover:border-white transition-colors pb-0.5"
+            >
+              {t('view_all', { defaultValue: 'VER AGENDA COMPLETA' })}
+            </button>
+          )}
+        </div>
+        
+        <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[400px]">
+          {upcomingAppointments.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center p-10 text-center min-h-[250px] bg-gray-50 dark:bg-[#050505]">
+              <div className="w-12 h-12 border border-dashed border-gray-400 dark:border-gray-600 flex items-center justify-center mb-4">
+                <CalendarDays className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
               </div>
-            ) : (
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {upcomingAppointments.map((appt) => {
-                  const dateObj = parseISO(appt.startTime);
-                  const formattedDate = format(dateObj, locale === 'es' ? "EEE d 'de' MMM" : "EEE, MMM d", { locale: dateLocale });
-                  const formattedTime = format(dateObj, "h:mm a");
-                  return (
-                    <div key={appt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                      <div className="flex justify-between items-start mb-2.5">
-                        <div>
-                          <p className="font-semibold text-slate-900 dark:text-white text-base">{appt.consumerName}</p>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 font-light">{appt.serviceName}</p>
-                        </div>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">
+                {t('no_appointments_title', { defaultValue: 'AGENDA DESPEJADA' })}
+              </h4>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 max-w-xs mx-auto leading-relaxed">
+                {t('no_appointments_desc', { defaultValue: 'NO EXISTEN REGISTROS DE CONSULTA PROGRAMADOS A CORTO PLAZO.' })}
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200 dark:divide-gray-800">
+              {upcomingAppointments.map((appt) => {
+                const dateObj = parseISO(appt.startTime);
+                const formattedDate = format(dateObj, locale === 'es' ? "EEE d 'de' MMM" : "EEE, MMM d", { locale: dateLocale });
+                const formattedTime = format(dateObj, "HH:mm");
+                return (
+                  <div key={appt.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-4 mb-3">
+                        <p className="font-bold text-sm uppercase tracking-widest text-black dark:text-white">
+                          {appt.consumerName}
+                        </p>
                         {getStatusBadge(appt.status)}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 transition-colors">
-                            <Clock className="w-3 h-3 text-medical-600 dark:text-medical-400" />
-                            <span className="font-medium text-slate-700 dark:text-slate-300 capitalize text-xs">{formattedDate} • {formattedTime}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5 text-blue-500" /> : <MapPin className="w-3.5 h-3.5 text-emerald-500" />}
-                            <span className="text-xs">{appt.modality === "ONLINE" ? t('video_call') : t('in_person')}</span>
-                          </div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                        {appt.serviceName}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        <div className="flex items-center gap-2 border border-black dark:border-white px-2 py-1 bg-white dark:bg-[#0a0a0a] text-black dark:text-white">
+                          <Clock className="w-3 h-3" strokeWidth={1.5} />
+                          <span>{formattedDate} | {formattedTime} HRS</span>
                         </div>
-                        <Button size="sm" onClick={() => router.push(`/provider/appointments/${appt.id}`)}
-                          className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-medium opacity-0 group-hover:opacity-100 transition-all rounded-lg shadow-none text-xs h-7">
-                          <Check className="w-3 h-3 mr-1" />{t('manage')}
-                        </Button>
+                        <div className="flex items-center gap-1.5 text-black dark:text-white">
+                          {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5" strokeWidth={1.5} /> : <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                          <span>{appt.modality === "ONLINE" ? t('video_call', { defaultValue: 'TELEMEDICINA' }) : t('in_person', { defaultValue: 'PRESENCIAL' })}</span>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    
+                    <Button 
+                      onClick={() => router.push(`/provider/appointments/${appt.id}`)}
+                      className="w-full sm:w-auto shrink-0 bg-transparent border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors shadow-none sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+                    >
+                      <Check className="w-4 h-4 mr-2" strokeWidth={2} />
+                      {t('manage', { defaultValue: 'GESTIONAR' })}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* --- FLOATING QUICK ACTIONS --- */}
+      {/* --- FLOTADOR DE COMANDOS RÁPIDOS --- */}
       <QuickActions />
-    </motion.div>
+    </div>
   );
 }
