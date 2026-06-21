@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Shield, Star, CalendarX, Activity, UserCheck, Info, Sparkles, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Star, CalendarX, Activity, UserCheck, Info, Sparkles, TrendingUp, ChevronDown, ChevronUp, Heart, Globe } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useProviderScore } from '@/hooks/useProviderScore';
 import { useSessionStore } from '@/stores/SessionStore';
@@ -25,7 +25,9 @@ export function ProviderReputationCard() {
     P2: <Star className="w-4 h-4" strokeWidth={1.5} />,
     P3: <CalendarX className="w-4 h-4" strokeWidth={1.5} />,
     P4: <Activity className="w-4 h-4" strokeWidth={1.5} />,
-    P5: <UserCheck className="w-4 h-4" strokeWidth={1.5} />
+    P5: <UserCheck className="w-4 h-4" strokeWidth={1.5} />,
+    P6: <Heart className="w-4 h-4" strokeWidth={1.5} />,
+    P7: <Globe className="w-4 h-4" strokeWidth={1.5} />
   };
 
   const getProgressColorClass = (status: string) => {
