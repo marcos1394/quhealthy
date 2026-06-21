@@ -54,7 +54,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
 
   useEffect(() => {
     if (cart.length === 0 || !providerId) {
-      router.replace(`/patient/store/${slug}`);
+      router.replace(`/store/${slug}`);
     }
   }, [cart, providerId, router, slug]);
 

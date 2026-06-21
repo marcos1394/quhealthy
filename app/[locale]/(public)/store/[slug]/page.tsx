@@ -113,13 +113,12 @@ export default function PublicStorePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
 
-      {/* --- HERO SECTION ARQUITECTÓNICO --- */}
+      {/* --- HERO SECTION CORREGIDO --- */}
       <div className="w-full border-b border-gray-200 dark:border-gray-800">
-        
-        {/* Banner */}
-        <div className="h-48 sm:h-64 w-full relative bg-gray-100 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
+        {/* Banner con color natural */}
+        <div className="h-48 sm:h-64 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800">
           {store.bannerUrl && (
-            <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover grayscale opacity-80" />
+            <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover" />
           )}
           <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
             <FavoriteButton 
@@ -131,11 +130,9 @@ export default function PublicStorePage() {
           </div>
         </div>
 
-        {/* Datos Clínicos */}
+        {/* Información Base */}
         <div className="max-w-5xl mx-auto px-6 relative">
           <div className="flex flex-col sm:flex-row items-start gap-8 pb-10">
-            
-            {/* Logo Cuadrado Rígido */}
             <div className="w-32 h-32 border border-black dark:border-white bg-white dark:bg-black flex-shrink-0 -mt-16 relative z-10 flex items-center justify-center overflow-hidden">
               {store.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -145,7 +142,7 @@ export default function PublicStorePage() {
               )}
             </div>
 
-            <div className="flex-1 pt-2 sm:pt-4">
+            <div className="flex-1 pt-4">
               <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">
                 {store.displayName}
               </h1>
@@ -166,9 +163,13 @@ export default function PublicStorePage() {
                   </button>
                 )}
 
-                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+                {/* Etiqueta de ubicación usando el color del backend en el texto/borde */}
+                <span 
+                  className="border px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-transparent"
+                  style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                >
                   <MapPin className="w-3 h-3" strokeWidth={1.5} />
-                  <span className="truncate max-w-[200px]">{store.city || store.address || 'UBICACIÓN NO ESPECIFICADA'}</span>
+                  <span className="truncate max-w-[200px]">{store.city || store.address || 'CONSULTORIO'}</span>
                 </span>
 
                 {store.languages && store.languages.length > 0 && (
@@ -265,87 +266,94 @@ export default function PublicStorePage() {
       <div className="max-w-5xl mx-auto px-6 mt-10">
         <AnimatePresence mode="wait">
 
-          {/* VISTA 1: SERVICIOS */}
+          {/* VISTA 1: SERVICIOS CORREGIDA */}
           {activeTab === 'servicios' && (
-             <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-             {store.services && store.services.length > 0 ? (
-               store.services.map((service) => (
-                 <div key={service.id} className="relative bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group">
-                   
-                   <div className="absolute top-4 right-4 z-20">
-                     <FavoriteButton 
-                        entityType="SERVICE" 
-                        entityId={service.id} 
-                        initialIsFavorite={favoriteServiceIds.has(service.id)} 
-                        className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
-                      />
-                   </div>
+            <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+              {store.services && store.services.length > 0 ? (
+                store.services.map((service) => (
+                  <div key={service.id} className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group">
+                    
+                    <div className="flex-1 flex flex-col gap-4">
+                      {/* Cabecera Interna: Controla etiquetas y botón favoritos en una sola fila */}
+                      <div className="flex items-start justify-between gap-4 w-full">
+                        <div className="flex flex-wrap items-center gap-3">
+                          {service.category && (
+                            <span 
+                              className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent"
+                              style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                            >
+                              {service.category}
+                            </span>
+                          )}
+                          {renderModalityBadge(service.modality)}
+                          <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                            <Clock className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {service.durationMinutes || 0} MIN
+                          </span>
+                        </div>
 
-                   <div className="space-y-4 flex-1 pr-12">
-                     <div className="flex flex-wrap items-center gap-3">
-                       {service.category && (
-                         <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
-                           {service.category}
-                         </span>
-                       )}
-                       {renderModalityBadge(service.modality)}
-                       <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                         <Clock className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {service.durationMinutes || 0} MIN
-                       </span>
-                     </div>
-                     <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
-                       {service.name}
-                     </h3>
-                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
-                       {service.description}
-                     </p>
-                     <div className="flex flex-wrap gap-3 pt-2">
-                       {service.searchTags && service.searchTags.map((tag, idx) => (
-                         <span key={idx} className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                           <TagIcon className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {tag}
-                         </span>
-                       ))}
-                       {service.cancellationPolicy === 'flexible' && (
-                         <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white pb-0.5 ml-2">
-                           <ShieldCheck className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {t('cancellation_flexible')}
-                         </span>
-                       )}
-                     </div>
-                   </div>
+                        {/* El botón favoritos ahora vive aquí de forma segura, aislado de los precios inferiores */}
+                        <div className="shrink-0">
+                          <FavoriteButton 
+                            entityType="SERVICE" 
+                            entityId={service.id} 
+                            initialIsFavorite={favoriteServiceIds.has(service.id)} 
+                            className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                          />
+                        </div>
+                      </div>
 
-                   <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px]">
-                     <div className="flex flex-col items-start md:items-end">
-                       {service.compareAtPrice && service.compareAtPrice > service.price && (
-                         <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${service.compareAtPrice}</span>
-                       )}
-                       <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">${service.price}</span>
-                     </div>
-                     {(() => {
-                       const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
-                       return (
-                         <Button 
-                           onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
-                           className={cn(
-                             "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
-                             isInCart 
-                               ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
-                               : "text-white"
-                           )} 
-                           style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
-                         >
-                           {isInCart ? 'REMOVER' : t('btn_book', { defaultValue: 'AGREGAR' })} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
-                         </Button>
-                       );
-                     })()}
-                   </div>
-                 </div>
-               ))
-             ) : (
-               <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_services', { defaultValue: 'CATÁLOGO DE SERVICIOS NO DISPONIBLE.' })}</p>
-               </div>
-             )}
-           </motion.div>
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
+                          {service.name}
+                        </h3>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
+                          {service.description}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3 pt-2">
+                        {service.searchTags && service.searchTags.map((tag, idx) => (
+                          <span key={idx} className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                            <TagIcon className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Panel Lateral de Precios y Cierre */}
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px] self-stretch justify-end">
+                      <div className="flex flex-col items-start md:items-end">
+                        {service.compareAtPrice && service.compareAtPrice > service.price && (
+                          <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${service.compareAtPrice}</span>
+                        )}
+                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">${service.price}</span>
+                      </div>
+                      
+                      {(() => {
+                        const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
+                        return (
+                          <Button 
+                            onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
+                            className={cn(
+                              "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              isInCart ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white" : "text-white"
+                            )} 
+                            style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
+                          >
+                            {isInCart ? 'REMOVER' : t('btn_book', { defaultValue: 'AGREGAR' })} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
+                          </Button>
+                        );
+                      })()}
+                    </div>
+
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_services', { defaultValue: 'CATÁLOGO DE SERVICIOS NO DISPONIBLE.' })}</p>
+                </div>
+              )}
+            </motion.div>
           )}
 
           {/* VISTA 2: PAQUETES */}
@@ -419,7 +427,7 @@ export default function PublicStorePage() {
             </motion.div>
           )}
 
-          {/* VISTA 3: FARMACIA Y PRODUCTOS */}
+          {/* VISTA 3: FARMACIA Y PRODUCTOS CORREGIDA */}
           {activeTab === 'productos' && (
             <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               {store.products && store.products.length > 0 ? (
@@ -443,15 +451,6 @@ export default function PublicStorePage() {
                             <Box className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
                           )}
 
-                          <div className="absolute top-4 right-4 z-20">
-                            <FavoriteButton 
-                              entityType="PRODUCT" 
-                              entityId={product.id} 
-                              initialIsFavorite={favoriteProductIds.has(product.id)} 
-                              className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
-                            />
-                          </div>
-
                           {isOutOfStock && (
                             <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
                               <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
@@ -462,26 +461,39 @@ export default function PublicStorePage() {
                         </div>
 
                         <div className="p-6 flex flex-col flex-1">
-                          <div className="flex justify-between items-start mb-4">
-                            <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                          <div className="flex justify-between items-start gap-4 mb-4">
+                            <span 
+                              className="border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent"
+                              style={{ borderColor: safePrimaryColor, color: safePrimaryColor }}
+                            >
                               {product.category || 'BIEN FÍSICO'}
                             </span>
                             
-                            {isLowStock && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 flex items-center">
-                                <AlertCircle className="w-3 h-3 mr-1" strokeWidth={2} /> STOCK: {product.stockQuantity}
-                              </span>
-                            )}
+                            {/* Botón integrado de forma segura en la esquina superior del bloque de datos */}
+                            <div className="shrink-0">
+                              <FavoriteButton 
+                                entityType="PRODUCT" 
+                                entityId={product.id} 
+                                initialIsFavorite={favoriteProductIds.has(product.id)} 
+                                className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black hover:border-black dark:hover:border-white" 
+                              />
+                            </div>
                           </div>
 
-                          <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-2 mb-2">
+                          {isLowStock && (
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-3 flex items-center">
+                              <AlertCircle className="w-3 h-3 mr-1" strokeWidth={2} /> STOCK ACTUAL: {product.stockQuantity}
+                            </span>
+                          )}
+
+                          <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-1 mb-2">
                             {product.name}
                           </h3>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-3 mb-6 flex-1 leading-relaxed">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
                             {product.description}
                           </p>
 
-                          <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800">
+                          <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800 mt-auto">
                             <div className="flex flex-col">
                               {product.compareAtPrice && product.compareAtPrice > product.price && (
                                 <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">${product.compareAtPrice}</span>
@@ -496,7 +508,7 @@ export default function PublicStorePage() {
                                   disabled={isOutOfStock}
                                   onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)}
                                   className={cn(
-                                    "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest transition-colors border-0",
+                                    "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
                                     isInCart
                                       ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
                                       : (isOutOfStock ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed" : "text-white")
