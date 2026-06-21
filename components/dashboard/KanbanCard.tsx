@@ -57,25 +57,25 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
     return () => clearInterval(interval);
   }, [startTime]);
 
-  let colorClass = "text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300";
-  let icon = <Timer className="w-3 h-3" />;
+  let colorClass = "text-black bg-white dark:bg-[#0a0a0a] dark:text-white border-black dark:border-white";
+  let icon = <Timer className="w-3 h-3" strokeWidth={2} />;
 
   if (type === 'WAITING') {
     if (elapsedMinutes < 15) {
-      colorClass = "text-emerald-700 bg-emerald-100 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30";
+      colorClass = "text-black bg-white dark:bg-[#0a0a0a] dark:text-white border-black dark:border-white";
     } else if (elapsedMinutes < 30) {
-      colorClass = "text-amber-700 bg-amber-100 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30";
+      colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
     } else {
-      colorClass = "text-red-700 bg-red-100 border border-red-200 animate-pulse dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30";
-      icon = <Activity className="w-3 h-3" />;
+      colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white animate-pulse";
+      icon = <Activity className="w-3 h-3" strokeWidth={2} />;
     }
   } else if (type === 'CONSULTATION') {
-    colorClass = "text-indigo-700 bg-indigo-100 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30";
-    icon = <PlayCircle className="w-3 h-3 animate-spin-slow" />;
+    colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
+    icon = <PlayCircle className="w-3 h-3 animate-spin-slow" strokeWidth={2} />;
   }
 
   return (
-    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md flex items-center gap-1 ${colorClass}`}>
+    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-none flex items-center gap-1.5 border ${colorClass}`}>
       {icon}
       {elapsed}
     </span>
@@ -129,74 +129,77 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, appt.id)}
-      className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all relative overflow-hidden group"
+      className="bg-white dark:bg-[#0a0a0a] p-3 rounded-none border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] cursor-grab active:cursor-grabbing hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] transition-all relative overflow-hidden group mb-3"
     >
       {/* Borde izquierdo decorativo para citas Online */}
       {appt.service?.serviceDeliveryType === 'video_call' && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400"></div>
+        <div className="absolute left-0 top-0 bottom-0 w-2 bg-black dark:bg-white border-r border-black dark:border-white"></div>
       )}
 
-      <div className="flex justify-between items-start mb-1.5 pl-1">
-        <p className="font-semibold text-sm text-slate-900 dark:text-white truncate pr-2">
+      <div className={`flex justify-between items-start mb-2 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
+        <p className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white truncate pr-2 mt-0.5">
           {appt.consumer?.name || t('card.patient')}
         </p>
         
         {/* 🎥 Indicador de Modalidad */}
         {appt.service?.serviceDeliveryType === 'video_call' ? (
-           <div className="flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 w-6 h-6 rounded-full text-blue-600 dark:text-blue-400 tooltip" title={t('card.online')}>
-             <Video className="w-3.5 h-3.5" />
+           <div className="flex shrink-0 items-center justify-center border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black w-6 h-6 tooltip" title={t('card.online')}>
+             <Video className="w-3.5 h-3.5" strokeWidth={2} />
            </div>
         ) : (
-           <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 w-6 h-6 rounded-full text-slate-400 dark:text-slate-500 tooltip" title={t('card.in_person')}>
-             <User className="w-3.5 h-3.5" />
+           <div className="flex shrink-0 items-center justify-center border border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white w-6 h-6 tooltip" title={t('card.in_person')}>
+             <User className="w-3.5 h-3.5" strokeWidth={2} />
            </div>
         )}
       </div>
 
-      <div className="flex justify-between items-end mb-3 pl-1">
-        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+      <div className={`flex flex-col gap-2 mb-2 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 truncate max-w-full">
           {appt.service?.name || t('medical_appointment')}
         </p>
 
         {/* ⏱️ Lógica de tiempos y cronómetros */}
-        {columnId === "WAITING_ROOM" && appt.arrivedAt ? (
-          <LiveTimer startTime={appt.arrivedAt} type="WAITING" />
-        ) : columnId === "IN_PROGRESS" && appt.startedAt ? (
-          <LiveTimer startTime={appt.startedAt} type="CONSULTATION" />
-        ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) ? (
-          <div className="flex gap-1.5">
-            {appt.arrivedAt && appt.startedAt && (
-              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700" title="Tiempo de espera">
-                <Timer className="w-3 h-3 text-amber-500" />
-                {getDiffMinutes(appt.arrivedAt, appt.startedAt)}m
-              </span>
-            )}
-            {appt.startedAt && appt.completedAt && (
-              <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700" title="Tiempo de consulta">
-                <PlayCircle className="w-3 h-3 text-indigo-500" />
-                {getDiffMinutes(appt.startedAt, appt.completedAt)}m
-              </span>
-            )}
-          </div>
-        ) : (
-          <span className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700">
-            <Clock className="w-3 h-3" />
-            {formatLocalTime(appt.startTime, "HH:mm")}
-          </span>
-        )}
+        <div className="flex items-center mt-1">
+          {columnId === "WAITING_ROOM" && appt.arrivedAt ? (
+            <LiveTimer startTime={appt.arrivedAt} type="WAITING" />
+          ) : columnId === "IN_PROGRESS" && appt.startedAt ? (
+            <LiveTimer startTime={appt.startedAt} type="CONSULTATION" />
+          ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) ? (
+            <div className="flex gap-2">
+              {appt.arrivedAt && appt.startedAt && (
+                <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white px-2 py-1 flex items-center gap-1.5" title="Tiempo de espera">
+                  <Timer className="w-3 h-3 text-black dark:text-white" strokeWidth={2} />
+                  {getDiffMinutes(appt.arrivedAt, appt.startedAt)}m
+                </span>
+              )}
+              {appt.startedAt && appt.completedAt && (
+                <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1.5" title="Tiempo de consulta">
+                  <PlayCircle className="w-3 h-3" strokeWidth={2} />
+                  {getDiffMinutes(appt.startedAt, appt.completedAt)}m
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white bg-white dark:bg-[#0a0a0a] px-2 py-1 flex items-center gap-1.5">
+              <Clock className="w-3 h-3" strokeWidth={2} />
+              {formatLocalTime(appt.startTime, "HH:mm")}
+            </span>
+          )}
+        </div>
       </div>
       
       {/* Botón de finalizar consulta */}
      {/* Botón de Iniciar/Abrir Monitor Clínico */}
       {columnId === "IN_PROGRESS" && (
-        <Link href={`/provider/consultation/${appt.id}`} passHref className="w-full mt-2 block">
-          <Button 
-            size="sm" 
-            className="w-full h-8 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-lg shadow-none"
-          >
-            <PlayCircle className="w-4 h-4 mr-1.5" /> {t('actions.open_monitor')}
-          </Button>
-        </Link>
+        <div className={`mt-3 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
+          <Link href={`/provider/consultation/${appt.id}`} passHref className="w-full block">
+            <button 
+              className="w-full h-10 text-[10px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] flex items-center justify-center gap-2 border border-black dark:border-white transition-colors"
+            >
+              <PlayCircle className="w-4 h-4" strokeWidth={2} /> {t('actions.open_monitor')}
+            </button>
+          </Link>
+        </div>
       )}
       
     </div>

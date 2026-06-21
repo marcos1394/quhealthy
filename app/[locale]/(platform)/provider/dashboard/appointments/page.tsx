@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { Check, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck, Filter } from "lucide-react";
 import { format } from "date-fns"; // 🚀 Usamos format simple en lugar de formatInTimeZone
 import { es } from "date-fns/locale";
-import Link from 'next/link'; // 🚀 Asegúrate de importar Link arriba
+import Link from 'next/link'; 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CompletionModal } from "@/components/dashboard/CompletionModal";
@@ -37,13 +37,11 @@ export default function ProviderAppointmentsPage() {
   const [dateFilter, setDateFilter] = useState<'ALL' | 'TODAY' | 'UPCOMING'>('ALL');
   const [draggedApptId, setDraggedApptId] = useState<number | string | null>(null);
 
-  // 🚀 FIX: Este normalizador es VITAL porque tu endpoint de Agenda devuelve "pending/confirmed" 
-  // pero la lógica del drag&drop funciona con "SCHEDULED/WAITING_ROOM".
   const normalizeStatus = (status: string) => {
     if (!status) return "SCHEDULED";
     const s = status.toUpperCase();
-    if (s === "CONFIRMED") return "SCHEDULED"; // Mapeo de legacy
-    if (s === "PENDING") return "SCHEDULED"; // 🚀 Forzamos 'pending' a SCHEDULED para que aparezca en el Kanban
+    if (s === "CONFIRMED") return "SCHEDULED"; 
+    if (s === "PENDING") return "SCHEDULED"; 
     return s;
   };
 
@@ -72,17 +70,13 @@ export default function ProviderAppointmentsPage() {
     finally { setIsCanceling(false); }
   };
 
-// 🚀 Optimización del Kanban (Optimistic UI) con Inyección de Tiempos
   const handleUpdateStatus = async (appointmentId: string | number, newStatus: string) => {
-    // Capturamos el instante exacto en que se movió la tarjeta
     const nowLocalIso = new Date().toISOString(); 
 
-    // 1. Cambio Visual Inmediato (Para que no parpadee ni se pierda)
     setAppointments(prev => prev.map(appt => {
       if (appt.id === appointmentId) {
         const updatedAppt = { ...appt, status: newStatus as any };
         
-        // ⏱️ INYECTOR DE TIMERS: Si no tenía tiempo asignado, se lo ponemos AHORA MISMO
         if (newStatus === "WAITING_ROOM" && !appt.arrivedAt) {
           updatedAppt.arrivedAt = nowLocalIso;
           saveApptTime(appt.id, 'arrivedAt', nowLocalIso);
@@ -102,11 +96,9 @@ export default function ProviderAppointmentsPage() {
     }));
 
     try {
-      // 2. Llamada en segundo plano al backend
       await appointmentService.updateStatus(appointmentId, newStatus);
       toast.success(`Cita actualizada a ${translateStatus(newStatus)}`);
     } catch (error) {
-      // Si falla, revertimos recargando
       handleApiError(error);
       refetch();
     }
@@ -126,12 +118,10 @@ export default function ProviderAppointmentsPage() {
     e.preventDefault();
     if (draggedApptId) {
       const idToMove = draggedApptId;
-      setDraggedApptId(null); // Limpiamos el estado de arrastre
+      setDraggedApptId(null); 
       
-      // Actualizamos el estado en BD y disparamos el timer localmente
       await handleUpdateStatus(idToMove, newStatus);
       
-      // 🚀 REDIRECCIÓN CORREGIDA: Ruta absoluta exacta
       if (newStatus === "IN_PROGRESS") {
         router.push(`/provider/consultation/${idToMove}`);
       }
@@ -143,7 +133,6 @@ export default function ProviderAppointmentsPage() {
     e.dataTransfer.dropEffect = "move";
   };
 
-  // 🚀 FIX DE HORAS: Función segura para interpretar la hora localmente
   const formatLocalTime = (dateString: string, formatStr: string) => {
     try {
       const date = new Date(dateString);
@@ -155,24 +144,24 @@ export default function ProviderAppointmentsPage() {
 
   const getStatusBadgeStyle = (status: string) => {
     switch (normalizeStatus(status)) {
-      case "COMPLETED": return "bg-emerald-50 text-emerald-600 border-0 dark:bg-emerald-500/10 dark:text-emerald-400";
-      case "SCHEDULED": return "bg-blue-50 text-blue-600 border-0 dark:bg-blue-500/10 dark:text-blue-400";
-      case "WAITING_ROOM": return "bg-violet-50 text-violet-600 border-0 dark:bg-violet-500/10 dark:text-violet-400";
-      case "IN_PROGRESS": return "bg-indigo-50 text-indigo-600 border-0 animate-pulse dark:bg-indigo-500/10 dark:text-indigo-400";
+      case "COMPLETED": return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
+      case "SCHEDULED": return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
+      case "WAITING_ROOM": return "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white";
+      case "IN_PROGRESS": return "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white animate-pulse";
       case "CANCELED_BY_CONSUMER":
-      case "CANCELED_BY_PROVIDER": return "bg-red-50 text-red-600 border-0 dark:bg-red-500/10 dark:text-red-400";
-      default: return "bg-amber-50 text-amber-600 border-0 dark:bg-amber-500/10 dark:text-amber-400";
+      case "CANCELED_BY_PROVIDER": return "bg-gray-100 text-gray-500 border-gray-300 dark:bg-gray-900 dark:text-gray-600 dark:border-gray-800 line-through";
+      default: return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (normalizeStatus(status)) {
-      case "COMPLETED": return <CheckCircle2 className="w-3.5 h-3.5" />;
-      case "SCHEDULED": return <Calendar className="w-3.5 h-3.5" />;
-      case "WAITING_ROOM": return <UserCheck className="w-3.5 h-3.5" />;
-      case "IN_PROGRESS": return <PlayCircle className="w-3.5 h-3.5" />;
-      case "PENDING_PAYMENT": return <Timer className="w-3.5 h-3.5" />;
-      default: return <XCircle className="w-3.5 h-3.5" />;
+      case "COMPLETED": return <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />;
+      case "SCHEDULED": return <Calendar className="w-3.5 h-3.5" strokeWidth={2} />;
+      case "WAITING_ROOM": return <UserCheck className="w-3.5 h-3.5" strokeWidth={2} />;
+      case "IN_PROGRESS": return <PlayCircle className="w-3.5 h-3.5" strokeWidth={2} />;
+      case "PENDING_PAYMENT": return <Timer className="w-3.5 h-3.5" strokeWidth={2} />;
+      default: return <XCircle className="w-3.5 h-3.5" strokeWidth={2} />;
     }
   };
 
@@ -198,7 +187,6 @@ export default function ProviderAppointmentsPage() {
     return true;
   });
 
-  // 🚀 Cálculo de promedios para métricas del día (Dashboard Analytics local)
   const todayCompletedAppointments = appointments.filter(appt => {
     const apptDate = new Date(appt.startTime).toDateString();
     const today = new Date().toDateString();
@@ -230,63 +218,86 @@ export default function ProviderAppointmentsPage() {
     return (
       <div className="min-h-[60vh] flex flex-col justify-center items-center">
         <QhSpinner size="md" />
-        <p className="text-slate-500 mt-4 animate-pulse font-light">{t('loading')}</p>
+        <p className="text-[10px] uppercase font-bold tracking-widest mt-6 animate-pulse">{t('loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 pb-10 max-w-7xl mx-auto px-4 md:px-6">
+      {/* 1. Encabezado */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b-2 border-black dark:border-white">
         <div>
-          <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Calendar className="w-6 h-6 text-medical-600 dark:text-medical-400" />{t('title')}
+          <h1 className="text-3xl md:text-5xl font-serif font-bold uppercase tracking-wide text-black dark:text-white flex items-center gap-3">
+            <Calendar className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2} />
+            {t('title')}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-light mt-1">{t('subtitle')}</p>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500 mt-2">
+            {t('subtitle')}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button onClick={() => setIsNewAppointmentModalOpen(true)} className="bg-slate-900 text-white rounded-xl shadow-none">
-            <Zap className="w-4 h-4 mr-2" />{t('quick_actions.new_appointment')}
+        <div>
+          <Button onClick={() => setIsNewAppointmentModalOpen(true)} className="w-full md:w-auto h-12 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest transition-all">
+            <Zap className="w-4 h-4 mr-2" strokeWidth={2} />{t('quick_actions.new_appointment')}
           </Button>
         </div>
       </div>
 
-      {/* 🚀 Dashboard Analytics: Tiempos Promedio del Día */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-2">
-            <Timer className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">{t('avg_wait_today', { defaultValue: 'Promedio Espera (Hoy)' })}</span>
+      {/* 2. Dashboard Analytics: Tiempos Promedio del Día */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-5 flex flex-col justify-between shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-black dark:border-white">
+            <Timer className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
+            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('avg_wait_today', { defaultValue: 'Promedio Espera (Hoy)' })}</span>
           </div>
-          <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{avgWaitTime} <span className="text-sm font-medium opacity-70">min</span></p>
+          <p className="text-4xl font-serif font-bold text-black dark:text-white uppercase">
+            {avgWaitTime} <span className="text-sm tracking-widest">MIN</span>
+          </p>
         </div>
-        <div className="bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-4 flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-2">
-            <PlayCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">{t('avg_consultation_today', { defaultValue: 'Promedio Consulta (Hoy)' })}</span>
+        <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-5 flex flex-col justify-between shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-black dark:border-white">
+            <PlayCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
+            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('avg_consultation_today', { defaultValue: 'Promedio Consulta (Hoy)' })}</span>
           </div>
-          <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">{avgConsultationTime} <span className="text-sm font-medium opacity-70">min</span></p>
+          <p className="text-4xl font-serif font-bold text-black dark:text-white uppercase">
+            {avgConsultationTime} <span className="text-sm tracking-widest">MIN</span>
+          </p>
         </div>
       </div>
 
-      <Tabs defaultValue="list" className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <TabsList className="bg-transparent space-x-1">
-            <TabsTrigger value="list" className="rounded-xl data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800 dark:text-slate-300">{t('view_mode.list')}</TabsTrigger>
-            <TabsTrigger value="kanban" className="rounded-xl data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800 dark:text-slate-300">{t('view_mode.kanban')}</TabsTrigger>
-            <TabsTrigger value="calendar" className="rounded-xl data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800 dark:text-slate-300">{t('view_mode.calendar')}</TabsTrigger>
+      <Tabs defaultValue="list" className="space-y-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b-2 border-black dark:border-white pb-6">
+          <TabsList className="bg-transparent space-x-2 p-0 h-auto">
+            <TabsTrigger value="list" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
+              {t('view_mode.list')}
+            </TabsTrigger>
+            <TabsTrigger value="kanban" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
+              {t('view_mode.kanban')}
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
+              {t('view_mode.calendar')}
+            </TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl">
-            <Filter className="w-4 h-4 text-slate-400 ml-2" />
-            <Button size="sm" variant={dateFilter === 'ALL' ? 'secondary' : 'ghost'} onClick={() => setDateFilter('ALL')} className="rounded-lg h-7 text-xs dark:text-slate-300 dark:hover:bg-slate-700">{t('tabs.all')}</Button>
-            <Button size="sm" variant={dateFilter === 'TODAY' ? 'secondary' : 'ghost'} onClick={() => setDateFilter('TODAY')} className="rounded-lg h-7 text-xs dark:text-slate-300 dark:hover:bg-slate-700">{t('tabs.today')}</Button>
-            <Button size="sm" variant={dateFilter === 'UPCOMING' ? 'secondary' : 'ghost'} onClick={() => setDateFilter('UPCOMING')} className="rounded-lg h-7 text-xs dark:text-slate-300 dark:hover:bg-slate-700">{t('tabs.upcoming')}</Button>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-black dark:text-white hidden sm:block" strokeWidth={2} />
+            <Button size="sm" variant="outline" onClick={() => setDateFilter('ALL')} 
+              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'ALL' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
+              {t('tabs.all')}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setDateFilter('TODAY')} 
+              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'TODAY' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
+              {t('tabs.today')}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setDateFilter('UPCOMING')} 
+              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'UPCOMING' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
+              {t('tabs.upcoming')}
+            </Button>
           </div>
         </div>
 
         {/* VISTA DE LISTA */}
-        <TabsContent value="list" className="space-y-3 m-0">
+        <TabsContent value="list" className="space-y-4 m-0">
           <AnimatePresence mode="popLayout">
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((appt, index) => {
@@ -294,62 +305,68 @@ export default function ProviderAppointmentsPage() {
 
                 return (
                   <motion.div key={appt.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-slate-300 transition-all">
-                    <div className="flex flex-col md:flex-row justify-between gap-4">
-                      <div className="flex items-start gap-3.5">
-                        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                          <User className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                    className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-6 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] group transition-all hover:translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff]">
+                    <div className="flex flex-col md:flex-row justify-between gap-6">
+                      <div className="flex items-start gap-5">
+                        <div className="w-12 h-12 bg-black dark:bg-white text-white dark:text-black flex items-center justify-center border-2 border-black dark:border-white shrink-0">
+                          {appt.service?.serviceDeliveryType === 'video_call' ? <Video className="w-5 h-5" strokeWidth={2} /> : <User className="w-5 h-5" strokeWidth={2} />}
                         </div>
                         <div>
-                          <h3 className="text-base font-semibold text-slate-900 dark:text-white">{appt.service?.name || t('medical_appointment')}</h3>
-                          <div className="flex flex-wrap items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
-                            <span className="text-slate-900 dark:text-slate-200 font-medium">{appt.consumer?.name || t('card.patient')}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1 text-medical-600 dark:text-medical-400">
-                              <Clock className="w-3 h-3" />
-                              {/* 🚀 FIX: Usamos el formateo local */}
+                          <h3 className="text-xl font-serif font-bold text-black dark:text-white uppercase tracking-wide leading-none mb-3">
+                            {appt.service?.name || t('medical_appointment')}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border border-black dark:border-white px-2 py-1 bg-gray-50 dark:bg-gray-900">
+                              {appt.consumer?.name || t('card.patient')}
+                            </span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border border-black dark:border-white px-2 py-1 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3" strokeWidth={2} />
                               {formatLocalTime(appt.startTime, "d MMM, HH:mm")}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <Badge className={`${getStatusBadgeStyle(appt.status)} px-2.5 py-1`}>
-                          <span className="flex items-center gap-1">{getStatusIcon(appt.status)}{getStatusText(appt.status)}</span>
+                      <div className="flex flex-col items-end gap-3 justify-between">
+                        <Badge className={`${getStatusBadgeStyle(appt.status)} border rounded-none px-3 py-1 shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]`}>
+                          <span className="flex items-center gap-2">{getStatusIcon(appt.status)} {getStatusText(appt.status)}</span>
                         </Badge>
 
-                        {["SCHEDULED", "WAITING_ROOM", "PENDING_PAYMENT"].includes(currentStatus) && (
-                          <Button size="sm" variant="ghost" onClick={() => handleOpenCancelModal(appt)} className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 rounded-lg text-xs">
-                            {t('actions.cancel')}
-                          </Button>
-                        )}
+                        <div className="flex flex-wrap justify-end gap-2 mt-auto pt-4">
+                          {["SCHEDULED", "WAITING_ROOM", "PENDING_PAYMENT"].includes(currentStatus) && (
+                            <Button size="sm" variant="outline" onClick={() => handleOpenCancelModal(appt)} className="border-2 border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
+                              {t('actions.cancel')}
+                            </Button>
+                          )}
 
-                        {currentStatus === "SCHEDULED" && (
-                          <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:hover:bg-violet-500/30 h-8 rounded-lg text-xs shadow-none">
-                            <UserCheck className="w-4 h-4 mr-1" /> {t('actions.arrived')}
-                          </Button>
-                        )}
+                          {currentStatus === "SCHEDULED" && (
+                            <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
+                              <UserCheck className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.arrived')}
+                            </Button>
+                          )}
 
-                        {["SCHEDULED", "WAITING_ROOM"].includes(currentStatus) && (
-                          <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white h-8 rounded-lg text-xs shadow-none">
-                            <PlayCircle className="w-4 h-4 mr-1" /> {t('actions.start')}
-                          </Button>
-                        )}
+                          {["SCHEDULED", "WAITING_ROOM"].includes(currentStatus) && (
+                            <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors animate-pulse">
+                              <PlayCircle className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.start')}
+                            </Button>
+                          )}
 
-                        {currentStatus === "IN_PROGRESS" && (
-                          <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white h-8 rounded-lg text-xs shadow-none">
-                            <Check className="w-4 h-4 mr-1" /> {t('actions.finish')}
-                          </Button>
-                        )}
+                          {currentStatus === "IN_PROGRESS" && (
+                            <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
+                              <Check className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.finish')}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 );
               })
             ) : (
-              <div className="text-center py-14 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
-                {t('no_appointments_filter')}
+              <div className="text-center py-20 border-2 border-dashed border-black dark:border-white rounded-none bg-white dark:bg-[#0a0a0a]">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500">
+                  {t('no_appointments_filter')}
+                </p>
               </div>
             )}
           </AnimatePresence>
@@ -360,31 +377,31 @@ export default function ProviderAppointmentsPage() {
         {/* VISTA KANBAN (DRAG & DROP GLOBAL) */}
         {/* ========================================== */}
         <TabsContent value="kanban" className="m-0 overflow-x-auto pb-4">
-          <div className="flex gap-4 min-w-[1000px] items-start">
+          <div className="flex gap-6 min-w-[1000px] items-start pt-2">
             {[
-              { id: "SCHEDULED", title: t('kanban_columns.scheduled'), color: "border-blue-500 dark:border-blue-700", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-700 dark:text-blue-300" },
-              { id: "WAITING_ROOM", title: t('kanban_columns.waiting_room'), color: "border-violet-500 dark:border-violet-700", bg: "bg-violet-50 dark:bg-violet-900/20", text: "text-violet-700 dark:text-violet-300" },
-              { id: "IN_PROGRESS", title: t('kanban_columns.in_progress'), color: "border-indigo-500 dark:border-indigo-700 animate-pulse", bg: "bg-indigo-50 dark:bg-indigo-900/20", text: "text-indigo-700 dark:text-indigo-300" },
-              { id: "COMPLETED", title: t('kanban_columns.completed'), color: "border-emerald-500 dark:border-emerald-700", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300" }
+              { id: "SCHEDULED", title: t('kanban_columns.scheduled') },
+              { id: "WAITING_ROOM", title: t('kanban_columns.waiting_room') },
+              { id: "IN_PROGRESS", title: t('kanban_columns.in_progress') },
+              { id: "COMPLETED", title: t('kanban_columns.completed') }
             ].map(column => (
               <div 
                 key={column.id}
                 onDrop={(e) => handleDrop(e, column.id)}
                 onDragOver={handleDragOver}
-                className="flex-1 min-w-[250px] bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col h-[650px]"
+                className="flex-1 min-w-[280px] bg-gray-50 dark:bg-[#111] rounded-none border-2 border-black dark:border-white flex flex-col h-[700px] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]"
               >
                 {/* Cabecera de la Columna */}
-                <div className={`p-3 border-b border-slate-200 dark:border-slate-800 ${column.bg} rounded-t-2xl border-t-2 ${column.color}`}>
-                  <h3 className={`font-semibold text-sm flex justify-between items-center ${column.text}`}>
+                <div className={`p-4 border-b-2 border-black dark:border-white bg-white dark:bg-[#0a0a0a]`}>
+                  <h3 className={`font-bold text-[10px] uppercase tracking-widest flex justify-between items-center text-black dark:text-white`}>
                     {column.title}
-                    <Badge variant="secondary" className="bg-white dark:bg-slate-800 dark:text-slate-200 shadow-sm border-0">
+                    <Badge variant="secondary" className="bg-black text-white dark:bg-white dark:text-black rounded-none shadow-none border-0 text-[10px] px-2 py-0.5">
                       {filteredAppointments.filter(a => normalizeStatus(a.status) === column.id).length}
                     </Badge>
                   </h3>
                 </div>
 
                 {/* Zona de Arrastre / Contenido */}
-                <div className="flex-1 p-3 overflow-y-auto space-y-3">
+                <div className="flex-1 p-4 overflow-y-auto space-y-4">
                   {filteredAppointments
                     .filter(appt => normalizeStatus(appt.status) === column.id)
                     .map(appt => (
@@ -402,8 +419,12 @@ export default function ProviderAppointmentsPage() {
                   
                   {/* Mensaje vacío si no hay tarjetas */}
                   {filteredAppointments.filter(appt => normalizeStatus(appt.status) === column.id).length === 0 && (
-                    <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
-                      {t('drag_here')}
+                    <div className="h-full flex items-center justify-center">
+                      <div className="border-2 border-dashed border-black dark:border-white p-4 w-full text-center">
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500">
+                          {t('drag_here')}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -412,7 +433,7 @@ export default function ProviderAppointmentsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="calendar" className="m-0 h-[600px]">
+        <TabsContent value="calendar" className="m-0 h-[600px] border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-4 bg-white dark:bg-[#0a0a0a]">
           <CalendarView />
         </TabsContent>
       </Tabs>
