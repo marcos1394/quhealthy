@@ -21,6 +21,9 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     if (!isOpen || !appointmentId) {
       setNotes(null);
@@ -58,10 +61,6 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
   };
 
   if (!isOpen) return null;
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   if (!mounted) return null;
 
   return createPortal(
@@ -80,7 +79,7 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
                 <FileText className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="text-xl md:text-2xl font-serif tracking-tight text-black dark:text-white uppercase mb-1">
+                <h3 className="text-xl md:text-2xl font-sans font-bold tracking-widest text-black dark:text-white uppercase mb-1">
                   Expediente de Consulta
                 </h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
