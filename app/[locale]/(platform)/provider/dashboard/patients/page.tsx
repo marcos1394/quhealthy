@@ -11,20 +11,14 @@ import { es } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
-// Infra & UI
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { cn } from '@/lib/utils';
 import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 
-// 🚀 Nuestra nueva arquitectura importada
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 import { PatientClient } from '@/types/patient';
 import { PatientDirectoryProfile } from '@/types/medicalHistory';
@@ -33,7 +27,6 @@ export default function ProviderPatientsPage() {
     const t = useTranslations("DashboardPatients");
     const router = useRouter();
     
-    // 🚀 Usamos el Custom Hook
     const { clients, isLoading, fetchClients } = usePatientDirectory();
     
     const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +34,6 @@ export default function ProviderPatientsPage() {
     const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
     const [patientToEdit, setPatientToEdit] = useState<PatientDirectoryProfile | null>(null);
 
-    // Cargar pacientes al montar
     useEffect(() => {
         fetchClients();
     }, [fetchClients]);
@@ -53,70 +45,69 @@ export default function ProviderPatientsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col justify-center items-center h-[70vh] bg-slate-50 dark:bg-slate-950">
-                <QhSpinner size="lg" />
-                <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse mt-4">{t("loading")}</p>
+            <div className="flex flex-col justify-center items-center h-[70vh] bg-gray-50 dark:bg-[#050505]">
+                <QhSpinner size="lg" className="text-black dark:text-white" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse mt-6">
+                    {t("loading", { defaultValue: 'SINCRONIZANDO DIRECTORIO...' })}
+                </p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 p-4 md:p-8 transition-colors duration-500">
-            <motion.div 
-                initial={{ opacity: 0, y: 15 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                className="space-y-8 max-w-7xl mx-auto"
-            >
-                {/* --- HEADER --- */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-center gap-5">
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm ring-1 ring-slate-200/50 dark:ring-white/5">
-                            <Users className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 transition-colors duration-500 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+            <div className="space-y-8 max-w-7xl mx-auto">
+                
+                {/* --- HEADER ARQUITECTÓNICO --- */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+                    <div className="flex items-start gap-5">
+                        <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                            <Users className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                {t("title")}
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                                Base de Datos
+                            </p>
+                            <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+                                {t("title", { defaultValue: 'DIRECTORIO DE PACIENTES' })}
                             </h1>
-                            <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="bg-medical-50 dark:bg-medical-500/10 text-medical-700 dark:text-medical-400 border-none font-medium">
-                                    {clients.length} {t("total_patients")}
-                                </Badge>
-                                <span className="text-slate-400 dark:text-slate-600">•</span>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
-                                    {t("subtitle_populated")}
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+                                    {clients.length} {t("total_patients", { defaultValue: 'REGISTRADOS' })}
+                                </span>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                    {t("subtitle_populated", { defaultValue: 'CONTROL Y GESTIÓN DE EXPEDIENTES.' })}
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <Button
+                    <button
                         onClick={() => setIsNewPatientModalOpen(true)}
-                        className="bg-medical-600 hover:bg-medical-700 text-white shadow-lg shadow-medical-500/20 rounded-xl h-11 px-6 transition-all active:scale-95"
+                        className="w-full md:w-auto h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border-0"
                     >
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        {t("new_patient")}
-                    </Button>
+                        <UserPlus className="w-4 h-4" strokeWidth={1.5} />
+                        {t("new_patient", { defaultValue: 'NUEVO REGISTRO' })}
+                    </button>
                 </div>
 
-                {/* --- FILTROS --- */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="md:col-span-8 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <Input
-                            placeholder={t("search_placeholder")}
-                            className="pl-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-medical-500 h-11 rounded-xl"
+                {/* --- FILTROS Y BÚSQUEDA --- */}
+                <div className="flex flex-col md:flex-row gap-0 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                    <div className="flex-1 relative border-b md:border-b-0 md:border-r border-black/20 dark:border-white/20">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                        <input
+                            placeholder={t("search_placeholder", { defaultValue: 'BUSCAR POR NOMBRE O CORREO...' })}
+                            className="w-full h-12 pl-12 pr-4 bg-transparent border-0 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:ring-0 focus:outline-none placeholder:text-gray-400"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="md:col-span-4 flex justify-end">
-                        <Button variant="outline" className="w-full md:w-auto h-11 rounded-xl border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
-                            <Filter className="w-4 h-4 mr-2" />
-                            {t("more_filters")}
-                        </Button>
-                    </div>
+                    <button className="h-12 px-8 flex items-center justify-center gap-2 bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest text-black dark:text-white shrink-0">
+                        <Filter className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        {t("more_filters", { defaultValue: 'FILTROS' })}
+                    </button>
                 </div>
 
-                {/* --- CONTENIDO --- */}
+                {/* --- TABLA DE DIRECTORIO --- */}
                 <AnimatePresence mode="wait">
                     {filteredClients.length > 0 ? (
                         <motion.div 
@@ -124,80 +115,85 @@ export default function ProviderPatientsPage() {
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
                             exit={{ opacity: 0 }}
-                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-none"
+                            className="bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 flex flex-col transition-colors rounded-none overflow-hidden"
                         >
                             <Table>
-                                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
-                                    <TableRow className="border-slate-200 dark:border-slate-800">
-                                        <TableHead className="py-5 pl-8 text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">{t("col_patient")}</TableHead>
-                                        <TableHead className="text-center text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">{t("col_status")}</TableHead>
-                                        <TableHead className="text-center text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">{t("col_appointments")}</TableHead>
-                                        <TableHead className="text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">{t("col_last_visit")}</TableHead>
-                                        <TableHead className="text-right pr-8 text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-widest">{t("col_actions")}</TableHead>
+                                <TableHeader className="bg-gray-50 dark:bg-[#050505]">
+                                    <TableRow className="border-b border-black/10 dark:border-white/10 hover:bg-transparent">
+                                        <TableHead className="h-14 pl-6 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_patient", { defaultValue: 'PACIENTE' })}</TableHead>
+                                        <TableHead className="h-14 text-center text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_status", { defaultValue: 'ESTADO' })}</TableHead>
+                                        <TableHead className="h-14 text-center text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_appointments", { defaultValue: 'CITAS' })}</TableHead>
+                                        <TableHead className="h-14 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_last_visit", { defaultValue: 'ÚLTIMA VISITA' })}</TableHead>
+                                        <TableHead className="h-14 text-right pr-6 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_actions", { defaultValue: 'ACCIÓN' })}</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody>
+                                <TableBody className="divide-y divide-black/10 dark:divide-white/10">
                                     {filteredClients.map((client) => (
                                         <TableRow 
                                             key={client.id} 
                                             onClick={() => setSelectedPatient(client)}
-                                            className="border-slate-100 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-all cursor-pointer group"
+                                            className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer group"
                                         >
-                                            <TableCell className="pl-8 py-5">
+                                            <TableCell className="pl-6 py-5">
                                                 <div className="flex items-center gap-4">
-                                                    <Avatar className="h-11 w-11 ring-2 ring-white dark:ring-slate-800 shadow-sm transition-transform group-hover:scale-105">
-                                                        <AvatarImage src={client.consumer.profileImageUrl || ''} />
-                                                        <AvatarFallback className="bg-gradient-to-tr from-medical-600 to-emerald-400 text-white text-sm font-bold">
-                                                            {client.consumer.name.charAt(0)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-bold text-slate-900 dark:text-white transition-colors group-hover:text-medical-600">
+                                                    {/* Avatar Cuadrado Técnico */}
+                                                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center overflow-hidden shrink-0">
+                                                        {client.consumer.profileImageUrl ? (
+                                                            <img src={client.consumer.profileImageUrl} alt="avatar" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="text-xs font-bold text-black dark:text-white uppercase">
+                                                                {client.consumer.name.charAt(0)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="font-semibold text-sm text-black dark:text-white uppercase tracking-widest truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                                                             {client.consumer.name}
                                                         </span>
-                                                        <span className="text-xs text-slate-400 font-light lowercase tracking-tight">
+                                                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest truncate mt-1">
                                                             {client.consumer.email}
                                                         </span>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-center">
-                                                <Badge className={cn(
-                                                    "px-3 py-1 rounded-full text-[10px] font-bold border-none shadow-sm",
+                                            <TableCell className="text-center py-5">
+                                                <span className={cn(
+                                                    "inline-flex items-center gap-1.5 px-2 py-1 text-[9px] font-bold uppercase tracking-widest border rounded-none whitespace-nowrap",
                                                     client.status === 'active' 
-                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
-                                                        : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                                                        ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400'
+                                                        : 'border-gray-500/30 bg-gray-50 text-gray-600 dark:bg-[#111] dark:text-gray-400'
                                                 )}>
-                                                    {client.status === 'active' ? t("status_active") : t("status_inactive")}
-                                                </Badge>
+                                                    <span className={cn("w-1.5 h-1.5", client.status === 'active' ? "bg-emerald-500" : "bg-gray-500")} />
+                                                    {client.status === 'active' ? t("status_active", { defaultValue: 'ACTIVO' }) : t("status_inactive", { defaultValue: 'INACTIVO' })}
+                                                </span>
                                             </TableCell>
-                                            <TableCell className="text-center">
-                                                <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-xs border border-slate-100 dark:border-slate-700">
+                                            <TableCell className="text-center py-5">
+                                                <span className="inline-flex items-center justify-center w-8 h-8 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-bold text-xs">
                                                     {client.totalAppointments}
-                                                </div>
+                                                </span>
                                             </TableCell>
-                                            <TableCell className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                            <TableCell className="py-5">
+                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                                                    <Calendar className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
                                                     {format(new Date(client.lastAppointmentDate), "PP", { locale: es })}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right pr-8">
+                                            <TableCell className="text-right pr-6 py-5">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
+                                                        <button className="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 bg-transparent hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors ml-auto">
+                                                            <MoreHorizontal className="h-4 w-4 text-gray-500 hover:text-black dark:hover:text-white" strokeWidth={1.5} />
+                                                        </button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+                                                    <DropdownMenuContent align="end" className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
                                                         <DropdownMenuItem
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 router.push(`/provider/dashboard/patients/${client.id}`);
                                                             }}
-                                                            className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer"
+                                                            className="text-[9px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none"
                                                         >
-                                                            <Activity className="w-3.5 h-3.5 mr-2" /> {t("view_full_record")}
+                                                            <Activity className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> {t("view_full_record", { defaultValue: 'VER EXPEDIENTE' })}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onClick={(e) => {
@@ -216,9 +212,9 @@ export default function ProviderPatientsPage() {
                                                                     createdAt: client.lastAppointmentDate
                                                                 });
                                                             }}
-                                                            className="text-xs focus:bg-medical-50 dark:focus:bg-medical-500/10 cursor-pointer"
+                                                            className="text-[9px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none"
                                                         >
-                                                            <Edit className="w-3.5 h-3.5 mr-2" /> {t("edit_contact")}
+                                                            <Edit className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> {t("edit_contact", { defaultValue: 'EDITAR PERFIL' })}
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -231,96 +227,124 @@ export default function ProviderPatientsPage() {
                     ) : (
                         <motion.div 
                             key="empty"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="text-center py-32 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-col items-center justify-center py-24 text-center border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]"
                         >
-                            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-full inline-block mb-4">
-                                <Users className="w-12 h-12 text-slate-300 dark:text-slate-600" />
+                            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
+                                <Users className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{t("empty_title")}</h3>
-                            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto font-light leading-relaxed">
-                                {searchTerm ? t("empty_search") : t("empty_list")}
+                            <h3 className="text-sm font-semibold text-black dark:text-white uppercase tracking-tight mb-2">
+                                {t("empty_title", { defaultValue: 'DIRECTORIO VACÍO' })}
+                            </h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs mx-auto leading-relaxed">
+                                {searchTerm ? t("empty_search", { defaultValue: 'NO SE ENCONTRARON PACIENTES.' }) : t("empty_list", { defaultValue: 'AÚN NO HAY PACIENTES REGISTRADOS EN EL SISTEMA.' })}
                             </p>
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </motion.div>
+            </div>
 
-            {/* --- PATIENT DRAWER --- */}
+            {/* --- PATIENT DRAWER (FICHA TÉCNICA) --- */}
             <Sheet open={!!selectedPatient} onOpenChange={(open) => !open && setSelectedPatient(null)}>
-                <SheetContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 sm:max-w-md w-full p-0">
+                <SheetContent className="bg-white dark:bg-[#0a0a0a] border-l border-black dark:border-white sm:max-w-md w-full p-0 shadow-2xl flex flex-col rounded-none transition-colors">
                     {selectedPatient && (
                         <div className="h-full flex flex-col">
-                            <div className="p-8 pb-6 border-b border-slate-100 dark:border-slate-800">
-                                <SheetHeader className="text-left">
-                                    <SheetTitle className="text-2xl font-bold text-slate-900 dark:text-white">{t('sheet_title')}</SheetTitle>
-                                    <SheetDescription className="font-light text-slate-500">
-                                        {t('sheet_desc')}
-                                    </SheetDescription>
-                                </SheetHeader>
+                            
+                            {/* Header Drawer */}
+                            <div className="p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] shrink-0">
+                                <SheetTitle className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-1">
+                                    {t('sheet_title', { defaultValue: 'FICHA DE IDENTIFICACIÓN' })}
+                                </SheetTitle>
+                                <SheetDescription className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                    {t('sheet_desc', { defaultValue: 'RESUMEN DEL PACIENTE' })}
+                                </SheetDescription>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="relative group">
-                                        <Avatar className="w-28 h-28 border-[4px] border-white dark:border-slate-800 shadow-2xl transition-transform group-hover:scale-105">
-                                            <AvatarImage src={selectedPatient.consumer.profileImageUrl || ''} />
-                                            <AvatarFallback className="bg-gradient-to-br from-medical-600 to-emerald-500 text-white text-3xl font-bold">
+                            {/* Contenido Drawer */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col bg-white dark:bg-[#0a0a0a]">
+                                
+                                {/* Info Principal */}
+                                <div className="p-6 md:p-8 flex flex-col items-center text-center border-b border-black/10 dark:border-white/10">
+                                    <div className="w-24 h-24 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6 overflow-hidden">
+                                        {selectedPatient.consumer.profileImageUrl ? (
+                                            <img src={selectedPatient.consumer.profileImageUrl} alt="avatar" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-3xl font-semibold uppercase text-black dark:text-white">
                                                 {selectedPatient.consumer.name.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 border-4 border-white dark:border-slate-950 rounded-full" />
+                                            </span>
+                                        )}
                                     </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-6 tracking-tight">{selectedPatient.consumer.name}</h2>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('patient_id')}: #{selectedPatient.consumer.id}</p>
+                                    <h2 className="text-xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+                                        {selectedPatient.consumer.name}
+                                    </h2>
+                                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] px-2 py-1">
+                                        {t('patient_id', { defaultValue: 'ID REF' })}: #{selectedPatient.consumer.id}
+                                    </p>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t('contact_info')}</h3>
-                                    <div className="grid grid-cols-1 gap-3">
-                                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                            <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                                <Mail className="w-4 h-4 text-medical-600" />
-                                            </div>
-                                            <span className="text-sm text-slate-600 dark:text-slate-300 font-semibold truncate">{selectedPatient.consumer.email}</span>
+                                {/* Contacto */}
+                                <div className="border-b border-black/10 dark:border-white/10">
+                                    <div className="px-6 md:px-8 py-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
+                                        <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                            {t('contact_info', { defaultValue: 'INFORMACIÓN DE CONTACTO' })}
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-0">
+                                        <div className="flex items-center gap-4 p-6 border-b border-black/10 dark:border-white/10">
+                                            <Mail className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                                            <span className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white truncate">
+                                                {selectedPatient.consumer.email}
+                                            </span>
                                         </div>
-                                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                            <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                                <Phone className="w-4 h-4 text-medical-600" />
-                                            </div>
-                                            <span className="text-sm text-slate-600 dark:text-slate-300 font-semibold">{selectedPatient.consumer.phone || '—'}</span>
+                                        <div className="flex items-center gap-4 p-6">
+                                            <Phone className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                                            <span className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white">
+                                                {selectedPatient.consumer.phone || 'NO REGISTRADO'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t('activity_summary')}</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-slate-900 dark:bg-white p-5 rounded-3xl shadow-xl shadow-slate-900/10">
-                                            <Activity className="w-5 h-5 text-medical-400 dark:text-medical-600 mb-3" />
-                                            <p className="text-3xl font-bold text-white dark:text-slate-900">{selectedPatient.totalAppointments}</p>
-                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold mt-1">{t('total_visits')}</p>
-                                        </div>
-                                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm">
-                                            <Calendar className="w-5 h-5 text-medical-600 mb-3" />
-                                            <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
-                                                {format(new Date(selectedPatient.lastAppointmentDate), "d MMM", { locale: es })}
+                                {/* Actividad */}
+                                <div>
+                                    <div className="px-6 md:px-8 py-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
+                                        <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                            {t('activity_summary', { defaultValue: 'RESUMEN OPERATIVO' })}
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10">
+                                        <div className="p-6 border-r border-black/10 dark:border-white/10 flex flex-col items-start justify-center">
+                                            <Activity className="w-4 h-4 text-gray-400 mb-3" strokeWidth={1.5} />
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                                                {t('total_visits', { defaultValue: 'VISITAS TOTALES' })}
                                             </p>
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">{t('last_visit')}</p>
+                                            <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                                                {selectedPatient.totalAppointments}
+                                            </p>
+                                        </div>
+                                        <div className="p-6 flex flex-col items-start justify-center">
+                                            <Calendar className="w-4 h-4 text-gray-400 mb-3" strokeWidth={1.5} />
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                                                {t('last_visit', { defaultValue: 'ÚLTIMA VISITA' })}
+                                            </p>
+                                            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mt-1">
+                                                {format(new Date(selectedPatient.lastAppointmentDate), "d MMM yyyy", { locale: es })}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-8 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-                                <Button
+                            {/* Footer Drawer */}
+                            <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 shrink-0">
+                                <button
                                     onClick={() => router.push(`/provider/dashboard/patients/${selectedPatient.id}`)}
-                                    className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 h-14 rounded-2xl font-bold text-base hover:scale-[1.02] transition-transform active:scale-95 shadow-xl shadow-slate-900/10"
+                                    className="w-full h-14 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border-0"
                                 >
-                                    {t('view_medical_record')}
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                </Button>
+                                    {t('view_medical_record', { defaultValue: 'ACCEDER AL EXPEDIENTE' })}
+                                    <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                                </button>
                             </div>
                         </div>
                     )}

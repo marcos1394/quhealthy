@@ -20,7 +20,7 @@ import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal"
 import { useLocale, useTranslations } from "next-intl";
 
 export const CalendarView: React.FC = () => {
-  const { fetchAppointments, reschedule, cancel, isLoading } = useAppointments();
+  const { fetchCalendarEvents, reschedule, cancel, isLoading } = useAppointments();
   const { fetchSchedules } = useOperatingHours();
   const t = useTranslations("DashboardCalendarView");
   const locale = useLocale();
@@ -41,7 +41,15 @@ export const CalendarView: React.FC = () => {
     endTime: "20:00",
   }]);
 
-  const loadEvents = useCallback(async () => { const data = await fetchAppointments(); setEvents(data); }, [fetchAppointments]);
+  const loadEvents = useCallback(async (start?: string, end?: string) => { 
+    // Fallback if FullCalendar hasn't passed dates yet
+    const s = start || new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0];
+    const e = end || new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0];
+    const data = await fetchCalendarEvents(s, e); 
+    setEvents(data); 
+  }, [fetchCalendarEvents]);
+
+  // Se llama al inicializar o al recargar
   useEffect(() => { loadEvents(); }, [loadEvents]);
 
   useEffect(() => {
@@ -210,6 +218,13 @@ export const CalendarView: React.FC = () => {
             }}
             eventMouseEnter={(info) => setHoveredEvent(String(info.event.id))}
             eventMouseLeave={() => setHoveredEvent(null)}
+            datesSet={(dateInfo) => {
+              // Call loadEvents specifically with the view's current start/end dates
+              // Convert to YYYY-MM-DD
+              const startStr = dateInfo.start.toISOString().split('T')[0];
+              const endStr = dateInfo.end.toISOString().split('T')[0];
+              loadEvents(startStr, endStr);
+            }}
             eventContent={(eventInfo) => {
               const theme = getStatusTheme(eventInfo.event.extendedProps?.status);
               const isHovered = hoveredEvent === String(eventInfo.event.id);

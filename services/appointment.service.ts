@@ -32,6 +32,18 @@ export const appointmentService = {
   },
 
   /**
+   * 📅 Obtiene los eventos del calendario (Citas + Bloqueos) para el Doctor (Provider)
+   */
+  getCalendarEvents: async (startDate: string, endDate: string): Promise<AppointmentResponse[]> => {
+    const response = await axiosInstance.get<AppointmentResponse[]>(
+      `${BASE_URL}/calendar`, {
+        params: { startDate, endDate }
+      }
+    );
+    return response.data;
+  },
+
+  /**
    * 📊 Obtiene el resumen del dashboard del paciente (Métricas y próxima cita)
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

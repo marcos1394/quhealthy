@@ -83,6 +83,33 @@ export const useAppointments = () => {
     }
   }, []);
 
+  // 1.5 OBTENER Y TRANSFORMAR PARA EL CALENDARIO (Incluye TimeBlocks de Google)
+  const fetchCalendarEvents = useCallback(async (startDate: string, endDate: string): Promise<CalendarEvent[]> => {
+    setIsLoading(true);
+    try {
+      const data = await appointmentService.getCalendarEvents(startDate, endDate);
+      
+      return data.map(app => ({
+        id: String(app.id),
+        title: app.serviceName || 'Evento de Calendario',
+        start: app.startTime, 
+        end: app.endTime,
+        extendedProps: {
+          status: app.consumerId === -1 ? 'confirmed' : mapStatusForUI(app.status),
+          clientName: app.consumerNameSnapshot || app.consumerName || 'Evento',
+          providerName: app.providerNameSnapshot,
+          type: app.type || app.appointmentType,
+          notes: app.consumerSymptoms
+        }
+      }));
+    } catch (error) {
+      console.error("Error cargando eventos de calendario:", error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // 2. REPROGRAMAR (Drag & Drop o UI)
   const reschedule = async (id: number, newStartTime: string): Promise<boolean> => {
     try {
@@ -123,7 +150,8 @@ export const useAppointments = () => {
 
   return {
     appointments, // Usado por ConsumerAppointmentsPage
-    fetchAppointments, // Usado por ambos
+    fetchAppointments, // Usado por vista lista
+    fetchCalendarEvents, // Usado por vista de Calendario (incluye TimeBlocks)
     reschedule, // Usado por Calendario
     cancel, // Usado por Calendario
     cancelAppointment, // Usado por ConsumerAppointmentsPage

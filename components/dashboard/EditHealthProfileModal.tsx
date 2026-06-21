@@ -1,13 +1,13 @@
 "use client";
 
 import React, { KeyboardEvent, useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, FileHeart } from 'lucide-react';
 import { BloodType, PatientHealthProfile } from '@/types/healthProfile';
+import { cn } from '@/lib/utils';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface EditHealthProfileModalProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ interface TagInputProps {
   value: string[];
   onChange: (next: string[]) => void;
   badgeColorClass: string;
+  className?: string;
 }
 
 const BLOOD_TYPE_OPTIONS: Array<{ value: BloodType; label: string }> = [
@@ -34,14 +35,14 @@ const BLOOD_TYPE_OPTIONS: Array<{ value: BloodType; label: string }> = [
   { value: 'AB_NEGATIVE', label: 'AB-' },
   { value: 'O_POSITIVE', label: 'O+' },
   { value: 'O_NEGATIVE', label: 'O-' },
-  { value: 'UNKNOWN', label: 'Desconocido' }
+  { value: 'UNKNOWN', label: 'DESCONOCIDO' }
 ];
 
-function TagInput({ label, placeholder, value, onChange, badgeColorClass }: TagInputProps) {
+function TagInput({ label, placeholder, value, onChange, badgeColorClass, className }: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
 
   const addTag = () => {
-    const newTag = inputValue.trim();
+    const newTag = inputValue.trim().toUpperCase();
     if (!newTag) return;
     if (value.includes(newTag)) {
       setInputValue('');
@@ -59,41 +60,53 @@ function TagInput({ label, placeholder, value, onChange, badgeColorClass }: TagI
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{label}</label>
-      <div className="flex flex-wrap gap-2 mb-2">
+    <div className={cn("flex flex-col p-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]", className)}>
+      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+        <span className="w-3 h-3 border border-black/20 dark:border-white/20 flex items-center justify-center">#</span>
+        {label}
+      </label>
+      
+      {/* Visualización de Tags Rígidas */}
+      <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
         {value.map((tag) => (
-          <Badge key={tag} variant="secondary" className={`pl-2 pr-1 py-1 flex items-center gap-1 ${badgeColorClass}`}>
+          <span key={tag} className={cn("px-2 py-1 text-[9px] font-bold uppercase tracking-widest border flex items-center gap-2 rounded-none", badgeColorClass)}>
             {tag}
             <button
               type="button"
               onClick={() => onChange(value.filter((item) => item !== tag))}
-              className="hover:bg-black/10 rounded-full p-0.5 transition-colors"
+              className="hover:opacity-50 transition-opacity"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3 h-3" strokeWidth={1.5} />
             </button>
-          </Badge>
+          </span>
         ))}
+        {value.length === 0 && (
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 self-center">
+            NO REGISTRADO
+          </span>
+        )}
       </div>
-      <div className="relative">
-        <Input
+
+      {/* Input Industrial */}
+      <div className="flex gap-0 border border-black/20 dark:border-white/20">
+        <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+          className="h-10 flex-1 px-4 bg-gray-50 dark:bg-[#050505] text-[10px] font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors"
         />
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute right-1 top-1 h-7 w-7 p-0"
           onClick={addTag}
+          className="w-10 h-10 bg-black text-white dark:bg-white dark:text-black flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
         >
-          <Plus className="w-4 h-4 text-slate-400" />
-        </Button>
+          <Plus className="w-4 h-4" strokeWidth={1.5} />
+        </button>
       </div>
-      <p className="text-[10px] text-slate-400 font-light italic">Presiona Enter para agregar.</p>
+      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mt-2">
+        PRESIONE ENTER O COMA (,) PARA AGREGAR.
+      </p>
     </div>
   );
 }
@@ -143,114 +156,173 @@ export function EditHealthProfileModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 max-h-[90vh] flex flex-col p-0 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Editar Antecedentes Medicos</DialogTitle>
-            <DialogDescription>Actualiza la ficha clinica base de este paciente.</DialogDescription>
-          </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
+      <DialogContent className="sm:max-w-4xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 rounded-none overflow-hidden max-h-[90vh] flex flex-col shadow-2xl transition-colors">
+        
+        {/* HEADER ARQUITECTÓNICO */}
+        <div className="flex items-start justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <FileHeart className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                Expediente Clínico
+              </p>
+              <DialogTitle className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+                EDITAR ANTECEDENTES MÉDICOS
+              </DialogTitle>
+              <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+                ACTUALICE LA FICHA CLÍNICA BASE DE ESTE PACIENTE EN EL DIRECTORIO.
+              </DialogDescription>
+            </div>
+          </div>
+          <button 
+            onClick={onClose} 
+            disabled={isSubmitting}
+            className="w-12 h-12 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors shrink-0 disabled:opacity-50"
+          >
+            <X className="w-5 h-5 text-gray-500 hover:text-black dark:hover:text-white transition-colors" strokeWidth={1.5} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tipo de Sangre</label>
+        {/* BODY (GRID BLUEPRINT) */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar flex flex-col bg-gray-50 dark:bg-[#050505]">
+          
+          {/* Fila 1: Datos Físicos Básicos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+            
+            <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
+                TIPO DE SANGRE
+              </label>
               <select
-                className="flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 dark:border-slate-800 dark:bg-slate-900"
+                className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none appearance-none cursor-pointer"
                 value={formData.bloodType || ''}
                 onChange={(e) => setFormData({ ...formData, bloodType: (e.target.value || null) as BloodType | null })}
               >
-                <option value="">Seleccionar...</option>
+                <option value="">NO REGISTRADO...</option>
                 {BLOOD_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estatura (cm)</label>
+
+            <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">2</span>
+                ESTATURA (CM)
+              </label>
               <Input
                 type="number"
-                placeholder="Ej: 175"
+                placeholder="EJ: 175"
                 value={formData.heightCm ?? ''}
                 onChange={(e) => setFormData({ ...formData, heightCm: e.target.value ? parseInt(e.target.value, 10) : null })}
-                className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Peso (kg)</label>
+
+            <div className="p-6 flex flex-col">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">3</span>
+                PESO (KG)
+              </label>
               <Input
                 type="number"
                 step="0.1"
-                placeholder="Ej: 70.5"
+                placeholder="EJ: 70.5"
                 value={formData.weightKg ?? ''}
                 onChange={(e) => setFormData({ ...formData, weightKg: e.target.value ? parseFloat(e.target.value) : null })}
-                className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
               />
             </div>
+
           </div>
 
-          <div className="h-px w-full bg-slate-100 dark:bg-slate-800 my-4" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Fila 2: Etiquetas Clínicas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
             <TagInput
-              label="Alergias"
-              placeholder="Ej: Penicilina, Latex..."
+              label="ALERGIAS IDENTIFICADAS"
+              placeholder="EJ: PENICILINA, LÁTEX..."
               value={formData.allergies ?? []}
               onChange={(next) => setFormData((prev) => ({ ...prev, allergies: next }))}
-              badgeColorClass="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+              badgeColorClass="bg-red-50 border-red-500/30 text-red-700 dark:bg-red-900/10 dark:text-red-400"
+              className="md:border-r border-black/10 dark:border-white/10"
             />
             <TagInput
-              label="Condiciones Cronicas"
-              placeholder="Ej: Diabetes tipo 2..."
+              label="CONDICIONES CRÓNICAS"
+              placeholder="EJ: DIABETES TIPO 2..."
               value={formData.chronicConditions ?? []}
               onChange={(next) => setFormData((prev) => ({ ...prev, chronicConditions: next }))}
-              badgeColorClass="bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
+              badgeColorClass="bg-amber-50 border-amber-500/30 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400"
             />
           </div>
 
+          {/* Fila 3: Medicamentos */}
           <TagInput
-            label="Medicamentos Actuales"
-            placeholder="Ej: Metformina 500mg..."
+            label="MEDICACIÓN ACTUAL"
+            placeholder="EJ: METFORMINA 500MG..."
             value={formData.currentMedications ?? []}
             onChange={(next) => setFormData((prev) => ({ ...prev, currentMedications: next }))}
-            badgeColorClass="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
+            badgeColorClass="bg-blue-50 border-blue-500/30 text-blue-700 dark:bg-blue-900/10 dark:text-blue-400"
+            className="border-b border-black/10 dark:border-white/10"
           />
 
-          <div className="h-px w-full bg-slate-100 dark:bg-slate-800 my-4" />
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Historial Quirurgico</label>
+          {/* Fila 4: Textos de Historial */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 bg-white dark:bg-[#0a0a0a]">
+            
+            <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">A</span>
+                HISTORIAL QUIRÚRGICO
+              </label>
               <Textarea
-                placeholder="Describa cirugias previas y fechas aproximadas..."
+                placeholder="DESCRIBA CIRUGÍAS PREVIAS Y FECHAS APROXIMADAS..."
                 value={formData.surgicalHistory ?? ''}
                 onChange={(e) => setFormData({ ...formData, surgicalHistory: e.target.value })}
-                className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[80px]"
+                className="flex-1 w-full p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600 min-h-[120px] resize-none"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Antecedentes Familiares</label>
+
+            <div className="p-6 flex flex-col">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">B</span>
+                ANTECEDENTES FAMILIARES
+              </label>
               <Textarea
-                placeholder="Enfermedades hereditarias relevantes en la familia..."
+                placeholder="ENFERMEDADES HEREDITARIAS RELEVANTES EN LA FAMILIA..."
                 value={formData.familyHistory ?? ''}
                 onChange={(e) => setFormData({ ...formData, familyHistory: e.target.value })}
-                className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[80px]"
+                className="flex-1 w-full p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600 min-h-[120px] resize-none"
               />
             </div>
+
+          </div>
+
+          {/* FOOTER DE COMANDOS ESTRICTO */}
+          <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row justify-end gap-4 shrink-0 mt-auto">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+              className="w-full sm:w-auto h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none disabled:opacity-50"
+            >
+              ANULAR CAMBIOS
+            </button>
+            <button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting} 
+              className="w-full sm:w-auto h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 rounded-none disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <><QhSpinner size="sm" className="text-current" /> GUARDANDO EN REGISTRO...</>
+              ) : (
+                <>CONFIRMAR ACTUALIZACIÓN</>
+              )}
+            </button>
           </div>
         </form>
-
-        <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-medical-600 hover:bg-medical-700 text-white">
-              {isSubmitting ? 'Guardando...' : 'Guardar Ficha Clinica'}
-            </Button>
-          </div>
-        </div>
       </DialogContent>
     </Dialog>
   );

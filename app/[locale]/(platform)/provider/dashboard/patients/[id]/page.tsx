@@ -1,31 +1,28 @@
 "use client";
 
-import React, { useState } from 'react'; // 🚀 NUEVO: Importar useState
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
     Calendar, ArrowLeft, Mail, Phone,
-    FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle, Loader2 // 🚀 NUEVO: Importar Loader2
+    FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle, Loader2, User
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 
 // ShadCN UI
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 import { EditHealthProfileModal } from '@/components/dashboard/EditHealthProfileModal';
 
-// 🚀 Hook de Arquitectura y Servicios
+// Hooks & Services
 import { usePatientDetail } from '@/hooks/usePatientDetail';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
-import { appointmentService } from '@/services/appointment.service'; // 🚀 NUEVO: Importar el servicio
-import { toast } from 'react-toastify'; // 🚀 NUEVO: Importar Toast
+import { appointmentService } from '@/services/appointment.service';
+import { toast } from 'react-toastify';
+import { cn } from '@/lib/utils';
 
 const BLOOD_TYPE_LABELS: Record<string, string> = {
     A_POSITIVE: 'A+',
@@ -36,7 +33,7 @@ const BLOOD_TYPE_LABELS: Record<string, string> = {
     AB_NEGATIVE: 'AB-',
     O_POSITIVE: 'O+',
     O_NEGATIVE: 'O-',
-    UNKNOWN: 'Desconocido'
+    UNKNOWN: 'DESCONOCIDO'
 };
 
 export default function PatientDetailPage() {
@@ -48,14 +45,12 @@ export default function PatientDetailPage() {
 
     const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
     
-    // 🚀 Extraemos los datos reales
     const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, refetch } = usePatientDetail(patientDirectoryId);
     const { requestAccess } = usePatientDirectory();
     
-    // 🚀 Estados para Modales y Descargas
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
     const [isEditHealthModalOpen, setIsEditHealthModalOpen] = React.useState(false);
-    const [downloadingAppointmentId, setDownloadingAppointmentId] = useState<number | null>(null); // 🚀 NUEVO: Control de descarga
+    const [downloadingAppointmentId, setDownloadingAppointmentId] = useState<number | null>(null);
 
     const hasHealthData = Boolean(
         healthProfile && (
@@ -68,24 +63,16 @@ export default function PatientDetailPage() {
         )
     );
 
-    // 🚀 NUEVO: Función para descargar y ver la receta (Copiada del ConsultationSuccessStep)
     const handlePrintPdf = async (appointmentId: number) => {
         try {
             setDownloadingAppointmentId(appointmentId);
             const pdfBlob = await appointmentService.downloadPrescriptionPdf(appointmentId);
-            
-            // Creamos una URL temporal en la memoria del navegador
             const fileURL = URL.createObjectURL(pdfBlob);
-            
-            // Abrimos el PDF en una pestaña nueva
             window.open(fileURL, '_blank');
-            
-            // Limpiamos la URL de la memoria después de unos segundos
             setTimeout(() => URL.revokeObjectURL(fileURL), 10000);
         } catch (error) {
             console.error("Error al descargar PDF de la receta:", error);
-            // Usamos un texto por defecto en caso de que la traducción falle en este namespace
-            toast.error(t('error_download_pdf', { defaultValue: "Error al descargar el PDF de la receta." }));
+            toast.error(t('error_download_pdf', { defaultValue: "ERROR EN EXTRACCIÓN DE DOCUMENTO." }));
         } finally {
             setDownloadingAppointmentId(null);
         }
@@ -93,9 +80,11 @@ export default function PatientDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col justify-center items-center h-[80vh] bg-slate-50 dark:bg-slate-950 transition-colors">
-                <QhSpinner size="md" />
-                <p className="text-slate-500 dark:text-slate-400 font-light mt-4">{t("loading", { defaultValue: 'Cargando expediente...' })}</p>
+            <div className="flex flex-col justify-center items-center min-h-[80vh] bg-gray-50 dark:bg-[#050505] transition-colors">
+                <QhSpinner size="lg" className="text-black dark:text-white" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+                    {t("loading", { defaultValue: 'EXTRAYENDO EXPEDIENTE CLÍNICO...' })}
+                </p>
             </div>
         );
     }
@@ -103,253 +92,314 @@ export default function PatientDetailPage() {
     if (!profile) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] pt-8 px-6 md:px-10 pb-16 transition-colors font-sans selection:bg-gray-200 dark:selection:bg-white/20">
 
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 max-w-5xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 max-w-7xl mx-auto">
 
-                {/* Header / Botón Atrás */}
-                <div>
-                    <Button variant="ghost" onClick={() => router.back()} className="pl-2 pr-4 gap-2 mb-2">
-                        <ArrowLeft className="w-4 h-4" /> {t("back_to_list", { defaultValue: 'Volver al directorio' })}
-                    </Button>
+                {/* Comandos Superiores */}
+                <div className="flex items-center justify-between pb-6 border-b border-black/20 dark:border-white/20">
+                    <button 
+                        onClick={() => router.back()} 
+                        className="h-10 px-4 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+                        {t("back_to_list", { defaultValue: 'VOLVER AL DIRECTORIO' })}
+                    </button>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 hidden sm:block">
+                        ID DE SISTEMA: #{profile.id}
+                    </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* --- Columna Izquierda: Datos Personales --- */}
-                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm md:col-span-1 h-fit transition-colors rounded-2xl overflow-hidden">
-                        <CardHeader className="flex flex-col items-center text-center pb-2 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                            <Avatar className="w-24 h-24 mb-4 border-4 border-white dark:border-slate-900 shadow-sm mt-4">
-                                <AvatarFallback className="text-3xl bg-gradient-to-br from-medical-500 to-emerald-500 text-white font-bold">
-                                    {profile.firstName.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                            <CardTitle className="text-xl text-slate-900 dark:text-white tracking-tight">
-                                {profile.firstName} {profile.lastName}
-                            </CardTitle>
-                            
-                            <div className="flex gap-2 mt-2">
-                                {profile.isPlatformUser ? (
-                                    <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-none">{t("app_user")}</Badge>
+                    {/* --- COLUMNA IZQUIERDA: TARJETA DE IDENTIFICACIÓN --- */}
+                    <div className="lg:col-span-1 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none h-fit transition-colors">
+                        
+                        {/* Cabecera Tarjeta */}
+                        <div className="p-8 border-b border-black/10 dark:border-white/10 flex flex-col items-center text-center bg-gray-50 dark:bg-[#050505]">
+                            <div className="w-24 h-24 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6 overflow-hidden shrink-0">
+                                {profile.isPlatformUser && profile.firstName ? (
+                                    <User className="w-8 h-8 text-gray-400" strokeWidth={1.5} />
                                 ) : (
-                                    <Badge variant="outline" className="text-slate-500 dark:text-slate-400">{t("offline")}</Badge>
+                                    <span className="text-3xl font-semibold uppercase text-black dark:text-white">
+                                        {profile.firstName.charAt(0)}
+                                    </span>
                                 )}
                             </div>
-
-                            <CardDescription className="text-slate-500 dark:text-slate-400 font-light mt-2">
-                                {t("patient_since", { year: new Date(profile.createdAt).getFullYear(), defaultValue: `Paciente desde ${new Date(profile.createdAt).getFullYear()}` })}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
-                            <div className="space-y-3 text-sm font-light">
-                                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
-                                    <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-md shrink-0 border border-slate-200 dark:border-slate-700">
-                                        <Mail className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                                    </div>
-                                    <span className="truncate">{profile.email || t("no_email")}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
-                                    <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-md shrink-0 border border-slate-200 dark:border-slate-700">
-                                        <Phone className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                                    </div>
-                                    <span>{profile.phone || t("no_phone")}</span>
-                                </div>
+                            <h2 className="text-xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-3">
+                                {profile.firstName} {profile.lastName}
+                            </h2>
+                            <div className="flex flex-wrap justify-center gap-2 mb-4">
+                                {profile.isPlatformUser ? (
+                                    <span className="border border-blue-500/30 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                        {t("app_user", { defaultValue: 'USUARIO VINCULADO' })}
+                                    </span>
+                                ) : (
+                                    <span className="border border-gray-500/30 bg-gray-50 dark:bg-gray-900/10 text-gray-600 dark:text-gray-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                        {t("offline", { defaultValue: 'REGISTRO LOCAL' })}
+                                    </span>
+                                )}
                             </div>
-                            <Button
-                                variant="outline"
-                                className="w-full mt-6"
-                                onClick={() => setIsEditModalOpen(true)}
-                                disabled={profile.isPlatformUser}
-                            >
-                                {t("edit_profile", { defaultValue: 'Editar Perfil' })}
-                            </Button>
-                        </CardContent>
-                    </Card>
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                {t("patient_since", { year: new Date(profile.createdAt).getFullYear(), defaultValue: `REGISTRADO EN ${new Date(profile.createdAt).getFullYear()}` })}
+                            </p>
+                        </div>
 
-                    {/* --- Columna Derecha: Tabs --- */}
-                    <div className="md:col-span-2 space-y-6">
-                        <Tabs defaultValue="history" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 dark:bg-slate-900 rounded-xl p-1 h-auto">
-                                <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
-                                    <Activity className="w-4 h-4 mr-2" /> {t("clinical_history", { defaultValue: 'Expediente Clínico' })}
+                        {/* Datos de Contacto */}
+                        <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                            <div className="p-6 border-b border-black/10 dark:border-white/10 flex items-center gap-4">
+                                <Mail className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={1.5} />
+                                <span className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white truncate">
+                                    {profile.email || t("no_email", { defaultValue: 'NO REGISTRADO' })}
+                                </span>
+                            </div>
+                            <div className="p-6 border-b border-black/10 dark:border-white/10 flex items-center gap-4">
+                                <Phone className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={1.5} />
+                                <span className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white">
+                                    {profile.phone || t("no_phone", { defaultValue: 'NO REGISTRADO' })}
+                                </span>
+                            </div>
+                            <div className="p-6 bg-gray-50 dark:bg-[#050505]">
+                                <button
+                                    onClick={() => setIsEditModalOpen(true)}
+                                    disabled={profile.isPlatformUser}
+                                    className="w-full h-12 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none disabled:opacity-50"
+                                >
+                                    {t("edit_profile", { defaultValue: 'EDITAR IDENTIFICACIÓN' })}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- COLUMNA DERECHA: PESTAÑAS Y CONTENIDO --- */}
+                    <div className="lg:col-span-2 space-y-0 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
+                        
+                        <Tabs defaultValue="history" className="w-full flex flex-col">
+                            {/* Tabs Headers (Blueprint Style) */}
+                            <TabsList className="flex flex-row w-full bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20 p-0 h-auto rounded-none">
+                                <TabsTrigger 
+                                    value="history" 
+                                    className="flex-1 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+                                    {t("clinical_history", { defaultValue: 'HISTORIAL OPERATIVO' })}
                                 </TabsTrigger>
-                                <TabsTrigger value="health-profile" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
-                                    <ClipboardList className="w-4 h-4 mr-2" /> {t("base_background", { defaultValue: 'Antecedentes Base' })}
+                                <TabsTrigger 
+                                    value="health-profile" 
+                                    className="flex-1 rounded-none border-0 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <ClipboardList className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+                                    {t("base_background", { defaultValue: 'FICHA CLÍNICA' })}
                                 </TabsTrigger>
                             </TabsList>
 
-                            <TabsContent value="history">
-                                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors rounded-2xl overflow-hidden">
-                                    <CardHeader className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-                                        <CardTitle className="flex items-center gap-2.5 text-slate-900 dark:text-white tracking-tight">
-                                            <div className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-lg border border-medical-200 dark:border-medical-500/20">
-                                                <Calendar className="w-4 h-4 text-medical-600 dark:text-medical-400" />
-                                            </div>
-                                            {t("clinical_history", { defaultValue: 'Expediente Clínico' })}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-6">
-                                        {hasAccessError ? (
-                                            <div className="text-center py-12 px-4 border border-dashed border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 rounded-2xl">
-                                                <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl inline-block mb-3 shadow-sm">
-                                                    <Lock className="w-8 h-8 text-red-500" />
-                                                </div>
-                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("access_restricted_title")}</h3>
-                                                <p className="text-slate-500 dark:text-slate-400 font-light max-w-sm mx-auto mt-2">
-                                                    {t("access_restricted_description")}
-                                                </p>
-                                                <Button
-                                                    onClick={() => profile.consumerId && requestAccess(profile.consumerId)}
-                                                    disabled={!profile.consumerId}
-                                                    className="mt-6 bg-red-600 hover:bg-red-700 text-white rounded-xl"
-                                                >
-                                                    {t("request_access")}
-                                                </Button>
-                                            </div>
-                                        ) : history?.timeline && history.timeline.length > 0 ? (
-                                            <div className="relative border-l-2 border-slate-100 dark:border-slate-800 ml-3 space-y-8 py-2">
-                                                {history.timeline.map((appt) => (
-                                                    <div key={appt.appointmentId} className="relative pl-8">
-                                                        <div className="absolute left-[-7px] top-1.5 w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 border-emerald-500 shadow-sm z-10" />
-
-                                                        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-medical-200 dark:hover:border-medical-500/30 hover:shadow-sm transition-all group">
-                                                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                                                                <div>
-                                                                    <h4 className="font-semibold text-slate-900 dark:text-white text-lg group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">{appt.serviceName}</h4>
-                                                                    <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1 font-light">
-                                                                        <Clock className="w-3.5 h-3.5" />
-                                                                        {format(new Date(appt.date), "EEEE d MMMM, yyyy", { locale: dateLocale })}
-                                                                    </p>
-                                                                </div>
-                                                                <div className="shrink-0">
-                                                                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 font-medium">{t("status_completed")}</Badge>
-                                                                </div>
-                                                            </div>
-
-                                                            {appt.publicNotes && (
-                                                                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                                                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider mb-2">{t("instructions")}</p>
-                                                                    <p className="text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 font-light leading-relaxed shadow-sm">
-                                                                        {appt.publicNotes}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-
-                                                            {appt.prescriptions && appt.prescriptions.length > 0 && (
-                                                                <div className="mt-4 flex gap-2 flex-wrap">
-                                                                    {appt.prescriptions.map(doc => {
-                                                                        // 🚀 NUEVO: Comprobamos si esta receta se está descargando
-                                                                        const isThisPrinting = downloadingAppointmentId === appt.appointmentId;
-                                                                        
-                                                                        return (
-                                                                        <Button 
-                                                                            key={doc.documentId} 
-                                                                            variant="outline" 
-                                                                            size="sm" 
-                                                                            className="text-xs rounded-lg border-medical-200 text-medical-700 bg-medical-50 hover:bg-medical-100"
-                                                                            disabled={downloadingAppointmentId !== null} // Bloqueamos si hay alguna descarga activa
-                                                                            onClick={() => handlePrintPdf(appt.appointmentId)} // 🚀 NUEVO: Evento Click
-                                                                        >
-                                                                            {isThisPrinting ? (
-                                                                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                                                            ) : (
-                                                                                <FileText className="w-3.5 h-3.5 mr-1.5" />
-                                                                            )}
-                                                                            
-                                                                            {t("prescription_document", { defaultValue: 'Receta Médica' })} 
-                                                                            
-                                                                            {!isThisPrinting && <Download className="w-3 h-3 ml-2" />}
-                                                                        </Button>
-                                                                    )})}
-                                                                </div>
-                                                            )}
-                                                        </div>
+                            {/* --- TAB: HISTORIAL CLÍNICO --- */}
+                            <TabsContent value="history" className="m-0 p-0 border-0 outline-none">
+                                {hasAccessError ? (
+                                    <div className="p-16 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
+                                        <div className="w-16 h-16 border border-red-500/30 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+                                            <Lock className="w-6 h-6 text-red-600 dark:text-red-400" strokeWidth={1.5} />
+                                        </div>
+                                        <h3 className="text-sm font-semibold uppercase tracking-tight text-red-600 dark:text-red-400 mb-2">
+                                            {t("access_restricted_title", { defaultValue: 'ACCESO RESTRINGIDO' })}
+                                        </h3>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto leading-relaxed mb-6">
+                                            {t("access_restricted_description", { defaultValue: 'EL PACIENTE DEBE AUTORIZAR LA VISUALIZACIÓN DE SU HISTORIAL MÉDICO.' })}
+                                        </p>
+                                        <button
+                                            onClick={() => profile.consumerId && requestAccess(profile.consumerId)}
+                                            disabled={!profile.consumerId}
+                                            className="h-12 px-8 bg-red-600 text-white hover:bg-red-700 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none border-0 disabled:opacity-50"
+                                        >
+                                            {t("request_access", { defaultValue: 'SOLICITAR PERMISO' })}
+                                        </button>
+                                    </div>
+                                ) : history?.timeline && history.timeline.length > 0 ? (
+                                    <div className="flex flex-col bg-gray-50 dark:bg-[#050505]">
+                                        {history.timeline.map((appt) => (
+                                            <div key={appt.appointmentId} className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex flex-col">
+                                                
+                                                {/* Header del Registro */}
+                                                <div className="px-6 md:px-8 py-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
+                                                    <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                                        <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                        {format(new Date(appt.date), "dd MMM yyyy", { locale: dateLocale })}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="text-center py-12">
-                                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl inline-block mb-3 border border-slate-200 dark:border-slate-700">
-                                                    <Calendar className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                                                    <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                                        {t("status_completed", { defaultValue: 'COMPLETADO' })}
+                                                    </span>
                                                 </div>
-                                                <p className="text-slate-500 dark:text-slate-400 font-light">{t("empty_history", { defaultValue: 'Aún no hay consultas finalizadas.' })}</p>
+
+                                                {/* Cuerpo del Registro */}
+                                                <div className="p-6 md:p-8 flex flex-col gap-6">
+                                                    <h4 className="font-semibold text-lg uppercase tracking-tight text-black dark:text-white leading-none">
+                                                        {appt.serviceName}
+                                                    </h4>
+
+                                                    {appt.publicNotes && (
+                                                        <div className="border-l-2 border-black/20 dark:border-white/20 pl-4 py-1">
+                                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+                                                                {t("instructions", { defaultValue: 'OBSERVACIONES / INDICACIONES' })}
+                                                            </p>
+                                                            <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                                                                {appt.publicNotes}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {appt.prescriptions && appt.prescriptions.length > 0 && (
+                                                        <div className="flex flex-wrap gap-4 pt-4 border-t border-black/10 dark:border-white/10">
+                                                            {appt.prescriptions.map(doc => {
+                                                                const isThisPrinting = downloadingAppointmentId === appt.appointmentId;
+                                                                return (
+                                                                <button 
+                                                                    key={doc.documentId} 
+                                                                    disabled={downloadingAppointmentId !== null}
+                                                                    onClick={() => handlePrintPdf(appt.appointmentId)}
+                                                                    className="h-10 px-4 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+                                                                >
+                                                                    {isThisPrinting ? (
+                                                                        <QhSpinner size="sm" className="text-current" />
+                                                                    ) : (
+                                                                        <FileText className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                                    )}
+                                                                    {t("prescription_document", { defaultValue: 'RECETA MÉDICA' })} 
+                                                                    {!isThisPrinting && <Download className="w-3 h-3 ml-2 opacity-50" strokeWidth={1.5} />}
+                                                                </button>
+                                                            )})}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-24 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
+                                        <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
+                                            <Calendar className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                                        </div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                            {t("empty_history", { defaultValue: 'CERO REGISTROS OPERATIVOS EN EL HISTORIAL.' })}
+                                        </p>
+                                    </div>
+                                )}
                             </TabsContent>
 
-                            <TabsContent value="health-profile">
-                                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden">
-                                    <CardHeader className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 flex flex-row justify-between items-center">
-                                        <CardTitle className="text-lg text-slate-900 dark:text-white">{t("medical_background", { defaultValue: 'Antecedentes Médicos' })}</CardTitle>
-                                        {!profile.isPlatformUser ? (
-                                            <Button variant="outline" size="sm" onClick={() => setIsEditHealthModalOpen(true)} className="gap-2">
-                                                {hasHealthData ? <Edit3 className="w-3 h-3" /> : <PlusCircle className="w-3 h-3" />}
-                                                {hasHealthData
-                                                    ? t("edit_background", { defaultValue: 'Editar Antecedentes' })
-                                                    : t("create_background", { defaultValue: 'Crear Antecedentes' })}
-                                            </Button>
-                                        ) : null}
-                                    </CardHeader>
-                                    <CardContent className="pt-6 space-y-6">
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                                <p className="text-xs text-slate-500 uppercase font-bold">{t("blood_type", { defaultValue: 'Tipo de Sangre' })}</p>
-                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{healthProfile?.bloodType ? (BLOOD_TYPE_LABELS[healthProfile.bloodType] || healthProfile.bloodType) : '—'}</p>
-                                            </div>
-                                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                                <p className="text-xs text-slate-500 uppercase font-bold">{t("height", { defaultValue: 'Estatura' })}</p>
-                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{healthProfile?.heightCm ? `${healthProfile.heightCm} cm` : '—'}</p>
-                                            </div>
-                                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                                                <p className="text-xs text-slate-500 uppercase font-bold">{t("weight", { defaultValue: 'Peso' })}</p>
-                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{healthProfile?.weightKg ? `${healthProfile.weightKg} kg` : '—'}</p>
-                                            </div>
-                                        </div>
+                            {/* --- TAB: FICHA CLÍNICA (ANTECEDENTES) --- */}
+                            <TabsContent value="health-profile" className="m-0 p-0 border-0 outline-none flex flex-col">
+                                
+                                {/* Controles Ficha Clínica */}
+                                <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <h3 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                                        {t("medical_background", { defaultValue: 'ANTECEDENTES MÉDICOS BASE' })}
+                                    </h3>
+                                    {!profile.isPlatformUser ? (
+                                        <button 
+                                            onClick={() => setIsEditHealthModalOpen(true)} 
+                                            className="h-10 px-6 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none"
+                                        >
+                                            {hasHealthData ? <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} /> : <PlusCircle className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                                            {hasHealthData
+                                                ? t("edit_background", { defaultValue: 'ACTUALIZAR FICHA' })
+                                                : t("create_background", { defaultValue: 'CREAR FICHA' })}
+                                        </button>
+                                    ) : null}
+                                </div>
 
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t("allergies", { defaultValue: 'Alergias' })}</p>
+                                {/* Matriz de Datos de Salud (Grid Blueprint) */}
+                                <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                                    
+                                    {/* Fila 1: Signos / Física */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-b border-black/10 dark:border-white/10">
+                                        <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                                                {t("blood_type", { defaultValue: 'TIPO DE SANGRE' })}
+                                            </p>
+                                            <p className="text-lg font-semibold uppercase tracking-widest text-black dark:text-white">
+                                                {healthProfile?.bloodType ? (BLOOD_TYPE_LABELS[healthProfile.bloodType] || healthProfile.bloodType) : '—'}
+                                            </p>
+                                        </div>
+                                        <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                                                {t("height", { defaultValue: 'ESTATURA' })}
+                                            </p>
+                                            <p className="text-lg font-semibold uppercase tracking-widest text-black dark:text-white">
+                                                {healthProfile?.heightCm ? `${healthProfile.heightCm} CM` : '—'}
+                                            </p>
+                                        </div>
+                                        <div className="p-6 flex flex-col justify-center">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+                                                {t("weight", { defaultValue: 'PESO' })}
+                                            </p>
+                                            <p className="text-lg font-semibold uppercase tracking-widest text-black dark:text-white">
+                                                {healthProfile?.weightKg ? `${healthProfile.weightKg} KG` : '—'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Fila 2: Alergias y Condiciones */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10">
+                                        <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
+                                                {t("allergies", { defaultValue: 'ALERGIAS' })}
+                                            </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {healthProfile?.allergies?.length ? healthProfile.allergies.map((allergy) => (
-                                                    <Badge key={allergy} variant="destructive" className="bg-red-100 text-red-700 border-none">{allergy}</Badge>
-                                                )) : <span className="text-sm text-slate-500">{t("no_records", { defaultValue: 'Sin registro' })}</span>}
+                                                    <span key={allergy} className="border border-red-500/30 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                                        {allergy}
+                                                    </span>
+                                                )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
                                             </div>
                                         </div>
-
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t("chronic_conditions", { defaultValue: 'Condiciones Crónicas' })}</p>
+                                        <div className="p-6 flex flex-col">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
+                                                {t("chronic_conditions", { defaultValue: 'CONDICIONES CRÓNICAS' })}
+                                            </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {healthProfile?.chronicConditions?.length ? healthProfile.chronicConditions.map((condition) => (
-                                                    <Badge key={condition} variant="secondary" className="bg-amber-100 text-amber-700 border-none">{condition}</Badge>
-                                                )) : <span className="text-sm text-slate-500">{t("no_records", { defaultValue: 'Sin registro' })}</span>}
+                                                    <span key={condition} className="border border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                                        {condition}
+                                                    </span>
+                                                )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t("current_medications", { defaultValue: 'Medicación Actual' })}</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {healthProfile?.currentMedications?.length ? healthProfile.currentMedications.map((medication) => (
-                                                    <Badge key={medication} variant="outline" className="text-slate-700 dark:text-slate-300">{medication}</Badge>
-                                                )) : <span className="text-sm text-slate-500">{t("no_records", { defaultValue: 'Sin registro' })}</span>}
-                                            </div>
+                                    {/* Fila 3: Medicación */}
+                                    <div className="p-6 border-b border-black/10 dark:border-white/10">
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
+                                            {t("current_medications", { defaultValue: 'MEDICACIÓN ACTUAL' })}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {healthProfile?.currentMedications?.length ? healthProfile.currentMedications.map((medication) => (
+                                                <span key={medication} className="border border-blue-500/30 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+                                                    {medication}
+                                                </span>
+                                            )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
                                         </div>
+                                    </div>
 
-                                        {healthProfile?.surgicalHistory ? (
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t("surgical_history", { defaultValue: 'Historial Quirúrgico' })}</p>
-                                                <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg">{healthProfile.surgicalHistory}</p>
-                                            </div>
-                                        ) : null}
+                                    {/* Fila 4: Historiales Textuales */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 bg-gray-50 dark:bg-[#050505]">
+                                        <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                                                {t("surgical_history", { defaultValue: 'HISTORIAL QUIRÚRGICO' })}
+                                            </p>
+                                            <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                                                {healthProfile?.surgicalHistory || <span className="text-gray-400 text-[9px]">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
+                                            </p>
+                                        </div>
+                                        <div className="p-6">
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                                                {t("family_history", { defaultValue: 'HISTORIAL FAMILIAR' })}
+                                            </p>
+                                            <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                                                {healthProfile?.familyHistory || <span className="text-gray-400 text-[9px]">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                        {healthProfile?.familyHistory ? (
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">{t("family_history", { defaultValue: 'Historial Familiar' })}</p>
-                                                <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg">{healthProfile.familyHistory}</p>
-                                            </div>
-                                        ) : null}
-                                    </CardContent>
-                                </Card>
+                                </div>
                             </TabsContent>
                         </Tabs>
                     </div>
