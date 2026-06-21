@@ -3,8 +3,6 @@
 import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Shield, Star, CalendarX, Activity, UserCheck, Info, Sparkles, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useProviderScore } from '@/hooks/useProviderScore';
 import { useSessionStore } from '@/stores/SessionStore';
@@ -23,115 +21,138 @@ export function ProviderReputationCard() {
   }, [fetchMyActionableScore]);
 
   const pillarIcons: Record<string, React.ReactNode> = {
-    P1: <Shield className="w-4 h-4 text-blue-500 dark:text-blue-400" />,
-    P2: <Star className="w-4 h-4 text-amber-500 dark:text-amber-400" />,
-    P3: <CalendarX className="w-4 h-4 text-rose-500 dark:text-rose-400" />,
-    P4: <Activity className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />,
-    P5: <UserCheck className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+    P1: <Shield className="w-4 h-4" strokeWidth={1.5} />,
+    P2: <Star className="w-4 h-4" strokeWidth={1.5} />,
+    P3: <CalendarX className="w-4 h-4" strokeWidth={1.5} />,
+    P4: <Activity className="w-4 h-4" strokeWidth={1.5} />,
+    P5: <UserCheck className="w-4 h-4" strokeWidth={1.5} />
   };
 
-  // 🚀 TRUCO TAILWIND: Usamos [&>div] para pintar el indicador interno de Shadcn 
-  // sin provocar errores de TypeScript, soportando modo claro y oscuro.
+  // Neo-brutalism Progress Bar Colors
   const getProgressColorClass = (status: string) => {
-    if (status === 'OPTIMAL') return '[&>div]:bg-emerald-500 dark:[&>div]:bg-emerald-400';
-    if (status === 'IMPROVABLE') return '[&>div]:bg-amber-500 dark:[&>div]:bg-amber-400';
-    return '[&>div]:bg-rose-500 dark:[&>div]:bg-rose-400';
+    if (status === 'OPTIMAL') return 'bg-black dark:bg-white';
+    if (status === 'IMPROVABLE') return 'bg-gray-400 dark:bg-gray-500';
+    return 'bg-gray-200 dark:bg-gray-800';
   };
 
   if (isLoading) {
     return (
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm min-h-[350px] flex flex-col items-center justify-center gap-3">
-        <QhSpinner size="md" />
-        <p className="text-sm text-slate-500 dark:text-slate-400">{t('loading')}</p>
-      </Card>
+      <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] min-h-[350px] flex flex-col items-center justify-center gap-4 transition-colors">
+        <QhSpinner size="md" className="text-black dark:text-white" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+          {t('loading', { defaultValue: 'AUDITANDO REPUTACIÓN...' })}
+        </p>
+      </div>
     );
   }
 
-  // Estado: Proveedor Nuevo
+  // Estado: Proveedor Nuevo (Blueprint Style)
   if (!myActionableScore || myActionableScore.isNewProvider || myActionableScore.band === 'NUEVO') {
     return (
-      <Card className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-950 text-white border-0 shadow-xl overflow-hidden relative min-h-[350px] flex flex-col justify-center">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-medical-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <CardContent className="p-6 relative z-10 text-center space-y-4">
-          <div className="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
-            <Sparkles className="w-8 h-8 text-medical-300" />
-          </div>
-          <h3 className="text-xl font-bold text-white">{t('unlock_title')}</h3>
-          <p className="text-slate-300 font-light text-sm max-w-sm mx-auto leading-relaxed">
-            {t('unlock_desc')}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] min-h-[350px] flex flex-col items-center justify-center p-8 text-center transition-colors">
+        <div className="w-16 h-16 border-2 border-white dark:border-black flex items-center justify-center mb-6 shrink-0 bg-transparent">
+          <Sparkles className="w-8 h-8 text-white dark:text-black" strokeWidth={1.5} />
+        </div>
+        <h3 className="text-xl font-bold uppercase tracking-widest mb-4">
+          {t('unlock_title', { defaultValue: 'EXPEDIENTE EN DESARROLLO' })}
+        </h3>
+        <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 max-w-sm leading-relaxed">
+          {t('unlock_desc', { defaultValue: 'EL ALGORITMO QUSCORE REQUIERE UN VOLUMEN TRANSACCIONAL MÍNIMO PARA GENERAR UNA AUDITORÍA REPRESENTATIVA.' })}
+        </p>
+      </div>
     );
   }
 
-  // Estado: Proveedor con Score
+  // Estado: Proveedor con Score (Technical Style)
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col min-h-[350px] transition-colors">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-medical-600 dark:text-medical-400" /> Mi QuScore
-          </CardTitle>
+    <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col min-h-[350px] transition-colors">
+      
+      {/* Header */}
+      <div className="border-b border-black dark:border-white p-6 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+            <Sparkles className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} /> 
+            AUDITORÍA QUSCORE
+          </h2>
           <ProviderScoreBadge scoreData={myActionableScore} />
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 font-light mt-1">
-          {t('updated_at', { date: new Date(myActionableScore.lastCalculatedAt).toLocaleDateString() })}
+        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+          {t('updated_at', { defaultValue: `CORTE AL: ${new Date(myActionableScore.lastCalculatedAt).toLocaleDateString()}` })}
         </p>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-5 flex-1 flex flex-col gap-5">
+      {/* Body */}
+      <div className="p-6 flex-1 flex flex-col gap-6">
         <TooltipProvider>
           {myActionableScore.breakdown && Object.entries(myActionableScore.breakdown).map(([key, pillar]) => {
             const hasActions = pillar.actions && pillar.actions.length > 0;
             const isExpanded = expandedPillar === key;
 
             return (
-            <div key={key} className="space-y-2 border border-slate-100 dark:border-slate-800 rounded-lg p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div key={key} className="space-y-3">
               <div 
-                className={cn("flex items-center justify-between text-sm", hasActions && "cursor-pointer")}
+                className={cn(
+                  "flex items-center justify-between", 
+                  hasActions && "cursor-pointer hover:opacity-70 transition-opacity"
+                )}
                 onClick={() => hasActions && setExpandedPillar(isExpanded ? null : key)}
               >
-                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                  {pillarIcons[key]} {pillar.name}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white">
+                    {pillarIcons[key]}
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                    {pillar.name}
+                  </span>
+                  
                   <Tooltip>
                     <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Info className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-help transition-colors" />
+                      <Info className="w-3.5 h-3.5 text-gray-400 hover:text-black dark:hover:text-white cursor-help transition-colors" strokeWidth={2} />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-[200px] text-xs bg-slate-900 dark:bg-slate-800 text-white border-slate-700">
-                      <p>{pillar.tooltip}</p>
+                    <TooltipContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-3 rounded-none max-w-xs">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+                        {pillar.tooltip}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 dark:text-white">{pillar.percentage}%</span>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-black tracking-tighter text-black dark:text-white tabular-nums">
+                    {pillar.percentage}%
+                  </span>
                   {hasActions && (
-                    isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />
+                    <div className="w-5 h-5 flex items-center justify-center border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#111]">
+                      {isExpanded ? <ChevronUp className="w-3 h-3 text-black dark:text-white" strokeWidth={2} /> : <ChevronDown className="w-3 h-3 text-black dark:text-white" strokeWidth={2} />}
+                    </div>
                   )}
                 </div>
               </div>
               
-              <Progress 
-                value={pillar.percentage} 
-                className={cn(
-                  "h-2 bg-slate-100 dark:bg-slate-800",
-                  getProgressColorClass(pillar.status)
-                )}
-              />
+              {/* Barra de Progreso Arquitectónica */}
+              <div className="h-2.5 w-full border border-black dark:border-white bg-gray-100 dark:bg-[#111]">
+                <div 
+                  className={cn("h-full transition-all duration-500", getProgressColorClass(pillar.status))}
+                  style={{ width: `${pillar.percentage}%` }}
+                />
+              </div>
 
+              {/* Panel de Acciones Expandible */}
               {hasActions && isExpanded && (
-                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="mt-4 p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] space-y-4">
                   {pillar.potentialPoints && pillar.potentialPoints > 0 && (
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-2 bg-emerald-50 dark:bg-emerald-500/10 w-fit px-2 py-1 rounded-md">
-                      <TrendingUp className="w-3 h-3" />
-                      +{pillar.potentialPoints} pts potenciales
+                    <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-white dark:bg-black border border-black dark:border-white px-2 py-1 w-fit">
+                      <TrendingUp className="w-3 h-3" strokeWidth={2} />
+                      DELTA POSITIVA: +{pillar.potentialPoints} PTS
                     </div>
                   )}
-                  <ul className="list-none space-y-2">
+                  <ul className="space-y-3">
                     {pillar.actions?.map((action, idx) => (
-                      <li key={idx} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-medical-500 mt-1.5 shrink-0" />
-                        <span className="leading-relaxed">{action}</span>
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="w-3 h-3 border border-black dark:border-white bg-black dark:bg-white shrink-0 mt-0.5" />
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {action}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -143,16 +164,17 @@ export function ProviderReputationCard() {
         </TooltipProvider>
 
         {myActionableScore.percentile != null && (
-          <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <div className="mt-auto pt-6 border-t border-black dark:border-white text-center">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
               {t.rich('top_percentile', {
                 percent: 100 - myActionableScore.percentile,
-                highlight: (chunks) => <span className="text-medical-600 dark:text-medical-400 font-bold">{chunks}</span>
+                highlight: (chunks) => <span className="text-black dark:text-white font-black bg-gray-100 dark:bg-[#111] px-1">{chunks}</span>,
+                defaultValue: `POSICIONADO EN EL TOP <highlight>${100 - myActionableScore.percentile}%</highlight> NACIONAL`
               })}
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
