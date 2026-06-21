@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature, Timer, PlayCircle } from "lucide-react";
+import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature, Timer, PlayCircle, Activity, XCircle } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { onboardingService } from "@/services/onboarding.service";
@@ -97,7 +97,7 @@ export default function DashboardPage() {
       case "CONFIRMED":
       case "SCHEDULED": 
         return <span className={cn(baseClass, "bg-[#22c55e] border-[#15803d] text-white")}>
-          <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+          <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
           {t('status_confirmed', { defaultValue: 'CONFIRMADA' })}
         </span>;
       case "PENDING_PAYMENT": 
@@ -119,12 +119,12 @@ export default function DashboardPage() {
         </span>;
       case "COMPLETED":
         return <span className={cn(baseClass, "bg-[#3b82f6] border-[#1d4ed8] text-white")}>
-          <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+          <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
           {t('status_completed', { defaultValue: 'COMPLETADA' })}
         </span>;
       default: 
         return <span className={cn(baseClass, "bg-gray-100 border-gray-300 text-black dark:bg-[#111] dark:border-gray-800 dark:text-white")}>
-          <CalendarIcon className="w-3 h-3" strokeWidth={1.5} />
+          <CalendarDays className="w-3 h-3" strokeWidth={1.5} />
           {status}
         </span>;
     }
