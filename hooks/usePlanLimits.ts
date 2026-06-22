@@ -5,7 +5,7 @@ import { handleApiError } from '@/lib/handleApiError';
 // --- INTERFACES (Mapeo exacto del backend) ---
 export interface UsageDetail {
   current: number;
-  limit: number;
+  limit: number | null;
   canAdd: boolean;
 }
 

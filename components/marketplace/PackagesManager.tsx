@@ -104,7 +104,7 @@ export function PackagesManager({
                       ? "border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black" 
                       : "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400"
                   )}>
-                    CONSUMO: {currentUsage} / {maxLimit}
+                    CONSUMO: {currentUsage} / {maxLimit === null ? '∞' : maxLimit}
                   </span>
                 )}
               </div>
