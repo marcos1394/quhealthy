@@ -54,12 +54,12 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
     return () => clearInterval(interval);
   }, [startTime]);
 
-  let colorClass = "text-gray-500 bg-gray-50 dark:bg-[#050505] border-black/10 dark:border-white/10";
+  let colorClass = "text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors border-black/10 dark:border-white/10";
   let icon = <Timer className="w-3 h-3" strokeWidth={1.5} />;
 
   if (type === 'WAITING') {
     if (elapsedMinutes < 15) {
-      colorClass = "text-black dark:text-white bg-gray-50 dark:bg-[#050505] border-black/20 dark:border-white/20";
+      colorClass = "text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors border-black/20 dark:border-white/20";
     } else if (elapsedMinutes < 30) {
       colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
     } else {
@@ -126,13 +126,13 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, appt.id)}
-      className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-none border border-black/20 dark:border-white/20 cursor-grab active:cursor-grabbing hover:border-black dark:hover:border-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors mb-3"
+      className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-none border border-black/20 dark:border-white/20 cursor-grab active:cursor-grabbing group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 mb-3"
     >
       
       {/* Header del Ticket (Modalidad) */}
       <div className={cn(
         "flex items-center justify-between p-3 border-b border-black/10 dark:border-white/10 shrink-0",
-        isVideoCall ? "bg-black text-white dark:bg-white dark:text-black" : "bg-gray-50 dark:bg-[#050505] text-gray-500"
+        isVideoCall ? "bg-black text-white dark:bg-white dark:text-black" : "bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors"
       )}>
         <span className="text-[9px] font-bold uppercase tracking-widest">
           {isVideoCall ? t('card.online', { defaultValue: 'CONSULTA REMOTA (VÍDEO)' }) : t('card.in_person', { defaultValue: 'ATENCIÓN PRESENCIAL' })}
@@ -145,10 +145,10 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         
         {/* Paciente y Servicio */}
         <div className="flex flex-col gap-1">
-          <p className="font-semibold text-xs uppercase tracking-widest text-black dark:text-white truncate">
+          <p className="font-semibold text-xs uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors truncate">
             {appt.consumer?.name || t('card.patient', { defaultValue: 'PACIENTE DESCONOCIDO' })}
           </p>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 truncate">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors truncate">
             {appt.service?.name || t('medical_appointment', { defaultValue: 'CONSULTA MÉDICA' })}
           </p>
         </div>
@@ -158,7 +158,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           
           {/* Hora de inicio original (siempre visible como referencia, a menos que esté completada) */}
           {columnId !== "COMPLETED" && (
-            <span className="text-[9px] font-bold uppercase tracking-widest border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] text-gray-500 px-2 py-1 flex items-center gap-1.5 shrink-0">
+            <span className="text-[9px] font-bold uppercase tracking-widest border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors px-2 py-1 flex items-center gap-1.5 shrink-0">
               <Clock className="w-3 h-3" strokeWidth={1.5} />
               {formatLocalTime(appt.startTime, "HH:mm")}
             </span>
@@ -172,7 +172,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) && (
             <div className="flex gap-2">
               {appt.arrivedAt && appt.startedAt && (
-                <span className="text-[9px] font-bold uppercase tracking-widest border border-black/20 dark:border-white/20 text-black dark:text-white px-2 py-1 flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505]" title="TIEMPO DE ESPERA AUDITADO">
+                <span className="text-[9px] font-bold uppercase tracking-widest border border-black/20 dark:border-white/20 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors px-2 py-1 flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors" title="TIEMPO DE ESPERA AUDITADO">
                   <Timer className="w-3 h-3" strokeWidth={1.5} />
                   {getDiffMinutes(appt.arrivedAt, appt.startedAt)}M
                 </span>

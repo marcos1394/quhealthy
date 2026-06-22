@@ -260,26 +260,26 @@ export default function ProviderAppointmentsPage() {
 
         {/* --- MÉTRICAS DEL DÍA (GRID BLUEPRINT) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
-          <div className="p-6 md:p-8 flex flex-col justify-center border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+          <div className="p-6 md:p-8 flex flex-col justify-center border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
             <div className="flex items-center gap-2 mb-2">
               <Timer className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                 {t('avg_wait_today', { defaultValue: 'TIEMPO DE ESPERA (HOY)' })}
               </span>
             </div>
-            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
-              {avgWaitTime} <span className="text-sm font-bold text-gray-400 tracking-widest ml-1">MIN</span>
+            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
+              {avgWaitTime} <span className="text-sm font-bold text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors tracking-widest ml-1">MIN</span>
             </p>
           </div>
-          <div className="p-6 md:p-8 flex flex-col justify-center bg-white dark:bg-[#0a0a0a]">
+          <div className="p-6 md:p-8 flex flex-col justify-center bg-white dark:bg-[#0a0a0a] group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
             <div className="flex items-center gap-2 mb-2">
               <PlayCircle className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                 {t('avg_consultation_today', { defaultValue: 'TIEMPO CONSULTA (HOY)' })}
               </span>
             </div>
-            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
-              {avgConsultationTime} <span className="text-sm font-bold text-gray-400 tracking-widest ml-1">MIN</span>
+            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
+              {avgConsultationTime} <span className="text-sm font-bold text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors tracking-widest ml-1">MIN</span>
             </p>
           </div>
         </div>
@@ -353,15 +353,15 @@ export default function ProviderAppointmentsPage() {
 
                     return (
                       <motion.div key={appt.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors hover:bg-gray-50 dark:hover:bg-[#111]"
+                        className="bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer"
                       >
                         <div className="flex items-start md:items-center gap-5">
-                          <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 flex items-center justify-center shrink-0">
+                          <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors flex items-center justify-center shrink-0">
                             {appt.service?.serviceDeliveryType === 'video_call' ? <Video className="w-5 h-5" strokeWidth={1.5} /> : <User className="w-5 h-5" strokeWidth={1.5} />}
                           </div>
                           <div>
                             <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                              <h3 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white leading-none">
+                              <h3 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
                                 {appt.service?.name || t('medical_appointment', { defaultValue: 'CONSULTA MÉDICA' })}
                               </h3>
                               <span className={cn(
@@ -372,11 +372,11 @@ export default function ProviderAppointmentsPage() {
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-3">
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                                PACIENTE: <strong className="text-black dark:text-white">{appt.consumer?.name || t('card.patient', { defaultValue: 'PACIENTE' })}</strong>
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
+                                PACIENTE: <strong className="text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{appt.consumer?.name || t('card.patient', { defaultValue: 'PACIENTE' })}</strong>
                               </span>
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
-                                <Clock className="w-3 h-3 text-gray-400" strokeWidth={1.5} />
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors flex items-center gap-1.5">
+                                <Clock className="w-3 h-3 text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors" strokeWidth={1.5} />
                                 {formatLocalTime(appt.startTime, "dd MMM yyyy, HH:mm")}
                               </span>
                             </div>
@@ -391,13 +391,13 @@ export default function ProviderAppointmentsPage() {
                           )}
 
                           {currentStatus === "SCHEDULED" && (
-                            <button onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="h-10 px-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none flex-1 md:flex-none justify-center">
+                            <button onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="h-10 px-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none flex-1 md:flex-none justify-center">
                               <UserCheck className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.arrived', { defaultValue: 'LLEGÓ' })}
                             </button>
                           )}
 
                           {["SCHEDULED", "WAITING_ROOM"].includes(currentStatus) && (
-                            <button onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border-0 rounded-none flex-1 md:flex-none justify-center animate-pulse">
+                            <button onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black group-hover:bg-transparent group-hover:border group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border-0 rounded-none flex-1 md:flex-none justify-center animate-pulse">
                               <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.start', { defaultValue: 'INICIAR' })}
                             </button>
                           )}
