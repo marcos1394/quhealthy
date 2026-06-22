@@ -177,27 +177,27 @@ export default function BillingSettingsPage() {
                     </thead>
                     <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
                       {transactions.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
+                        <tr key={tx.id} className="hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                           <td className="px-6 py-6">
-                            <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                              <div className="w-6 h-6 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-                                <CalendarDays className="w-3 h-3 text-gray-500" strokeWidth={1.5} />
+                            <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">
+                              <div className="w-6 h-6 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+                                <CalendarDays className="w-3 h-3 text-gray-500 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                               </div>
                               {format(new Date(tx.date), "dd MMM yyyy", { locale: es })}
                             </div>
-                            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 ml-9 mt-1.5">
+                            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 ml-9 mt-1.5 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                               {format(new Date(tx.date), "HH:mm")} HRS
                             </div>
                           </td>
                           <td className="px-6 py-6">
                             <div className="flex items-center gap-3">
-                              <CreditCard className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                              <CreditCard className="w-4 h-4 text-gray-400 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">
                                 {getTypeLabel(tx.type)}
                               </span>
                             </div>
                             {tx.appointmentId && (
-                              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1.5 ml-7">
+                              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1.5 ml-7 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                                 ID REF: #{tx.appointmentId}
                               </p>
                             )}
@@ -207,10 +207,10 @@ export default function BillingSettingsPage() {
                           </td>
                           <td className="px-6 py-6 text-right">
                             <div className="flex items-end justify-end gap-1.5">
-                              <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                              <span className="text-xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
                                 {tx.amount.toLocaleString("es-MX", { style: "currency", currency: tx.currency })}
                               </span>
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5">
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-0.5 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                                 {tx.currency}
                               </span>
                             </div>
@@ -220,9 +220,9 @@ export default function BillingSettingsPage() {
                               <button 
                                 aria-label="Visualizar Recibo Interno" 
                                 onClick={() => setSelectedTx(tx)} 
-                                className="w-10 h-10 flex items-center justify-center border border-black/20 dark:border-white/20 bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none"
+                                className="w-10 h-10 flex items-center justify-center border border-black/20 dark:border-white/20 bg-white text-black dark:bg-[#0a0a0a] dark:text-white group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors rounded-none"
                               >
-                                <FileTextIcon className="w-4 h-4" strokeWidth={1.5} />
+                                <FileTextIcon className="w-4 h-4 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                               </button>
                               {tx.receiptUrl && (
                                 <a 
@@ -230,9 +230,9 @@ export default function BillingSettingsPage() {
                                   target="_blank" 
                                   rel="noopener noreferrer" 
                                   title="Recibo Oficial de Stripe"
-                                  className="w-10 h-10 flex items-center justify-center border-y border-r border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black transition-colors rounded-none"
+                                  className="w-10 h-10 flex items-center justify-center border-y border-r border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors rounded-none"
                                 >
-                                  <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
+                                  <ExternalLink className="w-4 h-4 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </a>
                               )}
                             </div>
