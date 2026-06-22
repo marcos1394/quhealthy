@@ -210,7 +210,7 @@ export default function StoreSetupPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             
             {/* Bloque: Catálogo e Inventario */}
-            <div className="lg:col-span-2 border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
+            <div className="lg:col-span-2 border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
               <div className="p-8 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-4">
                   <ShoppingBag className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
@@ -221,93 +221,93 @@ export default function StoreSetupPage() {
                 </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-0 flex-1">
-                <div className="p-6 text-center border-b md:border-b-0 border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
-                  <Stethoscope className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
-                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeServices}</p>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servicios</p>
+                <div onClick={() => router.push("/provider/store/catalog")} className="p-6 text-center border-b md:border-b-0 border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center cursor-pointer group/card transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+                  <Stethoscope className="w-5 h-5 mb-4 text-gray-400 group-hover/card:text-white dark:group-hover/card:text-black transition-colors" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2 text-black dark:text-white group-hover/card:text-white dark:group-hover/card:text-black transition-colors">{activeServices}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest group-hover/card:text-gray-300 dark:group-hover/card:text-gray-600 transition-colors">Servicios</p>
                 </div>
-                <div className="p-6 text-center border-b md:border-b-0 border-r md:border-r-0 lg:border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
-                  <Pill className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
-                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeProducts}</p>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Productos</p>
+                <div onClick={() => router.push("/provider/store/catalog")} className="p-6 text-center border-b md:border-b-0 border-r md:border-r-0 lg:border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center cursor-pointer group/card transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+                  <Pill className="w-5 h-5 mb-4 text-gray-400 group-hover/card:text-white dark:group-hover/card:text-black transition-colors" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2 text-black dark:text-white group-hover/card:text-white dark:group-hover/card:text-black transition-colors">{activeProducts}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest group-hover/card:text-gray-300 dark:group-hover/card:text-gray-600 transition-colors">Productos</p>
                 </div>
-                <div className="p-6 text-center border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center">
-                  <GraduationCap className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
-                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activeCourses}</p>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Cursos</p>
+                <div onClick={() => router.push("/provider/store/catalog")} className="p-6 text-center border-r border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center cursor-pointer group/card transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+                  <GraduationCap className="w-5 h-5 mb-4 text-gray-400 group-hover/card:text-white dark:group-hover/card:text-black transition-colors" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2 text-black dark:text-white group-hover/card:text-white dark:group-hover/card:text-black transition-colors">{activeCourses}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest group-hover/card:text-gray-300 dark:group-hover/card:text-gray-600 transition-colors">Cursos</p>
                 </div>
-                <div className="p-6 text-center flex flex-col items-center justify-center">
-                  <Package className="w-5 h-5 mb-4 text-gray-400" strokeWidth={1.5} />
-                  <p className="text-3xl font-semibold tracking-tighter mb-2">{activePackages}</p>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Paquetes</p>
+                <div onClick={() => router.push("/provider/store/catalog")} className="p-6 text-center flex flex-col items-center justify-center cursor-pointer group/card transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+                  <Package className="w-5 h-5 mb-4 text-gray-400 group-hover/card:text-white dark:group-hover/card:text-black transition-colors" strokeWidth={1.5} />
+                  <p className="text-3xl font-semibold tracking-tighter mb-2 text-black dark:text-white group-hover/card:text-white dark:group-hover/card:text-black transition-colors">{activePackages}</p>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest group-hover/card:text-gray-300 dark:group-hover/card:text-gray-600 transition-colors">Paquetes</p>
                 </div>
               </div>
             </div>
 
             {/* Bloque: Equipo Médico */}
-            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
-              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between group-hover:border-white/20 dark:group-hover:border-black/20">
                 <div className="flex items-center gap-4">
-                  <Users className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                  <h3 className="text-sm font-bold uppercase tracking-widest">Personal</h3>
+                  <Users className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+                  <h3 className="text-sm font-bold uppercase tracking-widest group-hover:text-white dark:group-hover:text-black transition-colors">Personal</h3>
                 </div>
-                <span className="text-[9px] font-bold uppercase tracking-widest border border-gray-300 dark:border-gray-700 px-2 py-1 bg-white dark:bg-black">
+                <span className="text-[9px] font-bold uppercase tracking-widest border border-gray-300 dark:border-gray-700 px-2 py-1 bg-white dark:bg-black group-hover:bg-transparent group-hover:text-white dark:group-hover:bg-transparent dark:group-hover:text-black group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
                   {activeStaffCount} Activos
                 </span>
               </div>
               <div className="p-8 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                   Profesionales registrados para la atención y provisión de servicios.
                 </p>
-                <button onClick={() => router.push("/provider/store/staff")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <button onClick={() => router.push("/provider/store/staff")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest group-hover:border-white/20 group-hover:bg-white/10 dark:group-hover:border-black/20 dark:group-hover:bg-black/10 group-hover:text-white dark:group-hover:text-black transition-colors">
                   Administrar Equipo
                 </button>
               </div>
             </div>
 
             {/* Bloque: Identidad */}
-            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
-                <Palette className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                <h3 className="text-sm font-bold uppercase tracking-widest">Identidad Visual</h3>
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4 group-hover:border-white/20 dark:group-hover:border-black/20">
+                <Palette className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest group-hover:text-white dark:group-hover:text-black transition-colors">Identidad Visual</h3>
               </div>
               <div className="p-8 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                   Logo, colores de marca, imágenes de portada y biografía de la tienda.
                 </p>
-                <button onClick={() => router.push("/provider/store/identity")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <button onClick={() => router.push("/provider/store/identity")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest group-hover:border-white/20 group-hover:bg-white/10 dark:group-hover:border-black/20 dark:group-hover:bg-black/10 group-hover:text-white dark:group-hover:text-black transition-colors">
                   Editar Identidad
                 </button>
               </div>
             </div>
 
             {/* Bloque: Políticas */}
-            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
-              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
-                <ShieldCheck className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                <h3 className="text-sm font-bold uppercase tracking-widest">Legal y Políticas</h3>
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4 group-hover:border-white/20 dark:group-hover:border-black/20">
+                <ShieldCheck className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest group-hover:text-white dark:group-hover:text-black transition-colors">Legal y Políticas</h3>
               </div>
               <div className="p-8 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                   Políticas de cancelación, reembolsos y términos de venta.
                 </p>
-                <button onClick={() => router.push("/provider/store/policies")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <button onClick={() => router.push("/provider/store/policies")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest group-hover:border-white/20 group-hover:bg-white/10 dark:group-hover:border-black/20 dark:group-hover:bg-black/10 group-hover:text-white dark:group-hover:text-black transition-colors">
                   Actualizar Políticas
                 </button>
               </div>
             </div>
 
             {/* Bloque: Integraciones */}
-            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
-              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
-                <Share2 className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                <h3 className="text-sm font-bold uppercase tracking-widest">Canales y Redes</h3>
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10">
+              <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4 group-hover:border-white/20 dark:group-hover:border-black/20">
+                <Share2 className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+                <h3 className="text-sm font-bold uppercase tracking-widest group-hover:text-white dark:group-hover:text-black transition-colors">Canales y Redes</h3>
               </div>
               <div className="p-8 flex-1 flex flex-col justify-between">
-                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                   Conexiones a WhatsApp, Gmail, Calendario y Redes Sociales.
                 </p>
-                <button onClick={() => router.push("/provider/store/integrations")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <button onClick={() => router.push("/provider/store/integrations")} className="w-full py-3 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest group-hover:border-white/20 group-hover:bg-white/10 dark:group-hover:border-black/20 dark:group-hover:bg-black/10 group-hover:text-white dark:group-hover:text-black transition-colors">
                   Configurar Canales
                 </button>
               </div>
@@ -386,7 +386,7 @@ export default function StoreSetupPage() {
                 onClick={() => router.push(step.path)}
                 className={cn(
                   "border-b border-r border-gray-200 dark:border-gray-800 p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 cursor-pointer transition-all duration-300 group relative hover:z-10",
-                  isComplete ? "bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a]" : "bg-white dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white",
+                  isComplete ? "bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a]" : "bg-white dark:bg-[#0a0a0a] hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] [&_*]:group-hover:text-white dark:[&_*]:group-hover:text-black",
                   isNext ? "bg-white dark:bg-[#0a0a0a] ring-1 ring-inset ring-black dark:ring-white" : ""
                 )}
               >

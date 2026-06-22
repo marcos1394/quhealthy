@@ -9,7 +9,7 @@ import { useSessionStore } from '@/stores/SessionStore';
 import { useChat } from '@/hooks/useChat'; 
 import { cn } from '@/lib/utils';
 
-// Componentes modulares que creamos en la carpeta chat/
+// Componentes modulares
 import { ChatSidebar } from '@/components/chat/ChatSidebar';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatMessageBubble } from '@/components/chat/ChatMessageBubble';
@@ -47,17 +47,17 @@ export function ClinicalMessagesView() {
     }, [messages, isTyping]);
 
     // Handlers de UI para futuras fases
-    const handleVoiceCall = () => toast.info(t('toast_voice', { defaultValue: 'Llamada de voz encriptada próximamente.' }));
-    const handleVideoCall = () => toast.info(t('toast_video', { defaultValue: 'Videoconsulta próximamente.' }));
+    const handleVoiceCall = () => toast.info(t('toast_voice', { defaultValue: 'CANAL DE VOZ DESHABILITADO.' }));
+    const handleVideoCall = () => toast.info(t('toast_video', { defaultValue: 'CANAL DE VIDEO DESHABILITADO.' }));
     const handleBackToInbox = () => setSelectedConversation(null);
 
     // 1. Pantalla de Carga Inicial
     if (isLoading) {
         return (
-            <div className="flex flex-col justify-center items-center h-[70vh] gap-4 bg-slate-50 dark:bg-slate-950 rounded-3xl">
-                <QhSpinner size="lg" />
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                    {t('loading', { defaultValue: 'Desencriptando tu bóveda de mensajes...' })}
+            <div className="flex flex-col justify-center items-center h-full min-h-[50vh] bg-white dark:bg-[#0a0a0a]">
+                <QhSpinner size="lg" className="text-black dark:text-white" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+                    {t('loading', { defaultValue: 'DESENCRIPTANDO BÓVEDA DE MENSAJES...' })}
                 </p>
             </div>
         );
@@ -65,40 +65,42 @@ export function ClinicalMessagesView() {
 
     // 2. Render Principal
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 font-sans selection:bg-medical-500/30 w-full h-full flex flex-col">
+        <div className="bg-white dark:bg-[#0a0a0a] font-sans flex flex-col w-full h-full">
             
             {/* Título de la Sección (Oculto en móvil cuando hay un chat abierto) */}
             <div className={cn(
-                "items-center gap-4 mb-4 px-4 md:px-0 hidden md:flex shrink-0",
-                selectedConversation && "hidden lg:flex" 
+                "flex items-center justify-between p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] shrink-0",
+                selectedConversation ? "hidden lg:flex" : "hidden md:flex" 
             )}>
-                <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-                    <MessageCircle className="w-6 h-6 text-medical-600 dark:text-medical-400" />
-                </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {t('title', { defaultValue: 'Mensajes Clínicos' })}
-                    </h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                        {t('subtitle', { defaultValue: 'Comunicación encriptada de extremo a extremo' })}
-                    </p>
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                        <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
+                            {t('title', { defaultValue: 'CANAL CLÍNICO' })}
+                        </h2>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                            {t('subtitle', { defaultValue: 'COMUNICACIÓN E2E CON PACIENTES' })}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            {/* Contenedor Principal del Chat (Card) */}
-            <div className="flex-1 bg-white dark:bg-slate-900 md:rounded-[2rem] border-0 md:border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex min-h-0 relative">
+            {/* Contenedor Principal del Chat (Grid) */}
+            <div className="flex-1 flex min-h-0 relative bg-white dark:bg-[#0a0a0a]">
                 
                 {/* Alerta de Desconexión */}
                 {!isConnected && !isLoading && (
-                    <div className="absolute top-0 left-0 right-0 bg-amber-500/90 dark:bg-amber-600/90 text-white text-xs text-center py-1.5 z-50 font-semibold backdrop-blur-sm shadow-sm flex items-center justify-center gap-2">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        {t('reconnecting', { defaultValue: 'Reconectando al servidor seguro...' })}
+                    <div className="absolute top-0 left-0 right-0 bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest py-2 z-50 flex items-center justify-center gap-2 border-b border-black/20 dark:border-white/20">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                        {t('reconnecting', { defaultValue: 'RESTAURANDO CONEXIÓN SEGURA...' })}
                     </div>
                 )}
 
                 {/* Columna Izquierda: Barra Lateral (Inbox) */}
                 <div className={cn(
-                    "h-full transition-all duration-300",
+                    "h-full border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] transition-all duration-300",
                     selectedConversation ? "hidden md:block w-80 lg:w-96 shrink-0" : "w-full"
                 )}>
                     <ChatSidebar 
@@ -112,7 +114,7 @@ export function ClinicalMessagesView() {
 
                 {/* Columna Derecha: Área de Mensajes */}
                 <div className={cn(
-                    "flex-1 flex flex-col h-full bg-[#fafafa] dark:bg-[#0a0f1c] relative",
+                    "flex-1 flex flex-col h-full bg-gray-50 dark:bg-[#050505] relative",
                     !selectedConversation ? "hidden md:flex" : "flex w-full"
                 )}>
                     {selectedConversation ? (
@@ -127,10 +129,11 @@ export function ClinicalMessagesView() {
 
                             {/* Lista de Mensajes (Scrollable) */}
                             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar">
+                                
                                 {/* Disclaimer de Privacidad */}
-                                <div className="flex justify-center mb-6">
-                                    <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">
-                                        {t('privacy_notice', { defaultValue: '🔒 Chat protegido bajo estándares de salud' })}
+                                <div className="flex justify-center mb-8 mt-4">
+                                    <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-4 py-1.5">
+                                        {t('privacy_notice', { defaultValue: '🔒 TRANSMISIÓN ENCRIPTADA E2E' })}
                                     </span>
                                 </div>
 
@@ -143,17 +146,14 @@ export function ClinicalMessagesView() {
                                     />
                                 ))}
 
-                                {/* Indicador "Escribiendo..." */}
+                                {/* Indicador "Escribiendo..." Técnico */}
                                 {isTyping && (
-                                    <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 font-medium ml-12">
-                                        <div className="flex space-x-1">
-                                            <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                            <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                            <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                                        </div>
-                                        {t('typing', { defaultValue: 'Escribiendo...' })}
+                                    <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500 ml-12">
+                                        <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} />
+                                        {t('typing', { defaultValue: 'RECIBIENDO DATOS...' })}
                                     </div>
                                 )}
+                                
                                 {/* Ancla para el auto-scroll */}
                                 <div ref={messagesEndRef} className="h-1" />
                             </div>
@@ -166,15 +166,15 @@ export function ClinicalMessagesView() {
                         </>
                     ) : (
                         /* Estado Empty cuando no hay chat seleccionado */
-                        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 dark:bg-slate-950/50">
-                            <div className="p-5 bg-white dark:bg-slate-900 rounded-full mb-6 shadow-sm border border-slate-100 dark:border-slate-800">
-                                <MessageCircle className="w-12 h-12 text-medical-200 dark:text-medical-900/50" strokeWidth={1.5} />
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50 dark:bg-[#050505]">
+                            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
+                                <MessageCircle className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                {t('select_conversation', { defaultValue: 'Tus Mensajes Clínicos' })}
+                            <h3 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+                                {t('select_conversation', { defaultValue: 'MODO DE ESPERA' })}
                             </h3>
-                            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm leading-relaxed text-sm">
-                                {t('select_conversation_desc', { defaultValue: 'Selecciona una conversación a la izquierda para continuar chateando de forma segura con tu especialista.' })}
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm leading-relaxed">
+                                {t('select_conversation_desc', { defaultValue: 'SELECCIONE UNA CONVERSACIÓN EN EL PANEL LATERAL PARA INICIAR LA TRANSMISIÓN.' })}
                             </p>
                         </div>
                     )}
