@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { es, enUS } from 'date-fns/locale';
 import { useTranslations } from 'next-intl';
 
 // ── Fallback Image Component ───────────────────────────────────────────────────
@@ -23,17 +21,16 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string, alt: string
 
 import {
   Sparkles, Video, Image as ImageIcon, Loader2,
-  ArrowDownToLine, CalendarPlus, CheckCircle,
-  AlertCircle, Clock, Trash2
+  ArrowDownToLine, CalendarPlus, CheckCircle2,
+  AlertCircle, Clock, Trash2, FolderArchive
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useSocial } from '@/hooks/useSocial';
 import { ScheduledPostDTO, PostStatus } from '@/types/social';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import ScheduleModal from '@/components/dashboard/marketing/ScheduleModal';
+import { cn } from '@/lib/utils';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -59,18 +56,12 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
  const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
-      // 🚀 Hacemos un cast a 'any' temporalmente para que TypeScript no se queje
       const data = await getScheduledPosts(0, 20) as any;
-      
-      // 🚀 Verificamos la forma real de los datos que llegaron
       if (Array.isArray(data)) {
-        // Si el backend mandó un Array directo (nuestro caso actual)
         setPosts(data);
       } else {
-        // Si en el futuro el backend manda una página (SpringPage)
         setPosts(data?.content ?? []);
       }
-      
     } catch {
       // error ya manejado en el hook
     } finally {
@@ -83,16 +74,14 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
   // ── Cancel ──────────────────────────────────────────────────────────────────
 
   const handleCancelPost = async (postId: string) => {
-    if (!confirm(t('cancel_post_confirm'))) return;
+    if (!confirm(t('cancel_post_confirm', { defaultValue: '¿CONFIRMA LA ANULACIÓN DE ESTA PUBLICACIÓN?' }))) return;
     setCancellingId(postId);
     try {
       await cancelPost(postId);
-      toast.success(t('cancel_post_success'));
+      toast.success(t('cancel_post_success', { defaultValue: 'PUBLICACIÓN ANULADA.' }));
       fetchPosts();
     } catch {
-      // ⚠️ El endpoint DELETE /posts/{id} aún no está implementado en el backend.
-      // Cuando se implemente en SocialController, esto funcionará sin cambios aquí.
-      toast.error(t('cancel_post_error'));
+      toast.error(t('cancel_post_error', { defaultValue: 'FALLO EN ANULACIÓN.' }));
     } finally {
       setCancellingId(null);
     }
@@ -110,24 +99,24 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
     switch (status) {
       case 'PUBLISHED':
         return (
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            {t('status_published')}
-          </Badge>
+          <span className="border border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+            <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+            {t('status_published', { defaultValue: 'PUBLICADO' })}
+          </span>
         );
       case 'SCHEDULED':
         return (
-          <Badge variant="outline" className="bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 text-[10px]">
-            <Clock className="w-3 h-3 mr-1" />
-            {t('status_scheduled')}
-          </Badge>
+          <span className="border border-indigo-500/30 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/10 dark:text-indigo-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+            <Clock className="w-3 h-3" strokeWidth={1.5} />
+            {t('status_scheduled', { defaultValue: 'EN COLA' })}
+          </span>
         );
       case 'FAILED':
         return (
-          <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 text-[10px]">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            {t('status_failed')}
-          </Badge>
+          <span className="border border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+            <AlertCircle className="w-3 h-3" strokeWidth={1.5} />
+            {t('status_failed', { defaultValue: 'FALLIDO' })}
+          </span>
         );
       default:
         return null;
@@ -138,28 +127,29 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
   return (
     <>
-      <div className="space-y-6 pt-4">
+      <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              {t('content_gallery_title')}
-            </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              {t('content_gallery_desc')}
-            </p>
-          </div>
+        {/* Header Arquitectónico */}
+        <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+          <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-1">
+            {t('content_gallery_title', { defaultValue: 'MATRIZ DE CONTENIDO' })}
+          </h2>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+            {t('content_gallery_desc', { defaultValue: 'REPOSITORIO Y AUDITORÍA DE ACTIVOS DE MARKETING' })}
+          </p>
         </div>
 
         {/* Estados */}
         {isLoading ? (
-          <div className="flex justify-center py-16">
-            <QhSpinner size="md" />
+          <div className="flex flex-col items-center justify-center py-24 bg-gray-50 dark:bg-[#050505]">
+            <QhSpinner size="lg" className="text-black dark:text-white" />
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+              SINCRONIZANDO ACTIVOS...
+            </p>
           </div>
 
         ) : posts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 bg-gray-50 dark:bg-[#050505]">
             {posts.map((post) => {
               const mediaUrl    = getFirstMediaUrl(post);
               const isMediaVideo = isVideo(mediaUrl ?? undefined);
@@ -168,10 +158,10 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
               return (
                 <div
                   key={post.id}
-                  className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col h-[380px]"
+                  className="flex flex-col border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] transition-colors hover:bg-gray-50 dark:hover:bg-[#111]"
                 >
-                  {/* ── Media ─────────────────────────────────────────────── */}
-                  <div className="relative h-48 bg-slate-100 dark:bg-slate-950 w-full flex-shrink-0">
+                  {/* ── Media (Visor) ─────────────────────────────────────────────── */}
+                  <div className="relative h-48 w-full flex-shrink-0 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
                     {mediaUrl ? (
                       isMediaVideo ? (
                         <video
@@ -188,109 +178,101 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
                           alt="Post" 
                           className="w-full h-full object-cover" 
                           fallback={
-                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900">
-                              <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
-                              <span className="text-xs font-medium">{t('text_only_badge')}</span>
+                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                              <ImageIcon className="w-6 h-6 mb-2" strokeWidth={1.5} />
+                              <span className="text-[9px] font-bold uppercase tracking-widest">{t('text_only_badge', { defaultValue: 'SÓLO TEXTO' })}</span>
                             </div>
                           }
                         />
                       )
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900">
-                        <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
-                        <span className="text-xs font-medium">{t('text_only_badge')}</span>
+                      <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                        <ImageIcon className="w-6 h-6 mb-2" strokeWidth={1.5} />
+                        <span className="text-[9px] font-bold uppercase tracking-widest">{t('text_only_badge', { defaultValue: 'SÓLO TEXTO' })}</span>
                       </div>
                     )}
 
                     {/* Badge: tipo de media */}
                     {mediaUrl && (
-                      <div className="absolute top-3 left-3">
-                        <Badge variant="secondary" className="bg-white/90 text-slate-900 dark:bg-slate-900/90 dark:text-white backdrop-blur shadow-sm border-0 text-[10px]">
+                      <div className="absolute top-3 left-3 flex items-center">
+                        <span className="border border-black/10 dark:border-white/10 bg-white/90 dark:bg-[#0a0a0a]/90 text-black dark:text-white backdrop-blur-sm px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest flex items-center gap-1.5">
                           {isMediaVideo
-                            ? <><Video className="w-3 h-3 mr-1" />{t('video_badge')}</>
-                            : <><ImageIcon className="w-3 h-3 mr-1" />{t('image_badge')}</>
+                            ? <><Video className="w-3 h-3" strokeWidth={1.5} />{t('video_badge', { defaultValue: 'VIDEO' })}</>
+                            : <><ImageIcon className="w-3 h-3" strokeWidth={1.5} />{t('image_badge', { defaultValue: 'IMAGEN' })}</>
                           }
-                        </Badge>
+                        </span>
                       </div>
                     )}
 
-                    {/* Badge: plataforma — opcional en el DTO */}
+                    {/* Badge: plataforma */}
                     {post.platform && (
-                      <div className="absolute top-3 right-3">
-                        <Badge className="bg-slate-900/80 text-white backdrop-blur border-0 hover:bg-slate-900 text-[10px]">
+                      <div className="absolute top-3 right-3 flex items-center">
+                        <span className="border border-black/20 dark:border-white/20 bg-black/90 text-white dark:bg-white/90 dark:text-black backdrop-blur-sm px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest">
                           {post.platform}
-                        </Badge>
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {/* ── Detalles ───────────────────────────────────────────── */}
-                  <div className="flex flex-col flex-1 p-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col flex-1 p-5">
+                    <div className="flex justify-between items-center mb-4">
                       {renderStatusBadge(post.status)}
-                      <span className="text-xs text-slate-400">
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
                         {new Date(post.scheduledAt).toLocaleDateString('es-MX', {
-                          day: 'numeric',
+                          day: '2-digit',
                           month: 'short',
                         })}
                       </span>
                     </div>
 
-                    <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-3 mb-4 flex-1">
-                      {post.content || t('no_content')}
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-3 mb-6 flex-1 leading-relaxed">
+                      {post.content || <span className="text-gray-400">{t('no_content', { defaultValue: 'SIN DESCRIPCIÓN' })}</span>}
                     </p>
+                  </div>
 
-                    {/* ── Acciones ──────────────────────────────────────────── */}
-                    <div className="grid grid-cols-2 gap-2 mt-auto">
+                  {/* ── Comandos (Footer) ──────────────────────────────────────────── */}
+                  <div className="flex border-t border-black/10 dark:border-white/10 mt-auto shrink-0 bg-gray-50 dark:bg-[#050505]">
 
-                      {/* Descargar media */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={!mediaUrl}
-                        className="w-full border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs"
-                        onClick={() => mediaUrl && window.open(mediaUrl, '_blank')}
-                      >
-                        <ArrowDownToLine className="w-3.5 h-3.5 mr-1.5" />
-                        {t('download_btn')}
-                      </Button>
+                    {/* Descargar media */}
+                    <button
+                      disabled={!mediaUrl}
+                      className="flex-1 h-12 flex items-center justify-center gap-2 border-r border-black/10 dark:border-white/10 bg-transparent text-gray-500 hover:text-black dark:hover:text-white hover:bg-white dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest disabled:opacity-50"
+                      onClick={() => mediaUrl && window.open(mediaUrl, '_blank')}
+                    >
+                      <ArrowDownToLine className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    </button>
 
-                      {/* Editar / Reprogramar + Cancelar */}
-                      {post.status === 'SCHEDULED' ? (
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-sm text-xs"
-                            onClick={() => { setSelectedPost(post); setIsModalOpen(true); }}
-                          >
-                            <CalendarPlus className="w-3.5 h-3.5 mr-1" />
-                            {t('reschedule_btn')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={isCancelling}
-                            title={t('cancel_post_btn')}
-                            className="px-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                            onClick={() => handleCancelPost(post.id)}
-                          >
-                            {isCancelling
-                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              : <Trash2 className="w-3.5 h-3.5" />
-                            }
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          size="sm"
-                          className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-50 dark:hover:bg-slate-200 text-white dark:text-slate-900 text-xs"
+                    {/* Editar / Reprogramar + Cancelar */}
+                    {post.status === 'SCHEDULED' ? (
+                      <>
+                        <button
+                          className="flex-1 h-12 flex items-center justify-center gap-2 border-r border-black/10 dark:border-white/10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest"
                           onClick={() => { setSelectedPost(post); setIsModalOpen(true); }}
                         >
-                          <CalendarPlus className="w-3.5 h-3.5 mr-1.5" />
-                          {t('schedule_btn')}
-                        </Button>
-                      )}
-                    </div>
+                          <CalendarPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </button>
+                        <button
+                          disabled={isCancelling}
+                          title={t('cancel_post_btn', { defaultValue: 'ANULAR' })}
+                          className="w-16 h-12 flex items-center justify-center bg-transparent text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors disabled:opacity-50"
+                          onClick={() => handleCancelPost(post.id)}
+                        >
+                          {isCancelling
+                            ? <QhSpinner size="sm" className="text-current" />
+                            : <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                          }
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="flex-1 h-12 flex items-center justify-center gap-2 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest"
+                        onClick={() => { setSelectedPost(post); setIsModalOpen(true); }}
+                      >
+                        <CalendarPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        {t('schedule_btn', { defaultValue: 'PROGRAMAR' })}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -299,15 +281,15 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
         ) : (
           /* ── Empty state ─────────────────────────────────────────────────── */
-          <div className="text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
-            <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-slate-100 dark:border-slate-700">
-              <Sparkles className="w-8 h-8 text-medical-400" />
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-gray-50 dark:bg-[#050505]">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
+              <FolderArchive className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-              {t('gallery_empty_title')}
+            <h3 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+              {t('gallery_empty_title', { defaultValue: 'REPOSITORIO VACÍO' })}
             </h3>
-            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto text-sm">
-              {t('gallery_empty_desc')}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs leading-relaxed">
+              {t('gallery_empty_desc', { defaultValue: 'AÚN NO HAY ACTIVOS DIGITALES GENERADOS O PROGRAMADOS.' })}
             </p>
           </div>
         )}

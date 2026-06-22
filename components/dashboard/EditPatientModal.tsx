@@ -48,7 +48,7 @@ export function EditPatientModal({ isOpen, onClose, patient, onUpdated }: EditPa
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
-      <DialogContent className="sm:max-w-xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white p-0 rounded-none shadow-2xl overflow-hidden flex flex-col transition-colors">
+      <DialogContent className="sm:max-w-xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white p-0 rounded-none shadow-2xl overflow-hidden flex flex-col transition-colors [&>button]:hidden">
         
         {/* HEADER ARQUITECTÓNICO */}
         <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">

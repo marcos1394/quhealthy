@@ -9,18 +9,13 @@ import {
   Share2,
   UserCircle,
   Search,
-  CheckCircle,
+  CheckCircle2,
   QrCode,
   Link as LinkIcon,
   Image as ImageIcon,
 } from 'lucide-react';
 
 // ShadCN UI
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Hooks
@@ -30,19 +25,17 @@ import { useCatalog } from '@/hooks/useCatalog';
 import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
 import { ContentGallery } from '@/components/dashboard/marketing/ContentGallery';
 import { QhSpinner } from '@/components/ui/QhSpinner';
-
-// Contexto Global de Redes Sociales
-// Eliminado: import { SocialProvider } from '@/hooks/useSocial';
+import { cn } from '@/lib/utils';
 
 // ── Fallback de carga ──────────────────────────────────────────────────────────
 
 function MarketingLoading() {
   const t = useTranslations('DashboardMarketing');
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950">
-      <QhSpinner size="lg" />
-      <p className="text-slate-500 dark:text-slate-400 animate-pulse">
-        {t('loading_studio')}
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505]">
+      <QhSpinner size="lg" className="text-black dark:text-white" />
+      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+        {t('loading_studio', { defaultValue: 'INICIALIZANDO MÓDULO DE DISTRIBUCIÓN...' })}
       </p>
     </div>
   );
@@ -69,7 +62,6 @@ function MarketingContent() {
   const profileCompleteness = 85;
 
   // ── OAuth callback ─────────────────────────────────────────────────────────
-  // El backend ya procesó el código y redirige con query params de resultado.
   useEffect(() => {
     if (oauthProcessed.current) return;
 
@@ -78,12 +70,11 @@ function MarketingContent() {
 
     if (isConnected === 'true') {
       oauthProcessed.current = true;
-      toast.success(t('oauth_success'));
-      // SocialConnectionsCard usa el estado del hook directamente — solo limpiamos la URL
+      toast.success(t('oauth_success', { defaultValue: 'CONEXIÓN ESTABLECIDA.' }));
       router.replace(pathname, { scroll: false });
     } else if (error) {
       oauthProcessed.current = true;
-      toast.error(t('oauth_error'));
+      toast.error(t('oauth_error', { defaultValue: 'FALLO DE AUTENTICACIÓN.' }));
       router.replace(pathname, { scroll: false });
     }
   }, [searchParams, pathname, router, t]);
@@ -96,238 +87,224 @@ function MarketingContent() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 xl:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] pt-8 px-6 md:px-10 pb-16 font-sans transition-colors duration-500 selection:bg-gray-200 dark:selection:bg-white/20">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-8 max-w-[1400px] mx-auto"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8 max-w-7xl mx-auto"
       >
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="relative overflow-hidden bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-100 dark:bg-slate-800/50 rounded-full blur-3xl -mr-20 -mt-20 transition-colors duration-500" />
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
-            <div className="flex items-center gap-5">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-105 duration-300">
-                <Share2 className="w-10 h-10 text-slate-700 dark:text-slate-300" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  {t('title')}
-                </h1>
-                <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                  {t('subtitle')}
-                </p>
-              </div>
+        {/* ── HEADER ARQUITECTÓNICO ──────────────────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+          <div className="flex items-start gap-5">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+              <Share2 className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                Motor de Difusión
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+                {t('title', { defaultValue: 'DISTRIBUCIÓN Y MARKETING' })}
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                {t('subtitle', { defaultValue: 'GESTIÓN DE REDES SOCIALES E IDENTIDAD PÚBLICA.' })}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* ── Tabs ────────────────────────────────────────────────────────── */}
-        <Tabs defaultValue="social" className="w-full">
+        {/* ── TABS ESTRUCTURALES ────────────────────────────────────────────────────────── */}
+        <Tabs defaultValue="social" className="w-full flex flex-col gap-0 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] rounded-none">
 
-          <TabsList className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 w-full justify-start overflow-x-auto mb-8 h-12 rounded-xl">
+          <TabsList className="flex flex-row w-full bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20 p-0 h-auto rounded-none justify-start">
             <TabsTrigger
               value="social"
-              className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm px-6 rounded-lg"
+              className="flex-1 sm:flex-none sm:w-64 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-14 text-[9px] font-bold uppercase tracking-widest transition-colors"
             >
-              {t('tab_social')}
+              {t('tab_social', { defaultValue: 'CONTENIDO IA' })}
             </TabsTrigger>
 
             <TabsTrigger
               value="profile"
-              className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm px-6 rounded-lg"
+              className="flex-1 sm:flex-none sm:w-64 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-14 text-[9px] font-bold uppercase tracking-widest transition-colors"
             >
-              {t('tab_profile')}
+              {t('tab_profile', { defaultValue: 'PERFIL PÚBLICO' })}
             </TabsTrigger>
           </TabsList>
 
-          {/* ── Tab 1: Redes & IA ───────────────────────────────────────────── */}
-          <TabsContent value="social" className="space-y-8 mt-0 border-none outline-none">
+          {/* ── TAB 1: Redes & IA ───────────────────────────────────────────── */}
+          <TabsContent value="social" className="m-0 p-0 border-none outline-none">
+            
+            <div className="flex flex-col">
+              <div className="border-b border-black/20 dark:border-white/20">
+                <AiStudioForm
+                  catalogItems={[
+                    ...services.map((s) => ({ ...s, itemType: t('item_service') || 'Servicio' })),
+                    ...packages.map((p) => ({ ...p, itemType: t('item_package') || 'Paquete' })),
+                    ...products.map((p) => ({ ...p, itemType: t('item_product') || 'Producto' })),
+                    ...courses.map((c) => ({ ...c, itemType: t('item_course') || 'Curso' }))
+                  ].map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    imageUrl: item.imageUrl,
+                    category: item.category,
+                    price: item.price,
+                    itemType: item.itemType
+                  }))}
+                  onGenerationSuccess={() => setGalleryRefresh((prev) => prev + 1)}
+                />
+              </div>
 
-            {/* Generación IA */}
-            <AiStudioForm
-              catalogItems={[
-                ...services.map((s) => ({ ...s, itemType: t('item_service') || 'Servicio' })),
-                ...packages.map((p) => ({ ...p, itemType: t('item_package') || 'Paquete' })),
-                ...products.map((p) => ({ ...p, itemType: t('item_product') || 'Producto' })),
-                ...courses.map((c) => ({ ...c, itemType: t('item_course') || 'Curso' }))
-              ].map((item) => ({
-                id: item.id,
-                name: item.name,
-                description: item.description,
-                imageUrl: item.imageUrl,
-                category: item.category,
-                price: item.price,
-                itemType: item.itemType
-              }))}
-              onGenerationSuccess={() => setGalleryRefresh((prev) => prev + 1)}
-            />
-
-            {/* Galería / Calendario */}
-            <ContentGallery refreshTrigger={galleryRefresh} />
+              <div>
+                <ContentGallery refreshTrigger={galleryRefresh} />
+              </div>
+            </div>
 
           </TabsContent>
 
-          {/* ── Tab 2: Perfil Clínico Público ───────────────────────────────── */}
-          <TabsContent value="profile" className="space-y-8 mt-0 border-none outline-none">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ── TAB 2: Perfil Clínico Público ───────────────────────────────── */}
+          <TabsContent value="profile" className="m-0 p-0 border-none outline-none">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-gray-50 dark:bg-[#050505]">
 
-              {/* Columna izquierda: Editor + Preview SEO */}
-              <div className="lg:col-span-2 space-y-8">
+              {/* COLUMNA IZQUIERDA: EDITOR + SEO */}
+              <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-black/20 dark:border-white/20 flex flex-col bg-white dark:bg-[#0a0a0a]">
 
                 {/* Editor de Biografía */}
-                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                      <UserCircle className="w-5 h-5 text-slate-500" />
-                      {t('profile_bio_title')}
-                    </CardTitle>
-                    <CardDescription>
-                      {t('profile_bio_desc')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start gap-4 mb-6">
-                      {/* Avatar picker */}
-                      <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-500 hover:border-slate-500 hover:text-slate-600 dark:hover:border-slate-400 dark:hover:text-slate-400 transition-colors cursor-pointer group shrink-0">
-                        <ImageIcon className="w-8 h-8 group-hover:scale-110 transition-transform mb-1" />
-                        <span className="text-[10px] font-medium">{t('profile_avatar_change')}</span>
-                      </div>
-
-                      <div className="flex-1">
-                        <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
-                          {t('profile_about_label')}
-                        </Label>
-                        <Textarea
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                          className="min-h-[160px] resize-none border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:border-slate-400 focus:ring-slate-400/20"
-                          placeholder={t('profile_bio_placeholder')}
-                        />
-                      </div>
+                <div className="flex flex-col border-b border-black/10 dark:border-white/10">
+                  <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
+                    <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-1 flex items-center gap-2">
+                      <UserCircle className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                      {t('profile_bio_title', { defaultValue: 'IDENTIDAD PROFESIONAL' })}
+                    </h2>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                      {t('profile_bio_desc', { defaultValue: 'CONFIGURACIÓN DE BIOGRAFÍA PÚBLICA.' })}
+                    </p>
+                  </div>
+                  
+                  <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start gap-6">
+                    <div className="w-24 h-24 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 flex flex-col items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-colors cursor-pointer shrink-0">
+                      <ImageIcon className="w-6 h-6 mb-2" strokeWidth={1.5} />
+                      <span className="text-[8px] font-bold uppercase tracking-widest">{t('profile_avatar_change', { defaultValue: 'MODIFICAR' })}</span>
                     </div>
 
-                    <div className="flex justify-end">
-                      <Button className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        {t('save_changes')}
-                      </Button>
+                    <div className="flex-1 w-full flex flex-col">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 block">
+                        {t('profile_about_label', { defaultValue: 'EXTRACTO PROFESIONAL' })}
+                      </label>
+                      <textarea
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        className="w-full min-h-[160px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-400 uppercase resize-y"
+                        placeholder={t('profile_bio_placeholder', { defaultValue: 'INGRESE SU BIOGRAFÍA...' })}
+                      />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/10 dark:border-white/10 flex justify-end">
+                    <button className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none">
+                      <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      {t('save_changes', { defaultValue: 'APLICAR CAMBIOS' })}
+                    </button>
+                  </div>
+                </div>
 
                 {/* SEO Preview */}
-                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Search className="w-4 h-4 text-emerald-600" />
-                      <span className="font-semibold text-sm text-slate-900 dark:text-white">
-                        {t('profile_seo_preview_title')}
-                      </span>
-                    </div>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
-                      {t('profile_seo_optimized')}
-                    </Badge>
+                <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                  <div className="p-6 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
+                    <h2 className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                      <Search className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} />
+                      {t('profile_seo_preview_title', { defaultValue: 'SIMULADOR DE BÚSQUEDA' })}
+                    </h2>
+                    <span className="border border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest">
+                      {t('profile_seo_optimized', { defaultValue: 'INDEXADO' })}
+                    </span>
                   </div>
-                  <CardContent className="p-6">
+                  <div className="p-6 md:p-8">
                     <div className="max-w-2xl">
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-1 truncate">
-                        https://quhealthy.com/directorio/dr-john-doe
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 truncate">
+                        HTTPS://QUHEALTHY.COM/DIRECTORIO/DR-JOHN-DOE
                       </p>
-                      <h3 className="text-xl text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer mb-1 line-clamp-1">
+                      <h3 className="text-lg font-semibold text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer mb-2 line-clamp-1">
                         Dr. John Doe | Especialista en QuHealthy Directory
                       </h3>
-                      <p className="text-sm text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2">
+                      <p className="text-xs font-semibold text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2 uppercase tracking-widest leading-relaxed">
                         Agenda tu cita médica con el Dr. John Doe. {bio}
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
 
-              {/* Columna derecha: Completeness + Share */}
-              <div className="space-y-8">
+              {/* COLUMNA DERECHA: ESTADO Y COMPARTIR */}
+              <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
 
-                {/* Profile Completeness Ring */}
-                <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                  <CardContent className="pt-6">
-                    <div className="relative w-32 h-32 mx-auto mb-4">
-                      <svg className="w-full h-full" viewBox="0 0 100 100">
-                        <circle
-                          cx="50" cy="50" r="45"
-                          fill="none" strokeWidth="8"
-                          className="stroke-slate-100 dark:stroke-slate-800"
-                        />
-                        <circle
-                          cx="50" cy="50" r="45"
-                          fill="none" strokeWidth="8"
-                          className="stroke-slate-900 dark:stroke-slate-100 transition-all duration-1000 ease-out"
-                          style={{
-                            strokeDasharray: 283,
-                            strokeDashoffset: 283 - (283 * profileCompleteness) / 100,
-                            transform: 'rotate(-90deg)',
-                            transformOrigin: '50% 50%',
-                          }}
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">
-                          {profileCompleteness}%
-                        </span>
-                      </div>
+                {/* Completeness Kardex */}
+                <div className="p-6 md:p-8 flex flex-col items-center border-b border-black/10 dark:border-white/10 text-center">
+                  <div className="w-24 h-24 border-4 border-gray-100 dark:border-[#111] relative flex items-center justify-center mb-6">
+                    {/* Barra de progreso plana */}
+                    <div 
+                      className="absolute bottom-0 left-0 w-full bg-black dark:bg-white transition-all duration-1000"
+                      style={{ height: `${profileCompleteness}%` }}
+                    />
+                    <span className="relative z-10 text-2xl font-semibold tracking-tight mix-blend-difference text-white">
+                      {profileCompleteness}%
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+                    {t('profile_completeness_title', { defaultValue: 'ESTATUS DEL PERFIL' })}
+                  </h3>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-8 max-w-xs">
+                    {t('profile_completeness_desc', { defaultValue: 'UN PERFIL COMPLETO GENERA MAYOR CONFIANZA.' })}
+                  </p>
+
+                  <div className="w-full flex flex-col gap-0 border border-black/10 dark:border-white/10 text-left">
+                    <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center gap-3 bg-gray-50 dark:bg-[#050505]">
+                      <CheckCircle2 className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+                        {t('profile_check_photo', { defaultValue: 'FOTOGRAFÍA' })}
+                      </span>
                     </div>
-
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                      {t('profile_completeness_title')}
-                    </h3>
-                    <p className="text-xs text-slate-500 mb-4 px-4 font-light">
-                      {t('profile_completeness_desc')}
-                    </p>
-
-                    <div className="space-y-2 text-left">
-                      <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                        <span className="text-slate-700 dark:text-slate-300">{t('profile_check_photo')}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                        <span className="text-slate-700 dark:text-slate-300">{t('profile_check_bio')}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 shrink-0" />
-                        <span className="text-slate-500 dark:text-slate-400">{t('profile_check_cedula')}</span>
-                      </div>
+                    <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center gap-3 bg-gray-50 dark:bg-[#050505]">
+                      <CheckCircle2 className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
+                        {t('profile_check_bio', { defaultValue: 'BIOGRAFÍA' })}
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Share Card */}
-                <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-md overflow-hidden relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                  <CardContent className="p-6 relative z-10 flex flex-col items-center text-center">
-                    <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
-                      <QrCode className="w-12 h-12 text-white" />
+                    <div className="p-3 flex items-center gap-3 bg-white dark:bg-[#0a0a0a]">
+                      <div className="w-4 h-4 border border-black/20 dark:border-white/20 shrink-0" />
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                        {t('profile_check_cedula', { defaultValue: 'CÉDULA PROFESIONAL' })}
+                      </span>
                     </div>
-                    <h3 className="text-lg font-bold mb-2 tracking-tight">
-                      {t('profile_share_title')}
-                    </h3>
-                    <p className="text-sm text-slate-300 mb-6 font-light">
-                      {t('profile_share_desc')}
-                    </p>
-                    <Button
-                      className="w-full bg-white text-slate-900 hover:bg-slate-50 font-bold shadow-sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText('https://quhealthy.com/directorio/dr-john-doe')
-                          .then(() => toast.success(t('copied_to_clipboard')))
-                          .catch(() => toast.error(t('copy_error')));
-                      }}
-                    >
-                      <LinkIcon className="w-4 h-4 mr-2" />
-                      {t('profile_share_copy_btn')}
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
+
+                {/* Tarjeta de Compartir (Código QR) */}
+                <div className="p-6 md:p-8 bg-black text-white dark:bg-white dark:text-black flex flex-col items-center text-center">
+                  <div className="w-16 h-16 border border-white/20 dark:border-black/20 bg-white/5 dark:bg-black/5 flex items-center justify-center mb-6">
+                    <QrCode className="w-8 h-8" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-sm font-semibold uppercase tracking-tight mb-2">
+                    {t('profile_share_title', { defaultValue: 'ENLACE DIRECTO' })}
+                  </h3>
+                  <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-8 max-w-xs">
+                    {t('profile_share_desc', { defaultValue: 'COPIE Y COMPARTA ESTA URL EN SUS CANALES DE ATENCIÓN.' })}
+                  </p>
+                  <button
+                    className="w-full h-12 bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none"
+                    onClick={() => {
+                      navigator.clipboard.writeText('https://quhealthy.com/directorio/dr-john-doe')
+                        .then(() => toast.success(t('copied_to_clipboard', { defaultValue: 'COPIADO' })))
+                        .catch(() => toast.error(t('copy_error', { defaultValue: 'ERROR' })));
+                    }}
+                  >
+                    <LinkIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    {t('profile_share_copy_btn', { defaultValue: 'COPIAR URL' })}
+                  </button>
+                </div>
 
               </div>
             </div>
