@@ -1310,6 +1310,7 @@
     "email_label": "Email",
     "phone_label": "Phone",
     "saving": "Saving...",
+    "cancel": "Cancel",
     "save_changes": "Save changes",
     "clinical_history": "Clinical History",
     "private_notes": "Private Notes",
