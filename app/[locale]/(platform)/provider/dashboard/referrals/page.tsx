@@ -1,25 +1,19 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'react-toastify';
 import { Gift, Copy, CheckCircle2, Users, Sparkles, AlertTriangle, CalendarDays, Share2, ArrowRight, MessageCircle, Facebook, Twitter, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
-// ShadCN UI
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { cn } from '@/lib/utils';
 
 // Hooks y Componentes
 import { useReferrals } from '@/hooks/useReferrals';
-// 🚀 Asegúrate de que esta ruta coincida con donde guardaste el componente
 import { RecommendationsManager } from '@/components/dashboard/referrals/RecommendationsManager'; 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ProviderReferralsPage() {
   const t = useTranslations('DashboardReferrals');
@@ -36,7 +30,7 @@ export default function ProviderReferralsPage() {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    toast.success(t('toast_copied', { defaultValue: '¡Enlace copiado al portapapeles!' }));
+    toast.success(t('toast_copied', { defaultValue: 'ENLACE COPIADO AL PORTAPAPELES' }), { theme: "colored" });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -44,8 +38,8 @@ export default function ProviderReferralsPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('share_title', { defaultValue: 'Únete a QuHealthy' }),
-          text: t('share_text', { defaultValue: 'Regístrate en QuHealthy con mi código y obtén beneficios exclusivos:' }),
+          title: t('share_title', { defaultValue: 'QuHealthy Network' }),
+          text: t('share_text', { defaultValue: 'Accede a la red médica QuHealthy mediante mi enlace de referenciación:' }),
           url: referralLink,
         });
       } catch (error) {
@@ -57,7 +51,7 @@ export default function ProviderReferralsPage() {
   };
 
   const handleWhatsAppShare = () => {
-    const text = encodeURIComponent(`Regístrate en QuHealthy con mi código y obtén beneficios exclusivos: ${referralLink}`);
+    const text = encodeURIComponent(`Accede a la red médica QuHealthy mediante mi enlace de referenciación: ${referralLink}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
@@ -66,219 +60,244 @@ export default function ProviderReferralsPage() {
   };
 
   const handleTwitterShare = () => {
-    const text = encodeURIComponent(`¡Regístrate en QuHealthy con mi código y obtén beneficios exclusivos!`);
+    const text = encodeURIComponent(`Accede a la red médica QuHealthy mediante mi enlace de referenciación!`);
     window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(referralLink)}&text=${text}`, '_blank');
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVATED": 
-        return <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0"><CheckCircle2 className="w-3 h-3 mr-1" />{t('status_activated', { defaultValue: 'Completado' })}</Badge>;
+        return <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit ml-auto"><CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />{t('status_activated', { defaultValue: 'COMPLETADO' })}</span>;
       case "PENDING": 
-        return <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0"><AlertTriangle className="w-3 h-3 mr-1" />{t('status_pending', { defaultValue: 'Pendiente de Pago' })}</Badge>;
+        return <span className="border border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit ml-auto"><AlertTriangle className="w-3 h-3" strokeWidth={1.5} />{t('status_pending', { defaultValue: 'PENDIENTE' })}</span>;
       default: 
-        return <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 border-0">{status}</Badge>;
+        return <span className="border border-gray-500/30 bg-gray-50 dark:bg-gray-900/10 text-gray-600 dark:text-gray-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit ml-auto">{status}</span>;
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <QhSpinner size="md" />
-        <p className="text-slate-500 dark:text-slate-400 font-light mt-4">{t("loading", { defaultValue: 'Cargando programa de referidos...' })}</p>
+      <div className="flex flex-col items-center justify-center py-24 bg-gray-50 dark:bg-[#050505]">
+        <QhSpinner size="lg" className="text-black dark:text-white" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
+          {t("loading", { defaultValue: 'SINCRONIZANDO PROGRAMA DE REFERIDOS...' })}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-10">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors">
+      <div className="max-w-7xl mx-auto space-y-8">
           
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-              <Gift className="w-7 h-7 text-slate-900 dark:text-white" />
+        {/* --- HEADER ARQUITECTÓNICO --- */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+          <div className="flex items-start gap-5">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+              <Gift className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
-                {t("title", { defaultValue: 'Programa de Referidos' })}
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 flex items-center gap-2">
+                Afiliación y Crecimiento <Sparkles className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5}/>
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+                {t("title", { defaultValue: 'SISTEMA DE REFERIDOS' })}
               </h1>
-              <Badge className="mt-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium shadow-sm">
-                <Sparkles className="w-3 h-3 mr-1.5" /> Programa VIP
-              </Badge>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xl leading-relaxed">
+                INVITE COLEGAS A LA RED Y RECOMIENDE SERVICIOS PARA OBTENER BENEFICIOS ECONÓMICOS Y COMISIONES.
+              </p>
             </div>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl font-light leading-relaxed">
-            {t.rich('subtitle', { strong: (chunks) => <strong className="font-semibold text-slate-900 dark:text-white">{chunks}</strong> })}
-          </p>
         </div>
 
-        <Tabs defaultValue="affiliates" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 bg-slate-100 dark:bg-slate-800">
-            <TabsTrigger value="affiliates">Programa de Afiliados</TabsTrigger>
-            <TabsTrigger value="recommendations">Recomendaciones Cruzadas</TabsTrigger>
+        {/* --- SISTEMA DE PESTAÑAS (TABS) --- */}
+        <Tabs defaultValue="affiliates" className="w-full flex flex-col border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] rounded-none transition-colors">
+          
+          <TabsList className="flex flex-row w-full bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20 p-0 h-auto rounded-none justify-start shrink-0">
+            <TabsTrigger 
+              value="affiliates" 
+              className="flex-1 sm:flex-none sm:w-64 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-14 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+            >
+              INVITACIÓN RED MÉDICA
+            </TabsTrigger>
+            <TabsTrigger 
+              value="recommendations" 
+              className="flex-1 sm:flex-none sm:w-64 rounded-none border-0 border-r sm:border-r-0 border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-14 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+            >
+              CÓDIGOS DE COMISIÓN
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="affiliates" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                <CardContent className="p-6 md:p-8 flex flex-col justify-center h-full">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg"><Share2 className="h-5 w-5 text-slate-700 dark:text-slate-300" /></div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('link_title', { defaultValue: 'Tu Enlace de Invitación' })}</h2>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-light">Copia el enlace o compártelo directamente en tus redes sociales.</p>
+          <TabsContent value="affiliates" className="m-0 p-0 border-none outline-none flex flex-col">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+              
+              {/* --- ENLACE DE INVITACIÓN --- */}
+              <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex flex-col">
+                <div className="p-6 md:p-8 flex items-center gap-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+                  <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                    <Share2 className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
+                      {t('link_title', { defaultValue: 'URL DE REFERENCIACIÓN' })}
+                    </h2>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                      COMPARTA ESTE ENLACE OBTENER CRÉDITOS EN PLATAFORMA.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 md:p-8 flex flex-col gap-6">
+                  <div className="flex flex-col sm:flex-row gap-0 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+                    <div className="relative flex-1">
+                      <input 
+                        readOnly 
+                        value={referralLink} 
+                        className="w-full h-14 px-4 bg-transparent border-0 text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest focus:outline-none focus:ring-0 truncate"
+                      />
                     </div>
+                    <button 
+                      onClick={handleCopy} 
+                      className={cn(
+                        "h-14 px-8 border-t sm:border-t-0 sm:border-l border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 shrink-0",
+                        copied 
+                          ? "bg-white dark:bg-[#0a0a0a] text-black dark:text-white" 
+                          : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                      )}
+                    >
+                      {copied ? <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} /> : <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                      {copied ? t('copied', { defaultValue: 'ENLACE COPIADO' }) : t('copy', { defaultValue: 'COPIAR ENLACE' })}
+                    </button>
                   </div>
 
-                  <div className="flex flex-col space-y-5">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <div className="relative flex-1">
-                        <Input 
-                          readOnly 
-                          value={referralLink} 
-                          className="h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-mono text-sm px-4 focus-visible:ring-slate-400 truncate"
-                        />
-                      </div>
-                      <Button 
-                        size="lg"
-                        onClick={handleCopy} 
-                        className={`h-12 px-8 font-semibold shadow-sm transition-all rounded-xl ${
-                          copied 
-                            ? 'bg-slate-100 text-slate-900 border border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700' 
-                            : 'bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200'
-                        }`}
-                      >
-                        {copied ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-                        {copied ? t('copied', { defaultValue: 'Copiado' }) : t('copy', { defaultValue: 'Copiar Enlace' })}
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 mt-4">
-                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mr-2 uppercase tracking-wider">Compartir vía:</span>
-                      <Button variant="outline" size="sm" onClick={handleWhatsAppShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
-                        <MessageCircle className="w-4 h-4 mr-1.5" /> WhatsApp
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleFacebookShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-blue-600 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10">
-                        <Facebook className="w-4 h-4 mr-1.5" /> Facebook
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleTwitterShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <Twitter className="w-4 h-4 mr-1.5" /> X (Twitter)
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleShare} className="h-9 px-3 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden">
-                        <Send className="w-4 h-4 mr-1.5" /> Más opciones
-                      </Button>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">DIFUSIÓN RÁPIDA:</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={handleWhatsAppShare} className="h-10 px-4 flex items-center justify-center gap-2 border border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none">
+                        <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> WHATSAPP
+                      </button>
+                      <button onClick={handleFacebookShare} className="h-10 px-4 flex items-center justify-center gap-2 border border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-900/10 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none">
+                        <Facebook className="w-3.5 h-3.5" strokeWidth={1.5} /> FACEBOOK
+                      </button>
+                      <button onClick={handleTwitterShare} className="h-10 px-4 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none">
+                        <Twitter className="w-3.5 h-3.5" strokeWidth={1.5} /> X (TWITTER)
+                      </button>
+                      <button onClick={handleShare} className="h-10 px-4 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none sm:hidden">
+                        <Send className="w-3.5 h-3.5" strokeWidth={1.5} /> COMPARTIR
+                      </button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                <CardContent className="p-6 flex flex-col justify-center h-full space-y-4">
-                  <div className="flex justify-between items-end pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Referidos Activos</p>
-                      <p className="text-3xl font-black text-slate-900 dark:text-white">{data?.activatedReferrals || 0}</p>
-                    </div>
-                    <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">En Espera (Pendientes)</p>
-                      <p className="text-xl font-bold text-slate-700 dark:text-slate-300">{data?.pendingReferrals || 0}</p>
-                    </div>
-                    <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-lg text-amber-600 dark:text-amber-400">
-                      <AlertTriangle className="w-4 h-4" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <section>
-              <div className="mb-4 flex items-center gap-2.5 pb-3 border-b border-slate-200 dark:border-slate-800">
-                <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg"><Users className="h-4 w-4 text-slate-600 dark:text-slate-400" /></div>
-                <div>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">{t('history_title', { defaultValue: 'Historial de Invitados' })}</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-light">Colegas que se han registrado usando tu código.</p>
                 </div>
               </div>
 
-              <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-                <CardContent className="p-0">
-                  {!data?.history || data.history.length === 0 ? (
-                    <div className="p-14 text-center">
-                      <div className="mx-auto max-w-sm space-y-3">
-                        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                          <Users className="w-6 h-6 text-slate-400 dark:text-slate-600" />
-                        </div>
-                        <p className="text-sm font-light text-slate-500 dark:text-slate-400 leading-relaxed">
-                          {t('empty_desc', { defaultValue: 'Aún no tienes referidos. ¡Comparte tu enlace para empezar a recibir beneficios!' })}
-                        </p>
-                      </div>
+              {/* --- KPIS (METRICAS) --- */}
+              <div className="flex flex-col bg-gray-50 dark:bg-[#050505]">
+                <div className="p-6 md:p-8 flex flex-col justify-center border-b border-black/10 dark:border-white/10 flex-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">AFILIACIONES COMPLETADAS</p>
+                    <div className="w-8 h-8 border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />
                     </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                          <tr>
-                            <th className="px-6 py-3 font-medium tracking-wider">Fecha de Registro</th>
-                            <th className="px-6 py-3 font-medium tracking-wider">Doctor Invitado</th>
-                            <th className="px-6 py-3 font-medium tracking-wider">Beneficio</th>
-                            <th className="px-6 py-3 font-medium tracking-wider text-right">Estado</th>
+                  </div>
+                  <p className="text-3xl font-semibold tracking-tight text-black dark:text-white">{data?.activatedReferrals || 0}</p>
+                </div>
+                <div className="p-6 md:p-8 flex flex-col justify-center flex-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">REGISTROS PENDIENTES</p>
+                    <div className="w-8 h-8 border border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                      <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <p className="text-xl font-semibold tracking-tight text-gray-700 dark:text-gray-300">{data?.pendingReferrals || 0}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* --- TABLA DE HISTORIAL --- */}
+            <div className="flex flex-col border-t border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+              <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center gap-4">
+                <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
+                    {t('history_title', { defaultValue: 'REGISTRO DE INVITACIONES' })}
+                  </h2>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                    AUDITORÍA DE COLEGAS VINCULADOS A LA PLATAFORMA.
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-full">
+                {!data?.history || data.history.length === 0 ? (
+                  <div className="p-24 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
+                      <Users className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs leading-relaxed">
+                      {t('empty_desc', { defaultValue: 'CERO REGISTROS EN LA BASE DE DATOS. COMPARTA SU ENLACE PARA INICIAR LA AUDITORÍA.' })}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left">
+                      <thead className="bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
+                        <tr>
+                          <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">FECHA REGISTRO</th>
+                          <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">ID SISTEMA</th>
+                          <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap">BENEFICIO APLICADO</th>
+                          <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-widest text-gray-500 text-right whitespace-nowrap">ESTADO</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/10 dark:divide-white/10">
+                        {data.history.map((ref) => (
+                          <tr key={ref.id} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
+                            <td className="px-6 py-5 whitespace-nowrap">
+                              <div className="flex items-center gap-2 text-xs font-semibold text-black dark:text-white uppercase tracking-widest mb-1.5">
+                                <CalendarDays className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                                {format(new Date(ref.createdAt), "dd MMM yyyy", { locale: dateLocale })}
+                              </div>
+                              {ref.activatedAt && (
+                                <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 flex items-center">
+                                  <ArrowRight className="w-3 h-3 mr-1" strokeWidth={1.5} /> ACTIVADO: {format(new Date(ref.activatedAt), "dd MMM yyyy", { locale: dateLocale })}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-5 whitespace-nowrap">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                                  <span className="text-[9px] font-bold text-black dark:text-white">#{ref.referredId}</span>
+                                </div>
+                                <span className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white">COLEGA VINCULADO</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 whitespace-nowrap">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                                {ref.benefitType === 'PLATFORM_CREDITS' ? 'CRÉDITOS PLATAFORMA' : ref.benefitType}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-right whitespace-nowrap">
+                              {getStatusBadge(ref.status)}
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                          {data.history.map((ref) => (
-                            <tr key={ref.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex items-center gap-2 text-slate-900 dark:text-white font-medium text-sm">
-                                  <CalendarDays className="w-4 h-4 text-slate-400" />
-                                  {format(new Date(ref.createdAt), "dd MMM yyyy", { locale: dateLocale })}
-                                </div>
-                                {ref.activatedAt && (
-                                  <div className="text-[10px] text-emerald-600 dark:text-emerald-400 ml-6 mt-1 flex items-center font-medium">
-                                    <ArrowRight className="w-3 h-3 mr-1" /> Activado el {format(new Date(ref.activatedAt), "dd MMM yyyy", { locale: dateLocale })}
-                                  </div>
-                                )}
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-700">
-                                    #{ref.referredId}
-                                  </div>
-                                  <span className="text-slate-900 dark:text-white font-medium">Doctor #{ref.referredId}</span>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">
-                                  {ref.benefitType === 'PLATFORM_CREDITS' ? 'Créditos de Plataforma' : ref.benefitType}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                {getStatusBadge(ref.status)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </section>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </TabsContent>
 
-          <TabsContent value="recommendations" className="space-y-8">
-            {/* 🚀 Renderizamos el Manager completo */}
+          {/* --- TABLA DE RECOMENDACIONES (MANAGER) --- */}
+          <TabsContent value="recommendations" className="m-0 p-0 border-none outline-none">
             <RecommendationsManager />
           </TabsContent>
 
         </Tabs>
 
-      </motion.div>
+      </div>
     </div>
   );
 }
