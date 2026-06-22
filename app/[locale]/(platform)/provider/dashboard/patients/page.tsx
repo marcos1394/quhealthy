@@ -132,7 +132,7 @@ export default function ProviderPatientsPage() {
                                         <TableRow 
                                             key={client.id} 
                                             onClick={() => setSelectedPatient(client)}
-                                            className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer group"
+                                            className="hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 cursor-pointer group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10"
                                         >
                                             <TableCell className="pl-6 py-5">
                                                 <div className="flex items-center gap-4">
@@ -147,10 +147,10 @@ export default function ProviderPatientsPage() {
                                                         )}
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <span className="font-semibold text-sm text-black dark:text-white uppercase tracking-widest truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                                        <span className="font-semibold text-sm text-black dark:text-white uppercase tracking-widest truncate group-hover:text-white dark:group-hover:text-black transition-colors">
                                                             {client.consumer.name}
                                                         </span>
-                                                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest truncate mt-1">
+                                                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest truncate mt-1 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                                                             {client.consumer.email}
                                                         </span>
                                                     </div>
@@ -168,13 +168,13 @@ export default function ProviderPatientsPage() {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-center py-5">
-                                                <span className="inline-flex items-center justify-center w-8 h-8 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-bold text-xs">
+                                                <span className="inline-flex items-center justify-center w-8 h-8 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-bold text-xs group-hover:bg-transparent group-hover:text-white dark:group-hover:bg-transparent dark:group-hover:text-black group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
                                                     {client.totalAppointments}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="py-5">
-                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                                                    <Calendar className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                                                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">
+                                                    <Calendar className="w-3.5 h-3.5 text-gray-400 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                                     {format(new Date(client.lastAppointmentDate), "PP", { locale: es })}
                                                 </div>
                                             </TableCell>
@@ -182,7 +182,7 @@ export default function ProviderPatientsPage() {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                                         <button className="w-8 h-8 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 bg-transparent hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors ml-auto">
-                                                            <MoreHorizontal className="h-4 w-4 text-gray-500 hover:text-black dark:hover:text-white" strokeWidth={1.5} />
+                                                            <MoreHorizontal className="h-4 w-4 text-gray-500 group-hover:text-white dark:group-hover:text-black hover:text-white dark:hover:text-black transition-colors" strokeWidth={1.5} />
                                                         </button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">

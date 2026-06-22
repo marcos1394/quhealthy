@@ -299,18 +299,18 @@ export default function CashRegisterPage() {
 
           {/* Stats: Blueprint Grid Matriz */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
-            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">BALANCE INICIAL</p>
-              <p className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">${register.initialBalance.toFixed(2)}</p>
+            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">BALANCE INICIAL</p>
+              <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">${register.initialBalance.toFixed(2)}</p>
             </div>
-            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">INGRESOS DEL DÍA</p>
+            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">INGRESOS DEL DÍA</p>
               <p className="text-3xl font-semibold tracking-tight text-emerald-600 dark:text-emerald-400 leading-none">
                 +${report?.transactions.filter(t => t.transactionType === 'INCOME').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
               </p>
             </div>
-            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px]">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">EGRESOS DEL DÍA</p>
+            <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">EGRESOS DEL DÍA</p>
               <p className="text-3xl font-semibold tracking-tight text-red-600 dark:text-red-400 leading-none">
                 -${report?.transactions.filter(t => t.transactionType === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
               </p>
@@ -335,7 +335,7 @@ export default function CashRegisterPage() {
             {report?.transactions && report.transactions.length > 0 ? (
               <div className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
                 {report.transactions.map((tx) => (
-                  <div key={tx.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
+                  <div key={tx.id} className="p-6 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start sm:items-center gap-4">
                         <div className={cn(
@@ -347,12 +347,12 @@ export default function CashRegisterPage() {
                           {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" strokeWidth={1.5} /> : <ArrowUpRight className="w-5 h-5" strokeWidth={1.5} />}
                         </div>
                         <div>
-                          <p className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white">{tx.description}</p>
+                          <p className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{tx.description}</p>
                           <div className="flex items-center gap-3 mt-1.5">
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 border border-black/20 dark:border-white/20 px-2 py-0.5 bg-gray-50 dark:bg-[#050505]">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 border border-black/20 dark:border-white/20 px-2 py-0.5 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent group-hover:text-white dark:group-hover:text-black group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
                               {tx.referenceType}
                             </span>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                               {new Date(tx.createdAt).toLocaleTimeString()} HRS
                             </span>
                           </div>
@@ -435,7 +435,7 @@ export default function CashRegisterPage() {
                   </thead>
                   <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
                     {history.map((h) => (
-                      <tr key={h.id} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
+                      <tr key={h.id} className="hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                         <td className="px-6 py-6">
                           {h.status === 'OPEN' ? (
                             <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
