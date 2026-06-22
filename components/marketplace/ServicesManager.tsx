@@ -35,7 +35,7 @@ interface ServicesManagerProps {
   onImageUpload?: (id: number, file: File) => void;
   canAdd?: boolean;
   currentUsage?: number;
-  maxLimit?: number;
+  maxLimit?: number | null;
 }
 
 export function ServicesManager({
