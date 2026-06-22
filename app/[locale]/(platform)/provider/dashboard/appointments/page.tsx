@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { Check, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck, Filter } from "lucide-react";
-import { format } from "date-fns"; // 🚀 Usamos format simple en lugar de formatInTimeZone
+import { format } from "date-fns"; 
 import { es } from "date-fns/locale";
-import Link from 'next/link'; 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { CompletionModal } from "@/components/dashboard/CompletionModal";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +20,7 @@ import { KanbanCard } from "@/components/dashboard/KanbanCard";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
+import { cn } from "@/lib/utils";
 
 export default function ProviderAppointmentsPage() {
   const router = useRouter();
@@ -47,11 +46,11 @@ export default function ProviderAppointmentsPage() {
 
   const translateStatus = (status: string) => {
     switch (status) {
-      case "WAITING_ROOM": return "Sala de Espera";
-      case "IN_PROGRESS": return "En Progreso";
-      case "COMPLETED": return "Completada";
-      case "SCHEDULED": return "Programada";
-      case "CONFIRMED": return "Confirmada";
+      case "WAITING_ROOM": return "SALA DE ESPERA";
+      case "IN_PROGRESS": return "EN PROGRESO";
+      case "COMPLETED": return "COMPLETADA";
+      case "SCHEDULED": return "PROGRAMADA";
+      case "CONFIRMED": return "CONFIRMADA";
       default: return status;
     }
   };
@@ -63,11 +62,14 @@ export default function ProviderAppointmentsPage() {
     setIsCanceling(true);
     try {
       await appointmentService.cancelAppointment(cancelModalState.appointment.id, "Cancelada desde agenda");
-      toast.success(t('toast_cancelled_success'));
+      toast.success(t('toast_cancelled_success', { defaultValue: 'CITA ANULADA CON ÉXITO' }), { theme: "colored" });
       setAppointments(prev => prev.map(a => a.id === cancelModalState.appointment?.id ? { ...a, status: "CANCELED_BY_PROVIDER" } : a));
       setCancelModalState({ isOpen: false, appointment: null });
-    } catch (error) { console.error(error); handleApiError(error); }
-    finally { setIsCanceling(false); }
+    } catch (error) { 
+      handleApiError(error); 
+    } finally { 
+      setIsCanceling(false); 
+    }
   };
 
   const handleUpdateStatus = async (appointmentId: string | number, newStatus: string) => {
@@ -97,7 +99,7 @@ export default function ProviderAppointmentsPage() {
 
     try {
       await appointmentService.updateStatus(appointmentId, newStatus);
-      toast.success(`Cita actualizada a ${translateStatus(newStatus)}`);
+      toast.success(`ESTADO ACTUALIZADO: ${translateStatus(newStatus)}`, { theme: "colored" });
     } catch (error) {
       handleApiError(error);
       refetch();
@@ -144,36 +146,37 @@ export default function ProviderAppointmentsPage() {
 
   const getStatusBadgeStyle = (status: string) => {
     switch (normalizeStatus(status)) {
-      case "COMPLETED": return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
-      case "SCHEDULED": return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
-      case "WAITING_ROOM": return "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white";
-      case "IN_PROGRESS": return "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white animate-pulse";
+      case "COMPLETED": return "border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400";
+      case "SCHEDULED": return "border-black/20 bg-gray-50 text-black dark:bg-[#050505] dark:text-white dark:border-white/20";
+      case "WAITING_ROOM": return "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400";
+      case "IN_PROGRESS": return "border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-900/10 dark:text-blue-400 animate-pulse";
+      case "PENDING_PAYMENT": return "border-purple-500/30 bg-purple-50 text-purple-700 dark:bg-purple-900/10 dark:text-purple-400";
       case "CANCELED_BY_CONSUMER":
-      case "CANCELED_BY_PROVIDER": return "bg-gray-100 text-gray-500 border-gray-300 dark:bg-gray-900 dark:text-gray-600 dark:border-gray-800 line-through";
-      default: return "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white";
+      case "CANCELED_BY_PROVIDER": return "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400 line-through opacity-70";
+      default: return "border-gray-500/30 bg-gray-50 text-gray-600 dark:bg-gray-900/10 dark:text-gray-400";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (normalizeStatus(status)) {
-      case "COMPLETED": return <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />;
-      case "SCHEDULED": return <Calendar className="w-3.5 h-3.5" strokeWidth={2} />;
-      case "WAITING_ROOM": return <UserCheck className="w-3.5 h-3.5" strokeWidth={2} />;
-      case "IN_PROGRESS": return <PlayCircle className="w-3.5 h-3.5" strokeWidth={2} />;
-      case "PENDING_PAYMENT": return <Timer className="w-3.5 h-3.5" strokeWidth={2} />;
-      default: return <XCircle className="w-3.5 h-3.5" strokeWidth={2} />;
+      case "COMPLETED": return <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />;
+      case "SCHEDULED": return <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />;
+      case "WAITING_ROOM": return <UserCheck className="w-3.5 h-3.5" strokeWidth={1.5} />;
+      case "IN_PROGRESS": return <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} />;
+      case "PENDING_PAYMENT": return <Timer className="w-3.5 h-3.5" strokeWidth={1.5} />;
+      default: return <XCircle className="w-3.5 h-3.5" strokeWidth={1.5} />;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (normalizeStatus(status)) {
-      case "COMPLETED": return t('card.completed');
-      case "SCHEDULED": return t('card.scheduled');
-      case "WAITING_ROOM": return t('card.waiting_room');
-      case "IN_PROGRESS": return t('card.in_progress');
-      case "PENDING_PAYMENT": return t('card.pending_payment');
-      case "CANCELED_BY_CONSUMER": return t('card.cancelled_by_patient');
-      case "CANCELED_BY_PROVIDER": return t('card.cancelled_by_you');
+      case "COMPLETED": return t('card.completed', { defaultValue: 'FINALIZADO' });
+      case "SCHEDULED": return t('card.scheduled', { defaultValue: 'PROGRAMADO' });
+      case "WAITING_ROOM": return t('card.waiting_room', { defaultValue: 'ESPERA' });
+      case "IN_PROGRESS": return t('card.in_progress', { defaultValue: 'ACTIVO' });
+      case "PENDING_PAYMENT": return t('card.pending_payment', { defaultValue: 'PAGO PENDIENTE' });
+      case "CANCELED_BY_CONSUMER": return t('card.cancelled_by_patient', { defaultValue: 'ANULADO (PACIENTE)' });
+      case "CANCELED_BY_PROVIDER": return t('card.cancelled_by_you', { defaultValue: 'ANULADO (PROVEEDOR)' });
       default: return status;
     }
   };
@@ -216,231 +219,279 @@ export default function ProviderAppointmentsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex flex-col justify-center items-center">
-        <QhSpinner size="md" />
-        <p className="text-[10px] uppercase font-bold tracking-widest mt-6 animate-pulse">{t('loading')}</p>
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20">
+        <QhSpinner size="lg" className="text-black dark:text-white" />
+        <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-6 animate-pulse">
+          {t('loading', { defaultValue: 'SINCRONIZANDO AGENDA...' })}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-10 max-w-7xl mx-auto px-4 md:px-6">
-      {/* 1. Encabezado */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b-2 border-black dark:border-white">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold uppercase tracking-wide text-black dark:text-white flex items-center gap-3">
-            <Calendar className="w-8 h-8 md:w-10 md:h-10" strokeWidth={2} />
-            {t('title')}
-          </h1>
-          <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500 mt-2">
-            {t('subtitle')}
-          </p>
-        </div>
-        <div>
-          <Button onClick={() => setIsNewAppointmentModalOpen(true)} className="w-full md:w-auto h-12 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest transition-all">
-            <Zap className="w-4 h-4 mr-2" strokeWidth={2} />{t('quick_actions.new_appointment')}
-          </Button>
-        </div>
-      </div>
-
-      {/* 2. Dashboard Analytics: Tiempos Promedio del Día */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-5 flex flex-col justify-between shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-black dark:border-white">
-            <Timer className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
-            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('avg_wait_today', { defaultValue: 'Promedio Espera (Hoy)' })}</span>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 font-sans transition-colors duration-500 selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* --- HEADER ARQUITECTÓNICO --- */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+          <div className="flex items-start gap-5">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
+              <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                Motor Operativo
+              </p>
+              <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
+                {t('title', { defaultValue: 'SISTEMA DE CITAS' })}
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                {t('subtitle', { defaultValue: 'AGENDA, TIEMPOS Y CONTROL CLÍNICO.' })}
+              </p>
+            </div>
           </div>
-          <p className="text-4xl font-serif font-bold text-black dark:text-white uppercase">
-            {avgWaitTime} <span className="text-sm tracking-widest">MIN</span>
-          </p>
+          <button 
+            onClick={() => setIsNewAppointmentModalOpen(true)} 
+            className="w-full md:w-auto h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border-0"
+          >
+            <Zap className="w-4 h-4" strokeWidth={1.5} /> {t('quick_actions.new_appointment', { defaultValue: 'NUEVO REGISTRO' })}
+          </button>
         </div>
-        <div className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-5 flex flex-col justify-between shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-black dark:border-white">
-            <PlayCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={2} />
-            <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">{t('avg_consultation_today', { defaultValue: 'Promedio Consulta (Hoy)' })}</span>
+
+        {/* --- MÉTRICAS DEL DÍA (GRID BLUEPRINT) --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+          <div className="p-6 md:p-8 flex flex-col justify-center border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+            <div className="flex items-center gap-2 mb-2">
+              <Timer className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                {t('avg_wait_today', { defaultValue: 'TIEMPO DE ESPERA (HOY)' })}
+              </span>
+            </div>
+            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
+              {avgWaitTime} <span className="text-sm font-bold text-gray-400 tracking-widest ml-1">MIN</span>
+            </p>
           </div>
-          <p className="text-4xl font-serif font-bold text-black dark:text-white uppercase">
-            {avgConsultationTime} <span className="text-sm tracking-widest">MIN</span>
-          </p>
-        </div>
-      </div>
-
-      <Tabs defaultValue="list" className="space-y-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b-2 border-black dark:border-white pb-6">
-          <TabsList className="bg-transparent space-x-2 p-0 h-auto">
-            <TabsTrigger value="list" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
-              {t('view_mode.list')}
-            </TabsTrigger>
-            <TabsTrigger value="kanban" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
-              {t('view_mode.kanban')}
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="rounded-none border-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2">
-              {t('view_mode.calendar')}
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-black dark:text-white hidden sm:block" strokeWidth={2} />
-            <Button size="sm" variant="outline" onClick={() => setDateFilter('ALL')} 
-              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'ALL' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
-              {t('tabs.all')}
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setDateFilter('TODAY')} 
-              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'TODAY' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
-              {t('tabs.today')}
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setDateFilter('UPCOMING')} 
-              className={`rounded-none border-2 border-black dark:border-white h-8 text-[10px] font-bold uppercase tracking-widest ${dateFilter === 'UPCOMING' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-black dark:text-white'}`}>
-              {t('tabs.upcoming')}
-            </Button>
+          <div className="p-6 md:p-8 flex flex-col justify-center bg-white dark:bg-[#0a0a0a]">
+            <div className="flex items-center gap-2 mb-2">
+              <PlayCircle className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                {t('avg_consultation_today', { defaultValue: 'TIEMPO CONSULTA (HOY)' })}
+              </span>
+            </div>
+            <p className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
+              {avgConsultationTime} <span className="text-sm font-bold text-gray-400 tracking-widest ml-1">MIN</span>
+            </p>
           </div>
         </div>
 
-        {/* VISTA DE LISTA */}
-        <TabsContent value="list" className="space-y-4 m-0">
-          <AnimatePresence mode="popLayout">
-            {filteredAppointments.length > 0 ? (
-              filteredAppointments.map((appt, index) => {
-                const currentStatus = normalizeStatus(appt.status);
+        {/* --- SISTEMA DE PESTAÑAS (TABS Y FILTROS) --- */}
+        <Tabs defaultValue="list" className="w-full flex flex-col border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] rounded-none transition-colors">
+          
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+            <TabsList className="flex flex-row w-full md:w-auto bg-transparent border-0 p-0 h-auto rounded-none justify-start shrink-0">
+              <TabsTrigger 
+                value="list" 
+                className="flex-1 md:flex-none md:w-32 rounded-none border-0 border-b md:border-b-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-12 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center"
+              >
+                {t('view_mode.list', { defaultValue: 'LISTA' })}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="kanban" 
+                className="flex-1 md:flex-none md:w-32 rounded-none border-0 border-b md:border-b-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-12 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center"
+              >
+                {t('view_mode.kanban', { defaultValue: 'KANBAN' })}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="calendar" 
+                className="flex-1 md:flex-none md:w-32 rounded-none border-0 border-b md:border-b-0 md:border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 h-12 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center"
+              >
+                {t('view_mode.calendar', { defaultValue: 'CALENDARIO' })}
+              </TabsTrigger>
+            </TabsList>
 
-                return (
-                  <motion.div key={appt.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white dark:bg-[#0a0a0a] border-2 border-black dark:border-white rounded-none p-6 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] group transition-all hover:translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff]">
-                    <div className="flex flex-col md:flex-row justify-between gap-6">
-                      <div className="flex items-start gap-5">
-                        <div className="w-12 h-12 bg-black dark:bg-white text-white dark:text-black flex items-center justify-center border-2 border-black dark:border-white shrink-0">
-                          {appt.service?.serviceDeliveryType === 'video_call' ? <Video className="w-5 h-5" strokeWidth={2} /> : <User className="w-5 h-5" strokeWidth={2} />}
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-serif font-bold text-black dark:text-white uppercase tracking-wide leading-none mb-3">
-                            {appt.service?.name || t('medical_appointment')}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border border-black dark:border-white px-2 py-1 bg-gray-50 dark:bg-gray-900">
-                              {appt.consumer?.name || t('card.patient')}
-                            </span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border border-black dark:border-white px-2 py-1 flex items-center gap-1.5">
-                              <Clock className="w-3 h-3" strokeWidth={2} />
-                              {formatLocalTime(appt.startTime, "d MMM, HH:mm")}
-                            </span>
+            <div className="flex items-center gap-0 w-full md:w-auto">
+              <div className="h-12 w-12 flex items-center justify-center border-r border-black/20 dark:border-white/20 shrink-0">
+                <Filter className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+              </div>
+              <button 
+                onClick={() => setDateFilter('ALL')} 
+                className={cn(
+                  "flex-1 md:flex-none h-12 px-4 border-r border-black/20 dark:border-white/20 transition-colors text-[9px] font-bold uppercase tracking-widest",
+                  dateFilter === 'ALL' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-gray-500 hover:bg-white dark:hover:bg-[#111]'
+                )}
+              >
+                {t('tabs.all', { defaultValue: 'TODAS' })}
+              </button>
+              <button 
+                onClick={() => setDateFilter('TODAY')} 
+                className={cn(
+                  "flex-1 md:flex-none h-12 px-4 border-r border-black/20 dark:border-white/20 transition-colors text-[9px] font-bold uppercase tracking-widest",
+                  dateFilter === 'TODAY' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-gray-500 hover:bg-white dark:hover:bg-[#111]'
+                )}
+              >
+                {t('tabs.today', { defaultValue: 'HOY' })}
+              </button>
+              <button 
+                onClick={() => setDateFilter('UPCOMING')} 
+                className={cn(
+                  "flex-1 md:flex-none h-12 px-4 transition-colors text-[9px] font-bold uppercase tracking-widest",
+                  dateFilter === 'UPCOMING' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-transparent text-gray-500 hover:bg-white dark:hover:bg-[#111]'
+                )}
+              >
+                {t('tabs.upcoming', { defaultValue: 'FUTURAS' })}
+              </button>
+            </div>
+          </div>
+
+          {/* VISTA DE LISTA */}
+          <TabsContent value="list" className="m-0 p-0 border-none outline-none bg-gray-50 dark:bg-[#050505]">
+            <AnimatePresence mode="popLayout">
+              {filteredAppointments.length > 0 ? (
+                <div className="flex flex-col">
+                  {filteredAppointments.map((appt) => {
+                    const currentStatus = normalizeStatus(appt.status);
+
+                    return (
+                      <motion.div key={appt.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        className="bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors hover:bg-gray-50 dark:hover:bg-[#111]"
+                      >
+                        <div className="flex items-start md:items-center gap-5">
+                          <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 flex items-center justify-center shrink-0">
+                            {appt.service?.serviceDeliveryType === 'video_call' ? <Video className="w-5 h-5" strokeWidth={1.5} /> : <User className="w-5 h-5" strokeWidth={1.5} />}
+                          </div>
+                          <div>
+                            <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                              <h3 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white leading-none">
+                                {appt.service?.name || t('medical_appointment', { defaultValue: 'CONSULTA MÉDICA' })}
+                              </h3>
+                              <span className={cn(
+                                "px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest border flex items-center gap-1.5 w-fit",
+                                getStatusBadgeStyle(appt.status)
+                              )}>
+                                {getStatusIcon(appt.status)} {getStatusText(appt.status)}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3">
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                PACIENTE: <strong className="text-black dark:text-white">{appt.consumer?.name || t('card.patient', { defaultValue: 'PACIENTE' })}</strong>
+                              </span>
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
+                                <Clock className="w-3 h-3 text-gray-400" strokeWidth={1.5} />
+                                {formatLocalTime(appt.startTime, "dd MMM yyyy, HH:mm")}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex flex-col items-end gap-3 justify-between">
-                        <Badge className={`${getStatusBadgeStyle(appt.status)} border rounded-none px-3 py-1 shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]`}>
-                          <span className="flex items-center gap-2">{getStatusIcon(appt.status)} {getStatusText(appt.status)}</span>
-                        </Badge>
-
-                        <div className="flex flex-wrap justify-end gap-2 mt-auto pt-4">
+                        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0 justify-end">
                           {["SCHEDULED", "WAITING_ROOM", "PENDING_PAYMENT"].includes(currentStatus) && (
-                            <Button size="sm" variant="outline" onClick={() => handleOpenCancelModal(appt)} className="border-2 border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
-                              {t('actions.cancel')}
-                            </Button>
+                            <button onClick={() => handleOpenCancelModal(appt)} className="h-10 px-4 border border-black/20 dark:border-white/20 bg-transparent text-gray-500 hover:text-red-500 hover:bg-red-50 hover:border-red-500/30 dark:hover:bg-red-900/10 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none flex-1 md:flex-none justify-center">
+                              <XCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.cancel', { defaultValue: 'ANULAR' })}
+                            </button>
                           )}
 
                           {currentStatus === "SCHEDULED" && (
-                            <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
-                              <UserCheck className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.arrived')}
-                            </Button>
+                            <button onClick={() => handleUpdateStatus(appt.id, "WAITING_ROOM")} className="h-10 px-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none flex-1 md:flex-none justify-center">
+                              <UserCheck className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.arrived', { defaultValue: 'LLEGÓ' })}
+                            </button>
                           )}
 
                           {["SCHEDULED", "WAITING_ROOM"].includes(currentStatus) && (
-                            <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors animate-pulse">
-                              <PlayCircle className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.start')}
-                            </Button>
+                            <button onClick={() => handleUpdateStatus(appt.id, "IN_PROGRESS")} className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border-0 rounded-none flex-1 md:flex-none justify-center animate-pulse">
+                              <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.start', { defaultValue: 'INICIAR' })}
+                            </button>
                           )}
 
                           {currentStatus === "IN_PROGRESS" && (
-                            <Button size="sm" onClick={() => handleOpenCompletionModal(appt)} className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-2 border-black dark:border-white rounded-none h-10 px-4 text-[10px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] transition-colors">
-                              <Check className="w-4 h-4 mr-2" strokeWidth={2} /> {t('actions.finish')}
-                            </Button>
+                            <button onClick={() => handleOpenCompletionModal(appt)} className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border-0 rounded-none flex-1 md:flex-none justify-center">
+                              <Check className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('actions.finish', { defaultValue: 'FINALIZAR' })}
+                            </button>
                           )}
                         </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="text-center py-20 border-2 border-dashed border-black dark:border-white rounded-none bg-white dark:bg-[#0a0a0a]">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500">
-                  {t('no_appointments_filter')}
-                </p>
-              </div>
-            )}
-          </AnimatePresence>
-        </TabsContent>
-
-        {/* VISTA KANBAN */}
-        {/* ========================================== */}
-        {/* VISTA KANBAN (DRAG & DROP GLOBAL) */}
-        {/* ========================================== */}
-        <TabsContent value="kanban" className="m-0 overflow-x-auto pb-4">
-          <div className="flex gap-6 min-w-[1000px] items-start pt-2">
-            {[
-              { id: "SCHEDULED", title: t('kanban_columns.scheduled') },
-              { id: "WAITING_ROOM", title: t('kanban_columns.waiting_room') },
-              { id: "IN_PROGRESS", title: t('kanban_columns.in_progress') },
-              { id: "COMPLETED", title: t('kanban_columns.completed') }
-            ].map(column => (
-              <div 
-                key={column.id}
-                onDrop={(e) => handleDrop(e, column.id)}
-                onDragOver={handleDragOver}
-                className="flex-1 min-w-[280px] bg-gray-50 dark:bg-[#111] rounded-none border-2 border-black dark:border-white flex flex-col h-[700px] shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]"
-              >
-                {/* Cabecera de la Columna */}
-                <div className={`p-4 border-b-2 border-black dark:border-white bg-white dark:bg-[#0a0a0a]`}>
-                  <h3 className={`font-bold text-[10px] uppercase tracking-widest flex justify-between items-center text-black dark:text-white`}>
-                    {column.title}
-                    <Badge variant="secondary" className="bg-black text-white dark:bg-white dark:text-black rounded-none shadow-none border-0 text-[10px] px-2 py-0.5">
-                      {filteredAppointments.filter(a => normalizeStatus(a.status) === column.id).length}
-                    </Badge>
-                  </h3>
+                      </motion.div>
+                    );
+                  })}
                 </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-[#0a0a0a]">
+                  <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
+                    <Calendar className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs leading-relaxed">
+                    {t('no_appointments_filter', { defaultValue: 'CERO REGISTROS ENCONTRADOS BAJO LOS FILTROS ACTUALES.' })}
+                  </p>
+                </div>
+              )}
+            </AnimatePresence>
+          </TabsContent>
 
-                {/* Zona de Arrastre / Contenido */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                  {filteredAppointments
-                    .filter(appt => normalizeStatus(appt.status) === column.id)
-                    .map(appt => (
-                      
-                      // 🚀 AQUI USAMOS EL NUEVO COMPONENTE
-                      <KanbanCard 
-                        key={appt.id}
-                        appt={appt}
-                        columnId={column.id}
-                        onDragStart={handleDragStart}
-                        onOpenCompletionModal={handleOpenCompletionModal}
-                      />
+          {/* VISTA KANBAN */}
+          <TabsContent value="kanban" className="m-0 p-0 border-none outline-none overflow-x-auto bg-gray-50 dark:bg-[#050505] custom-scrollbar pb-6">
+            <div className="flex gap-0 min-w-[1200px] h-[70vh] border-b border-black/10 dark:border-white/10">
+              {[
+                { id: "SCHEDULED", title: t('kanban_columns.scheduled', { defaultValue: 'PROGRAMADAS' }) },
+                { id: "WAITING_ROOM", title: t('kanban_columns.waiting_room', { defaultValue: 'ESPERANDO' }) },
+                { id: "IN_PROGRESS", title: t('kanban_columns.in_progress', { defaultValue: 'ACTIVOS' }) },
+                { id: "COMPLETED", title: t('kanban_columns.completed', { defaultValue: 'FINALIZADOS' }) }
+              ].map((column, colIdx) => (
+                <div 
+                  key={column.id}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                  onDragOver={handleDragOver}
+                  className={cn(
+                    "flex-1 min-w-[300px] flex flex-col bg-white dark:bg-[#0a0a0a]",
+                    colIdx !== 3 && "border-r border-black/10 dark:border-white/10"
+                  )}
+                >
+                  <div className="p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
+                    <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                      {column.title}
+                    </h3>
+                    <span className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-2 py-0.5 text-[8px] font-bold text-black dark:text-white">
+                      {filteredAppointments.filter(a => normalizeStatus(a.status) === column.id).length}
+                    </span>
+                  </div>
 
-                    ))}
-                  
-                  {/* Mensaje vacío si no hay tarjetas */}
-                  {filteredAppointments.filter(appt => normalizeStatus(appt.status) === column.id).length === 0 && (
-                    <div className="h-full flex items-center justify-center">
-                      <div className="border-2 border-dashed border-black dark:border-white p-4 w-full text-center">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500">
-                          {t('drag_here')}
+                  <div className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-4 bg-gray-50/50 dark:bg-[#050505]/50">
+                    {filteredAppointments
+                      .filter(appt => normalizeStatus(appt.status) === column.id)
+                      .map(appt => (
+                        /* Asumiendo que KanbanCard puede recibir className o se adaptará, 
+                           lo renderizamos. Si KanbanCard usa estilos propios que rompen el diseño, 
+                           debes aplicar las mismas reglas Blueprint dentro de él. */
+                        <KanbanCard 
+                          key={appt.id}
+                          appt={appt}
+                          columnId={column.id}
+                          onDragStart={handleDragStart}
+                          onOpenCompletionModal={handleOpenCompletionModal}
+                        />
+                      ))}
+                    
+                    {filteredAppointments.filter(appt => normalizeStatus(appt.status) === column.id).length === 0 && (
+                      <div className="h-full flex items-center justify-center p-8 text-center border border-dashed border-black/20 dark:border-white/20 bg-transparent">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                          {t('drag_here', { defaultValue: 'ZONA DE ARRASTRE' })}
                         </span>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
+              ))}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="calendar" className="m-0 h-[600px] border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] p-4 bg-white dark:bg-[#0a0a0a]">
-          <CalendarView />
-        </TabsContent>
-      </Tabs>
+          {/* VISTA CALENDARIO */}
+          <TabsContent value="calendar" className="m-0 p-0 border-none outline-none bg-white dark:bg-[#0a0a0a] h-[70vh]">
+            <CalendarView />
+          </TabsContent>
+
+        </Tabs>
+      </div>
 
       {/* Modals */}
       <CompletionModal isOpen={isCompleteModalOpen} onClose={() => setIsCompleteModalOpen(false)} appointment={selectedAppointment} onComplete={() => { refetch(); setIsCompleteModalOpen(false); }} />
-      <ConfirmationModal isOpen={cancelModalState.isOpen} onClose={() => setCancelModalState({ isOpen: false, appointment: null })} onConfirm={handleConfirmCancel} title="Cancelar Cita" message="¿Estás seguro de cancelar esta cita?" isLoading={isCanceling} variant="destructive" />
+      <ConfirmationModal isOpen={cancelModalState.isOpen} onClose={() => setCancelModalState({ isOpen: false, appointment: null })} onConfirm={handleConfirmCancel} title="ANULAR CITA" message="ESTA ACCIÓN CANCELARÁ EL REGISTRO DE FORMA IRREVERSIBLE." isLoading={isCanceling} variant="destructive" />
       <NewAppointmentModal isOpen={isNewAppointmentModalOpen} onClose={() => setIsNewAppointmentModalOpen(false)} onCreated={refetch} />
     </div>
   );

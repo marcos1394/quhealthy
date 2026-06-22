@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { Timer, Activity, PlayCircle, Video, User, Clock, Check } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
 import { ProviderAppointment } from "@/types/appointments";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 // =====================================================================
 // ⏱️ 1. COMPONENTE INTERNO: Cronómetro en vivo con Semáforo
@@ -19,13 +19,11 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
   useEffect(() => {
    const calculate = () => {
       try {
-        // 🚀 FIX: Limpiamos los microsegundos de Java (.603643) pero CONSERVAMOS la Z (UTC)
         const cleanTime = startTime.replace(/\.\d+/, '');
         
         const start = new Date(cleanTime).getTime();
         const now = new Date().getTime();
         
-        // Si por alguna razón la fecha sigue siendo inválida, abortamos
         if (isNaN(start)) {
           setElapsed("00:00");
           setElapsedMinutes(0);
@@ -52,30 +50,29 @@ const LiveTimer = ({ startTime, type }: { startTime: string, type: 'WAITING' | '
     };
     
     calculate();
-    // 🚀 FIX: Actualizamos CADA SEGUNDO para dar la percepción de tiempo real
     const interval = setInterval(calculate, 1000);
     return () => clearInterval(interval);
   }, [startTime]);
 
-  let colorClass = "text-black bg-white dark:bg-[#0a0a0a] dark:text-white border-black dark:border-white";
-  let icon = <Timer className="w-3 h-3" strokeWidth={2} />;
+  let colorClass = "text-gray-500 bg-gray-50 dark:bg-[#050505] border-black/10 dark:border-white/10";
+  let icon = <Timer className="w-3 h-3" strokeWidth={1.5} />;
 
   if (type === 'WAITING') {
     if (elapsedMinutes < 15) {
-      colorClass = "text-black bg-white dark:bg-[#0a0a0a] dark:text-white border-black dark:border-white";
+      colorClass = "text-black dark:text-white bg-gray-50 dark:bg-[#050505] border-black/20 dark:border-white/20";
     } else if (elapsedMinutes < 30) {
       colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
     } else {
       colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white animate-pulse";
-      icon = <Activity className="w-3 h-3" strokeWidth={2} />;
+      icon = <Activity className="w-3 h-3" strokeWidth={1.5} />;
     }
   } else if (type === 'CONSULTATION') {
     colorClass = "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
-    icon = <PlayCircle className="w-3 h-3 animate-spin-slow" strokeWidth={2} />;
+    icon = <PlayCircle className="w-3 h-3 animate-spin-slow" strokeWidth={1.5} />;
   }
 
   return (
-    <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-none flex items-center gap-1.5 border ${colorClass}`}>
+    <span className={cn("text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-none flex items-center gap-1.5 border transition-colors", colorClass)}>
       {icon}
       {elapsed}
     </span>
@@ -100,7 +97,6 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 }) => {
   const t = useTranslations('DashboardAppointments');
 
-  // Función para formatear la hora localmente
   const formatLocalTime = (dateString: string, formatStr: string) => {
     try {
       return format(new Date(dateString), formatStr, { locale: es });
@@ -109,7 +105,6 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     }
   };
 
-  // Función para obtener diferencia en minutos
   const getDiffMinutes = (startStr?: string, endStr?: string) => {
     if (!startStr || !endStr) return 0;
     try {
@@ -125,78 +120,83 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     }
   };
 
+  const isVideoCall = appt.service?.serviceDeliveryType === 'video_call';
+
   return (
     <div
       draggable
       onDragStart={(e) => onDragStart(e, appt.id)}
-      className="bg-white dark:bg-[#0a0a0a] p-3 rounded-none border border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] cursor-grab active:cursor-grabbing hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] transition-all relative overflow-hidden group mb-3"
+      className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-none border border-black/20 dark:border-white/20 cursor-grab active:cursor-grabbing hover:border-black dark:hover:border-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors mb-3"
     >
-      {/* Borde izquierdo decorativo para citas Online */}
-      {appt.service?.serviceDeliveryType === 'video_call' && (
-        <div className="absolute left-0 top-0 bottom-0 w-2 bg-black dark:bg-white border-r border-black dark:border-white"></div>
-      )}
-
-      <div className={`flex justify-between items-start mb-2 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
-        <p className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white truncate pr-2 mt-0.5">
-          {appt.consumer?.name || t('card.patient')}
-        </p>
-        
-        {/* 🎥 Indicador de Modalidad */}
-        {appt.service?.serviceDeliveryType === 'video_call' ? (
-           <div className="flex shrink-0 items-center justify-center border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black w-6 h-6 tooltip" title={t('card.online')}>
-             <Video className="w-3.5 h-3.5" strokeWidth={2} />
-           </div>
-        ) : (
-           <div className="flex shrink-0 items-center justify-center border border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white w-6 h-6 tooltip" title={t('card.in_person')}>
-             <User className="w-3.5 h-3.5" strokeWidth={2} />
-           </div>
-        )}
+      
+      {/* Header del Ticket (Modalidad) */}
+      <div className={cn(
+        "flex items-center justify-between p-3 border-b border-black/10 dark:border-white/10 shrink-0",
+        isVideoCall ? "bg-black text-white dark:bg-white dark:text-black" : "bg-gray-50 dark:bg-[#050505] text-gray-500"
+      )}>
+        <span className="text-[9px] font-bold uppercase tracking-widest">
+          {isVideoCall ? t('card.online', { defaultValue: 'CONSULTA REMOTA (VÍDEO)' }) : t('card.in_person', { defaultValue: 'ATENCIÓN PRESENCIAL' })}
+        </span>
+        {isVideoCall ? <Video className="w-3.5 h-3.5" strokeWidth={1.5} /> : <User className="w-3.5 h-3.5" strokeWidth={1.5} />}
       </div>
 
-      <div className={`flex flex-col gap-2 mb-2 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 truncate max-w-full">
-          {appt.service?.name || t('medical_appointment')}
-        </p>
+      {/* Cuerpo del Ticket */}
+      <div className="p-4 flex flex-col gap-3">
+        
+        {/* Paciente y Servicio */}
+        <div className="flex flex-col gap-1">
+          <p className="font-semibold text-xs uppercase tracking-widest text-black dark:text-white truncate">
+            {appt.consumer?.name || t('card.patient', { defaultValue: 'PACIENTE DESCONOCIDO' })}
+          </p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 truncate">
+            {appt.service?.name || t('medical_appointment', { defaultValue: 'CONSULTA MÉDICA' })}
+          </p>
+        </div>
 
-        {/* ⏱️ Lógica de tiempos y cronómetros */}
-        <div className="flex items-center mt-1">
+        {/* Tiempos y Cronómetros */}
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          
+          {/* Hora de inicio original (siempre visible como referencia, a menos que esté completada) */}
+          {columnId !== "COMPLETED" && (
+            <span className="text-[9px] font-bold uppercase tracking-widest border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] text-gray-500 px-2 py-1 flex items-center gap-1.5 shrink-0">
+              <Clock className="w-3 h-3" strokeWidth={1.5} />
+              {formatLocalTime(appt.startTime, "HH:mm")}
+            </span>
+          )}
+
+          {/* Lógica de Estados Dinámicos */}
           {columnId === "WAITING_ROOM" && appt.arrivedAt ? (
             <LiveTimer startTime={appt.arrivedAt} type="WAITING" />
           ) : columnId === "IN_PROGRESS" && appt.startedAt ? (
             <LiveTimer startTime={appt.startedAt} type="CONSULTATION" />
-          ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) ? (
+          ) : columnId === "COMPLETED" && (appt.arrivedAt || appt.startedAt) && (
             <div className="flex gap-2">
               {appt.arrivedAt && appt.startedAt && (
-                <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white px-2 py-1 flex items-center gap-1.5" title="Tiempo de espera">
-                  <Timer className="w-3 h-3 text-black dark:text-white" strokeWidth={2} />
-                  {getDiffMinutes(appt.arrivedAt, appt.startedAt)}m
+                <span className="text-[9px] font-bold uppercase tracking-widest border border-black/20 dark:border-white/20 text-black dark:text-white px-2 py-1 flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505]" title="TIEMPO DE ESPERA AUDITADO">
+                  <Timer className="w-3 h-3" strokeWidth={1.5} />
+                  {getDiffMinutes(appt.arrivedAt, appt.startedAt)}M
                 </span>
               )}
               {appt.startedAt && appt.completedAt && (
-                <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1.5" title="Tiempo de consulta">
-                  <PlayCircle className="w-3 h-3" strokeWidth={2} />
-                  {getDiffMinutes(appt.startedAt, appt.completedAt)}m
+                <span className="text-[9px] font-bold uppercase tracking-widest border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1.5" title="TIEMPO DE ATENCIÓN EFECTIVO">
+                  <Check className="w-3 h-3" strokeWidth={1.5} />
+                  {getDiffMinutes(appt.startedAt, appt.completedAt)}M
                 </span>
               )}
             </div>
-          ) : (
-            <span className="text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white bg-white dark:bg-[#0a0a0a] px-2 py-1 flex items-center gap-1.5">
-              <Clock className="w-3 h-3" strokeWidth={2} />
-              {formatLocalTime(appt.startTime, "HH:mm")}
-            </span>
           )}
         </div>
       </div>
       
-      {/* Botón de finalizar consulta */}
-     {/* Botón de Iniciar/Abrir Monitor Clínico */}
+      {/* Botón de Comandos (Solo visible en Progreso) */}
       {columnId === "IN_PROGRESS" && (
-        <div className={`mt-3 ${appt.service?.serviceDeliveryType === 'video_call' ? 'pl-3' : ''}`}>
+        <div className="border-t border-black/10 dark:border-white/10 shrink-0">
           <Link href={`/provider/consultation/${appt.id}`} passHref className="w-full block">
             <button 
-              className="w-full h-10 text-[10px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff] flex items-center justify-center gap-2 border border-black dark:border-white transition-colors"
+              className="w-full h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none"
             >
-              <PlayCircle className="w-4 h-4" strokeWidth={2} /> {t('actions.open_monitor')}
+              <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+              {t('actions.open_monitor', { defaultValue: 'APERTURAR CONSOLA CLÍNICA' })}
             </button>
           </Link>
         </div>
