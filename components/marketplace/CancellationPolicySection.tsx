@@ -92,7 +92,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
                   key={template.id}
                   onClick={() => onChange(template.text)}
                   className={cn(
-                    "flex flex-col items-start gap-4 p-6 border-b border-r text-left transition-colors relative group",
+                    "flex flex-col items-start gap-4 p-6 border-b border-r text-left transition-all duration-300 relative group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:z-10 cursor-pointer group-hover:text-white dark:group-hover:text-black",
                     isSelected ? template.selectedClass : template.unselectedClass
                   )}
                 >
@@ -101,7 +101,7 @@ export function CancellationPolicySection({ policyText, onChange }: Cancellation
                     <span className="text-[10px] font-bold uppercase tracking-widest">{template.name}</span>
                   </div>
                   <p className={cn(
-                    "text-xs font-light leading-relaxed",
+                    "text-xs font-light leading-relaxed transition-colors group-hover:text-gray-300 dark:group-hover:text-gray-600",
                     isSelected ? "text-gray-700 dark:text-gray-300" : "text-gray-500"
                   )}>
                     {template.text}

@@ -4,8 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Video, MapPin, Info, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import { ServiceDeliveryType } from "@/types/catalog"; // Ajusta el path si es necesario
 
 // Plantillas predefinidas (Puedes agregar más en el futuro)
@@ -29,65 +29,67 @@ export function ServiceTemplates({ onApply, onClose }: ServiceTemplatesProps) {
       initial={{ opacity: 0, height: 0, marginBottom: 0 }}
       animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
       exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-      className="bg-medical-50 dark:bg-medical-500/5 border border-medical-200 dark:border-medical-500/20 rounded-3xl p-6 md:p-8 overflow-hidden shadow-inner relative"
+      className="flex flex-col border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] rounded-none overflow-hidden"
     >
-      {/* Botón de Cerrar */}
-      <button 
-        onClick={onClose}
-        className="absolute top-4 right-4 p-2 text-medical-400 hover:text-medical-600 dark:hover:text-medical-300 hover:bg-medical-100 dark:hover:bg-medical-500/20 rounded-full transition-colors"
-      >
-        <X className="w-5 h-5" />
-      </button>
-
       {/* Cabecera del Panel */}
-      <div className="flex items-start gap-4 mb-6 pr-8">
-        <div className="p-2.5 bg-medical-100 dark:bg-medical-500/20 rounded-xl shadow-sm border border-medical-200 dark:border-medical-500/30">
-          <Info className="w-6 h-6 text-medical-600 dark:text-medical-400 flex-shrink-0" />
+      <div className="flex items-start md:items-center justify-between p-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
+              {t('quick_templates', { defaultValue: 'PLANTILLAS BASE' })}
+            </p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              {t('quick_templates_desc', { defaultValue: 'CARGUE UNA CONFIGURACIÓN PREESTABLECIDA PARA ACELERAR EL REGISTRO.' })}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-lg font-bold text-medical-900 dark:text-medical-100 mb-1 tracking-tight">
-            {t('quick_templates', { defaultValue: 'Plantillas Rápidas' })}
-          </p>
-          <p className="text-sm text-medical-700 dark:text-medical-300/80 leading-relaxed">
-            {t('quick_templates_desc', { defaultValue: 'Selecciona una plantilla para crear un servicio en segundos. Podrás editar los detalles después.' })}
-          </p>
-        </div>
+        {/* Botón de Cerrar */}
+        <button 
+          onClick={onClose}
+          className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#111] transition-colors shrink-0 border border-transparent hover:border-black/20 dark:hover:border-white/20"
+        >
+          <X className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+        </button>
       </div>
       
-      {/* Grid de Plantillas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Grid de Plantillas (Matriz de Comandos) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10">
         {serviceTemplates.map((template, index) => (
-          <motion.button
+          <button
             key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
             onClick={() => onApply(template)}
-            className="flex flex-col items-start gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-medical-400 dark:hover:border-medical-500 hover:shadow-lg hover:shadow-medical-500/10 transition-all text-left group"
+            className="flex flex-col text-left border-r border-b lg:border-b-0 border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group p-0 rounded-none last:border-r-0 sm:nth-child(even):border-r-0 lg:nth-child(even):border-r"
           >
-            <div className="flex items-center gap-3">
-              {template.type === 'video_call' ? (
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20 transition-colors">
-                  <Video className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-5 flex-1 w-full">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:bg-transparent transition-colors">
+                  {template.type === 'video_call' ? (
+                    <Video className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  ) : (
+                    <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  )}
                 </div>
-              ) : (
-                <div className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-xl group-hover:bg-medical-100 dark:group-hover:bg-medical-500/20 transition-colors">
-                  <MapPin className="w-4 h-4 text-medical-600 dark:text-medical-400" />
-                </div>
-              )}
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{template.name}</p>
+                <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border border-black/10 dark:border-white/10 group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+                  {template.type === 'video_call' ? 'REMOTO' : 'LOCAL'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold uppercase tracking-widest leading-tight mb-2">
+                {template.name}
+              </p>
             </div>
             
-            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 w-full mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
-              <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold border-none">
+            <div className="w-full p-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+              <span className="text-[10px] font-mono font-bold tracking-widest">
                 ${template.price}
-              </Badge>
-              <span>•</span>
-              <span className="font-semibold">{template.duration} min</span>
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-widest opacity-70">
+                {template.duration} MIN
+              </span>
             </div>
-          </motion.button>
+          </button>
         ))}
       </div>
     </motion.div>

@@ -12,22 +12,15 @@ import {
   Copy,
   Save,
   Trash2,
-  Info,
   Camera,
   Globe
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { UI_Service, CancellationPolicy } from "@/types/catalog"; // Ajusta el path de tus tipos
+import { UI_Service, CancellationPolicy } from "@/types/catalog";
 
 interface ServiceItemCardProps {
   service: UI_Service;
@@ -55,8 +48,8 @@ export function ServiceItemCard({
   const isValid = service.name && service.category && service.price > 0 && service.duration > 0;
   
   const getPriceWarning = (price: number) => {
-    if (price < 200) return { level: 'low', message: t('price_warning_low', { defaultValue: 'Precio inusualmente bajo' }) };
-    if (price > 5000) return { level: 'high', message: t('price_warning_high', { defaultValue: 'Precio por encima del promedio' }) };
+    if (price < 200) return { level: 'low', message: t('price_warning_low', { defaultValue: 'PRECIO INUSUALMENTE BAJO' }) };
+    if (price > 5000) return { level: 'high', message: t('price_warning_high', { defaultValue: 'PRECIO SOBRE PROMEDIO' }) };
     return null;
   };
   
@@ -69,299 +62,302 @@ export function ServiceItemCard({
       exit={{ opacity: 0, height: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "group rounded-3xl border-2 transition-all duration-300 overflow-hidden shadow-sm",
+        "flex flex-col border border-black/20 dark:border-white/20 transition-colors rounded-none overflow-hidden",
         service.isNew || service.hasUnsavedChanges
-          ? "bg-medical-50/30 dark:bg-medical-500/5 border-medical-200 dark:border-medical-500/30" 
-          : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+          ? "bg-amber-50/10 dark:bg-amber-900/5 border-amber-500/50" 
+          : "bg-white dark:bg-[#0a0a0a]"
       )}
     >
-      <div className="p-6 md:p-8 space-y-8">
-        
-        {/* --- CABECERA DE LA TARJETA --- */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400 transition-colors">
-              <GripVertical className="w-5 h-5" />
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono text-slate-400 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-                #{index + 1}
-              </span>
-              
-              {(service.isNew || service.hasUnsavedChanges) && (
-                <Badge className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20 shadow-none font-semibold">
-                  <AlertCircle className="w-3 h-3 mr-1.5" />
-                  {t('unsaved_changes', { defaultValue: 'Sin guardar' })}
-                </Badge>
-              )}
-              {!isValid && (
-                <Badge className="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 shadow-none font-semibold">
-                  {t('incomplete', { defaultValue: 'Incompleto' })}
-                </Badge>
-              )}
-            </div>
+      {/* --- CABECERA DE LA TARJETA (BARRA DE CONTROL) --- */}
+      <div className="flex flex-wrap items-center justify-between p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+        <div className="flex items-center gap-4">
+          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+            <GripVertical className="w-5 h-5" strokeWidth={1.5} />
           </div>
-
-          {/* Acciones Rápidas */}
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-            {onDuplicate && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost"
-                      onClick={() => onDuplicate(service)}
-                      className="h-9 w-9 p-0 text-slate-400 hover:text-medical-600 dark:hover:text-medical-400 hover:bg-medical-50 dark:hover:bg-medical-500/10 rounded-xl"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('duplicate', { defaultValue: 'Duplicar' })}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[10px] font-mono font-bold bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 px-2 py-0.5 text-black dark:text-white">
+              S-{(index + 1).toString().padStart(3, '0')}
+            </span>
+            
+            {(service.isNew || service.hasUnsavedChanges) && (
+              <span className="border border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                <AlertCircle className="w-3 h-3" strokeWidth={1.5} />
+                {t('unsaved_changes', { defaultValue: 'SIN GUARDAR' })}
+              </span>
             )}
-
-            <Button 
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                if (confirm(t('delete_confirm', { defaultValue: '¿Seguro que deseas eliminar este servicio?' }))) {
-                  onDelete(service.id);
-                }
-              }}
-              className="h-9 w-9 p-0 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-
-            <Button 
-              size="sm"
-              onClick={() => onSave(service)}
-              disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
-              className="bg-medical-600 hover:bg-medical-700 text-white rounded-xl shadow-sm disabled:opacity-50 ml-2"
-            >
-              <Save className="w-4 h-4 mr-2" /> {t('save', { defaultValue: 'Guardar' })}
-            </Button>
+            {!isValid && (
+              <span className="border border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
+                {t('incomplete', { defaultValue: 'DATOS INCOMPLETOS' })}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* --- FORMULARIO PRINCIPAL --- */}
-        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-start">
+        {/* Acciones Rápidas */}
+        <div className="flex items-center gap-0 w-full sm:w-auto justify-end mt-4 sm:mt-0 border border-black/20 dark:border-white/20">
+          {onDuplicate && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={() => onDuplicate(service)}
+                    className="h-8 w-10 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                  >
+                    <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-none border-none">
+                  {t('duplicate', { defaultValue: 'DUPLICAR' })}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          <button 
+            onClick={() => {
+              if (confirm(t('delete_confirm', { defaultValue: '¿ANULAR REGISTRO PERMANENTEMENTE?' }))) {
+                onDelete(service.id);
+              }
+            }}
+            className="h-8 w-10 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+          </button>
+
+          <button 
+            onClick={() => onSave(service)}
+            disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
+            className="h-8 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 disabled:opacity-50 transition-colors"
+          >
+            <Save className="w-3 h-3" strokeWidth={1.5} /> {t('save', { defaultValue: 'CONFIRMAR' })}
+          </button>
+        </div>
+      </div>
+
+      {/* --- MATRIZ DEL FORMULARIO PRINCIPAL --- */}
+      <div className="flex flex-col md:flex-row">
+        
+        {/* Celda: Subida de Imagen */}
+        <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col items-center justify-center shrink-0">
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              "w-28 h-28 flex flex-col items-center justify-center overflow-hidden transition-colors cursor-pointer group relative rounded-none",
+              service.imageUrl 
+                ? "border border-black/20 dark:border-white/20 bg-black" 
+                : "border border-dashed border-black/30 dark:border-white/30 bg-gray-50 dark:bg-[#050505] hover:bg-black/5 dark:hover:bg-white/5"
+            )}
+          >
+            {service.imageUrl ? (
+              <>
+                <img src={service.imageUrl} alt={service.name} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="w-6 h-6 text-white" strokeWidth={1.5} />
+                </div>
+              </>
+            ) : (
+              <>
+                <Camera className="w-6 h-6 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors mb-2" strokeWidth={1.5} />
+                <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-black dark:group-hover:text-white">
+                  {t('photo', { defaultValue: 'FOTOGRAFÍA' })}
+                </span>
+              </>
+            )}
+          </div>
+          <input 
+            type="file" 
+            accept="image/*"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file && onImageUpload) {
+                onImageUpload(service.id, file);
+              }
+              e.target.value = '';
+            }}
+          />
+        </div>
+
+        {/* Celda: Inputs Centrales */}
+        <div className="flex-1 flex flex-col">
           
-          {/* Subida de Imagen (Rediseño Cinemático) */}
-          <div className="flex flex-col items-center gap-3">
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className={cn(
-                "w-28 h-28 rounded-2xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer group/img relative",
-                service.imageUrl 
-                  ? "border-transparent shadow-md" 
-                  : "border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-medical-400 dark:hover:border-medical-500 hover:bg-medical-50 dark:hover:bg-medical-500/5"
-              )}
-            >
-              {service.imageUrl ? (
-                <>
-                  <img src={service.imageUrl} alt={service.name} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-white" />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Camera className="w-6 h-6 text-slate-400 group-hover/img:text-medical-500 transition-colors mb-2" />
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider group-hover/img:text-medical-600">
-                    {t('photo', { defaultValue: 'Foto' })}
-                  </span>
-                </>
-              )}
+          <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
+            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                {t('name_label', { defaultValue: 'NOMBRE TÉCNICO' })} <span className="text-red-500">*</span>
+              </label>
+              <input 
+                value={service.name}
+                onChange={(e) => onUpdate(service.id, { name: e.target.value, hasUnsavedChanges: true })}
+                placeholder="EJ. CONSULTA DE VALORACIÓN"
+                className={cn(
+                  "w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400",
+                  !service.name && "border-red-500/50"
+                )}
+              />
             </div>
-            <input 
-              type="file" 
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file && onImageUpload) {
-                  onImageUpload(service.id, file);
-                }
-                e.target.value = '';
-              }}
-            />
+
+            <div className="flex-1 p-6">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                {t('category_label', { defaultValue: 'CLASIFICACIÓN' })} <span className="text-red-500">*</span>
+              </label>
+              <input 
+                value={service.category || ''}
+                onChange={(e) => onUpdate(service.id, { category: e.target.value, hasUnsavedChanges: true })}
+                placeholder="EJ. DERMATOLOGÍA"
+                className={cn(
+                  "w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400",
+                  !service.category && "border-red-500/50"
+                )}
+              />
+            </div>
           </div>
 
-          {/* Inputs Centrales */}
-          <div className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  {t('name_label', { defaultValue: 'Nombre del Servicio' })}
-                </Label>
-                <Input 
-                  value={service.name}
-                  onChange={(e) => onUpdate(service.id, { name: e.target.value, hasUnsavedChanges: true })}
-                  placeholder="Ej. Consulta de Valoración"
-                  className={cn(
-                    "rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-11",
-                    !service.name && "border-rose-300 focus:ring-rose-500/20"
-                  )}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  {t('category_label', { defaultValue: 'Especialidad / Categoría' })}
-                </Label>
-                <Input 
-                  value={service.category || ''}
-                  onChange={(e) => onUpdate(service.id, { category: e.target.value, hasUnsavedChanges: true })}
-                  placeholder="Ej. Dermatología"
-                  className={cn(
-                    "rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-11",
-                    !service.category && "border-rose-300 focus:ring-rose-500/20"
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5 relative">
-                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-                  {t('price_label', { defaultValue: 'Precio' })}
-                  {priceWarning && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <AlertCircle className={cn("w-3.5 h-3.5", priceWarning.level === 'low' ? "text-amber-500" : "text-blue-500")} />
-                        </TooltipTrigger>
-                        <TooltipContent><p>{priceWarning.message}</p></TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </Label>
-                <DollarSign className="absolute left-3 top-[30px] w-4 h-4 text-slate-400" />
-                <Input 
+          <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
+            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center justify-between">
+                <span>{t('price_label', { defaultValue: 'VALOR COMERCIAL' })} <span className="text-red-500">*</span></span>
+                {priceWarning && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <AlertCircle className={cn("w-3.5 h-3.5", priceWarning.level === 'low' ? "text-amber-500" : "text-blue-500")} strokeWidth={1.5} />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-none border-none">
+                        {priceWarning.message}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" strokeWidth={1.5} />
+                <input 
                   type="number" min="0" step="50"
                   value={service.price || ''}
                   onChange={(e) => onUpdate(service.id, { price: Number(e.target.value), hasUnsavedChanges: true })}
                   className={cn(
-                    "pl-9 rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-11 font-semibold",
-                    (!service.price || service.price <= 0) && "border-rose-300 focus:ring-rose-500/20"
+                    "w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
+                    (!service.price || service.price <= 0) && "border-red-500/50"
                   )}
                 />
               </div>
+            </div>
 
-              <div className="space-y-1.5 relative">
-                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  {t('duration_label', { defaultValue: 'Duración' })}
-                </Label>
-                <Clock className="absolute left-3 top-[30px] w-4 h-4 text-slate-400" />
-                <Input 
+            <div className="flex-1 p-6">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                {t('duration_label', { defaultValue: 'TIEMPO OPERATIVO' })} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" strokeWidth={1.5} />
+                <input 
                   type="number" min="5" step="5"
                   value={service.duration || ''}
                   onChange={(e) => onUpdate(service.id, { duration: Number(e.target.value), hasUnsavedChanges: true })}
                   className={cn(
-                    "pl-9 pr-14 rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-11 font-semibold",
-                    (!service.duration || service.duration <= 0) && "border-rose-300 focus:ring-rose-500/20"
+                    "w-full h-12 pl-10 pr-12 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
+                    (!service.duration || service.duration <= 0) && "border-red-500/50"
                   )}
                 />
-                <span className="absolute right-4 top-[30px] text-xs font-bold text-slate-400 uppercase">Min</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-500 uppercase tracking-widest pointer-events-none">MIN</span>
               </div>
             </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                {t('desc_label', { defaultValue: 'Descripción' })}
-              </Label>
-              <Textarea 
-                value={service.description}
-                onChange={(e) => onUpdate(service.id, { description: e.target.value.slice(0, 200), hasUnsavedChanges: true })}
-                placeholder={t('desc_placeholder', { defaultValue: '¿Qué incluye esta consulta?' })}
-                rows={2}
-                maxLength={200}
-                className="rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 resize-none text-sm"
-              />
-            </div>
+          <div className="p-6">
+            <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+              {t('desc_label', { defaultValue: 'ESPECIFICACIONES TÉCNICAS' })}
+            </label>
+            <textarea 
+              value={service.description}
+              onChange={(e) => onUpdate(service.id, { description: e.target.value.slice(0, 200), hasUnsavedChanges: true })}
+              placeholder={t('desc_placeholder', { defaultValue: 'DETALLES DE OPERACIÓN...' })}
+              rows={2}
+              maxLength={200}
+              className="w-full min-h-[60px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-y placeholder:text-gray-400"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* --- CONFIGURACIONES AVANZADAS (FOOTER MATRIZ) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+        
+        <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
+          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t('delivery_type', { defaultValue: 'MODALIDAD DE ENTREGA' })}
+          </label>
+          <div className="flex border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+            <button
+              onClick={() => onUpdate(service.id, { serviceDeliveryType: 'in_person', hasUnsavedChanges: true })}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-black/10 dark:border-white/10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                service.serviceDeliveryType === 'in_person' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]'
+              )}
+            >
+              <MapPin className="w-3 h-3" strokeWidth={1.5} /> LOC.
+            </button>
+            <button
+              onClick={() => onUpdate(service.id, { serviceDeliveryType: 'hybrid', hasUnsavedChanges: true })}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-black/10 dark:border-white/10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                service.serviceDeliveryType === 'hybrid' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]'
+              )}
+            >
+              <Globe className="w-3 h-3" strokeWidth={1.5} /> MIX
+            </button>
+            <button
+              onClick={() => onUpdate(service.id, { serviceDeliveryType: 'video_call', hasUnsavedChanges: true })}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 h-10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                service.serviceDeliveryType === 'video_call' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]'
+              )}
+            >
+              <Video className="w-3 h-3" strokeWidth={1.5} /> REM.
+            </button>
           </div>
         </div>
 
-        <Separator className="bg-slate-100 dark:bg-slate-800" />
+        <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
+          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t('cancellation', { defaultValue: 'REGLAS DE ANULACIÓN' })}
+          </label>
+          <Select 
+            value={service.cancellationPolicy} 
+            onValueChange={(val) => onUpdate(service.id, { cancellationPolicy: val as CancellationPolicy, hasUnsavedChanges: true })}
+          >
+            <SelectTrigger className="w-full h-10 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[9px] font-bold text-black dark:text-white uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white rounded-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
+              <SelectItem value="flexible" className="text-[9px] font-bold uppercase tracking-widest rounded-none">FLEXIBLE</SelectItem>
+              <SelectItem value="moderate" className="text-[9px] font-bold uppercase tracking-widest rounded-none">MODERADA</SelectItem>
+              <SelectItem value="strict" className="text-[9px] font-bold uppercase tracking-widest rounded-none">ESTRICTA</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* --- CONFIGURACIONES AVANZADAS --- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-50/50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/50">
-          
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {t('delivery_type', { defaultValue: 'Modalidad' })}
-            </Label>
-            <div className="flex bg-white dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <button
-                onClick={() => onUpdate(service.id, { serviceDeliveryType: 'in_person', hasUnsavedChanges: true })}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all",
-                  service.serviceDeliveryType === 'in_person' ? 'bg-medical-100 dark:bg-medical-500/20 text-medical-700 dark:text-medical-400' : 'text-slate-500 hover:text-slate-700'
-                )}
-              >
-                <MapPin className="w-3.5 h-3.5" /> Presencial
-              </button>
-              <button
-                onClick={() => onUpdate(service.id, { serviceDeliveryType: 'hybrid', hasUnsavedChanges: true })}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all",
-                  service.serviceDeliveryType === 'hybrid' ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700'
-                )}
-              >
-                <Globe className="w-3.5 h-3.5" /> Ambas
-              </button>
-              <button
-                onClick={() => onUpdate(service.id, { serviceDeliveryType: 'video_call', hasUnsavedChanges: true })}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all",
-                  service.serviceDeliveryType === 'video_call' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'text-slate-500 hover:text-slate-700'
-                )}
-              >
-                <Video className="w-3.5 h-3.5" /> Online
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {t('cancellation', { defaultValue: 'Política de Cancelación' })}
-            </Label>
-            <Select 
-              value={service.cancellationPolicy} 
-              onValueChange={(val) => onUpdate(service.id, { cancellationPolicy: val as CancellationPolicy, hasUnsavedChanges: true })}
-            >
-              <SelectTrigger className="rounded-xl bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-[42px] text-sm font-medium shadow-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="flexible">Flexible</SelectItem>
-                <SelectItem value="moderate">Moderada</SelectItem>
-                <SelectItem value="strict">Estricta</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2 relative">
-            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {t('follow_up', { defaultValue: 'Seguimiento Gratuito' })}
-            </Label>
-            <Input 
+        <div className="p-6 flex flex-col justify-center relative">
+          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t('follow_up', { defaultValue: 'VENTANA DE SEGUIMIENTO' })}
+          </label>
+          <div className="relative">
+            <input 
               type="number"
               placeholder="0"
               value={service.followUpPeriodDays || ''}
               onChange={(e) => onUpdate(service.id, { followUpPeriodDays: parseInt(e.target.value) || undefined, hasUnsavedChanges: true })}
-              className="rounded-xl bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-[42px] pr-12 shadow-sm"
+              className="w-full h-10 pl-4 pr-12 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-xs font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors"
             />
-            <span className="absolute right-3 top-[34px] text-xs font-bold text-slate-400 uppercase">Días</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none">DÍAS</span>
           </div>
-
         </div>
 
       </div>
+
     </motion.div>
   );
 }
