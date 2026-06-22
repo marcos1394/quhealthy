@@ -140,7 +140,7 @@ export default function ProviderHistoryPage() {
             { label: t("status_cancelled", { defaultValue: 'ANULADOS' }), value: cancelledCount, icon: XCircle, color: "text-red-600 dark:text-red-400" },
             { label: t("status_rescheduled", { defaultValue: 'REAGENDADOS' }), value: rescheduledCount, icon: RefreshCw, color: "text-amber-600 dark:text-amber-400" },
           ].map((stat, i) => (
-            <div key={i} className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] transition-colors hover:bg-gray-50 dark:hover:bg-[#111]">
+            <div key={i} className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] transition-all duration-300 hover:bg-gray-50 dark:hover:bg-[#111] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10 group">
               <div className="flex items-center gap-3 mb-2">
                 <stat.icon className={cn("w-4 h-4", stat.color)} strokeWidth={1.5} />
                 <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
