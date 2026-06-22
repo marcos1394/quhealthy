@@ -6,6 +6,7 @@ import { Input } from './input';
 import { Label } from './label';
 import { Camera, Keyboard, X } from 'lucide-react';
 import { Button } from './button';
+import { cn } from "@/lib/utils";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -85,53 +86,55 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
     }
   };
 
-  return (
-    <div className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-white dark:bg-slate-900 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-slate-800 dark:text-slate-200">Escanear Producto</h3>
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+    return (
+    <div className="w-full flex flex-col bg-white dark:bg-[#0a0a0a]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h3 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white">METODOLOGÍA DE ESCANEO</h3>
+        <div className="flex items-center gap-0 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
           <button
             type="button"
-            className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${
+            className={cn(
+              "flex-1 px-4 py-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors min-w-[120px]",
               mode === 'physical'
-                ? 'bg-white dark:bg-slate-700 text-medical-600 dark:text-medical-400 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-            }`}
+                ? "bg-black text-white dark:bg-white dark:text-black"
+                : "text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+            )}
             onClick={() => setMode('physical')}
           >
-            <Keyboard className="w-4 h-4" /> Lector Físico
+            <Keyboard className="w-3.5 h-3.5" strokeWidth={1.5} /> FÍSICO
           </button>
           <button
             type="button"
-            className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${
+            className={cn(
+              "flex-1 px-4 py-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors min-w-[120px] border-l border-black/20 dark:border-white/20",
               mode === 'camera'
-                ? 'bg-white dark:bg-slate-700 text-medical-600 dark:text-medical-400 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
-            }`}
+                ? "bg-black text-white dark:bg-white dark:text-black"
+                : "text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+            )}
             onClick={() => setMode('camera')}
           >
-            <Camera className="w-4 h-4" /> Cámara
+            <Camera className="w-3.5 h-3.5" strokeWidth={1.5} /> CÁMARA
           </button>
         </div>
       </div>
 
       {mode === 'physical' ? (
-        <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-800 dark:text-blue-300 rounded-lg p-4 text-center">
-            <p className="text-sm">El lector físico está activo. Puedes escanear en cualquier momento.</p>
+        <div className="flex flex-col gap-4">
+          <div className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 p-6 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">LECTOR FÍSICO HABILITADO. ESCANEE EL CÓDIGO.</p>
           </div>
-          <form onSubmit={handleManualSubmit} className="flex gap-2">
-            <Input 
-              placeholder="O ingresa el código/SKU manualmente..."
+          <form onSubmit={handleManualSubmit} className="flex flex-col sm:flex-row gap-0 border border-black/20 dark:border-white/20">
+            <input 
+              placeholder="O INGRESE SKU / CÓDIGO..."
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value)}
-              className="flex-1 font-mono uppercase"
+              className="flex-1 h-12 px-4 bg-transparent border-0 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:ring-0 placeholder:text-gray-400 font-mono"
             />
-            <Button type="submit" variant="secondary">Buscar</Button>
+            <button type="submit" className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">BUSCAR</button>
           </form>
         </div>
       ) : (
-        <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+        <div className="w-full border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
           <div id="qr-reader" className="w-full" />
         </div>
       )}

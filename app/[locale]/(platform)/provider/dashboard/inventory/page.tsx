@@ -123,7 +123,7 @@ export default function InventoryPage() {
             <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none">
               <div className="p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center gap-2">
                 <ScanLine className="w-3.5 h-3.5 text-gray-500" strokeWidth={1.5} />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">ÓPTICA / ESCÁNER</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">ÓPTICA / ESCÁNER</span>
               </div>
               <div className="p-6 flex flex-col items-center justify-center min-h-[200px] bg-black/5 dark:bg-white/5 relative">
                 {/* Asumiendo que BarcodeScanner renderiza un video. Aseguramos su contenedor. */}
@@ -137,7 +137,7 @@ export default function InventoryPage() {
             <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none">
               <div className="p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center gap-2">
                 <Filter className="w-3.5 h-3.5 text-gray-500" strokeWidth={1.5} />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">PARÁMETROS DE BÚSQUEDA</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">PARÁMETROS DE BÚSQUEDA</span>
               </div>
               
               <div className="relative border-b border-black/10 dark:border-white/10">
@@ -214,23 +214,23 @@ export default function InventoryPage() {
                     const isLowStock = item.stockQuantity <= (item.stockAlertThreshold || 5);
                     
                     return (
-                      <div key={item.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-6 group">
+                      <div key={item.id} className="p-6 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-6 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                         
                         <div className="flex items-start sm:items-center gap-5 flex-1 min-w-0">
-                          <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
-                            {item.type === 'PRODUCT' ? <Pill className="w-5 h-5 text-gray-500" strokeWidth={1.5} /> : <ShieldCheck className="w-5 h-5 text-gray-500" strokeWidth={1.5} />}
+                          <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+                            {item.type === 'PRODUCT' ? <Pill className="w-5 h-5 text-gray-500 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} /> : <ShieldCheck className="w-5 h-5 text-gray-500 group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white truncate mb-2">
+                            <h4 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors truncate mb-2">
                               {item.name}
                             </h4>
                             <div className="flex flex-wrap items-center gap-3">
                               {item.sku && (
-                                <span className="border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+                                <span className="border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                                   SKU: {item.sku}
                                 </span>
                               )}
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
                                 {item.type === 'PRODUCT' ? 'PÚBLICO (VENTA)' : 'INTERNO (INSUMO)'}
                               </span>
                             </div>
@@ -239,7 +239,7 @@ export default function InventoryPage() {
 
                         <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0 w-full sm:w-auto">
                           <div className="text-left sm:text-right">
-                            <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">DISPONIBLE</p>
+                            <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">DISPONIBLE</p>
                             <span className={cn(
                               "inline-flex border px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-none",
                               isLowStock 
