@@ -8,6 +8,8 @@ import { Bell, Loader2, CheckCheck } from 'lucide-react';
 import axiosInstance from '@/lib/axios';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 interface Notification {
   id: number;
@@ -40,10 +42,29 @@ export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolea
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
+    
+    // Initial fetch just in case
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000); // Refresh every 60s
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+
+    // 🔥 Suscribirse a la señal de Firebase en tiempo real
+    const documentId = `${user.role}_${user.id}`;
+    const signalRef = doc(db, 'notificationSignals', documentId);
+    
+    const unsubscribe = onSnapshot(signalRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (typeof data.unreadCount === 'number') {
+          setUnreadCount(data.unreadCount);
+        }
+      }
+    }, (error) => {
+      console.warn('🔔 Firebase signals disabled or failed:', error);
+    });
+
+    // Cleanup: desuscribirse cuando el componente se desmonta
+    return () => unsubscribe();
+  }, [user, fetchUnreadCount]);
 
   // 📨 Load notifications when popover opens
   const handleOpenChange = async (isOpen: boolean) => {
