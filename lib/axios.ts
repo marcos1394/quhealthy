@@ -78,7 +78,9 @@ axiosInstance.interceptors.request.use(
       
       // 🚀 FIX: Safari bloquea cookies de 3ros por defecto (ITP). 
       // Usamos localStorage (1st party) y enviamos el header X-Device-Id.
-      if (typeof window !== 'undefined') {
+      // ⚠️ IMPORTANTE: Solo lo enviamos a /api/auth/ para evitar errores de CORS (preflight OPTIONS)
+      // en otros microservicios que no tienen habilitado el header X-Device-Id.
+      if (url.includes('/api/auth/') && typeof window !== 'undefined') {
         let deviceId = localStorage.getItem('qd_id');
         if (!deviceId) {
           deviceId = typeof crypto !== 'undefined' && crypto.randomUUID 
