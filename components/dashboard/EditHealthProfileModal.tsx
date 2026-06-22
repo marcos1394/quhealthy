@@ -8,6 +8,7 @@ import { X, Plus, FileHeart } from 'lucide-react';
 import { BloodType, PatientHealthProfile } from '@/types/healthProfile';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface EditHealthProfileModalProps {
   isOpen: boolean;
@@ -157,7 +158,7 @@ export function EditHealthProfileModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
-      <DialogContent className="sm:max-w-4xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 rounded-none overflow-hidden max-h-[90vh] flex flex-col shadow-2xl transition-colors">
+      <DialogContent className="sm:max-w-4xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 rounded-none overflow-hidden max-h-[90vh] flex flex-col shadow-2xl transition-colors [&>button]:hidden">
         
         {/* HEADER ARQUITECTÓNICO */}
         <div className="flex items-start justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
@@ -197,16 +198,24 @@ export function EditHealthProfileModal({
                 <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
                 TIPO DE SANGRE
               </label>
-              <select
-                className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none appearance-none cursor-pointer"
-                value={formData.bloodType || ''}
-                onChange={(e) => setFormData({ ...formData, bloodType: (e.target.value || null) as BloodType | null })}
+              <Select
+                value={formData.bloodType || 'none'}
+                onValueChange={(val) => setFormData({ ...formData, bloodType: (val === 'none' ? null : val) as BloodType | null })}
               >
-                <option value="">NO REGISTRADO...</option>
-                {BLOOD_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest rounded-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors">
+                  <SelectValue placeholder="NO REGISTRADO..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-none border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                  <SelectItem value="none" className="text-xs font-semibold uppercase tracking-widest rounded-none focus:bg-gray-50 dark:focus:bg-[#111]">
+                    NO REGISTRADO...
+                  </SelectItem>
+                  {BLOOD_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} className="text-xs font-semibold uppercase tracking-widest rounded-none focus:bg-gray-50 dark:focus:bg-[#111]">
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col">
