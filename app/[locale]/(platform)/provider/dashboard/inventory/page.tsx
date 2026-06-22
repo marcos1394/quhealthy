@@ -125,11 +125,8 @@ export default function InventoryPage() {
                 <ScanLine className="w-3.5 h-3.5 text-gray-500" strokeWidth={1.5} />
                 <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">ÓPTICA / ESCÁNER</span>
               </div>
-              <div className="p-6 flex flex-col items-center justify-center min-h-[200px] bg-black/5 dark:bg-white/5 relative">
-                {/* Asumiendo que BarcodeScanner renderiza un video. Aseguramos su contenedor. */}
-                <div className="w-full relative rounded-none overflow-hidden border border-black/20 dark:border-white/20">
-                  <BarcodeScanner onScan={handleScan} />
-                </div>
+              <div className="p-6 flex flex-col relative min-h-[200px]">
+                <BarcodeScanner onScan={handleScan} />
               </div>
             </div>
 

@@ -1,92 +1,11 @@
-"use client";
+import re
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
-import { Input } from './input';
-import { Label } from './label';
-import { Camera, Keyboard, X } from 'lucide-react';
-import { Button } from './button';
-import { cn } from "@/lib/utils";
+# 1. Update BarcodeScanner.tsx
+scanner_path = "/Users/marcossandovalruiz/Documents/quhealthy/components/ui/BarcodeScanner.tsx"
+with open(scanner_path, "r") as f:
+    scanner_content = f.read()
 
-interface BarcodeScannerProps {
-  onScan: (barcode: string) => void;
-}
-
-export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
-  const [mode, setMode] = useState<'camera' | 'physical'>('physical');
-  const [manualInput, setManualInput] = useState('');
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-
-  // Handle Physical Scanner (Keyboard emulation)
-  useEffect(() => {
-    if (mode !== 'physical') return;
-
-    let buffer = '';
-    let timeoutId: NodeJS.Timeout;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      if (e.key === 'Enter') {
-        if (buffer.length > 0) {
-          onScan(buffer);
-          buffer = '';
-        }
-      } else if (e.key.length === 1) {
-        buffer += e.key;
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          buffer = ''; // Reset if typing is too slow (human typing instead of scanner)
-        }, 50); // Scanners typically type very fast
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      clearTimeout(timeoutId);
-    };
-  }, [mode, onScan]);
-
-  // Handle Camera Scanner
-  useEffect(() => {
-    if (mode === 'camera') {
-      scannerRef.current = new Html5QrcodeScanner(
-        'qr-reader',
-        { fps: 10, qrbox: { width: 250, height: 150 }, supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA] },
-        false
-      );
-
-      scannerRef.current.render(
-        (decodedText) => {
-          onScan(decodedText);
-          // Optional: we can close scanner or keep it running. Let's beep and continue.
-        },
-        (error) => {
-          // Ignored. html5-qrcode frequently logs missing patterns as errors.
-        }
-      );
-    }
-
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(console.error);
-      }
-    };
-  }, [mode, onScan]);
-
-  const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (manualInput.trim()) {
-      onScan(manualInput.trim());
-      setManualInput('');
-    }
-  };
-
-      return (
+new_return = '''  return (
     <div className="w-full flex flex-col gap-6">
       {/* Tabs */}
       <div className="flex w-full items-center border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
@@ -139,5 +58,34 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         </div>
       )}
     </div>
-  );
-}
+  );'''
+
+# Replace the return block using regex
+scanner_content = re.sub(r'return \(\s*<div className="w-full flex flex-col bg-white.*?\);\s*}', new_return + '\n}', scanner_content, flags=re.DOTALL)
+
+with open(scanner_path, "w") as f:
+    f.write(scanner_content)
+
+# 2. Update inventory/page.tsx
+inv_path = "/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/inventory/page.tsx"
+with open(inv_path, "r") as f:
+    inv_content = f.read()
+
+# Replace the wrapper around BarcodeScanner
+old_wrapper = '''<div className="p-6 flex flex-col items-center justify-center min-h-[200px] bg-black/5 dark:bg-white/5 relative">
+                {/* Asumiendo que BarcodeScanner renderiza un video. Aseguramos su contenedor. */}
+                <div className="w-full relative rounded-none overflow-hidden border border-black/20 dark:border-white/20">
+                  <BarcodeScanner onScan={handleScan} />
+                </div>
+              </div>'''
+
+new_wrapper = '''<div className="p-6 flex flex-col relative min-h-[200px]">
+                <BarcodeScanner onScan={handleScan} />
+              </div>'''
+
+inv_content = inv_content.replace(old_wrapper, new_wrapper)
+
+with open(inv_path, "w") as f:
+    f.write(inv_content)
+
+print("Fix applied.")
