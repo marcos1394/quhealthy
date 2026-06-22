@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       
       <main className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-32 pb-24 font-sans selection:bg-gray-200 dark:selection:bg-white/20">

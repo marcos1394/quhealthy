@@ -69,7 +69,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({ appointment, i
         <DialogHeader className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
-              <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200 }}
+              <motion.div initial={{ scale: 0.95, opacity: 0, rotate: -180 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200 }}
                 className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </motion.div>

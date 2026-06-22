@@ -258,7 +258,7 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
               <div className="flex items-start gap-4 flex-1">
                 {/* Icon */}
                 <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
+                  initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 200 }}
                   className={cn(

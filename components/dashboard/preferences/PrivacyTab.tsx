@@ -194,7 +194,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
               {/* Check indicator */}
               {preferences.privacy.showOnlineStatus && (
                 <motion.div
-                  initial={{ scale: 0 }}
+                  initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1 }}
                   className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1"
                 >
@@ -260,7 +260,7 @@ export const PrivacyTab: React.FC<PrivacyTabProps> = ({
             )}>
               {preferences.privacy.showLastSeen && (
                 <motion.div
-                  initial={{ scale: 0 }}
+                  initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1 }}
                   className="absolute -top-2 -right-2 bg-purple-500 rounded-full p-1"
                 >

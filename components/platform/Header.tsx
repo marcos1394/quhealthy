@@ -105,7 +105,7 @@ export const Header = () => {
             <Button aria-label="Open notifications" variant="ghost" size="default" className="relative text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg h-9 w-9">
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5">
+                <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute -top-0.5 -right-0.5">
                   <Badge className="bg-medical-600 dark:bg-medical-500 text-white text-[10px] px-1 min-w-[16px] h-4 flex items-center justify-center border-2 border-white dark:border-slate-950">
                     {unreadCount}
                   </Badge>

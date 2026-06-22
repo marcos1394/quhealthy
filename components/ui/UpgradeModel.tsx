@@ -80,7 +80,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
               {/* Icon with animation */}
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
+                initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="relative inline-flex items-center justify-center w-20 h-20 mb-6"

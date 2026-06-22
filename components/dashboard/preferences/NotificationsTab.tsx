@@ -328,7 +328,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   {/* Check indicator */}
                   {isActive && (
                     <motion.div
-                      initial={{ scale: 0 }}
+                      initial={{ scale: 0.95, opacity: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-2 -right-2 bg-emerald-500 rounded-full p-1"
                     >
@@ -418,7 +418,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   {/* Check indicator */}
                   {isActive && (
                     <motion.div
-                      initial={{ scale: 0 }}
+                      initial={{ scale: 0.95, opacity: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-2 -right-2 bg-emerald-500 rounded-full p-1"
                     >

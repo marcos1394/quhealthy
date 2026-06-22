@@ -57,7 +57,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
 
       {/* Icon Badge */}
       <motion.div
-        initial={{ scale: 0, rotate: -180 }}
+        initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200 }}
         className="inline-flex items-center justify-center.tsx"

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Activity, Users, DollarSign, LogOut, Settings, BarChart3, ShieldCheck, Briefcase } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { clearAuthCookies } from "@/app/actions/auth-cookies";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { adminService, FinanceMetricsDTO } from '@/services/admin.service';
 import { useSessionStore } from '@/stores/SessionStore';
@@ -42,9 +43,8 @@ export default function AdminDashboardPage() {
         }
     }, [router]);
 
-    const handleLogout = () => {
-        document.cookie = '__Secure-userRole=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    const handleLogout = async () => {
+        await clearAuthCookies();
         router.push('/admin/login');
     };
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Loader2, ArrowRight, LockKeyhole } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { setAuthCookies } from "@/app/actions/auth-cookies";
 import apiClient from '@/lib/axios';
 import { useSessionStore } from '@/stores/SessionStore';
 
@@ -25,9 +26,8 @@ export default function AdminLoginPage() {
             });
 
             // The backend returns { token, refreshToken, role }
-            // Ensure cookies/tokens are set
-            document.cookie = `__Secure-userRole=${response.data.role}; path=/; secure; samesite=none`;
-            document.cookie = `refreshToken=${response.data.refreshToken}; path=/; secure; samesite=none`;
+            // Ensure cookies/tokens are set securely via server action
+            await setAuthCookies(response.data.role, response.data.refreshToken);
 
             // 🚀 FIX: Save the token in the session store so axios intercepts it!
             useSessionStore.getState().updateToken({

@@ -86,7 +86,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <DialogHeader className="space-y-5">
             <div className="flex items-start justify-between">
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
+                initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
                 className="bg-slate-900 dark:bg-white p-4 rounded-2xl shadow-lg shadow-slate-200 dark:shadow-none"

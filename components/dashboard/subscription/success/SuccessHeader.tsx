@@ -11,7 +11,7 @@ export const SuccessHeader = () => {
   return (
     <div className="flex flex-col items-center text-center space-y-4">
       <motion.div
-        initial={{ scale: 0 }}
+        initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
         className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-4"

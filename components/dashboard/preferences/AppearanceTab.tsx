@@ -217,7 +217,7 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
                   {/* Check indicator */}
                   {preferences.appearance.theme === theme && (
                     <motion.div
-                      initial={{ scale: 0 }}
+                      initial={{ scale: 0.95, opacity: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-2 -right-2 bg-purple-500 rounded-full p-1"
                     >

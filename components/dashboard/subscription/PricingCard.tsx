@@ -169,7 +169,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
           {/* Savings Badge */}
           {plan.savings && (
             <motion.div
-              initial={{ scale: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.4, type: "spring" }}
             >
@@ -228,7 +228,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 {/* Highlighted indicator */}
                 {feature.highlighted && (
                   <motion.div
-                    initial={{ scale: 0 }}
+                    initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.6 + idx * 0.05 }}
                   >

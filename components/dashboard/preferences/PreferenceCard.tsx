@@ -92,7 +92,7 @@ export const PreferenceCard: React.FC<PreferenceCardProps> = ({
             
             {/* Icon Container - AFFORDANCE */}
             <motion.div
-              initial={{ scale: 0, rotate: -180 }}
+              initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ 
                 type: "spring", 

@@ -80,7 +80,7 @@ export const StatBlock: React.FC<StatBlockProps> = ({
               </div>
               {description && !isLoading && <p className="text-xs text-slate-400 font-light line-clamp-2">{description}</p>}
             </div>
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, delay: animationDelay + 0.1 }}
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 200, delay: animationDelay + 0.1 }}
               className={cn("rounded-xl border flex items-center justify-center flex-shrink-0", sc.icon, cc.bg)}>
               <div className={cc.icon}>{icon}</div>
             </motion.div>

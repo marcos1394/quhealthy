@@ -169,7 +169,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
           <motion.div
-            initial={{ scale: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200 }}
             className="relative"
@@ -224,7 +224,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <motion.div
-              initial={{ scale: 0, rotate: -180 }}
+              initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
               className="p-2 bg-gradient-to-br from-medical-500/10 to-medical-600/10 rounded-xl border border-purple-500/20"
@@ -404,9 +404,9 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
                   <AnimatePresence>
                     {onAppointmentClick && (
                       <motion.button
-                        initial={{ opacity: 0, scale: 0 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         className="opacity-0 group-hover:opacity-100 p-1.5 bg-slate-800 dark:bg-slate-900 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-800 transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
