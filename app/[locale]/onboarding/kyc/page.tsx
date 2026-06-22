@@ -72,7 +72,7 @@ export default function KycPage() {
     }
   };
 
-  const UploadZone = ({ type, label, description, inputRef }: { type: KycDocumentType; label: string; description?: string; inputRef: React.RefObject<HTMLInputElement | null> }) => {
+  const renderUploadZone = ({ type, label, description, inputRef }: { type: KycDocumentType; label: string; description?: string; inputRef: React.RefObject<HTMLInputElement | null> }) => {
     const docData = documents[type];
     const isUp = uploadingState[type];
     const isApproved = docData?.verificationStatus === "APPROVED";
@@ -265,13 +265,13 @@ export default function KycPage() {
 
                 {activeTab === "ine" && (
                   <div className="grid grid-cols-1 gap-6">
-                    <UploadZone type="INE_FRONT" label={t("ine_front")} description={t("ine_front_desc")} inputRef={ineFrontInput} />
-                    <UploadZone type="INE_BACK" label={t("ine_back")} description={t("ine_back_desc")} inputRef={ineBackInput} />
+                    {renderUploadZone({ type: "INE_FRONT", label: t("ine_front"), description: t("ine_front_desc"), inputRef: ineFrontInput })}
+                    {renderUploadZone({ type: "INE_BACK", label: t("ine_back"), description: t("ine_back_desc"), inputRef: ineBackInput })}
                   </div>
                 )}
-                {activeTab === "passport" && <UploadZone type="PASSPORT" label={t("passport_label")} description={t("passport_desc")} inputRef={passportInput} />}
+                {activeTab === "passport" && renderUploadZone({ type: "PASSPORT", label: t("passport_label"), description: t("passport_desc"), inputRef: passportInput })}
                 {activeTab === "acta" && personType === 'MORAL' && (
-                  <UploadZone type="ACTA_CONSTITUTIVA" label="Acta Constitutiva" description="Documento constitutivo de la empresa" inputRef={actaInput} />
+                  renderUploadZone({ type: "ACTA_CONSTITUTIVA", label: "Acta Constitutiva", description: "Documento constitutivo de la empresa", inputRef: actaInput })
                 )}
               </div>
             </motion.div>
@@ -291,7 +291,7 @@ export default function KycPage() {
               </div>
               <div className="p-6 md:p-8">
                 {isIdentityApproved ? (
-                  <UploadZone type="SELFIE" label={t("selfie_label")} description={t("selfie_hint")} inputRef={selfieInput} />
+                  renderUploadZone({ type: "SELFIE", label: t("selfie_label"), description: t("selfie_hint"), inputRef: selfieInput })
                 ) : (
                   <div className="border-l-2 border-gray-300 dark:border-gray-700 pl-4 py-2">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2 mb-1"><Lock className="w-3 h-3" /> {t("step_locked")}</p>

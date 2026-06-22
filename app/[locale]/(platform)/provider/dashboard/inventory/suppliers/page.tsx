@@ -13,13 +13,36 @@ import { cn } from '@/lib/utils';
 
 export default function SuppliersPage() {
   const t = useTranslations('StoreHub');
-  const [suppliers, setSuppliers] = useState<UI_Supplier[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+    const [{ suppliers, isLoading, searchQuery, isModalOpen, editingSupplier, isSaving }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SUPPLIERS': return { ...state, suppliers: typeof action.payload === 'function' ? action.payload(state.suppliers) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+      case 'SET_SEARCHQUERY': return { ...state, searchQuery: typeof action.payload === 'function' ? action.payload(state.searchQuery) : action.payload };
+      case 'SET_ISMODALOPEN': return { ...state, isModalOpen: typeof action.payload === 'function' ? action.payload(state.isModalOpen) : action.payload };
+      case 'SET_EDITINGSUPPLIER': return { ...state, editingSupplier: typeof action.payload === 'function' ? action.payload(state.editingSupplier) : action.payload };
+      case 'SET_ISSAVING': return { ...state, isSaving: typeof action.payload === 'function' ? action.payload(state.isSaving) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        suppliers: [], isLoading: true, searchQuery: '', isModalOpen: false, editingSupplier: {}, isSaving: false
+      }
+    );
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Partial<UI_Supplier>>({});
-  const [isSaving, setIsSaving] = useState(false);
+    const setSuppliers = (val: any) => dispatch({ type: 'SET_SUPPLIERS', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+    const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
+    const setIsModalOpen = (val: any) => dispatch({ type: 'SET_ISMODALOPEN', payload: val });
+    const setEditingSupplier = (val: any) => dispatch({ type: 'SET_EDITINGSUPPLIER', payload: val });
+    const setIsSaving = (val: any) => dispatch({ type: 'SET_ISSAVING', payload: val });
+
+
+
+
+
+
+
 
   const fetchSuppliers = async () => {
     setIsLoading(true);
@@ -37,7 +60,7 @@ export default function SuppliersPage() {
     fetchSuppliers();
   }, []);
 
-  const filteredSuppliers = suppliers.filter(s => 
+  const filteredSuppliers = suppliers.filter((s: any) => 
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (s.contactName && s.contactName.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -152,7 +175,7 @@ export default function SuppliersPage() {
               </div>
             ) : (
               <div className="divide-y divide-black/10 dark:divide-white/10">
-                {filteredSuppliers.map(supplier => (
+                {filteredSuppliers.map((supplier: any) => (
                   <div key={supplier.id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
                     <div className="flex items-start sm:items-center gap-5">
                       <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-white dark:group-hover:bg-[#0a0a0a] transition-colors">

@@ -61,11 +61,32 @@ const TypeWriter: React.FC<TypeWriterProps> = ({
   showCursor = true
 }) => {
   // Estado principal
-  const [currentPhrase, setCurrentPhrase] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+    const [{ currentPhrase, currentIndex, isDeleting, phraseIndex, isPaused }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_CURRENTPHRASE': return { ...state, currentPhrase: typeof action.payload === 'function' ? action.payload(state.currentPhrase) : action.payload };
+      case 'SET_CURRENTINDEX': return { ...state, currentIndex: typeof action.payload === 'function' ? action.payload(state.currentIndex) : action.payload };
+      case 'SET_ISDELETING': return { ...state, isDeleting: typeof action.payload === 'function' ? action.payload(state.isDeleting) : action.payload };
+      case 'SET_PHRASEINDEX': return { ...state, phraseIndex: typeof action.payload === 'function' ? action.payload(state.phraseIndex) : action.payload };
+      case 'SET_ISPAUSED': return { ...state, isPaused: typeof action.payload === 'function' ? action.payload(state.isPaused) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        currentPhrase: "", currentIndex: 0, isDeleting: false, phraseIndex: 0, isPaused: false
+      }
+    );
+
+    const setCurrentPhrase = (val: any) => dispatch({ type: 'SET_CURRENTPHRASE', payload: val });
+    const setCurrentIndex = (val: any) => dispatch({ type: 'SET_CURRENTINDEX', payload: val });
+    const setIsDeleting = (val: any) => dispatch({ type: 'SET_ISDELETING', payload: val });
+    const setPhraseIndex = (val: any) => dispatch({ type: 'SET_PHRASEINDEX', payload: val });
+    const setIsPaused = (val: any) => dispatch({ type: 'SET_ISPAUSED', payload: val });
+
+
+
+
+
 
   // Refs para optimización
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -101,7 +122,7 @@ const TypeWriter: React.FC<TypeWriterProps> = ({
         // Typing - PROCESAMIENTO AUTOMÁTICO
         const nextChar = currentFullPhrase.substring(0, currentIndex + 1);
         setCurrentPhrase(nextChar);
-        setCurrentIndex((prev) => prev + 1);
+        setCurrentIndex((prev: number) => prev + 1);
 
         // Completó la frase - MEMORIA ESPACIAL
         if (currentIndex >= currentFullPhrase.length - 1) {
@@ -117,12 +138,12 @@ const TypeWriter: React.FC<TypeWriterProps> = ({
         // Deleting - TRANSICIÓN SUAVE
         const nextText = currentFullPhrase.substring(0, currentIndex - 1);
         setCurrentPhrase(nextText);
-        setCurrentIndex((prev) => prev - 1);
+        setCurrentIndex((prev: number) => prev - 1);
 
         // Completó el borrado - PRIMING para siguiente frase
         if (currentIndex <= 1) {
           setIsDeleting(false);
-          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+          setPhraseIndex((prev: number) => (prev + 1) % phrases.length);
           setCurrentIndex(0);
         }
       }

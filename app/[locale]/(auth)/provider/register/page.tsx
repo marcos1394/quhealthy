@@ -226,7 +226,7 @@ export default function ProviderSignupPage() {
             </div>
 
             {/* Social Auth Buttons */}
-            <SocialAuthButtons role="PROVIDER" onSuccess={handleSocialSuccess} />
+            <SocialAuthButtons accountRole="PROVIDER" onSuccess={handleSocialSuccess} />
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">

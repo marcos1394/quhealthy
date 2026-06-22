@@ -40,11 +40,32 @@ const scheduleTemplates = [
 
 export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen, onClose, onSaveSuccess }) => {
   const { fetchSchedules, saveSchedules, isLoading, isSaving } = useOperatingHours();
-  const [schedules, setSchedules] = useState<UIDaySchedule[]>([]);
-  const [originalSchedules, setOriginalSchedules] = useState<UIDaySchedule[]>([]);
-  const [savingStep, setSavingStep] = useState<"idle" | "saving" | "success">("idle");
-  const [validationErrors, setValidationErrors] = useState<Record<number, string>>({});
-  const [copiedFromDay, setCopiedFromDay] = useState<number | null>(null);
+    const [{ schedules, originalSchedules, savingStep, validationErrors, copiedFromDay }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SCHEDULES': return { ...state, schedules: typeof action.payload === 'function' ? action.payload(state.schedules) : action.payload };
+      case 'SET_ORIGINALSCHEDULES': return { ...state, originalSchedules: typeof action.payload === 'function' ? action.payload(state.originalSchedules) : action.payload };
+      case 'SET_SAVINGSTEP': return { ...state, savingStep: typeof action.payload === 'function' ? action.payload(state.savingStep) : action.payload };
+      case 'SET_VALIDATIONERRORS': return { ...state, validationErrors: typeof action.payload === 'function' ? action.payload(state.validationErrors) : action.payload };
+      case 'SET_COPIEDFROMDAY': return { ...state, copiedFromDay: typeof action.payload === 'function' ? action.payload(state.copiedFromDay) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        schedules: [], originalSchedules: [], savingStep: "idle", validationErrors: {}, copiedFromDay: null
+      }
+    );
+
+    const setSchedules = (val: any) => dispatch({ type: 'SET_SCHEDULES', payload: val });
+    const setOriginalSchedules = (val: any) => dispatch({ type: 'SET_ORIGINALSCHEDULES', payload: val });
+    const setSavingStep = (val: any) => dispatch({ type: 'SET_SAVINGSTEP', payload: val });
+    const setValidationErrors = (val: any) => dispatch({ type: 'SET_VALIDATIONERRORS', payload: val });
+    const setCopiedFromDay = (val: any) => dispatch({ type: 'SET_COPIEDFROMDAY', payload: val });
+
+
+
+
+
   const t = useTranslations('DashboardOperatingHours');
 
   useEffect(() => {
@@ -60,7 +81,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
 
   useEffect(() => {
     const errors: Record<number, string> = {};
-    schedules.forEach(d => {
+    schedules.forEach((d: any) => {
       if (d.isActive) {
         const [oh, om] = d.openTime.split(":").map(Number); const [ch, cm] = d.closeTime.split(":").map(Number);
         if (ch * 60 + cm <= oh * 60 + om) errors[d.dayOfWeek] = t('error_close_after_open', { defaultValue: 'HORA INVÁLIDA' });
@@ -70,12 +91,12 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   }, [schedules, t]);
 
   const handleChange = (dayId: number, field: keyof UIDaySchedule, value: string | boolean) =>
-    setSchedules(c => c.map(d => d.dayOfWeek === dayId ? { ...d, [field]: value } : d));
+    setSchedules((c: any) => c.map((d: any) => d.dayOfWeek === dayId ? { ...d, [field]: value } : d));
 
   const handleCopy = (srcId: number) => {
-    const src = schedules.find(s => s.dayOfWeek === srcId);
+    const src = schedules.find((s: any) => s.dayOfWeek === srcId);
     if (!src) return;
-    setSchedules(c => c.map(d => d.dayOfWeek !== srcId ? { ...d, openTime: src.openTime, closeTime: src.closeTime, isActive: src.isActive } : d));
+    setSchedules((c: any) => c.map((d: any) => d.dayOfWeek !== srcId ? { ...d, openTime: src.openTime, closeTime: src.closeTime, isActive: src.isActive } : d));
     setCopiedFromDay(srcId); setTimeout(() => setCopiedFromDay(null), 2000);
     toast.success(t('copied_toast', { defaultValue: 'HORARIOS CLONADOS' }));
   };
@@ -92,7 +113,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
     else setSavingStep("idle");
   };
 
-  const activeCount = schedules.filter(s => s.isActive).length;
+  const activeCount = schedules.filter((s: any) => s.isActive).length;
   const hasChanges = JSON.stringify(schedules) !== JSON.stringify(originalSchedules);
 
   return (
@@ -183,7 +204,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
                 </div>
                 
                 <div className="border-t border-l border-black/20 dark:border-white/20 bg-transparent flex flex-col">
-                  {schedules.map(day => {
+                  {schedules.map((day: any) => {
                     const info = daysOfWeek.find(d => d.id === day.dayOfWeek);
                     const hasError = validationErrors[day.dayOfWeek];
                     const isCopied = copiedFromDay === day.dayOfWeek;

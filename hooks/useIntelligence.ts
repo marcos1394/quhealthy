@@ -9,8 +9,14 @@ export function useIntelligenceSummary() {
   const [error, setError] = useState<Error | null>(null);
   const filters = useBIStore((state) => state.filters);
 
-  useEffect(() => {
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
     setLoading(true);
+    setError(null);
+  }
+
+  useEffect(() => {
     intelligenceService.getSummary(filters)
       .then(setData)
       .catch(setError)
@@ -30,8 +36,14 @@ export function useIntelligenceAggregate(groupByOverride?: string) {
   
   const groupBy = groupByOverride || globalGroupBy;
 
-  useEffect(() => {
+  const [prevDeps, setPrevDeps] = useState({ groupBy, filters });
+  if (groupBy !== prevDeps.groupBy || filters !== prevDeps.filters) {
+    setPrevDeps({ groupBy, filters });
     setLoading(true);
+    setError(null);
+  }
+
+  useEffect(() => {
     intelligenceService.getAggregate(groupBy, filters)
       .then(setData)
       .catch(setError)
@@ -47,8 +59,14 @@ export function useIntelligenceMap() {
   const [error, setError] = useState<Error | null>(null);
   const filters = useBIStore((state) => state.filters);
 
-  useEffect(() => {
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
     setLoading(true);
+    setError(null);
+  }
+
+  useEffect(() => {
     intelligenceService.getMap(filters)
       .then(setData)
       .catch(setError)

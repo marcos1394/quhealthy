@@ -59,12 +59,33 @@ export const CashCheckoutModal = ({
   isOpen, onClose, onSuccess, appointmentId, totalAmount, patientName, 
   registerDenominations 
 }: CashCheckoutModalProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showReceivedDenoms, setShowReceivedDenoms] = useState(true);
-  const [showChangeDenoms, setShowChangeDenoms] = useState(false);
+    const [{ isProcessing, showReceivedDenoms, showChangeDenoms, receivedDenoms, changeDenoms }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISPROCESSING': return { ...state, isProcessing: typeof action.payload === 'function' ? action.payload(state.isProcessing) : action.payload };
+      case 'SET_SHOWRECEIVEDDENOMS': return { ...state, showReceivedDenoms: typeof action.payload === 'function' ? action.payload(state.showReceivedDenoms) : action.payload };
+      case 'SET_SHOWCHANGEDENOMS': return { ...state, showChangeDenoms: typeof action.payload === 'function' ? action.payload(state.showChangeDenoms) : action.payload };
+      case 'SET_RECEIVEDDENOMS': return { ...state, receivedDenoms: typeof action.payload === 'function' ? action.payload(state.receivedDenoms) : action.payload };
+      case 'SET_CHANGEDENOMS': return { ...state, changeDenoms: typeof action.payload === 'function' ? action.payload(state.changeDenoms) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isProcessing: false, showReceivedDenoms: true, showChangeDenoms: false, receivedDenoms: {}, changeDenoms: {}
+      }
+    );
 
-  const [receivedDenoms, setReceivedDenoms] = useState<DenominationMap>({});
-  const [changeDenoms, setChangeDenoms] = useState<DenominationMap>({});
+    const setIsProcessing = (val: any) => dispatch({ type: 'SET_ISPROCESSING', payload: val });
+    const setShowReceivedDenoms = (val: any) => dispatch({ type: 'SET_SHOWRECEIVEDDENOMS', payload: val });
+    const setShowChangeDenoms = (val: any) => dispatch({ type: 'SET_SHOWCHANGEDENOMS', payload: val });
+    const setReceivedDenoms = (val: any) => dispatch({ type: 'SET_RECEIVEDDENOMS', payload: val });
+    const setChangeDenoms = (val: any) => dispatch({ type: 'SET_CHANGEDENOMS', payload: val });
+
+
+
+
+
+
 
   useEffect(() => {
     if (isOpen) {
@@ -101,12 +122,12 @@ export const CashCheckoutModal = ({
   }, [receivedTotal, totalAmount]);
 
   const updateReceivedDenom = (denom: string, count: number) => {
-    setReceivedDenoms(prev => ({ ...prev, [denom]: Math.max(0, count) }));
+    setReceivedDenoms((prev: any) => ({ ...prev, [denom]: Math.max(0, count) }));
   };
 
   const updateChangeDenom = (denom: string, count: number) => {
     const maxAvailable = availableDenoms[denom] || 0;
-    setChangeDenoms(prev => ({ ...prev, [denom]: Math.min(Math.max(0, count), maxAvailable) }));
+    setChangeDenoms((prev: any) => ({ ...prev, [denom]: Math.min(Math.max(0, count), maxAvailable) }));
   };
 
   const handleCheckout = async () => {

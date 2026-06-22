@@ -7,6 +7,12 @@ import { motion } from "framer-motion";
 
 import { useTranslations } from "next-intl";
 
+const TikTokIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+  </svg>
+);
+
 const Footer: React.FC = () => {
   const t = useTranslations('Footer');
   const currentYear = new Date().getFullYear();
@@ -41,12 +47,6 @@ const Footer: React.FC = () => {
       ]
     }
   ];
-
-  const TikTokIcon = ({ size = 18 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
-    </svg>
-  );
 
   const socialLinks = [
     { icon: Instagram, href: "https://www.instagram.com/quhealthyorg/", name: "Instagram" },

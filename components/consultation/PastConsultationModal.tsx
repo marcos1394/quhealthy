@@ -26,10 +26,17 @@ export const PastConsultationModal = ({ isOpen, onClose, appointmentId, patientN
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  useEffect(() => {
+  const [prevProps, setPrevProps] = useState({ isOpen, appointmentId });
+  if (isOpen !== prevProps.isOpen || appointmentId !== prevProps.appointmentId) {
+    setPrevProps({ isOpen, appointmentId });
     if (!isOpen || !appointmentId) {
       setNotes(null);
       setError(null);
+    }
+  }
+
+  useEffect(() => {
+    if (!isOpen || !appointmentId) {
       return;
     }
 

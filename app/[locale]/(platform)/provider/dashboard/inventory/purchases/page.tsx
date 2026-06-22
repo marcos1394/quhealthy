@@ -20,21 +20,54 @@ export default function PurchasesPage() {
   const t = useTranslations('StoreHub');
   const { products, supplies } = useCatalog();
   
-  const [orders, setOrders] = useState<UI_PurchaseOrder[]>([]);
-  const [suppliers, setSuppliers] = useState<UI_Supplier[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const [{ orders, suppliers, isLoading, isNewOrderModalOpen, newOrder, selectedCatalogItemId, itemQuantity, itemCost, receivingOrder, paymentMethod, payFromCashRegister }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ORDERS': return { ...state, orders: typeof action.payload === 'function' ? action.payload(state.orders) : action.payload };
+      case 'SET_SUPPLIERS': return { ...state, suppliers: typeof action.payload === 'function' ? action.payload(state.suppliers) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+      case 'SET_ISNEWORDERMODALOPEN': return { ...state, isNewOrderModalOpen: typeof action.payload === 'function' ? action.payload(state.isNewOrderModalOpen) : action.payload };
+      case 'SET_NEWORDER': return { ...state, newOrder: typeof action.payload === 'function' ? action.payload(state.newOrder) : action.payload };
+      case 'SET_SELECTEDCATALOGITEMID': return { ...state, selectedCatalogItemId: typeof action.payload === 'function' ? action.payload(state.selectedCatalogItemId) : action.payload };
+      case 'SET_ITEMQUANTITY': return { ...state, itemQuantity: typeof action.payload === 'function' ? action.payload(state.itemQuantity) : action.payload };
+      case 'SET_ITEMCOST': return { ...state, itemCost: typeof action.payload === 'function' ? action.payload(state.itemCost) : action.payload };
+      case 'SET_RECEIVINGORDER': return { ...state, receivingOrder: typeof action.payload === 'function' ? action.payload(state.receivingOrder) : action.payload };
+      case 'SET_PAYMENTMETHOD': return { ...state, paymentMethod: typeof action.payload === 'function' ? action.payload(state.paymentMethod) : action.payload };
+      case 'SET_PAYFROMCASHREGISTER': return { ...state, payFromCashRegister: typeof action.payload === 'function' ? action.payload(state.payFromCashRegister) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        orders: [], suppliers: [], isLoading: true, isNewOrderModalOpen: false, newOrder: { items: [] }, selectedCatalogItemId: '', itemQuantity: '', itemCost: '', receivingOrder: null, paymentMethod: 'CASH', payFromCashRegister: true
+      }
+    );
+
+    const setOrders = (val: any) => dispatch({ type: 'SET_ORDERS', payload: val });
+    const setSuppliers = (val: any) => dispatch({ type: 'SET_SUPPLIERS', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+    const setIsNewOrderModalOpen = (val: any) => dispatch({ type: 'SET_ISNEWORDERMODALOPEN', payload: val });
+    const setNewOrder = (val: any) => dispatch({ type: 'SET_NEWORDER', payload: val });
+    const setSelectedCatalogItemId = (val: any) => dispatch({ type: 'SET_SELECTEDCATALOGITEMID', payload: val });
+    const setItemQuantity = (val: any) => dispatch({ type: 'SET_ITEMQUANTITY', payload: val });
+    const setItemCost = (val: any) => dispatch({ type: 'SET_ITEMCOST', payload: val });
+    const setReceivingOrder = (val: any) => dispatch({ type: 'SET_RECEIVINGORDER', payload: val });
+    const setPaymentMethod = (val: any) => dispatch({ type: 'SET_PAYMENTMETHOD', payload: val });
+    const setPayFromCashRegister = (val: any) => dispatch({ type: 'SET_PAYFROMCASHREGISTER', payload: val });
+
+
+
 
   // New Order Modal State
-  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
-  const [newOrder, setNewOrder] = useState<Partial<CreatePurchaseOrderRequest>>({ items: [] });
-  const [selectedCatalogItemId, setSelectedCatalogItemId] = useState<string>('');
-  const [itemQuantity, setItemQuantity] = useState<number | ''>('');
-  const [itemCost, setItemCost] = useState<number | ''>('');
+
+
+
+
+
 
   // Receive Order Modal State
-  const [receivingOrder, setReceivingOrder] = useState<UI_PurchaseOrder | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'CREDIT'>('CASH');
-  const [payFromCashRegister, setPayFromCashRegister] = useState(true);
+
+
+
   
   const catalogItems = [...products, ...supplies];
 
@@ -197,7 +230,7 @@ export default function PurchasesPage() {
             </div>
           ) : (
             <div className="divide-y divide-black/10 dark:divide-white/10">
-              {orders.map(order => (
+              {orders.map((order: any) => (
                 <div key={order.id} className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
                   <div className="flex items-start sm:items-center gap-5">
                     <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-white dark:group-hover:bg-[#0a0a0a] transition-colors">
@@ -275,7 +308,7 @@ export default function PurchasesPage() {
                     <SelectValue placeholder="SELECCIONAR ENTIDAD..." />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-xl">
-                    {suppliers.map(s => <SelectItem key={s.id} value={s.id.toString()} className="text-[10px] font-bold uppercase tracking-widest rounded-none">{s.name}</SelectItem>)}
+                    {suppliers.map((s: any) => <SelectItem key={s.id} value={s.id.toString()} className="text-[10px] font-bold uppercase tracking-widest rounded-none">{s.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -340,7 +373,7 @@ export default function PurchasesPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-black/10 dark:divide-white/10">
-                      {newOrder.items.map((item, idx) => {
+                      {newOrder.items.map((item: any, idx: number) => {
                         const catItem = catalogItems.find(c => c.id === item.catalogItemId);
                         return (
                           <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
@@ -361,7 +394,7 @@ export default function PurchasesPage() {
                       <tr>
                         <td colSpan={3} className="px-6 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 text-right">TOTAL PROYECTADO</td>
                         <td className="px-6 py-6 text-2xl font-semibold tracking-tight text-black dark:text-white text-right">
-                          ${newOrder.items.reduce((acc, curr) => acc + (curr.quantity * curr.unitCost), 0).toFixed(2)}
+                          ${newOrder.items.reduce((acc: number, curr: any) => acc + (curr.quantity * curr.unitCost), 0).toFixed(2)}
                         </td>
                         <td></td>
                       </tr>

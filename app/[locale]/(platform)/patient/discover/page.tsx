@@ -236,11 +236,32 @@ const MapProviderCard = ({
 // ── MAIN MAP COMPONENT ──
 const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hasDiscountFilter, setHasDiscountFilter] = useState(false); 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+    const [{ map, searchQuery, hasDiscountFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
+      case 'SET_SEARCHQUERY': return { ...state, searchQuery: typeof action.payload === 'function' ? action.payload(state.searchQuery) : action.payload };
+      case 'SET_HASDISCOUNTFILTER': return { ...state, hasDiscountFilter: typeof action.payload === 'function' ? action.payload(state.hasDiscountFilter) : action.payload };
+      case 'SET_SELECTEDID': return { ...state, selectedId: typeof action.payload === 'function' ? action.payload(state.selectedId) : action.payload };
+      case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        map: null, searchQuery: '', hasDiscountFilter: false, selectedId: null, hoveredId: null
+      }
+    );
+
+    const setMap = (val: any) => dispatch({ type: 'SET_MAP', payload: val });
+    const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
+    const setHasDiscountFilter = (val: any) => dispatch({ type: 'SET_HASDISCOUNTFILTER', payload: val });
+    const setSelectedId = (val: any) => dispatch({ type: 'SET_SELECTEDID', payload: val });
+    const setHoveredId = (val: any) => dispatch({ type: 'SET_HOVEREDID', payload: val });
+
+
+ 
+
+
 
   const { providers, isLoading: isFetchingProviders } = useDiscover();
   const { coordinates, calculateDistance } = useGeolocation();

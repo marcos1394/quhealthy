@@ -265,7 +265,7 @@ export default function LoginPage() {
 
             {/* Social Login */}
             <SocialAuthButtons
-              role={userType === "consumer" ? "CONSUMER" : "PROVIDER"}
+              accountRole={userType === "consumer" ? "CONSUMER" : "PROVIDER"}
               onSuccess={handleAuthNavigation}
             />
 

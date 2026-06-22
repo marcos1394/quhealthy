@@ -20,15 +20,36 @@ interface Props {
 export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGoBack }: Props) {
   const t = useTranslations('AuthForgotPassword');
   const { verifyRecoveryCode, sendRecoveryCode } = useAuth();
-  const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [codeTimer, setCodeTimer] = useState(300);
-  const [canResend, setCanResend] = useState(false);
+    const [{ code, loading, error, codeTimer, canResend }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_CODE': return { ...state, code: typeof action.payload === 'function' ? action.payload(state.code) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_ERROR': return { ...state, error: typeof action.payload === 'function' ? action.payload(state.error) : action.payload };
+      case 'SET_CODETIMER': return { ...state, codeTimer: typeof action.payload === 'function' ? action.payload(state.codeTimer) : action.payload };
+      case 'SET_CANRESEND': return { ...state, canResend: typeof action.payload === 'function' ? action.payload(state.canResend) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        code: "", loading: false, error: "", codeTimer: 300, canResend: false
+      }
+    );
+
+    const setCode = (val: any) => dispatch({ type: 'SET_CODE', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setError = (val: any) => dispatch({ type: 'SET_ERROR', payload: val });
+    const setCodeTimer = (val: any) => dispatch({ type: 'SET_CODETIMER', payload: val });
+    const setCanResend = (val: any) => dispatch({ type: 'SET_CANRESEND', payload: val });
+
+
+
+
+
 
   useEffect(() => {
     if (codeTimer > 0) {
-      const timer = setTimeout(() => setCodeTimer(prev => prev - 1), 1000);
+      const timer = setTimeout(() => setCodeTimer((prev: number) => prev - 1), 1000);
       return () => clearTimeout(timer);
     } else {
       setCanResend(true);

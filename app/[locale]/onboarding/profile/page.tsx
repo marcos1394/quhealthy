@@ -27,22 +27,53 @@ export default function OnboardingProfilePage() {
 
   const { initialData, isLoading: pageLoading, isSaving, saveProfile, error: pageError, refetch, categories, tags, getSubCategories } = useProfileOnboarding();
 
-  const [formData, setFormData] = useState<any>({
+    const [{ formData, loading, error, focusedField, completedSteps, predictions, isSearching, selectedPlaceInfo, isPlaceSelected, activeStep }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_FORMDATA': return { ...state, formData: typeof action.payload === 'function' ? action.payload(state.formData) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_ERROR': return { ...state, error: typeof action.payload === 'function' ? action.payload(state.error) : action.payload };
+      case 'SET_FOCUSEDFIELD': return { ...state, focusedField: typeof action.payload === 'function' ? action.payload(state.focusedField) : action.payload };
+      case 'SET_COMPLETEDSTEPS': return { ...state, completedSteps: typeof action.payload === 'function' ? action.payload(state.completedSteps) : action.payload };
+      case 'SET_PREDICTIONS': return { ...state, predictions: typeof action.payload === 'function' ? action.payload(state.predictions) : action.payload };
+      case 'SET_ISSEARCHING': return { ...state, isSearching: typeof action.payload === 'function' ? action.payload(state.isSearching) : action.payload };
+      case 'SET_SELECTEDPLACEINFO': return { ...state, selectedPlaceInfo: typeof action.payload === 'function' ? action.payload(state.selectedPlaceInfo) : action.payload };
+      case 'SET_ISPLACESELECTED': return { ...state, isPlaceSelected: typeof action.payload === 'function' ? action.payload(state.isPlaceSelected) : action.payload };
+      case 'SET_ACTIVESTEP': return { ...state, activeStep: typeof action.payload === 'function' ? action.payload(state.activeStep) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        formData: {
     businessName: "", parentCategoryId: 0, bio: "", timeZone: "", profileImageUrl: "",
     address: "", latitude: 0, longitude: 0, placeId: "", contactEmail: "",
     contactPhone: "", websiteUrl: "", categoryId: 0, subCategoryId: 0, tagIds: [],
     personType: "" 
-  });
+  }, loading: false, error: null, focusedField: null, completedSteps: new Set(), predictions: [], isSearching: false, selectedPlaceInfo: null, isPlaceSelected: false, activeStep: 1
+      }
+    );
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<any>(null);
-  const [isPlaceSelected, setIsPlaceSelected] = useState(false);
-  const [activeStep, setActiveStep] = useState<number>(1);
+    const setFormData = (val: any) => dispatch({ type: 'SET_FORMDATA', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setError = (val: any) => dispatch({ type: 'SET_ERROR', payload: val });
+    const setFocusedField = (val: any) => dispatch({ type: 'SET_FOCUSEDFIELD', payload: val });
+    const setCompletedSteps = (val: any) => dispatch({ type: 'SET_COMPLETEDSTEPS', payload: val });
+    const setPredictions = (val: any) => dispatch({ type: 'SET_PREDICTIONS', payload: val });
+    const setIsSearching = (val: any) => dispatch({ type: 'SET_ISSEARCHING', payload: val });
+    const setSelectedPlaceInfo = (val: any) => dispatch({ type: 'SET_SELECTEDPLACEINFO', payload: val });
+    const setIsPlaceSelected = (val: any) => dispatch({ type: 'SET_ISPLACESELECTED', payload: val });
+    const setActiveStep = (val: any) => dispatch({ type: 'SET_ACTIVESTEP', payload: val });
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (initialData) {
@@ -547,7 +578,7 @@ export default function OnboardingProfilePage() {
                   <div className="h-[400px] relative z-0">
                     <LocationPicker className="w-full h-full"
                       initialLocation={{ address: formData.address || "", lat: formData.latitude || 19.4326, lng: formData.longitude || -99.1332 }}
-                      onLocationSelect={(data) => { setFormData((prev: any) => ({ ...prev, address: data.address, latitude: data.lat, longitude: data.lng, placeId: data.placeId || prev.placeId })); setCompletedSteps((prev) => new Set(prev).add(3)); }} />
+                      onLocationSelect={(data) => { setFormData((prev: any) => ({ ...prev, address: data.address, latitude: data.lat, longitude: data.lng, placeId: data.placeId || prev.placeId })); setCompletedSteps((prev: any) => new Set(prev).add(3)); }} />
                   </div>
                 </motion.div>
               )}
@@ -557,7 +588,7 @@ export default function OnboardingProfilePage() {
             <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <div>
                 {activeStep > 1 && (
-                  <button type="button" onClick={() => setActiveStep(prev => prev - 1)}
+                  <button type="button" onClick={() => setActiveStep((prev: number) => prev - 1)}
                     className="h-14 px-8 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
                     Atrás
                   </button>
@@ -565,7 +596,7 @@ export default function OnboardingProfilePage() {
               </div>
               <div>
                 {activeStep < 3 ? (
-                  <button type="button" onClick={() => setActiveStep(prev => prev + 1)}
+                  <button type="button" onClick={() => setActiveStep((prev: number) => prev + 1)}
                     disabled={(activeStep === 1 && !isStep1Valid) || (activeStep === 2 && !isStep2Valid)}
                     className={cn("group h-14 px-8 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center",
                       (activeStep === 1 && isStep1Valid) || (activeStep === 2 && isStep2Valid)

@@ -21,14 +21,37 @@ export default function InventoryPage() {
   const t = useTranslations('StoreHub'); 
   const { products, supplies, fetchInventory, isLoading: isCatalogLoading } = useCatalog();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'ALL' | 'PRODUCT' | 'SUPPLY'>('ALL');
-  const [scannedItem, setScannedItem] = useState<InventoryItem | null>(null);
+    const [{ searchQuery, filterType, scannedItem, adjustingItem, adjustmentValue, isAdjusting }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SEARCHQUERY': return { ...state, searchQuery: typeof action.payload === 'function' ? action.payload(state.searchQuery) : action.payload };
+      case 'SET_FILTERTYPE': return { ...state, filterType: typeof action.payload === 'function' ? action.payload(state.filterType) : action.payload };
+      case 'SET_SCANNEDITEM': return { ...state, scannedItem: typeof action.payload === 'function' ? action.payload(state.scannedItem) : action.payload };
+      case 'SET_ADJUSTINGITEM': return { ...state, adjustingItem: typeof action.payload === 'function' ? action.payload(state.adjustingItem) : action.payload };
+      case 'SET_ADJUSTMENTVALUE': return { ...state, adjustmentValue: typeof action.payload === 'function' ? action.payload(state.adjustmentValue) : action.payload };
+      case 'SET_ISADJUSTING': return { ...state, isAdjusting: typeof action.payload === 'function' ? action.payload(state.isAdjusting) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        searchQuery: '', filterType: 'ALL', scannedItem: null, adjustingItem: null, adjustmentValue: '', isAdjusting: false
+      }
+    );
+
+    const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
+    const setFilterType = (val: any) => dispatch({ type: 'SET_FILTERTYPE', payload: val });
+    const setScannedItem = (val: any) => dispatch({ type: 'SET_SCANNEDITEM', payload: val });
+    const setAdjustingItem = (val: any) => dispatch({ type: 'SET_ADJUSTINGITEM', payload: val });
+    const setAdjustmentValue = (val: any) => dispatch({ type: 'SET_ADJUSTMENTVALUE', payload: val });
+    const setIsAdjusting = (val: any) => dispatch({ type: 'SET_ISADJUSTING', payload: val });
+
+
+
   
   // Stock adjustment state
-  const [adjustingItem, setAdjustingItem] = useState<InventoryItem | null>(null);
-  const [adjustmentValue, setAdjustmentValue] = useState<number | ''>('');
-  const [isAdjusting, setIsAdjusting] = useState(false);
+
+
+
 
   useEffect(() => {
     fetchInventory();
@@ -312,7 +335,7 @@ export default function InventoryPage() {
                 <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">DIFERENCIAL (+ / -)</span>
                 <div className="flex items-stretch h-14 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
                   <button 
-                    onClick={() => setAdjustmentValue((v) => (typeof v === 'number' ? v - 1 : -1))}
+                    onClick={() => setAdjustmentValue((v: any) => (typeof v === 'number' ? v - 1 : -1))}
                     className="w-14 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                   >
                     <span className="text-lg font-bold">-</span>
@@ -325,7 +348,7 @@ export default function InventoryPage() {
                     placeholder="0"
                   />
                   <button 
-                    onClick={() => setAdjustmentValue((v) => (typeof v === 'number' ? v + 1 : 1))}
+                    onClick={() => setAdjustmentValue((v: any) => (typeof v === 'number' ? v + 1 : 1))}
                     className="w-14 flex items-center justify-center border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                   >
                     <span className="text-lg font-bold">+</span>

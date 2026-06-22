@@ -11,20 +11,55 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 
 export function SecuritySettings() {
   // Password state
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [{ currentPassword, newPassword, confirmPassword, isChangingPassword, isMfaEnabled, isMfaModalOpen, mfaSecret, mfaQrUri, mfaCode, isMfaProcessing, mfaPassword, isMfaDisableModalOpen }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_CURRENTPASSWORD': return { ...state, currentPassword: typeof action.payload === 'function' ? action.payload(state.currentPassword) : action.payload };
+      case 'SET_NEWPASSWORD': return { ...state, newPassword: typeof action.payload === 'function' ? action.payload(state.newPassword) : action.payload };
+      case 'SET_CONFIRMPASSWORD': return { ...state, confirmPassword: typeof action.payload === 'function' ? action.payload(state.confirmPassword) : action.payload };
+      case 'SET_ISCHANGINGPASSWORD': return { ...state, isChangingPassword: typeof action.payload === 'function' ? action.payload(state.isChangingPassword) : action.payload };
+      case 'SET_ISMFAENABLED': return { ...state, isMfaEnabled: typeof action.payload === 'function' ? action.payload(state.isMfaEnabled) : action.payload };
+      case 'SET_ISMFAMODALOPEN': return { ...state, isMfaModalOpen: typeof action.payload === 'function' ? action.payload(state.isMfaModalOpen) : action.payload };
+      case 'SET_MFASECRET': return { ...state, mfaSecret: typeof action.payload === 'function' ? action.payload(state.mfaSecret) : action.payload };
+      case 'SET_MFAQRURI': return { ...state, mfaQrUri: typeof action.payload === 'function' ? action.payload(state.mfaQrUri) : action.payload };
+      case 'SET_MFACODE': return { ...state, mfaCode: typeof action.payload === 'function' ? action.payload(state.mfaCode) : action.payload };
+      case 'SET_ISMFAPROCESSING': return { ...state, isMfaProcessing: typeof action.payload === 'function' ? action.payload(state.isMfaProcessing) : action.payload };
+      case 'SET_MFAPASSWORD': return { ...state, mfaPassword: typeof action.payload === 'function' ? action.payload(state.mfaPassword) : action.payload };
+      case 'SET_ISMFADISABLEMODALOPEN': return { ...state, isMfaDisableModalOpen: typeof action.payload === 'function' ? action.payload(state.isMfaDisableModalOpen) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        currentPassword: "", newPassword: "", confirmPassword: "", isChangingPassword: false, isMfaEnabled: false, isMfaModalOpen: false, mfaSecret: "", mfaQrUri: "", mfaCode: "", isMfaProcessing: false, mfaPassword: "", isMfaDisableModalOpen: false
+      }
+    );
+
+    const setCurrentPassword = (val: any) => dispatch({ type: 'SET_CURRENTPASSWORD', payload: val });
+    const setNewPassword = (val: any) => dispatch({ type: 'SET_NEWPASSWORD', payload: val });
+    const setConfirmPassword = (val: any) => dispatch({ type: 'SET_CONFIRMPASSWORD', payload: val });
+    const setIsChangingPassword = (val: any) => dispatch({ type: 'SET_ISCHANGINGPASSWORD', payload: val });
+    const setIsMfaEnabled = (val: any) => dispatch({ type: 'SET_ISMFAENABLED', payload: val });
+    const setIsMfaModalOpen = (val: any) => dispatch({ type: 'SET_ISMFAMODALOPEN', payload: val });
+    const setMfaSecret = (val: any) => dispatch({ type: 'SET_MFASECRET', payload: val });
+    const setMfaQrUri = (val: any) => dispatch({ type: 'SET_MFAQRURI', payload: val });
+    const setMfaCode = (val: any) => dispatch({ type: 'SET_MFACODE', payload: val });
+    const setIsMfaProcessing = (val: any) => dispatch({ type: 'SET_ISMFAPROCESSING', payload: val });
+    const setMfaPassword = (val: any) => dispatch({ type: 'SET_MFAPASSWORD', payload: val });
+    const setIsMfaDisableModalOpen = (val: any) => dispatch({ type: 'SET_ISMFADISABLEMODALOPEN', payload: val });
+
+
+
+
 
   // MFA State (Simulated check, ideally comes from profile context)
-  const [isMfaEnabled, setIsMfaEnabled] = useState(false); 
-  const [isMfaModalOpen, setIsMfaModalOpen] = useState(false);
-  const [mfaSecret, setMfaSecret] = useState("");
-  const [mfaQrUri, setMfaQrUri] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
-  const [isMfaProcessing, setIsMfaProcessing] = useState(false);
-  const [mfaPassword, setMfaPassword] = useState("");
-  const [isMfaDisableModalOpen, setIsMfaDisableModalOpen] = useState(false);
+ 
+
+
+
+
+
+
+
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();

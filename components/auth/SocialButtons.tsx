@@ -16,12 +16,12 @@ import { UserRole, AuthResponse } from '@/types/auth';
 import { consumerProfileService } from '@/services/consumerProfile.service';
 
 interface SocialAuthButtonsProps {
-  role?: UserRole; // 'PROVIDER' | 'CONSUMER'
+  accountRole?: UserRole; // 'PROVIDER' | 'CONSUMER'
   onSuccess?: (response: AuthResponse) => void;
 }
 
 export default function SocialAuthButtons({
-  role = 'PROVIDER',
+  accountRole = 'PROVIDER',
   onSuccess
 }: SocialAuthButtonsProps) {
 

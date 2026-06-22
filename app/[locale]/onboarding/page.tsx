@@ -52,12 +52,14 @@ export default function OnboardingChecklistPage() {
   }, [steps, percentage]);
 
   useEffect(() => {
+    let timerId: NodeJS.Timeout;
     if (canProceedToDashboard && !hasShownConfetti) {
       setShowConfetti(true);
       setHasShownConfetti(true);
       toast.success("🎉 " + t("congrats"), { position: "top-center", autoClose: 5000 });
-      setTimeout(() => setShowConfetti(false), 5000);
+      timerId = setTimeout(() => setShowConfetti(false), 5000);
     }
+    return () => clearTimeout(timerId);
   }, [canProceedToDashboard, hasShownConfetti, t]);
 
   const handleAction = (path?: string) => {

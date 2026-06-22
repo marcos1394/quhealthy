@@ -68,39 +68,93 @@ export function AiStudioForm({ catalogItems, onGenerationSuccess }: AiStudioForm
 
   const { user } = useSessionStore();
 
-  const [selectedService, setSelectedService] = useState<CatalogItemOption | null>(null);
+    const [{ selectedService, textTone, imagePrompt, imagePlatform, imageStyle, imageLighting, imageAspectRatio, videoPrompt, videoPlatform, videoTone, videoAspectRatio, videoBaseImageUrl, isGeneratingText, isGeneratingImage, isGeneratingVideo, generatedText, generatedImageUrl, generatedImageCaption, generatedVideoUrl, videoStatus, activeTab, copied, scheduleModalOpen, schedulePrefill }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SELECTEDSERVICE': return { ...state, selectedService: typeof action.payload === 'function' ? action.payload(state.selectedService) : action.payload };
+      case 'SET_TEXTTONE': return { ...state, textTone: typeof action.payload === 'function' ? action.payload(state.textTone) : action.payload };
+      case 'SET_IMAGEPROMPT': return { ...state, imagePrompt: typeof action.payload === 'function' ? action.payload(state.imagePrompt) : action.payload };
+      case 'SET_IMAGEPLATFORM': return { ...state, imagePlatform: typeof action.payload === 'function' ? action.payload(state.imagePlatform) : action.payload };
+      case 'SET_IMAGESTYLE': return { ...state, imageStyle: typeof action.payload === 'function' ? action.payload(state.imageStyle) : action.payload };
+      case 'SET_IMAGELIGHTING': return { ...state, imageLighting: typeof action.payload === 'function' ? action.payload(state.imageLighting) : action.payload };
+      case 'SET_IMAGEASPECTRATIO': return { ...state, imageAspectRatio: typeof action.payload === 'function' ? action.payload(state.imageAspectRatio) : action.payload };
+      case 'SET_VIDEOPROMPT': return { ...state, videoPrompt: typeof action.payload === 'function' ? action.payload(state.videoPrompt) : action.payload };
+      case 'SET_VIDEOPLATFORM': return { ...state, videoPlatform: typeof action.payload === 'function' ? action.payload(state.videoPlatform) : action.payload };
+      case 'SET_VIDEOTONE': return { ...state, videoTone: typeof action.payload === 'function' ? action.payload(state.videoTone) : action.payload };
+      case 'SET_VIDEOASPECTRATIO': return { ...state, videoAspectRatio: typeof action.payload === 'function' ? action.payload(state.videoAspectRatio) : action.payload };
+      case 'SET_VIDEOBASEIMAGEURL': return { ...state, videoBaseImageUrl: typeof action.payload === 'function' ? action.payload(state.videoBaseImageUrl) : action.payload };
+      case 'SET_ISGENERATINGTEXT': return { ...state, isGeneratingText: typeof action.payload === 'function' ? action.payload(state.isGeneratingText) : action.payload };
+      case 'SET_ISGENERATINGIMAGE': return { ...state, isGeneratingImage: typeof action.payload === 'function' ? action.payload(state.isGeneratingImage) : action.payload };
+      case 'SET_ISGENERATINGVIDEO': return { ...state, isGeneratingVideo: typeof action.payload === 'function' ? action.payload(state.isGeneratingVideo) : action.payload };
+      case 'SET_GENERATEDTEXT': return { ...state, generatedText: typeof action.payload === 'function' ? action.payload(state.generatedText) : action.payload };
+      case 'SET_GENERATEDIMAGEURL': return { ...state, generatedImageUrl: typeof action.payload === 'function' ? action.payload(state.generatedImageUrl) : action.payload };
+      case 'SET_GENERATEDIMAGECAPTION': return { ...state, generatedImageCaption: typeof action.payload === 'function' ? action.payload(state.generatedImageCaption) : action.payload };
+      case 'SET_GENERATEDVIDEOURL': return { ...state, generatedVideoUrl: typeof action.payload === 'function' ? action.payload(state.generatedVideoUrl) : action.payload };
+      case 'SET_VIDEOSTATUS': return { ...state, videoStatus: typeof action.payload === 'function' ? action.payload(state.videoStatus) : action.payload };
+      case 'SET_ACTIVETAB': return { ...state, activeTab: typeof action.payload === 'function' ? action.payload(state.activeTab) : action.payload };
+      case 'SET_COPIED': return { ...state, copied: typeof action.payload === 'function' ? action.payload(state.copied) : action.payload };
+      case 'SET_SCHEDULEMODALOPEN': return { ...state, scheduleModalOpen: typeof action.payload === 'function' ? action.payload(state.scheduleModalOpen) : action.payload };
+      case 'SET_SCHEDULEPREFILL': return { ...state, schedulePrefill: typeof action.payload === 'function' ? action.payload(state.schedulePrefill) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        selectedService: null, textTone: 'professional', imagePrompt: '', imagePlatform: 'INSTAGRAM', imageStyle: 'Fotorrealismo Clínico', imageLighting: 'Luz Natural', imageAspectRatio: 'SQUARE', videoPrompt: '', videoPlatform: 'INSTAGRAM', videoTone: 'educational', videoAspectRatio: 'LANDSCAPE', videoBaseImageUrl: '', isGeneratingText: false, isGeneratingImage: false, isGeneratingVideo: false, generatedText: '', generatedImageUrl: '', generatedImageCaption: '', generatedVideoUrl: '', videoStatus: '', activeTab: 'text', copied: false, scheduleModalOpen: false, schedulePrefill: undefined
+      }
+    );
 
-  const [textTone, setTextTone]               = useState<AiTone>('professional');
-  const [imagePrompt, setImagePrompt]         = useState('');
-  const [imagePlatform, setImagePlatform]     = useState<SocialPlatform>('INSTAGRAM');
-  const [imageStyle, setImageStyle]           = useState('Fotorrealismo Clínico');
-  const [imageLighting, setImageLighting]     = useState('Luz Natural');
-  const [imageAspectRatio, setImageAspectRatio] = useState<'SQUARE' | 'PORTRAIT' | 'LANDSCAPE'>('SQUARE');
-  const [videoPrompt, setVideoPrompt]         = useState('');
-  const [videoPlatform, setVideoPlatform]     = useState<SocialPlatform>('INSTAGRAM');
-  const [videoTone, setVideoTone]             = useState<AiTone>('educational');
-  const [videoAspectRatio, setVideoAspectRatio] = useState<'LANDSCAPE' | 'PORTRAIT' | 'SQUARE'>('LANDSCAPE');
-  const [videoBaseImageUrl, setVideoBaseImageUrl] = useState('');
+    const setSelectedService = (val: any) => dispatch({ type: 'SET_SELECTEDSERVICE', payload: val });
+    const setTextTone = (val: any) => dispatch({ type: 'SET_TEXTTONE', payload: val });
+    const setImagePrompt = (val: any) => dispatch({ type: 'SET_IMAGEPROMPT', payload: val });
+    const setImagePlatform = (val: any) => dispatch({ type: 'SET_IMAGEPLATFORM', payload: val });
+    const setImageStyle = (val: any) => dispatch({ type: 'SET_IMAGESTYLE', payload: val });
+    const setImageLighting = (val: any) => dispatch({ type: 'SET_IMAGELIGHTING', payload: val });
+    const setImageAspectRatio = (val: any) => dispatch({ type: 'SET_IMAGEASPECTRATIO', payload: val });
+    const setVideoPrompt = (val: any) => dispatch({ type: 'SET_VIDEOPROMPT', payload: val });
+    const setVideoPlatform = (val: any) => dispatch({ type: 'SET_VIDEOPLATFORM', payload: val });
+    const setVideoTone = (val: any) => dispatch({ type: 'SET_VIDEOTONE', payload: val });
+    const setVideoAspectRatio = (val: any) => dispatch({ type: 'SET_VIDEOASPECTRATIO', payload: val });
+    const setVideoBaseImageUrl = (val: any) => dispatch({ type: 'SET_VIDEOBASEIMAGEURL', payload: val });
+    const setIsGeneratingText = (val: any) => dispatch({ type: 'SET_ISGENERATINGTEXT', payload: val });
+    const setIsGeneratingImage = (val: any) => dispatch({ type: 'SET_ISGENERATINGIMAGE', payload: val });
+    const setIsGeneratingVideo = (val: any) => dispatch({ type: 'SET_ISGENERATINGVIDEO', payload: val });
+    const setGeneratedText = (val: any) => dispatch({ type: 'SET_GENERATEDTEXT', payload: val });
+    const setGeneratedImageUrl = (val: any) => dispatch({ type: 'SET_GENERATEDIMAGEURL', payload: val });
+    const setGeneratedImageCaption = (val: any) => dispatch({ type: 'SET_GENERATEDIMAGECAPTION', payload: val });
+    const setGeneratedVideoUrl = (val: any) => dispatch({ type: 'SET_GENERATEDVIDEOURL', payload: val });
+    const setVideoStatus = (val: any) => dispatch({ type: 'SET_VIDEOSTATUS', payload: val });
+    const setActiveTab = (val: any) => dispatch({ type: 'SET_ACTIVETAB', payload: val });
+    const setCopied = (val: any) => dispatch({ type: 'SET_COPIED', payload: val });
+    const setScheduleModalOpen = (val: any) => dispatch({ type: 'SET_SCHEDULEMODALOPEN', payload: val });
+    const setSchedulePrefill = (val: any) => dispatch({ type: 'SET_SCHEDULEPREFILL', payload: val });
 
-  const [isGeneratingText, setIsGeneratingText]   = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
 
-  const [generatedText, setGeneratedText]               = useState('');
-  const [generatedImageUrl, setGeneratedImageUrl]       = useState('');
-  const [generatedImageCaption, setGeneratedImageCaption] = useState('');
-  const [generatedVideoUrl, setGeneratedVideoUrl]       = useState('');
-  const [videoStatus, setVideoStatus]                   = useState('');
-  const [activeTab, setActiveTab]                       = useState('text');
-  const [copied, setCopied]                             = useState(false);
 
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-  const [schedulePrefill, setSchedulePrefill] = useState<{
-    content: string;
-    mediaUrls?: string[];
-    mediaType?: 'image' | 'video';
-    generatedByAi: boolean;
-  } | undefined>(undefined);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (sseVideoUrl) {

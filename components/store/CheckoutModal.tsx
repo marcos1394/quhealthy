@@ -68,15 +68,40 @@ export function CheckoutModal({
   const needsPrescription = itemsNeedingRx.length > 0;
 
   // --- State ---
-  const [address, setAddress] = useState<AddressForm>(EMPTY_ADDRESS);
-  const [prescriptionUrls, setPrescriptionUrls] = useState<Record<number, string>>({});
-  const [uploadingId, setUploadingId] = useState<number | null>(null);
-  const [uploadErrors, setUploadErrors] = useState<Record<number, string>>({});
+    const [{ address, prescriptionUrls, uploadingId, uploadErrors, shippingMethod, pickupDate, pickupTimeStr }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ADDRESS': return { ...state, address: typeof action.payload === 'function' ? action.payload(state.address) : action.payload };
+      case 'SET_PRESCRIPTIONURLS': return { ...state, prescriptionUrls: typeof action.payload === 'function' ? action.payload(state.prescriptionUrls) : action.payload };
+      case 'SET_UPLOADINGID': return { ...state, uploadingId: typeof action.payload === 'function' ? action.payload(state.uploadingId) : action.payload };
+      case 'SET_UPLOADERRORS': return { ...state, uploadErrors: typeof action.payload === 'function' ? action.payload(state.uploadErrors) : action.payload };
+      case 'SET_SHIPPINGMETHOD': return { ...state, shippingMethod: typeof action.payload === 'function' ? action.payload(state.shippingMethod) : action.payload };
+      case 'SET_PICKUPDATE': return { ...state, pickupDate: typeof action.payload === 'function' ? action.payload(state.pickupDate) : action.payload };
+      case 'SET_PICKUPTIMESTR': return { ...state, pickupTimeStr: typeof action.payload === 'function' ? action.payload(state.pickupTimeStr) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        address: EMPTY_ADDRESS, prescriptionUrls: {}, uploadingId: null, uploadErrors: {}, shippingMethod: 'DELIVERY', pickupDate: undefined, pickupTimeStr: ''
+      }
+    );
+
+    const setAddress = (val: any) => dispatch({ type: 'SET_ADDRESS', payload: val });
+    const setPrescriptionUrls = (val: any) => dispatch({ type: 'SET_PRESCRIPTIONURLS', payload: val });
+    const setUploadingId = (val: any) => dispatch({ type: 'SET_UPLOADINGID', payload: val });
+    const setUploadErrors = (val: any) => dispatch({ type: 'SET_UPLOADERRORS', payload: val });
+    const setShippingMethod = (val: any) => dispatch({ type: 'SET_SHIPPINGMETHOD', payload: val });
+    const setPickupDate = (val: any) => dispatch({ type: 'SET_PICKUPDATE', payload: val });
+    const setPickupTimeStr = (val: any) => dispatch({ type: 'SET_PICKUPTIMESTR', payload: val });
+
+
+
+
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
-  const [shippingMethod, setShippingMethod] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY'); 
+ 
   
-  const [pickupDate, setPickupDate] = useState<Date>();
-  const [pickupTimeStr, setPickupTimeStr] = useState<string>('');
+
+
 
   const PICKUP_TIMES = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -93,7 +118,7 @@ export function CheckoutModal({
 
   // --- Handlers ---
   const handleAddressChange = (field: keyof AddressForm, value: string) => {
-    setAddress(prev => ({ ...prev, [field]: value }));
+    setAddress((prev: any) => ({ ...prev, [field]: value }));
     if (field === 'street') {
       setQuery(value);
     }
@@ -122,15 +147,15 @@ export function CheckoutModal({
   const handleFileChange = async (itemId: number, file: File | null) => {
     if (!file) return;
     setUploadingId(itemId);
-    setUploadErrors(prev => ({ ...prev, [itemId]: "" }));
+    setUploadErrors((prev: any) => ({ ...prev, [itemId]: "" }));
     
     try {
       const { signedUrl, fileKey } = await storageService.getPrescriptionUploadUrl(file.type);
       await storageService.uploadDirectToCloud(file, signedUrl);
-      setPrescriptionUrls(prev => ({ ...prev, [itemId]: fileKey }));
+      setPrescriptionUrls((prev: any) => ({ ...prev, [itemId]: fileKey }));
     } catch (error) {
       console.error(error);
-      setUploadErrors(prev => ({ ...prev, [itemId]: "ERROR DE TRANSFERENCIA. REINTENTE." }));
+      setUploadErrors((prev: any) => ({ ...prev, [itemId]: "ERROR DE TRANSFERENCIA. REINTENTE." }));
     } finally {
       setUploadingId(null);
     }

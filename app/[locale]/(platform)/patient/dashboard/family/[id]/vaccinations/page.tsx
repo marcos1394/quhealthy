@@ -70,20 +70,47 @@ export default function VaccinationsPage() {
     const router = useRouter();
     const t = useTranslations();
     const { family, isLoading } = useFamily();
-    const [member, setMember] = useState<any>(null);
+    const [{ member, vaccinesData, isLoadingVaccines, simulatingAction, isScanning, isManualMarkModalOpen, selectedVaccineId, selectedDate }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_MEMBER': return { ...state, member: typeof action.payload === 'function' ? action.payload(state.member) : action.payload };
+      case 'SET_VACCINESDATA': return { ...state, vaccinesData: typeof action.payload === 'function' ? action.payload(state.vaccinesData) : action.payload };
+      case 'SET_ISLOADINGVACCINES': return { ...state, isLoadingVaccines: typeof action.payload === 'function' ? action.payload(state.isLoadingVaccines) : action.payload };
+      case 'SET_SIMULATINGACTION': return { ...state, simulatingAction: typeof action.payload === 'function' ? action.payload(state.simulatingAction) : action.payload };
+      case 'SET_ISSCANNING': return { ...state, isScanning: typeof action.payload === 'function' ? action.payload(state.isScanning) : action.payload };
+      case 'SET_ISMANUALMARKMODALOPEN': return { ...state, isManualMarkModalOpen: typeof action.payload === 'function' ? action.payload(state.isManualMarkModalOpen) : action.payload };
+      case 'SET_SELECTEDVACCINEID': return { ...state, selectedVaccineId: typeof action.payload === 'function' ? action.payload(state.selectedVaccineId) : action.payload };
+      case 'SET_SELECTEDDATE': return { ...state, selectedDate: typeof action.payload === 'function' ? action.payload(state.selectedDate) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        member: null, vaccinesData: [], isLoadingVaccines: true, simulatingAction: null, isScanning: false, isManualMarkModalOpen: false, selectedVaccineId: null, selectedDate: undefined
+      }
+    );
 
-    const [vaccinesData, setVaccinesData] = useState<VaccinationStatusDto[]>([]);
-    const [isLoadingVaccines, setIsLoadingVaccines] = useState(true);
+    const setMember = (val: any) => dispatch({ type: 'SET_MEMBER', payload: val });
+    const setVaccinesData = (val: any) => dispatch({ type: 'SET_VACCINESDATA', payload: val });
+    const setIsLoadingVaccines = (val: any) => dispatch({ type: 'SET_ISLOADINGVACCINES', payload: val });
+    const setSimulatingAction = (val: any) => dispatch({ type: 'SET_SIMULATINGACTION', payload: val });
+    const setIsScanning = (val: any) => dispatch({ type: 'SET_ISSCANNING', payload: val });
+    const setIsManualMarkModalOpen = (val: any) => dispatch({ type: 'SET_ISMANUALMARKMODALOPEN', payload: val });
+    const setSelectedVaccineId = (val: any) => dispatch({ type: 'SET_SELECTEDVACCINEID', payload: val });
+    const setSelectedDate = (val: any) => dispatch({ type: 'SET_SELECTEDDATE', payload: val });
 
-    const [simulatingAction, setSimulatingAction] = useState<number | null>(null);
-    const [isScanning, setIsScanning] = useState(false);
+
+
+
+
+
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
     // Modal para seleccionar fecha manual
-    const [isManualMarkModalOpen, setIsManualMarkModalOpen] = useState(false);
-    const [selectedVaccineId, setSelectedVaccineId] = useState<number | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+
+
+
 
     const loadVaccines = useCallback(async (dependentId: number) => {
         setIsLoadingVaccines(true);
@@ -113,7 +140,7 @@ export default function VaccinationsPage() {
 
     const groupedVaccines = useMemo(() => {
         const groups: Record<number, { ageGroup: string, vaccines: VaccinationStatusDto[] }> = {};
-        vaccinesData.forEach(vaccine => {
+        vaccinesData.forEach((vaccine: any) => {
             const month = vaccine.recommendedAgeMonths;
             if (!groups[month]) {
                 groups[month] = { ageGroup: getAgeLabel(month), vaccines: [] };
@@ -123,8 +150,8 @@ export default function VaccinationsPage() {
         return Object.values(groups).sort((a, b) => a.vaccines[0].recommendedAgeMonths - b.vaccines[0].recommendedAgeMonths);
     }, [vaccinesData]);
 
-    const appliedCount = useMemo(() => vaccinesData.filter(vaccine => vaccine.isApplied).length, [vaccinesData]);
-    const delayedCount = useMemo(() => vaccinesData.filter(vaccine => vaccine.isDelayed).length, [vaccinesData]);
+    const appliedCount = useMemo(() => vaccinesData.filter((vaccine: any) => vaccine.isApplied).length, [vaccinesData]);
+    const delayedCount = useMemo(() => vaccinesData.filter((vaccine: any) => vaccine.isDelayed).length, [vaccinesData]);
     const progress = vaccinesData.length > 0 ? Math.round((appliedCount / vaccinesData.length) * 100) : 0;
 
     const handleToggleVaccine = (vaccine: VaccinationStatusDto) => {
@@ -178,7 +205,7 @@ export default function VaccinationsPage() {
             let markedCount = 0;
             for (const item of response.data) {
                 if (item.vaccineId && item.dateApplied) {
-                    const catalogMatch = vaccinesData.find(v => 
+                    const catalogMatch = vaccinesData.find((v: any) => 
                         v.diseasePrevented.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, '')) ||
                         v.name.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, ''))
                     );

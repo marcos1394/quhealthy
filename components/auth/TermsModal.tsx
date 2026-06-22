@@ -40,9 +40,10 @@ import { Badge } from '@/components/ui/badge';
 interface TermsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAccept?: () => void;
 }
 
-export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
+export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
   const lastUpdated = "15 de Enero, 2025";
 
   const keyPoints = [
@@ -304,7 +305,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             Cerrar
           </Button>
           <Button
-            onClick={onClose}
+            onClick={onAccept ? onAccept : onClose}
             className="bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-none"
           >
             He Leído y Acepto

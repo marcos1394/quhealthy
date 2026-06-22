@@ -34,7 +34,15 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({ appointment, i
   const [completionStep, setCompletionStep] = useState<"idle" | "processing" | "success">("idle");
   const [charCount, setCharCount] = useState(0);
 
-  useEffect(() => { if (isOpen) { setNotes(""); setCharCount(0); setCompletionStep("idle"); } }, [isOpen]);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setNotes("");
+      setCharCount(0);
+      setCompletionStep("idle");
+    }
+  }
   useEffect(() => { setCharCount(notes.length); }, [notes]);
 
   const handleSubmit = async () => {

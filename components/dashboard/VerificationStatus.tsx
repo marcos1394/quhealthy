@@ -96,42 +96,36 @@ export const VerificationStatus: React.FC<VerificationStatusProps> = ({
   onDismiss,
   showDismiss = false
 }) => {
-  const [timeLeft, setTimeLeft] = useState<string>('');
-  const [progress, setProgress] = useState(0);
-
   // Calcular progreso - FEEDBACK VISUAL
-  useEffect(() => {
-    let completed = 0;
-    let total = 2; // KYC + Payment
-    
-    if (status.kyc.isComplete) completed++;
-    if (status.payment?.isComplete) completed++;
-    
-    if (status.license) {
-      total++;
-      if (status.license.isComplete) completed++;
-    }
-    
-    setProgress((completed / total) * 100);
-  }, [status]);
+  let completed = 0;
+  let total = 2; // KYC + Payment
+  
+  if (status.kyc.isComplete) completed++;
+  if (status.payment?.isComplete) completed++;
+  
+  if (status.license) {
+    total++;
+    if (status.license.isComplete) completed++;
+  }
+  
+  const progress = (completed / total) * 100;
 
   // Calcular tiempo estimado - CREDIBILIDAD
-  useEffect(() => {
-    const isPending = status.kyc.status === 'pending' || status.license?.status === 'pending';
+  let timeLeft = '';
+  const isPending = status.kyc.status === 'pending' || status.license?.status === 'pending';
+  
+  if (isPending && status.kyc.submittedAt) {
+    const submitted = new Date(status.kyc.submittedAt);
+    const now = new Date();
+    const hoursPassed = Math.floor((now.getTime() - submitted.getTime()) / (1000 * 60 * 60));
+    const hoursLeft = Math.max(0, 24 - hoursPassed);
     
-    if (isPending && status.kyc.submittedAt) {
-      const submitted = new Date(status.kyc.submittedAt);
-      const now = new Date();
-      const hoursPassed = Math.floor((now.getTime() - submitted.getTime()) / (1000 * 60 * 60));
-      const hoursLeft = Math.max(0, 24 - hoursPassed);
-      
-      if (hoursLeft > 0) {
-        setTimeLeft(`~${hoursLeft}h restantes`);
-      } else {
-        setTimeLeft('Pronto');
-      }
+    if (hoursLeft > 0) {
+      timeLeft = `~${hoursLeft}h restantes`;
+    } else {
+      timeLeft = 'Pronto';
     }
-  }, [status]);
+  }
 
   const isKycComplete = status.kyc.isComplete;
   const isLicenseRequired = !!status.license;

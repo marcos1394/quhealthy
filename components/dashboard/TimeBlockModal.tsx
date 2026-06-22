@@ -23,12 +23,35 @@ const blockTemplates = [
 ];
 
 export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose, onSaveSuccess, initialDate }) => {
-  const [formData, setFormData] = useState({ title: "BLOQUEO OPERATIVO", startDate: "", startTime: "", endDate: "", endTime: "" });
-  const [loading, setLoading] = useState(false);
-  const [savingStep, setSavingStep] = useState<"idle" | "saving" | "success">("idle");
-  const [validationError, setValidationError] = useState("");
-  const [duration, setDuration] = useState(0);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [{ formData, loading, savingStep, validationError, duration, selectedTemplate }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_FORMDATA': return { ...state, formData: typeof action.payload === 'function' ? action.payload(state.formData) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_SAVINGSTEP': return { ...state, savingStep: typeof action.payload === 'function' ? action.payload(state.savingStep) : action.payload };
+      case 'SET_VALIDATIONERROR': return { ...state, validationError: typeof action.payload === 'function' ? action.payload(state.validationError) : action.payload };
+      case 'SET_DURATION': return { ...state, duration: typeof action.payload === 'function' ? action.payload(state.duration) : action.payload };
+      case 'SET_SELECTEDTEMPLATE': return { ...state, selectedTemplate: typeof action.payload === 'function' ? action.payload(state.selectedTemplate) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        formData: { title: "BLOQUEO OPERATIVO", startDate: "", startTime: "", endDate: "", endTime: "" }, loading: false, savingStep: "idle", validationError: "", duration: 0, selectedTemplate: null
+      }
+    );
+
+    const setFormData = (val: any) => dispatch({ type: 'SET_FORMDATA', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setSavingStep = (val: any) => dispatch({ type: 'SET_SAVINGSTEP', payload: val });
+    const setValidationError = (val: any) => dispatch({ type: 'SET_VALIDATIONERROR', payload: val });
+    const setDuration = (val: any) => dispatch({ type: 'SET_DURATION', payload: val });
+    const setSelectedTemplate = (val: any) => dispatch({ type: 'SET_SELECTEDTEMPLATE', payload: val });
+
+
+
+
+
+
   const { createBlock, isCreating } = useTimeBlock();
   const t = useTranslations('DashboardTimeBlock');
 
@@ -57,7 +80,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     
-    setFormData(prev => {
+    setFormData((prev: any) => {
       const next = { ...prev, [name]: value };
       
       if (name === "startDate" || name === "startTime") {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { X, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown, Image as ImageIcon, Send } from "lucide-react";
 import { useSocial } from "@/hooks/useSocial";
@@ -78,13 +78,38 @@ export default function ScheduleModal({
   const { connections, schedulePost, loadConnections } = useSocial();
 
   // ── Form state ──────────────────────────────────────────────────────────────
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
-  const [content, setContent] = useState<string>("");
-  const [scheduledAt, setScheduledAt] = useState<string>("");
-  const [status, setStatus] = useState<ScheduleStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState<string>("");
-  const [showConnectionDropdown, setShowConnectionDropdown] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
+    const [{ selectedConnectionId, content, scheduledAt, status, errorMsg, showConnectionDropdown, calendarOpen }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SELECTEDCONNECTIONID': return { ...state, selectedConnectionId: typeof action.payload === 'function' ? action.payload(state.selectedConnectionId) : action.payload };
+      case 'SET_CONTENT': return { ...state, content: typeof action.payload === 'function' ? action.payload(state.content) : action.payload };
+      case 'SET_SCHEDULEDAT': return { ...state, scheduledAt: typeof action.payload === 'function' ? action.payload(state.scheduledAt) : action.payload };
+      case 'SET_STATUS': return { ...state, status: typeof action.payload === 'function' ? action.payload(state.status) : action.payload };
+      case 'SET_ERRORMSG': return { ...state, errorMsg: typeof action.payload === 'function' ? action.payload(state.errorMsg) : action.payload };
+      case 'SET_SHOWCONNECTIONDROPDOWN': return { ...state, showConnectionDropdown: typeof action.payload === 'function' ? action.payload(state.showConnectionDropdown) : action.payload };
+      case 'SET_CALENDAROPEN': return { ...state, calendarOpen: typeof action.payload === 'function' ? action.payload(state.calendarOpen) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        selectedConnectionId: "", content: "", scheduledAt: "", status: "idle", errorMsg: "", showConnectionDropdown: false, calendarOpen: false
+      }
+    );
+
+    const setSelectedConnectionId = (val: any) => dispatch({ type: 'SET_SELECTEDCONNECTIONID', payload: val });
+    const setContent = (val: any) => dispatch({ type: 'SET_CONTENT', payload: val });
+    const setScheduledAt = (val: any) => dispatch({ type: 'SET_SCHEDULEDAT', payload: val });
+    const setStatus = (val: any) => dispatch({ type: 'SET_STATUS', payload: val });
+    const setErrorMsg = (val: any) => dispatch({ type: 'SET_ERRORMSG', payload: val });
+    const setShowConnectionDropdown = (val: any) => dispatch({ type: 'SET_SHOWCONNECTIONDROPDOWN', payload: val });
+    const setCalendarOpen = (val: any) => dispatch({ type: 'SET_CALENDAROPEN', payload: val });
+
+
+
+
+
+
+
 
   // Derivados
   const selectedDateObj = scheduledAt ? parseISO(scheduledAt) : undefined;
@@ -237,7 +262,7 @@ export default function ScheduleModal({
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setShowConnectionDropdown((v) => !v)}
+                  onClick={() => setShowConnectionDropdown((v: any) => !v)}
                   className="w-full h-14 px-4 flex items-center justify-between border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-left hover:bg-white dark:hover:bg-[#111] transition-colors focus:outline-none focus:border-black dark:focus:border-white rounded-none"
                 >
                   {selectedConnection ? (

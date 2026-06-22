@@ -41,13 +41,38 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
   const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations('DashboardAppointments');
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [patientPickerOpen, setPatientPickerOpen] = useState(false);
-  const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
-  const [patientQuery, setPatientQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<PatientDirectorySearchResult[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<PatientDirectorySearchResult | null>(null);
+    const [{ isSubmitting, isSearching, patientPickerOpen, isNewPatientModalOpen, patientQuery, searchResults, selectedPatient }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISSUBMITTING': return { ...state, isSubmitting: typeof action.payload === 'function' ? action.payload(state.isSubmitting) : action.payload };
+      case 'SET_ISSEARCHING': return { ...state, isSearching: typeof action.payload === 'function' ? action.payload(state.isSearching) : action.payload };
+      case 'SET_PATIENTPICKEROPEN': return { ...state, patientPickerOpen: typeof action.payload === 'function' ? action.payload(state.patientPickerOpen) : action.payload };
+      case 'SET_ISNEWPATIENTMODALOPEN': return { ...state, isNewPatientModalOpen: typeof action.payload === 'function' ? action.payload(state.isNewPatientModalOpen) : action.payload };
+      case 'SET_PATIENTQUERY': return { ...state, patientQuery: typeof action.payload === 'function' ? action.payload(state.patientQuery) : action.payload };
+      case 'SET_SEARCHRESULTS': return { ...state, searchResults: typeof action.payload === 'function' ? action.payload(state.searchResults) : action.payload };
+      case 'SET_SELECTEDPATIENT': return { ...state, selectedPatient: typeof action.payload === 'function' ? action.payload(state.selectedPatient) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isSubmitting: false, isSearching: false, patientPickerOpen: false, isNewPatientModalOpen: false, patientQuery: '', searchResults: [], selectedPatient: null
+      }
+    );
+
+    const setIsSubmitting = (val: any) => dispatch({ type: 'SET_ISSUBMITTING', payload: val });
+    const setIsSearching = (val: any) => dispatch({ type: 'SET_ISSEARCHING', payload: val });
+    const setPatientPickerOpen = (val: any) => dispatch({ type: 'SET_PATIENTPICKEROPEN', payload: val });
+    const setIsNewPatientModalOpen = (val: any) => dispatch({ type: 'SET_ISNEWPATIENTMODALOPEN', payload: val });
+    const setPatientQuery = (val: any) => dispatch({ type: 'SET_PATIENTQUERY', payload: val });
+    const setSearchResults = (val: any) => dispatch({ type: 'SET_SEARCHRESULTS', payload: val });
+    const setSelectedPatient = (val: any) => dispatch({ type: 'SET_SELECTEDPATIENT', payload: val });
+
+
+
+
+
+
+
   const [formData, setFormData] = useState({
     serviceId: '',
     appointmentDate: '',
@@ -265,6 +290,8 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                       <button
                         type="button"
                         role="combobox"
+                        aria-expanded={patientPickerOpen}
+                        aria-controls="patient-list"
                         className="w-full flex-1 flex items-center justify-between h-12 px-4 rounded-none bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-xs font-semibold uppercase tracking-widest border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20"
                       >
                         <span className="truncate text-left">
@@ -302,7 +329,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                           ) : null}
                           <CommandEmpty className="py-4 text-center text-[9px] uppercase tracking-widest font-bold text-gray-500">{t('new_appointment_modal.no_patients_found')}</CommandEmpty>
                           <CommandGroup className="p-0">
-                            {displayedPatients.map((patient) => (
+                            {displayedPatients.map((patient: any) => (
                               <CommandItem
                                 key={patient.id}
                                 value={String(patient.id)}

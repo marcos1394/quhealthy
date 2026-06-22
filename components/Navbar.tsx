@@ -102,7 +102,7 @@ export const Navbar: React.FC = () => {
   // --- COMPONENTES INTERNOS ---
 
   // Avatar Arquitectónico (Cuadrado, sin redondeos, grayscale por defecto)
-  const UserAvatar = ({ className, size = "sm" }: { className?: string, size?: "sm" | "lg" }) => (
+  const renderUserAvatar = ({ className, size = "sm" }: { className?: string, size?: "sm" | "lg" } = {}) => (
     <Avatar className={cn(
       "rounded-none border border-black dark:border-white transition-all duration-300 grayscale hover:grayscale-0",
       size === "lg" ? "h-12 w-12" : "h-9 w-9",
@@ -115,11 +115,11 @@ export const Navbar: React.FC = () => {
     </Avatar>
   );
 
-  const UserMenuDropdown = () => (
+  const renderUserMenuDropdown = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-none p-0 hover:bg-transparent focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white">
-          <UserAvatar />
+          {renderUserAvatar()}
           <span className="absolute -bottom-1 -right-1 h-3 w-3 bg-black dark:bg-white border-2 border-white dark:border-[#0a0a0a]" />
         </Button>
       </DropdownMenuTrigger>
@@ -131,7 +131,7 @@ export const Navbar: React.FC = () => {
       >
         <DropdownMenuLabel className="font-normal p-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-4">
-            <UserAvatar size="lg" />
+            {renderUserAvatar({ size: "lg" })}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold uppercase tracking-widest text-black dark:text-white truncate">
                 {user?.firstName} {user?.lastName}
@@ -282,7 +282,7 @@ export const Navbar: React.FC = () => {
                   <Megaphone size={18} />
                 </Button>
               )}
-              <UserMenuDropdown />
+              {renderUserMenuDropdown()}
             </div>
           ) : (
             // ESTADO GUEST (Visitante)
@@ -361,7 +361,7 @@ export const Navbar: React.FC = () => {
                 </div>
               ) : isAuthenticated && (
                 <div className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                  <UserAvatar size="lg" />
+                  {renderUserAvatar({ size: "lg" })}
                   <div>
                     <p className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">{user?.firstName}</p>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400">{user?.email}</p>

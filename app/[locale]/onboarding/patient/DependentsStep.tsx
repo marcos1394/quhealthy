@@ -14,10 +14,34 @@ import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 export const DependentsStep = () => {
-  const [dependents, setDependents] = useState<Dependent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+    const [{ dependents, loading, isModalOpen, saving, extraData }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_DEPENDENTS': return { ...state, dependents: typeof action.payload === 'function' ? action.payload(state.dependents) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_ISMODALOPEN': return { ...state, isModalOpen: typeof action.payload === 'function' ? action.payload(state.isModalOpen) : action.payload };
+      case 'SET_SAVING': return { ...state, saving: typeof action.payload === 'function' ? action.payload(state.saving) : action.payload };
+      case 'SET_EXTRADATA': return { ...state, extraData: typeof action.payload === 'function' ? action.payload(state.extraData) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        dependents: [], loading: true, isModalOpen: false, saving: false, extraData: {
+    weightKg: "",
+    heightCm: ""
+  }
+      }
+    );
+
+    const setDependents = (val: any) => dispatch({ type: 'SET_DEPENDENTS', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setIsModalOpen = (val: any) => dispatch({ type: 'SET_ISMODALOPEN', payload: val });
+    const setSaving = (val: any) => dispatch({ type: 'SET_SAVING', payload: val });
+    const setExtraData = (val: any) => dispatch({ type: 'SET_EXTRADATA', payload: val });
+
+
+
+
 
   const [formData, setFormData] = useState<DependentRequest>({
     firstName: "",
@@ -28,10 +52,7 @@ export const DependentsStep = () => {
     medicalNotes: "",
   });
 
-  const [extraData, setExtraData] = useState({
-    weightKg: "",
-    heightCm: ""
-  });
+
 
   useEffect(() => {
     loadDependents();
@@ -130,7 +151,7 @@ export const DependentsStep = () => {
         <div className="space-y-6">
           {dependents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {dependents.map((dep) => (
+              {dependents.map((dep: any) => (
                 <div key={dep.id} className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-5 group hover:border-black dark:hover:border-white transition-colors relative flex items-start gap-4">
                   <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
                     {dep.relationship === 'CHILD' ? <Baby className="w-5 h-5" strokeWidth={1.5} /> : <Heart className="w-5 h-5" strokeWidth={1.5} />}

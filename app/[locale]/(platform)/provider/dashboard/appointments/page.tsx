@@ -27,14 +27,39 @@ export default function ProviderAppointmentsPage() {
   const { appointments, setAppointments, isLoading, refetch } = useProviderAppointments();
   const t = useTranslations('DashboardAppointments');
 
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<ProviderAppointment | null>(null);
-  const [cancelModalState, setCancelModalState] = useState<{ isOpen: boolean; appointment: ProviderAppointment | null }>({ isOpen: false, appointment: null });
-  const [isCanceling, setIsCanceling] = useState(false);
+    const [{ isCompleteModalOpen, isNewAppointmentModalOpen, selectedAppointment, cancelModalState, isCanceling, dateFilter, draggedApptId }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISCOMPLETEMODALOPEN': return { ...state, isCompleteModalOpen: typeof action.payload === 'function' ? action.payload(state.isCompleteModalOpen) : action.payload };
+      case 'SET_ISNEWAPPOINTMENTMODALOPEN': return { ...state, isNewAppointmentModalOpen: typeof action.payload === 'function' ? action.payload(state.isNewAppointmentModalOpen) : action.payload };
+      case 'SET_SELECTEDAPPOINTMENT': return { ...state, selectedAppointment: typeof action.payload === 'function' ? action.payload(state.selectedAppointment) : action.payload };
+      case 'SET_CANCELMODALSTATE': return { ...state, cancelModalState: typeof action.payload === 'function' ? action.payload(state.cancelModalState) : action.payload };
+      case 'SET_ISCANCELING': return { ...state, isCanceling: typeof action.payload === 'function' ? action.payload(state.isCanceling) : action.payload };
+      case 'SET_DATEFILTER': return { ...state, dateFilter: typeof action.payload === 'function' ? action.payload(state.dateFilter) : action.payload };
+      case 'SET_DRAGGEDAPPTID': return { ...state, draggedApptId: typeof action.payload === 'function' ? action.payload(state.draggedApptId) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isCompleteModalOpen: false, isNewAppointmentModalOpen: false, selectedAppointment: null, cancelModalState: { isOpen: false, appointment: null }, isCanceling: false, dateFilter: 'ALL', draggedApptId: null
+      }
+    );
+
+    const setIsCompleteModalOpen = (val: any) => dispatch({ type: 'SET_ISCOMPLETEMODALOPEN', payload: val });
+    const setIsNewAppointmentModalOpen = (val: any) => dispatch({ type: 'SET_ISNEWAPPOINTMENTMODALOPEN', payload: val });
+    const setSelectedAppointment = (val: any) => dispatch({ type: 'SET_SELECTEDAPPOINTMENT', payload: val });
+    const setCancelModalState = (val: any) => dispatch({ type: 'SET_CANCELMODALSTATE', payload: val });
+    const setIsCanceling = (val: any) => dispatch({ type: 'SET_ISCANCELING', payload: val });
+    const setDateFilter = (val: any) => dispatch({ type: 'SET_DATEFILTER', payload: val });
+    const setDraggedApptId = (val: any) => dispatch({ type: 'SET_DRAGGEDAPPTID', payload: val });
+
+
+
+
+
   
-  const [dateFilter, setDateFilter] = useState<'ALL' | 'TODAY' | 'UPCOMING'>('ALL');
-  const [draggedApptId, setDraggedApptId] = useState<number | string | null>(null);
+
+
 
   const normalizeStatus = (status: string) => {
     if (!status) return "SCHEDULED";

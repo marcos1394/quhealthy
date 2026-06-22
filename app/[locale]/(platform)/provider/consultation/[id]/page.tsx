@@ -30,19 +30,62 @@ export default function ConsultationRoomPage() {
   
   const appointmentId = Number(params.id);
   
-  const [currentStep, setCurrentStep] = useState<PipelineStep>('profile');
-  const [consumerId, setConsumerId] = useState<number | null>(null);
-  const [patientDirectoryId, setPatientDirectoryId] = useState<number | null>(null);
-  const [isOfflinePatient, setIsOfflinePatient] = useState(false);
-  const [patientName, setPatientName] = useState<string>("");
-  const [appointmentType, setAppointmentType] = useState<string>('in_person');
-  const [loadingAppointment, setLoadingAppointment] = useState(true); 
+    const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_CURRENTSTEP': return { ...state, currentStep: typeof action.payload === 'function' ? action.payload(state.currentStep) : action.payload };
+      case 'SET_CONSUMERID': return { ...state, consumerId: typeof action.payload === 'function' ? action.payload(state.consumerId) : action.payload };
+      case 'SET_PATIENTDIRECTORYID': return { ...state, patientDirectoryId: typeof action.payload === 'function' ? action.payload(state.patientDirectoryId) : action.payload };
+      case 'SET_ISOFFLINEPATIENT': return { ...state, isOfflinePatient: typeof action.payload === 'function' ? action.payload(state.isOfflinePatient) : action.payload };
+      case 'SET_PATIENTNAME': return { ...state, patientName: typeof action.payload === 'function' ? action.payload(state.patientName) : action.payload };
+      case 'SET_APPOINTMENTTYPE': return { ...state, appointmentType: typeof action.payload === 'function' ? action.payload(state.appointmentType) : action.payload };
+      case 'SET_LOADINGAPPOINTMENT': return { ...state, loadingAppointment: typeof action.payload === 'function' ? action.payload(state.loadingAppointment) : action.payload };
+      case 'SET_TOTALPRICE': return { ...state, totalPrice: typeof action.payload === 'function' ? action.payload(state.totalPrice) : action.payload };
+      case 'SET_PAYMENTMETHOD': return { ...state, paymentMethod: typeof action.payload === 'function' ? action.payload(state.paymentMethod) : action.payload };
+      case 'SET_PAYMENTSTATUS': return { ...state, paymentStatus: typeof action.payload === 'function' ? action.payload(state.paymentStatus) : action.payload };
+      case 'SET_SHOWCASHMODAL': return { ...state, showCashModal: typeof action.payload === 'function' ? action.payload(state.showCashModal) : action.payload };
+      case 'SET_REGISTERDENOMINATIONS': return { ...state, registerDenominations: typeof action.payload === 'function' ? action.payload(state.registerDenominations) : action.payload };
+      case 'SET_NEWRX': return { ...state, newRx: typeof action.payload === 'function' ? action.payload(state.newRx) : action.payload };
+      case 'SET_ISRECORDING': return { ...state, isRecording: typeof action.payload === 'function' ? action.payload(state.isRecording) : action.payload };
+      case 'SET_ISTRANSCRIBING': return { ...state, isTranscribing: typeof action.payload === 'function' ? action.payload(state.isTranscribing) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        currentStep: 'profile', consumerId: null, patientDirectoryId: null, isOfflinePatient: false, patientName: "", appointmentType: 'in_person', loadingAppointment: true, totalPrice: 0, paymentMethod: '', paymentStatus: '', showCashModal: false, registerDenominations: null, newRx: { 
+    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
+  }, isRecording: false, isTranscribing: false
+      }
+    );
 
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState<string>('');
-  const [paymentStatus, setPaymentStatus] = useState<string>('');
-  const [showCashModal, setShowCashModal] = useState(false);
-  const [registerDenominations, setRegisterDenominations] = useState<DenominationMap | null>(null);
+    const setCurrentStep = (val: any) => dispatch({ type: 'SET_CURRENTSTEP', payload: val });
+    const setConsumerId = (val: any) => dispatch({ type: 'SET_CONSUMERID', payload: val });
+    const setPatientDirectoryId = (val: any) => dispatch({ type: 'SET_PATIENTDIRECTORYID', payload: val });
+    const setIsOfflinePatient = (val: any) => dispatch({ type: 'SET_ISOFFLINEPATIENT', payload: val });
+    const setPatientName = (val: any) => dispatch({ type: 'SET_PATIENTNAME', payload: val });
+    const setAppointmentType = (val: any) => dispatch({ type: 'SET_APPOINTMENTTYPE', payload: val });
+    const setLoadingAppointment = (val: any) => dispatch({ type: 'SET_LOADINGAPPOINTMENT', payload: val });
+    const setTotalPrice = (val: any) => dispatch({ type: 'SET_TOTALPRICE', payload: val });
+    const setPaymentMethod = (val: any) => dispatch({ type: 'SET_PAYMENTMETHOD', payload: val });
+    const setPaymentStatus = (val: any) => dispatch({ type: 'SET_PAYMENTSTATUS', payload: val });
+    const setShowCashModal = (val: any) => dispatch({ type: 'SET_SHOWCASHMODAL', payload: val });
+    const setRegisterDenominations = (val: any) => dispatch({ type: 'SET_REGISTERDENOMINATIONS', payload: val });
+    const setNewRx = (val: any) => dispatch({ type: 'SET_NEWRX', payload: val });
+    const setIsRecording = (val: any) => dispatch({ type: 'SET_ISRECORDING', payload: val });
+    const setIsTranscribing = (val: any) => dispatch({ type: 'SET_ISTRANSCRIBING', payload: val });
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 
   const {
     patientProfile, vaultDocuments, vaultAccessDenied, isLoading, isSubmitting,
@@ -50,15 +93,10 @@ export default function ConsultationRoomPage() {
     addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
   } = useConsultation(appointmentId, consumerId || 0);
 
-  const [newRx, setNewRx] = useState<{
-    medicationName: string; dosage: string; frequency: string; duration: string; instructions: string; price: string | number;
-    frequencyEnum?: string; durationDays?: number | string; catalogItemId?: number; quantity?: number;
-  }>({ 
-    medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
-  });
+
   
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
+
+
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);

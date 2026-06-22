@@ -25,21 +25,52 @@ export const CalendarView: React.FC = () => {
   const t = useTranslations("DashboardCalendarView");
   const locale = useLocale();
   const fullCalendarLocale = locale === "es" ? esLocale : enLocale;
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [currentView, setCurrentView] = useState<"dayGridMonth" | "timeGridWeek" | "timeGridDay" | "listWeek">("timeGridWeek");
-  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [isNewApptModalOpen, setIsNewApptModalOpen] = useState(false);
-  const [selectedDateSlot, setSelectedDateSlot] = useState<Date | null>(null);
-
-  const [slotMinTime, setSlotMinTime] = useState("07:00:00");
-  const [slotMaxTime, setSlotMaxTime] = useState("22:00:00");
-  const [fcBusinessHours, setFcBusinessHours] = useState<any[]>([{
+    const [{ events, currentView, hoveredEvent, selectedEvent, isCancelling, isNewApptModalOpen, selectedDateSlot, slotMinTime, slotMaxTime, fcBusinessHours }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_EVENTS': return { ...state, events: typeof action.payload === 'function' ? action.payload(state.events) : action.payload };
+      case 'SET_CURRENTVIEW': return { ...state, currentView: typeof action.payload === 'function' ? action.payload(state.currentView) : action.payload };
+      case 'SET_HOVEREDEVENT': return { ...state, hoveredEvent: typeof action.payload === 'function' ? action.payload(state.hoveredEvent) : action.payload };
+      case 'SET_SELECTEDEVENT': return { ...state, selectedEvent: typeof action.payload === 'function' ? action.payload(state.selectedEvent) : action.payload };
+      case 'SET_ISCANCELLING': return { ...state, isCancelling: typeof action.payload === 'function' ? action.payload(state.isCancelling) : action.payload };
+      case 'SET_ISNEWAPPTMODALOPEN': return { ...state, isNewApptModalOpen: typeof action.payload === 'function' ? action.payload(state.isNewApptModalOpen) : action.payload };
+      case 'SET_SELECTEDDATESLOT': return { ...state, selectedDateSlot: typeof action.payload === 'function' ? action.payload(state.selectedDateSlot) : action.payload };
+      case 'SET_SLOTMINTIME': return { ...state, slotMinTime: typeof action.payload === 'function' ? action.payload(state.slotMinTime) : action.payload };
+      case 'SET_SLOTMAXTIME': return { ...state, slotMaxTime: typeof action.payload === 'function' ? action.payload(state.slotMaxTime) : action.payload };
+      case 'SET_FCBUSINESSHOURS': return { ...state, fcBusinessHours: typeof action.payload === 'function' ? action.payload(state.fcBusinessHours) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        events: [], currentView: "timeGridWeek", hoveredEvent: null, selectedEvent: null, isCancelling: false, isNewApptModalOpen: false, selectedDateSlot: null, slotMinTime: "07:00:00", slotMaxTime: "22:00:00", fcBusinessHours: [{
     daysOfWeek: [1, 2, 3, 4, 5, 6],
     startTime: "08:00",
     endTime: "20:00",
-  }]);
+  }]
+      }
+    );
+
+    const setEvents = (val: any) => dispatch({ type: 'SET_EVENTS', payload: val });
+    const setCurrentView = (val: any) => dispatch({ type: 'SET_CURRENTVIEW', payload: val });
+    const setHoveredEvent = (val: any) => dispatch({ type: 'SET_HOVEREDEVENT', payload: val });
+    const setSelectedEvent = (val: any) => dispatch({ type: 'SET_SELECTEDEVENT', payload: val });
+    const setIsCancelling = (val: any) => dispatch({ type: 'SET_ISCANCELLING', payload: val });
+    const setIsNewApptModalOpen = (val: any) => dispatch({ type: 'SET_ISNEWAPPTMODALOPEN', payload: val });
+    const setSelectedDateSlot = (val: any) => dispatch({ type: 'SET_SELECTEDDATESLOT', payload: val });
+    const setSlotMinTime = (val: any) => dispatch({ type: 'SET_SLOTMINTIME', payload: val });
+    const setSlotMaxTime = (val: any) => dispatch({ type: 'SET_SLOTMAXTIME', payload: val });
+    const setFcBusinessHours = (val: any) => dispatch({ type: 'SET_FCBUSINESSHOURS', payload: val });
+
+
+
+
+
+
+
+
+
+
+
 
   const loadEvents = useCallback(async (start?: string, end?: string) => { 
     // Fallback if FullCalendar hasn't passed dates yet
@@ -111,11 +142,11 @@ export const CalendarView: React.FC = () => {
   };
 
   const stats = {
-    confirmed: events.filter(e => e.extendedProps?.status === "confirmed").length,
-    pending: events.filter(e => e.extendedProps?.status === "pending").length,
+    confirmed: events.filter((e: any) => e.extendedProps?.status === "confirmed").length,
+    pending: events.filter((e: any) => e.extendedProps?.status === "pending").length,
   };
 
-  const processedEvents = events.map(ev => {
+  const processedEvents = events.map((ev: any) => {
     const theme = getStatusTheme(ev.extendedProps?.status);
     return { 
       ...ev, 
@@ -207,7 +238,7 @@ export const CalendarView: React.FC = () => {
             }}
             eventDrop={handleEventDrop}
             eventClick={(info) => { 
-              const ev = events.find(e => String(e.id) === String(info.event.id)); 
+              const ev = events.find((e: any) => String(e.id) === String(info.event.id)); 
               if (ev) setSelectedEvent(ev); 
             }}
             viewDidMount={(info) => setCurrentView(info.view.type as any)}

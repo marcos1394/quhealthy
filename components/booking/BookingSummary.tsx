@@ -48,14 +48,39 @@ export function BookingSummary({
   // ==========================================
   // ESTADOS LOCALES
   // ==========================================
-  const [symptoms, setSymptoms] = useState("");
-  const [shareVaultAccess, setShareVaultAccess] = useState(true);
-  const [shareVaultMode, setShareVaultMode] = useState<'FULL' | 'GRANULAR'>('FULL');
-  const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
+    const [{ symptoms, shareVaultAccess, shareVaultMode, selectedDocumentIds, rates, selectedCurrency, isLoadingRates }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SYMPTOMS': return { ...state, symptoms: typeof action.payload === 'function' ? action.payload(state.symptoms) : action.payload };
+      case 'SET_SHAREVAULTACCESS': return { ...state, shareVaultAccess: typeof action.payload === 'function' ? action.payload(state.shareVaultAccess) : action.payload };
+      case 'SET_SHAREVAULTMODE': return { ...state, shareVaultMode: typeof action.payload === 'function' ? action.payload(state.shareVaultMode) : action.payload };
+      case 'SET_SELECTEDDOCUMENTIDS': return { ...state, selectedDocumentIds: typeof action.payload === 'function' ? action.payload(state.selectedDocumentIds) : action.payload };
+      case 'SET_RATES': return { ...state, rates: typeof action.payload === 'function' ? action.payload(state.rates) : action.payload };
+      case 'SET_SELECTEDCURRENCY': return { ...state, selectedCurrency: typeof action.payload === 'function' ? action.payload(state.selectedCurrency) : action.payload };
+      case 'SET_ISLOADINGRATES': return { ...state, isLoadingRates: typeof action.payload === 'function' ? action.payload(state.isLoadingRates) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        symptoms: "", shareVaultAccess: true, shareVaultMode: 'FULL', selectedDocumentIds: [], rates: { MXN: 1 }, selectedCurrency: "MXN", isLoadingRates: true
+      }
+    );
+
+    const setSymptoms = (val: any) => dispatch({ type: 'SET_SYMPTOMS', payload: val });
+    const setShareVaultAccess = (val: any) => dispatch({ type: 'SET_SHAREVAULTACCESS', payload: val });
+    const setShareVaultMode = (val: any) => dispatch({ type: 'SET_SHAREVAULTMODE', payload: val });
+    const setSelectedDocumentIds = (val: any) => dispatch({ type: 'SET_SELECTEDDOCUMENTIDS', payload: val });
+    const setRates = (val: any) => dispatch({ type: 'SET_RATES', payload: val });
+    const setSelectedCurrency = (val: any) => dispatch({ type: 'SET_SELECTEDCURRENCY', payload: val });
+    const setIsLoadingRates = (val: any) => dispatch({ type: 'SET_ISLOADINGRATES', payload: val });
+
+
+
+
   
-  const [rates, setRates] = useState<Record<string, number>>({ MXN: 1 });
-  const [selectedCurrency, setSelectedCurrency] = useState<string>("MXN");
-  const [isLoadingRates, setIsLoadingRates] = useState(true);
+
+
+
 
   const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
 
@@ -342,9 +367,9 @@ export function BookingSummary({
                                         checked={selectedDocumentIds.includes(doc.id)}
                                         onCheckedChange={(checked) => {
                                           if (checked) {
-                                            setSelectedDocumentIds(prev => [...prev, doc.id]);
+                                            setSelectedDocumentIds((prev: any) => [...prev, doc.id]);
                                           } else {
-                                            setSelectedDocumentIds(prev => prev.filter(id => id !== doc.id));
+                                            setSelectedDocumentIds((prev: any) => prev.filter((id: any) => id !== doc.id));
                                           }
                                         }}
                                         className="mt-0.5 rounded-none border-gray-400 data-[state=checked]:bg-black data-[state=checked]:border-black dark:data-[state=checked]:bg-white dark:data-[state=checked]:border-white"

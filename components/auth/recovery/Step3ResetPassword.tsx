@@ -20,15 +20,40 @@ export default function Step3ResetPassword({ resetToken }: Props) {
   const t = useTranslations('AuthForgotPassword');
   const { recoveryResetPassword } = useAuth();
   
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+    const [{ newPassword, confirmPassword, showPassword, showConfirmPassword, loading, error, passwordValidation }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_NEWPASSWORD': return { ...state, newPassword: typeof action.payload === 'function' ? action.payload(state.newPassword) : action.payload };
+      case 'SET_CONFIRMPASSWORD': return { ...state, confirmPassword: typeof action.payload === 'function' ? action.payload(state.confirmPassword) : action.payload };
+      case 'SET_SHOWPASSWORD': return { ...state, showPassword: typeof action.payload === 'function' ? action.payload(state.showPassword) : action.payload };
+      case 'SET_SHOWCONFIRMPASSWORD': return { ...state, showConfirmPassword: typeof action.payload === 'function' ? action.payload(state.showConfirmPassword) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_ERROR': return { ...state, error: typeof action.payload === 'function' ? action.payload(state.error) : action.payload };
+      case 'SET_PASSWORDVALIDATION': return { ...state, passwordValidation: typeof action.payload === 'function' ? action.payload(state.passwordValidation) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        newPassword: "", confirmPassword: "", showPassword: false, showConfirmPassword: false, loading: false, error: "", passwordValidation: [ { regex: /.{8,}/ }, { regex: /[A-Z]/ }, { regex: /\d/ } ].map(r => ({ ...r, valid: false }))
+      }
+    );
+
+    const setNewPassword = (val: any) => dispatch({ type: 'SET_NEWPASSWORD', payload: val });
+    const setConfirmPassword = (val: any) => dispatch({ type: 'SET_CONFIRMPASSWORD', payload: val });
+    const setShowPassword = (val: any) => dispatch({ type: 'SET_SHOWPASSWORD', payload: val });
+    const setShowConfirmPassword = (val: any) => dispatch({ type: 'SET_SHOWCONFIRMPASSWORD', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setError = (val: any) => dispatch({ type: 'SET_ERROR', payload: val });
+    const setPasswordValidation = (val: any) => dispatch({ type: 'SET_PASSWORDVALIDATION', payload: val });
+
+
+
+
+
+
 
   const passwordRulesConfig = [ { regex: /.{8,}/ }, { regex: /[A-Z]/ }, { regex: /\d/ } ];
-  const [passwordValidation, setPasswordValidation] = useState(passwordRulesConfig.map(r => ({ ...r, valid: false })));
+
 
   const rulesMessages = [ "8 CHARS", "A-Z", "0-9" ];
 
@@ -38,7 +63,7 @@ export default function Step3ResetPassword({ resetToken }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passwordValidation.every(r => r.valid) || newPassword !== confirmPassword) return;
+    if (!passwordValidation.every((r: any) => r.valid) || newPassword !== confirmPassword) return;
     setLoading(true); setError("");
 
     try {
@@ -83,7 +108,7 @@ export default function Step3ResetPassword({ resetToken }: Props) {
         
         {/* Architect Badges */}
         <div className="flex flex-wrap gap-3 pt-2">
-          {passwordValidation.map((rule, idx) => (
+          {passwordValidation.map((rule: any, idx: number) => (
             <span 
               key={idx} 
               className={cn(
@@ -134,7 +159,7 @@ export default function Step3ResetPassword({ resetToken }: Props) {
 
       <Button 
         type="submit" 
-        disabled={loading || !passwordValidation.every(r => r.valid) || newPassword !== confirmPassword} 
+        disabled={loading || !passwordValidation.every((r: any) => r.valid) || newPassword !== confirmPassword} 
         className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn mt-10"
       >
         {loading ? (

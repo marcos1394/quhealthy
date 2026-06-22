@@ -31,11 +31,32 @@ export default function CategorySelector({
   categories, tags, selectedCategoryId, selectedSubCategoryId,
   selectedTagIds = [], onGetSubCategories, onSelectionChange, error
 }: CategorySelectorProps) {
-  const [subCategories, setSubCategories] = useState<SubCategoryResponse[]>([]);
-  const [isLoadingSub, setIsLoadingSub] = useState(false);
-  const [tagSearchQuery, setTagSearchQuery] = useState("");
-  const [openCat, setOpenCat] = useState(false);
-  const [openSub, setOpenSub] = useState(false);
+    const [{ subCategories, isLoadingSub, tagSearchQuery, openCat, openSub }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SUBCATEGORIES': return { ...state, subCategories: typeof action.payload === 'function' ? action.payload(state.subCategories) : action.payload };
+      case 'SET_ISLOADINGSUB': return { ...state, isLoadingSub: typeof action.payload === 'function' ? action.payload(state.isLoadingSub) : action.payload };
+      case 'SET_TAGSEARCHQUERY': return { ...state, tagSearchQuery: typeof action.payload === 'function' ? action.payload(state.tagSearchQuery) : action.payload };
+      case 'SET_OPENCAT': return { ...state, openCat: typeof action.payload === 'function' ? action.payload(state.openCat) : action.payload };
+      case 'SET_OPENSUB': return { ...state, openSub: typeof action.payload === 'function' ? action.payload(state.openSub) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        subCategories: [], isLoadingSub: false, tagSearchQuery: "", openCat: false, openSub: false
+      }
+    );
+
+    const setSubCategories = (val: any) => dispatch({ type: 'SET_SUBCATEGORIES', payload: val });
+    const setIsLoadingSub = (val: any) => dispatch({ type: 'SET_ISLOADINGSUB', payload: val });
+    const setTagSearchQuery = (val: any) => dispatch({ type: 'SET_TAGSEARCHQUERY', payload: val });
+    const setOpenCat = (val: any) => dispatch({ type: 'SET_OPENCAT', payload: val });
+    const setOpenSub = (val: any) => dispatch({ type: 'SET_OPENSUB', payload: val });
+
+
+
+
+
 
   // iOS Safari touch tracking
   const touchStartY = useRef<number | null>(null);
@@ -94,7 +115,7 @@ export default function CategorySelector({
   };
 
   const handleSubChange = (subId: number) => {
-    const subName = subCategories.find(s => s.id === subId)?.name;
+    const subName = subCategories.find((s: any) => s.id === subId)?.name;
     onSelectionChange(selectedCategoryId || 0, subId, selectedTagIds);
     if (subName) toast.success(`Enfoque: ${subName}`, { icon: <span role="img" aria-label="dart">🎯</span> });
   };
@@ -215,6 +236,7 @@ export default function CategorySelector({
             type="button"
             variant="outline"
             role="combobox"
+            aria-controls="category-list"
             aria-expanded={openCat}
             disabled={categories.length === 0}
             onClick={() => setOpenCat(!openCat)}
@@ -286,6 +308,7 @@ export default function CategorySelector({
                 type="button"
                 variant="outline"
                 role="combobox"
+                aria-controls="subcategory-list"
                 aria-expanded={openSub}
                 disabled={isLoadingSub}
                 onClick={() => setOpenSub(!openSub)}
@@ -297,7 +320,7 @@ export default function CategorySelector({
                   {isLoadingSub ? (
                     <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span className="text-[10px] uppercase tracking-widest">Sincronizando...</span></>
                   ) : selectedSubCategoryId && selectedSubCategoryId > 0
-                    ? subCategories.find((sub) => sub.id === selectedSubCategoryId)?.name
+                    ? subCategories.find((sub: any) => sub.id === selectedSubCategoryId)?.name
                     : "¿Cuál es tu enfoque principal?"}
                 </span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -310,7 +333,7 @@ export default function CategorySelector({
                     <CommandList className="max-h-[300px] overflow-y-auto">
                       <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron enfoques.</CommandEmpty>
                       <CommandGroup>
-                        {subCategories.map((sub) => (
+                        {subCategories.map((sub: any) => (
                           <CommandItem
                             key={sub.id}
                             value={sub.name}

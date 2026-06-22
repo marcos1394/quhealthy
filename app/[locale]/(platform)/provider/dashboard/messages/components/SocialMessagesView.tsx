@@ -32,21 +32,54 @@ export function SocialMessagesView() {
     loading
   } = useSocial();
 
-  const [newMessage, setNewMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [suggestedReplies, setSuggestedReplies] = useState<AiSuggestion[]>([]);
-  const [isSuggesting, setIsSuggesting] = useState(false);
+    const [{ newMessage, searchTerm, suggestedReplies, isSuggesting, platformFilter, statusFilter, isPatientDialogOpen, patientSearchQuery, patientSearchResults, isSearchingPatient, isSyncingEmails }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_NEWMESSAGE': return { ...state, newMessage: typeof action.payload === 'function' ? action.payload(state.newMessage) : action.payload };
+      case 'SET_SEARCHTERM': return { ...state, searchTerm: typeof action.payload === 'function' ? action.payload(state.searchTerm) : action.payload };
+      case 'SET_SUGGESTEDREPLIES': return { ...state, suggestedReplies: typeof action.payload === 'function' ? action.payload(state.suggestedReplies) : action.payload };
+      case 'SET_ISSUGGESTING': return { ...state, isSuggesting: typeof action.payload === 'function' ? action.payload(state.isSuggesting) : action.payload };
+      case 'SET_PLATFORMFILTER': return { ...state, platformFilter: typeof action.payload === 'function' ? action.payload(state.platformFilter) : action.payload };
+      case 'SET_STATUSFILTER': return { ...state, statusFilter: typeof action.payload === 'function' ? action.payload(state.statusFilter) : action.payload };
+      case 'SET_ISPATIENTDIALOGOPEN': return { ...state, isPatientDialogOpen: typeof action.payload === 'function' ? action.payload(state.isPatientDialogOpen) : action.payload };
+      case 'SET_PATIENTSEARCHQUERY': return { ...state, patientSearchQuery: typeof action.payload === 'function' ? action.payload(state.patientSearchQuery) : action.payload };
+      case 'SET_PATIENTSEARCHRESULTS': return { ...state, patientSearchResults: typeof action.payload === 'function' ? action.payload(state.patientSearchResults) : action.payload };
+      case 'SET_ISSEARCHINGPATIENT': return { ...state, isSearchingPatient: typeof action.payload === 'function' ? action.payload(state.isSearchingPatient) : action.payload };
+      case 'SET_ISSYNCINGEMAILS': return { ...state, isSyncingEmails: typeof action.payload === 'function' ? action.payload(state.isSyncingEmails) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        newMessage: "", searchTerm: "", suggestedReplies: [], isSuggesting: false, platformFilter: "ALL", statusFilter: "ALL", isPatientDialogOpen: false, patientSearchQuery: "", patientSearchResults: [], isSearchingPatient: false, isSyncingEmails: false
+      }
+    );
+
+    const setNewMessage = (val: any) => dispatch({ type: 'SET_NEWMESSAGE', payload: val });
+    const setSearchTerm = (val: any) => dispatch({ type: 'SET_SEARCHTERM', payload: val });
+    const setSuggestedReplies = (val: any) => dispatch({ type: 'SET_SUGGESTEDREPLIES', payload: val });
+    const setIsSuggesting = (val: any) => dispatch({ type: 'SET_ISSUGGESTING', payload: val });
+    const setPlatformFilter = (val: any) => dispatch({ type: 'SET_PLATFORMFILTER', payload: val });
+    const setStatusFilter = (val: any) => dispatch({ type: 'SET_STATUSFILTER', payload: val });
+    const setIsPatientDialogOpen = (val: any) => dispatch({ type: 'SET_ISPATIENTDIALOGOPEN', payload: val });
+    const setPatientSearchQuery = (val: any) => dispatch({ type: 'SET_PATIENTSEARCHQUERY', payload: val });
+    const setPatientSearchResults = (val: any) => dispatch({ type: 'SET_PATIENTSEARCHRESULTS', payload: val });
+    const setIsSearchingPatient = (val: any) => dispatch({ type: 'SET_ISSEARCHINGPATIENT', payload: val });
+    const setIsSyncingEmails = (val: any) => dispatch({ type: 'SET_ISSYNCINGEMAILS', payload: val });
+
+
+
+
 
   // Filtros
-  const [platformFilter, setPlatformFilter] = useState<string>("ALL");
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+
+
 
   // Pacientes
-  const [isPatientDialogOpen, setIsPatientDialogOpen] = useState(false);
-  const [patientSearchQuery, setPatientSearchQuery] = useState("");
-  const [patientSearchResults, setPatientSearchResults] = useState<PatientDirectorySearchResult[]>([]);
-  const [isSearchingPatient, setIsSearchingPatient] = useState(false);
-  const [isSyncingEmails, setIsSyncingEmails] = useState(false);
+
+
+
+
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -352,7 +385,7 @@ export function SocialMessagesView() {
                         </div>
                       ) : (
                         <div className="max-h-64 overflow-y-auto custom-scrollbar border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
-                          {patientSearchResults.map(p => (
+                          {patientSearchResults.map((p: any) => (
                             <div key={p.id} className="flex justify-between items-center p-4 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors last:border-0">
                               <div>
                                 <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white mb-1">
@@ -434,7 +467,7 @@ export function SocialMessagesView() {
                   
                   {suggestedReplies.length > 0 && (
                     <div className="flex flex-col gap-3">
-                      {suggestedReplies.map((reply, idx) => (
+                      {suggestedReplies.map((reply: any, idx: number) => (
                         <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-4 p-4 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
                           <p className="flex-1 text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
                             "{reply.text}"

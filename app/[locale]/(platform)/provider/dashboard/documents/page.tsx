@@ -19,13 +19,38 @@ const mockDocuments: Document[] = [
 ];
 
 export default function DocumentsManagerPage() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState("all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+    const [{ documents, selectedFile, uploadProgress, isUploading, activeTab, viewMode, selectedDoc }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_DOCUMENTS': return { ...state, documents: typeof action.payload === 'function' ? action.payload(state.documents) : action.payload };
+      case 'SET_SELECTEDFILE': return { ...state, selectedFile: typeof action.payload === 'function' ? action.payload(state.selectedFile) : action.payload };
+      case 'SET_UPLOADPROGRESS': return { ...state, uploadProgress: typeof action.payload === 'function' ? action.payload(state.uploadProgress) : action.payload };
+      case 'SET_ISUPLOADING': return { ...state, isUploading: typeof action.payload === 'function' ? action.payload(state.isUploading) : action.payload };
+      case 'SET_ACTIVETAB': return { ...state, activeTab: typeof action.payload === 'function' ? action.payload(state.activeTab) : action.payload };
+      case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
+      case 'SET_SELECTEDDOC': return { ...state, selectedDoc: typeof action.payload === 'function' ? action.payload(state.selectedDoc) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        documents: [], selectedFile: null, uploadProgress: 0, isUploading: false, activeTab: "all", viewMode: "grid", selectedDoc: null
+      }
+    );
+
+    const setDocuments = (val: any) => dispatch({ type: 'SET_DOCUMENTS', payload: val });
+    const setSelectedFile = (val: any) => dispatch({ type: 'SET_SELECTEDFILE', payload: val });
+    const setUploadProgress = (val: any) => dispatch({ type: 'SET_UPLOADPROGRESS', payload: val });
+    const setIsUploading = (val: any) => dispatch({ type: 'SET_ISUPLOADING', payload: val });
+    const setActiveTab = (val: any) => dispatch({ type: 'SET_ACTIVETAB', payload: val });
+    const setViewMode = (val: any) => dispatch({ type: 'SET_VIEWMODE', payload: val });
+    const setSelectedDoc = (val: any) => dispatch({ type: 'SET_SELECTEDDOC', payload: val });
+
+
+
+
+
+
+
   const t = useTranslations('DashboardDocuments');
 
   useEffect(() => { setDocuments(mockDocuments); }, []);
@@ -34,12 +59,12 @@ export default function DocumentsManagerPage() {
     if (!selectedFile) return;
     setIsUploading(true); setUploadProgress(0);
     const interval = setInterval(() => {
-      setUploadProgress(prev => {
+      setUploadProgress((prev: any) => {
         if (prev >= 100) {
           clearInterval(interval);
           setTimeout(() => {
             const newDoc: Document = { id: Date.now(), name: selectedFile.name, type: selectedFile.name.split(".").pop() || "file", url: "#", status: "pending", uploadedAt: new Date().toISOString(), size: `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` };
-            setDocuments(p => [newDoc, ...p]); setIsUploading(false); setSelectedFile(null);
+            setDocuments((p: any) => [newDoc, ...p]); setIsUploading(false); setSelectedFile(null);
             toast.success(t('upload.uploaded_success', { defaultValue: 'DOCUMENTO PROCESADO Y ALMACENADO.' }));
           }, 500);
           return 100;
@@ -49,12 +74,12 @@ export default function DocumentsManagerPage() {
     }, 200);
   };
 
-  const handleDelete = (id: number) => { setDocuments(p => p.filter(d => d.id !== id)); setSelectedDoc(null); toast.success(t('deleted_toast', { defaultValue: 'REGISTRO ELIMINADO DEL SISTEMA.' })); };
+  const handleDelete = (id: number) => { setDocuments((p: any) => p.filter((d: any) => d.id !== id)); setSelectedDoc(null); toast.success(t('deleted_toast', { defaultValue: 'REGISTRO ELIMINADO DEL SISTEMA.' })); };
   const handleDownload = (doc: Document) => { toast.info(t('downloading', { name: doc.name, defaultValue: `EXTRAYENDO: ${doc.name}` })); };
 
   const filteredDocuments = useMemo(() => {
     if (activeTab === "all") return documents;
-    return documents.filter(doc => doc.status === activeTab);
+    return documents.filter((doc: any) => doc.status === activeTab);
   }, [documents, activeTab]);
 
   return (
@@ -94,7 +119,7 @@ export default function DocumentsManagerPage() {
           <div className="border-b border-r border-black/20 dark:border-white/20">
             <StatBlock 
               label={t('stats.verified', { defaultValue: 'VERIFICADOS' })} 
-              value={documents.filter(d => d.status === "verified").length} 
+              value={documents.filter((d: any) => d.status === "verified").length} 
               icon={<CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />} 
               trend={t('stats.active', { defaultValue: 'ACTIVO' })} 
             />
@@ -102,7 +127,7 @@ export default function DocumentsManagerPage() {
           <div className="border-b border-r border-black/20 dark:border-white/20">
             <StatBlock 
               label={t('stats.pending', { defaultValue: 'EN REVISIÓN' })} 
-              value={documents.filter(d => d.status === "pending").length} 
+              value={documents.filter((d: any) => d.status === "pending").length} 
               icon={<Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />} 
               trend={t('stats.in_review', { defaultValue: 'AUDITANDO' })} 
             />

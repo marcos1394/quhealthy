@@ -14,15 +14,19 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
   const [isDownloading, setIsDownloading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // 📱 NUEVO
 
+  const [prevAppointmentId, setPrevAppointmentId] = useState(appointmentId);
+  if (appointmentId !== prevAppointmentId) {
+    setPrevAppointmentId(appointmentId);
+    setIsLoading(!!appointmentId);
+    setError(null);
+  }
+
   useEffect(() => {
     if (!appointmentId) {
-      setIsLoading(false);
       return;
     }
 
     const fetchDetails = async () => {
-      setIsLoading(true);
-      setError(null);
       try {
         // 1. Cargamos los datos de la cita
         const data = await appointmentService.getAppointmentById(appointmentId);

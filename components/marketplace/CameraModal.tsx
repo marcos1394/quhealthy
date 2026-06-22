@@ -18,14 +18,20 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       startCamera();
     } else {
       stopCamera();
     }
+  }
+
+  useEffect(() => {
     return () => stopCamera();
-  }, [isOpen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stream]);
 
   const startCamera = async () => {
     setError(null);

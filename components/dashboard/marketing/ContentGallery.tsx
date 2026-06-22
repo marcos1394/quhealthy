@@ -45,11 +45,32 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
   const { getScheduledPosts, cancelPost } = useSocial();
 
-  const [posts, setPosts]           = useState<ScheduledPostDTO[]>([]);
-  const [isLoading, setIsLoading]   = useState(true);
-  const [selectedPost, setSelectedPost]   = useState<ScheduledPostDTO | null>(null);
-  const [isModalOpen, setIsModalOpen]     = useState(false);
-  const [cancellingId, setCancellingId]   = useState<string | null>(null);
+    const [{ posts, isLoading, selectedPost, isModalOpen, cancellingId }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_POSTS': return { ...state, posts: typeof action.payload === 'function' ? action.payload(state.posts) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+      case 'SET_SELECTEDPOST': return { ...state, selectedPost: typeof action.payload === 'function' ? action.payload(state.selectedPost) : action.payload };
+      case 'SET_ISMODALOPEN': return { ...state, isModalOpen: typeof action.payload === 'function' ? action.payload(state.isModalOpen) : action.payload };
+      case 'SET_CANCELLINGID': return { ...state, cancellingId: typeof action.payload === 'function' ? action.payload(state.cancellingId) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        posts: [], isLoading: true, selectedPost: null, isModalOpen: false, cancellingId: null
+      }
+    );
+
+    const setPosts = (val: any) => dispatch({ type: 'SET_POSTS', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+    const setSelectedPost = (val: any) => dispatch({ type: 'SET_SELECTEDPOST', payload: val });
+    const setIsModalOpen = (val: any) => dispatch({ type: 'SET_ISMODALOPEN', payload: val });
+    const setCancellingId = (val: any) => dispatch({ type: 'SET_CANCELLINGID', payload: val });
+
+
+
+
+
 
   // ── Fetch ───────────────────────────────────────────────────────────────────
 
@@ -150,7 +171,7 @@ export function ContentGallery({ refreshTrigger }: ContentGalleryProps) {
 
         ) : posts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 bg-gray-50 dark:bg-[#050505]">
-            {posts.map((post) => {
+            {posts.map((post: any) => {
               const mediaUrl    = getFirstMediaUrl(post);
               const isMediaVideo = isVideo(mediaUrl ?? undefined);
               const isCancelling = cancellingId === post.id;

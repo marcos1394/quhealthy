@@ -41,14 +41,39 @@ export default function TeamManagementPage() {
   const router = useRouter();
   const { staff, isLoading, fetchStaff, inviteStaff, updatePermissions, toggleStatus, revokeAccess } = useClinicStaff();
 
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [invitePermissions, setInvitePermissions] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [{ isInviteOpen, inviteEmail, invitePermissions, isSubmitting, isPermissionsOpen, editingStaffId, editingPermissions }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISINVITEOPEN': return { ...state, isInviteOpen: typeof action.payload === 'function' ? action.payload(state.isInviteOpen) : action.payload };
+      case 'SET_INVITEEMAIL': return { ...state, inviteEmail: typeof action.payload === 'function' ? action.payload(state.inviteEmail) : action.payload };
+      case 'SET_INVITEPERMISSIONS': return { ...state, invitePermissions: typeof action.payload === 'function' ? action.payload(state.invitePermissions) : action.payload };
+      case 'SET_ISSUBMITTING': return { ...state, isSubmitting: typeof action.payload === 'function' ? action.payload(state.isSubmitting) : action.payload };
+      case 'SET_ISPERMISSIONSOPEN': return { ...state, isPermissionsOpen: typeof action.payload === 'function' ? action.payload(state.isPermissionsOpen) : action.payload };
+      case 'SET_EDITINGSTAFFID': return { ...state, editingStaffId: typeof action.payload === 'function' ? action.payload(state.editingStaffId) : action.payload };
+      case 'SET_EDITINGPERMISSIONS': return { ...state, editingPermissions: typeof action.payload === 'function' ? action.payload(state.editingPermissions) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isInviteOpen: false, inviteEmail: "", invitePermissions: [], isSubmitting: false, isPermissionsOpen: false, editingStaffId: null, editingPermissions: []
+      }
+    );
 
-  const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
-  const [editingStaffId, setEditingStaffId] = useState<number | null>(null);
-  const [editingPermissions, setEditingPermissions] = useState<string[]>([]);
+    const setIsInviteOpen = (val: any) => dispatch({ type: 'SET_ISINVITEOPEN', payload: val });
+    const setInviteEmail = (val: any) => dispatch({ type: 'SET_INVITEEMAIL', payload: val });
+    const setInvitePermissions = (val: any) => dispatch({ type: 'SET_INVITEPERMISSIONS', payload: val });
+    const setIsSubmitting = (val: any) => dispatch({ type: 'SET_ISSUBMITTING', payload: val });
+    const setIsPermissionsOpen = (val: any) => dispatch({ type: 'SET_ISPERMISSIONSOPEN', payload: val });
+    const setEditingStaffId = (val: any) => dispatch({ type: 'SET_EDITINGSTAFFID', payload: val });
+    const setEditingPermissions = (val: any) => dispatch({ type: 'SET_EDITINGPERMISSIONS', payload: val });
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     fetchStaff();

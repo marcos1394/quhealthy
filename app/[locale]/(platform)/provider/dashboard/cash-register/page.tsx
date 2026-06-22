@@ -16,32 +16,67 @@ import { cn } from '@/lib/utils';
 
 export default function CashRegisterPage() {
   const t = useTranslations('CashRegister');
-  const [register, setRegister] = useState<CashRegister | null>(null);
-  const [report, setReport] = useState<CashRegisterReportDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
-  const [history, setHistory] = useState<CashRegister[]>([]);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
-  
-  // Para abrir caja
-  const [initialBalance, setInitialBalance] = useState<string>('');
-  const [isOpening, setIsOpening] = useState(false);
-  const [showBreakdown, setShowBreakdown] = useState(false);
-  const [breakdown, setBreakdown] = useState<Record<string, number>>({
+    const [{ register, report, isLoading, activeTab, history, isHistoryLoading, initialBalance, isOpening, showBreakdown, breakdown, isCloseModalOpen, isExpenseModalOpen }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_REGISTER': return { ...state, register: typeof action.payload === 'function' ? action.payload(state.register) : action.payload };
+      case 'SET_REPORT': return { ...state, report: typeof action.payload === 'function' ? action.payload(state.report) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+      case 'SET_ACTIVETAB': return { ...state, activeTab: typeof action.payload === 'function' ? action.payload(state.activeTab) : action.payload };
+      case 'SET_HISTORY': return { ...state, history: typeof action.payload === 'function' ? action.payload(state.history) : action.payload };
+      case 'SET_ISHISTORYLOADING': return { ...state, isHistoryLoading: typeof action.payload === 'function' ? action.payload(state.isHistoryLoading) : action.payload };
+      case 'SET_INITIALBALANCE': return { ...state, initialBalance: typeof action.payload === 'function' ? action.payload(state.initialBalance) : action.payload };
+      case 'SET_ISOPENING': return { ...state, isOpening: typeof action.payload === 'function' ? action.payload(state.isOpening) : action.payload };
+      case 'SET_SHOWBREAKDOWN': return { ...state, showBreakdown: typeof action.payload === 'function' ? action.payload(state.showBreakdown) : action.payload };
+      case 'SET_BREAKDOWN': return { ...state, breakdown: typeof action.payload === 'function' ? action.payload(state.breakdown) : action.payload };
+      case 'SET_ISCLOSEMODALOPEN': return { ...state, isCloseModalOpen: typeof action.payload === 'function' ? action.payload(state.isCloseModalOpen) : action.payload };
+      case 'SET_ISEXPENSEMODALOPEN': return { ...state, isExpenseModalOpen: typeof action.payload === 'function' ? action.payload(state.isExpenseModalOpen) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        register: null, report: null, isLoading: true, activeTab: 'current', history: [], isHistoryLoading: false, initialBalance: '', isOpening: false, showBreakdown: false, breakdown: {
     '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0,
     '10': 0, '5': 0, '2': 0, '1': 0, '0.5': 0
-  });
+  }, isCloseModalOpen: false, isExpenseModalOpen: false
+      }
+    );
+
+    const setRegister = (val: any) => dispatch({ type: 'SET_REGISTER', payload: val });
+    const setReport = (val: any) => dispatch({ type: 'SET_REPORT', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+    const setActiveTab = (val: any) => dispatch({ type: 'SET_ACTIVETAB', payload: val });
+    const setHistory = (val: any) => dispatch({ type: 'SET_HISTORY', payload: val });
+    const setIsHistoryLoading = (val: any) => dispatch({ type: 'SET_ISHISTORYLOADING', payload: val });
+    const setInitialBalance = (val: any) => dispatch({ type: 'SET_INITIALBALANCE', payload: val });
+    const setIsOpening = (val: any) => dispatch({ type: 'SET_ISOPENING', payload: val });
+    const setShowBreakdown = (val: any) => dispatch({ type: 'SET_SHOWBREAKDOWN', payload: val });
+    const setBreakdown = (val: any) => dispatch({ type: 'SET_BREAKDOWN', payload: val });
+    const setIsCloseModalOpen = (val: any) => dispatch({ type: 'SET_ISCLOSEMODALOPEN', payload: val });
+    const setIsExpenseModalOpen = (val: any) => dispatch({ type: 'SET_ISEXPENSEMODALOPEN', payload: val });
+
+
+
+
+
+
+  
+  // Para abrir caja
+
+
+
+
 
   const updateBreakdown = (denom: string, count: number) => {
     const newBreakdown = { ...breakdown, [denom]: count };
     setBreakdown(newBreakdown);
-    const total = Object.entries(newBreakdown).reduce((acc, [d, c]) => acc + (parseFloat(d) * c), 0);
+    const total = Object.entries(newBreakdown).reduce((acc, [d, c]: [string, any]) => acc + (parseFloat(d) * c), 0);
     setInitialBalance(total > 0 ? total.toString() : '');
   };
 
   // Modales
-  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+
+
 
   const fetchHistory = async () => {
     try {
@@ -87,9 +122,9 @@ export default function CashRegisterPage() {
       toast.error('EL BALANCE INICIAL NO PUEDE SER NEGATIVO.');
       return;
     }
-    const hasBreakdownValues = showBreakdown && Object.values(breakdown).some(v => v > 0);
+    const hasBreakdownValues = showBreakdown && Object.values(breakdown).some((v: any) => v > 0);
     const cleanDenoms: DenominationMap | undefined = hasBreakdownValues 
-      ? Object.fromEntries(Object.entries(breakdown).filter(([, v]) => v > 0)) 
+      ? Object.fromEntries(Object.entries(breakdown).filter(([, v]: [string, any]) => v > 0)) as any
       : undefined;
     try {
       setIsOpening(true);
@@ -306,13 +341,13 @@ export default function CashRegisterPage() {
             <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
               <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">INGRESOS DEL DÍA</p>
               <p className="text-3xl font-semibold tracking-tight text-emerald-600 dark:text-emerald-400 leading-none">
-                +${report?.transactions.filter(t => t.transactionType === 'INCOME').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
+                +${report?.transactions.filter((t: any) => t.transactionType === 'INCOME').reduce((acc: number, t: any) => acc + t.amount, 0).toFixed(2) || '0.00'}
               </p>
             </div>
             <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
               <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">EGRESOS DEL DÍA</p>
               <p className="text-3xl font-semibold tracking-tight text-red-600 dark:text-red-400 leading-none">
-                -${report?.transactions.filter(t => t.transactionType === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0).toFixed(2) || '0.00'}
+                -${report?.transactions.filter((t: any) => t.transactionType === 'EXPENSE').reduce((acc: number, t: any) => acc + t.amount, 0).toFixed(2) || '0.00'}
               </p>
             </div>
             <div className="border-b border-r border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black p-6 flex flex-col justify-between min-h-[140px] relative overflow-hidden">
@@ -334,7 +369,7 @@ export default function CashRegisterPage() {
             
             {report?.transactions && report.transactions.length > 0 ? (
               <div className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
-                {report.transactions.map((tx) => (
+                {report.transactions.map((tx: any) => (
                   <div key={tx.id} className="p-6 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-start sm:items-center gap-4">
@@ -371,7 +406,7 @@ export default function CashRegisterPage() {
                     {tx.denominations && Object.keys(tx.denominations).length > 0 && (
                       <div className="mt-4 ml-14 flex flex-wrap gap-2">
                         {Object.entries(tx.denominations)
-                          .filter(([, count]) => count > 0)
+                          .filter(([, count]: [string, any]) => count > 0)
                           .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
                           .map(([denom, count]) => (
                             <span 
@@ -383,7 +418,7 @@ export default function CashRegisterPage() {
                                   : 'border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'
                               )}
                             >
-                              {count} × ${denom}
+                              {String(count)} × ${denom}
                             </span>
                           ))}
                       </div>
@@ -434,7 +469,7 @@ export default function CashRegisterPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
-                    {history.map((h) => (
+                    {history.map((h: any) => (
                       <tr key={h.id} className="hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
                         <td className="px-6 py-6">
                           {h.status === 'OPEN' ? (

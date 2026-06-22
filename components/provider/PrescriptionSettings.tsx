@@ -18,26 +18,53 @@ export const PrescriptionSettings = () => {
   const t = useTranslations('PrescriptionSettings');
   const router = useRouter();
 
-  const [formData, setFormData] = useState<UpdatePrescriptionPreferencesRequest>({
+    const [{ formData, isLoading, isSaving, isUploadingLogo, isUploadingSignature, showSuccess, signatureMode, localSignaturePreview }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_FORMDATA': return { ...state, formData: typeof action.payload === 'function' ? action.payload(state.formData) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+      case 'SET_ISSAVING': return { ...state, isSaving: typeof action.payload === 'function' ? action.payload(state.isSaving) : action.payload };
+      case 'SET_ISUPLOADINGLOGO': return { ...state, isUploadingLogo: typeof action.payload === 'function' ? action.payload(state.isUploadingLogo) : action.payload };
+      case 'SET_ISUPLOADINGSIGNATURE': return { ...state, isUploadingSignature: typeof action.payload === 'function' ? action.payload(state.isUploadingSignature) : action.payload };
+      case 'SET_SHOWSUCCESS': return { ...state, showSuccess: typeof action.payload === 'function' ? action.payload(state.showSuccess) : action.payload };
+      case 'SET_SIGNATUREMODE': return { ...state, signatureMode: typeof action.payload === 'function' ? action.payload(state.signatureMode) : action.payload };
+      case 'SET_LOCALSIGNATUREPREVIEW': return { ...state, localSignaturePreview: typeof action.payload === 'function' ? action.payload(state.localSignaturePreview) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        formData: {
     prescriptionColor: '#8B5CF6',
     prescriptionLogoUrl: '',
     signatureUrl: '',
     prescriptionFooterNote: '',
-  });
+  }, isLoading: true, isSaving: false, isUploadingLogo: false, isUploadingSignature: false, showSuccess: false, signatureMode: 'upload', localSignaturePreview: null
+      }
+    );
+
+    const setFormData = (val: any) => dispatch({ type: 'SET_FORMDATA', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+    const setIsSaving = (val: any) => dispatch({ type: 'SET_ISSAVING', payload: val });
+    const setIsUploadingLogo = (val: any) => dispatch({ type: 'SET_ISUPLOADINGLOGO', payload: val });
+    const setIsUploadingSignature = (val: any) => dispatch({ type: 'SET_ISUPLOADINGSIGNATURE', payload: val });
+    const setShowSuccess = (val: any) => dispatch({ type: 'SET_SHOWSUCCESS', payload: val });
+    const setSignatureMode = (val: any) => dispatch({ type: 'SET_SIGNATUREMODE', payload: val });
+    const setLocalSignaturePreview = (val: any) => dispatch({ type: 'SET_LOCALSIGNATUREPREVIEW', payload: val });
+
   
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [isUploadingSignature, setIsUploadingSignature] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+
+
+
+
+
 
   // 🚀 NUEVO: Estados para el modo de firma y el Canvas
-  const [signatureMode, setSignatureMode] = useState<'upload' | 'draw'>('upload');
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   
   // 🚀 NUEVO: Guarda el preview temporal de la firma sin pedirlo a internet
-  const [localSignaturePreview, setLocalSignaturePreview] = useState<string | null>(null);
+
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -61,11 +88,11 @@ export const PrescriptionSettings = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handleColorChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, prescriptionColor: e.target.value }));
+    setFormData((prev: any) => ({ ...prev, prescriptionColor: e.target.value }));
   };
 
   const handleLogoUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +102,7 @@ export const PrescriptionSettings = () => {
     setIsUploadingLogo(true);
     try {
       const response = await onboardingService.uploadPrescriptionMedia(file, 'LOGO');
-      setFormData((prev) => ({ ...prev, prescriptionLogoUrl: response.url }));
+      setFormData((prev: any) => ({ ...prev, prescriptionLogoUrl: response.url }));
       toast.success(t('success_logo_upload', { fallback: 'Logotipo subido exitosamente.' }));
     } catch (error) {
       console.error('Error subiendo logo:', error);
@@ -100,7 +127,7 @@ export const PrescriptionSettings = () => {
       const response = await onboardingService.uploadPrescriptionMedia(file, 'SIGNATURE');
       
       // 1. Guardamos el File Key interno (providers/29/...) para la Base de Datos
-      setFormData((prev) => ({ ...prev, signatureUrl: response.url }));
+      setFormData((prev: any) => ({ ...prev, signatureUrl: response.url }));
       
       // 2. 🚀 Creamos un preview visual local para el "Live Preview"
       setLocalSignaturePreview(URL.createObjectURL(file));

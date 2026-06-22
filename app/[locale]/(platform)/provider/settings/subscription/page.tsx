@@ -32,12 +32,35 @@ export default function BillingPage() {
   const planIdParam = searchParams.get('planId');
   const locale = params.locale; // Obtiene 'es', 'en', etc.
   const role: UserRole = "proveedor"; 
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
-  const [displayPlans, setDisplayPlans] = useState<Plan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const [{ billingCycle, selectedPlan, isProcessing, rawPlans, displayPlans, isLoading }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_BILLINGCYCLE': return { ...state, billingCycle: typeof action.payload === 'function' ? action.payload(state.billingCycle) : action.payload };
+      case 'SET_SELECTEDPLAN': return { ...state, selectedPlan: typeof action.payload === 'function' ? action.payload(state.selectedPlan) : action.payload };
+      case 'SET_ISPROCESSING': return { ...state, isProcessing: typeof action.payload === 'function' ? action.payload(state.isProcessing) : action.payload };
+      case 'SET_RAWPLANS': return { ...state, rawPlans: typeof action.payload === 'function' ? action.payload(state.rawPlans) : action.payload };
+      case 'SET_DISPLAYPLANS': return { ...state, displayPlans: typeof action.payload === 'function' ? action.payload(state.displayPlans) : action.payload };
+      case 'SET_ISLOADING': return { ...state, isLoading: typeof action.payload === 'function' ? action.payload(state.isLoading) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        billingCycle: "monthly", selectedPlan: null, isProcessing: false, rawPlans: [], displayPlans: [], isLoading: true
+      }
+    );
+
+    const setBillingCycle = (val: any) => dispatch({ type: 'SET_BILLINGCYCLE', payload: val });
+    const setSelectedPlan = (val: any) => dispatch({ type: 'SET_SELECTEDPLAN', payload: val });
+    const setIsProcessing = (val: any) => dispatch({ type: 'SET_ISPROCESSING', payload: val });
+    const setRawPlans = (val: any) => dispatch({ type: 'SET_RAWPLANS', payload: val });
+    const setDisplayPlans = (val: any) => dispatch({ type: 'SET_DISPLAYPLANS', payload: val });
+    const setIsLoading = (val: any) => dispatch({ type: 'SET_ISLOADING', payload: val });
+
+
+
+
+
+
 
   // Cargar planes del backend
   useEffect(() => {
@@ -60,9 +83,9 @@ export default function BillingPage() {
     if (rawPlans.length === 0) return;
 
     const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
-    const filtered = rawPlans.filter(p => p.billingInterval === currentInterval);
+    const filtered = rawPlans.filter((p: any) => p.billingInterval === currentInterval);
 
-    const uiPlans: Plan[] = filtered.map(bp => {
+    const uiPlans: Plan[] = filtered.map((bp: any) => {
       const EXCHANGE_RATE = 20;
       const nameLower = bp.name.toLowerCase();
       let planKey = "basic";
@@ -74,7 +97,7 @@ export default function BillingPage() {
       const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
 
       // Cálculo de ahorros hipotético si es anual y existe un precio base
-      const matchingMonthly = rawPlans.find(m => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.billingInterval === "MONTHLY");
+      const matchingMonthly = rawPlans.find((m: any) => m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") && m.billingInterval === "MONTHLY");
       const baseMonthlyPrice = matchingMonthly ? (locale === 'en' ? Math.round(matchingMonthly.price / EXCHANGE_RATE) : matchingMonthly.price) : displayPrice / 12;
       const savings = (currentInterval === "YEARLY" && baseMonthlyPrice > 0) 
           ? (baseMonthlyPrice * 12) - displayPrice 
@@ -113,7 +136,7 @@ export default function BillingPage() {
     toast.info(t('toast_processing') || "Procesando petición...");
 
     // 1. Encontrar el Plan numérico original usando el stripePriceId
-    const matchingBackendPlan = rawPlans.find(bp => 
+    const matchingBackendPlan = rawPlans.find((bp: any) => 
       (bp.stripePriceId || `plan_${bp.id}`) === selectedPlan.id
     );
 
@@ -184,7 +207,7 @@ export default function BillingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
-            {displayPlans.map((plan, index) => (
+            {displayPlans.map((plan: any, index: number) => (
               <div key={plan.id} className="h-full">
                 <PricingCard
                   plan={plan}

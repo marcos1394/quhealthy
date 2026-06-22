@@ -62,11 +62,32 @@ const darkMapStyle = [
 // 1. COMPONENTE INTERNO DEL MAPA (Reactivo al Tema)
 // ============================================================================
 const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, initialLocation }) => {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
-  const [inputValue, setInputValue] = useState("");
-  const [showStreetView, setShowStreetView] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+    const [{ map, selectedLocation, inputValue, showStreetView, isProcessing }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
+      case 'SET_SELECTEDLOCATION': return { ...state, selectedLocation: typeof action.payload === 'function' ? action.payload(state.selectedLocation) : action.payload };
+      case 'SET_INPUTVALUE': return { ...state, inputValue: typeof action.payload === 'function' ? action.payload(state.inputValue) : action.payload };
+      case 'SET_SHOWSTREETVIEW': return { ...state, showStreetView: typeof action.payload === 'function' ? action.payload(state.showStreetView) : action.payload };
+      case 'SET_ISPROCESSING': return { ...state, isProcessing: typeof action.payload === 'function' ? action.payload(state.isProcessing) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        map: null, selectedLocation: null, inputValue: "", showStreetView: false, isProcessing: false
+      }
+    );
+
+    const setMap = (val: any) => dispatch({ type: 'SET_MAP', payload: val });
+    const setSelectedLocation = (val: any) => dispatch({ type: 'SET_SELECTEDLOCATION', payload: val });
+    const setInputValue = (val: any) => dispatch({ type: 'SET_INPUTVALUE', payload: val });
+    const setShowStreetView = (val: any) => dispatch({ type: 'SET_SHOWSTREETVIEW', payload: val });
+    const setIsProcessing = (val: any) => dispatch({ type: 'SET_ISPROCESSING', payload: val });
+
+
+
+
+
 
   // 🚀 Obtenemos el tema actual de la aplicación
   const { resolvedTheme } = useTheme();

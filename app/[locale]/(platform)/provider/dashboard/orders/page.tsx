@@ -264,16 +264,45 @@ export default function ProviderOrdersPage() {
     fetchOrders, shipOrder, markAsDelivered, cancelOrder, downloadSlip, rejectOrder, approvePrescription,
   } = useProviderOrders();
 
-  const [selectedOrder,   setSelectedOrder]   = useState<OrderResponseDto | null>(null);
-  const [orderToCancel,   setOrderToCancel]   = useState<OrderResponseDto | null>(null);
-  const [orderToView,     setOrderToView]     = useState<OrderResponseDto | null>(null);
-  const [orderToReject,   setOrderToReject]   = useState<OrderResponseDto | null>(null);
-  const [trackingNumber,  setTrackingNumber]  = useState("");
-  const [shippingCarrier, setShippingCarrier] = useState("DHL");
-  const [rejectionReasonInput, setRejectionReasonInput] = useState("RECETA MÉDICA INVÁLIDA O ILEGIBLE");
+    const [{ selectedOrder, orderToCancel, orderToView, orderToReject, trackingNumber, shippingCarrier, rejectionReasonInput, evidenceUrl, isUploading }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_SELECTEDORDER': return { ...state, selectedOrder: typeof action.payload === 'function' ? action.payload(state.selectedOrder) : action.payload };
+      case 'SET_ORDERTOCANCEL': return { ...state, orderToCancel: typeof action.payload === 'function' ? action.payload(state.orderToCancel) : action.payload };
+      case 'SET_ORDERTOVIEW': return { ...state, orderToView: typeof action.payload === 'function' ? action.payload(state.orderToView) : action.payload };
+      case 'SET_ORDERTOREJECT': return { ...state, orderToReject: typeof action.payload === 'function' ? action.payload(state.orderToReject) : action.payload };
+      case 'SET_TRACKINGNUMBER': return { ...state, trackingNumber: typeof action.payload === 'function' ? action.payload(state.trackingNumber) : action.payload };
+      case 'SET_SHIPPINGCARRIER': return { ...state, shippingCarrier: typeof action.payload === 'function' ? action.payload(state.shippingCarrier) : action.payload };
+      case 'SET_REJECTIONREASONINPUT': return { ...state, rejectionReasonInput: typeof action.payload === 'function' ? action.payload(state.rejectionReasonInput) : action.payload };
+      case 'SET_EVIDENCEURL': return { ...state, evidenceUrl: typeof action.payload === 'function' ? action.payload(state.evidenceUrl) : action.payload };
+      case 'SET_ISUPLOADING': return { ...state, isUploading: typeof action.payload === 'function' ? action.payload(state.isUploading) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        selectedOrder: null, orderToCancel: null, orderToView: null, orderToReject: null, trackingNumber: "", shippingCarrier: "DHL", rejectionReasonInput: "RECETA MÉDICA INVÁLIDA O ILEGIBLE", evidenceUrl: "", isUploading: false
+      }
+    );
 
-  const [evidenceUrl, setEvidenceUrl] = useState<string>("");
-  const [isUploading, setIsUploading] = useState(false);
+    const setSelectedOrder = (val: any) => dispatch({ type: 'SET_SELECTEDORDER', payload: val });
+    const setOrderToCancel = (val: any) => dispatch({ type: 'SET_ORDERTOCANCEL', payload: val });
+    const setOrderToView = (val: any) => dispatch({ type: 'SET_ORDERTOVIEW', payload: val });
+    const setOrderToReject = (val: any) => dispatch({ type: 'SET_ORDERTOREJECT', payload: val });
+    const setTrackingNumber = (val: any) => dispatch({ type: 'SET_TRACKINGNUMBER', payload: val });
+    const setShippingCarrier = (val: any) => dispatch({ type: 'SET_SHIPPINGCARRIER', payload: val });
+    const setRejectionReasonInput = (val: any) => dispatch({ type: 'SET_REJECTIONREASONINPUT', payload: val });
+    const setEvidenceUrl = (val: any) => dispatch({ type: 'SET_EVIDENCEURL', payload: val });
+    const setIsUploading = (val: any) => dispatch({ type: 'SET_ISUPLOADING', payload: val });
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => { fetchOrders("ERROR EN RECUPERACIÓN DE DATOS"); }, [fetchOrders]);
 

@@ -17,11 +17,32 @@ import { Separator } from "@/components/ui/separator";
 export default function LoginAlertsPage() {
     const t = useTranslations('SettingsAlerts');
 
-    const [enabled, setEnabled] = useState(true);
-    const [emailEnabled, setEmailEnabled] = useState(true);
-    const [smsEnabled, setSmsEnabled] = useState(false);
-    const [notificationTime, setNotificationTime] = useState("always");
-    const [loading, setLoading] = useState(false);
+    const [{ enabled, emailEnabled, smsEnabled, notificationTime, loading }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ENABLED': return { ...state, enabled: typeof action.payload === 'function' ? action.payload(state.enabled) : action.payload };
+      case 'SET_EMAILENABLED': return { ...state, emailEnabled: typeof action.payload === 'function' ? action.payload(state.emailEnabled) : action.payload };
+      case 'SET_SMSENABLED': return { ...state, smsEnabled: typeof action.payload === 'function' ? action.payload(state.smsEnabled) : action.payload };
+      case 'SET_NOTIFICATIONTIME': return { ...state, notificationTime: typeof action.payload === 'function' ? action.payload(state.notificationTime) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        enabled: true, emailEnabled: true, smsEnabled: false, notificationTime: "always", loading: false
+      }
+    );
+
+    const setEnabled = (val: any) => dispatch({ type: 'SET_ENABLED', payload: val });
+    const setEmailEnabled = (val: any) => dispatch({ type: 'SET_EMAILENABLED', payload: val });
+    const setSmsEnabled = (val: any) => dispatch({ type: 'SET_SMSENABLED', payload: val });
+    const setNotificationTime = (val: any) => dispatch({ type: 'SET_NOTIFICATIONTIME', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+
+
+
+
+
 
     const handleSaveSettings = async () => {
         setLoading(true);

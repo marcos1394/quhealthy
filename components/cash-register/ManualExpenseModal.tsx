@@ -27,11 +27,32 @@ interface ManualExpenseModalProps {
 }
 
 export const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currentDenominations, maxExpectedBalance }: ManualExpenseModalProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [description, setDescription] = useState('');
-  const [totalAmountStr, setTotalAmountStr] = useState('');
-  const [showDenominations, setShowDenominations] = useState(false);
-  const [expenseDenoms, setExpenseDenoms] = useState<DenominationMap>({});
+    const [{ isProcessing, description, totalAmountStr, showDenominations, expenseDenoms }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISPROCESSING': return { ...state, isProcessing: typeof action.payload === 'function' ? action.payload(state.isProcessing) : action.payload };
+      case 'SET_DESCRIPTION': return { ...state, description: typeof action.payload === 'function' ? action.payload(state.description) : action.payload };
+      case 'SET_TOTALAMOUNTSTR': return { ...state, totalAmountStr: typeof action.payload === 'function' ? action.payload(state.totalAmountStr) : action.payload };
+      case 'SET_SHOWDENOMINATIONS': return { ...state, showDenominations: typeof action.payload === 'function' ? action.payload(state.showDenominations) : action.payload };
+      case 'SET_EXPENSEDENOMS': return { ...state, expenseDenoms: typeof action.payload === 'function' ? action.payload(state.expenseDenoms) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isProcessing: false, description: '', totalAmountStr: '', showDenominations: false, expenseDenoms: {}
+      }
+    );
+
+    const setIsProcessing = (val: any) => dispatch({ type: 'SET_ISPROCESSING', payload: val });
+    const setDescription = (val: any) => dispatch({ type: 'SET_DESCRIPTION', payload: val });
+    const setTotalAmountStr = (val: any) => dispatch({ type: 'SET_TOTALAMOUNTSTR', payload: val });
+    const setShowDenominations = (val: any) => dispatch({ type: 'SET_SHOWDENOMINATIONS', payload: val });
+    const setExpenseDenoms = (val: any) => dispatch({ type: 'SET_EXPENSEDENOMS', payload: val });
+
+
+
+
+
 
   useEffect(() => {
     if (isOpen) {
@@ -43,7 +64,7 @@ export const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currentDenomina
   }, [isOpen]);
 
   const expenseTotal = useMemo(() => denomTotal(expenseDenoms), [expenseDenoms]);
-  const hasDenoms = Object.values(expenseDenoms).some(v => v > 0);
+  const hasDenoms = Object.values(expenseDenoms).some((v: any) => v > 0);
   
   const parsedTotal = hasDenoms ? expenseTotal : parseFloat(totalAmountStr || '0');
   const isValid = description.trim().length > 0 && parsedTotal > 0;
@@ -51,7 +72,7 @@ export const ManualExpenseModal = ({ isOpen, onClose, onSuccess, currentDenomina
 
   const updateExpenseDenom = (denom: string, count: number) => {
     const maxAvailable = currentDenominations?.[denom] || 0;
-    setExpenseDenoms(prev => ({ ...prev, [denom]: Math.min(Math.max(0, count), maxAvailable) }));
+    setExpenseDenoms((prev: any) => ({ ...prev, [denom]: Math.min(Math.max(0, count), maxAvailable) }));
   };
 
   const handleRegisterExpense = async () => {

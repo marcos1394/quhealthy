@@ -15,11 +15,32 @@ interface PrivacySettingsProps {
 }
 
 export function PrivacySettings({ algorithmicConsent, onConsentChange }: PrivacySettingsProps) {
-  const [isUpdatingConsent, setIsUpdatingConsent] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [deletePassword, setDeletePassword] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
+    const [{ isUpdatingConsent, isDeleteModalOpen, deleteConfirmation, deletePassword, isDeleting }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_ISUPDATINGCONSENT': return { ...state, isUpdatingConsent: typeof action.payload === 'function' ? action.payload(state.isUpdatingConsent) : action.payload };
+      case 'SET_ISDELETEMODALOPEN': return { ...state, isDeleteModalOpen: typeof action.payload === 'function' ? action.payload(state.isDeleteModalOpen) : action.payload };
+      case 'SET_DELETECONFIRMATION': return { ...state, deleteConfirmation: typeof action.payload === 'function' ? action.payload(state.deleteConfirmation) : action.payload };
+      case 'SET_DELETEPASSWORD': return { ...state, deletePassword: typeof action.payload === 'function' ? action.payload(state.deletePassword) : action.payload };
+      case 'SET_ISDELETING': return { ...state, isDeleting: typeof action.payload === 'function' ? action.payload(state.isDeleting) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        isUpdatingConsent: false, isDeleteModalOpen: false, deleteConfirmation: "", deletePassword: "", isDeleting: false
+      }
+    );
+
+    const setIsUpdatingConsent = (val: any) => dispatch({ type: 'SET_ISUPDATINGCONSENT', payload: val });
+    const setIsDeleteModalOpen = (val: any) => dispatch({ type: 'SET_ISDELETEMODALOPEN', payload: val });
+    const setDeleteConfirmation = (val: any) => dispatch({ type: 'SET_DELETECONFIRMATION', payload: val });
+    const setDeletePassword = (val: any) => dispatch({ type: 'SET_DELETEPASSWORD', payload: val });
+    const setIsDeleting = (val: any) => dispatch({ type: 'SET_ISDELETING', payload: val });
+
+
+
+
+
 
   const handleToggleConsent = async () => {
     setIsUpdatingConsent(true);

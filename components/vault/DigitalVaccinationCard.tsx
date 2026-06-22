@@ -22,9 +22,15 @@ export function DigitalVaccinationCard({ memberId, hideHeader }: DigitalVaccinat
 
     const member = family?.find(f => f.id === memberId);
 
+    const [prevMemberId, setPrevMemberId] = useState(memberId);
+    if (memberId !== prevMemberId) {
+        setPrevMemberId(memberId);
+        setIsLoading(true);
+        setVaccines([]);
+    }
+
     useEffect(() => {
         if (!memberId) return;
-        setIsLoading(true);
         vaccinationService.getVaccinations(memberId)
             .then(data => setVaccines(data))
             .catch(err => console.error("Error fetching vaccines for card", err))

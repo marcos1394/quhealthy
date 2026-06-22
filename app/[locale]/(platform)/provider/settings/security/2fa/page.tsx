@@ -33,12 +33,35 @@ export default function TwoFactorSetupPage() {
   const t = useTranslations('Settings2FA');
   const router = useRouter();
 
-  const [step, setStep] = useState(1);
-  const [secret, setSecret] = useState("");
-  const [code, setCode] = useState("");
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [initializing, setInitializing] = useState(true);
+    const [{ step, secret, code, backupCodes, loading, initializing }, dispatch] = React.useReducer(
+      (state: any, action: any) => {
+        switch (action.type) {
+      case 'SET_STEP': return { ...state, step: typeof action.payload === 'function' ? action.payload(state.step) : action.payload };
+      case 'SET_SECRET': return { ...state, secret: typeof action.payload === 'function' ? action.payload(state.secret) : action.payload };
+      case 'SET_CODE': return { ...state, code: typeof action.payload === 'function' ? action.payload(state.code) : action.payload };
+      case 'SET_BACKUPCODES': return { ...state, backupCodes: typeof action.payload === 'function' ? action.payload(state.backupCodes) : action.payload };
+      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+      case 'SET_INITIALIZING': return { ...state, initializing: typeof action.payload === 'function' ? action.payload(state.initializing) : action.payload };
+          default: return state;
+        }
+      },
+      {
+        step: 1, secret: "", code: "", backupCodes: [], loading: false, initializing: true
+      }
+    );
+
+    const setStep = (val: any) => dispatch({ type: 'SET_STEP', payload: val });
+    const setSecret = (val: any) => dispatch({ type: 'SET_SECRET', payload: val });
+    const setCode = (val: any) => dispatch({ type: 'SET_CODE', payload: val });
+    const setBackupCodes = (val: any) => dispatch({ type: 'SET_BACKUPCODES', payload: val });
+    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+    const setInitializing = (val: any) => dispatch({ type: 'SET_INITIALIZING', payload: val });
+
+
+
+
+
+
 
   // Paso 1: Obtener el Secreto para el QR
   const fetchSetupData = async () => {
@@ -274,7 +297,7 @@ export default function TwoFactorSetupPage() {
                   </Alert>
 
                   <div className="bg-slate-50 dark:bg-slate-950 rounded-xl p-5 border border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-3 shadow-inner">
-                    {backupCodes.length > 0 ? backupCodes.map((code, index) => (
+                    {backupCodes.length > 0 ? backupCodes.map((code: string, index: number) => (
                       <div key={index} className="bg-white dark:bg-slate-900 p-2.5 rounded-lg text-center border border-slate-200 dark:border-slate-800 shadow-sm">
                         <code className="font-mono text-slate-800 dark:text-slate-300 text-sm font-semibold tracking-wider">{code}</code>
                       </div>

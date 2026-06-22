@@ -22,13 +22,21 @@ export const useLeaveReview = (token: string | undefined) => {
     const [comment, setComment] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    // 1. Validar el token automáticamente al montar el hook
-    useEffect(() => {
+    const [prevToken, setPrevToken] = useState<string | undefined>(token);
+    if (token !== prevToken) {
+        setPrevToken(token);
         if (!token) {
             setValidationError(t('error_missing_token', { defaultValue: 'Enlace inválido o incompleto.' }));
             setIsValidating(false);
-            return;
+        } else {
+            setValidationError(null);
+            setIsValidating(true);
         }
+    }
+
+    // 1. Validar el token automáticamente al montar el hook
+    useEffect(() => {
+        if (!token) return;
 
         const validateInvitation = async () => {
             try {

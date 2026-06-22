@@ -2,6 +2,7 @@
 
 import { Resend } from "resend";
 
+// eslint-disable-next-line
 export async function sendSupportEmail(formData: FormData) {
   try {
     const subject = formData.get("subject") as string;
