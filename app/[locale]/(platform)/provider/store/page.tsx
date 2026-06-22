@@ -210,7 +210,7 @@ export default function StoreSetupPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             
             {/* Bloque: Catálogo e Inventario */}
-            <div className="lg:col-span-2 border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10">
+            <div className="lg:col-span-2 border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
               <div className="p-8 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-4">
                   <ShoppingBag className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
@@ -245,7 +245,7 @@ export default function StoreSetupPage() {
             </div>
 
             {/* Bloque: Equipo Médico */}
-            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10">
+            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
               <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <Users className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
@@ -282,7 +282,7 @@ export default function StoreSetupPage() {
             </div>
 
             {/* Bloque: Políticas */}
-            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10">
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
               <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
                 <ShieldCheck className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                 <h3 className="text-sm font-bold uppercase tracking-widest">Legal y Políticas</h3>
@@ -298,7 +298,7 @@ export default function StoreSetupPage() {
             </div>
 
             {/* Bloque: Integraciones */}
-            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10">
+            <div className="border-b lg:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col group transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white relative hover:z-10">
               <div className="p-8 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
                 <Share2 className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                 <h3 className="text-sm font-bold uppercase tracking-widest">Canales y Redes</h3>
@@ -386,7 +386,7 @@ export default function StoreSetupPage() {
                 onClick={() => router.push(step.path)}
                 className={cn(
                   "border-b border-r border-gray-200 dark:border-gray-800 p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 cursor-pointer transition-all duration-300 group relative hover:z-10",
-                  isComplete ? "bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a]" : "bg-white dark:bg-[#0a0a0a] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white",
+                  isComplete ? "bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a]" : "bg-white dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:border-black dark:hover:border-white",
                   isNext ? "bg-white dark:bg-[#0a0a0a] ring-1 ring-inset ring-black dark:ring-white" : ""
                 )}
               >
