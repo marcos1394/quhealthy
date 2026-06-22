@@ -2990,7 +2990,11 @@
       "duplicate": "Duplicar",
       "save": "Guardar",
       "photo": "Foto del Servicio",
-      "image_label": "Portada del Servicio"
+      "image_label": "Portada del Servicio",
+      "incomplete": "Falta completar",
+      "price_warning_low": "Precio demasiado bajo",
+      "quick_templates": "Plantillas Rápidas",
+      "quick_templates_desc": "Agrega servicios pre-configurados populares en tu especialidad"
     },
     "packages": {
       "title": "Paquetes Especiales",
@@ -3024,7 +3028,9 @@
       "saving": "Ahorro",
       "manual_price": "Precio Final del Paquete",
       "cancel": "Cancelar",
-      "save_package": "Guardar Paquete"
+      "save_package": "Guardar Paquete",
+      "edit_btn": "Editar",
+      "delete_btn": "Eliminar"
     },
     "products": {
       "title": "Farmacia / Productos",

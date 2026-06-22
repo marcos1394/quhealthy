@@ -2985,7 +2985,11 @@
       "duplicate": "Duplicate",
       "save": "Save",
       "photo": "Service Photo",
-      "image_label": "Service Cover"
+      "image_label": "Service Cover",
+      "incomplete": "Incomplete",
+      "price_warning_low": "Price is too low",
+      "quick_templates": "Quick Templates",
+      "quick_templates_desc": "Add popular pre-configured services for your specialty"
     },
     "packages": {
       "title": "Special Packages",
@@ -3001,7 +3005,9 @@
       "empty_desc": "Create service combinations to offer discounts and increase your sales.",
       "create_first": "Create my first package",
       "tip_title": "Tip to sell more",
-      "tip_desc": "Make sure the package price is lower than the sum of the individual services to encourage the purchase."
+      "tip_desc": "Make sure the package price is lower than the sum of the individual services to encourage the purchase.",
+      "edit_btn": "Edit",
+      "delete_btn": "Delete"
     },
     "products": {
       "title": "Pharmacy / Products",
