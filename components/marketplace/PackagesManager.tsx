@@ -6,7 +6,6 @@ import { Package, Plus, Tag, TrendingUp, Sparkles, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // Subcomponentes
@@ -45,7 +44,7 @@ export function PackagesManager({
 
   const handleOpenDialog = (pkg?: UI_Package) => {
     if (!pkg && !canAdd) {
-      toast.warning(t('limit_reached_msg', { defaultValue: 'Capacidad de inventario alcanzada.' }));
+      toast.warning(t('limit_reached_msg', { defaultValue: 'ALERTA DE CAPACIDAD: LÍMITE DE INVENTARIO ALCANZADO.' }), { theme: "colored" });
       return;
     }
 
@@ -73,53 +72,59 @@ export function PackagesManager({
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+    <div className="flex flex-col bg-gray-50 dark:bg-[#050505] min-h-screen transition-colors duration-500 font-sans">
       
-      {/* --- CABECERA (HEADER) --- */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505] gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-            <Package className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+      {/* --- CABECERA ARQUITECTÓNICA --- */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] gap-6 shrink-0">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+            <Package className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-              {t('title', { defaultValue: 'Gestor de Paquetes' })}
-            </h2>
-            <div className="flex flex-wrap items-center gap-3">
-              {packages.length > 0 && (
-                <span className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" strokeWidth={2} />
-                  {packages.length} Registros Activos
-                </span>
-              )}
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+              {t('title', { defaultValue: 'GESTOR DE ENSAMBLES' })}
+            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h2 className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+                PAQUETES PROMOCIONALES
+              </h2>
+              
+              <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                {packages.length > 0 && (
+                  <span className="border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3" strokeWidth={1.5} />
+                    {packages.length} REGISTROS ACTIVOS
+                  </span>
+                )}
 
-              {typeof currentUsage === 'number' && typeof maxLimit === 'number' && (
-                <span className={cn(
-                  "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1",
-                  canAdd 
-                    ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black" 
-                    : "border-red-500 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-                )}>
-                  Consumo: {currentUsage} / {maxLimit}
-                </span>
-              )}
+                {typeof currentUsage === 'number' && typeof maxLimit === 'number' && (
+                  <span className={cn(
+                    "border px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest flex items-center gap-1.5",
+                    canAdd 
+                      ? "border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black" 
+                      : "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400"
+                  )}>
+                    CONSUMO: {currentUsage} / {maxLimit}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        <Button 
+        <button 
           onClick={() => handleOpenDialog()} 
           disabled={!canAdd}
-          className="w-full sm:w-auto rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed border-0"
+          className="w-full md:w-auto h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none disabled:opacity-50"
         >
-          <Plus className="w-4 h-4 mr-2" strokeWidth={2} /> 
-          {!canAdd ? t('limit_reached_btn', { defaultValue: 'Límite Agotado' }) : t('create_package', { defaultValue: 'Nuevo Paquete' })}
-        </Button>
+          <Plus className="w-4 h-4" strokeWidth={1.5} /> 
+          {!canAdd ? t('limit_reached_btn', { defaultValue: 'LÍMITE AGOTADO' }) : t('create_package', { defaultValue: 'NUEVO ENSAMBLE' })}
+        </button>
       </div>
       
-      <div className="p-6 md:p-8 space-y-8 bg-gray-50/50 dark:bg-[#050505]/50">
+      <div className="p-6 md:p-8 space-y-6">
         
-        {/* --- ALERTA DE LÍMITE (Margin Note) --- */}
+        {/* --- ALERTA DE LÍMITE (SISTEMA) --- */}
         <AnimatePresence>
           {!canAdd && packages.length > 0 && (
             <motion.div
@@ -128,45 +133,45 @@ export function PackagesManager({
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10 mb-8">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
-                  <Info className="w-3.5 h-3.5" /> {t('limit_alert_title', { defaultValue: 'Capacidad Máxima Alcanzada' })}
+              <div className="p-4 border-l-4 border-l-red-500 border border-black/10 dark:border-white/10 bg-red-50 dark:bg-red-900/10 mb-6 flex flex-col">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 flex items-center gap-2 mb-1">
+                  <Info className="w-4 h-4" strokeWidth={1.5} /> {t('limit_alert_title', { defaultValue: 'ALERTA DE CAPACIDAD MÁXIMA' })}
                 </p>
-                <p className="text-xs text-red-700 dark:text-red-300 font-light">
-                  {t('limit_alert_desc', { defaultValue: 'Archiva o elimina registros para liberar espacio en el catálogo.' })}
+                <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-500 leading-relaxed">
+                  {t('limit_alert_desc', { defaultValue: 'ELIMINE O ARCHIVE REGISTROS OBSOLETOS PARA LIBERAR ESPACIO EN LA BASE DE DATOS.' })}
                 </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* --- ESTADO VACÍO (Blueprint Empty State) --- */}
+        {/* --- ESTADO VACÍO (EMPTY STATE) --- */}
         {packages.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-400 dark:border-gray-600 bg-white dark:bg-[#0a0a0a]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-24 text-center border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]"
           >
-            <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-6">
+            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
               <Tag className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
             </div>
-            <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-              {t('empty_title', { defaultValue: 'Sin Paquetes Activos' })}
+            <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+              {t('empty_title', { defaultValue: 'CERO PAQUETES ACTIVOS' })}
             </p>
-            <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
-              {t('empty_desc', { defaultValue: 'Crea combinaciones de servicios para ofrecer descuentos y promociones en bloque.' })}
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 max-w-xs leading-relaxed">
+              {t('empty_desc', { defaultValue: 'ESTRUCTURE COMBINACIONES DE SERVICIOS PARA OFRECER CONDICIONES COMERCIALES EN BLOQUE.' })}
             </p>
-            <Button 
+            <button 
               onClick={() => handleOpenDialog()}
               disabled={!canAdd}
-              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-12 px-8 disabled:opacity-50 border-0"
+              className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none disabled:opacity-50"
             >
-              <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
-              {!canAdd ? t('limit_reached_btn') : t('create_first', { defaultValue: 'Crear Registro Inicial' })}
-            </Button>
+              <Plus className="w-4 h-4" strokeWidth={1.5} />
+              {!canAdd ? t('limit_reached_btn') : t('create_first', { defaultValue: 'INICIAR CONFIGURACIÓN' })}
+            </button>
           </motion.div>
         ) : (
-          /* --- GRID DE TARJETAS --- */
+          /* --- GRID DE TARJETAS (MATRIZ) --- */
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AnimatePresence>
               {packages.map((pkg) => (
@@ -182,19 +187,24 @@ export function PackagesManager({
           </div>
         )}
 
-        {/* --- CONSEJO FINAL (TIPS) - (Margin Note) --- */}
+        {/* --- CONSEJO FINAL (OPTIMIZACIÓN COMERCIAL) --- */}
         {packages.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mt-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-6 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] mt-12 flex flex-col md:flex-row gap-6"
           >
-            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4" strokeWidth={1.5} /> {t('tip_title', { defaultValue: 'Estrategia de Ventas' })}
-            </p>
-            <p className="text-xs text-gray-500 font-light leading-relaxed">
-              {t('tip_desc', { defaultValue: 'Asegúrate de que el precio del paquete sea significativamente menor a la suma de los servicios individuales para incentivar la transacción en bloque.' })}
-            </p>
+            <div className="md:w-1/3 flex flex-col gap-2 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 pb-4 md:pb-0 pr-0 md:pr-6">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-gray-500" strokeWidth={1.5} /> 
+                {t('tip_title', { defaultValue: 'ESTRATEGIA COMERCIAL' })}
+              </p>
+            </div>
+            <div className="md:w-2/3 flex flex-col justify-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 leading-relaxed">
+                {t('tip_desc', { defaultValue: 'SE SUGIERE ESTABLECER UN PRECIO DE PAQUETE INFERIOR A LA SUMATORIA DE LOS SERVICIOS INDIVIDUALES PARA INCENTIVAR LA ADQUISICIÓN EN BLOQUE.' })}
+              </p>
+            </div>
           </motion.div>
         )}
 

@@ -2,16 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, X, Zap, Percent, DollarSign, ShoppingCart, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { ImagePlus, X, Zap, Percent, DollarSign, ShoppingCart, CheckCircle2, AlertCircle, Info, Camera, CheckSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -57,7 +51,6 @@ export function PackageEditorDialog({
       ? pkg.serviceIds.filter(id => id !== serviceId)
       : [...pkg.serviceIds, serviceId];
     
-    // Auto-update price when pulling services in or out, respecting the current discount %
     const newRealValue = calculateRealValue(ids);
     const newPrice = Math.round(newRealValue * (1 - discountPercent / 100));
     setPkg({ ...pkg, serviceIds: ids, price: newPrice });
@@ -78,12 +71,9 @@ export function PackageEditorDialog({
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !pkg) return;
-    // Preview local inmediato
     const objectUrl = URL.createObjectURL(file);
     setPkg({ ...pkg, imageUrl: objectUrl });
-    // Llama al upload handler si está disponible
     if (onImageUpload) onImageUpload(pkg.id, file);
-    // Limpia el input para permitir re-seleccionar el mismo archivo
     e.target.value = '';
   };
 
@@ -98,260 +88,282 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-[2rem] shadow-2xl">
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
         
-        {/* Encabezado Espacioso */}
-        <DialogHeader className="px-8 pt-8 pb-6 border-b border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950 relative z-10">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <DialogTitle className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                {pkg.isNew ? t('dialog_create', { defaultValue: 'Diseñar Nuevo Paquete' }) : t('dialog_edit', { defaultValue: 'Editar Paquete' })}
-              </DialogTitle>
-              <DialogDescription className="text-base text-slate-500 dark:text-slate-400 font-light">
-                {t('dialog_desc', { defaultValue: 'Agrupa servicios, aplica un descuento estratégico y potencia tus ventas.' })}
-              </DialogDescription>
+        {/* --- HEADER ARQUITECTÓNICO --- */}
+        <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <ShoppingCart className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-400">
-              <X className="w-5 h-5" />
-            </Button>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                Ensamblador Comercial
+              </p>
+              <DialogTitle className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+                {pkg.isNew ? t('dialog_create', { defaultValue: 'NUEVO PAQUETE' }) : t('dialog_edit', { defaultValue: 'EDICIÓN DE PAQUETE' })}
+              </DialogTitle>
+            </div>
           </div>
-        </DialogHeader>
+          <button 
+            onClick={onClose} 
+            className="w-12 h-12 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#111] transition-colors border border-transparent hover:border-black/20 dark:hover:border-white/20 shrink-0"
+          >
+            <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+          </button>
+        </div>
 
-        {/* ScrollArea ajustada para no desbordar la pantalla verticalmente */}
-        <ScrollArea className="max-h-[60vh] bg-slate-50 dark:bg-slate-950">
-          <div className="p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* --- ÁREA DE SCROLL PRINCIPAL --- */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+            
+            {/* --- COLUMNA IZQUIERDA: IDENTIDAD Y DETALLES --- */}
+            <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-black/10 dark:border-white/10">
               
-              {/* Columna Izquierda: Identidad Visual y Detalles */}
-              <div className="space-y-8">
-                
-                {/* Fotografía Panorámica */}
-                <div className="space-y-3">
-                  <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                     {t('photo', { defaultValue: 'Portada del Paquete' })}
-                  </Label>
+              {/* Fotografía Panorámica */}
+              <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex flex-col">
+                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
+                  <Camera className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('photo', { defaultValue: 'RECURSO GRÁFICO (BANNER)' })}
+                </label>
 
-                  {/* Input oculto que abre el explorador de archivos */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleBannerChange}
-                  />
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
 
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className={cn(
-                      "w-full aspect-[21/9] rounded-3xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all cursor-pointer bg-white dark:bg-slate-900 group",
-                      pkg.imageUrl ? "border-transparent shadow-lg" : "border-dashed border-slate-300 dark:border-slate-700 hover:border-medical-400 hover:bg-medical-50/50 dark:hover:bg-medical-500/5 hover:scale-[1.01]"
-                    )}
-                  >
-                    {pkg.imageUrl ? (
-                      <img src={pkg.imageUrl} alt="Paquete" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />
-                    ) : (
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center p-6">
-                        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-medical-100 dark:group-hover:bg-medical-500/20 transition-colors">
-                          <ImagePlus className="w-8 h-8 text-slate-400 group-hover:text-medical-500 transition-colors" />
-                        </div>
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Haz clic para subir un banner</p>
-                        <p className="text-xs text-slate-500 mt-1 font-light">Resolución recomendada: 1200x500px</p>
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Campos de Información (Taller Inputs) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2.5">
-                    <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('name_label')}</Label>
-                    <Input 
-                      placeholder={t('name_placeholder')} 
-                      value={pkg.name} 
-                      onChange={(e) => setPkg({ ...pkg, name: e.target.value })} 
-                      className="rounded-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-14 text-base px-4 focus-visible:ring-medical-500/20 focus-visible:border-medical-500 transition-all shadow-sm" 
-                    />
-                  </div>
-                  <div className="space-y-2.5">
-                    <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('category_label')}</Label>
-                    <Input 
-                      placeholder={t('category_placeholder')} 
-                      value={pkg.category} 
-                      onChange={(e) => setPkg({ ...pkg, category: e.target.value })} 
-                      className="rounded-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-14 text-base px-4 focus-visible:ring-medical-500/20 focus-visible:border-medical-500 transition-all shadow-sm" 
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
-                  <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('desc_label')}</Label>
-                  <Textarea 
-                    placeholder={t('desc_placeholder')} 
-                    value={pkg.description} 
-                    onChange={(e) => setPkg({ ...pkg, description: e.target.value })} 
-                    rows={4} 
-                    className="rounded-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-base p-4 focus-visible:ring-medical-500/20 focus-visible:border-medical-500 transition-all shadow-sm resize-none" 
-                  />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "w-full aspect-[21/9] border border-black/20 dark:border-white/20 flex flex-col items-center justify-center overflow-hidden transition-colors cursor-pointer group bg-white dark:bg-[#0a0a0a] rounded-none",
+                    pkg.imageUrl ? "" : "border-dashed hover:bg-black/5 dark:hover:bg-white/5"
+                  )}
+                >
+                  {pkg.imageUrl ? (
+                    <img src={pkg.imageUrl} alt="Paquete" className="w-full h-full object-cover group-hover:opacity-75 transition-opacity" />
+                  ) : (
+                    <div className="text-center flex flex-col items-center p-6">
+                      <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-4 transition-colors">
+                        <ImagePlus className="w-5 h-5 text-gray-400 group-hover:text-black dark:group-hover:text-white" strokeWidth={1.5} />
+                      </div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">SELECCIONAR ARCHIVO</p>
+                      <p className="text-[8px] font-bold uppercase tracking-widest text-gray-500 mt-2">1200x500PX RECOMENDADO</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Columna Derecha: Configuración Estratégica */}
-              <div className="flex flex-col gap-6">
-                
-                {/* 1. SELECCIÓN DE SERVICIOS */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-5">
-                    <Label className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      <ShoppingCart className="w-5 h-5 text-medical-500" /> {t('included_services')}
-                    </Label>
-                    <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full font-bold">
-                      {pkg.serviceIds.length}
-                    </Badge>
+              {/* Formulario (Inputs) */}
+              <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
+                  <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                      {t('name_label', { defaultValue: 'DENOMINACIÓN' })} <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      value={pkg.name} 
+                      onChange={(e) => setPkg({ ...pkg, name: e.target.value.toUpperCase() })} 
+                      placeholder="EJ. PAQUETE PREVENTIVO" 
+                      className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400" 
+                    />
                   </div>
-                  
-                  <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    {availableServices.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-slate-100 dark:border-slate-800/50 rounded-2xl bg-slate-50 dark:bg-slate-900/50">
-                        <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{t('no_services')}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-light mt-1">{t('no_services_desc')}</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {availableServices.map(service => {
-                          const isSelected = pkg.serviceIds.includes(service.id);
-                          return (
-                            <div 
-                              key={service.id} onClick={() => handleServiceToggle(service.id)}
-                              className={cn(
-                                "flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer group",
-                                isSelected 
-                                  ? "bg-medical-50/80 dark:bg-medical-500/10 border-medical-200 dark:border-medical-500/30 shadow-sm" 
-                                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-medical-300 dark:hover:border-medical-700 hover:shadow-sm"
-                              )}
-                            >
-                              <Checkbox 
-                                checked={isSelected} 
-                                className="w-5 h-5 data-[state=checked]:bg-medical-600 data-[state=checked]:border-medical-600 rounded-md" 
-                              />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight mb-0.5 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors">
-                                  {service.name}
-                                </p>
-                                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">${service.price} MXN</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                  <div className="flex-1 p-6">
+                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                      {t('category_label', { defaultValue: 'CATEGORIZACIÓN' })} <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      value={pkg.category} 
+                      onChange={(e) => setPkg({ ...pkg, category: e.target.value.toUpperCase() })} 
+                      placeholder="EJ. CHEQUEOS GENERALES" 
+                      className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400" 
+                    />
                   </div>
                 </div>
 
-                {/* 2. MOTOR DE PRECIOS Y VALOR */}
-                <div className={cn(
-                  "bg-white dark:bg-slate-900 border rounded-3xl p-6 shadow-sm transition-all duration-500 relative overflow-hidden",
-                  pkg.serviceIds.length > 0 ? "border-medical-200 dark:border-medical-800 ring-1 ring-medical-500/10" : "border-slate-200 dark:border-slate-800 opacity-60 pointer-events-none"
-                )}>
-                  
-                  {/* Decorative background gradient */}
-                  {pkg.serviceIds.length > 0 && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-medical-50/50 via-transparent to-transparent dark:from-medical-500/5 pointer-events-none" />
-                  )}
+                <div className="p-6">
+                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                    {t('desc_label', { defaultValue: 'ESPECIFICACIONES DEL PAQUETE' })}
+                  </label>
+                  <textarea 
+                    value={pkg.description} 
+                    onChange={(e) => setPkg({ ...pkg, description: e.target.value.toUpperCase() })} 
+                    placeholder={t('desc_placeholder', { defaultValue: 'DESCRIPCIÓN COMERCIAL...' })}
+                    rows={4} 
+                    className="w-full min-h-[120px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-y placeholder:text-gray-400" 
+                  />
+                </div>
+              </div>
+            </div>
 
-                  <div className="relative z-10 space-y-6">
-                    {/* Valuación */}
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                      <div>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-widest mb-1">{t('real_value')}</p>
-                        <p className="text-xl font-medium text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600">${realValue}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-widest mb-1 flex items-center justify-end gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> {t('saving', { defaultValue: 'Ahorro' })}
-                        </p>
-                        <p className="text-2xl font-black text-emerald-500">${savings}</p>
-                      </div>
+            {/* --- COLUMNA DERECHA: ENSAMBLE Y MOTOR DE PRECIOS --- */}
+            <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+              
+              {/* 1. SELECCIÓN DE SERVICIOS */}
+              <div className="flex flex-col border-b border-black/10 dark:border-white/10 flex-1 min-h-[300px]">
+                <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
+                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                    <CheckSquare className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('included_services', { defaultValue: 'SERVICIOS INTEGRADOS' })}
+                  </label>
+                  <span className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-black dark:text-white">
+                    {pkg.serviceIds.length} ITEMS
+                  </span>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#0a0a0a]">
+                  {availableServices.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center text-center p-12 h-full">
+                      <AlertCircle className="w-8 h-8 text-gray-400 mb-4" strokeWidth={1.5} />
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('no_services', { defaultValue: 'INVENTARIO VACÍO' })}</p>
+                      <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400 max-w-xs leading-relaxed">{t('no_services_desc', { defaultValue: 'AGREGUE SERVICIOS AL CATÁLOGO PREVIO A LA CREACIÓN DE UN PAQUETE.' })}</p>
                     </div>
-
-                    {/* Deslizador de Descuento */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                          <Percent className="w-4 h-4 text-emerald-500" /> Descuento Sugerido
-                        </Label>
-                        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100 border-0 font-black px-2">
-                          {discountPercent}%
-                        </Badge>
-                      </div>
-                      
-                      <Slider 
-                        value={[discountPercent]} max={60} min={0} step={1}
-                        onValueChange={(vals) => applyDiscountPercent(vals[0])}
-                        className="py-2 [&_[role=slider]]:bg-emerald-500 [&_[role=slider]]:border-4 [&_[role=slider]]:border-white dark:[&_[role=slider]]:border-slate-900 [&_[role=slider]]:shadow-lg [&_[role=slider]]:w-6 [&_[role=slider]]:h-6"
-                      />
-
-                      <div className="flex gap-2">
-                        {suggestedDiscounts.map((sug, idx) => (
-                          <Badge 
-                            key={idx} variant="outline" 
-                            onClick={() => applyDiscountPercent(sug.percent)} 
+                  ) : (
+                    <div className="flex flex-col">
+                      {availableServices.map(service => {
+                        const isSelected = pkg.serviceIds.includes(service.id);
+                        return (
+                          <div 
+                            key={service.id} 
+                            onClick={() => handleServiceToggle(service.id)}
                             className={cn(
-                              "cursor-pointer transition-all flex-1 justify-center py-2 border font-bold text-xs rounded-xl",
-                              discountPercent === sug.percent 
-                                ? "bg-emerald-500 border-emerald-500 text-white dark:bg-emerald-600 dark:border-emerald-600 hover:bg-emerald-600" 
-                                : "hover:bg-emerald-50 dark:hover:bg-emerald-500/10 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                              "flex items-center gap-4 p-4 border-b border-black/10 dark:border-white/10 transition-colors cursor-pointer",
+                              isSelected ? "bg-black/5 dark:bg-white/5" : "hover:bg-gray-50 dark:hover:bg-[#111]"
                             )}
                           >
-                            {sug.label}
-                          </Badge>
-                        ))}
-                      </div>
+                            <Checkbox 
+                              checked={isSelected} 
+                              className="w-5 h-5 rounded-none border-black/30 dark:border-white/30 data-[state=checked]:bg-black data-[state=checked]:text-white dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-black transition-none" 
+                            />
+                            <div className="flex-1 min-w-0 flex items-center justify-between gap-4">
+                              <p className={cn(
+                                "text-xs font-semibold uppercase tracking-widest truncate",
+                                isSelected ? "text-black dark:text-white" : "text-gray-700 dark:text-gray-300"
+                              )}>
+                                {service.name}
+                              </p>
+                              <span className="text-[10px] font-mono font-bold tracking-widest shrink-0 text-gray-500">
+                                ${service.price}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
+                  )}
+                </div>
+              </div>
 
-                    {/* Input Precio Final */}
-                    <div className="pt-2">
-                      <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block">{t('manual_price')}</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-medical-600 dark:text-medical-400" />
-                        <Input 
-                          type="number" min="0" value={pkg.price || ''}
-                          onChange={(e) => manualPriceChange(Number(e.target.value))}
-                          className="pl-12 rounded-2xl bg-white dark:bg-slate-950 border-2 border-medical-200 dark:border-medical-800 h-16 text-3xl font-black text-medical-600 dark:text-medical-400 focus-visible:ring-medical-500/30 transition-all shadow-inner"
-                        />
-                      </div>
-                    </div>
+              {/* 2. MOTOR DE PRECIOS Y VALOR */}
+              <div className={cn(
+                "p-6 md:p-8 flex flex-col bg-gray-50 dark:bg-[#050505] transition-opacity",
+                pkg.serviceIds.length === 0 && "opacity-50 pointer-events-none"
+              )}>
+                
+                {/* Valuación */}
+                <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-6 mb-6">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                      {t('real_value', { defaultValue: 'VALOR TÉCNICO' })}
+                    </p>
+                    <p className="text-sm font-mono font-bold text-gray-400 line-through decoration-gray-500">
+                      ${realValue}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      {t('saving', { defaultValue: 'DIFERENCIAL (AHORRO)' })} <CheckCircle2 className="w-3 h-3" strokeWidth={2} />
+                    </p>
+                    <p className="text-xl font-mono font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                      ${savings}
+                    </p>
                   </div>
                 </div>
 
+                {/* Controles de Precio */}
+                <div className="flex flex-col gap-6">
+                  
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                        <Percent className="w-3.5 h-3.5" strokeWidth={1.5} /> COMPRESIÓN DE PRECIO (%)
+                      </label>
+                      <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                        {discountPercent}%
+                      </span>
+                    </div>
+                    
+                    {/* El slider de shadcn requerirá clases custom para verse brutalista, se aplican aquí */}
+                    <Slider 
+                      value={[discountPercent]} max={60} min={0} step={1}
+                      onValueChange={(vals) => applyDiscountPercent(vals[0])}
+                      className="py-2 [&_[role=slider]]:bg-black dark:[&_[role=slider]]:bg-white [&_[role=slider]]:border-none [&_[role=slider]]:w-4 [&_[role=slider]]:h-6 [&_[role=slider]]:rounded-none [&_.bg-primary]:bg-black dark:[&_.bg-primary]:bg-white [&_.bg-secondary]:bg-black/10 dark:[&_.bg-secondary]:bg-white/10"
+                    />
+
+                    <div className="flex gap-2">
+                      {suggestedDiscounts.map((sug, idx) => (
+                        <button 
+                          key={idx} 
+                          onClick={() => applyDiscountPercent(sug.percent)} 
+                          className={cn(
+                            "flex-1 h-8 border text-[9px] font-bold uppercase tracking-widest transition-colors rounded-none",
+                            discountPercent === sug.percent 
+                              ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                              : "border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]"
+                          )}
+                        >
+                          {sug.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                      {t('manual_price', { defaultValue: 'VALOR COMERCIAL FINAL' })}
+                    </label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white pointer-events-none" strokeWidth={2} />
+                      <input 
+                        type="number" min="0" value={pkg.price || ''}
+                        onChange={(e) => manualPriceChange(Number(e.target.value))}
+                        className="w-full h-14 pl-12 pr-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-lg font-mono font-black tracking-widest text-black dark:text-white uppercase focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
+
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
-        {/* Footer */}
-        <DialogFooter className="px-8 py-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium mb-4 sm:mb-0">
+        {/* --- FOOTER DE COMANDOS --- */}
+        <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+          
+          <div className="flex items-center gap-2 w-full sm:w-auto text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
             {!isValid && (
               <>
-                <Info className="w-4 h-4 text-amber-500" />
-                <span>Llena todos los campos para guardar</span>
+                <Info className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <span>COMPLETE LOS CAMPOS OBLIGATORIOS (*)</span>
               </>
             )}
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Button variant="outline" onClick={onClose} className="rounded-xl border-slate-200 dark:border-slate-700 h-12 px-6 font-bold flex-1 sm:flex-initial">
-              {t('cancel')}
-            </Button>
-            <Button 
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button 
+              onClick={onClose} 
+              className="h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none w-full sm:w-auto"
+            >
+              {t('cancel', { defaultValue: 'ANULAR' })}
+            </button>
+            <button 
               onClick={() => onSave(pkg)} 
               disabled={!isValid} 
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 h-12 flex-1 sm:flex-initial px-8 font-bold shadow-none transition-all disabled:opacity-50"
+              className="h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none w-full sm:w-auto disabled:opacity-50"
             >
-              <Zap className="w-4 h-4 mr-2" /> {t('save_package')}
-            </Button>
+              <Zap className="w-4 h-4" strokeWidth={1.5} /> {t('save_package', { defaultValue: 'CONFIRMAR ENSAMBLE' })}
+            </button>
           </div>
-        </DialogFooter>
+          
+        </div>
+
       </DialogContent>
     </Dialog>
   );
