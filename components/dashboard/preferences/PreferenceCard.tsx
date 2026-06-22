@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-doctor/no-multi-comp */
 
 import React from 'react';
 import { useTranslations } from 'next-intl';

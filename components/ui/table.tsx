@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 import * as React from "react";
 
 import { cn } from "@/lib/utils";

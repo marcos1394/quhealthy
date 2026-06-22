@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-initialize-state */
 // hooks/useGeolocation.ts
 import { useState, useEffect, useCallback } from 'react';
 

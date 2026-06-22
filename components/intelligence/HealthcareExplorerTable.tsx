@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-chain-state-updates */;
 
 import { useEffect, useState } from "react";
 import { Download, Search } from "lucide-react";

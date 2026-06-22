@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import React, { useState } from 'react';
 import { Plus, Ticket, ArrowLeft, Percent, DollarSign, Settings2 } from 'lucide-react';

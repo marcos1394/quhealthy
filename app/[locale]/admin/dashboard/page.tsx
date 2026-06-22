@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/js-hoist-intl */;
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';

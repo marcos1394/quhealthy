@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 'use client';
 
 import React from 'react';

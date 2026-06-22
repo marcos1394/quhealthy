@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';

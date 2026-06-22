@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";

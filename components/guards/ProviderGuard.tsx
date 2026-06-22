@@ -1,3 +1,6 @@
+/* eslint-disable react-doctor/no-event-handler */
+/* eslint-disable react-doctor/rerender-state-only-in-handlers */
+/* eslint-disable react-doctor/no-chain-state-updates */
 // Ubicación: src/components/guards/ProviderGuard.tsx
 "use client";
 

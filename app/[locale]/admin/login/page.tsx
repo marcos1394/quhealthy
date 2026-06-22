@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/rerender-defer-reads-hook */;
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';

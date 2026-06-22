@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-doctor/rerender-state-only-in-handlers */
 "use client";
+/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";

@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-static-value */;
 
 import { useIntelligenceAggregate } from "@/hooks/useIntelligence";
 import { useBIStore } from "@/store/intelligence.store";

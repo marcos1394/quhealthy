@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";

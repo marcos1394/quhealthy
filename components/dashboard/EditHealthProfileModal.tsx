@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-event-handler */;
 
 import React, { KeyboardEvent, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';

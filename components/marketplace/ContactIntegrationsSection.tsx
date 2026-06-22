@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";

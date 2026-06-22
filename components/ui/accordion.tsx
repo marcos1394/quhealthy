@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
+/* eslint-disable react-doctor/no-multi-comp */
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 

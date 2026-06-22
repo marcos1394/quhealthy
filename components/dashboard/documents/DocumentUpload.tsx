@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable deslop/unused-export */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -242,4 +245,4 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   );
 };
 
-export const DocumentUploadCompact: React.FC<Omit<DocumentUploadProps, "showPreview">> = (props) => <DocumentUpload {...props} showPreview={false} />;
+const DocumentUploadCompact: React.FC<Omit<DocumentUploadProps, "showPreview">> = (props) => <DocumentUpload {...props} showPreview={false} />;

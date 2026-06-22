@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import React, { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";

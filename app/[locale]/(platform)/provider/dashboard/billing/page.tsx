@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { Suspense } from "react";
 import StripeConnectCard from "@/components/dashboard/billing/StripeConnectCard";

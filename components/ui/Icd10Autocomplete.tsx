@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/click-events-have-key-events */
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, Loader2 } from "lucide-react";

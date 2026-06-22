@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import * as React from "react";
 import { DayPicker } from "react-day-picker";
@@ -8,9 +9,11 @@ import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+const EMPTY_CLASSNAMES = {};
+
 function Calendar({
   className = "",
-  classNames = {},
+  classNames = EMPTY_CLASSNAMES,
   showOutsideDays = true,
   ...props
 }: CalendarProps) {

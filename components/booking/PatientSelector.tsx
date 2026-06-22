@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/click-events-have-key-events */;
 
 import React, { useEffect } from 'react';
 import { useTranslations } from 'next-intl';

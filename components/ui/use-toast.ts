@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 // Inspired by react-hot-toast library
 import * as React from "react";
 

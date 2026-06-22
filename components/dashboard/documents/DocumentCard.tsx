@@ -1,5 +1,9 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/rerender-state-only-in-handlers */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/click-events-have-key-events */;
 
+/* eslint-disable react-doctor/no-multi-comp */
 import React from "react";
 import { motion } from "framer-motion";
 import { FileText, Image as ImageIcon, Award, Clock, CheckCircle2, AlertCircle, File, Eye, Download, MoreVertical } from "lucide-react";

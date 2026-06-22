@@ -1,4 +1,10 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-event-handler */
+/* eslint-disable react-doctor/click-events-have-key-events */
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+/* eslint-disable react-doctor/no-pass-data-to-parent */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";

@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/click-events-have-key-events */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";

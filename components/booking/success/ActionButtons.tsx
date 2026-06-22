@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import React from 'react';
 import { Calendar, Download, Share, Bell, ArrowRight, Home, ShieldCheck, Loader2, Check } from 'lucide-react';

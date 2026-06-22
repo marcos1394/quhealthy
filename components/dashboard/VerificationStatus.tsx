@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

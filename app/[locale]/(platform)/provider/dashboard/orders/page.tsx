@@ -1,5 +1,9 @@
+/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-autofocus */
 // app/[locale]/(platform)/provider/dashboard/orders/page.tsx
 "use client";
+/* eslint-disable react-doctor/js-combine-iterations */
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";

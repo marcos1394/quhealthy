@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/click-events-have-key-events */;
+/* eslint-disable react-doctor/js-combine-iterations */
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';

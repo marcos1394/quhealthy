@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSessionStore } from '@/stores/SessionStore';
 import { ConsumerProfile } from '@/types/consumerProfile';
 
-export const SECTIONS = [
+const SECTIONS = [
     { id: 0, value: 'personal', titleKey: 'section_personal', icon: User },
     { id: 1, value: 'medical', titleKey: 'section_medical', icon: HeartPulse },
     { id: 2, value: 'preferences', titleKey: 'section_preferences', icon: Sparkles },

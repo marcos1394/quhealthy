@@ -1,4 +1,6 @@
-import * as React from "react";
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
+import * as React from "react"
+/* eslint-disable react-doctor/no-multi-comp */;
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";

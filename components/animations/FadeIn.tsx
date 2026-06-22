@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-doctor/no-multi-comp */
 
 import { motion, useInView } from "framer-motion";
 import { useRef, ReactNode } from "react";

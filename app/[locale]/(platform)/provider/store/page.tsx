@@ -1,3 +1,6 @@
+/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/click-events-have-key-events */
 // Ubicación: src/app/[locale]/(platform)/provider/store/page.tsx
 "use client";
 

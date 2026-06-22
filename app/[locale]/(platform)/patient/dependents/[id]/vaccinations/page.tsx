@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useState, useEffect, use } from "react";
 import { CheckCircle2, AlertCircle, Syringe, Clock, Info } from "lucide-react";

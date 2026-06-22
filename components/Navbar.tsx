@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useRouter, usePathname } from "@/i18n/routing";

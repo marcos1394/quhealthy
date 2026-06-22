@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";

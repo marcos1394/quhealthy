@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-static-value */;
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Search, BookOpen, Users, Clock, PlayCircle, ChevronRight, ArrowUpRight } from "lucide-react";

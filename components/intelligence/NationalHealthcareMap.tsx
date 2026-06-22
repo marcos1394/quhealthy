@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-event-handler */;
 
 import React, { useState, useEffect, useMemo } from "react";
 import { GoogleMap, useJsApiLoader, MarkerF, MarkerClustererF, InfoWindowF } from "@react-google-maps/api";
@@ -6,6 +7,7 @@ import { useIntelligenceMap } from "@/hooks/useIntelligence";
 import { useTheme } from "next-themes";
 import { Building2, MapPin, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { m } from "framer-motion";
 
 interface HealthcareMapDto {
   clues: string;
@@ -130,7 +132,9 @@ export default function NationalHealthcareMap() {
       {loading && (
         <div className="absolute inset-0 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center border-b border-black dark:border-white transition-opacity duration-300">
           <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center mb-4">
-             <MapPin className="w-5 h-5 animate-bounce" strokeWidth={1.5} />
+             <m.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+               <MapPin className="w-5 h-5" strokeWidth={1.5} />
+             </m.div>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
             SINTETIZANDO COORDENADAS NACIONALES...

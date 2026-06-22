@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";

@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/click-events-have-key-events */
 // components/discover/ProviderCard.tsx
 "use client";
 

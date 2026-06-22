@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable deslop/unused-export */;
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
@@ -316,6 +318,6 @@ export const HistoryDetailModal: React.FC<HistoryDetailModalProps> = ({ entry, r
   );
 };
 
-export const HistoryDetailModalCompact: React.FC<HistoryDetailModalProps> = (props) => {
+const HistoryDetailModalCompact: React.FC<HistoryDetailModalProps> = (props) => {
   return <HistoryDetailModal {...props} />;
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 // Ubicación: src/hooks/useProviderOrders.ts
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';

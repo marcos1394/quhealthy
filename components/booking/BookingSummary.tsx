@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";

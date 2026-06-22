@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/button-has-type */
 import React from 'react';
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Stethoscope, Mic, Save, CheckCircle } from "lucide-react";

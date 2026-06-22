@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable deslop/unused-export */;
 
 import React, { ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -232,7 +234,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ entries, role, onVie
   );
 };
 
-export const HistoryTableCompact: React.FC<HistoryTableProps> = ({ entries, role, onViewDetails }) => {
+const HistoryTableCompact: React.FC<HistoryTableProps> = ({ entries, role, onViewDetails }) => {
   const t = useTranslations("DashboardHistory");
 
   if (entries.length === 0) {

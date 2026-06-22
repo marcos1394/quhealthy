@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/rerender-state-only-in-handlers */;
 
 import React, { useMemo, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

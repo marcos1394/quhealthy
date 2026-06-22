@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import React from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";

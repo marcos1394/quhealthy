@@ -23,7 +23,7 @@ export function TagInput({ value, onChange, placeholder, icon }: TagInputProps) 
     // Parse the comma-separated string into tags (safely handle null/undefined/non-string)
     const safeValue = typeof value === 'string' ? value : '';
     const tags = safeValue
-        ? safeValue.split(',').map(t => t.trim()).filter(Boolean)
+        ? safeValue.split(',').flatMap(t => { const trimmed = t.trim(); return trimmed ? [trimmed] : []; })
         : [];
 
     const addTag = (tag: string) => {

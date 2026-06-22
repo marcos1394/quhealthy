@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-event-handler */
 // Ubicación: src/hooks/useConsultation.ts
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';

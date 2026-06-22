@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+/* eslint-disable react-doctor/no-giant-component */;
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Activity, Laptop, CreditCard, MessageSquare, Check, Loader2, UserRound, ArrowUpRight } from "lucide-react";

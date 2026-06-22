@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-event-handler */
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';

@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-giant-component */
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";

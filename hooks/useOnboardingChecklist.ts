@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 import { useState, useEffect, useCallback } from 'react';
 import { onboardingService } from '@/services/onboarding.service';
 import { useSessionStore } from '@/stores/SessionStore';

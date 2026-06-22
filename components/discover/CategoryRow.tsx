@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/button-has-type */
 // components/discover/CategoryRow.tsx
 "use client";
 

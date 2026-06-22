@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-giant-component */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 

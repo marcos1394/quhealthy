@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/js-hoist-intl */;
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';

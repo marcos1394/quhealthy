@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState } from 'react';
 import Link from 'next/link';

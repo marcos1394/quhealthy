@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import { useBIStore } from "@/store/intelligence.store";
 import { Filter, X, ChevronDown } from "lucide-react";

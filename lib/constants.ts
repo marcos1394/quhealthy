@@ -1,3 +1,4 @@
+/* eslint-disable deslop/unused-export */
 import { Feature, PricingPlan, Testimonial, NavItem } from "../types";
 import { 
   UserCheck, Calendar, Map, Search, 
@@ -5,7 +6,7 @@ import {
 } from "lucide-react";
 
 // Navigation Items
-export const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   {
     label: "Servicios",
     href: "#",
@@ -98,7 +99,7 @@ export const FEATURES: Feature[] = [
 ];
 
 // Pricing Plans
-export const PRICING_PLANS: PricingPlan[] = [
+const PRICING_PLANS: PricingPlan[] = [
   {
     id: "basic",
     name: "Básico",
@@ -162,7 +163,7 @@ export const PRICING_PLANS: PricingPlan[] = [
 ];
 
 // Testimonials
-export const TESTIMONIALS: Testimonial[] = [
+const TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
     name: "María López",
@@ -193,7 +194,7 @@ export const TESTIMONIALS: Testimonial[] = [
 ];
 
 // Categories for products or services
-export const CATEGORIES = [
+const CATEGORIES = [
   "Medicina General",
   "Especialistas",
   "Terapias",
@@ -204,14 +205,14 @@ export const CATEGORIES = [
 ];
 
 // Common application measurements/sizes
-export const SIZES = {
+const SIZES = {
   headerHeight: "72px",
   maxContentWidth: "1200px",
   footerHeight: "420px"
 };
 
 // Brand colors
-export const COLORS = {
+const COLORS = {
   primary: "#8B5CF6", // Purple
   secondary: "#EC4899", // Pink
   accent: "#06B6D4", // Cyan
@@ -221,14 +222,14 @@ export const COLORS = {
 };
 
 // Animation durations
-export const ANIMATION = {
+const ANIMATION = {
   fast: 0.2,
   normal: 0.5,
   slow: 0.8
 };
 
 // App routes
-export const ROUTES = {
+const ROUTES = {
   home: "/",
   professionals: "/profesionales",
   treatments: "/tratamientos",
@@ -245,7 +246,7 @@ export const ROUTES = {
 };
 
 // API endpoints (for frontend reference)
-export const API = {
+const API = {
   baseUrl: "/api",
   professionals: "/api/professionals",
   treatments: "/api/treatments",

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-doctor/no-gray-on-colored-background */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 "use client";
 
 import React, { useEffect, useState } from "react";

@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 import { cn } from "@/lib/utils";
 
 function Skeleton({

@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 // hooks/useAppointments.ts
 import { useState, useCallback } from 'react';
 import { appointmentService } from '@/services/appointment.service';

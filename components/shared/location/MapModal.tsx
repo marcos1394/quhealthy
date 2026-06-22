@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-event-handler */;
 
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";

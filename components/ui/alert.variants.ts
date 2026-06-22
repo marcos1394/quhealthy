@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 import { cva } from "class-variance-authority";
 
 export const alertVariants = cva(

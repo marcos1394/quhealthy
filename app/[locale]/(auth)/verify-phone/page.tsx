@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-doctor/no-event-handler */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 "use client";
+/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";

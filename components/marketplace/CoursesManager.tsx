@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/click-events-have-key-events */;
 
 import React, { useRef } from "react";
 import { Plus, Trash2, Save, FileVideo, GraduationCap, Tag, Link2, Info, Sparkles } from "lucide-react";

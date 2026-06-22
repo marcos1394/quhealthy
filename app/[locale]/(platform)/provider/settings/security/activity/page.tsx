@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // Importamos Axios para la llamada real

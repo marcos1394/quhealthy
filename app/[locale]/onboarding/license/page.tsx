@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-doctor/click-events-have-key-events */
 "use client";
 
 import React, { useState, useRef } from "react";

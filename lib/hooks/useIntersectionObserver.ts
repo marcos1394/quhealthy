@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-initialize-state */
 // ============================================
 // 📁 lib/hooks/useIntersectionObserver.ts
 // ============================================

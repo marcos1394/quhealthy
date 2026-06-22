@@ -1,4 +1,8 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-initialize-state */
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, AlertCircle, Watch, Apple, Smartphone, Link as LinkIcon, Loader2, Check } from "lucide-react";

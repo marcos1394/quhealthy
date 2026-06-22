@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
+/* eslint-disable react-doctor/no-initialize-state */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 

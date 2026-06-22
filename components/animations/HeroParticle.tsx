@@ -105,7 +105,7 @@ const HeroParticle: React.FC<HeroParticleProps> = ({
  * @param offsetY - Desplazamiento vertical (opcional)
  * @returns Array de posiciones determinísticas
  */
-export const generateDeterministicParticles = (
+const generateDeterministicParticles = (
   count: number, 
   offsetX = 0, 
   offsetY = 0
@@ -134,7 +134,7 @@ export const generateDeterministicParticles = (
  * Variante optimizada para áreas específicas
  * Útil para concentrar partículas en ciertas zonas
  */
-export const generateParticlesInArea = (
+const generateParticlesInArea = (
   count: number,
   area: {
     left: number;  // 0-100

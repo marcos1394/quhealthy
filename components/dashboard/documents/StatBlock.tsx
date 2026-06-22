@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable deslop/unused-export */
+/* eslint-disable react-doctor/prefer-module-scope-static-value */;
 
 import React from "react";
 import { useTranslations } from "next-intl";
@@ -91,9 +93,9 @@ export const StatBlock: React.FC<StatBlockProps> = ({
   );
 };
 
-export const StatBlockGrid: React.FC<{ stats: Array<Omit<StatBlockProps, "animationDelay">>; columns?: 1 | 2 | 3 | 4 }> = ({ stats, columns = 4 }) => {
+const StatBlockGrid: React.FC<{ stats: Array<Omit<StatBlockProps, "animationDelay">>; columns?: 1 | 2 | 3 | 4 }> = ({ stats, columns = 4 }) => {
   const gridCols = { 1: "grid-cols-1", 2: "grid-cols-1 md:grid-cols-2", 3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3", 4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4" };
   return (<div className={cn("grid gap-3", gridCols[columns])}>{stats.map((s, i) => <StatBlock key={s.label} {...s} animationDelay={i * 0.1} />)}</div>);
 };
 
-export const StatBlockCompact: React.FC<StatBlockProps> = (props) => <StatBlock {...props} size="sm" />;
+const StatBlockCompact: React.FC<StatBlockProps> = (props) => <StatBlock {...props} size="sm" />;

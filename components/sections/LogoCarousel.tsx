@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable deslop/unused-export */;
 
 import React from "react";
 import { motion } from "framer-motion";

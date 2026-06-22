@@ -1,5 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
+/* eslint-disable react-doctor/only-export-components, react-refresh/only-export-components */
 import * as React from "react";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";

@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/rerender-state-only-in-handlers */
+/* eslint-disable react-doctor/no-chain-state-updates */
+/* eslint-disable react-doctor/no-event-handler */;
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";

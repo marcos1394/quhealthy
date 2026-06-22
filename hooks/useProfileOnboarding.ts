@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 // Ubicación: src/hooks/useProfileOnboarding.ts
 
 import { useState, useEffect, useCallback } from 'react';

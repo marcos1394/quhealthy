@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable deslop/unused-export */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -201,7 +203,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
   );
 };
 
-export const PlansHeaderCompact: React.FC<PlansHeaderProps> = ({
+const PlansHeaderCompact: React.FC<PlansHeaderProps> = ({
   role,
   billingCycle,
   setBillingCycle

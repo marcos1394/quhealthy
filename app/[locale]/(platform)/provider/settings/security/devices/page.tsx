@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";

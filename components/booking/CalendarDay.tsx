@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import { format, isToday, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";

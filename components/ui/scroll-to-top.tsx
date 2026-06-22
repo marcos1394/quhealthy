@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";

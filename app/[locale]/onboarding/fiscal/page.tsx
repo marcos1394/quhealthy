@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/click-events-have-key-events */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";

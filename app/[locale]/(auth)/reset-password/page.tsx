@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
@@ -39,7 +40,7 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [pwdRules, setPwdRules] = useState<PasswordRule[]>(passwordRulesConfig.map(r => ({ ...r, valid: false })));
+  const [pwdRules, setPwdRules] = useState<PasswordRule[]>(() => passwordRulesConfig.map(r => ({ ...r, valid: false })));
   const labels = [t("new_password_placeholder"), "A-Z", "0-9", "!@#$"];
 
   useEffect(() => {

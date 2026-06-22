@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 

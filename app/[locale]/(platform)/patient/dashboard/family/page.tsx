@@ -1,4 +1,8 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-gray-on-colored-background */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';

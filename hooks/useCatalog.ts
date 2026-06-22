@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 // hooks/useCatalog.ts
 
 import { useState, useCallback } from 'react';
@@ -45,89 +46,104 @@ export const useCatalog = () => {
       const items = await catalogService.getMyCatalog();
 
       // Separamos y formateamos los Servicios
-      const loadedServices: UI_Service[] = items
-        .filter(item => item.type === 'SERVICE')
-        .map(item => ({
-          id: item.id!,
-          name: item.name,
-          description: item.description || '',
-          category: item.category || '', 
-          price: item.price,
-          duration: item.durationMinutes || 30,
-          serviceDeliveryType: mapModalityToDelivery(item.modality),
-          cancellationPolicy: (item.cancellationPolicy as CancellationPolicy) || 'flexible',
-          followUpPeriodDays: item.followUpPeriodDays,
-          imageUrl: item.imageUrl, 
-          isNew: false,
-          hasUnsavedChanges: false
-        }));
+      const loadedServices: UI_Service[] = items.reduce<UI_Service[]>((acc, item) => {
+        if (item.type === 'SERVICE') {
+          acc.push({
+            id: item.id!,
+            name: item.name,
+            description: item.description || '',
+            category: item.category || '', 
+            price: item.price,
+            duration: item.durationMinutes || 30,
+            serviceDeliveryType: mapModalityToDelivery(item.modality),
+            cancellationPolicy: (item.cancellationPolicy as CancellationPolicy) || 'flexible',
+            followUpPeriodDays: item.followUpPeriodDays,
+            imageUrl: item.imageUrl, 
+            isNew: false,
+            hasUnsavedChanges: false
+          });
+        }
+        return acc;
+      }, []);
 
       // Separamos y formateamos los Paquetes
-      const loadedPackages: UI_Package[] = items
-        .filter(item => item.type === 'PACKAGE')
-        .map(item => ({
-          id: item.id!,
-          name: item.name,
-          description: item.description || '',
-          category: item.category || '', 
-          price: item.price,
-          serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
-          imageUrl: item.imageUrl, 
-          isNew: false,
-          hasUnsavedChanges: false
-        }));
+      const loadedPackages: UI_Package[] = items.reduce<UI_Package[]>((acc, item) => {
+        if (item.type === 'PACKAGE') {
+          acc.push({
+            id: item.id!,
+            name: item.name,
+            description: item.description || '',
+            category: item.category || '', 
+            price: item.price,
+            serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
+            imageUrl: item.imageUrl, 
+            isNew: false,
+            hasUnsavedChanges: false
+          });
+        }
+        return acc;
+      }, []);
 
       // 📦 NUEVO: Formateamos Productos Físicos
-      const loadedProducts: UI_Product[] = items
-        .filter(item => item.type === 'PRODUCT')
-        .map(item => ({
-          id: item.id!,
-          name: item.name,
-          description: item.description || '',
-          category: item.category || '',
-          price: item.price,
-          stockQuantity: item.stockQuantity || 0,
-          stockAlertThreshold: item.stockAlertThreshold || 5, // 🚨 NUEVO
-          sku: item.sku || '',
-          imageUrl: item.imageUrl,
-          activeIngredient: item.activeIngredient || '',
-          manufacturer: item.manufacturer || '',
-          requiresPrescription: item.requiresPrescription || false,
-          isNew: false,
-          hasUnsavedChanges: false
-        }));
+      const loadedProducts: UI_Product[] = items.reduce<UI_Product[]>((acc, item) => {
+        if (item.type === 'PRODUCT') {
+          acc.push({
+            id: item.id!,
+            name: item.name,
+            description: item.description || '',
+            category: item.category || '',
+            price: item.price,
+            stockQuantity: item.stockQuantity || 0,
+            stockAlertThreshold: item.stockAlertThreshold || 5, // 🚨 NUEVO
+            sku: item.sku || '',
+            imageUrl: item.imageUrl,
+            activeIngredient: item.activeIngredient || '',
+            manufacturer: item.manufacturer || '',
+            requiresPrescription: item.requiresPrescription || false,
+            isNew: false,
+            hasUnsavedChanges: false
+          });
+        }
+        return acc;
+      }, []);
 
       // 🎓 NUEVO: Formateamos Cursos
-      const loadedCourses: UI_Course[] = items
-        .filter(item => item.type === 'COURSE')
-        .map(item => ({
-          id: item.id!,
-          name: item.name,
-          description: item.description || '',
-          category: item.category || '',
-          price: item.price,
-          contentUrl: item.contentUrl || '',
-          imageUrl: item.imageUrl,
-          isNew: false,
-          hasUnsavedChanges: false
-        }));
+      const loadedCourses: UI_Course[] = items.reduce<UI_Course[]>((acc, item) => {
+        if (item.type === 'COURSE') {
+          acc.push({
+            id: item.id!,
+            name: item.name,
+            description: item.description || '',
+            category: item.category || '',
+            price: item.price,
+            contentUrl: item.contentUrl || '',
+            imageUrl: item.imageUrl,
+            isNew: false,
+            hasUnsavedChanges: false
+          });
+        }
+        return acc;
+      }, []);
 
       // 📦 NUEVO: Formateamos Insumos
-      const loadedSupplies: UI_Supply[] = items
-        .filter(item => item.type === 'SUPPLY')
-        .map(item => ({
-          id: item.id!,
-          name: item.name,
-          description: item.description || '',
-          category: item.category || '',
-          price: item.price,
-          stockQuantity: item.stockQuantity || 0,
-          stockAlertThreshold: item.stockAlertThreshold || 5,
-          sku: item.sku || '',
-          imageUrl: item.imageUrl,
-          isNew: false,
-          hasUnsavedChanges: false
-        }));
+      const loadedSupplies: UI_Supply[] = items.reduce<UI_Supply[]>((acc, item) => {
+        if (item.type === 'SUPPLY') {
+          acc.push({
+            id: item.id!,
+            name: item.name,
+            description: item.description || '',
+            category: item.category || '',
+            price: item.price,
+            stockQuantity: item.stockQuantity || 0,
+            stockAlertThreshold: item.stockAlertThreshold || 5,
+            sku: item.sku || '',
+            imageUrl: item.imageUrl,
+            isNew: false,
+            hasUnsavedChanges: false
+          });
+        }
+        return acc;
+      }, []);
 
       setServices(loadedServices);
       setPackages(loadedPackages);

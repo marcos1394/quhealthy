@@ -80,7 +80,7 @@ export default function SocialAuthButtons({
         const response = await loginWithGoogle({
           provider: "GOOGLE",
           token: tokenResponse.access_token,
-          role: role as "CONSUMER" | "PROVIDER"
+          role: accountRole as "CONSUMER" | "PROVIDER"
         });
 
         toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
@@ -115,7 +115,7 @@ export default function SocialAuthButtons({
       const response = await loginWithGoogle({
         provider: "APPLE",
         token: appleToken,
-        role: role as "CONSUMER" | "PROVIDER"
+        role: accountRole as "CONSUMER" | "PROVIDER"
       });
 
       toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);

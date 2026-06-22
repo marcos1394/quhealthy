@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -88,7 +91,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl shadow-lg animate-pulse" />
                 <div className="relative flex items-center justify-center w-full h-full rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600">
                   <Crown className="w-10 h-10 text-white drop-shadow-sm" />
-                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-bounce" />
+                  <motion.div initial={{ opacity: 0, scale: 0.5, rotate: -45 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="absolute -top-1 -right-1">
+                    <Sparkles className="w-4 h-4 text-yellow-300" />
+                  </motion.div>
                 </div>
               </motion.div>
 

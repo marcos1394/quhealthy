@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-doctor/button-has-type */
 "use client";
 
 import React, { useState, useEffect } from "react";

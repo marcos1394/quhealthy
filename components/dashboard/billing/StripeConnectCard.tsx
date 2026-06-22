@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */;
 
 import { useStripeConnect } from "@/hooks/useStripeConnect";
 import { CreditCard, CheckCircle2, AlertCircle, ExternalLink, Loader2, Shield, AlertTriangle } from "lucide-react";

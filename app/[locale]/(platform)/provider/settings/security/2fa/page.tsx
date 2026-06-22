@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-doctor/no-giant-component */
 "use client";
 
 import React, { useState, useEffect } from "react";

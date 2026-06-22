@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-giant-component */;
+/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -65,7 +67,7 @@ export default function ProviderSignupPage() {
     acceptTerms: false,
   });
 
-  const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
+  const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(() =>
     passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
 

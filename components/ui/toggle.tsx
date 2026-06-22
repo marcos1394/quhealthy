@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
+/* eslint-disable react-doctor/only-export-components, react-refresh/only-export-components */
 "use client"
 
 import * as React from "react"

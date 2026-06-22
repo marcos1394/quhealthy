@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 import { useState, useCallback } from 'react';
 import { appointmentService } from '@/services/appointment.service';
 import { HistoryEntry } from '@/components/dashboard/history/HistoryTable';

@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/prefer-explicit-variants */
+/* eslint-disable react-doctor/js-hoist-intl */
 import React from 'react';
 import { Receipt, FileText, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';

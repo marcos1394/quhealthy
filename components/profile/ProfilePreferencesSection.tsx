@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ConsumerProfile } from '@/types/consumerProfile';
 
-export const GOALS_OPTIONS_KEYS = [
+const GOALS_OPTIONS_KEYS = [
     'goal_weight_loss',
     'goal_skin',
     'goal_stress',

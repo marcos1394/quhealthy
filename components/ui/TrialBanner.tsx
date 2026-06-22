@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 

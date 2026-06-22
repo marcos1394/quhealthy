@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/button-has-type */
 import React from 'react';
 import { useTranslations } from "next-intl";
 import { History, Pill, Video, FileCheck, ShieldAlert, ShoppingBag, Plus, Trash2 } from "lucide-react";

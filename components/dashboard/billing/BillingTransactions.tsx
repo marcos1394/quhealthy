@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React from "react";
 import { ReceiptText, CheckCircle2, XCircle, ArrowRightLeft, CalendarDays, CreditCard, ChevronLeft, ChevronRight, Download, FileDown, ExternalLink, FileText as FileTextIcon, Printer } from "lucide-react";

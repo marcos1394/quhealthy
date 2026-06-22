@@ -43,16 +43,19 @@ export const useOperatingHours = () => {
     setIsSaving(true);
     try {
       // Filtrar solo los activos y transformarlos al modelo de Java
-      const payload: ProviderSchedule[] = uiSchedules
-        .filter(ui => ui.isActive)
-        .map(ui => ({
-          dayOfWeek: mapNumberToEnum(ui.dayOfWeek),
-          isWorkingDay: true,
-          startTime: `${ui.openTime}:00`,   // Java espera "HH:mm:ss"
-          endTime: `${ui.closeTime}:00`,    // Java espera "HH:mm:ss"
-          breakStart: null, // Dejamos esto null por ahora hasta que agregues breaks a la UI
-          breakEnd: null
-        }));
+      const payload: ProviderSchedule[] = uiSchedules.reduce<ProviderSchedule[]>((acc, ui) => {
+        if (ui.isActive) {
+          acc.push({
+            dayOfWeek: mapNumberToEnum(ui.dayOfWeek),
+            isWorkingDay: true,
+            startTime: `${ui.openTime}:00`,   // Java espera "HH:mm:ss"
+            endTime: `${ui.closeTime}:00`,    // Java espera "HH:mm:ss"
+            breakStart: null, // Dejamos esto null por ahora hasta que agregues breaks a la UI
+            breakEnd: null
+          });
+        }
+        return acc;
+      }, []);
 
       await scheduleService.updateSchedule(locationId, payload);
       return true;

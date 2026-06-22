@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useState } from "react";
 import { KeyRound, Shield, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";

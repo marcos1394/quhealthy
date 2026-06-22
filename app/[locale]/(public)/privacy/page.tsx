@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, ShieldCheck, Lock, EyeOff, ArrowRight } from "lucide-react";

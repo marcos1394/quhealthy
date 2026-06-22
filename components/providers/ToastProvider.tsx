@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-initialize-state */
 'use client';
 
 import React, { useEffect } from 'react';

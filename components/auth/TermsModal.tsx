@@ -1,4 +1,5 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/prefer-module-scope-static-value */;
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

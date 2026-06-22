@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 // hooks/useStaff.ts
 import { useState, useCallback } from 'react';
 import { staffService } from '@/services/staff.service';

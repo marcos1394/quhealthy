@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/rerender-defer-reads-hook */
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";

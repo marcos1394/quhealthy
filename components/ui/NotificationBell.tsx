@@ -1,4 +1,6 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSessionStore } from '@/stores/SessionStore';

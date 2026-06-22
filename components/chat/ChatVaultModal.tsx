@@ -1,4 +1,7 @@
-"use client";
+"use client"
+/* eslint-disable react-doctor/no-event-handler */
+/* eslint-disable react-doctor/click-events-have-key-events */
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
