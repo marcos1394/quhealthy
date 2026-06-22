@@ -203,8 +203,8 @@
           "market": "QuMarket (Tienda)",
           "academy": "QuBlocks (Academia)",
           "doctors": "Para Doctores",
-        "intelligence": "Inteligencia",
-        "quscore": "¿Cómo funciona el QuScore?"
+          "intelligence": "Inteligencia",
+          "quscore": "¿Cómo funciona el QuScore?"
         }
       },
       "company": {
@@ -2989,7 +2989,8 @@
       "follow_up": "Requiere Seguimiento",
       "duplicate": "Duplicar",
       "save": "Guardar",
-      "photo": "Foto del Servicio"
+      "photo": "Foto del Servicio",
+      "image_label": "Portada del Servicio"
     },
     "packages": {
       "title": "Paquetes Especiales",

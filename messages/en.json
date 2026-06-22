@@ -2984,7 +2984,8 @@
       "follow_up": "Requires Follow-up",
       "duplicate": "Duplicate",
       "save": "Save",
-      "photo": "Service Photo"
+      "photo": "Service Photo",
+      "image_label": "Service Cover"
     },
     "packages": {
       "title": "Special Packages",

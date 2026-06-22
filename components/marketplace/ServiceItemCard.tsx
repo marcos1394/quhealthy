@@ -173,14 +173,14 @@ export function ServiceItemCard({
             className={cn(
               "w-full h-40 flex flex-col items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer group relative rounded-none",
               service.imageUrl 
-                ? "border border-black dark:border-white bg-black" 
+                ? "border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]" 
                 : "border border-dashed border-black/30 dark:border-white/30 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#0a0a0a]",
               isDragging && "border-black dark:border-white bg-black/5 dark:bg-white/5 scale-[1.02]"
             )}
           >
             {service.imageUrl ? (
               <>
-                <img src={service.imageUrl} alt={service.name} className="w-full h-full object-cover group-hover:opacity-40 transition-opacity duration-300" />
+                <img src={service.imageUrl} alt={service.name} className="w-full h-full object-contain group-hover:opacity-40 transition-opacity duration-300 p-2" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center">
                   <div className="w-10 h-10 border border-white flex items-center justify-center bg-black/50 backdrop-blur-sm mb-2">
                     <Camera className="w-5 h-5 text-white" strokeWidth={1.5} />
