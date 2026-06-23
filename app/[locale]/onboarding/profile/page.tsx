@@ -116,9 +116,12 @@ export default function OnboardingProfilePage() {
   ];
 
   const filteredCategories = useMemo(() => {
+    console.log('raw categories:', categories);
+    console.log('parentCategoryId:', formData.parentCategoryId, 'sector original:', initialData?.sector);
+    console.log('sample cat.parentCategoryId:', categories[0]?.parentCategoryId);
     if (!formData.parentCategoryId) return [];
     return categories.filter(cat => Number(cat.parentCategoryId) === Number(formData.parentCategoryId));
-  }, [categories, formData.parentCategoryId]);
+  }, [categories, formData.parentCategoryId, initialData?.sector]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
