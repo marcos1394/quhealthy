@@ -90,7 +90,8 @@ export default function LoginForm({ userType, onSuccess }: LoginFormProps) {
     try {
       const response = await login({
         email: state.email.toLowerCase().trim(),
-        password: state.password
+        password: state.password,
+        captchaToken: ""
       });
 
       toast.success(t('title'));

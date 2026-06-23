@@ -142,7 +142,8 @@ export default function ConsumerSignupForm() {
         termsAccepted: state.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
         utmSource: "web_direct",
-        utmMedium: "organic"
+        utmMedium: "organic",
+        captchaToken: "" // Fake token just to satisfy the compiler for this deprecated file
       };
 
       const response = await registerConsumer(signupData);

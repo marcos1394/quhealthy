@@ -127,7 +127,8 @@ export default function ProviderSignupForm() {
         email: state.email.toLowerCase().trim(),
         password: state.password,
         termsAccepted: state.acceptTerms as true,
-        privacyPolicyVersion: "v1.0"
+        privacyPolicyVersion: "v1.0",
+        captchaToken: ""
       };
 
       const res = await registerProvider(signupData);
