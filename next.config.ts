@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
     const cspHeader = `
       default-src 'self';
       
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com; 
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com https://challenges.cloudflare.com; 
       
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://app.chatwoot.com; 
       
@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
 
       media-src 'self' https://storage.googleapis.com;
       
-      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com;
+      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com;
       
       connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();
