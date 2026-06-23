@@ -94,7 +94,7 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
+      <DialogContent className="[&>button]:hidden bg-white dark:bg-[#0a0a0a] border border-black dark:border-white !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
         
         {/* --- HEADER ARQUITECTÓNICO --- */}
         <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
