@@ -579,11 +579,31 @@ export default function OnboardingProfilePage() {
                   </div>
 
                   {/* Location Picker ya fue refactorizado a Blueprint */}
-                  <div className="h-[400px] relative z-0">
+                  <div className="h-[400px] relative z-0 mb-2">
                     <LocationPicker className="w-full h-full"
                       initialLocation={{ address: formData.address || "", lat: formData.latitude || 19.4326, lng: formData.longitude || -99.1332 }}
                       onLocationSelect={(data) => { setFormData((prev: any) => ({ ...prev, address: data.address, latitude: data.lat, longitude: data.lng, placeId: data.placeId || prev.placeId })); setCompletedSteps((prev: any) => new Set(prev).add(3)); }} />
                   </div>
+                  
+                  {isStep3Valid && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Ubicación Confirmada</p>
+                          <p className="text-[9px] font-light text-gray-500 uppercase tracking-widest">Ya puedes guardar tu perfil</p>
+                        </div>
+                      </div>
+                      <button type="button" onClick={handleFinish} disabled={!isFormValid || isSaving}
+                        className={cn("h-10 px-6 text-[9px] font-bold uppercase tracking-widest transition-all",
+                          isFormValid ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" : "bg-gray-200 text-gray-400 cursor-not-allowed")}
+                      >
+                        {isSaving ? "Guardando..." : "Guardar Perfil"}
+                      </button>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -613,7 +633,7 @@ export default function OnboardingProfilePage() {
                     className={cn("group h-14 px-8 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center",
                       isFormValid ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" : "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed")}>
                     {isSaving ? <><Loader2 className="w-4 h-4 mr-3 animate-spin" />{t("saving")}</> :
-                      <><Sparkles className="w-4 h-4 mr-3" />{t("finish")}<ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" /></>}
+                      <><CheckCircle2 className="w-4 h-4 mr-3" />Guardar y Regresar al Paso 2<ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" /></>}
                   </button>
                 )}
               </div>
