@@ -22,7 +22,45 @@ export default function LicensePage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const cameraRef = useRef<HTMLInputElement>(null);
+  
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const startCamera = async () => {
+    setIsCameraOpen(true);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } });
+      streamRef.current = mediaStream;
+      if (videoRef.current) videoRef.current.srcObject = mediaStream;
+    } catch (e) { console.error(e); setIsCameraOpen(false); toast.error("No se pudo acceder a la cámara"); }
+  };
+
+  const stopCamera = () => { 
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; } 
+    setIsCameraOpen(false); 
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const v = videoRef.current, c = canvasRef.current;
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    const ctx = c.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(v, 0, 0, c.width, c.height);
+      c.toBlob(blob => { 
+        if (blob) { 
+          const f = new File([blob], `license_capture.jpg`, { type: "image/jpeg" }); 
+          setFile(f);
+          const reader = new FileReader();
+          reader.onloadend = () => setPreview(reader.result as string);
+          reader.readAsDataURL(f);
+          stopCamera(); 
+        } 
+      }, "image/jpeg", 0.9);
+    }
+  };
 
   const config = {
     isSalud: sector === 'HEALTH',
@@ -137,6 +175,44 @@ export default function LicensePage() {
   // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center pt-24 pb-12 px-6 md:pt-32 md:pb-24 md:px-12 transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+      
+      {/* Camera Modal (Architectural Framing) */}
+      <AnimatePresence>
+        {isCameraOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4 md:p-12">
+            <div className="relative w-full max-w-5xl aspect-video bg-black border border-gray-800">
+              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover grayscale" />
+              <canvas ref={canvasRef} className="hidden" />
+              
+              {/* Overlay Grid */}
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                <motion.div animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 3, repeat: Infinity }}
+                  className={cn("border border-white/60 relative", "w-96 h-60")}>
+                  {/* Crosshairs */}
+                  <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-red-500" />
+                  <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-red-500" />
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-red-500" />
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-red-500" />
+                </motion.div>
+                <div className="mt-8 bg-black border border-white px-4 py-2">
+                  <p className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"><Camera className="w-4 h-4" />Alinea tu documento</p>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-12 z-10">
+                <Button variant="ghost" onClick={stopCamera} className="rounded-none bg-black text-white hover:bg-white hover:text-black border border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors">
+                  Cancelar
+                </Button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={capturePhoto} className="w-16 h-16 rounded-none border border-white bg-black hover:bg-white hover:text-black transition-colors flex items-center justify-center group">
+                  <Camera className="w-6 h-6 text-white group-hover:text-black" />
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl relative z-10 space-y-8 my-auto">
         
         {/* Header Actions */}
@@ -210,7 +286,7 @@ export default function LicensePage() {
                   </div>
 
                   <div 
-                    onClick={() => cameraRef.current?.click()}
+                    onClick={startCamera}
                     className="h-64 sm:h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
                   >
                     <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
@@ -222,7 +298,6 @@ export default function LicensePage() {
                 </div>
               )}
               <input type="file" ref={inputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
-              <input type="file" ref={cameraRef} className="hidden" accept="image/*" capture="environment" onChange={handleFileChange} />
             </div>
 
             {/* Architectural Info Box */}
