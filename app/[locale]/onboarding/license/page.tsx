@@ -5,7 +5,7 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, UploadCloud, X, Loader2, CheckCircle2, FileText, Clock, AlertTriangle, BookOpen, ArrowLeft, Store, Sparkles, Shield, Info, Check } from "lucide-react";
+import { GraduationCap, UploadCloud, X, Loader2, CheckCircle2, FileText, Clock, AlertTriangle, BookOpen, ArrowLeft, Store, Sparkles, Shield, Info, Check, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -196,18 +196,39 @@ export default function LicensePage() {
                   </div>
                 </div>
               ) : (
-                <div 
-                  onClick={() => inputRef.current?.click()} 
-                  className="h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
-                >
-                  <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
-                    <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div 
+                    onClick={() => inputRef.current?.click()} 
+                    className="h-64 sm:h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
+                  >
+                    <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
+                      <UploadCloud className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Subir Archivo</p>
+                    <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">Galería o Archivos</p>
                   </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">{t("click_upload")}</p>
-                  <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">{t("file_hint")}</p>
+
+                  <div 
+                    onClick={() => {
+                      // Usar un input dinámico para forzar la cámara
+                      const camInput = document.createElement('input');
+                      camInput.type = 'file';
+                      camInput.accept = 'image/*';
+                      camInput.capture = 'environment';
+                      camInput.onchange = (e: any) => handleFileChange(e);
+                      camInput.click();
+                    }}
+                    className="h-64 sm:h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
+                  >
+                    <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
+                      <Camera className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Tomar Foto</p>
+                    <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">Cámara del Dispositivo</p>
+                  </div>
                 </div>
               )}
-              <input type="file" ref={inputRef} className="hidden" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
+              <input type="file" ref={inputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
             </div>
 
             {/* Architectural Info Box */}
