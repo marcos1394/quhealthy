@@ -94,6 +94,16 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`${currentLocale}/patient/dashboard`, request.url));
   }
 
+  // 🤖 5. SEO / BOT INTERCEPTION 🤖
+  // Redes sociales (Twitter, WhatsApp, etc.) no siguen redirecciones 307 correctamente al leer metadatos.
+  // Si un bot visita la raíz (/), le reescribimos internamente a /es para que reciba un 200 OK con el HTML y OG tags.
+  const userAgent = request.headers.get('user-agent') || '';
+  const isBot = /Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|SkypeUriPreview|TelegramBot|Slackbot|Discordbot/i.test(userAgent);
+
+  if (isBot && (pathname === '/' || pathname === '')) {
+    return NextResponse.rewrite(new URL('/es', request.url));
+  }
+
   // Obtener respuesta base
   const response = intlMiddleware(request);
 
