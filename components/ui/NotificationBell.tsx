@@ -32,23 +32,9 @@ export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolea
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🔔 Fetch unread count on mount and periodically
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await axiosInstance.get<UnreadCountResponse>('/api/notifications/unread-count');
-      setUnreadCount(res.data.count);
-    } catch {
-      // Silently fail — sidebar must not break
-    }
-  }, [user]);
-
   useEffect(() => {
     if (!user) return;
     
-    // Initial fetch just in case
-    fetchUnreadCount();
-
     // 🔥 Suscribirse a la señal de Firebase en tiempo real
     const documentId = `${user.role}_${user.id}`;
     const signalRef = doc(db, 'notificationSignals', documentId);
@@ -66,7 +52,7 @@ export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolea
 
     // Cleanup: desuscribirse cuando el componente se desmonta
     return () => unsubscribe();
-  }, [user, fetchUnreadCount]);
+  }, [user]);
 
   // 📨 Load notifications when popover opens
   const handleOpenChange = async (isOpen: boolean) => {
