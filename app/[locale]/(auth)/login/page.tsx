@@ -23,6 +23,7 @@ import {
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 // Components
 import SocialAuthButtons from '@/components/auth/SocialButtons';
@@ -50,6 +51,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
 
@@ -89,7 +91,7 @@ export default function LoginPage() {
 
   const isFormValid = (): boolean => {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    return isEmailValid && formData.password.length >= 6;
+    return isEmailValid && formData.password.length >= 6 && !!captchaToken;
   };
 
   const handleAuthNavigation = async (response: AuthResponse) => {
@@ -139,7 +141,8 @@ export default function LoginPage() {
     try {
       const response = await login({
         email: formData.email.toLowerCase().trim(),
-        password: formData.password
+        password: formData.password,
+        captchaToken: captchaToken
       });
 
       toast.success(t('title'));
@@ -398,6 +401,13 @@ export default function LoginPage() {
                   {t('remember_me')}
                 </label>
               </div>
+
+              {/* Turnstile Invisible Captcha */}
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onSuccess={(token) => setCaptchaToken(token)}
+                options={{ theme: 'auto', size: 'invisible' }}
+              />
 
               {/* Submit Button */}
               <Button

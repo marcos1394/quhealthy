@@ -6,6 +6,7 @@ import { Mail, Phone, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
+import { Turnstile } from '@marsidev/react-turnstile';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,13 +24,14 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
   const { sendRecoveryCode } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setError("");
 
     try {
-      await sendRecoveryCode({ email, deliveryMethod });
+      await sendRecoveryCode({ email, deliveryMethod, captchaToken });
       toast.success(t('code_sent_title'));
       onSuccess();
     } catch (err: any) {
@@ -96,9 +98,16 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
         </Alert>
       )}
 
+      {/* Turnstile Invisible Captcha */}
+      <Turnstile
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+        onSuccess={(token) => setCaptchaToken(token)}
+        options={{ theme: 'auto', size: 'invisible' }}
+      />
+
       <Button
         type="submit"
-        disabled={loading || !email}
+        disabled={loading || !email || !captchaToken}
         className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn mt-8"
       >
         {loading ? (

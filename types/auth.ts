@@ -21,6 +21,7 @@ export interface RegisterConsumerRequest {
   referralCode?: string;
   utmSource?: string;
   utmMedium?: string;
+  captchaToken: string;
 }
 
 export interface ConsumerRegistrationResponse {
@@ -38,6 +39,7 @@ export interface RegisterProviderRequest {
   password: string;
   termsAccepted: true;
   privacyPolicyVersion: string;
+  captchaToken: string;
 }
 
 export interface ProviderRegistrationResponse {
@@ -89,6 +91,7 @@ export interface AuthResponse {
 export interface LoginRequest {
   email: string;
   password: string;
+  captchaToken: string;
 }
 
 export interface SocialLoginRequest {
@@ -104,6 +107,7 @@ export interface SocialLoginRequest {
 export interface ForgotPasswordRequest {
   email: string; // 🚀 Cambiado de 'contact' a 'email'
   deliveryMethod: 'LINK' | 'OTP_EMAIL' | 'OTP_SMS'; // 🚀 Cambiado a las opciones de Java
+  captchaToken: string;
 }
 
 export interface VerifyRecoveryCodeRequest {
