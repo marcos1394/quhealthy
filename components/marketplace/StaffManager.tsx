@@ -22,6 +22,7 @@ import {
   Loader2
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 // ShadCN UI
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ export function StaffManager({
 }: StaffManagerProps) {
   const t = useTranslations('StoreStaff.Manager');
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<StaffMember | null>(null);
 
   // Helper para role badge
   const getRoleBadge = (role?: string) => {
@@ -282,11 +284,7 @@ export function StaffManager({
                       <div className="mt-8">
                         <Button
                           variant="ghost"
-                          onClick={() => {
-                            if (confirm(t('confirm_delete', { name: member.name || t('confirm_delete_fallback') }))) {
-                              onDelete(member.id);
-                            }
-                          }}
+                          onClick={() => setMemberToDelete(member)}
                           className="w-full rounded-none border border-red-200 dark:border-red-900/50 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 transition-colors h-10 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                         >
                           <Trash2 className="w-3.5 h-3.5" strokeWidth={2} /> Eliminar Ficha
@@ -420,6 +418,20 @@ export function StaffManager({
           </motion.div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!memberToDelete}
+        onClose={() => setMemberToDelete(null)}
+        onConfirm={() => {
+          if (memberToDelete) {
+            onDelete(memberToDelete.id);
+            setMemberToDelete(null);
+          }
+        }}
+        title={t('confirm_delete_title', { defaultValue: 'Eliminar Miembro' })}
+        message={t('confirm_delete', { name: memberToDelete?.name || t('confirm_delete_fallback') })}
+      />
     </div>
   );
 }
