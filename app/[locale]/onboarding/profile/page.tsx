@@ -81,7 +81,7 @@ export default function OnboardingProfilePage() {
     if (initialData) {
       setFormData({
         businessName: initialData.businessName || "",
-        parentCategoryId: initialData.sector === 'HEALTH' ? 1 : initialData.sector === 'BEAUTY' ? 2 : 0,
+        parentCategoryId: initialData.sector?.toUpperCase() === 'HEALTH' ? 1 : initialData.sector?.toUpperCase() === 'BEAUTY' ? 2 : 0,
         bio: initialData.bio || "", timeZone: initialData.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         profileImageUrl: initialData.profileImageUrl || "", address: initialData.address || "",
         latitude: initialData.latitude || 0, longitude: initialData.longitude || 0,
@@ -116,12 +116,11 @@ export default function OnboardingProfilePage() {
   ];
 
   const filteredCategories = useMemo(() => {
-    console.log('raw categories:', categories);
-    console.log('parentCategoryId:', formData.parentCategoryId, 'sector original:', initialData?.sector);
-    console.log('sample cat.parentCategoryId:', categories[0]?.parentCategoryId);
     if (!formData.parentCategoryId) return [];
-    return categories.filter(cat => Number(cat.parentCategoryId) === Number(formData.parentCategoryId));
-  }, [categories, formData.parentCategoryId, initialData?.sector]);
+    const result = categories.filter(cat => Number(cat.parentCategoryId) === Number(formData.parentCategoryId));
+    console.log('filteredCategories.length:', result.length);
+    return result;
+  }, [categories, formData.parentCategoryId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
