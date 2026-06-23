@@ -22,6 +22,7 @@ export default function LicensePage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const config = {
     isSalud: sector === 'HEALTH',
@@ -209,15 +210,7 @@ export default function LicensePage() {
                   </div>
 
                   <div 
-                    onClick={() => {
-                      // Usar un input dinámico para forzar la cámara
-                      const camInput = document.createElement('input');
-                      camInput.type = 'file';
-                      camInput.accept = 'image/*';
-                      camInput.capture = 'environment';
-                      camInput.onchange = (e: any) => handleFileChange(e);
-                      camInput.click();
-                    }}
+                    onClick={() => cameraRef.current?.click()}
                     className="h-64 sm:h-80 w-full border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] flex flex-col items-center justify-center cursor-pointer transition-colors group"
                   >
                     <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-6 group-hover:border-black dark:group-hover:border-white transition-colors">
@@ -229,6 +222,7 @@ export default function LicensePage() {
                 </div>
               )}
               <input type="file" ref={inputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+              <input type="file" ref={cameraRef} className="hidden" accept="image/*" capture="environment" onChange={handleFileChange} />
             </div>
 
             {/* Architectural Info Box */}
