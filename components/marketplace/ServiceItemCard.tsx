@@ -4,6 +4,7 @@
 /* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useRef, useState } from "react";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { motion } from "framer-motion";
 import { 
   GripVertical,
@@ -49,6 +50,7 @@ export function ServiceItemCard({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isDragging, setIsDragging] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -140,11 +142,7 @@ export function ServiceItemCard({
           )}
 
           <button 
-            onClick={() => {
-              if (confirm(t('delete_confirm', { defaultValue: '¿ANULAR REGISTRO PERMANENTEMENTE?' }))) {
-                onDelete(service.id);
-              }
-            }}
+            onClick={() => setIsDeleteModalOpen(true)}
             className="h-8 w-10 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -400,6 +398,17 @@ export function ServiceItemCard({
 
       </div>
 
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          onDelete(service.id);
+          setIsDeleteModalOpen(false);
+        }}
+        title={t('delete_confirm_title', { defaultValue: 'ANULAR SERVICIO' })}
+        message={t('delete_confirm_message', { defaultValue: '¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer.' })}
+      />
     </motion.div>
   );
 }

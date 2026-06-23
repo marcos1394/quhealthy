@@ -1,7 +1,8 @@
 "use client"
 /* eslint-disable react-doctor/button-has-type */;
 
-import React from "react";
+import React, { useState } from "react";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { motion } from "framer-motion";
 import { Edit2, Trash2, Sparkles, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,7 @@ interface PackageItemCardProps {
 
 export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: PackageItemCardProps) {
   const t = useTranslations('Marketplace.packages');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Helpers de cálculo
   const realVal = pkg.serviceIds.reduce((sum, id) => {
@@ -61,11 +63,7 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
               <Edit2 className="w-4 h-4" strokeWidth={1.5} />
             </button>
             <button 
-              onClick={() => {
-                if (confirm(t('delete_confirm', { defaultValue: '¿ANULAR REGISTRO DE PAQUETE?' }))) {
-                  onDelete(pkg.id);
-                }
-              }}
+              onClick={() => setIsDeleteModalOpen(true)}
               className="w-10 h-10 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors"
               title={t('delete_btn', { defaultValue: 'ELIMINAR PAQUETE' })}
             >
@@ -128,6 +126,17 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
         </span>
       </div>
       
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          onDelete(pkg.id);
+          setIsDeleteModalOpen(false);
+        }}
+        title={t('delete_confirm_title', { defaultValue: 'ANULAR PAQUETE' })}
+        message={t('delete_confirm_message', { defaultValue: '¿Confirma la eliminación permanente de este paquete? Esta acción no se puede deshacer.' })}
+      />
     </motion.div>
   );
 }
