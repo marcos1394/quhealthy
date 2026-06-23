@@ -55,7 +55,7 @@ export function HealthcareExplorerTable() {
   return (
     <div className="flex flex-col space-y-6">
       
-      {/* Controles Superiores */}
+      {/* Controles Superioress */}
       <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4">
         <div className="relative w-full sm:w-[400px]">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" strokeWidth={2} />
