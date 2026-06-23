@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 interface Props {
   email: string;
@@ -44,10 +45,7 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
     const setCodeTimer = (val: any) => dispatch({ type: 'SET_CODETIMER', payload: val });
     const setCanResend = (val: any) => dispatch({ type: 'SET_CANRESEND', payload: val });
 
-
-
-
-
+    const [captchaToken, setCaptchaToken] = useState<string>("");
 
   useEffect(() => {
     if (codeTimer > 0) {
@@ -61,7 +59,7 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
   const handleResendCode = async () => {
     setCanResend(false); setCodeTimer(300); setLoading(true); setError("");
     try {
-      await sendRecoveryCode({ email, deliveryMethod });
+      await sendRecoveryCode({ email, deliveryMethod, captchaToken });
       toast.success(t('code_sent_title'));
     } catch (err: any) {
       setError(err.message);
