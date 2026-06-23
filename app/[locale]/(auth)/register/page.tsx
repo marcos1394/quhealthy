@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 // Components
 import SocialAuthButtons from '@/components/auth/SocialButtons';
 import PrivacyModal from '@/components/auth/Privacymodal';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ export default function ConsumerSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -100,7 +102,8 @@ export default function ConsumerSignupPage() {
       isEmailValid &&
       allPasswordRulesValid &&
       passwordsMatch &&
-      formData.acceptTerms
+      formData.acceptTerms &&
+      captchaToken
     );
   };
 
@@ -124,6 +127,7 @@ export default function ConsumerSignupPage() {
         phone: formData.phone ? formData.phone.trim() : undefined,
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
+        captchaToken: captchaToken,
         utmSource: "web_direct",
         utmMedium: "organic"
       };
@@ -406,6 +410,13 @@ export default function ConsumerSignupPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Turnstile Invisible Captcha */}
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onSuccess={(token) => setCaptchaToken(token)}
+                options={{ theme: 'auto', size: 'invisible' }}
+              />
 
               {/* Submit Button */}
               <Button

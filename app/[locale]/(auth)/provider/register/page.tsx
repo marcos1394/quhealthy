@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 // Components
 import SocialAuthButtons from '@/components/auth/SocialButtons';
 import TermsModal from '@/components/auth/TermsModal';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 // Enterprise Integration
 import { useAuth } from "@/hooks/useAuth";
@@ -58,6 +59,7 @@ export default function ProviderSignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -98,7 +100,7 @@ export default function ProviderSignupPage() {
       formData.confirmPassword.length > 0;
     const areTermsAccepted = formData.acceptTerms;
 
-    return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted;
+    return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted && !!captchaToken;
   };
 
   const handleSocialSuccess = (res: any) => {
@@ -127,7 +129,8 @@ export default function ProviderSignupPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         termsAccepted: formData.acceptTerms as true,
-        privacyPolicyVersion: "v1.0"
+        privacyPolicyVersion: "v1.0",
+        captchaToken: captchaToken
       };
 
       const res = await registerProvider(signupData);
@@ -405,6 +408,13 @@ export default function ProviderSignupPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Turnstile Invisible Captcha */}
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onSuccess={(token) => setCaptchaToken(token)}
+                options={{ theme: 'auto', size: 'invisible' }}
+              />
 
               {/* Submit Button */}
               <div className="pt-2">
