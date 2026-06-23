@@ -24,7 +24,7 @@ import { BackendPlan, buildFeaturesForPlan } from '@/lib/subscriptionUtils';
 // Configuración de Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-export default function BillingPage() {
+export function ProviderSubscriptionSettings() {
   const t = useTranslations('SettingsSubscription');
   const tPricing = useTranslations('Pricing');
   const params = useParams();

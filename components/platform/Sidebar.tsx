@@ -39,8 +39,7 @@ const providerLinks = [
 
 const providerSettingsLinks = [
   { key: "public_profile", href: "/provider/profile", icon: UserCircle, badge: null },
-  { key: "team", href: "/provider/settings/team", icon: Users, badge: null },
-  { key: "settings", href: "/provider/settings", icon: Settings, badge: null },
+  { key: "settings", href: "/provider/dashboard/settings", icon: Settings, badge: null },
 ];
 
 const patientLinks = [

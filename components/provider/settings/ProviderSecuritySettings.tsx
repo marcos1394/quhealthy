@@ -34,7 +34,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 }
 };
 
-export default function SecuritySettingsPage() {
+export function ProviderSecuritySettings() {
   const t = useTranslations('SettingsSecurity');
 
   // Configuración de las opciones de seguridad

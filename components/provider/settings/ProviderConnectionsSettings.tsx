@@ -43,7 +43,7 @@ const mockConnections: Connection[] = [
     }
 ];
 
-export default function ConnectionsPage() {
+export function ProviderConnectionsSettings() {
     const t = useTranslations('SettingsConnections');
     const [connections, setConnections] = useState<Connection[]>(mockConnections);
     const [connecting, setConnecting] = useState<string | null>(null);

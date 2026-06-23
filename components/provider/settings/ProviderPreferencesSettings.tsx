@@ -46,7 +46,7 @@ interface AppPreferences {
     theme: string;
 }
 
-export default function PreferencesPage() {
+export function ProviderPreferencesSettings() {
     const t = useTranslations('SettingsPreferences');
 
     const [preferences, setPreferences] = useState<AppPreferences>({

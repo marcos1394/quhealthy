@@ -38,7 +38,7 @@ const AVAILABLE_MODULES = [
   { key: "messages", label: "Mensajes" },
 ];
 
-export default function TeamManagementPage() {
+export function ProviderTeamSettings() {
   const router = useRouter();
   const { staff, isLoading, fetchStaff, inviteStaff, updatePermissions, toggleStatus, revokeAccess } = useClinicStaff();
 
