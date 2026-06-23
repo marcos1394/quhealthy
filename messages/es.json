@@ -2994,7 +2994,9 @@
       "incomplete": "Falta completar",
       "price_warning_low": "Precio demasiado bajo",
       "quick_templates": "Plantillas Rápidas",
-      "quick_templates_desc": "Agrega servicios pre-configurados populares en tu especialidad"
+      "quick_templates_desc": "Agrega servicios pre-configurados populares en tu especialidad",
+      "delete_confirm_title": "Anular Servicio",
+      "delete_confirm_message": "¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer."
     },
     "packages": {
       "title": "Paquetes Especiales",
@@ -3030,7 +3032,9 @@
       "cancel": "Cancelar",
       "save_package": "Guardar Paquete",
       "edit_btn": "Editar",
-      "delete_btn": "Eliminar"
+      "delete_btn": "Eliminar",
+      "delete_confirm_title": "Anular Paquete",
+      "delete_confirm_message": "¿Confirma la eliminación permanente de este paquete? Esta acción no se puede deshacer."
     },
     "products": {
       "title": "Farmacia / Productos",

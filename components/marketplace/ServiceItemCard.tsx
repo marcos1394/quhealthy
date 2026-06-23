@@ -4,7 +4,7 @@
 /* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useRef, useState } from "react";
-import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { motion } from "framer-motion";
 import { 
   GripVertical,
@@ -398,17 +398,43 @@ export function ServiceItemCard({
 
       </div>
 
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => {
-          onDelete(service.id);
-          setIsDeleteModalOpen(false);
-        }}
-        title={t('delete_confirm_title', { defaultValue: 'ANULAR SERVICIO' })}
-        message={t('delete_confirm_message', { defaultValue: '¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer.' })}
-      />
+      {/* Brutalist Confirmation Modal */}
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden">
+          <div className="p-6 md:p-8 border-b border-black/20 dark:border-white/20">
+            <AlertDialogHeader className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 border border-red-500 flex items-center justify-center bg-red-50 dark:bg-red-900/10 shrink-0">
+                  <Trash2 className="w-4 h-4 text-red-500" strokeWidth={1.5} />
+                </div>
+                <AlertDialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white leading-none mt-1">
+                  {t('delete_confirm_title', { defaultValue: 'ANULAR SERVICIO' })}
+                </AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-xs text-gray-500 uppercase tracking-widest leading-relaxed text-left font-semibold">
+                {t('delete_confirm_message', { defaultValue: '¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer.' })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </div>
+          <AlertDialogFooter className="p-0 bg-gray-50 dark:bg-[#050505] flex flex-row sm:flex-row gap-0 sm:space-x-0 border-none">
+            <button 
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="flex-1 h-14 border-r border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+            >
+              CANCELAR
+            </button>
+            <button 
+              onClick={() => {
+                onDelete(service.id);
+                setIsDeleteModalOpen(false);
+              }}
+              className="flex-1 h-14 text-[9px] font-bold uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 transition-colors"
+            >
+              SÍ, ELIMINAR
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }

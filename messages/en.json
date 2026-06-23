@@ -2989,7 +2989,9 @@
       "incomplete": "Incomplete",
       "price_warning_low": "Price is too low",
       "quick_templates": "Quick Templates",
-      "quick_templates_desc": "Add popular pre-configured services for your specialty"
+      "quick_templates_desc": "Add popular pre-configured services for your specialty",
+      "delete_confirm_title": "Delete Service",
+      "delete_confirm_message": "Are you sure you want to permanently delete this service from the catalog? This action cannot be undone."
     },
     "packages": {
       "title": "Special Packages",
@@ -3007,7 +3009,9 @@
       "tip_title": "Tip to sell more",
       "tip_desc": "Make sure the package price is lower than the sum of the individual services to encourage the purchase.",
       "edit_btn": "Edit",
-      "delete_btn": "Delete"
+      "delete_btn": "Delete",
+      "delete_confirm_title": "Delete Package",
+      "delete_confirm_message": "Are you sure you want to permanently delete this package? This action cannot be undone."
     },
     "products": {
       "title": "Pharmacy / Products",
