@@ -59,7 +59,7 @@ export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolea
     if (isOpen && user) {
       setIsLoading(true);
       try {
-        const res = await axiosInstance.get('/api/notifications?size=10');
+        const res = await axiosInstance.get('/api/notifications/history?size=10');
         setNotifications(res.data.content || []);
       } catch {
         setNotifications([]);
