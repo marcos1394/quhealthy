@@ -13,7 +13,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors duration-300 overflow-hidden">
         <Navbar />
-        <main className="flex-1 relative z-0 overflow-hidden">{children}</main>
+        <main className="flex-1 relative z-0 overflow-hidden pt-20 md:pt-24">{children}</main>
       </div>
     );
   }
