@@ -139,7 +139,7 @@ export default function MyCoursesPage() {
             </p>
             <Button
               className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
-              onClick={() => window.location.href = '/patient/discover'}
+              onClick={() => window.location.href = '/discover'}
             >
               Explorar Catálogo
               <ArrowRight className="ml-3 h-4 w-4" strokeWidth={2} />

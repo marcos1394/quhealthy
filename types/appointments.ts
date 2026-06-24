@@ -116,14 +116,21 @@ export type AppointmentResponse = Appointment;
 /**
  * Estructura específica para la lista detallada del Proveedor/Doctor
  */
+// Ubicación: src/types/appointments.ts
+
 export interface ProviderAppointment {
   id: number;
   status: AppointmentStatus; // O string, dependiendo de cómo manejes el enum en TS
   startTime: string; 
   endTime: string;
-  arrivedAt?: string; // 🚀 NUEVO: Hora en la que llegó a sala de espera
-  startedAt?: string; // 🚀 NUEVO: Hora en la que inició la consulta
-  completedAt?: string; // 🚀 NUEVO: Hora en la que terminó la consulta
+  arrivedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  
+  // 🚀 FASE 1.2 y 2.3: Soporte Multi-sede
+  locationId?: number;
+  locationNameSnapshot?: string;
+
   provider: { 
     name: string; 
   };
@@ -135,7 +142,6 @@ export interface ProviderAppointment {
     serviceDeliveryType: 'IN_PERSON' | 'ONLINE' | string; 
   };
 }
-
 // ==========================================
 // PAYLOADS (Peticiones al API)
 // ==========================================

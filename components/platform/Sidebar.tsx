@@ -45,7 +45,7 @@ const providerSettingsLinks = [
 const patientLinks = [
   { key: "dashboard", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
   { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
-  { key: "discover", href: "/patient/discover", icon: Sparkles, badge: null },
+  { key: "discover", href: "/discover", icon: Sparkles, badge: null },
   { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
   { key: "messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
   { key: "packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },

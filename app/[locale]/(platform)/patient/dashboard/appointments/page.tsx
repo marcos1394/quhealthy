@@ -151,7 +151,7 @@ export default function ConsumerAppointmentsPage() {
           </div>
           
           <Button 
-            onClick={() => router.push('/patient/discover')} 
+            onClick={() => router.push('/discover')} 
             className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
           >
             <Plus className="w-4 h-4 mr-3" strokeWidth={2} /> 

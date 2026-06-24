@@ -22,7 +22,12 @@ import { cn } from "@/lib/utils";
 import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 import { useLocale, useTranslations } from "next-intl";
 
-export const CalendarView: React.FC = () => {
+// 🚀 FASE 2.3: Agregamos Interface para Props
+interface CalendarViewProps {
+  locationId: number;
+}
+
+export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
   const { fetchCalendarEvents, reschedule, cancel, isLoading } = useAppointments();
   const { fetchSchedules } = useOperatingHours();
   const t = useTranslations("DashboardCalendarView");
@@ -64,31 +69,24 @@ export const CalendarView: React.FC = () => {
     const setSlotMaxTime = (val: any) => dispatch({ type: 'SET_SLOTMAXTIME', payload: val });
     const setFcBusinessHours = (val: any) => dispatch({ type: 'SET_FCBUSINESSHOURS', payload: val });
 
-
-
-
-
-
-
-
-
-
-
-
+ // 🚀 ACTUALIZADO: Pasamos el locationId al hook (Asumiendo que lo modificaste para aceptarlo)
   const loadEvents = useCallback(async (start?: string, end?: string) => { 
-    // Fallback if FullCalendar hasn't passed dates yet
+    if (!locationId) return; // Salvaguarda
     const s = start || new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0];
     const e = end || new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0];
-    const data = await fetchCalendarEvents(s, e); 
+    
+    const data = await fetchCalendarEvents(s, e, locationId); 
     setEvents(data); 
-  }, [fetchCalendarEvents]);
+  }, [fetchCalendarEvents, locationId]);
 
   // Se llama al inicializar o al recargar
   useEffect(() => { loadEvents(); }, [loadEvents]);
 
+// 🚀 ACTUALIZADO: Quitamos el "1" duro y usamos el locationId de las props
   useEffect(() => {
     const loadHours = async () => {
-      const schedules = await fetchSchedules(1);
+      if (!locationId) return;
+      const schedules = await fetchSchedules(locationId);
       const activeDays = schedules.filter(s => s.isActive);
       if (activeDays.length > 0) {
         let minTime = "23:59";
@@ -108,7 +106,7 @@ export const CalendarView: React.FC = () => {
       }
     };
     loadHours();
-  }, [fetchSchedules]);
+  }, [fetchSchedules, locationId]);
 
   const handleEventDrop = async (info: any) => {
     const success = await reschedule(Number(info.event.id), info.event.start.toISOString());
@@ -493,6 +491,8 @@ export const CalendarView: React.FC = () => {
             setSelectedDateSlot(null);
           }}
           initialDate={selectedDateSlot}
+          // 🚀 FASE 1.2 Frontend: Pasamos el locationId para que el modal sepa en qué sede agendar
+          locationId={locationId}
           onSuccess={loadEvents}
         />
       )}

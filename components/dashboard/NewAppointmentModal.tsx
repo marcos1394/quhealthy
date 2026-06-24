@@ -24,12 +24,14 @@ import { UI_Service } from '@/types/catalog';
 import { NewPatientModal } from '@/components/dashboard/NewPatientModal';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
+// CÁMBIALO POR ESTO:
 interface NewAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated?: () => void;
   onSuccess?: () => void;
   initialDate?: Date | null;
+  locationId: number; // 🚀 FASE 2.3: Requerido para agendar en la sede correcta
 }
 
 const modalityOptions = {
@@ -38,8 +40,7 @@ const modalityOptions = {
   hybrid: ['IN_PERSON', 'ONLINE']
 } as const;
 
-export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, initialDate }: NewAppointmentModalProps) {
-  const { user } = useSessionStore();
+export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, initialDate, locationId }: NewAppointmentModalProps) {  const { user } = useSessionStore();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations('DashboardAppointments');
@@ -174,6 +175,7 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
     if (!user?.id || !selectedPatient || !selectedService) return;
 
     setIsSubmitting(true);
+   // CÁMBIALO POR ESTO:
     try {
       const payload = {
         providerId: user.id,
@@ -182,7 +184,8 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
         startTime: `${formData.appointmentDate}T${formData.appointmentTime}:00`,
         appointmentType: formData.appointmentType,
         paymentMethod: formData.paymentMethod,
-        consumerSymptoms: formData.notes || undefined
+        consumerSymptoms: formData.notes || undefined,
+        locationId: locationId // 🚀 FASE 2.3: Inyectado en el payload para el Backend
       };
 
       await appointmentService.createProviderAppointment(payload);

@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
     {
       title: t('columns.platform.title'),
       links: [
-        { name: t('columns.platform.links.discover'), href: "/patient/discover" },
+        { name: t('columns.platform.links.discover'), href: "/discover" },
         { name: t('columns.platform.links.market'), href: "/market" },
         { name: t('columns.platform.links.academy'), href: "/academy" },
         { name: t('columns.platform.links.doctors'), href: "/business" },

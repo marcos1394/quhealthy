@@ -4050,5 +4050,21 @@
     "functional_desc": "Remember choices like language or display preferences so you don't have to configure them again.",
     "toggle_functional": "Enable or disable functional cookies",
     "save_btn": "Save Preferences"
+  },
+  "AuthGate": {
+    "title": "ACCESS REQUIRED",
+    "description": "Sign up to unlock this feature and access the full QuHealthy experience.",
+    "btn_register": "Create Account",
+    "btn_login": "I Have an Account",
+    "favorite_title": "SAVE YOUR FAVORITES",
+    "favorite_desc": "Create an account to save your favorite doctors and access them anytime.",
+    "booking_title": "BOOK YOUR APPOINTMENT",
+    "booking_desc": "Sign up to book appointments with the best specialists in the network."
+  },
+  "PublicDiscover": {
+    "meta_title": "Discover Doctors & Specialists | QuHealthy",
+    "meta_description": "Find the best doctors and health specialists near you. Search by specialty, location, and verified reviews.",
+    "hero_badge": "VERIFIED MEDICAL NETWORK",
+    "location_disabled": "LOCATION TELEMETRY DISABLED. PRECISION COMPROMISED."
   }
 }

@@ -49,7 +49,7 @@ const LINKS: Record<string, NavItem[]> = {
     { name: "links.guest.testimonials", href: "/#testimonials" },
   ],
   CONSUMER: [
-    { name: "links.consumer.discover", href: "/patient/discover", icon: Search },
+    { name: "links.consumer.discover", href: "/discover", icon: Search },
     { name: "links.consumer.appointments", href: "/patient/dashboard/appointments", icon: Calendar },
     { name: "links.consumer.favorites", href: "/patient/dashboard/favorites", icon: Heart },
   ],
@@ -168,7 +168,7 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
-                <Link href="/patient/discover" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                <Link href="/discover" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
                   <Search size={14} /> {t('links.consumer.discover')}
                 </Link>
               </DropdownMenuItem>

@@ -4073,5 +4073,21 @@
     "functional_desc": "Recuerdan elecciones como idioma o preferencias de visualización para no tener que configurarlas de nuevo.",
     "toggle_functional": "Activar o desactivar cookies funcionales",
     "save_btn": "Guardar Preferencias"
+  },
+  "AuthGate": {
+    "title": "ACCESO REQUERIDO",
+    "description": "Regístrate para desbloquear esta función y acceder a toda la experiencia QuHealthy.",
+    "btn_register": "Crear Cuenta",
+    "btn_login": "Ya Tengo Cuenta",
+    "favorite_title": "GUARDA TUS FAVORITOS",
+    "favorite_desc": "Crea una cuenta para guardar tus doctores favoritos y acceder a ellos cuando quieras.",
+    "booking_title": "AGENDA TU CITA",
+    "booking_desc": "Regístrate para agendar citas con los mejores especialistas de la red."
+  },
+  "PublicDiscover": {
+    "meta_title": "Descubre Doctores y Especialistas | QuHealthy",
+    "meta_description": "Encuentra a los mejores doctores y especialistas de salud cerca de ti. Busca por especialidad, ubicación y reseñas verificadas.",
+    "hero_badge": "RED MÉDICA VERIFICADA",
+    "location_disabled": "TELEMETRÍA DE UBICACIÓN DESACTIVADA. PRECISIÓN COMPROMETIDA."
   }
 }

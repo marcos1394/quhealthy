@@ -85,10 +85,12 @@ export const useAppointments = () => {
   }, []);
 
   // 1.5 OBTENER Y TRANSFORMAR PARA EL CALENDARIO (Incluye TimeBlocks de Google)
-  const fetchCalendarEvents = useCallback(async (startDate: string, endDate: string): Promise<CalendarEvent[]> => {
+  // 🚀 ACTUALIZADO: Agregamos locationId
+  const fetchCalendarEvents = useCallback(async (startDate: string, endDate: string, locationId: number): Promise<CalendarEvent[]> => {
     setIsLoading(true);
     try {
-      const data = await appointmentService.getCalendarEvents(startDate, endDate);
+      // 🚀 Pasamos el locationId al servicio
+      const data = await appointmentService.getCalendarEvents(startDate, endDate, locationId);
       
       return data.map(app => ({
         id: String(app.id),

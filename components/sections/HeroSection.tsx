@@ -170,7 +170,7 @@ const HeroSection: React.FC = () => {
                     if (searchQuery) params.append("q", searchQuery);
                     if (locationQuery) params.append("loc", locationQuery);
                     const query = params.toString();
-                    router.push(`/patient/discover${query ? `?${query}` : ""}`);
+                    router.push(`/discover${query ? `?${query}` : ""}`);
                   }}
                   className="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-8 py-6 h-auto text-[10px] font-bold uppercase tracking-widest transition-all group/btn border-0"
                 >

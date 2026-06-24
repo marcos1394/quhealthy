@@ -128,6 +128,7 @@ export default function PublicStorePage() {
               entityType="PROVIDER" 
               entityId={store.providerId} 
               initialIsFavorite={favoriteProviderIds.has(store.providerId)} 
+              brandColor={safePrimaryColor}
               className="w-10 h-10 sm:w-12 sm:h-12" 
             />
           </div>
@@ -326,6 +327,7 @@ export default function PublicStorePage() {
                             entityType="SERVICE" 
                             entityId={service.id} 
                             initialIsFavorite={favoriteServiceIds.has(service.id)} 
+                            brandColor={safePrimaryColor}
                           />
                         </div>
                       </div>
@@ -389,20 +391,22 @@ export default function PublicStorePage() {
             <motion.div key="paquetes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.packages && store.packages.length > 0 ? (
                 store.packages.map((pkg) => (
-                  <div key={pkg.id} className="relative border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col sm:flex-row gap-8 justify-between">
+                  <div key={pkg.id} className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start">
                     
-                    <div className="absolute top-6 right-6 z-20">
-                      <FavoriteButton 
-                        entityType="PACKAGE" 
-                        entityId={pkg.id} 
-                        initialIsFavorite={favoritePackageIds.has(pkg.id)} 
-                      />
-                    </div>
+                    <div className="flex-1 flex flex-col gap-4">
+                      <div className="flex items-start justify-between gap-4 w-full">
+                        <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                          <Sparkles className="w-3 h-3" strokeWidth={2} /> {t('badge_special', { defaultValue: 'OFERTA ESTRUCTURAL' })}
+                        </span>
+                        <FavoriteButton 
+                          entityType="PACKAGE" 
+                          entityId={pkg.id} 
+                          initialIsFavorite={favoritePackageIds.has(pkg.id)} 
+                          brandColor={safePrimaryColor}
+                        />
+                      </div>
 
-                    <div className="space-y-4 w-full sm:w-auto flex-1 pr-10">
-                      <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
-                        <Sparkles className="w-3 h-3" strokeWidth={2} /> {t('badge_special', { defaultValue: 'OFERTA ESTRUCTURAL' })}
-                      </span>
+                      <div className="space-y-4">
                       <h3 className="font-bold text-xl uppercase tracking-wider text-black dark:text-white">{pkg.name}</h3>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">{pkg.description}</p>
                       
@@ -416,9 +420,10 @@ export default function PublicStorePage() {
                           {t('preferential_price', { defaultValue: 'VALORACIÓN PREFERENCIAL' })}
                         </li>
                       </ul>
+                      </div>
                     </div>
 
-                    <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-6 border-t border-gray-200 dark:border-gray-800 sm:border-none pt-6 sm:pt-0 min-w-[180px]">
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[180px] self-stretch md:self-auto">
                       <div className="text-left sm:text-right">
                         {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
                           <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">${pkg.compareAtPrice}</span>
@@ -505,6 +510,7 @@ export default function PublicStorePage() {
                                 entityType="PRODUCT" 
                                 entityId={product.id} 
                                 initialIsFavorite={favoriteProductIds.has(product.id)} 
+                                brandColor={safePrimaryColor}
                               />
                             </div>
                           </div>
@@ -577,21 +583,21 @@ export default function PublicStorePage() {
                       ) : (
                         <PlayCircle className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
                       )}
-                      
-                      <div className="absolute top-4 right-4 sm:left-4 sm:right-auto z-20">
-                        <FavoriteButton 
-                          entityType="COURSE" 
-                          entityId={course.id} 
-                          initialIsFavorite={favoriteCourseIds.has(course.id)} 
-                        />
-                      </div>
                     </div>
                     
                     <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
                       <div>
-                        <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit mb-4 text-black dark:text-white">
-                          <GraduationCap className="w-3 h-3" strokeWidth={1.5} /> ACTIVO INTANGIBLE
-                        </span>
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                          <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit text-black dark:text-white">
+                            <GraduationCap className="w-3 h-3" strokeWidth={1.5} /> ACTIVO INTANGIBLE
+                          </span>
+                          <FavoriteButton 
+                            entityType="COURSE" 
+                            entityId={course.id} 
+                            initialIsFavorite={favoriteCourseIds.has(course.id)} 
+                            brandColor={safePrimaryColor}
+                          />
+                        </div>
                         <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
                           {course.name}
                         </h3>

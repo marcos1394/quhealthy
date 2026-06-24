@@ -123,7 +123,7 @@ export default function LoginPage() {
         router.push("/onboarding/patient");
       }
     } else {
-      router.push("/patient/discover");
+      router.push("/discover");
     }
   };
 

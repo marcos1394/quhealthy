@@ -33,11 +33,12 @@ export const appointmentService = {
 
   /**
    * 📅 Obtiene los eventos del calendario (Citas + Bloqueos) para el Doctor (Provider)
+   * 🚀 ACTUALIZADO FASE 2.3: Filtra por locationId
    */
-  getCalendarEvents: async (startDate: string, endDate: string): Promise<AppointmentResponse[]> => {
+  getCalendarEvents: async (startDate: string, endDate: string, locationId: number): Promise<AppointmentResponse[]> => {
     const response = await axiosInstance.get<AppointmentResponse[]>(
       `${BASE_URL}/calendar`, {
-        params: { startDate, endDate }
+        params: { startDate, endDate, locationId } // Se añade locationId a los params
       }
     );
     return response.data;

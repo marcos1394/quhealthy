@@ -12,6 +12,10 @@ import { toast } from "react-toastify";
 import { Check, User, Clock, Calendar, Activity, CheckCircle2, XCircle, Timer, Phone, MessageSquare, Star, Zap, X, Video, Heart, Sparkles, Award, PlayCircle, UserCheck, Filter } from "lucide-react";
 import { format } from "date-fns"; 
 import { es } from "date-fns/locale";
+// Agrega esto a tus importaciones
+import { MapPin } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useProviderLocations } from "@/hooks/useProviderLocations";
 
 import { CompletionModal } from "@/components/dashboard/CompletionModal";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
@@ -31,6 +35,22 @@ export default function ProviderAppointmentsPage() {
   const router = useRouter();
   const { appointments, setAppointments, isLoading, refetch } = useProviderAppointments();
   const t = useTranslations('DashboardAppointments');
+
+  // 🚀 FASE 2.3: Hook de ubicaciones
+  const { locations, fetchLocations, isLoading: isLoadingLocations } = useProviderLocations();
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
+
+  // Autoseleccionar la sede principal por defecto
+  React.useEffect(() => {
+    if (locations.length > 0 && !selectedLocationId) {
+      const mainLoc = locations.find(l => l.isMain) || locations[0];
+      setSelectedLocationId(mainLoc.id);
+    }
+  }, [locations, selectedLocationId]);
 
     const [{ isCompleteModalOpen, isNewAppointmentModalOpen, selectedAppointment, cancelModalState, isCanceling, dateFilter, draggedApptId }, dispatch] = React.useReducer(
       (state: any, action: any) => {
@@ -57,13 +77,6 @@ export default function ProviderAppointmentsPage() {
     const setIsCanceling = (val: any) => dispatch({ type: 'SET_ISCANCELING', payload: val });
     const setDateFilter = (val: any) => dispatch({ type: 'SET_DATEFILTER', payload: val });
     const setDraggedApptId = (val: any) => dispatch({ type: 'SET_DRAGGEDAPPTID', payload: val });
-
-
-
-
-
-  
-
 
 
   const normalizeStatus = (status: string) => {
@@ -211,7 +224,10 @@ export default function ProviderAppointmentsPage() {
     }
   };
 
+  // Y MODIFÍCALA ASÍ:
   const filteredAppointments = appointments.filter(appt => {
+    if (selectedLocationId && appt.locationId && appt.locationId !== selectedLocationId) return false;
+
     if (dateFilter === 'ALL') return true;
     const apptDate = new Date(appt.startTime).toDateString();
     const today = new Date().toDateString();
@@ -280,6 +296,33 @@ export default function ProviderAppointmentsPage() {
               </p>
             </div>
           </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+             {/* 🚀 FASE 2.3: SELECTOR DE SEDE */}
+            <div className="w-full sm:w-64">
+               <Select 
+                 value={selectedLocationId?.toString()} 
+                 onValueChange={(val) => setSelectedLocationId(Number(val))}
+                 disabled={isLoadingLocations || locations.length === 0}
+               >
+                 <SelectTrigger className="h-12 rounded-none border-black dark:border-white font-bold text-[10px] uppercase tracking-widest bg-transparent">
+                   <div className="flex items-center gap-2">
+                     <MapPin className="w-4 h-4" />
+                     <SelectValue placeholder="Seleccionar Sede" />
+                   </div>
+                 </SelectTrigger>
+                 <SelectContent className="rounded-none border-black dark:border-white z-50">
+                   {locations.map(loc => (
+                     <SelectItem 
+                       key={loc.id} 
+                       value={loc.id.toString()}
+                       className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                     >
+                       {loc.name} {loc.isMain ? '(Principal)' : ''}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+            </div>
           <button 
             onClick={() => setIsNewAppointmentModalOpen(true)} 
             className="w-full md:w-auto h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border-0"
@@ -287,6 +330,7 @@ export default function ProviderAppointmentsPage() {
             <Zap className="w-4 h-4" strokeWidth={1.5} /> {t('quick_actions.new_appointment', { defaultValue: 'NUEVO REGISTRO' })}
           </button>
         </div>
+      </div>
 
         {/* --- MÉTRICAS DEL DÍA (GRID BLUEPRINT) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
@@ -513,16 +557,31 @@ export default function ProviderAppointmentsPage() {
 
           {/* VISTA CALENDARIO */}
           <TabsContent value="calendar" className="m-0 p-0 border-none outline-none bg-white dark:bg-[#0a0a0a] h-[70vh]">
-            <CalendarView />
+            {/* 🚀 Pasamos locationId y aseguramos que se recargue si cambia */}
+            {selectedLocationId ? (
+              <CalendarView key={`calendar-${selectedLocationId}`} locationId={selectedLocationId} />
+            ) : (
+               <div className="h-full flex items-center justify-center">
+                  <QhSpinner size="lg" />
+               </div>
+            )}
           </TabsContent>
 
         </Tabs>
       </div>
 
-      {/* Modals */}
       <CompletionModal isOpen={isCompleteModalOpen} onClose={() => setIsCompleteModalOpen(false)} appointment={selectedAppointment} onComplete={() => { refetch(); setIsCompleteModalOpen(false); }} />
       <ConfirmationModal isOpen={cancelModalState.isOpen} onClose={() => setCancelModalState({ isOpen: false, appointment: null })} onConfirm={handleConfirmCancel} title="ANULAR CITA" message="ESTA ACCIÓN CANCELARÁ EL REGISTRO DE FORMA IRREVERSIBLE." isLoading={isCanceling} variant="destructive" />
-      <NewAppointmentModal isOpen={isNewAppointmentModalOpen} onClose={() => setIsNewAppointmentModalOpen(false)} onCreated={refetch} />
-    </div>
+      
+      {/* 🚀 Pasamos locationId al Modal de Nueva Cita */}
+      {selectedLocationId && (
+        <NewAppointmentModal 
+          isOpen={isNewAppointmentModalOpen} 
+          onClose={() => setIsNewAppointmentModalOpen(false)} 
+          locationId={selectedLocationId}
+          onCreated={refetch} 
+        />
+      )}
+      </div>
   );
 }
