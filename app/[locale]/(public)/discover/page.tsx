@@ -273,11 +273,12 @@ const DiscoverMapContent = () => {
   // 🔐 Auth Gate State
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [authGateContext, setAuthGateContext] = useState<'favorite' | 'booking'>('favorite');
+    const [locationDeclined, setLocationDeclined] = useState(false);
   const { isAuthenticated, _hasHydrated, isLoading: isSessionLoading, token } = useSessionStore();
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
 
   const { providers, isLoading: isFetchingProviders } = useDiscover();
-  const { coordinates, calculateDistance } = useGeolocation();
+  const { coordinates, calculateDistance, requestLocation } = useGeolocation();
   const { resolvedTheme } = useTheme();
 
   const { batchScores, fetchBatchScores } = useProviderScore();
@@ -447,11 +448,38 @@ const DiscoverMapContent = () => {
             </Button>
           </div>
 
-          {!coordinates && (
-            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-black border border-black dark:border-white text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
-              <MapPin className="w-3.5 h-3.5" strokeWidth={2} /> TELEMETRÍA DE UBICACIÓN DESACTIVADA. PRECISIÓN COMPROMETIDA.
+          {!coordinates && !locationDeclined && (
+            <div className="flex flex-col gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-black dark:text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+                <div className="flex flex-col gap-2">
+                  <h4 className="text-[11px] font-bold text-black dark:text-white uppercase tracking-widest leading-none">
+                    ENCUENTRA OPCIONES CERCA DE TI
+                  </h4>
+                  <p className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
+                    PERMÍTENOS CONOCER TU UBICACIÓN PARA MOSTRARTE LOS ESPECIALISTAS Y SERVICIOS DISPONIBLES EN TU ZONA.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 mt-1">
+                <Button 
+                  onClick={() => requestLocation()} 
+                  className="flex-1 bg-black text-white dark:bg-white dark:text-black rounded-none text-[9px] font-bold uppercase tracking-widest h-10 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                >
+                  PERMITIR
+                </Button>
+                <Button 
+                  onClick={() => setLocationDeclined(true)} 
+                  variant="outline"
+                  className="flex-1 rounded-none text-[9px] font-bold uppercase tracking-widest h-10 border-black dark:border-white bg-transparent hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white transition-colors"
+                >
+                  AHORA NO
+                </Button>
+              </div>
             </div>
           )}
+          {/* 👆 FIN DEL NUEVO BLOQUE 👆 */}
         </div>
 
         {/* 📇 CAPA FLOTANTE: FICHAS DE PROVEEDOR */}

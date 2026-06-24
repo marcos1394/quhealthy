@@ -13,11 +13,15 @@ export const useGeolocation = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Pedimos la ubicación al montar el hook
-  useEffect(() => {
+  // Extraemos la lógica a una función que podamos exportar y re-ejecutar
+  const requestLocation = useCallback(() => {
+    setIsLoading(true);
+    setError(null);
+
     if (!navigator.geolocation) {
       setError('La geolocalización no es soportada por tu navegador.');
       setIsLoading(false);
+      return;
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -40,7 +44,11 @@ export const useGeolocation = () => {
     );
   }, []);
 
-  // Función auxiliar para traducir los errores de GPS a lenguaje humano
+  // Seguimos pidiendo la ubicación al montar el hook
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
+
   const getErrorMessage = (error: GeolocationPositionError) => {
     switch (error.code) {
       case error.PERMISSION_DENIED:
@@ -54,12 +62,8 @@ export const useGeolocation = () => {
     }
   };
 
-  /**
-   * Fórmula de Haversine: 
-   * Calcula la distancia en línea recta (kilómetros) entre dos coordenadas.
-   */
   const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radio de la Tierra en kilómetros
+    const R = 6371;
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a =
@@ -69,8 +73,9 @@ export const useGeolocation = () => {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distancia en km
+    return R * c;
   }, []);
 
-  return { coordinates, error, isLoading, calculateDistance };
+  // Exportamos la nueva función requestLocation
+  return { coordinates, error, isLoading, calculateDistance, requestLocation };
 };
