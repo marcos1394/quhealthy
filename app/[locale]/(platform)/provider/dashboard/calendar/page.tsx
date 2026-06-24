@@ -4,7 +4,7 @@
 import React, { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Plus, Settings, Link as LinkIcon, CheckCircle2, RefreshCcw, CalendarDays, Sparkles, AlertCircle } from "lucide-react";
+import { Clock, Plus, Settings, Link as LinkIcon, CheckCircle2, RefreshCcw, CalendarDays, Sparkles, AlertCircle, MapPin } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 
@@ -14,6 +14,8 @@ import { OperatingHoursModal } from "@/components/dashboard/OperatingHours";
 import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
 import { useOperatingHours } from "@/hooks/useOperatingHours";
+import { useProviderLocations } from "@/hooks/useProviderLocations";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
 function CalendarLoading() {
@@ -33,13 +35,26 @@ function CalendarContent() {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [hasConfiguredHours, setHasConfiguredHours] = useState<boolean | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   
   const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } = useCalendarIntegration();
   const { fetchSchedules } = useOperatingHours();
+  const { locations, fetchLocations, isLoading: isLoadingLocations } = useProviderLocations();
   const t = useTranslations('DashboardCalendar');
 
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
+
+  useEffect(() => {
+    if (locations.length > 0 && !selectedLocationId) {
+      const mainLocation = locations.find(location => location.isMain) || locations[0];
+      setSelectedLocationId(mainLocation.id);
+    }
+  }, [locations, selectedLocationId]);
 
   useEffect(() => {
     const status = searchParams.get("calendar_status");
@@ -60,11 +75,12 @@ function CalendarContent() {
 
   useEffect(() => {
     const loadHours = async () => {
-      const data = await fetchSchedules(1);
+      if (!selectedLocationId) return;
+      const data = await fetchSchedules(selectedLocationId);
       setHasConfiguredHours(data.length > 0 && data.some(d => d.isActive));
     };
     loadHours();
-  }, [fetchSchedules, refreshKey]);
+  }, [fetchSchedules, refreshKey, selectedLocationId]);
 
   return (
     <div className="space-y-12 pb-16 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 bg-gray-50 dark:bg-[#050505] min-h-screen pt-8">
@@ -92,8 +108,34 @@ function CalendarContent() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+            <div className="w-full sm:w-64">
+              <Select
+                value={selectedLocationId?.toString()}
+                onValueChange={(value) => setSelectedLocationId(Number(value))}
+                disabled={isLoadingLocations || locations.length === 0}
+              >
+                <SelectTrigger className="h-14 rounded-none border-black dark:border-white font-bold text-[10px] uppercase tracking-widest bg-transparent">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                    <SelectValue placeholder="Seleccionar sede" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-none border-black dark:border-white z-50">
+                  {locations.map(location => (
+                    <SelectItem
+                      key={location.id}
+                      value={location.id.toString()}
+                      className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                    >
+                      {location.name} {location.isMain ? "(Principal)" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <button 
               onClick={() => setIsHoursModalOpen(true)}
+              disabled={!selectedLocationId}
               className="flex items-center justify-center gap-3 h-14 px-8 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none font-bold text-[10px] uppercase tracking-widest transition-colors w-full sm:w-auto"
             >
               <Clock className="w-4 h-4" strokeWidth={1.5} />
@@ -101,6 +143,7 @@ function CalendarContent() {
             </button>
             <button 
               onClick={() => setIsBlockModalOpen(true)}
+              disabled={!selectedLocationId}
               className="flex items-center justify-center gap-3 h-14 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none font-bold text-[10px] uppercase tracking-widest border-0 transition-colors w-full sm:w-auto"
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
@@ -211,7 +254,13 @@ function CalendarContent() {
         {/* ÁREA DEL CALENDARIO (Contenedor Estricto) */}
         <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white transition-colors">
           <div className="w-full relative p-4 md:p-6 flex flex-col">
-            <CalendarView key={refreshKey} />
+            {selectedLocationId ? (
+              <CalendarView key={`${refreshKey}-${selectedLocationId}`} locationId={selectedLocationId} />
+            ) : (
+              <div className="min-h-[50vh] flex items-center justify-center">
+                <QhSpinner size="lg" className="text-black dark:text-white" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -239,7 +288,9 @@ function CalendarContent() {
         </div>
 
         {/* MODALES OPERATIVOS */}
-        <OperatingHoursModal isOpen={isHoursModalOpen} onClose={() => setIsHoursModalOpen(false)} onSaveSuccess={() => setRefreshKey(p => p + 1)} />
+        {selectedLocationId && (
+          <OperatingHoursModal isOpen={isHoursModalOpen} onClose={() => setIsHoursModalOpen(false)} onSaveSuccess={() => setRefreshKey(p => p + 1)} locationId={selectedLocationId} />
+        )}
         <TimeBlockModal isOpen={isBlockModalOpen} onClose={() => setIsBlockModalOpen(false)} onSaveSuccess={() => setRefreshKey(p => p + 1)} />
       
       </div>

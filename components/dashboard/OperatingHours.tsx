@@ -16,10 +16,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
-interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; }
-
-// 🚀 TODO: Reemplazar con un selector de sede cuando se implemente la UI multi-sede.
-const DEFAULT_LOCATION_ID = 1;
+interface OperatingHoursModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; locationId: number; }
 
 const daysOfWeek = [
   { id: 1, key: "monday", short: "LUN" }, { id: 2, key: "tuesday", short: "MAR" }, { id: 3, key: "wednesday", short: "MIE" },
@@ -41,7 +38,7 @@ const scheduleTemplates = [
   }
 ];
 
-export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen, onClose, onSaveSuccess }) => {
+export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen, onClose, onSaveSuccess, locationId }) => {
   const { fetchSchedules, saveSchedules, isLoading, isSaving } = useOperatingHours();
     const [{ schedules, originalSchedules, savingStep, validationErrors, copiedFromDay }, dispatch] = React.useReducer(
       (state: any, action: any) => {
@@ -72,15 +69,15 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   const t = useTranslations('DashboardOperatingHours');
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && locationId) {
       const load = async () => {
-        const data = await fetchSchedules(DEFAULT_LOCATION_ID);
+        const data = await fetchSchedules(locationId);
         const merged = daysOfWeek.map(d => data.find(h => h.dayOfWeek === d.id) || { dayOfWeek: d.id, isActive: false, openTime: "09:00", closeTime: "17:00" });
         setSchedules(merged); setOriginalSchedules(merged); setSavingStep("idle"); setValidationErrors({});
       };
       load();
     }
-  }, [isOpen, fetchSchedules]);
+  }, [isOpen, fetchSchedules, locationId]);
 
   useEffect(() => {
     const errors: Record<number, string> = {};
@@ -107,7 +104,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({ isOpen
   const handleSave = async () => {
     if (Object.keys(validationErrors).length > 0) { return; }
     setSavingStep("saving");
-    const success = await saveSchedules(DEFAULT_LOCATION_ID, schedules);
+    const success = await saveSchedules(locationId, schedules);
     if (success) { 
       setSavingStep("success"); 
       toast.success(t('save_success', { defaultValue: 'MATRIZ HORARIA ACTUALIZADA' })); 
