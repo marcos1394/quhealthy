@@ -12,7 +12,8 @@ import {
   Settings, LogOut, HelpCircle, Crown, 
   BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, 
   Star, HeartIcon, Menu, Package, ClipboardIcon, 
-  Handshake, History, BadgeX, PackageCheck, Calculator, BookOpen
+  Handshake, History, BadgeX, PackageCheck, Calculator, BookOpen,
+  X
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -102,7 +103,7 @@ const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
   );
 };
 
-export const Sidebar = ({ className = "", isMobile = false }: { className?: string; isMobile?: boolean }) => {
+export const Sidebar = ({ className = "", isMobile = false, onClose }: { className?: string; isMobile?: boolean; onClose?: () => void }) => {
   const pathname = usePathname();
   // 🚀 INICIA CERRADO POR DEFECTO PARA RESPETAR EL ESPACIO AL INGRESAR (en Desktop)
   const [isCollapsedState, setIsCollapsed] = useState(true);
@@ -164,14 +165,21 @@ export const Sidebar = ({ className = "", isMobile = false }: { className?: stri
           {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
           
           {/* El botón de hamburguesa se oculta si estamos en móvil, ya que el Sheet controla el cierre */}
-          {!isMobile && (
-            <button 
-              onClick={() => setIsCollapsed(!isCollapsedState)}
-              className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white hover:border-black dark:hover:border-white transition-colors flex items-center justify-center flex-shrink-0"
-            >
-              <Menu className="w-4 h-4" strokeWidth={1.5} />
-            </button>
-          )}
+        {isMobile ? (
+  <button 
+    onClick={onClose}
+    className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white hover:border-black dark:hover:border-white transition-colors flex items-center justify-center flex-shrink-0"
+  >
+    <X className="w-4 h-4" strokeWidth={1.5} />
+  </button>
+) : (
+  <button 
+    onClick={() => setIsCollapsed(!isCollapsedState)}
+    className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white hover:border-black dark:hover:border-white transition-colors flex items-center justify-center flex-shrink-0"
+  >
+    <Menu className="w-4 h-4" strokeWidth={1.5} />
+  </button>
+)}
         </div>
       </div>
 

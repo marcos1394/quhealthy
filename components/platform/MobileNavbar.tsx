@@ -37,7 +37,7 @@ export function MobileNavbar() {
           <SheetContent position="left" className="p-0 w-[280px] !max-w-[280px] bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
             <div className="h-full w-full flex flex-col">
               {/* Le pasamos isMobile=true para que desactive el estado colapsado inicial */}
-              <Sidebar className="w-full border-none" isMobile={true} />
+            <Sidebar className="w-full border-none" isMobile={true} onClose={() => setOpen(false)} />
             </div>
           </SheetContent>
         </Sheet>
