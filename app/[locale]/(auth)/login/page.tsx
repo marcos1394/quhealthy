@@ -53,8 +53,11 @@ export default function LoginPage() {
   const [sessionExpired, setSessionExpired] = useState(false);
   
   const [captchaToken, setCaptchaToken] = useState<string>("");
-  // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
+  
+  // 🚀 REFERENCIAS DE CONTROL
   const turnstileRef = useRef<any>(null);
+  // 🚀 CANDADO: Nos asegura que el usuario hizo clic en el botón antes de intentar el login
+  const isIntentionalSubmitRef = useRef(false); 
 
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
 
@@ -90,8 +93,6 @@ export default function LoginPage() {
     setError("");
   };
 
-  // 🚀 FIX: Quitamos la validación de !!captchaToken, ya que el token 
-  // se generará DESPUÉS de hacer clic en enviar.
   const isFormValid = (): boolean => {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     return isEmailValid && formData.password.length >= 6;
@@ -128,7 +129,6 @@ export default function LoginPage() {
     }
   };
 
-  // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
   const processLogin = async (token: string) => {
     try {
       const response = await login({
@@ -151,14 +151,14 @@ export default function LoginPage() {
       }
       handleApiError(err);
       
-      // 🚀 IMPORTANTE: Si el login falla, reseteamos el captcha para el siguiente intento
+      // Reseteamos estados tras un error
       turnstileRef.current?.reset();
       setCaptchaToken("");
       setLoading(false);
+      isIntentionalSubmitRef.current = false; // Cerramos el candado
     }
   };
 
-  // 🚀 MODIFICADO: Ahora el botón solo arranca la carga y dispara el Captcha
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -169,9 +169,9 @@ export default function LoginPage() {
 
     setLoading(true);
     setError("");
-
-    // Ejecutamos el captcha de Cloudflare. 
-    // Cuando termine, llamará automáticamente a onSuccess y ejecutará processLogin()
+    
+    // 🚀 ABRIMOS EL CANDADO: Indicamos que fue un clic real del usuario
+    isIntentionalSubmitRef.current = true; 
     turnstileRef.current?.execute();
   };
 
@@ -412,19 +412,27 @@ export default function LoginPage() {
                 </label>
               </div>
 
-              {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processLogin */}
+              {/* 🚀 FIX: Turnstile con candados de seguridad */}
               <Turnstile
                 ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
-                  processLogin(token); // Ejecutamos el login real
+                  // Solo procesamos el login si el usuario apretó el botón
+                  if (isIntentionalSubmitRef.current) {
+                    processLogin(token);
+                  }
                 }}
                 onError={() => {
                   setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
                   setLoading(false);
+                  isIntentionalSubmitRef.current = false;
                 }}
-                options={{ theme: 'auto', size: 'invisible' }}
+                options={{ 
+                  theme: 'auto', 
+                  size: 'invisible',
+                  execution: 'execute' // 🚀 Evita que arranque automáticamente al cargar la página
+                }}
               />
 
               {/* Submit Button */}

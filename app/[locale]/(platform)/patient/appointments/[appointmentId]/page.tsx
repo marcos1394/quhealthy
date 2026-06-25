@@ -134,10 +134,6 @@ export default function PatientAppointmentDetailsPage() {
   const badgeClass = statusColorMap[appointment.status] || 'border-gray-300 text-gray-500';
   const statusLabel = statusLabels[appointment.status] || appointment.status;
 
-  function t(arg0: string, arg1: { defaultValue: string; }): React.ReactNode {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 pb-24">
       <div className="max-w-6xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
@@ -338,7 +334,7 @@ export default function PatientAppointmentDetailsPage() {
                       disabled={isDownloading}
                       className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6"
                     >
-                      {t('btn_receipt', { defaultValue: 'Extraer Recibo Fiscal' })}
+                      Extraer Recibo Fiscal
                       {isDownloading ? <QhSpinner size="sm" /> : <FileText className="w-4 h-4" strokeWidth={1.5} />}
                     </Button>
                   ) : (
@@ -353,7 +349,7 @@ export default function PatientAppointmentDetailsPage() {
                         disabled={isProcessingPayment}
                         className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6 disabled:opacity-50"
                       >
-                        {t('btn_pay', { defaultValue: 'Ejecutar Pago' })}
+                        Ejecutar Pago
                         {isProcessingPayment ? <QhSpinner size="sm" /> : <CreditCard className="w-4 h-4" strokeWidth={1.5} />}
                       </Button>
                     </div>

@@ -49,6 +49,8 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
   // 🚀 REFERENCIA Y ESTADO PARA EL REENVÍO
   const turnstileRef = useRef<any>(null);
   const [isResending, setIsResending] = useState(false);
+  // ✅ CAMBIO 1: Candado de seguridad
+  const isIntentionalSubmitRef = useRef(false);
 
   useEffect(() => {
     if (codeTimer > 0) {
@@ -75,6 +77,8 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
       setCanResend(true);
       setCodeTimer(0);
       turnstileRef.current?.reset();
+      // ✅ CAMBIO 2: Cerrar el candado si hay error en la red
+      isIntentionalSubmitRef.current = false;
     } finally {
       setLoading(false);
       setIsResending(false);
@@ -82,9 +86,14 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
   };
 
   // 🚀 DISPARADOR DEL CAPTCHA (Al hacer clic en reenviar)
+  // 🚀 DISPARADOR DEL CAPTCHA (Al hacer clic en reenviar)
   const handleResendClick = () => {
     setIsResending(true);
     setError("");
+    
+    // ✅ CAMBIO 3: Indicar que el clic es intencional
+    isIntentionalSubmitRef.current = true;
+    
     turnstileRef.current?.execute();
   };
 
@@ -190,12 +199,24 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
       <Turnstile
         ref={turnstileRef}
         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-        onSuccess={(token) => processResendCode(token)}
+        onSuccess={(token) => {
+          // ✅ CAMBIO 4A: Solo reenviar si el candado está abierto
+          if (isIntentionalSubmitRef.current) {
+            processResendCode(token);
+          }
+        }}
         onError={() => {
           setError("Error al validar la seguridad del reenvío.");
           setIsResending(false);
+          // ✅ CAMBIO 4B: Cerrar el candado en caso de error
+          isIntentionalSubmitRef.current = false;
         }}
-        options={{ theme: 'auto', size: 'invisible' }}
+        options={{ 
+          theme: 'auto', 
+          size: 'invisible',
+          // ✅ CAMBIO 4C: Evitar el ciclo infinito
+          execution: 'execute'
+        }}
       />
 
       <div className="pt-4 space-y-4">

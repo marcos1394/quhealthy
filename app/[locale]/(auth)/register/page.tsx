@@ -61,6 +61,8 @@ export default function ConsumerSignupPage() {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
   const turnstileRef = useRef<any>(null);
+    // ✅ CAMBIO 1: Añadir esta línea
+    const isIntentionalSubmitRef = useRef(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -149,10 +151,11 @@ export default function ConsumerSignupPage() {
       setError(errorMessage);
       handleApiError(err);
       
-      // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error
       turnstileRef.current?.reset();
       setCaptchaToken("");
       setIsVerifying(false);
+      // ✅ CAMBIO 1: Cerrar el candado si el backend da error
+      isIntentionalSubmitRef.current = false; 
     }
   };
 
@@ -167,7 +170,8 @@ export default function ConsumerSignupPage() {
     setIsVerifying(true);
     setError("");
     
-    // Ejecutamos el captcha invisible
+    // ✅ CAMBIO 2: Abrir el candado porque fue un clic real del usuario
+    isIntentionalSubmitRef.current = true;
     turnstileRef.current?.execute();
   };
 
@@ -442,13 +446,23 @@ export default function ConsumerSignupPage() {
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
-                  processSignup(token); // Ejecutamos el registro real
+                  // ✅ CAMBIO 3A: Validar el candado antes de continuar
+                  if (isIntentionalSubmitRef.current) {
+                    processSignup(token); 
+                  }
                 }}
                 onError={() => {
                   setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
                   setIsVerifying(false);
+                  // ✅ CAMBIO 3B: Cerrar el candado en caso de error de red
+                  isIntentionalSubmitRef.current = false; 
                 }}
-                options={{ theme: 'auto', size: 'invisible' }}
+                options={{ 
+                  theme: 'auto', 
+                  size: 'invisible',
+                  // ✅ CAMBIO 3C: Evitar que arranque solo al cargar la página
+                  execution: 'execute'
+                }}
               />
 
               {/* Submit Button */}

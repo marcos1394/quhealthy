@@ -63,6 +63,8 @@ export default function ProviderSignupPage() {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
   const turnstileRef = useRef<any>(null);
+  // ✅ CAMBIO 1: Añadir esta línea
+  const isIntentionalSubmitRef = useRef(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -147,9 +149,10 @@ export default function ProviderSignupPage() {
       console.error("Error en registro:", err);
       handleApiError(err);
       
-      // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error (ej: email ya registrado)
       turnstileRef.current?.reset();
       setCaptchaToken("");
+      // ✅ CAMBIO 3A: Cerrar el candado si el backend falla
+      isIntentionalSubmitRef.current = false;
     }
   };
 
@@ -160,7 +163,8 @@ export default function ProviderSignupPage() {
 
     setLoading(true);
     
-    // Ejecutamos el captcha invisible
+    // ✅ CAMBIO 3B: Abrir el candado justo antes de ejecutar
+    isIntentionalSubmitRef.current = true;
     turnstileRef.current?.execute();
   };
 
@@ -430,13 +434,23 @@ export default function ProviderSignupPage() {
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
-                  processSignup(token); // Ejecutamos el registro real
+                  // ✅ CAMBIO 2A: Validar el candado antes de procesar
+                  if (isIntentionalSubmitRef.current) {
+                    processSignup(token); 
+                  }
                 }}
                 onError={() => {
                   toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
                   setLoading(false);
+                  // ✅ CAMBIO 2B: Cerrar el candado en caso de error de captcha
+                  isIntentionalSubmitRef.current = false;
                 }}
-                options={{ theme: 'auto', size: 'invisible' }}
+                options={{ 
+                  theme: 'auto', 
+                  size: 'invisible',
+                  // ✅ CAMBIO 2C: Evitar que se ejecute solo al cargar
+                  execution: 'execute' 
+                }}
               />
 
               {/* Submit Button */}

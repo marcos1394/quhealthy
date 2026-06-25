@@ -30,6 +30,8 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
   const [captchaToken, setCaptchaToken] = useState<string>("");
   // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
   const turnstileRef = useRef<any>(null);
+  // ✅ CAMBIO 1: Candado de seguridad
+  const isIntentionalSubmitRef = useRef(false);
 
   // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
   const processSendCode = async (token: string) => {
@@ -47,6 +49,8 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
       // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error
       turnstileRef.current?.reset();
       setCaptchaToken("");
+      // ✅ CAMBIO 2: Cerrar el candado
+      isIntentionalSubmitRef.current = false;
     } finally {
       setLoading(false);
       setIsVerifying(false);
@@ -57,6 +61,9 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
+    // ✅ CAMBIO 3: Abrir el candado porque fue un clic real del usuario
+    isIntentionalSubmitRef.current = true;
 
     setIsVerifying(true); 
     setError("");
@@ -125,18 +132,29 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
       )}
 
       {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processSendCode */}
+     {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processSendCode */}
       <Turnstile
         ref={turnstileRef}
         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
         onSuccess={(token) => {
           setCaptchaToken(token);
-          processSendCode(token); // Ejecutamos el envío real
+          // ✅ CAMBIO 4A: Solo enviamos el código si el candado está abierto
+          if (isIntentionalSubmitRef.current) {
+            processSendCode(token); 
+          }
         }}
         onError={() => {
           setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
           setIsVerifying(false);
+          // ✅ CAMBIO 4B: Cerrar candado por error de red
+          isIntentionalSubmitRef.current = false;
         }}
-        options={{ theme: 'auto', size: 'invisible' }}
+        options={{ 
+          theme: 'auto', 
+          size: 'invisible',
+          // ✅ CAMBIO 4C: Evita el auto-arranque y el ciclo infinito
+          execution: 'execute' 
+        }}
       />
 
       <Button
