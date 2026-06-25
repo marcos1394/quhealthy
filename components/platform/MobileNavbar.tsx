@@ -36,7 +36,8 @@ export function MobileNavbar() {
           {/* Usamos !max-w-[280px] para evitar que el sheet se estire demasiado en tablets pequeñas */}
           <SheetContent position="left" className="p-0 w-[280px] !max-w-[280px] bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
             <div className="h-full w-full flex flex-col">
-              <Sidebar className="w-full border-none" />
+              {/* Le pasamos isMobile=true para que desactive el estado colapsado inicial */}
+              <Sidebar className="w-full border-none" isMobile={true} />
             </div>
           </SheetContent>
         </Sheet>

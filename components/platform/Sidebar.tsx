@@ -102,10 +102,14 @@ const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
   );
 };
 
-export const Sidebar = ({ className = "" }: { className?: string }) => {
+export const Sidebar = ({ className = "", isMobile = false }: { className?: string; isMobile?: boolean }) => {
   const pathname = usePathname();
-  // 🚀 INICIA CERRADO POR DEFECTO PARA RESPETAR EL ESPACIO AL INGRESAR
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  // 🚀 INICIA CERRADO POR DEFECTO PARA RESPETAR EL ESPACIO AL INGRESAR (en Desktop)
+  const [isCollapsedState, setIsCollapsed] = useState(true);
+  
+  // Si estamos en la versión móvil (Sheet), forzamos que no esté colapsado
+  const isCollapsed = isMobile ? false : isCollapsedState;
+
   const { logout } = useAuth();
   const { role, user } = useSessionStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
@@ -136,7 +140,7 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
 
   return (
     <motion.aside 
-      animate={{ width: isCollapsed ? 80 : 280 }} 
+      animate={{ width: isMobile ? "100%" : (isCollapsed ? 80 : 280) }} 
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} // Curva arquitectónica, sin rebotes
       className={cn(
         "flex flex-col h-screen border-r border-gray-200 dark:border-gray-800 transition-colors duration-300 z-50 overflow-hidden flex-shrink-0 bg-gray-50 dark:bg-[#050505]",
@@ -158,12 +162,16 @@ export const Sidebar = ({ className = "" }: { className?: string }) => {
 
         <div className={cn("flex items-center gap-2", isCollapsed ? "mx-auto flex-col gap-4" : "ml-auto")}>
           {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white hover:border-black dark:hover:border-white transition-colors flex items-center justify-center flex-shrink-0"
-          >
-            <Menu className="w-4 h-4" strokeWidth={1.5} />
-          </button>
+          
+          {/* El botón de hamburguesa se oculta si estamos en móvil, ya que el Sheet controla el cierre */}
+          {!isMobile && (
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsedState)}
+              className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white hover:border-black dark:hover:border-white transition-colors flex items-center justify-center flex-shrink-0"
+            >
+              <Menu className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+          )}
         </div>
       </div>
 
