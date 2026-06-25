@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldCheck, Star, UserCheck, Activity, FileText, ArrowRight, Zap } from "lucide-react";
 import { ProviderScoreResponse } from "@/types/providerScore";
@@ -18,19 +18,27 @@ interface QuScoreModalProps {
 export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, scoreData }) => {
   const router = useRouter();
 
+  // 1. BLOQUEO DE SCROLL: Evita que la página de fondo se mueva al usar el modal en laptop
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!scoreData) return null;
 
-  // Hacemos el buscador de iconos inteligente leyendo la llave o el nombre
   const getPillarIcon = (key: string, name: string) => {
     const identifier = `${key} ${name}`.toUpperCase();
-    
     if (identifier.includes('P1') || identifier.includes('SEGURIDAD') || identifier.includes('SECURITY')) return <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />;
     if (identifier.includes('P2') || identifier.includes('FAVORITO') || identifier.includes('REPUTACIÓN')) return <Star className="w-4 h-4" strokeWidth={1.5} />;
     if (identifier.includes('P3') || identifier.includes('PRESENCIA') || identifier.includes('DIGITAL')) return <Activity className="w-4 h-4" strokeWidth={1.5} />;
     if (identifier.includes('P4') || identifier.includes('PACIENTE') || identifier.includes('USUARIO')) return <UserCheck className="w-4 h-4" strokeWidth={1.5} />;
     if (identifier.includes('P5') || identifier.includes('TRANSPARENCIA') || identifier.includes('INFORMACIÓN')) return <FileText className="w-4 h-4" strokeWidth={1.5} />;
-    
-    // Fallback: Si el backend envía algo nuevo, mostramos este icono en lugar de "null"
     return <Zap className="w-4 h-4" strokeWidth={1.5} />;
   };
 
@@ -46,25 +54,28 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
   return (
     <AnimatePresence>
       {isOpen && (
-        // Aumentamos el z-index a 999 para sobreescribir cualquier Navbar
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 md:p-10">
-          
+        // 2. CORRECCIÓN DE ANIMACIÓN PADRE: El contenedor principal DEBE ser motion para que no se corte al cerrar
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 md:p-10"
+        >
           {/* OVERLAY TÉCNICO */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             onClick={onClose}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
           />
 
           {/* MODAL BLUEPRINT */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ scale: 0.95, y: 10 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col max-h-[85vh] sm:max-h-[90vh] z-10"
+            // 4. ANCHO PROPORCIONAL: Pasamos de max-w-lg a sm:max-w-xl para mejor lectura en escritorio
+            className="relative w-full max-w-[90vw] sm:max-w-xl bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col max-h-[85vh] sm:max-h-[90vh] z-10"
           >
             {/* HEADER */}
             <div className="relative border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-5 sm:p-6 md:p-8 flex items-end justify-between flex-shrink-0">
@@ -90,7 +101,8 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
             </div>
 
             {/* BODY */}
-            <div className="p-5 sm:p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-[#0a0a0a]">
+            {/* 3. COLAPSO FLEXBOX: min-h-0 previene que el div desborde la pantalla en Safari/Desktop */}
+            <div className="p-5 sm:p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white dark:bg-[#0a0a0a]">
               
               {scoreData.isNewProvider && (
                 <div className="p-4 mb-6 sm:mb-8 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
@@ -102,11 +114,9 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
 
               <div className="space-y-5 sm:space-y-6">
                 {Object.entries(scoreData.breakdown).map(([key, pillar]) => (
-                  // Agregamos la clase "group" para el hover y cursor-default para indicar interacción
                   <div key={key} className="flex flex-col gap-2.5 sm:gap-3 group cursor-default">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3 sm:gap-4">
-                        {/* El icono reacciona al hover del contenedor padre */}
                         <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
                           {getPillarIcon(key, pillar.name)}
                         </div>
@@ -114,7 +124,7 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                           <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white mb-1">
                             {pillar.name}
                           </h4>
-                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[180px] sm:max-w-[220px] leading-relaxed transition-colors duration-300 group-hover:text-black dark:group-hover:text-gray-300">
+                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[180px] sm:max-w-[240px] leading-relaxed transition-colors duration-300 group-hover:text-black dark:group-hover:text-gray-300">
                             {pillar.tooltip}
                           </p>
                         </div>
@@ -124,7 +134,6 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                       </span>
                     </div>
                     
-                    {/* Barra de Progreso */}
                     <div className="h-3 w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
                       <motion.div 
                         initial={{ width: 0 }}
@@ -137,7 +146,6 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                 ))}
               </div>
 
-              {/* ACTION BUTTON */}
               <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-800">
                 <button 
                   onClick={() => {
@@ -152,7 +160,7 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
             </div>
 
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
