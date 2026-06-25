@@ -1,6 +1,6 @@
 "use client"
 /* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,7 +31,6 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
     }
   };
 
-  // Convertimos los colores de estado a un lenguaje arquitectónico (escalas de llenado o patrones)
   const getStatusFill = (status: string) => {
     switch(status) {
       case 'OPTIMAL': return 'bg-black dark:bg-white';
@@ -44,26 +43,27 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+          
           {/* OVERLAY TÉCNICO */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
           />
 
           {/* MODAL BLUEPRINT */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] z-50 flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col max-h-[85vh] sm:max-h-[90vh] z-10"
           >
             {/* HEADER */}
-            <div className="relative border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-6 md:p-8 flex items-end justify-between flex-shrink-0">
+            <div className="relative border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-5 sm:p-6 md:p-8 flex items-end justify-between flex-shrink-0">
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 w-8 h-8 border border-gray-600 dark:border-gray-300 flex items-center justify-center hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors"
@@ -71,8 +71,8 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                 <X className="w-4 h-4" strokeWidth={1.5} />
               </button>
               
-              <div>
-                <h2 className="text-xl font-bold uppercase tracking-tight mb-1">
+              <div className="pr-4">
+                <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight mb-1">
                   Desglose QuScore
                 </h2>
                 <p className="text-[9px] font-bold uppercase tracking-widest opacity-70">
@@ -80,27 +80,27 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                 </p>
               </div>
               
-              <div className="text-5xl font-black tracking-tighter leading-none border-l border-gray-700 dark:border-gray-300 pl-6">
+              <div className="text-4xl sm:text-5xl font-black tracking-tighter leading-none border-l border-gray-700 dark:border-gray-300 pl-4 sm:pl-6 shrink-0">
                 {scoreData.score}
               </div>
             </div>
 
             {/* BODY */}
-            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-[#0a0a0a]">
+            <div className="p-5 sm:p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white dark:bg-[#0a0a0a]">
               
               {scoreData.isNewProvider && (
-                <div className="p-4 mb-8 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
+                <div className="p-4 mb-6 sm:mb-8 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed text-center">
                     AVISO: VOLUMEN DE DATOS INSUFICIENTE. EL ESPECIALISTA AÚN NO CUMPLE EL LÍMITE TRANSACCIONAL PARA UN CÁLCULO ALGORÍTMICO COMPLETO.
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-5 sm:space-y-6">
                 {Object.entries(scoreData.breakdown).map(([key, pillar]) => (
-                  <div key={key} className="flex flex-col gap-3">
+                  <div key={key} className="flex flex-col gap-2.5 sm:gap-3">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
                           {getPillarIcon(key)}
                         </div>
@@ -108,17 +108,17 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                           <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white mb-1">
                             {pillar.name}
                           </h4>
-                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[220px] leading-relaxed">
+                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[180px] sm:max-w-[220px] leading-relaxed">
                             {pillar.tooltip}
                           </p>
                         </div>
                       </div>
-                      <span className="text-lg font-bold text-black dark:text-white tabular-nums tracking-tight">
+                      <span className="text-base sm:text-lg font-bold text-black dark:text-white tabular-nums tracking-tight">
                         {pillar.percentage}%
                       </span>
                     </div>
                     
-                    {/* Barra de Progreso Arquitectónica */}
+                    {/* Barra de Progreso */}
                     <div className="h-3 w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
                       <motion.div 
                         initial={{ width: 0 }}
@@ -132,7 +132,7 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
               </div>
 
               {/* ACTION BUTTON */}
-              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-800">
+              <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-800">
                 <button 
                   onClick={() => {
                     onClose();
@@ -144,8 +144,9 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
                 </button>
               </div>
             </div>
+
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
