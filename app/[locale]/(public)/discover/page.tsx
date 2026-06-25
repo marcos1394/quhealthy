@@ -360,9 +360,9 @@ const DiscoverMapContent = () => {
       <div className="h-full w-full flex items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <div className="flex flex-col items-center gap-4">
           <QhSpinner size="lg" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-            CARTOGRAFIANDO LA RED MÉDICA...
-          </p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+              ESTAMOS PREPARANDO TODO PARA TI...
+            </p>
         </div>
       </div>
     );
