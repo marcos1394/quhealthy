@@ -1,6 +1,5 @@
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
 /* eslint-disable react-doctor/no-initialize-state */
-// hooks/useGeolocation.ts
 import { useState, useEffect, useCallback } from 'react';
 
 interface Coordinates {
@@ -11,9 +10,22 @@ interface Coordinates {
 export const useGeolocation = () => {
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Inicializamos en false, porque ya no disparamos la petición a ciegas
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
 
-  // Extraemos la lógica a una función que podamos exportar y re-ejecutar
+  const getErrorMessage = (error: GeolocationPositionError) => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        return 'Permiso denegado. Por favor, habilita la ubicación para ver especialistas cercanos.';
+      case error.POSITION_UNAVAILABLE:
+        return 'Información de ubicación no disponible.';
+      case error.TIMEOUT:
+        return 'Se agotó el tiempo para obtener tu ubicación.';
+      default:
+        return 'Ocurrió un error desconocido al buscar tu ubicación.';
+    }
+  };
+
   const requestLocation = useCallback(() => {
     setIsLoading(true);
     setError(null);
@@ -44,23 +56,37 @@ export const useGeolocation = () => {
     );
   }, []);
 
-  // Seguimos pidiendo la ubicación al montar el hook
+  // Efecto inteligente con Permissions API
   useEffect(() => {
-    requestLocation();
-  }, [requestLocation]);
+    const checkPermission = async () => {
+      try {
+        if (!navigator.permissions || !navigator.permissions.query) {
+          // Fallback para navegadores antiguos
+          requestLocation();
+          return;
+        }
+        
+        const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+        
+        if (permissionStatus.state === 'granted') {
+          // ✅ El usuario ya confía en nosotros: pedimos coordenadas en silencio
+          requestLocation();
+        }
 
-  const getErrorMessage = (error: GeolocationPositionError) => {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        return 'Permiso denegado. Por favor, habilita la ubicación para ver especialistas cercanos.';
-      case error.POSITION_UNAVAILABLE:
-        return 'Información de ubicación no disponible.';
-      case error.TIMEOUT:
-        return 'Se agotó el tiempo para obtener tu ubicación.';
-      default:
-        return 'Ocurrió un error desconocido al buscar tu ubicación.';
-    }
-  };
+        // Si cambia de opinión desde la barra de direcciones, reaccionamos
+        permissionStatus.onchange = () => {
+          if (permissionStatus.state === 'granted') {
+            requestLocation();
+          }
+        };
+      } catch {
+        // Fallback si la API falla por alguna restricción del sistema
+        requestLocation();
+      }
+    };
+    
+    checkPermission();
+  }, [requestLocation]);
 
   const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371;
@@ -76,6 +102,5 @@ export const useGeolocation = () => {
     return R * c;
   }, []);
 
-  // Exportamos la nueva función requestLocation
   return { coordinates, error, isLoading, calculateDistance, requestLocation };
 };

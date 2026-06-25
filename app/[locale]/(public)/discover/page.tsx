@@ -10,7 +10,8 @@ import { useTheme } from 'next-themes';
 import {
   Search, SlidersHorizontal, Star,
   ChevronRight, PlayCircle, MapPin, Award,
-  Navigation, Heart
+  Navigation, Heart,
+  Loader2
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -273,13 +274,26 @@ const DiscoverMapContent = () => {
   // 🔐 Auth Gate State
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [authGateContext, setAuthGateContext] = useState<'favorite' | 'booking'>('favorite');
-    const [locationDeclined, setLocationDeclined] = useState(false);
+  const [locationDeclined, setLocationDeclined] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { isAuthenticated, _hasHydrated, isLoading: isSessionLoading, token } = useSessionStore();
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
-
+  
   const { providers, isLoading: isFetchingProviders } = useDiscover();
-  const { coordinates, calculateDistance, requestLocation } = useGeolocation();
+// Hook de Geolocation (Extraemos error e isLoading)
+  const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
   const { resolvedTheme } = useTheme();
+
+// Efecto: Cuando conseguimos la ubicación, mostramos mensaje de éxito 2.5 seg y lo cerramos
+  useEffect(() => {
+    if (coordinates) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [coordinates]);
 
   const { batchScores, fetchBatchScores } = useProviderScore();
   // useMyFavorites ya tiene guard interno: si no hay token, devuelve Set vacío
@@ -448,35 +462,90 @@ const DiscoverMapContent = () => {
             </Button>
           </div>
 
-          {!coordinates && !locationDeclined && (
-            <div className="flex flex-col gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-black dark:text-white shrink-0 mt-0.5" strokeWidth={1.5} />
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-[11px] font-bold text-black dark:text-white uppercase tracking-widest leading-none">
-                    ENCUENTRA OPCIONES CERCA DE TI
-                  </h4>
-                  <p className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
-                    PERMÍTENOS CONOCER TU UBICACIÓN PARA MOSTRARTE LOS ESPECIALISTAS Y SERVICIOS DISPONIBLES EN TU ZONA.
-                  </p>
-                </div>
-              </div>
+        {/* 👇 BLOQUE DE UBICACIÓN DINÁMICO 👇 */}
+          {((!coordinates && !locationDeclined) || showSuccess) && (
+            <div className="flex flex-col gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] transition-all duration-300">
               
-              <div className="flex items-center gap-3 mt-1">
-                <Button 
-                  onClick={() => requestLocation()} 
-                  className="flex-1 bg-black text-white dark:bg-white dark:text-black rounded-none text-[9px] font-bold uppercase tracking-widest h-10 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
-                >
-                  PERMITIR
-                </Button>
-                <Button 
-                  onClick={() => setLocationDeclined(true)} 
-                  variant="outline"
-                  className="flex-1 rounded-none text-[9px] font-bold uppercase tracking-widest h-10 border-black dark:border-white bg-transparent hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white transition-colors"
-                >
-                  AHORA NO
-                </Button>
-              </div>
+              {showSuccess ? (
+                // 🟢 ESTADO 1: ÉXITO
+                <div className="flex items-center gap-3 py-1">
+                  <div className="bg-black dark:bg-white text-white dark:text-black p-1.5 shrink-0">
+                    <MapPin className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-[11px] font-bold text-black dark:text-white uppercase tracking-widest leading-none">
+                      UBICACIÓN CONFIRMADA
+                    </h4>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                      BUSCANDO OPCIONES CERCANAS...
+                    </p>
+                  </div>
+                </div>
+              ) : isGeoLoading && !geoError ? (
+                // 🟡 ESTADO 2: CARGANDO
+                <div className="flex items-center gap-3 py-1">
+                  <Loader2 className="w-5 h-5 text-black dark:text-white shrink-0 animate-spin" strokeWidth={2} />
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-[11px] font-bold text-black dark:text-white uppercase tracking-widest leading-none">
+                      VERIFICANDO PERMISOS
+                    </h4>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                      REVISA LA ALERTA DE TU NAVEGADOR
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                // 🔴 ESTADO 3: SOLICITUD O BLOQUEO
+                <>
+                  <div className="flex items-start gap-3">
+                    {geoError ? (
+                      <div className="bg-gray-100 dark:bg-[#111] p-1.5 shrink-0 mt-0.5">
+                        <MapPin className="w-4 h-4 text-black dark:text-white opacity-50" strokeWidth={1.5} />
+                      </div>
+                    ) : (
+                      <MapPin className="w-5 h-5 text-black dark:text-white shrink-0 mt-0.5" strokeWidth={1.5} />
+                    )}
+                    
+                    <div className="flex flex-col gap-2">
+                      <h4 className="text-[11px] font-bold text-black dark:text-white uppercase tracking-widest leading-none">
+                        {geoError ? "PERMISO DENEGADO" : "ENCUENTRA OPCIONES CERCA DE TI"}
+                      </h4>
+                      <p className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-relaxed">
+                        {geoError 
+                          ? "TU NAVEGADOR BLOQUEÓ EL ACCESO. PARA ACTIVARLO, HAZ CLIC EN EL ÍCONO DEL CANDADO (🔒) EN LA BARRA DE DIRECCIONES, O UTILIZA EL BUSCADOR MANUAL ARRIBA." 
+                          : "PERMÍTENOS CONOCER TU UBICACIÓN PARA MOSTRARTE LOS ESPECIALISTAS Y SERVICIOS DISPONIBLES EN TU ZONA."}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 mt-1">
+                    {geoError ? (
+                      <Button 
+                        onClick={() => setLocationDeclined(true)} 
+                        className="flex-1 bg-black text-white dark:bg-white dark:text-black rounded-none text-[9px] font-bold uppercase tracking-widest h-10 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                      >
+                        ENTENDIDO
+                      </Button>
+                    ) : (
+                      <>
+                        <Button 
+                          onClick={() => requestLocation()} 
+                          className="flex-1 bg-black text-white dark:bg-white dark:text-black rounded-none text-[9px] font-bold uppercase tracking-widest h-10 hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                        >
+                          PERMITIR
+                        </Button>
+                        <Button 
+                          onClick={() => setLocationDeclined(true)} 
+                          variant="outline"
+                          className="flex-1 rounded-none text-[9px] font-bold uppercase tracking-widest h-10 border-black dark:border-white bg-transparent hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white transition-colors"
+                        >
+                          AHORA NO
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
           {/* 👆 FIN DEL NUEVO BLOQUE 👆 */}
