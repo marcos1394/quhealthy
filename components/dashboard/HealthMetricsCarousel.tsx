@@ -1,5 +1,5 @@
 "use client"
-/* eslint-disable react-doctor/click-events-have-key-events */;
+/* eslint-disable react-doctor/click-events-have-key-events */
 
 import React from 'react';
 import { Activity, Heart, Scale, Droplet, Thermometer, Moon } from 'lucide-react';
@@ -72,31 +72,37 @@ export function HealthMetricsCarousel({ metrics, isLoading, onMetricClick }: Hea
                 <div
                   key={`${metric.title}-${index}`}
                   onClick={() => onMetricClick && onMetricClick(metric.metricKey)}
-                  className={`border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#050505] p-5 flex flex-col justify-between min-h-[160px] transition-colors cursor-pointer group ${isEmpty ? 'opacity-60' : ''}`}
+                  // 1. HOVER DEL CONTENEDOR: Z-index relativo, fondo invertido, salto hacia arriba y sombra brutalista
+                  className={`group relative z-0 hover:z-10 cursor-pointer border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-5 flex flex-col justify-between min-h-[160px] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] ${isEmpty ? 'opacity-60' : ''}`}
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+                    {/* 2. ÍCONO: Inversión de bordes y relleno para contrastar */}
+                    <div className="w-10 h-10 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] transition-colors duration-300 shrink-0 group-hover:border-white dark:group-hover:border-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white">
                       <Icon className="w-4 h-4" strokeWidth={1.5} />
                     </div>
                     {metric.recommendedFrequency && (
-                      <span className="text-[8px] uppercase tracking-wider text-gray-400 bg-gray-100 dark:bg-gray-900 px-2 py-1">
+                      // 3. BADGE: Inversión de colores de fondo de la etiqueta de frecuencia
+                      <span className="text-[8px] uppercase tracking-wider text-gray-400 bg-gray-100 dark:bg-gray-900 px-2 py-1 transition-colors duration-300 group-hover:bg-gray-800 group-hover:text-gray-300 dark:group-hover:bg-gray-200 dark:group-hover:text-gray-700">
                         {metric.recommendedFrequency}
                       </span>
                     )}
                   </div>
                   
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1 truncate">
+                    {/* 4. TÍTULO: Gris oscuro cambia a gris claro en modo claro, y viceversa */}
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1 truncate transition-colors duration-300 group-hover:text-gray-300 dark:group-hover:text-gray-600">
                       {metric.title}
                     </p>
-                    <h4 className={`text-xl font-semibold tracking-tight truncate ${isEmpty ? 'text-gray-400 italic' : 'text-black dark:text-white'}`}>
+                    {/* 5. VALOR: El texto negro cambia a blanco (o maneja el estado vacío) */}
+                    <h4 className={`text-xl font-semibold tracking-tight truncate transition-colors duration-300 ${isEmpty ? 'text-gray-400 italic group-hover:text-gray-500 dark:group-hover:text-gray-400' : 'text-black dark:text-white group-hover:text-white dark:group-hover:text-black'}`}>
                       {isEmpty ? "Sin Registrar" : metric.value}
                     </h4>
-                    <p className="text-[9px] text-gray-400 dark:text-gray-600 font-light truncate mt-1">
+                    {/* 6. SUBTÍTULO: Transición sutil de grises */}
+                    <p className="text-[9px] text-gray-400 dark:text-gray-600 font-light truncate mt-1 transition-colors duration-300 group-hover:text-gray-500 dark:group-hover:text-gray-400">
                       {metric.subtitle}
                     </p>
                     {metric.lastUpdated && !isEmpty && (
-                      <p className="text-[8px] text-gray-400 mt-2 text-right">
+                      <p className="text-[8px] text-gray-400 mt-2 text-right transition-colors duration-300 group-hover:text-gray-500 dark:group-hover:text-gray-400">
                         Última act: {metric.lastUpdated}
                       </p>
                     )}

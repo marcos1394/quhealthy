@@ -3,11 +3,9 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { HealthScoreCard } from '@/components/dashboard/HealthScoreCard';
-import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { HealthScoreResponse } from '@/types/healthscore';
 import { QhSpinner } from '@/components/ui/QhSpinner';
-import { Card, CardContent } from '../ui/card';
 
 interface HealthScoreWidgetProps {
   scoreData: HealthScoreResponse | null;
@@ -18,52 +16,68 @@ interface HealthScoreWidgetProps {
 export function HealthScoreWidget({ scoreData, isLoading, onOpenOnboarding }: HealthScoreWidgetProps) {
   const t = useTranslations('PatientDashboard.Widget');
 
-  // 🔄 ESTADO 1: Cargando
+  // 🔄 ESTADO 1: Cargando (Skeletal Blueprint)
   if (isLoading) {
     return (
-      <div className="h-full min-h-[300px] flex flex-col justify-center items-center p-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-         <QhSpinner size="md" />
-         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4">
-           {t('loading')}
-         </p>
+      <div className="relative h-full min-h-[320px] w-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 flex flex-col items-center justify-center text-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#d1d5db_1px,transparent_1px)] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
+        
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-[#0a0a0a] mb-6">
+            <QhSpinner size="sm" />
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
+            {t('loading', { defaultValue: 'Sincronizando Telemetría...' })}
+          </p>
+        </div>
       </div>
     );
   }
 
-  // ✨ ESTADO 2: Sin datos (CTA Gamificado)
+  // ✨ ESTADO 2: Sin datos (Radar de Calibración Gamificado + Brutalismo)
   if (!scoreData) {
     return (
-      <Card className="h-full rounded-none bg-black dark:bg-white text-white dark:text-black border-0 shadow-none relative overflow-hidden group">
-        <CardContent className="p-8 md:p-10 flex flex-col h-full justify-center relative z-10">
-          <div className="w-12 h-12 border border-white dark:border-black flex items-center justify-center mb-6 bg-transparent">
-            <Sparkles className="w-5 h-5 text-white dark:text-black" strokeWidth={1.5} />
+      <div 
+        onClick={onOpenOnboarding}
+        className="group relative h-full min-h-[320px] w-full border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-8 md:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#000] dark:hover:shadow-[8px_8px_0_0_#fff] overflow-hidden z-0 hover:z-10"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-40 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+        <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border border-gray-400 dark:border-gray-500 scale-[1.5] opacity-0 transition-all duration-700 group-hover:animate-ping group-hover:opacity-30" style={{ animationDuration: '2s' }} />
+          
+          <div className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] transition-colors duration-300 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black relative z-10">
+            <Sparkles className="w-6 h-6" strokeWidth={1.5} />
           </div>
-          
-          <h3 className="text-2xl font-bold mb-4 tracking-tight">
-            {t('cta_title')}
+        </div>
+
+        <div className="relative z-10 space-y-4 mb-10">
+          <h3 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-black dark:text-white transition-colors">
+            {t('cta_title', { defaultValue: 'Algoritmo en Pausa' })}
           </h3>
-          
-          <p className="text-xs font-light mb-10 flex-1 leading-relaxed opacity-80">
-            {t('cta_desc')}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-[280px] mx-auto leading-relaxed transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-300">
+            {t('cta_desc', { defaultValue: 'Calibra tu expediente base para encender el motor de predicción y revelar tu QuScore.' })}
           </p>
-          
-          <Button
-            onClick={onOpenOnboarding}
-            className="w-full rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors"
-          >
-            {t('cta_button')}
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="mt-auto relative z-10">
+          <span className="inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-transparent group-hover:border-black dark:group-hover:border-white pb-1 transition-all">
+            {t('cta_button', { defaultValue: 'Iniciar Diagnóstico' })} 
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" strokeWidth={2} />
+          </span>
+        </div>
+      </div>
     );
   }
 
-  // 📊 ESTADO 3: Con Datos (Muestra la tarjeta real)
+  // 📊 ESTADO 3: Con Datos (Mandamos la info real, y el nombre de marca fijo)
+  // NOTA: Asumo que en el futuro agregarás un prop como `percentile={scoreData.percentile}`
   return (
     <HealthScoreCard 
       score={scoreData.quscore} 
       title="QuHealthScore™" 
-      subtitle={t('level', { band: scoreData.band })} 
+      subtitle={t('level', { band: scoreData.band })}
+      // percentile={scoreData.percentile} <-- Aquí mandaríamos el dato real
     />
   );
 }
