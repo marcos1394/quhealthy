@@ -4,7 +4,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShieldCheck, Star, UserCheck, Activity, FileText, ArrowRight } from "lucide-react";
+import { X, ShieldCheck, Star, UserCheck, Activity, FileText, ArrowRight, Zap } from "lucide-react";
 import { ProviderScoreResponse } from "@/types/providerScore";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -20,15 +20,18 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
 
   if (!scoreData) return null;
 
-  const getPillarIcon = (key: string) => {
-    switch (key) {
-      case 'P1': return <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />;
-      case 'P2': return <Star className="w-4 h-4" strokeWidth={1.5} />;
-      case 'P3': return <UserCheck className="w-4 h-4" strokeWidth={1.5} />;
-      case 'P4': return <Activity className="w-4 h-4" strokeWidth={1.5} />;
-      case 'P5': return <FileText className="w-4 h-4" strokeWidth={1.5} />;
-      default: return null;
-    }
+  // Hacemos el buscador de iconos inteligente leyendo la llave o el nombre
+  const getPillarIcon = (key: string, name: string) => {
+    const identifier = `${key} ${name}`.toUpperCase();
+    
+    if (identifier.includes('P1') || identifier.includes('SEGURIDAD') || identifier.includes('SECURITY')) return <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />;
+    if (identifier.includes('P2') || identifier.includes('FAVORITO') || identifier.includes('REPUTACIÓN')) return <Star className="w-4 h-4" strokeWidth={1.5} />;
+    if (identifier.includes('P3') || identifier.includes('PRESENCIA') || identifier.includes('DIGITAL')) return <Activity className="w-4 h-4" strokeWidth={1.5} />;
+    if (identifier.includes('P4') || identifier.includes('PACIENTE') || identifier.includes('USUARIO')) return <UserCheck className="w-4 h-4" strokeWidth={1.5} />;
+    if (identifier.includes('P5') || identifier.includes('TRANSPARENCIA') || identifier.includes('INFORMACIÓN')) return <FileText className="w-4 h-4" strokeWidth={1.5} />;
+    
+    // Fallback: Si el backend envía algo nuevo, mostramos este icono en lugar de "null"
+    return <Zap className="w-4 h-4" strokeWidth={1.5} />;
   };
 
   const getStatusFill = (status: string) => {
@@ -43,7 +46,8 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+        // Aumentamos el z-index a 999 para sobreescribir cualquier Navbar
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 md:p-10">
           
           {/* OVERLAY TÉCNICO */}
           <motion.div
@@ -98,17 +102,19 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
 
               <div className="space-y-5 sm:space-y-6">
                 {Object.entries(scoreData.breakdown).map(([key, pillar]) => (
-                  <div key={key} className="flex flex-col gap-2.5 sm:gap-3">
+                  // Agregamos la clase "group" para el hover y cursor-default para indicar interacción
+                  <div key={key} className="flex flex-col gap-2.5 sm:gap-3 group cursor-default">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-                          {getPillarIcon(key)}
+                        {/* El icono reacciona al hover del contenedor padre */}
+                        <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 transition-colors duration-300 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
+                          {getPillarIcon(key, pillar.name)}
                         </div>
                         <div className="pt-0.5">
                           <h4 className="font-bold text-[10px] uppercase tracking-widest text-black dark:text-white mb-1">
                             {pillar.name}
                           </h4>
-                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[180px] sm:max-w-[220px] leading-relaxed">
+                          <p className="text-[9px] uppercase tracking-widest text-gray-500 max-w-[180px] sm:max-w-[220px] leading-relaxed transition-colors duration-300 group-hover:text-black dark:group-hover:text-gray-300">
                             {pillar.tooltip}
                           </p>
                         </div>

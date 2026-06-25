@@ -191,12 +191,28 @@ export default function PublicStorePage() {
                 {store.bio || t('default_bio', { defaultValue: 'PERFIL PROFESIONAL NO DETALLADO.' })}
               </p>
 
-              {/* Tags Técnicos */}
+              {/* Tags Técnicos / Amenidades */}
               {store.tags && store.tags.length > 0 && (
                 <div className="mt-6 flex flex-wrap gap-2 max-w-3xl">
                   {store.tags.map((tag, idx) => (
-                    <span key={idx} className="bg-gray-100 dark:bg-[#111] text-gray-600 dark:text-gray-400 text-[9px] font-bold uppercase tracking-widest px-2 py-1 flex items-center gap-1.5 border border-gray-200 dark:border-gray-800">
-                      <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+                    <span 
+                      key={idx} 
+                      className={cn(
+                        "group cursor-default bg-transparent text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 flex items-center gap-1.5 border border-gray-200 dark:border-gray-800 transition-colors duration-300",
+                        hasValidPrimaryColor 
+                          ? "hover:border-[var(--brand-color)] hover:text-[var(--brand-color)]" 
+                          : "hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white"
+                      )}
+                      style={hasValidPrimaryColor ? { '--brand-color': safePrimaryColor } as React.CSSProperties : {}}
+                    >
+                      <CheckCircle2 
+                        className={cn(
+                          "w-3 h-3 transition-colors duration-300",
+                          !hasValidPrimaryColor && "text-gray-400 group-hover:text-black dark:group-hover:text-white"
+                        )} 
+                        strokeWidth={1.5} 
+                        style={hasValidPrimaryColor ? { color: safePrimaryColor } : {}}
+                      />
                       {tag}
                     </span>
                   ))}

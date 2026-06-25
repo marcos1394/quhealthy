@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { QrCode } from 'lucide-react';
+import { QhSpinner } from '@/components/ui/QhSpinner';
 
 interface Props {
   t: any;
@@ -10,33 +10,28 @@ interface Props {
 }
 
 export function QrCodeCard({ t, qrCodeUrl }: Props) {
-  if (!qrCodeUrl) return null;
-
   return (
-    <div className="mb-12 border border-black dark:border-white p-6 md:p-10 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center">
-          <QrCode className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] mb-12 flex flex-col">
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-6 text-center">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center justify-center gap-2 mb-2">
+          <QrCode className="w-4 h-4" strokeWidth={1.5} /> {t('qr_label', { defaultValue: 'Credencial Criptográfica' })}
+        </h2>
+        <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+          {t('tip_arrive', { defaultValue: 'PRESENTAR EN RECEPCIÓN AL ARRIBAR A LAS INSTALACIONES.' })}
+        </p>
+      </div>
+      <div className="p-8 flex items-center justify-center bg-white">
+        <div className="p-4 border border-black shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+          {qrCodeUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={qrCodeUrl} alt={t('qr_label')} className="w-48 h-48 object-contain mix-blend-multiply" />
+          ) : (
+            <div className="w-48 h-48 flex items-center justify-center bg-gray-50">
+              <QhSpinner size="md" />
+            </div>
+          )}
         </div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
-          {t('qr_code_title', { defaultValue: 'Código de Acceso' })}
-        </h3>
       </div>
-      
-      <div className="bg-white p-4 border border-gray-200 shadow-sm">
-        <Image 
-          src={qrCodeUrl} 
-          alt="QR Code" 
-          width={200} 
-          height={200}
-          className="w-48 h-48 object-contain"
-          unoptimized
-        />
-      </div>
-      
-      <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-6 max-w-sm leading-relaxed">
-        {t('qr_code_desc', { defaultValue: 'Presenta este código en recepción para agilizar tu ingreso de manera segura.' })}
-      </p>
     </div>
   );
 }
