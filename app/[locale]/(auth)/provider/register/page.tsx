@@ -439,12 +439,12 @@ export default function ProviderSignupPage() {
                     processSignup(token); 
                   }
                 }}
-                onError={() => {
-                  toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
-                  setLoading(false);
-                  // ✅ CAMBIO 2B: Cerrar el candado en caso de error de captcha
-                  isIntentionalSubmitRef.current = false;
-                }}
+                onError={(errorCode) => {
+  console.error("Turnstile error code:", errorCode);
+  toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+  setLoading(false);
+  isIntentionalSubmitRef.current = false;
+}}
                 options={{ 
                   theme: 'auto', 
                   size: 'invisible',
