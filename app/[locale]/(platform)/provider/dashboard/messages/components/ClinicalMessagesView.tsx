@@ -46,7 +46,6 @@ export function ClinicalMessagesView() {
         }
     }, [messages, isTyping]);
 
-    // Handlers de UI para futuras fases
     const handleVoiceCall = () => toast.info(t('toast_voice', { defaultValue: 'CANAL DE VOZ DESHABILITADO.' }));
     const handleVideoCall = () => toast.info(t('toast_video', { defaultValue: 'CANAL DE VIDEO DESHABILITADO.' }));
     const handleBackToInbox = () => setSelectedConversation(null);
@@ -54,7 +53,7 @@ export function ClinicalMessagesView() {
     // 1. Pantalla de Carga Inicial
     if (isLoading) {
         return (
-            <div className="flex flex-col justify-center items-center h-full min-h-[50vh] bg-white dark:bg-[#0a0a0a]">
+            <div className="flex flex-col justify-center items-center flex-1 bg-white dark:bg-[#0a0a0a]">
                 <QhSpinner size="lg" className="text-black dark:text-white" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
                     {t('loading', { defaultValue: 'DESENCRIPTANDO BÓVEDA DE MENSAJES...' })}
@@ -65,7 +64,8 @@ export function ClinicalMessagesView() {
 
     // 2. Render Principal
     return (
-        <div className="bg-white dark:bg-[#0a0a0a] font-sans flex flex-col w-full h-full">
+        // 1. Utilizamos flex-1 min-h-0 en lugar de w-full h-full para amoldarse al TabContent
+        <div className="bg-white dark:bg-[#0a0a0a] font-sans flex flex-col flex-1 min-h-0 overflow-hidden">
             
             {/* Título de la Sección (Oculto en móvil cuando hay un chat abierto) */}
             <div className={cn(
@@ -88,6 +88,7 @@ export function ClinicalMessagesView() {
             </div>
 
             {/* Contenedor Principal del Chat (Grid) */}
+            {/* 2. Flex-1 y min-h-0 evitan que los hijos rompan el contenedor */}
             <div className="flex-1 flex min-h-0 relative bg-white dark:bg-[#0a0a0a]">
                 
                 {/* Alerta de Desconexión */}
@@ -100,21 +101,24 @@ export function ClinicalMessagesView() {
 
                 {/* Columna Izquierda: Barra Lateral (Inbox) */}
                 <div className={cn(
-                    "h-full border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] transition-all duration-300",
-                    selectedConversation ? "hidden md:block w-80 lg:w-96 shrink-0" : "w-full"
+                    "flex flex-col min-h-0 border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] transition-all duration-300",
+                    selectedConversation ? "hidden md:flex md:w-80 lg:w-96 shrink-0" : "flex w-full"
                 )}>
-                    <ChatSidebar 
-                        conversations={conversations}
-                        selectedId={selectedConversation?.id}
-                        onSelect={setSelectedConversation}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                    />
+                    {/* Nos aseguramos que ChatSidebar controle su propio scroll y no se desborde */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar">
+                        <ChatSidebar 
+                            conversations={conversations}
+                            selectedId={selectedConversation?.id}
+                            onSelect={setSelectedConversation}
+                            searchQuery={searchQuery}
+                            onSearchChange={setSearchQuery}
+                        />
+                    </div>
                 </div>
 
                 {/* Columna Derecha: Área de Mensajes */}
                 <div className={cn(
-                    "flex-1 flex flex-col h-full bg-gray-50 dark:bg-[#050505] relative",
+                    "flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-[#050505] relative",
                     !selectedConversation ? "hidden md:flex" : "flex w-full"
                 )}>
                     {selectedConversation ? (
@@ -128,6 +132,7 @@ export function ClinicalMessagesView() {
                             />
 
                             {/* Lista de Mensajes (Scrollable) */}
+                            {/* 3. Aseguramos que la lista tenga overflow-y-auto y el input esté siempre pegado abajo */}
                             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar">
                                 
                                 {/* Disclaimer de Privacidad */}
@@ -159,10 +164,12 @@ export function ClinicalMessagesView() {
                             </div>
 
                             {/* Formulario Input */}
-                            <ChatInput 
-                                onSendMessage={(content) => sendMessage(content)}
-                                onTyping={sendTypingEvent}
-                            />
+                            <div className="shrink-0">
+                                <ChatInput 
+                                    onSendMessage={(content) => sendMessage(content)}
+                                    onTyping={sendTypingEvent}
+                                />
+                            </div>
                         </>
                     ) : (
                         /* Estado Empty cuando no hay chat seleccionado */

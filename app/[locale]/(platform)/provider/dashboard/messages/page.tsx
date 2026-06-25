@@ -12,7 +12,8 @@ export default function ProviderMessagesPage() {
   const t = useTranslations("DashboardMessages");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] w-full bg-gray-50 dark:bg-[#050505] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors">
+    // 1. Añadimos overflow-hidden para evitar que la página entera haga scroll
+    <div className="flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] w-full bg-gray-50 dark:bg-[#050505] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors overflow-hidden">
       
       {/* HEADER ARQUITECTÓNICO */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-6 pt-6 pb-6 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
@@ -55,12 +56,13 @@ export default function ProviderMessagesPage() {
           </TabsTrigger>
         </TabsList>
         
-        {/* Contenedores de Vistas */}
-        <TabsContent value="clinical" className="flex-1 min-h-0 mt-0 outline-none flex flex-col bg-white dark:bg-[#0a0a0a]">
+        {/* 2. EL FIX PRINCIPAL: data-[state=active]:flex flex-col flex-1 min-h-0 overflow-hidden */}
+        {/* Esto asegura que cuando la pestaña está activa, actúe como un flex rígido que no se desborda */}
+        <TabsContent value="clinical" className="flex-1 min-h-0 mt-0 outline-none data-[state=active]:flex flex-col overflow-hidden bg-white dark:bg-[#0a0a0a]">
           <ClinicalMessagesView />
         </TabsContent>
         
-        <TabsContent value="social" className="flex-1 min-h-0 mt-0 outline-none flex flex-col bg-white dark:bg-[#0a0a0a]">
+        <TabsContent value="social" className="flex-1 min-h-0 mt-0 outline-none data-[state=active]:flex flex-col overflow-hidden bg-white dark:bg-[#0a0a0a]">
           <SocialMessagesView />
         </TabsContent>
 
