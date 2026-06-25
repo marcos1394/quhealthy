@@ -1,5 +1,5 @@
 "use client"
-/* eslint-disable react-doctor/click-events-have-key-events */;
+/* eslint-disable react-doctor/click-events-have-key-events */
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -68,20 +68,27 @@ export function QuickAccessCards() {
           <div
             key={card.id}
             onClick={() => router.push(card.href)}
-            className="group cursor-pointer border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 flex flex-col justify-between min-h-[220px] transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]"
+            // 1. APLICAMOS EL HOVER AL CONTENEDOR PADRE: Fondo, elevación, sombra sólida y z-index relativo
+            className="group relative z-0 hover:z-10 cursor-pointer border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff]"
           >
             <div className="flex items-start justify-between mb-8">
-              <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors shrink-0">
+              {/* 2. INVERSIÓN DEL CONTENEDOR DEL ICONO: Para contrastar con la tarjeta que ahora será negra/blanca */}
+              <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] transition-colors duration-300 shrink-0 group-hover:border-white dark:group-hover:border-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white">
                 <card.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
-              <ArrowRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-black dark:group-hover:text-white transition-colors" strokeWidth={1.5} />
+              
+              {/* 3. ICONO DE FLECHA */}
+              <ArrowRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-white dark:group-hover:text-black transition-colors duration-300" strokeWidth={1.5} />
             </div>
             
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+              {/* 4. TÍTULO: Pasa de negro a blanco al hacer hover */}
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2 transition-colors duration-300 group-hover:text-white dark:group-hover:text-black">
                 {card.title}
               </h3>
-              <p className="text-xs text-gray-500 font-light leading-relaxed">
+              
+              {/* 5. DESCRIPCIÓN: Pasa de un gris medio a un gris claro/oscuro para no perderse en el nuevo fondo */}
+              <p className="text-xs text-gray-500 font-light leading-relaxed transition-colors duration-300 group-hover:text-gray-300 dark:group-hover:text-gray-600">
                 {card.desc}
               </p>
             </div>

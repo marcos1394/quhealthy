@@ -18,7 +18,7 @@ interface QuScoreModalProps {
 export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, scoreData }) => {
   const router = useRouter();
 
-  // 1. BLOQUEO DE SCROLL: Evita que la página de fondo se mueva al usar el modal en laptop
+  // 1. BLOQUEO DE SCROLL
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -54,7 +54,6 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
   return (
     <AnimatePresence>
       {isOpen && (
-        // 2. CORRECCIÓN DE ANIMACIÓN PADRE: El contenedor principal DEBE ser motion para que no se corte al cerrar
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -74,8 +73,8 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            // 4. ANCHO PROPORCIONAL: Pasamos de max-w-lg a sm:max-w-xl para mejor lectura en escritorio
-            className="relative w-full max-w-[90vw] sm:max-w-xl bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col max-h-[85vh] sm:max-h-[90vh] z-10"
+            // Redujimos drásticamente la altura máxima a 70vh/75vh para evitar colisiones con el Navbar
+            className="relative w-full max-w-[90vw] sm:max-w-xl bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col max-h-[70vh] sm:max-h-[75vh] z-10"
           >
             {/* HEADER */}
             <div className="relative border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black p-5 sm:p-6 md:p-8 flex items-end justify-between flex-shrink-0">
@@ -101,7 +100,6 @@ export const QuScoreModal: React.FC<QuScoreModalProps> = ({ isOpen, onClose, sco
             </div>
 
             {/* BODY */}
-            {/* 3. COLAPSO FLEXBOX: min-h-0 previene que el div desborde la pantalla en Safari/Desktop */}
             <div className="p-5 sm:p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 min-h-0 bg-white dark:bg-[#0a0a0a]">
               
               {scoreData.isNewProvider && (
