@@ -205,11 +205,15 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
             processResendCode(token);
           }
         }}
-        onError={() => {
+        onError={(errorCode) => {
+          console.error("Turnstile error code:", errorCode);
           setError("Error al validar la seguridad del reenvío.");
           setIsResending(false);
           // ✅ CAMBIO 4B: Cerrar el candado en caso de error
+        // ✅ CAMBIO 4B: Cerrar candado por error de red
           isIntentionalSubmitRef.current = false;
+           isIntentionalSubmitRef.current = false;
+  turnstileRef.current?.reset();
         }}
         options={{ 
           theme: 'auto', 

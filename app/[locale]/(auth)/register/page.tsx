@@ -54,6 +54,8 @@ export default function ConsumerSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+  
   
   // 🚀 Estado local para controlar el bloqueo del botón mientras el captcha piensa
   const [isVerifying, setIsVerifying] = useState(false);
@@ -451,12 +453,13 @@ export default function ConsumerSignupPage() {
                     processSignup(token); 
                   }
                 }}
-                onError={() => {
-                  setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
-                  setIsVerifying(false);
-                  // ✅ CAMBIO 3B: Cerrar el candado en caso de error de red
-                  isIntentionalSubmitRef.current = false; 
-                }}
+                onError={(errorCode) => {
+  console.error("Turnstile error code:", errorCode);
+  toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+  setLoading(false);
+  isIntentionalSubmitRef.current = false;
+  turnstileRef.current?.reset();
+}}
                 options={{ 
                   theme: 'auto', 
                   size: 'invisible',

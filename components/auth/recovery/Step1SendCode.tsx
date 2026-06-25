@@ -143,11 +143,16 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
             processSendCode(token); 
           }
         }}
-        onError={() => {
+       
+        onError={(errorCode) => {
+          console.error("Turnstile error code:", errorCode);
+
           setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
           setIsVerifying(false);
           // ✅ CAMBIO 4B: Cerrar candado por error de red
           isIntentionalSubmitRef.current = false;
+           isIntentionalSubmitRef.current = false;
+  turnstileRef.current?.reset();
         }}
         options={{ 
           theme: 'auto', 

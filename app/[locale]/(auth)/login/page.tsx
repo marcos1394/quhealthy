@@ -423,10 +423,12 @@ export default function LoginPage() {
                     processLogin(token);
                   }
                 }}
-                onError={() => {
-                  setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
-                  setLoading(false);
-                  isIntentionalSubmitRef.current = false;
+                onError={(errorCode) => {
+                  console.error("Turnstile error code:", errorCode);
+  toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+  setLoading(false);
+  isIntentionalSubmitRef.current = false;
+  turnstileRef.current?.reset();
                 }}
                 options={{ 
                   theme: 'auto', 
