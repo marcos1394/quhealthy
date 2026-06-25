@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/no-giant-component */;
 /* eslint-disable react-doctor/prefer-useReducer */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -51,7 +51,10 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
+  const turnstileRef = useRef<any>(null);
 
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
 
@@ -61,13 +64,11 @@ export default function LoginPage() {
     rememberMe: false
   });
 
-  // 🛡️ ENTERPRISE: Detectar sesión expirada y limpiar cookies residuales
   useEffect(() => {
     const expired = searchParams.get('expired');
     if (expired === 'true') {
       setSessionExpired(true);
       nukeCookies();
-      // Limpiar el param de la URL sin recargar
       const url = new URL(window.location.href);
       url.searchParams.delete('expired');
       window.history.replaceState({}, '', url.pathname);
@@ -89,9 +90,11 @@ export default function LoginPage() {
     setError("");
   };
 
+  // 🚀 FIX: Quitamos la validación de !!captchaToken, ya que el token 
+  // se generará DESPUÉS de hacer clic en enviar.
   const isFormValid = (): boolean => {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    return isEmailValid && formData.password.length >= 6 && !!captchaToken;
+    return isEmailValid && formData.password.length >= 6;
   };
 
   const handleAuthNavigation = async (response: AuthResponse) => {
@@ -108,10 +111,9 @@ export default function LoginPage() {
       }
     } else if (role === 'CONSUMER') {
       try {
-        // Debemos esperar el endpoint del consumer profile para saber su step real
         const profile: any = await consumerProfileService.getProfile();
         const step = profile?.onboardingStep || 0;
-        const stepsLength = 8; // El número de pasos del onboarding (STEPS.length en ConsumerOnboardingWizard)
+        const stepsLength = 8;
         
         if (step >= stepsLength) {
           router.push("/patient/dashboard");
@@ -119,7 +121,6 @@ export default function LoginPage() {
           router.push("/onboarding/patient");
         }
       } catch (err) {
-        // Fallback en caso de error (ej: no se ha creado el perfil base)
         router.push("/onboarding/patient");
       }
     } else {
@@ -127,22 +128,13 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isFormValid()) {
-      setError("Por favor ingresa un email y contraseña válidos");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
+  // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
+  const processLogin = async (token: string) => {
     try {
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
-        captchaToken: captchaToken
+        captchaToken: token
       });
 
       toast.success(t('title'));
@@ -158,9 +150,29 @@ export default function LoginPage() {
         setError(errorMessage);
       }
       handleApiError(err);
-    } finally {
+      
+      // 🚀 IMPORTANTE: Si el login falla, reseteamos el captcha para el siguiente intento
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
       setLoading(false);
     }
+  };
+
+  // 🚀 MODIFICADO: Ahora el botón solo arranca la carga y dispara el Captcha
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isFormValid()) {
+      setError("Por favor ingresa un email y contraseña válidos");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    // Ejecutamos el captcha de Cloudflare. 
+    // Cuando termine, llamará automáticamente a onSuccess y ejecutará processLogin()
+    turnstileRef.current?.execute();
   };
 
   const benefits = userType === "consumer"
@@ -175,9 +187,8 @@ export default function LoginPage() {
 
         {/* Left Panel - Editorial Image (Hidden on Mobile) */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <motion.img
-            key={userType} // Fuerza a que la imagen se re-anime al cambiar de tab
+            key={userType}
             initial={{ opacity: 0.5, scale: 1.05 }}
             animate={{ opacity: 0.9, scale: 1 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -206,7 +217,6 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Bloque de Información Segura (Arquitectónico a corte vivo, homologado con recovery) */}
             <div className="border-t border-white/20 pt-8 w-full max-w-md">
               <div className="flex items-start gap-5">
                 <Shield className="w-6 h-6 text-white mt-0.5 opacity-80" strokeWidth={1.5} />
@@ -402,10 +412,18 @@ export default function LoginPage() {
                 </label>
               </div>
 
-              {/* Turnstile Invisible Captcha */}
+              {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processLogin */}
               <Turnstile
+                ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-                onSuccess={(token) => setCaptchaToken(token)}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  processLogin(token); // Ejecutamos el login real
+                }}
+                onError={() => {
+                  setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
+                  setLoading(false);
+                }}
                 options={{ theme: 'auto', size: 'invisible' }}
               />
 

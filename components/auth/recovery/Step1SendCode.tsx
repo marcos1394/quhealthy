@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -22,24 +22,50 @@ interface Props {
 export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeliveryMethod, onSuccess }: Props) {
   const t = useTranslations('AuthForgotPassword');
   const { sendRecoveryCode } = useAuth();
+  
   const [loading, setLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
+  
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
+  const turnstileRef = useRef<any>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); setError("");
-
+  // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
+  const processSendCode = async (token: string) => {
     try {
-      await sendRecoveryCode({ email, deliveryMethod, captchaToken });
+      // Usamos el loading de la API para mostrar el spinner
+      setLoading(true); 
+      
+      await sendRecoveryCode({ email, deliveryMethod, captchaToken: token });
+      
       toast.success(t('code_sent_title'));
       onSuccess();
     } catch (err: any) {
       setError(err.message || "Error al enviar el código");
+      
+      // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     } finally {
       setLoading(false);
+      setIsVerifying(false);
     }
   };
+
+  // 🚀 MODIFICADO: Solo arranca la verificación y dispara el Captcha
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsVerifying(true); 
+    setError("");
+
+    // Ejecutamos el captcha invisible
+    turnstileRef.current?.execute();
+  };
+
+  const isProcessing = loading || isVerifying;
 
   return (
     <motion.form 
@@ -98,19 +124,27 @@ export default function Step1SendCode({ email, setEmail, deliveryMethod, setDeli
         </Alert>
       )}
 
-      {/* Turnstile Invisible Captcha */}
+      {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processSendCode */}
       <Turnstile
+        ref={turnstileRef}
         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-        onSuccess={(token) => setCaptchaToken(token)}
+        onSuccess={(token) => {
+          setCaptchaToken(token);
+          processSendCode(token); // Ejecutamos el envío real
+        }}
+        onError={() => {
+          setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
+          setIsVerifying(false);
+        }}
         options={{ theme: 'auto', size: 'invisible' }}
       />
 
       <Button
         type="submit"
-        disabled={loading || !email || !captchaToken}
+        disabled={isProcessing || !email}
         className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn mt-8"
       >
-        {loading ? (
+        {isProcessing ? (
           <span className="flex items-center"><Loader2 className="animate-spin mr-3 w-4 h-4" />{t('sending')}</span>
         ) : (
           <>

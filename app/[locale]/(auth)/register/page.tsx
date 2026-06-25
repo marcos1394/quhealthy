@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/no-giant-component */;
 /* eslint-disable react-doctor/prefer-useReducer */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,11 +49,18 @@ export default function ConsumerSignupPage() {
   const router = useRouter();
   const t = useTranslations('AuthSignupConsumer');
   const { registerConsumer, loading: authLoading } = useAuth();
+  
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  
+  // 🚀 Estado local para controlar el bloqueo del botón mientras el captcha piensa
+  const [isVerifying, setIsVerifying] = useState(false);
+  
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
+  const turnstileRef = useRef<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -92,6 +99,7 @@ export default function ConsumerSignupPage() {
     );
   }, [formData.password]);
 
+  // 🚀 FIX: Quitamos la validación de captchaToken
   const isFormValid = (): boolean => {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     const passwordsMatch = formData.password === formData.confirmPassword;
@@ -102,18 +110,12 @@ export default function ConsumerSignupPage() {
       isEmailValid &&
       allPasswordRulesValid &&
       passwordsMatch &&
-      formData.acceptTerms &&
-      captchaToken
+      formData.acceptTerms
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!isFormValid()) {
-      return;
-    }
-
+  // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
+  const processSignup = async (token: string) => {
     try {
       const nameParts = formData.name.trim().split(' ');
       const firstName = nameParts[0];
@@ -127,7 +129,7 @@ export default function ConsumerSignupPage() {
         phone: formData.phone ? formData.phone.trim() : undefined,
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
-        captchaToken: captchaToken,
+        captchaToken: token, // Usamos el token validado
         utmSource: "web_direct",
         utmMedium: "organic"
       };
@@ -146,7 +148,27 @@ export default function ConsumerSignupPage() {
       const errorMessage = err.message || "Error al crear la cuenta de paciente";
       setError(errorMessage);
       handleApiError(err);
+      
+      // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
+      setIsVerifying(false);
     }
+  };
+
+  // 🚀 MODIFICADO: Solo arranca la verificación y dispara el Captcha
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!isFormValid()) {
+      return;
+    }
+
+    setIsVerifying(true);
+    setError("");
+    
+    // Ejecutamos el captcha invisible
+    turnstileRef.current?.execute();
   };
 
   const rulesMessages = [
@@ -156,6 +178,9 @@ export default function ConsumerSignupPage() {
   ];
 
   const benefits = [t('benefits.0'), t('benefits.1'), t('benefits.2')];
+
+  // Indicador combinado de carga
+  const isProcessing = authLoading || isVerifying;
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
@@ -411,20 +436,28 @@ export default function ConsumerSignupPage() {
                 </div>
               </div>
 
-              {/* Turnstile Invisible Captcha */}
+              {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processSignup */}
               <Turnstile
+                ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-                onSuccess={(token) => setCaptchaToken(token)}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  processSignup(token); // Ejecutamos el registro real
+                }}
+                onError={() => {
+                  setError("Error al validar la seguridad. Por favor, intenta de nuevo.");
+                  setIsVerifying(false);
+                }}
                 options={{ theme: 'auto', size: 'invisible' }}
               />
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={!isFormValid() || authLoading}
+                disabled={!isFormValid() || isProcessing}
                 className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-xl transition-all mt-4"
               >
-                {authLoading ? (
+                {isProcessing ? (
                   <>
                     <Loader2 className="animate-spin mr-2 w-5 h-5" />
                     {t('loading')}

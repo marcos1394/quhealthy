@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/no-giant-component */;
 /* eslint-disable react-doctor/prefer-useReducer */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,7 +59,10 @@ export default function ProviderSignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  
   const [captchaToken, setCaptchaToken] = useState<string>("");
+  // 🚀 REFERENCIA PARA CONTROLAR EL CAPTCHA INVISIBLE
+  const turnstileRef = useRef<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -91,6 +94,7 @@ export default function ProviderSignupPage() {
     );
   }, [formData.password]);
 
+  // 🚀 FIX: Quitamos la validación de !!captchaToken
   const isFormValid = (): boolean => {
     const isNameValid = formData.name.trim().length >= 2;
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
@@ -100,7 +104,7 @@ export default function ProviderSignupPage() {
       formData.confirmPassword.length > 0;
     const areTermsAccepted = formData.acceptTerms;
 
-    return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted && !!captchaToken;
+    return isNameValid && isEmailValid && isPasswordValid && areTermsAccepted;
   };
 
   const handleSocialSuccess = (res: any) => {
@@ -115,12 +119,8 @@ export default function ProviderSignupPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid()) return;
-
-    setLoading(true);
-
+  // 🚀 NUEVA FUNCIÓN: Se ejecuta SÓLO cuando Turnstile nos devuelve el token válido
+  const processSignup = async (token: string) => {
     try {
       const nameParts = formData.name.trim().split(' ');
       const signupData: RegisterProviderRequest = {
@@ -130,7 +130,7 @@ export default function ProviderSignupPage() {
         password: formData.password,
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
-        captchaToken: captchaToken
+        captchaToken: token // Usamos el token validado
       };
 
       const res = await registerProvider(signupData);
@@ -146,7 +146,22 @@ export default function ProviderSignupPage() {
       setLoading(false);
       console.error("Error en registro:", err);
       handleApiError(err);
+      
+      // 🚀 IMPORTANTE: Reseteamos el captcha en caso de error (ej: email ya registrado)
+      turnstileRef.current?.reset();
+      setCaptchaToken("");
     }
+  };
+
+  // 🚀 MODIFICADO: Solo arranca la carga y dispara el Captcha
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid()) return;
+
+    setLoading(true);
+    
+    // Ejecutamos el captcha invisible
+    turnstileRef.current?.execute();
   };
 
   const rulesMessages = [
@@ -409,10 +424,18 @@ export default function ProviderSignupPage() {
                 )}
               </AnimatePresence>
 
-              {/* Turnstile Invisible Captcha */}
+              {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processSignup */}
               <Turnstile
+                ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-                onSuccess={(token) => setCaptchaToken(token)}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  processSignup(token); // Ejecutamos el registro real
+                }}
+                onError={() => {
+                  toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+                  setLoading(false);
+                }}
                 options={{ theme: 'auto', size: 'invisible' }}
               />
 

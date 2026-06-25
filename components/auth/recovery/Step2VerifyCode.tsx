@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/no-autofocus */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -23,29 +23,32 @@ interface Props {
 export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGoBack }: Props) {
   const t = useTranslations('AuthForgotPassword');
   const { verifyRecoveryCode, sendRecoveryCode } = useAuth();
-    const [{ code, loading, error, codeTimer, canResend }, dispatch] = React.useReducer(
-      (state: any, action: any) => {
-        switch (action.type) {
-      case 'SET_CODE': return { ...state, code: typeof action.payload === 'function' ? action.payload(state.code) : action.payload };
-      case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
-      case 'SET_ERROR': return { ...state, error: typeof action.payload === 'function' ? action.payload(state.error) : action.payload };
-      case 'SET_CODETIMER': return { ...state, codeTimer: typeof action.payload === 'function' ? action.payload(state.codeTimer) : action.payload };
-      case 'SET_CANRESEND': return { ...state, canResend: typeof action.payload === 'function' ? action.payload(state.canResend) : action.payload };
-          default: return state;
-        }
-      },
-      {
-        code: "", loading: false, error: "", codeTimer: 300, canResend: false
+  
+  const [{ code, loading, error, codeTimer, canResend }, dispatch] = React.useReducer(
+    (state: any, action: any) => {
+      switch (action.type) {
+        case 'SET_CODE': return { ...state, code: typeof action.payload === 'function' ? action.payload(state.code) : action.payload };
+        case 'SET_LOADING': return { ...state, loading: typeof action.payload === 'function' ? action.payload(state.loading) : action.payload };
+        case 'SET_ERROR': return { ...state, error: typeof action.payload === 'function' ? action.payload(state.error) : action.payload };
+        case 'SET_CODETIMER': return { ...state, codeTimer: typeof action.payload === 'function' ? action.payload(state.codeTimer) : action.payload };
+        case 'SET_CANRESEND': return { ...state, canResend: typeof action.payload === 'function' ? action.payload(state.canResend) : action.payload };
+        default: return state;
       }
-    );
+    },
+    {
+      code: "", loading: false, error: "", codeTimer: 300, canResend: false
+    }
+  );
 
-    const setCode = (val: any) => dispatch({ type: 'SET_CODE', payload: val });
-    const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
-    const setError = (val: any) => dispatch({ type: 'SET_ERROR', payload: val });
-    const setCodeTimer = (val: any) => dispatch({ type: 'SET_CODETIMER', payload: val });
-    const setCanResend = (val: any) => dispatch({ type: 'SET_CANRESEND', payload: val });
+  const setCode = (val: any) => dispatch({ type: 'SET_CODE', payload: val });
+  const setLoading = (val: any) => dispatch({ type: 'SET_LOADING', payload: val });
+  const setError = (val: any) => dispatch({ type: 'SET_ERROR', payload: val });
+  const setCodeTimer = (val: any) => dispatch({ type: 'SET_CODETIMER', payload: val });
+  const setCanResend = (val: any) => dispatch({ type: 'SET_CANRESEND', payload: val });
 
-    const [captchaToken, setCaptchaToken] = useState<string>("");
+  // 🚀 REFERENCIA Y ESTADO PARA EL REENVÍO
+  const turnstileRef = useRef<any>(null);
+  const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
     if (codeTimer > 0) {
@@ -56,18 +59,36 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
     }
   }, [codeTimer]);
 
-  const handleResendCode = async () => {
-    setCanResend(false); setCodeTimer(300); setLoading(true); setError("");
+  // 🚀 NUEVA FUNCIÓN: Solo se ejecuta cuando Turnstile nos da el token
+  const processResendCode = async (token: string) => {
+    setCanResend(false); 
+    setCodeTimer(300); 
+    setLoading(true); 
+    setError("");
+    
     try {
-      await sendRecoveryCode({ email, deliveryMethod, captchaToken });
+      await sendRecoveryCode({ email, deliveryMethod, captchaToken: token });
       toast.success(t('code_sent_title'));
     } catch (err: any) {
       setError(err.message);
+      // Si falla, permitimos que reintente inmediatamente sin esperar 5 min
+      setCanResend(true);
+      setCodeTimer(0);
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
+      setIsResending(false);
     }
   };
 
+  // 🚀 DISPARADOR DEL CAPTCHA (Al hacer clic en reenviar)
+  const handleResendClick = () => {
+    setIsResending(true);
+    setError("");
+    turnstileRef.current?.execute();
+  };
+
+  // El submit normal (Verificar) no usa Captcha, ya que el OTP de 6 dígitos es el secreto
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (code.length !== 6) {
@@ -141,9 +162,15 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
         <div className="flex items-center justify-between pt-2">
           <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">{t('code_hint')}</p>
           
+          {/* 🚀 FIX: Modificamos el botón para disparar handleResendClick */}
           {canResend ? (
-            <button type="button" onClick={handleResendCode} className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:underline underline-offset-4 transition-all">
-              {t('resend_code_button')}
+            <button 
+              type="button" 
+              onClick={handleResendClick} 
+              disabled={isResending}
+              className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:underline underline-offset-4 transition-all disabled:opacity-50"
+            >
+              {isResending ? t('sending') : t('resend_code_button')}
             </button>
           ) : (
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 dark:text-gray-700">
@@ -159,13 +186,25 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
         </Alert>
       )}
 
+      {/* 🚀 FIX: Turnstile conectado a la ref y llamando a processResendCode */}
+      <Turnstile
+        ref={turnstileRef}
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+        onSuccess={(token) => processResendCode(token)}
+        onError={() => {
+          setError("Error al validar la seguridad del reenvío.");
+          setIsResending(false);
+        }}
+        options={{ theme: 'auto', size: 'invisible' }}
+      />
+
       <div className="pt-4 space-y-4">
         <Button 
           type="submit" 
-          disabled={loading || code.length !== 6} 
+          disabled={loading || code.length !== 6 || isResending} 
           className="w-full flex items-center justify-between bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-14 px-6 text-xs font-bold uppercase tracking-widest transition-all group/btn"
         >
-          {loading ? (
+          {loading && !isResending ? (
             <span className="flex items-center"><Loader2 className="animate-spin mr-3 w-4 h-4" />{t('verifying')}</span>
           ) : (
             <>
@@ -178,7 +217,8 @@ export default function Step2VerifyCode({ email, deliveryMethod, onSuccess, onGo
         <button 
           type="button" 
           onClick={onGoBack} 
-          className="w-full flex items-center justify-center h-14 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors group/back"
+          disabled={loading || isResending}
+          className="w-full flex items-center justify-center h-14 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors group/back disabled:opacity-50"
         >
           <ArrowLeft className="w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover/back:opacity-100 group-hover/back:translate-x-0 transition-all" />
           {t('change_method_button')}
