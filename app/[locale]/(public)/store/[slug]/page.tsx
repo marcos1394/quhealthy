@@ -314,7 +314,11 @@ export default function PublicStorePage() {
             <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.services && store.services.length > 0 ? (
                 store.services.map((service) => (
-                  <div key={service.id} className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group">
+                  <div 
+                    key={service.id} 
+                    className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
+                  >
                     
                     <div className="flex-1 flex flex-col gap-4">
                       {/* Cabecera Interna: Controla etiquetas y botón favoritos en una sola fila */}
@@ -407,7 +411,11 @@ export default function PublicStorePage() {
             <motion.div key="paquetes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.packages && store.packages.length > 0 ? (
                 store.packages.map((pkg) => (
-                  <div key={pkg.id} className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start">
+                  <div 
+                    key={pkg.id} 
+                    className="border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
+                  >
                     
                     <div className="flex-1 flex flex-col gap-4">
                       <div className="flex items-start justify-between gap-4 w-full">
@@ -485,16 +493,20 @@ export default function PublicStorePage() {
                     const isLowStock = !product.isDigital && product.stockQuantity != null && product.stockQuantity > 0 && product.stockQuantity <= 5;
 
                     return (
-                      <div key={product.id} className={cn(
-                        "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-colors flex flex-col hover:border-black dark:hover:border-white", 
-                        isOutOfStock ? "opacity-60" : ""
-                      )}>
+                      <div 
+                        key={product.id} 
+                        className={cn(
+                          "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all flex flex-col group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10", 
+                          isOutOfStock ? "opacity-60" : ""
+                        )}
+                        style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
+                      >
                         
                         {/* Box Image */}
-                        <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
+                        <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505] overflow-hidden">
                           {product.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal p-4" />
+                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                           ) : (
                             <Box className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
                           )}
@@ -591,7 +603,11 @@ export default function PublicStorePage() {
             <motion.div key="cursos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               {store.courses && store.courses.length > 0 ? (
                 store.courses.map((course) => (
-                  <div key={course.id} className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors group">
+                  <div 
+                    key={course.id} 
+                    className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
+                  >
                     <div className="w-full sm:w-1/3 h-48 sm:h-auto border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] relative flex items-center justify-center overflow-hidden">
                       {course.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
