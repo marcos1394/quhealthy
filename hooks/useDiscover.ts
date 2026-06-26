@@ -6,11 +6,11 @@ import { DiscoverProviderWrapperResponse } from '@/types/discover';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 
-export const useDiscover = () => {
+export const useDiscover = (q?: string, type?: string) => {
   // SWR maneja el caché, la carga y los errores por nosotros
   const { data, error, isLoading, mutate } = useSWR<DiscoverProviderWrapperResponse>(
-    '/discover/providers', // Llave de caché única
-    discoverService.getAllProviders,
+    ['/discover/providers', q, type], // Llave de caché dinámica
+    () => discoverService.getAllProviders(q, type),
     {
       revalidateOnFocus: false, // Evita recargar si el usuario cambia de pestaña
       dedupingInterval: 60000,  // Mantiene la caché por 1 minuto

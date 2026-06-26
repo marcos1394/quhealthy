@@ -16,6 +16,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 import { useDiscover } from '@/hooks/useDiscover';
@@ -249,11 +250,12 @@ const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
   const searchParams = useSearchParams();
   const initialSearchQuery = searchParams.get('q') ?? searchParams.get('provider') ?? '';
-  const [{ map, searchQuery, hasDiscountFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
+  const [{ map, searchQuery, searchType, hasDiscountFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
     (state: any, action: any) => {
       switch (action.type) {
         case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
         case 'SET_SEARCHQUERY': return { ...state, searchQuery: typeof action.payload === 'function' ? action.payload(state.searchQuery) : action.payload };
+        case 'SET_SEARCHTYPE': return { ...state, searchType: typeof action.payload === 'function' ? action.payload(state.searchType) : action.payload };
         case 'SET_HASDISCOUNTFILTER': return { ...state, hasDiscountFilter: typeof action.payload === 'function' ? action.payload(state.hasDiscountFilter) : action.payload };
         case 'SET_SELECTEDID': return { ...state, selectedId: typeof action.payload === 'function' ? action.payload(state.selectedId) : action.payload };
         case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
@@ -261,15 +263,25 @@ const DiscoverMapContent = () => {
       }
     },
     {
-      map: null, searchQuery: initialSearchQuery, hasDiscountFilter: false, selectedId: null, hoveredId: null
+      map: null, searchQuery: initialSearchQuery, searchType: 'STORE', hasDiscountFilter: false, selectedId: null, hoveredId: null
     }
   );
 
   const setMap = (val: any) => dispatch({ type: 'SET_MAP', payload: val });
   const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
+  const setSearchType = (val: any) => dispatch({ type: 'SET_SEARCHTYPE', payload: val });
   const setHasDiscountFilter = (val: any) => dispatch({ type: 'SET_HASDISCOUNTFILTER', payload: val });
   const setSelectedId = (val: any) => dispatch({ type: 'SET_SELECTEDID', payload: val });
   const setHoveredId = (val: any) => dispatch({ type: 'SET_HOVEREDID', payload: val });
+
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(initialSearchQuery);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // 🔐 Auth Gate State
   const [authGateOpen, setAuthGateOpen] = useState(false);
@@ -279,7 +291,7 @@ const DiscoverMapContent = () => {
   const { isAuthenticated, _hasHydrated, isLoading: isSessionLoading, token } = useSessionStore();
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
   
-  const { providers, isLoading: isFetchingProviders } = useDiscover();
+  const { providers, isLoading: isFetchingProviders } = useDiscover(debouncedSearchQuery, searchType);
 // Hook de Geolocation (Extraemos error e isLoading)
   const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
   const { resolvedTheme } = useTheme();
@@ -329,9 +341,8 @@ const DiscoverMapContent = () => {
         if (!a.isPromoted && b.isPromoted) return 1;
         return (a.distanceKm || 9999) - (b.distanceKm || 9999);
       })
-      .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase()))
       .filter(p => !hasDiscountFilter || (p.discountPercentage && p.discountPercentage > 0));
-  }, [providers, coordinates, calculateDistance, searchQuery, hasDiscountFilter]);
+  }, [providers, coordinates, calculateDistance, hasDiscountFilter]);
 
   const mapCenter = useMemo(() => {
     if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
@@ -442,12 +453,46 @@ const DiscoverMapContent = () => {
               />
             </div>
             
-            <Button 
-              variant="ghost" 
-              className="rounded-none bg-white dark:bg-[#0a0a0a] border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0"
-            >
-              <SlidersHorizontal className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className={cn(
+                    "rounded-none border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0 transition-colors",
+                    searchType !== 'STORE' ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white dark:bg-[#0a0a0a]"
+                  )}
+                >
+                  <SlidersHorizontal className={cn("w-5 h-5", searchType !== 'STORE' ? "text-white dark:text-black" : "text-black dark:text-white")} strokeWidth={1.5} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-black border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+                <DropdownMenuItem 
+                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'STORE' && "bg-gray-100 dark:bg-gray-900")} 
+                  onClick={() => setSearchType('STORE')}>
+                  Tiendas / Clínicas
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PRODUCT' && "bg-gray-100 dark:bg-gray-900")} 
+                  onClick={() => setSearchType('PRODUCT')}>
+                  Productos
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'COURSE' && "bg-gray-100 dark:bg-gray-900")} 
+                  onClick={() => setSearchType('COURSE')}>
+                  Cursos
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PACKAGE' && "bg-gray-100 dark:bg-gray-900")} 
+                  onClick={() => setSearchType('PACKAGE')}>
+                  Paquetes
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'SERVICE' && "bg-gray-100 dark:bg-gray-900")} 
+                  onClick={() => setSearchType('SERVICE')}>
+                  Servicios
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button 
               className={cn(

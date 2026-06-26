@@ -6,10 +6,12 @@ const BASE_URL_STOREFRONT = '/api/catalog/storefront';
 
 export const discoverService = {
   /**
-   * Obtiene la lista de todos los proveedores públicos (marketplaceVisible = true)
+   * Obtiene la lista de todos los proveedores públicos, con opción de búsqueda NLP
    */
-  getAllProviders: async (): Promise<DiscoverProviderWrapperResponse> => {
-    const response = await axiosInstance.get<DiscoverProviderWrapperResponse>(BASE_URL_STOREFRONT);
+  getAllProviders: async (q?: string, type?: string): Promise<DiscoverProviderWrapperResponse> => {
+    const response = await axiosInstance.get<DiscoverProviderWrapperResponse>(BASE_URL_STOREFRONT, {
+      params: { q, type }
+    });
     return response.data;
   },
 

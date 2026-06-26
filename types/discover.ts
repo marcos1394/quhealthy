@@ -1,5 +1,7 @@
 // types/discover.ts
 
+export type DiscoverSearchType = 'STORE' | 'PRODUCT' | 'COURSE' | 'PACKAGE' | 'SERVICE';
+
 export interface DiscoverProvider {
   id: number;
   name: string;
