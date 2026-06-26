@@ -250,20 +250,23 @@ const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
   const searchParams = useSearchParams();
   const initialSearchQuery = searchParams.get('q') ?? searchParams.get('provider') ?? '';
-  const [{ map, searchQuery, searchType, hasDiscountFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
+  const [{ map, searchQuery, searchType, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
     (state: any, action: any) => {
       switch (action.type) {
         case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
         case 'SET_SEARCHQUERY': return { ...state, searchQuery: typeof action.payload === 'function' ? action.payload(state.searchQuery) : action.payload };
         case 'SET_SEARCHTYPE': return { ...state, searchType: typeof action.payload === 'function' ? action.payload(state.searchType) : action.payload };
         case 'SET_HASDISCOUNTFILTER': return { ...state, hasDiscountFilter: typeof action.payload === 'function' ? action.payload(state.hasDiscountFilter) : action.payload };
+        case 'SET_TOPRATEDFILTER': return { ...state, topRatedFilter: typeof action.payload === 'function' ? action.payload(state.topRatedFilter) : action.payload };
+        case 'SET_NEARMEFILTER': return { ...state, nearMeFilter: typeof action.payload === 'function' ? action.payload(state.nearMeFilter) : action.payload };
+        case 'SET_PREMIUMFILTER': return { ...state, premiumFilter: typeof action.payload === 'function' ? action.payload(state.premiumFilter) : action.payload };
         case 'SET_SELECTEDID': return { ...state, selectedId: typeof action.payload === 'function' ? action.payload(state.selectedId) : action.payload };
         case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
         default: return state;
       }
     },
     {
-      map: null, searchQuery: initialSearchQuery, searchType: 'STORE', hasDiscountFilter: false, selectedId: null, hoveredId: null
+      map: null, searchQuery: initialSearchQuery, searchType: 'STORE', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null
     }
   );
 
@@ -271,6 +274,9 @@ const DiscoverMapContent = () => {
   const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
   const setSearchType = (val: any) => dispatch({ type: 'SET_SEARCHTYPE', payload: val });
   const setHasDiscountFilter = (val: any) => dispatch({ type: 'SET_HASDISCOUNTFILTER', payload: val });
+  const setTopRatedFilter = (val: any) => dispatch({ type: 'SET_TOPRATEDFILTER', payload: val });
+  const setNearMeFilter = (val: any) => dispatch({ type: 'SET_NEARMEFILTER', payload: val });
+  const setPremiumFilter = (val: any) => dispatch({ type: 'SET_PREMIUMFILTER', payload: val });
   const setSelectedId = (val: any) => dispatch({ type: 'SET_SELECTEDID', payload: val });
   const setHoveredId = (val: any) => dispatch({ type: 'SET_HOVEREDID', payload: val });
 
@@ -341,8 +347,11 @@ const DiscoverMapContent = () => {
         if (!a.isPromoted && b.isPromoted) return 1;
         return (a.distanceKm || 9999) - (b.distanceKm || 9999);
       })
-      .filter(p => !hasDiscountFilter || (p.discountPercentage && p.discountPercentage > 0));
-  }, [providers, coordinates, calculateDistance, hasDiscountFilter]);
+      .filter(p => !hasDiscountFilter || (p.discountPercentage && p.discountPercentage > 0))
+      .filter(p => !topRatedFilter || (p.rating && p.rating >= 4.8))
+      .filter(p => !nearMeFilter || (p.distanceKm !== undefined && p.distanceKm <= 5))
+      .filter(p => !premiumFilter || p.isPremium);
+  }, [providers, coordinates, calculateDistance, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter]);
 
   const mapCenter = useMemo(() => {
     if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
@@ -494,16 +503,61 @@ const DiscoverMapContent = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
+          </div>
+
+          {/* ⚡ FILTROS RÁPIDOS */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-1 px-1 -mx-1">
             <Button 
+              size="sm"
+              variant="outline"
               className={cn(
-                "rounded-none h-14 px-6 text-[10px] font-bold uppercase tracking-widest border-l border-gray-300 dark:border-gray-800 transition-colors shrink-0",
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
                 hasDiscountFilter 
-                  ? "bg-black text-white dark:bg-white dark:text-black" 
-                  : "bg-white text-gray-600 dark:bg-[#0a0a0a] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#111]"
+                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
               )}
               onClick={() => setHasDiscountFilter(!hasDiscountFilter)}
             >
-              Ofertas
+              🏷️ Ofertas
+            </Button>
+            <Button 
+              size="sm"
+              variant="outline"
+              className={cn(
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                topRatedFilter 
+                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+              )}
+              onClick={() => setTopRatedFilter(!topRatedFilter)}
+            >
+              ⭐ Top Calificados
+            </Button>
+            <Button 
+              size="sm"
+              variant="outline"
+              className={cn(
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                nearMeFilter 
+                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+              )}
+              onClick={() => setNearMeFilter(!nearMeFilter)}
+            >
+              📍 Cerca de mí
+            </Button>
+            <Button 
+              size="sm"
+              variant="outline"
+              className={cn(
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                premiumFilter 
+                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+              )}
+              onClick={() => setPremiumFilter(!premiumFilter)}
+            >
+              💎 Premium
             </Button>
           </div>
 
