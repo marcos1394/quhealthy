@@ -451,7 +451,10 @@ const DiscoverMapContent = () => {
         {/* 🔍 CAPA FLOTANTE: BUSCADOR ARQUITECTÓNICO */}
         <div className="absolute top-6 left-4 right-4 md:left-8 md:w-[460px] z-20 flex flex-col gap-3">
           
-          <div className="flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800">
+          <form 
+            onSubmit={(e) => e.preventDefault()}
+            className="flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
+          >
             <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14">
               <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
               <Input
@@ -465,6 +468,7 @@ const DiscoverMapContent = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
+                  type="button"
                   variant="ghost" 
                   className={cn(
                     "rounded-none border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0 transition-colors",
@@ -503,15 +507,16 @@ const DiscoverMapContent = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-          </div>
+          </form>
 
           {/* ⚡ FILTROS RÁPIDOS */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 pt-1 px-1 -mx-1">
+          <div className="flex gap-2 overflow-x-auto md:flex-wrap no-scrollbar pb-1 pt-1 px-1 -mx-1">
             <Button 
+              type="button"
               size="sm"
               variant="outline"
               className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
                 hasDiscountFilter 
                   ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
                   : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
@@ -521,10 +526,11 @@ const DiscoverMapContent = () => {
               🏷️ Ofertas
             </Button>
             <Button 
+              type="button"
               size="sm"
               variant="outline"
               className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
                 topRatedFilter 
                   ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
                   : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
@@ -534,10 +540,11 @@ const DiscoverMapContent = () => {
               ⭐ Top Calificados
             </Button>
             <Button 
+              type="button"
               size="sm"
               variant="outline"
               className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
                 nearMeFilter 
                   ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
                   : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
@@ -547,10 +554,11 @@ const DiscoverMapContent = () => {
               📍 Cerca de mí
             </Button>
             <Button 
+              type="button"
               size="sm"
               variant="outline"
               className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border",
+                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
                 premiumFilter 
                   ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
                   : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
