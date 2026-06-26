@@ -261,7 +261,7 @@ export default function ConsumerSignupPage() {
             </div>
 
             {/* Social Auth */}
-            <SocialAuthButtons accountRole="CONSUMER" />
+            <SocialAuthButtons accountRole="ROLE_CONSUMER" />
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
