@@ -13,7 +13,8 @@ import {
   Library,
   Video,
   CalendarCheck,
-  ArrowRight
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
