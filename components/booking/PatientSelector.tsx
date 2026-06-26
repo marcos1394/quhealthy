@@ -17,7 +17,7 @@ export function PatientSelector() {
     const router = useRouter();
     const { user } = useSessionStore();
     const { family, isLoading } = useFamily();
-    const { dependentId, setDependentId } = useBookingStore();
+    const { dependentId, setDependentId, providerColor } = useBookingStore();
 
     // Por defecto, seleccionar al titular (null) si no hay nada
     useEffect(() => {
@@ -34,8 +34,10 @@ export function PatientSelector() {
         );
     }
 
+    const safeColor = providerColor || '#000000';
+
     return (
-        <div className="space-y-8">
+        <div className="space-y-8" style={{ '--provider-color': safeColor } as React.CSSProperties}>
             <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center mb-1">
                     <Users className="w-4 h-4 mr-3" strokeWidth={1.5} />
@@ -51,17 +53,18 @@ export function PatientSelector() {
                 <div
                     onClick={() => setDependentId(null)}
                     className={cn(
-                        "cursor-pointer p-5 border transition-colors flex items-center gap-4 group",
+                        "cursor-pointer p-5 border flex items-center gap-4 group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
                         dependentId === null
-                            ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                            : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white"
+                            ? "text-white"
+                            : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)]"
                     )}
+                    style={dependentId === null ? { backgroundColor: safeColor, borderColor: safeColor } : {}}
                 >
                     <div className={cn(
-                        "w-10 h-10 flex items-center justify-center border shrink-0",
+                        "w-10 h-10 flex items-center justify-center border shrink-0 transition-colors",
                         dependentId === null 
-                            ? "border-white dark:border-black" 
-                            : "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
+                            ? "border-white/50 bg-white/10 text-white" 
+                            : "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-500 group-hover:[color:var(--provider-color)]"
                     )}>
                         <User className="w-4 h-4" strokeWidth={1.5} />
                     </div>
@@ -69,7 +72,7 @@ export function PatientSelector() {
                         <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5">Titular</p>
                         <p className={cn(
                             "text-xs uppercase font-light truncate",
-                            dependentId === null ? "text-gray-300 dark:text-gray-700" : "text-gray-500"
+                            dependentId === null ? "text-white/80" : "text-gray-500"
                         )}>
                             {user?.firstName} {user?.lastName}
                         </p>
@@ -82,17 +85,18 @@ export function PatientSelector() {
                         key={member.id}
                         onClick={() => setDependentId(member.id)}
                         className={cn(
-                            "cursor-pointer p-5 border transition-colors flex items-center gap-4 group",
+                            "cursor-pointer p-5 border flex items-center gap-4 group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
                             dependentId === member.id
-                                ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                                : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white"
+                                ? "text-white"
+                                : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)]"
                         )}
+                        style={dependentId === member.id ? { backgroundColor: safeColor, borderColor: safeColor } : {}}
                     >
                         <div className={cn(
-                            "w-10 h-10 flex items-center justify-center border shrink-0",
+                            "w-10 h-10 flex items-center justify-center border shrink-0 transition-colors",
                             dependentId === member.id 
-                                ? "border-white dark:border-black" 
-                                : "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
+                                ? "border-white/50 bg-white/10 text-white" 
+                                : "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-500 group-hover:[color:var(--provider-color)]"
                         )}>
                             {member.relationship === 'CHILD' ? <Baby className="w-4 h-4" strokeWidth={1.5} /> : <User className="w-4 h-4" strokeWidth={1.5} />}
                         </div>
@@ -102,7 +106,7 @@ export function PatientSelector() {
                             </p>
                             <p className={cn(
                                 "text-[9px] uppercase tracking-widest",
-                                dependentId === member.id ? "text-gray-300 dark:text-gray-700" : "text-gray-500"
+                                dependentId === member.id ? "text-white/80" : "text-gray-500"
                             )}>
                                 Vínculo: {member.relationship}
                             </p>
@@ -114,7 +118,7 @@ export function PatientSelector() {
             {/* 3. Botón para añadir a alguien más */}
             <button
                 onClick={() => router.push('/patient/dashboard/family')}
-                className="w-full sm:w-auto h-12 px-6 flex items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-[10px] font-bold uppercase tracking-widest hover:border-black dark:hover:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                className="w-full sm:w-auto h-12 px-6 flex items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-[10px] font-bold uppercase tracking-widest transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:[background-color:var(--provider-color)] hover:text-white"
             >
                 <Plus className="w-3.5 h-3.5 mr-2" strokeWidth={2} /> Incorporar Dependiente
             </button>

@@ -449,129 +449,131 @@ const DiscoverMapContent = () => {
         </div>
 
         {/* 🔍 CAPA FLOTANTE: BUSCADOR ARQUITECTÓNICO */}
-        <div className="absolute top-6 left-4 right-4 md:left-8 md:w-[460px] z-20 flex flex-col gap-3">
+        <div className="absolute top-6 left-4 right-4 md:left-8 md:right-8 z-20 flex flex-col gap-3 pointer-events-none">
           
-          <form 
-            onSubmit={(e) => e.preventDefault()}
-            className="flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
-          >
-            <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14">
-              <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
-              <Input
-                placeholder="ESPECIALIDAD, CLÍNICA O NOMBRE..."
-                className="bg-transparent border-none p-0 h-full text-xs font-bold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+          <div className="flex flex-col 2xl:flex-row 2xl:items-center gap-3 w-full">
+            <form 
+              onSubmit={(e) => e.preventDefault()}
+              className="pointer-events-auto w-full md:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
+            >
+              <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14">
+                <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
+                <Input
+                  placeholder="ESPECIALIDAD, CLÍNICA O NOMBRE..."
+                  className="bg-transparent border-none p-0 h-full text-xs font-bold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    className={cn(
+                      "rounded-none border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0 transition-colors",
+                      searchType !== 'STORE' ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white dark:bg-[#0a0a0a]"
+                    )}
+                  >
+                    <SlidersHorizontal className={cn("w-5 h-5", searchType !== 'STORE' ? "text-white dark:text-black" : "text-black dark:text-white")} strokeWidth={1.5} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-black border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+                  <DropdownMenuItem 
+                    className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'STORE' && "bg-gray-100 dark:bg-gray-900")} 
+                    onClick={() => setSearchType('STORE')}>
+                    Tiendas / Clínicas
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PRODUCT' && "bg-gray-100 dark:bg-gray-900")} 
+                    onClick={() => setSearchType('PRODUCT')}>
+                    Productos
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'COURSE' && "bg-gray-100 dark:bg-gray-900")} 
+                    onClick={() => setSearchType('COURSE')}>
+                    Cursos
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PACKAGE' && "bg-gray-100 dark:bg-gray-900")} 
+                    onClick={() => setSearchType('PACKAGE')}>
+                    Paquetes
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'SERVICE' && "bg-gray-100 dark:bg-gray-900")} 
+                    onClick={() => setSearchType('SERVICE')}>
+                    Servicios
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+            </form>
+
+            {/* ⚡ FILTROS RÁPIDOS */}
+            <div className="pointer-events-auto flex gap-2 overflow-x-auto md:flex-wrap no-scrollbar pb-1 pt-1 px-1 -mx-1 flex-1">
+              <Button 
+                type="button"
+                size="sm"
+                variant="outline"
+                className={cn(
+                  "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
+                  hasDiscountFilter 
+                    ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                    : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+                )}
+                onClick={() => setHasDiscountFilter(!hasDiscountFilter)}
+              >
+                🏷️ Ofertas
+              </Button>
+              <Button 
+                type="button"
+                size="sm"
+                variant="outline"
+                className={cn(
+                  "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
+                  topRatedFilter 
+                    ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                    : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+                )}
+                onClick={() => setTopRatedFilter(!topRatedFilter)}
+              >
+                ⭐ Top Calificados
+              </Button>
+              <Button 
+                type="button"
+                size="sm"
+                variant="outline"
+                className={cn(
+                  "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
+                  nearMeFilter 
+                    ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                    : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+                )}
+                onClick={() => setNearMeFilter(!nearMeFilter)}
+              >
+                📍 Cerca de mí
+              </Button>
+              <Button 
+                type="button"
+                size="sm"
+                variant="outline"
+                className={cn(
+                  "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
+                  premiumFilter 
+                    ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
+                    : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
+                )}
+                onClick={() => setPremiumFilter(!premiumFilter)}
+              >
+                💎 Premium
+              </Button>
             </div>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  className={cn(
-                    "rounded-none border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0 transition-colors",
-                    searchType !== 'STORE' ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white dark:bg-[#0a0a0a]"
-                  )}
-                >
-                  <SlidersHorizontal className={cn("w-5 h-5", searchType !== 'STORE' ? "text-white dark:text-black" : "text-black dark:text-white")} strokeWidth={1.5} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-black border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
-                <DropdownMenuItem 
-                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'STORE' && "bg-gray-100 dark:bg-gray-900")} 
-                  onClick={() => setSearchType('STORE')}>
-                  Tiendas / Clínicas
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PRODUCT' && "bg-gray-100 dark:bg-gray-900")} 
-                  onClick={() => setSearchType('PRODUCT')}>
-                  Productos
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'COURSE' && "bg-gray-100 dark:bg-gray-900")} 
-                  onClick={() => setSearchType('COURSE')}>
-                  Cursos
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PACKAGE' && "bg-gray-100 dark:bg-gray-900")} 
-                  onClick={() => setSearchType('PACKAGE')}>
-                  Paquetes
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'SERVICE' && "bg-gray-100 dark:bg-gray-900")} 
-                  onClick={() => setSearchType('SERVICE')}>
-                  Servicios
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-          </form>
-
-          {/* ⚡ FILTROS RÁPIDOS */}
-          <div className="flex gap-2 overflow-x-auto md:flex-wrap no-scrollbar pb-1 pt-1 px-1 -mx-1">
-            <Button 
-              type="button"
-              size="sm"
-              variant="outline"
-              className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
-                hasDiscountFilter 
-                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
-                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
-              )}
-              onClick={() => setHasDiscountFilter(!hasDiscountFilter)}
-            >
-              🏷️ Ofertas
-            </Button>
-            <Button 
-              type="button"
-              size="sm"
-              variant="outline"
-              className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
-                topRatedFilter 
-                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
-                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
-              )}
-              onClick={() => setTopRatedFilter(!topRatedFilter)}
-            >
-              ⭐ Top Calificados
-            </Button>
-            <Button 
-              type="button"
-              size="sm"
-              variant="outline"
-              className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
-                nearMeFilter 
-                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
-                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
-              )}
-              onClick={() => setNearMeFilter(!nearMeFilter)}
-            >
-              📍 Cerca de mí
-            </Button>
-            <Button 
-              type="button"
-              size="sm"
-              variant="outline"
-              className={cn(
-                "rounded-full h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border shrink-0",
-                premiumFilter 
-                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white" 
-                  : "bg-white text-gray-700 dark:bg-black dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900"
-              )}
-              onClick={() => setPremiumFilter(!premiumFilter)}
-            >
-              💎 Premium
-            </Button>
           </div>
 
         {/* 👇 BLOQUE DE UBICACIÓN DINÁMICO 👇 */}
           {((!coordinates && !locationDeclined) || showSuccess) && (
-            <div className="flex flex-col gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] transition-all duration-300">
+            <div className="pointer-events-auto md:w-[460px] flex flex-col gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] transition-all duration-300">
               
               {showSuccess ? (
                 // 🟢 ESTADO 1: ÉXITO

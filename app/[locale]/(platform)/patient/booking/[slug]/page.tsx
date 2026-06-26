@@ -169,16 +169,21 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 ml-0 md:ml-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 ml-0 md:ml-16" style={{ '--provider-color': safeColor } as React.CSSProperties}>
                   <button 
                     className={cn(
-                      "p-6 flex items-center gap-4 transition-colors",
-                      !scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
+                      "p-6 flex items-center gap-4 transition-all duration-300 group",
+                      !scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:bg-gray-50 dark:hover:bg-[#111]"
                     )}
                     style={scheduleNow ? { backgroundColor: safeColor, color: '#ffffff' } : {}}
                     onClick={() => setScheduleNow(true)}
                   >
-                    <CalendarIcon className="w-5 h-5" strokeWidth={1.5} />
+                    <div className={cn(
+                        "w-10 h-10 flex items-center justify-center shrink-0 transition-colors",
+                        scheduleNow ? "text-white" : "text-gray-500 group-hover:[color:var(--provider-color)]"
+                    )}>
+                        <CalendarIcon className="w-5 h-5" strokeWidth={1.5} />
+                    </div>
                     <div className="text-left">
                       <h4 className="font-bold text-[10px] uppercase tracking-widest">Agendar Ahora</h4>
                       <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">ASIGNAR PARÁMETRO TEMPORAL</p>
@@ -186,13 +191,18 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   </button>
                   <button 
                     className={cn(
-                      "p-6 flex items-center gap-4 transition-colors border-t md:border-t-0 md:border-l border-gray-300 dark:border-gray-700",
-                      scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
+                      "p-6 flex items-center gap-4 transition-all duration-300 border-t md:border-t-0 md:border-l border-gray-300 dark:border-gray-700 group",
+                      scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:bg-gray-50 dark:hover:bg-[#111]"
                     )}
                     style={!scheduleNow ? { backgroundColor: safeColor, color: '#ffffff' } : {}}
                     onClick={() => setScheduleNow(false)}
                   >
-                    <Package className="w-5 h-5" strokeWidth={1.5} />
+                    <div className={cn(
+                        "w-10 h-10 flex items-center justify-center shrink-0 transition-colors",
+                        !scheduleNow ? "text-white" : "text-gray-500 group-hover:[color:var(--provider-color)]"
+                    )}>
+                        <Package className="w-5 h-5" strokeWidth={1.5} />
+                    </div>
                     <div className="text-left">
                       <h4 className="font-bold text-[10px] uppercase tracking-widest">Comprar Crédito</h4>
                       <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">REDIMIR POSTERIORMENTE</p>

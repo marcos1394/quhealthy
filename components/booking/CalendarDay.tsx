@@ -23,36 +23,40 @@ export function CalendarDay({
 }: CalendarDayProps) {
   const selected = selectedDate ? isSameDay(date, selectedDate) : false;
   const today = isToday(date);
+  const safeColor = providerColor || '#000000';
 
   return (
     <button
       onClick={() => onSelect(date)}
       disabled={isPast || !isCurrentMonth}
       className={cn(
-        "relative flex flex-col items-center justify-center h-14 rounded-none transition-colors border",
+        "relative flex flex-col items-center justify-center h-14 rounded-none border transition-all duration-300",
         !isCurrentMonth || isPast
           ? "opacity-20 cursor-not-allowed border-transparent"
-          : "hover:border-black dark:hover:border-white cursor-pointer",
+          : "cursor-pointer",
         selected
           ? "z-10"
-          : "bg-gray-50 dark:bg-[#050505] border-transparent"
+          : "bg-gray-50 dark:bg-[#050505] border-transparent",
+        !selected && isCurrentMonth && !isPast && "hover:-translate-y-1 hover:shadow-[0_4px_20px_rgb(0,0,0,0.12)] hover:z-20 hover:[border-color:var(--provider-color)] hover:[color:var(--provider-color)]"
       )}
-      style={selected ? {
-        backgroundColor: providerColor,
-        borderColor: providerColor,
-        color: '#ffffff'
-      } : {}}
+      style={{
+        ...(selected ? { backgroundColor: safeColor, borderColor: safeColor, color: '#ffffff' } : {}),
+        '--provider-color': safeColor
+      } as React.CSSProperties}
     >
       {today && !selected && (
-        <span className="absolute top-2 left-2 w-1.5 h-1.5 bg-black dark:bg-white" />
+        <span 
+          className="absolute top-2 left-2 w-1.5 h-1.5 bg-black dark:bg-white transition-colors"
+          style={(!selected && isCurrentMonth && !isPast) ? { backgroundColor: safeColor } : {}}
+        />
       )}
 
       <span className={cn(
-        "text-xs font-bold uppercase tracking-widest",
+        "text-xs font-bold uppercase tracking-widest transition-colors",
         selected
           ? "text-white"
           : isCurrentMonth && !isPast
-            ? "text-black dark:text-white"
+            ? "text-black dark:text-white group-hover:[color:var(--provider-color)]"
             : "text-gray-400 dark:text-gray-600"
       )}>
         {format(date, 'd')}
