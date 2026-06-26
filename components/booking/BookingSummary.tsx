@@ -434,11 +434,12 @@ export function BookingSummary({
                   onClick={handleCheckoutClick}
                   disabled={!validationRules.isReady || isProcessing || cartAnalysis.isEmpty}
                   className={cn(
-                    "w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center border-0",
+                    "w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-opacity flex items-center justify-center border-0",
                     (!validationRules.isReady || isProcessing || cartAnalysis.isEmpty)
                       ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
-                      : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+                      : "hover:opacity-90"
                   )}
+                  style={(!validationRules.isReady || isProcessing || cartAnalysis.isEmpty) ? {} : { backgroundColor: providerColor, color: '#ffffff' }}
                 >
                   {isProcessing ? (
                     <>
@@ -463,7 +464,7 @@ export function BookingSummary({
                 {/* Trust Badge */}
                 {!cartAnalysis.isEmpty && validationRules.isReady && (
                   <p className="text-center text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center justify-center gap-2 mt-4">
-                    <span className="w-1.5 h-1.5 bg-black dark:bg-white border border-transparent" />
+                    <span className="w-1.5 h-1.5 border border-transparent" style={{ backgroundColor: providerColor }} />
                     Protocolo de Pago Cifrado
                   </p>
                 )}

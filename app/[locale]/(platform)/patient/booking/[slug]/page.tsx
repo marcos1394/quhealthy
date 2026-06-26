@@ -158,7 +158,10 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               {/* Opción de Agendar Ahora o Comprar para Después */}
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
-                  <div className="w-10 h-10 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                  <div 
+                    className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                    style={{ backgroundColor: safeColor, color: '#ffffff' }}
+                  >
                     <span className="font-bold text-sm">{stepCounter++}</span>
                   </div>
                   <div>
@@ -170,8 +173,9 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   <button 
                     className={cn(
                       "p-6 flex items-center gap-4 transition-colors",
-                      scheduleNow ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
+                      !scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
                     )}
+                    style={scheduleNow ? { backgroundColor: safeColor, color: '#ffffff' } : {}}
                     onClick={() => setScheduleNow(true)}
                   >
                     <CalendarIcon className="w-5 h-5" strokeWidth={1.5} />
@@ -183,8 +187,9 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   <button 
                     className={cn(
                       "p-6 flex items-center gap-4 transition-colors border-t md:border-t-0 md:border-l border-gray-300 dark:border-gray-700",
-                      !scheduleNow ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
+                      scheduleNow && "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111]"
                     )}
+                    style={!scheduleNow ? { backgroundColor: safeColor, color: '#ffffff' } : {}}
                     onClick={() => setScheduleNow(false)}
                   >
                     <Package className="w-5 h-5" strokeWidth={1.5} />
@@ -201,7 +206,10 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                 {scheduleNow && (
                   <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
-                      <div className="w-10 h-10 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                      <div 
+                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        style={{ backgroundColor: safeColor, color: '#ffffff' }}
+                      >
                         <span className="font-bold text-sm">{stepCounter++}</span>
                       </div>
                       <div>
@@ -249,14 +257,20 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                 {scheduleNow && selectedDate && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
-                      <div className="w-10 h-10 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                      <div 
+                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        style={{ backgroundColor: safeColor, color: '#ffffff' }}
+                      >
                         <span className="font-bold text-sm">{stepCounter++}</span>
                       </div>
                       <div className="flex-1">
                         <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">{t('step_time')}</h2>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">{format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}</p>
                       </div>
-                      <span className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black flex items-center gap-2">
+                      <span 
+                        className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
+                        style={{ backgroundColor: safeColor, color: '#ffffff' }}
+                      >
                         <Clock className="w-3 h-3" strokeWidth={2} /> {duration} MIN
                       </span>
                     </div>
@@ -289,7 +303,10 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                 {scheduleNow && selectedTime && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
-                      <div className="w-10 h-10 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                      <div 
+                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        style={{ backgroundColor: safeColor, color: '#ffffff' }}
+                      >
                         <span className="font-bold text-sm">{stepCounter++}</span>
                       </div>
                       <div className="flex-1">
