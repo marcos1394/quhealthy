@@ -16,7 +16,7 @@ export function MobileNavbar() {
   const pathname = usePathname();
   const { role } = useSessionStore();
   
-  const isConsumer = role === 'CONSUMER';
+  const isConsumer = role === 'ROLE_CONSUMER';
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
 
   // Cerrar el menú al cambiar de ruta

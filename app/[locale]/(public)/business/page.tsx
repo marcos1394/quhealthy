@@ -338,7 +338,7 @@ export default function BusinessPage() {
                     </ul>
 
                     <Link
-                      href={isAuthenticated && role === 'PROVIDER' ? `/provider/settings/subscription?planId=${plan.originalId}` : `/provider/register?planId=${plan.originalId}`}
+                      href={isAuthenticated && role === 'ROLE_PROVIDER' ? `/provider/settings/subscription?planId=${plan.originalId}` : `/provider/register?planId=${plan.originalId}`}
                       className={`inline-flex items-center justify-center w-full py-4 rounded-none text-xs font-bold uppercase tracking-widest transition-colors group/btn ${
                         plan.isPopular
                           ? "bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"

@@ -101,16 +101,16 @@ export default function LoginPage() {
   const handleAuthNavigation = async (response: AuthResponse) => {
     const role = response.role;
 
-    if (role === 'ADMIN') {
+    if (role === 'ROLE_ADMIN') {
       router.push("/admin/dashboard");
-    } else if (role === 'PROVIDER') {
+    } else if (role === 'ROLE_PROVIDER') {
       const isOnboardingComplete = response.status?.onboardingComplete;
       if (isOnboardingComplete) {
         router.push("/provider/dashboard");
       } else {
         router.push("/onboarding");
       }
-    } else if (role === 'CONSUMER') {
+    } else if (role === 'ROLE_CONSUMER') {
       try {
         const profile: any = await consumerProfileService.getProfile();
         const step = profile?.onboardingStep || 0;

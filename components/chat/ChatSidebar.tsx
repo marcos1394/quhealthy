@@ -23,7 +23,7 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
 
     // 🟢 NUEVO: el "otro" participante depende de quién soy yo.
     // Si yo soy PROVIDER, el otro es un PACIENTE (no un "especialista").
-    const isProvider = user?.role === 'PROVIDER';
+    const isProvider = user?.role === 'ROLE_PROVIDER';
     const fallbackName = isProvider ? 'Paciente' : 'Especialista';
 
     const formatRelativeTime = (dateString: string) => {

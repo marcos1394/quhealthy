@@ -216,7 +216,7 @@ const PricingSection: React.FC = () => {
 
                   {/* Botón CTA (Flush) */}
                   <Link
-                    href={isAuthenticated && role === 'PROVIDER' ? `/provider/settings/subscription?planId=${plan.originalId}` : `/provider/register?planId=${plan.originalId}`}
+                    href={isAuthenticated && role === 'ROLE_PROVIDER' ? `/provider/settings/subscription?planId=${plan.originalId}` : `/provider/register?planId=${plan.originalId}`}
                     className={cn(
                       "group flex items-center justify-center w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all",
                       plan.isPopular

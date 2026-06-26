@@ -19,7 +19,7 @@ export function ChatHeader({ conversation, onBack, onVoiceCall, onVideoCall }: C
     const t = useTranslations('PatientMessages');
     const { user } = useSessionStore();
 
-    const isProvider = user?.role === 'PROVIDER';
+    const isProvider = user?.role === 'ROLE_PROVIDER';
     const fallbackName = isProvider ? 'Paciente' : 'Especialista';
     const providerName = conversation.provider?.name || conversation.otherParticipantName || fallbackName;
 

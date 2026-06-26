@@ -3,7 +3,7 @@
 // ================================
 // ENUMS & TYPES
 // ================================
-export type UserRole = 'CONSUMER' | 'PROVIDER' | 'ADMIN' | 'STAFF';
+export type UserRole = 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF';
 export type ServiceType = 'HEALTH' | 'WELLNESS'; // Mantener si se usaba
 
 // ================================
@@ -60,7 +60,7 @@ export interface AuthUser {
   lastName: string;
   email: string;
   profileImageUrl: string | null;
-  role?: 'CONSUMER' | 'PROVIDER' | 'ADMIN' | 'STAFF';
+  role?: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF';
   permissions?: string[];
   planStatus?: string;
   trialExpiresAt?: string;
@@ -97,7 +97,7 @@ export interface LoginRequest {
 export interface SocialLoginRequest {
   token: string;      // id_token de Google o Apple
   provider: 'GOOGLE' | 'APPLE';
-  role: 'CONSUMER' | 'PROVIDER';  // ADMIN nunca desde este flujo
+  role: 'ROLE_CONSUMER' | 'ROLE_PROVIDER';  // ROLE_ADMIN nunca desde este flujo
 }
 
 // ==========================================================

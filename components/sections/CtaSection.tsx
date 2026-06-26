@@ -54,7 +54,7 @@ const CtaSection: React.FC = () => {
           {/* CTAs a corte vivo */}
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
             <Link
-              href={isAuthenticated ? (role === 'PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
+              href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
               className="group inline-flex items-center justify-center bg-white dark:bg-black text-black dark:text-white px-8 h-14 rounded-none text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto"
             >
               {isAuthenticated ? "Ir a mi Panel" : t('button_primary')}

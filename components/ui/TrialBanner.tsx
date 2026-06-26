@@ -187,7 +187,7 @@ export const TrialBanner = () => {
 
   // Derivamos las propiedades necesarias directamente del objeto 'user'
   const planStatus = user?.planStatus;
-  const trialExpiresAt = user && user.role === 'PROVIDER' ? (user as any).trialExpiresAt : null;
+  const trialExpiresAt = user && user.role === 'ROLE_PROVIDER' ? (user as any).trialExpiresAt : null;
 
   useEffect(() => {
     // La validación ahora comprueba el rol y el estado del plan desde 'user'

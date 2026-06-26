@@ -40,7 +40,7 @@ export default function SocialAuthButtons({
       return;
     }
 
-    if (userRole === 'CONSUMER') {
+    if (userrole === 'ROLE_CONSUMER') {
       try {
         const profile: any = await consumerProfileService.getProfile();
         const step = profile?.onboardingStep || 0;
@@ -56,14 +56,14 @@ export default function SocialAuthButtons({
     }
 
     if (!status.onboardingComplete) {
-      if (userRole === 'PROVIDER') {
+      if (userrole === 'ROLE_PROVIDER') {
         router.push('/provider/onboarding');
       }
       return;
     }
 
     // Si todo está completo, lo mandamos a su panel
-    if (userRole === 'PROVIDER') {
+    if (userrole === 'ROLE_PROVIDER') {
       router.push('/provider/dashboard');
     }
   };

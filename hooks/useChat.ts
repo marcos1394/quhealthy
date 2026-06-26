@@ -174,7 +174,7 @@ export const useChat = () => {
     useEffect(() => {
         if (!selectedConversation || !stompClientRef.current || !isConnected || !user) return;
 
-        const otherParticipantId = user.role === 'PROVIDER'
+        const otherParticipantId = user.role === 'ROLE_PROVIDER'
             ? selectedConversation.patientId
             : selectedConversation.providerId;
 
@@ -262,7 +262,7 @@ export const useChat = () => {
             id: `temp-${Date.now()}`,
             conversationId: selectedConversation.id,
             senderId: user.id,
-            senderRole: user.role === 'PROVIDER' ? 'PROVIDER' : 'PATIENT',
+            senderRole: user.role === 'ROLE_PROVIDER' ? 'PROVIDER' : 'PATIENT',
             messageType: vaultDocumentId ? 'VAULT_DOCUMENT' : 'TEXT',
             content,
             vaultDocumentId,

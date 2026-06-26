@@ -116,8 +116,8 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
   const t = useTranslations('SidebarNav');
 
-  const isConsumer = role === 'CONSUMER';
-  const isStaff = role === 'STAFF';
+  const isConsumer = role === 'ROLE_CONSUMER';
+  const isStaff = role === 'ROLE_STAFF';
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
   
   let currentLinks = isConsumer ? patientLinks : providerLinks;
