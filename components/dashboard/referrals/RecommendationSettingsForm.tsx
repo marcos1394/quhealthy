@@ -131,7 +131,7 @@ export const RecommendationSettingsForm: React.FC<RecommendationSettingsFormProp
         </CardHeader>
         <CardContent className="p-6 space-y-8">
           
-          <div className={`space-y-8 ${!formData.isActive && 'opacity-50 pointer-events-none transition-opacity'}`}>
+          <div className="space-y-8">
             
             <div className="space-y-4">
               <div>
