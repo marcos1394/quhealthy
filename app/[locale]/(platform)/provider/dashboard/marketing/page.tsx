@@ -21,6 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Hooks
 import { useCatalog } from '@/hooks/useCatalog';
+import { useSocial } from '@/hooks/useSocial';
+import { useGoogleBusinessProfile } from '@/hooks/useGoogleBusinessProfile';
 
 // Componentes modulares
 import { AiStudioForm } from '@/components/dashboard/marketing/AiStudioForm';
@@ -57,28 +59,49 @@ function MarketingContent() {
   const oauthProcessed = useRef(false);
 
   // ── Tab 3: Perfil Público ──────────────────────────────────────────────────
-  const [bio, setBio] = useState(
-    'Dr. Especialista con más de 10 años de experiencia clínica. Comprometido con la salud integral de mis pacientes.'
-  );
-  const profileCompleteness = 85;
+  const { connections, loadConnections, getAuthUrl } = useSocial();
+  const { profile, loading: googleLoading, loadProfile, updateDescription } = useGoogleBusinessProfile();
+
+  const [bio, setBio] = useState('');
+  const [googleConnected, setGoogleConnected] = useState(false);
+
+  useEffect(() => {
+    loadConnections();
+  }, [loadConnections]);
+
+  useEffect(() => {
+    const isGoogleConnected = connections.some((c) => c.platform === 'GOOGLE_BUSINESS');
+    setGoogleConnected(isGoogleConnected);
+    if (isGoogleConnected) {
+      loadProfile();
+    }
+  }, [connections, loadProfile]);
+
+  useEffect(() => {
+    if (profile) {
+      setBio(profile.description || '');
+    }
+  }, [profile]);
 
   // ── OAuth callback ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (oauthProcessed.current) return;
 
-    const isConnected = searchParams.get('facebook_connected');
+    const isFacebookConnected = searchParams.get('facebook_connected');
+    const isGoogleConnectedParam = searchParams.get('status') === 'success_google';
     const error = searchParams.get('error');
 
-    if (isConnected === 'true') {
+    if (isFacebookConnected === 'true' || isGoogleConnectedParam) {
       oauthProcessed.current = true;
       toast.success(t('oauth_success', { defaultValue: 'CONEXIÓN ESTABLECIDA.' }));
+      loadConnections(); // Recargar conexiones tras OAuth
       router.replace(pathname, { scroll: false });
     } else if (error) {
       oauthProcessed.current = true;
       toast.error(t('oauth_error', { defaultValue: 'FALLO DE AUTENTICACIÓN.' }));
       router.replace(pathname, { scroll: false });
     }
-  }, [searchParams, pathname, router, t]);
+  }, [searchParams, pathname, router, t, loadConnections]);
 
   // ── Catálogo del doctor ────────────────────────────────────────────────────
   useEffect(() => {
@@ -167,148 +190,147 @@ function MarketingContent() {
 
           {/* ── TAB 2: Perfil Clínico Público ───────────────────────────────── */}
           <TabsContent value="profile" className="m-0 p-0 border-none outline-none">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-gray-50 dark:bg-[#050505]">
-
-              {/* COLUMNA IZQUIERDA: EDITOR + SEO */}
-              <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-black/20 dark:border-white/20 flex flex-col bg-white dark:bg-[#0a0a0a]">
-
-                {/* Editor de Biografía */}
-                <div className="flex flex-col border-b border-black/10 dark:border-white/10">
-                  <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
-                    <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-1 flex items-center gap-2">
-                      <UserCircle className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-                      {t('profile_bio_title', { defaultValue: 'IDENTIDAD PROFESIONAL' })}
-                    </h2>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                      {t('profile_bio_desc', { defaultValue: 'CONFIGURACIÓN DE BIOGRAFÍA PÚBLICA.' })}
-                    </p>
-                  </div>
+            {!googleConnected ? (
+              <div className="flex flex-col items-center justify-center p-12 md:p-24 bg-white dark:bg-[#0a0a0a] min-h-[400px]">
+                <div className="w-20 h-20 bg-gray-100 dark:bg-[#111] flex items-center justify-center rounded-full mb-6">
+                  <Search className="w-10 h-10 text-gray-400" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-center mb-4 text-black dark:text-white">
+                  Conecta tu Perfil de Google Business
+                </h2>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500 text-center max-w-md mb-8">
+                  MANTÉN SINCRONIZADA LA INFORMACIÓN DE TU CLÍNICA EN GOOGLE MAPS Y EL BUSCADOR DIRECTAMENTE DESDE QUHEALTHY.
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      const { url } = await getAuthUrl('GOOGLE_BUSINESS');
+                      window.location.href = url;
+                    } catch (e) {
+                      toast.error('Error al generar enlace de conexión');
+                    }
+                  }}
+                  className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none cursor-pointer"
+                >
+                  <LinkIcon className="w-4 h-4" strokeWidth={2} />
+                  CONECTAR AHORA
+                </button>
+              </div>
+            ) : googleLoading ? (
+              <div className="flex flex-col items-center justify-center p-24 bg-white dark:bg-[#0a0a0a] min-h-[400px]">
+                <QhSpinner size="md" className="text-black dark:text-white mb-4" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  SINCRONIZANDO CON GOOGLE...
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-gray-50 dark:bg-[#050505]">
+                {/* COLUMNA IZQUIERDA: EDITOR + SEO */}
+                <div className="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-black/20 dark:border-white/20 flex flex-col bg-white dark:bg-[#0a0a0a]">
                   
-                  <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start gap-6">
-                    <div className="w-24 h-24 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 flex flex-col items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white transition-colors cursor-pointer shrink-0">
-                      <ImageIcon className="w-6 h-6 mb-2" strokeWidth={1.5} />
-                      <span className="text-[8px] font-bold uppercase tracking-widest">{t('profile_avatar_change', { defaultValue: 'MODIFICAR' })}</span>
+                  {/* Editor de Biografía */}
+                  <div className="flex flex-col border-b border-black/10 dark:border-white/10">
+                    <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-1 flex items-center gap-2">
+                          <UserCircle className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                          PERFIL DE GOOGLE MAPS
+                        </h2>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                          EDITE SU DESCRIPCIÓN PÚBLICA EN GOOGLE.
+                        </p>
+                      </div>
+                      <span className="border border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-900/10 dark:text-blue-400 px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> CONECTADO
+                      </span>
+                    </div>
+                    
+                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start gap-6">
+                      <div className="flex-1 w-full flex flex-col">
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 block">
+                          DESCRIPCIÓN DEL NEGOCIO (Máx 750 caracteres)
+                        </label>
+                        <textarea
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          maxLength={750}
+                          className="w-full min-h-[160px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-400 uppercase resize-y"
+                          placeholder="INGRESE LA DESCRIPCIÓN DE SU CLÍNICA EN GOOGLE..."
+                        />
+                      </div>
                     </div>
 
-                    <div className="flex-1 w-full flex flex-col">
-                      <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 block">
-                        {t('profile_about_label', { defaultValue: 'EXTRACTO PROFESIONAL' })}
-                      </label>
-                      <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        className="w-full min-h-[160px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-400 uppercase resize-y"
-                        placeholder={t('profile_bio_placeholder', { defaultValue: 'INGRESE SU BIOGRAFÍA...' })}
-                      />
+                    <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/10 dark:border-white/10 flex justify-end">
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await updateDescription(bio);
+                            toast.success('Perfil de Google actualizado exitosamente');
+                          } catch (e) {
+                            toast.error('Error al actualizar en Google');
+                          }
+                        }}
+                        className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none cursor-pointer"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        GUARDAR EN GOOGLE
+                      </button>
                     </div>
                   </div>
 
-                  <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/10 dark:border-white/10 flex justify-end">
-                    <button className="h-12 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none">
-                      <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      {t('save_changes', { defaultValue: 'APLICAR CAMBIOS' })}
+                  {/* SEO Preview */}
+                  <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                    <div className="p-6 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
+                      <h2 className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                        <Search className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} />
+                        PREVISUALIZACIÓN EN BUSCADOR
+                      </h2>
+                    </div>
+                    <div className="p-6 md:p-8">
+                      <div className="max-w-2xl">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 truncate">
+                          {profile?.websiteUrl ? profile.websiteUrl.toUpperCase() : 'HTTPS://BUSINESS.GOOGLE.COM'}
+                        </p>
+                        <h3 className="text-lg font-semibold text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer mb-2 line-clamp-1">
+                          {profile?.title || 'Mi Clínica'} | Google Business Profile
+                        </h3>
+                        <p className="text-xs font-semibold text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2 uppercase tracking-widest leading-relaxed">
+                          {bio || 'Descripción pendiente...'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* COLUMNA DERECHA: COMPARTIR */}
+                <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+                  {/* Tarjeta de Compartir (Código QR) */}
+                  <div className="p-6 md:p-8 bg-black text-white dark:bg-white dark:text-black flex flex-col items-center text-center h-full">
+                    <div className="w-16 h-16 border border-white/20 dark:border-black/20 bg-white/5 dark:bg-black/5 flex items-center justify-center mb-6 mt-12">
+                      <QrCode className="w-8 h-8" strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-sm font-semibold uppercase tracking-tight mb-2">
+                      RESEÑAS DE GOOGLE
+                    </h3>
+                    <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-8 max-w-xs">
+                      COPIE Y COMPARTA ESTA URL EN SUS CANALES DE ATENCIÓN PARA OBTENER MÁS OPINIONES.
+                    </p>
+                    <button
+                      className="w-full h-12 bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none cursor-pointer"
+                      onClick={() => {
+                        const link = profile?.websiteUrl || 'https://google.com';
+                        navigator.clipboard.writeText(link)
+                          .then(() => toast.success(t('copied_to_clipboard', { defaultValue: 'COPIADO' })))
+                          .catch(() => toast.error(t('copy_error', { defaultValue: 'ERROR' })));
+                      }}
+                    >
+                      <LinkIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      COPIAR URL
                     </button>
                   </div>
                 </div>
-
-                {/* SEO Preview */}
-                <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
-                  <div className="p-6 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
-                    <h2 className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                      <Search className="w-3 h-3 text-black dark:text-white" strokeWidth={1.5} />
-                      {t('profile_seo_preview_title', { defaultValue: 'SIMULADOR DE BÚSQUEDA' })}
-                    </h2>
-                    <span className="border border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest">
-                      {t('profile_seo_optimized', { defaultValue: 'INDEXADO' })}
-                    </span>
-                  </div>
-                  <div className="p-6 md:p-8">
-                    <div className="max-w-2xl">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 truncate">
-                        HTTPS://QUHEALTHY.COM/DIRECTORIO/DR-JOHN-DOE
-                      </p>
-                      <h3 className="text-lg font-semibold text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer mb-2 line-clamp-1">
-                        Dr. John Doe | Especialista en QuHealthy Directory
-                      </h3>
-                      <p className="text-xs font-semibold text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2 uppercase tracking-widest leading-relaxed">
-                        Agenda tu cita médica con el Dr. John Doe. {bio}
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
-
-              {/* COLUMNA DERECHA: ESTADO Y COMPARTIR */}
-              <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
-
-                {/* Completeness Kardex */}
-                <div className="p-6 md:p-8 flex flex-col items-center border-b border-black/10 dark:border-white/10 text-center">
-                  <div className="w-24 h-24 border-4 border-gray-100 dark:border-[#111] relative flex items-center justify-center mb-6">
-                    {/* Barra de progreso plana */}
-                    <div 
-                      className="absolute bottom-0 left-0 w-full bg-black dark:bg-white transition-all duration-1000"
-                      style={{ height: `${profileCompleteness}%` }}
-                    />
-                    <span className="relative z-10 text-2xl font-semibold tracking-tight mix-blend-difference text-white">
-                      {profileCompleteness}%
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
-                    {t('profile_completeness_title', { defaultValue: 'ESTATUS DEL PERFIL' })}
-                  </h3>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-8 max-w-xs">
-                    {t('profile_completeness_desc', { defaultValue: 'UN PERFIL COMPLETO GENERA MAYOR CONFIANZA.' })}
-                  </p>
-
-                  <div className="w-full flex flex-col gap-0 border border-black/10 dark:border-white/10 text-left">
-                    <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center gap-3 bg-gray-50 dark:bg-[#050505]">
-                      <CheckCircle2 className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
-                        {t('profile_check_photo', { defaultValue: 'FOTOGRAFÍA' })}
-                      </span>
-                    </div>
-                    <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center gap-3 bg-gray-50 dark:bg-[#050505]">
-                      <CheckCircle2 className="w-4 h-4 text-black dark:text-white shrink-0" strokeWidth={1.5} />
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
-                        {t('profile_check_bio', { defaultValue: 'BIOGRAFÍA' })}
-                      </span>
-                    </div>
-                    <div className="p-3 flex items-center gap-3 bg-white dark:bg-[#0a0a0a]">
-                      <div className="w-4 h-4 border border-black/20 dark:border-white/20 shrink-0" />
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                        {t('profile_check_cedula', { defaultValue: 'CÉDULA PROFESIONAL' })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tarjeta de Compartir (Código QR) */}
-                <div className="p-6 md:p-8 bg-black text-white dark:bg-white dark:text-black flex flex-col items-center text-center">
-                  <div className="w-16 h-16 border border-white/20 dark:border-black/20 bg-white/5 dark:bg-black/5 flex items-center justify-center mb-6">
-                    <QrCode className="w-8 h-8" strokeWidth={1.5} />
-                  </div>
-                  <h3 className="text-sm font-semibold uppercase tracking-tight mb-2">
-                    {t('profile_share_title', { defaultValue: 'ENLACE DIRECTO' })}
-                  </h3>
-                  <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-8 max-w-xs">
-                    {t('profile_share_desc', { defaultValue: 'COPIE Y COMPARTA ESTA URL EN SUS CANALES DE ATENCIÓN.' })}
-                  </p>
-                  <button
-                    className="w-full h-12 bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none"
-                    onClick={() => {
-                      navigator.clipboard.writeText('https://quhealthy.com/directorio/dr-john-doe')
-                        .then(() => toast.success(t('copied_to_clipboard', { defaultValue: 'COPIADO' })))
-                        .catch(() => toast.error(t('copy_error', { defaultValue: 'ERROR' })));
-                    }}
-                  >
-                    <LinkIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    {t('profile_share_copy_btn', { defaultValue: 'COPIAR URL' })}
-                  </button>
-                </div>
-
-              </div>
-            </div>
+            )}
           </TabsContent>
 
         </Tabs>

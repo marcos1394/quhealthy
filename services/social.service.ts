@@ -45,6 +45,16 @@ export const socialService = {
     await axiosInstance.delete(`${BASE}/connections/${connectionId}`);
   },
 
+  getGoogleBusinessProfile: async () => {
+    const response = await axiosInstance.get(`${BASE}/google/profile`);
+    return response.data;
+  },
+
+  updateGoogleBusinessProfile: async (description: string) => {
+    const response = await axiosInstance.patch(`${BASE}/google/profile`, { description });
+    return response.data;
+  },
+
   // ============================================================
   // 2. GENERACIÓN CON IA
   // ============================================================
