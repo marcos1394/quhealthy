@@ -199,19 +199,19 @@ export default function MyCoursesPage() {
                       </span>
                       <span className={cn(
                         "flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border transition-colors duration-300",
-                        course.access.isActive 
+                        course.details.contentUrl 
                           ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900 group-hover:bg-green-900 group-hover:text-green-300 group-hover:border-green-700" 
                           : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900 group-hover:bg-red-900 group-hover:text-red-300 group-hover:border-red-700"
                       )}>
-                        {course.access.isActive ? (
+                        {course.details.contentUrl ? (
                           <>
-                            <CheckCircle2 className="h-3 w-3" strokeWidth={2} />
-                            Activo
+                            <Video className="h-3 w-3" strokeWidth={2} />
+                            Disponible
                           </>
                         ) : (
                           <>
                             <AlertCircle className="h-3 w-3" strokeWidth={2} />
-                            Suspendido
+                            Próximamente
                           </>
                         )}
                       </span>
