@@ -24,6 +24,7 @@ import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
+import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 
 import {
   format, addMonths, subMonths, startOfMonth, endOfMonth,
@@ -134,6 +135,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           </div>
         </div>
       </div>
+
+      <ActiveCreditsBanner providerSlug={slug} brandColor={safeColor} />
 
       <div className="max-w-7xl mx-auto px-6 mt-12 flex flex-col lg:flex-row gap-12">
 

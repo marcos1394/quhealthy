@@ -3,6 +3,7 @@
 export interface PackageProviderInfo {
     name: string;
     specialty: string;
+    slug?: string; // Optional slug for redirection to the store
 }
 
 export interface PackageServiceInfo {

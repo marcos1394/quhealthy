@@ -23,6 +23,7 @@ import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { CheckoutModal } from "@/components/store/CheckoutModal";
+import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useProviderScore } from "@/hooks/useProviderScore";
@@ -115,6 +116,9 @@ export default function PublicStorePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+
+      {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
+      <ActiveCreditsBanner providerSlug={slug} brandColor={store.brandColor} />
 
       {/* --- HERO SECTION CORREGIDO --- */}
       <div className="w-full border-b border-gray-200 dark:border-gray-800">

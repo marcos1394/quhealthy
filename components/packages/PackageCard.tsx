@@ -16,11 +16,16 @@ export function PackageCard({ pkg }: PackageCardProps) {
     const router = useRouter();
 
     const handleUseCredits = () => {
-        router.push(`/search?provider=${encodeURIComponent(pkg.provider.name)}`);
+        const slug = pkg.provider.slug;
+        if (slug) {
+            router.push(`/store/${slug}`);
+        } else {
+            router.push(`/search?provider=${encodeURIComponent(pkg.provider.name)}`);
+        }
     };
 
     return (
-        <div className="flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors group h-full">
+        <div className="flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group h-full hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] hover:border-black dark:hover:border-white relative hover:z-10">
             
             {/* Cabecera Técnica */}
             <div className="p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col gap-4">
@@ -47,7 +52,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
 
             {/* Contenido y Progreso (Barras Arquitectónicas) */}
             <div className="p-6 md:p-8 flex-grow flex flex-col">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-8 line-clamp-2 h-10 font-light leading-relaxed">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-8 line-clamp-2 h-10 font-light leading-relaxed text-left">
                     {pkg.servicePackage.description}
                 </p>
 
