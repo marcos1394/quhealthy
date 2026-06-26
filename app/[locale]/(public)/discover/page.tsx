@@ -451,10 +451,10 @@ const DiscoverMapContent = () => {
         {/* 🔍 CAPA FLOTANTE: BUSCADOR ARQUITECTÓNICO */}
         <div className="absolute top-6 left-4 right-4 md:left-8 md:right-8 z-20 flex flex-col gap-3 pointer-events-none">
           
-          <div className="flex flex-col 2xl:flex-row 2xl:items-center gap-3 w-full">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
             <form 
               onSubmit={(e) => e.preventDefault()}
-              className="pointer-events-auto w-full md:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
+              className="pointer-events-auto w-full md:w-[460px] lg:w-[400px] xl:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
             >
               <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14">
                 <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
