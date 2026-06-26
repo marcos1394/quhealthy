@@ -30,7 +30,7 @@ export const RevenueChart = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505]">
+      <div className="w-full h-[300px] flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505]">
         <QhSpinner size="md" className="text-black dark:text-white mb-4" />
         <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
           EXTRAYENDO HISTÓRICO...
@@ -41,7 +41,7 @@ export const RevenueChart = () => {
 
   if (error) {
     return (
-      <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10">
+      <div className="w-full h-[300px] flex flex-col items-center justify-center border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10">
         <span className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
           ERROR DE LECTURA
         </span>
@@ -51,7 +51,7 @@ export const RevenueChart = () => {
   }
 
   return (
-    <div className="w-full h-full min-h-[300px] text-black dark:text-white relative bg-white dark:bg-[#0a0a0a] pt-4 pr-4">
+    <div className="w-full h-[300px] text-black dark:text-white relative bg-white dark:bg-[#0a0a0a] pt-4 pr-4">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}

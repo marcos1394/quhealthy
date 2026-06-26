@@ -318,7 +318,7 @@ export default function DashboardPage() {
       </div>
 
       {/* --- GRID PRINCIPAL: GRÁFICO & REPUTACIÓN --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
         {/* Gráfico Financiero (Plano) */}
         <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
