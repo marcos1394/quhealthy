@@ -33,6 +33,10 @@ export const socialService = {
   },
 
   getAuthUrl: async (platform: string): Promise<AuthUrlResponse> => {
+    if (platform === 'GOOGLE_BUSINESS') {
+      const response = await axiosInstance.get(`${BASE}/google/connect`);
+      return response.data;
+    }
     const response = await axiosInstance.get(`${BASE}/${platform}/url`);
     return response.data;
   },
