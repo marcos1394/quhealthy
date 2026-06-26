@@ -982,7 +982,10 @@
       "booking_engine": "Booking Engine",
       "active": "Active"
     },
-    "loading": "Preparing your smart calendar..."
+    "loading": "Preparing your smart calendar...",
+    "missing_hours_title": "Configure your hours",
+    "missing_hours_desc": "You must configure your operating hours so patients can schedule appointments.",
+    "btn_configure_hours": "Configure hours"
   },
   "DashboardCalendarView": {
     "confirmed": "Confirmed",

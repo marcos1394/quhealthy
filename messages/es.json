@@ -982,7 +982,10 @@
       "booking_engine": "Motor de Reservas",
       "active": "Activo"
     },
-    "loading": "Preparando tu calendario inteligente..."
+    "loading": "Preparando tu calendario inteligente...",
+    "missing_hours_title": "Configura tus horarios",
+    "missing_hours_desc": "Debes configurar tus horarios de atención para que los pacientes puedan agendar citas.",
+    "btn_configure_hours": "Configurar horarios"
   },
   "DashboardCalendarView": {
     "confirmed": "Confirmada",
