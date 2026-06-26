@@ -165,7 +165,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                     <span className="font-bold text-sm">{stepCounter++}</span>
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">Modalidad de Ejecución</h2>
+                    <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">¿Qué deseas hacer?</h2>
                   </div>
                 </div>
                 
@@ -185,8 +185,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                         <CalendarIcon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div className="text-left">
-                      <h4 className="font-bold text-[10px] uppercase tracking-widest">Agendar Ahora</h4>
-                      <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">ASIGNAR PARÁMETRO TEMPORAL</p>
+                      <h4 className="font-bold text-[10px] uppercase tracking-widest">Agendar Cita</h4>
+                      <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">Elegir fecha y pagar</p>
                     </div>
                   </button>
                   <button 
@@ -204,8 +204,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                         <Package className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div className="text-left">
-                      <h4 className="font-bold text-[10px] uppercase tracking-widest">Comprar Crédito</h4>
-                      <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">REDIMIR POSTERIORMENTE</p>
+                      <h4 className="font-bold text-[10px] uppercase tracking-widest">Comprar para después</h4>
+                      <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">Paga ahora, agenda cuando quieras</p>
                     </div>
                   </button>
                 </div>

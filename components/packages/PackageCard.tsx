@@ -53,7 +53,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
 
                 <div className="space-y-6">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-2">
-                        {t('available_credits', { defaultValue: 'Balance de Créditos' })}
+                        {t('available_credits', { defaultValue: 'Sesiones disponibles' })}
                     </p>
                     
                     {pkg.creditsRemaining.map((credit, idx) => {
@@ -92,7 +92,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
                     onClick={handleUseCredits}
                     className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border-0"
                 >
-                    {t('btn_use_credits', { defaultValue: 'Redimir Créditos' })}
+                    {t('btn_use_credits', { defaultValue: 'Usar mis sesiones' })}
                     <ChevronRight className="w-4 h-4" strokeWidth={2} />
                 </Button>
             </div>
