@@ -191,7 +191,7 @@ export const TrialBanner = () => {
 
   useEffect(() => {
     // La validación ahora comprueba el rol y el estado del plan desde 'user'
-    if (user?.role !== 'PROVIDER' || planStatus !== 'trial' || !trialExpiresAt) {
+    if (user?.role !== 'ROLE_PROVIDER' || planStatus !== 'trial' || !trialExpiresAt) {
       setTimeLeft(null);
       return;
     }
@@ -226,7 +226,7 @@ export const TrialBanner = () => {
   }, [user, planStatus, trialExpiresAt]); // Dependemos del objeto 'user' completo
 
   // Condición de renderizado actualizada
-  if (isLoading || !user || user.role !== 'PROVIDER' || planStatus !== 'trial' || !trialExpiresAt || isDismissed) {
+  if (isLoading || !user || user.role !== 'ROLE_PROVIDER' || planStatus !== 'trial' || !trialExpiresAt || isDismissed) {
     return null;
   }
 
