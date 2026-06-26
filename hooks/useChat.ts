@@ -1,4 +1,3 @@
-// src/hooks/useChat.ts
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Client, IMessage } from '@stomp/stompjs';
 import { toast } from 'react-toastify';
@@ -6,22 +5,16 @@ import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { chatService } from '@/services/chat.service';
-import { Conversation, ChatMessage, ChatMessageRequest } from '@/types/chat';
+import { Conversation, ChatMessage, ChatMessageRequest, PresenceEvent } from '@/types/chat';
 
 export const useChat = () => {
     const { user, token } = useSessionStore();
-    
-    // ==========================================================
-    // 🗂️ ESTADOS DE UI Y DATOS
-    // ==========================================================
+
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    
-    // ==========================================================
-    // ⚡ ESTADOS Y REFERENCIAS DE WEBSOCKET
-    // ==========================================================
+
     const [isConnected, setIsConnected] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const stompClientRef = useRef<Client | null>(null);
@@ -32,7 +25,6 @@ export const useChat = () => {
     useEffect(() => {
         if (!token || !user) return;
 
-        // 1. Cargar el Inbox inicial vía API REST
         setIsLoading(true);
         chatService.getInbox()
             .then(data => {
@@ -45,33 +37,29 @@ export const useChat = () => {
                 setIsLoading(false);
             });
 
-        // 2. Configurar túnel STOMP Seguro para Producción
-        // Utilizamos wss:// en producción por defecto
-        const wsUrl =  process.env.NEXT_PUBLIC_WS_URL;
-        
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+
         const client = new Client({
             brokerURL: wsUrl,
             connectHeaders: {
-                Authorization: `Bearer ${token}` // 🔒 JWT Inyectado para interceptor Spring Boot
+                Authorization: `Bearer ${token}`
             },
             reconnectDelay: 5000,
-            // 🚀 Reducimos la frecuencia de latidos para que no haga tanto ruido en la red
-            heartbeatIncoming: 10000, 
+            heartbeatIncoming: 10000,
             heartbeatOutgoing: 10000,
 
             onConnect: () => {
                 console.log("🟢 Conectado al Hub de Mensajería Clínica QuHealthy");
                 setIsConnected(true);
             },
-            
+
             onDisconnect: () => {
                 console.log("🔴 Desconectado del Hub de Mensajería");
                 setIsConnected(false);
             },
-            
+
             onStompError: (frame) => {
                 console.error("❌ Error STOMP de Producción:", frame.headers['message']);
-                // Si el token expira, el backend cerrará la conexión aquí
                 if (frame.headers['message']?.includes('No autorizado')) {
                     toast.error("Sesión expirada. Por favor, inicie sesión nuevamente.");
                 }
@@ -81,11 +69,10 @@ export const useChat = () => {
         client.activate();
         stompClientRef.current = client;
 
-        // Detectar si el usuario cambia de pestaña o minimiza el navegador
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'hidden') {
                 console.log("💤 Usuario inactivo. Pausando conexión WebSocket para ahorrar recursos...");
-                client.deactivate(); 
+                client.deactivate();
             } else if (document.visibilityState === 'visible') {
                 console.log("👋 Usuario regresó. Reconectando WebSocket...");
                 client.activate();
@@ -110,23 +97,18 @@ export const useChat = () => {
 
         const conversationId = selectedConversation.id;
 
-        // 1. Cargar el historial previo vía REST
         chatService.getMessageHistory(conversationId)
             .then(pageResponse => {
-                // Invertimos el array porque vienen DESC (más recientes primero)
-                // y en UI queremos los viejos arriba y los nuevos abajo
-                setMessages(pageResponse.content.reverse()); 
+                setMessages(pageResponse.content.reverse());
             })
             .catch(err => console.error("Error cargando historial", err));
 
-        // 2. Suscribirse al canal STOMP de esta conversación específica
         const messageSubscription = stompClientRef.current.subscribe(
             `/topic/conversation.${conversationId}`,
             (message: IMessage) => {
                 const newMsg: ChatMessage = JSON.parse(message.body);
-                
+
                 setMessages(prev => {
-                    // Evitar duplicados (si nosotros lo enviamos, actualizamos su estado local)
                     const exists = prev.some(m => m.id === newMsg.id || m.content === newMsg.content && m.status === 'sending');
                     if (exists) {
                         return prev.map(m => (m.id === newMsg.id || (m.content === newMsg.content && m.status === 'sending')) ? { ...newMsg, status: 'sent' } : m);
@@ -136,7 +118,6 @@ export const useChat = () => {
             }
         );
 
-        // 3. Suscribirse al canal de eventos de escritura (Typing)
         const typingSubscription = stompClientRef.current.subscribe(
             `/topic/conversation.${conversationId}.typing`,
             (message: IMessage) => {
@@ -147,23 +128,25 @@ export const useChat = () => {
             }
         );
 
-        // 4. Suscribirse al canal de recibos de lectura (Doble check azul)
+        // 🔧 FIX: ahora parseamos el body y comparamos readerId contra el usuario actual,
+        // para no auto-marcar nuestros propios mensajes como leídos cuando nosotros mismos
+        // abrimos el chat (el broadcast del backend nos rebota a nosotros también).
         const readReceiptSubscription = stompClientRef.current.subscribe(
             `/topic/conversation.${conversationId}.read`,
             (message: IMessage) => {
-                // Si la otra persona leyó, actualizamos nuestros mensajes enviados
-                setMessages(prev => prev.map(m => 
+                const { readerId } = JSON.parse(message.body);
+                if (readerId === user.id) return;
+
+                setMessages(prev => prev.map(m =>
                     (m.senderId === user.id && !m.isRead) ? { ...m, isRead: true, status: 'read' } : m
                 ));
             }
         );
 
-        // 5. Notificar automáticamente al backend que hemos abierto el chat (marcar leídos)
         stompClientRef.current.publish({
             destination: `/app/chat/${conversationId}/read`
         });
 
-        // Limpieza: Al cambiar de chat, nos desuscribimos de estos canales
         return () => {
             messageSubscription.unsubscribe();
             typingSubscription.unsubscribe();
@@ -172,7 +155,43 @@ export const useChat = () => {
     }, [selectedConversation, isConnected, user]);
 
     // ==========================================================
-    // 3. ENVIAR MENSAJES (Vía WS STOMP)
+    // 3. PRESENCIA (Última conexión / Online en tiempo real)
+    // ==========================================================
+    useEffect(() => {
+        if (!selectedConversation || !stompClientRef.current || !isConnected || !user) return;
+
+        // El "otro" participante depende de qué rol soy yo
+        const otherParticipantId = user.role === 'PROVIDER'
+            ? selectedConversation.patientId
+            : selectedConversation.providerId;
+
+        const presenceSubscription = stompClientRef.current.subscribe(
+            `/topic/user.${otherParticipantId}.presence`,
+            (message: IMessage) => {
+                const event: PresenceEvent = JSON.parse(message.body);
+
+                setSelectedConversation(prev => prev ? {
+                    ...prev,
+                    otherParticipantOnline: event.online,
+                    otherParticipantLastSeenAt: event.lastSeenAt,
+                } : prev);
+
+                // También reflejamos el cambio en la lista del inbox
+                setConversations(prev => prev.map(c =>
+                    c.id === selectedConversation.id
+                        ? { ...c, otherParticipantOnline: event.online, otherParticipantLastSeenAt: event.lastSeenAt }
+                        : c
+                ));
+            }
+        );
+
+        return () => {
+            presenceSubscription.unsubscribe();
+        };
+    }, [selectedConversation?.id, isConnected, user]);
+
+    // ==========================================================
+    // 4. ENVIAR MENSAJES (Vía WS STOMP)
     // ==========================================================
     const sendMessage = useCallback((content: string, vaultDocumentId?: string) => {
         if (!selectedConversation || !stompClientRef.current || !isConnected || !user) {
@@ -182,7 +201,6 @@ export const useChat = () => {
 
         const msgReq: ChatMessageRequest = { content, vaultDocumentId };
 
-        // 1. UX Optimista: Mostrar el mensaje en UI instantáneamente (status 'sending')
         const optimisticMsg: ChatMessage = {
             id: `temp-${Date.now()}`,
             conversationId: selectedConversation.id,
@@ -195,10 +213,9 @@ export const useChat = () => {
             createdAt: new Date().toISOString(),
             status: 'sending'
         };
-        
+
         setMessages(prev => [...prev, optimisticMsg]);
 
-        // 2. Disparar el mensaje a través del túnel seguro de Spring Boot
         stompClientRef.current.publish({
             destination: `/app/chat/${selectedConversation.id}/send`,
             body: JSON.stringify(msgReq)

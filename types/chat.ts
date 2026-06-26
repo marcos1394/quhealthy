@@ -5,13 +5,14 @@ export interface Conversation {
     status: 'ACTIVE' | 'CLOSED' | 'ARCHIVED';
     lastMessageAt: string;
     createdAt: string;
-    
-    // UI Helpers (En el futuro, el backend los poblará o los cruzaremos con los datos del provider)
     otherParticipantName?: string;
     otherParticipantImage?: string;
     otherParticipantSpecialty?: string;
     lastMessagePreview?: string;
     unreadCount?: number;
+    // 🟢 NUEVO: Presencia en tiempo real
+    otherParticipantOnline?: boolean;
+    otherParticipantLastSeenAt?: string;
     provider?: {
         name: string;
         specialty?: string;
@@ -31,8 +32,6 @@ export interface ChatMessage {
     isRead: boolean;
     readAt?: string;
     createdAt: string;
-    
-    // Estado local de UI para mostrar los "palomitas" (checks) antes de que el server confirme
     status?: 'sending' | 'sent' | 'delivered' | 'read';
 }
 
@@ -44,4 +43,11 @@ export interface ChatMessageRequest {
 export interface ChatTypingEvent {
     senderId: number;
     isTyping: boolean;
+}
+
+// 🟢 NUEVO
+export interface PresenceEvent {
+    userId: number;
+    online: boolean;
+    lastSeenAt?: string;
 }
