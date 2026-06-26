@@ -72,26 +72,26 @@ export default function MyCoursesPage() {
           {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
           {!isLoading && courses.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                 <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Volumen Total</p>
-                  <Library className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Volumen Total</p>
+                  <Library className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                 </div>
-                <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{courses.length}</p>
+                <p className="text-3xl font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black tracking-tight">{courses.length}</p>
               </div>
-              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                 <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Disponibles Ahora</p>
-                  <Video className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Disponibles Ahora</p>
+                  <Video className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                 </div>
-                <p className="text-3xl font-semibold text-black dark:text-white tracking-tight">{coursesWithContent}</p>
+                <p className="text-3xl font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black tracking-tight">{coursesWithContent}</p>
               </div>
-              <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                 <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Última Transacción</p>
-                  <CalendarCheck className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Última Transacción</p>
+                  <CalendarCheck className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                 </div>
-                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white truncate">
+                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black truncate">
                   {latestCourse ? format(new Date(latestCourse.access.purchasedAt), "dd MMM yyyy", { locale: es }) : "N/A"}
                 </p>
               </div>
@@ -155,10 +155,10 @@ export default function MyCoursesPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors"
+                  className="group relative z-0 hover:z-10 flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer"
                 >
                   {/* IMAGEN DEL CURSO */}
-                  <div className="aspect-video relative overflow-hidden bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800">
+                  <div className="aspect-video relative overflow-hidden bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
                     {course.details.imageUrl ? (
                       <Image 
                         src={course.details.imageUrl} 
@@ -168,15 +168,15 @@ export default function MyCoursesPage() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-12 w-12 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black">
-                          <PlayCircle className="h-5 w-5 text-gray-400" strokeWidth={1.5} />
+                        <div className="flex h-12 w-12 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors duration-300">
+                          <PlayCircle className="h-5 w-5 text-gray-400 group-hover:text-white dark:group-hover:text-black transition-colors duration-300" strokeWidth={1.5} />
                         </div>
                       </div>
                     )}
                     
                     {/* Overlay superior */}
                     <div className="absolute top-4 left-4">
-                      <span className="bg-white text-black border border-black dark:bg-black dark:text-white dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+                      <span className="bg-white text-black border border-black dark:bg-black dark:text-white dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm group-hover:bg-black group-hover:text-white group-hover:border-white dark:group-hover:bg-white dark:group-hover:text-black dark:group-hover:border-black transition-colors duration-300">
                         <BookOpen className="h-3 w-3" strokeWidth={2} />
                         Digital
                       </span>
@@ -184,7 +184,7 @@ export default function MyCoursesPage() {
 
                     {/* Overlay inferior */}
                     <div className="absolute bottom-4 left-4">
-                      <span className="bg-black/80 text-white backdrop-blur-sm border border-white/20 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                      <span className="bg-black/80 text-white backdrop-blur-sm border border-white/20 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 group-hover:bg-white/90 group-hover:text-black group-hover:border-black/20 dark:group-hover:bg-black/90 dark:group-hover:text-white transition-colors duration-300">
                         <Clock className="h-3 w-3" strokeWidth={2} />
                         Adquirido: {format(new Date(course.access.purchasedAt), "dd MMM yyyy", { locale: es })}
                       </span>
@@ -192,34 +192,44 @@ export default function MyCoursesPage() {
                   </div>
 
                   {/* CONTENIDO DEL CURSO */}
-                  <div className="flex flex-1 flex-col p-6">
-                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
-                      <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                  <div className="flex flex-1 flex-col p-6 group-hover:bg-transparent transition-colors duration-300">
+                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-4 transition-colors duration-300 group-hover:border-gray-800 dark:group-hover:border-gray-200">
+                      <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:bg-black group-hover:text-gray-400 dark:group-hover:bg-white dark:group-hover:text-gray-600 transition-colors duration-300">
                         Orden #{course.access.orderId}
                       </span>
                       <span className={cn(
-                        "text-[9px] font-bold uppercase tracking-widest flex items-center gap-1",
-                        course.details.contentUrl ? "text-black dark:text-white" : "text-gray-400"
+                        "flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border transition-colors duration-300",
+                        course.access.isActive 
+                          ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900 group-hover:bg-green-900 group-hover:text-green-300 group-hover:border-green-700" 
+                          : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900 group-hover:bg-red-900 group-hover:text-red-300 group-hover:border-red-700"
                       )}>
-                        <Video className="h-3 w-3" strokeWidth={2} />
-                        {course.details.contentUrl ? "Disponible" : "Próximamente"}
+                        {course.access.isActive ? (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" strokeWidth={2} />
+                            Activo
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="h-3 w-3" strokeWidth={2} />
+                            Suspendido
+                          </>
+                        )}
                       </span>
                     </div>
 
-                    <h3 className="mb-3 line-clamp-2 text-lg font-semibold tracking-tight text-black dark:text-white">
+                    <h3 className="mb-2 text-lg font-bold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors duration-300 line-clamp-2">
                       {course.details.name}
                     </h3>
-                    
-                    <p className="mb-8 line-clamp-3 text-xs font-light leading-relaxed text-gray-500 dark:text-gray-400">
+                    <p className="mb-6 text-xs font-light leading-relaxed text-gray-500 group-hover:text-gray-400 transition-colors duration-300 line-clamp-2 flex-1">
                       {course.details.description}
                     </p>
 
                     <Button 
                       className={cn(
-                        "mt-auto h-12 w-full rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6",
+                        "mt-auto h-12 w-full rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border border-black dark:border-white group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white",
                         course.details.contentUrl 
-                          ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0" 
-                          : "bg-gray-100 text-gray-400 border border-gray-200 dark:bg-[#050505] dark:border-gray-800 cursor-not-allowed"
+                          ? "bg-black text-white dark:bg-white dark:text-black" 
+                          : "bg-gray-100 text-gray-400 dark:bg-[#050505] cursor-not-allowed group-hover:bg-gray-200 dark:group-hover:bg-gray-800"
                       )}
                       onClick={() => {
                         if (course.details.contentUrl) {

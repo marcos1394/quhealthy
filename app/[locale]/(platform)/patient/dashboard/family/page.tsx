@@ -134,26 +134,26 @@ export default function PatientFamilyDashboard() {
                     {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
                     {family.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                            <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                            <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                                 <div className="flex items-center justify-between gap-3 mb-6">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Total Miembros</p>
-                                    <Users className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Total Miembros</p>
+                                    <Users className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </div>
-                                <p className="text-3xl font-semibold tracking-tight">{family.length}</p>
+                                <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{family.length}</p>
                             </div>
-                            <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                            <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                                 <div className="flex items-center justify-between gap-3 mb-6">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Esquemas Infantiles</p>
-                                    <Syringe className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Esquemas Infantiles</p>
+                                    <Syringe className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </div>
-                                <p className="text-3xl font-semibold tracking-tight">{childCount}</p>
+                                <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{childCount}</p>
                             </div>
-                            <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+                            <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                                 <div className="flex items-center justify-between gap-3 mb-6">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Cuidados Senior</p>
-                                    <HeartHandshake className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Cuidados Senior</p>
+                                    <HeartHandshake className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </div>
-                                <p className="text-3xl font-semibold tracking-tight">{elderCount}</p>
+                                <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{elderCount}</p>
                             </div>
                         </div>
                     )}
@@ -309,20 +309,22 @@ export default function PatientFamilyDashboard() {
                             return (
                                 <div
                                     key={member.id}
-                                    className="group relative flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors"
+                                    className="group relative z-0 hover:z-10 flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer"
                                 >
                                     <DependentVaccineAlert memberId={member.id} />
 
                                     <div className="p-6 md:p-8 flex items-start justify-between gap-4 border-b border-gray-200 dark:border-gray-800">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-                                                {getRelationshipIcon(member.relationship)}
+                                            <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-black dark:border-white bg-gray-50 dark:bg-[#050505] group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors duration-300">
+                                                <div className="text-black dark:text-white group-hover:text-black dark:group-hover:text-white">
+                                                    {getRelationshipIcon(member.relationship)}
+                                                </div>
                                             </div>
                                             <div>
-                                                <span className="mb-1 inline-flex border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                                <span className="mb-1 inline-flex border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:bg-black group-hover:text-gray-300 dark:group-hover:bg-white dark:group-hover:text-gray-600 transition-colors duration-300">
                                                     {getTranslatedRelationship(member.relationship)}
                                                 </span>
-                                                <h3 className="truncate text-lg font-bold tracking-tight text-black dark:text-white">
+                                                <h3 className="truncate text-lg font-bold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors duration-300">
                                                     {member.firstName} {member.lastName}
                                                 </h3>
                                             </div>
@@ -330,7 +332,7 @@ export default function PatientFamilyDashboard() {
 
                                         <button
                                             onClick={() => removeMember(member.id)}
-                                            className="flex h-10 w-10 shrink-0 items-center justify-center border border-transparent text-gray-400 hover:border-red-500 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                            className="flex h-10 w-10 shrink-0 items-center justify-center border border-transparent text-gray-400 hover:border-red-500 hover:bg-red-50 hover:text-red-500 transition-colors z-20"
                                             title="Eliminar Expediente"
                                         >
                                             <Trash2 className="h-4 w-4" strokeWidth={1.5} />
@@ -338,19 +340,19 @@ export default function PatientFamilyDashboard() {
                                     </div>
 
                                     {/* Grid Blueprint Interno */}
-                                    <div className="grid grid-cols-2 gap-0 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                                    <div className="grid grid-cols-2 gap-0 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors duration-300">
                                         <div className="border-r border-gray-200 dark:border-gray-800 p-4">
-                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Edad</p>
-                                            <p className="font-semibold text-black dark:text-white tracking-tight">{age} Años</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors duration-300 mb-1">Edad</p>
+                                            <p className="font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors duration-300 tracking-tight">{age} Años</p>
                                         </div>
                                         <div className="p-4">
-                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Nacimiento</p>
-                                            <p className="truncate text-sm font-semibold text-black dark:text-white tracking-tight">{member.dateOfBirth}</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 transition-colors duration-300 mb-1">Nacimiento</p>
+                                            <p className="truncate text-sm font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors duration-300 tracking-tight">{member.dateOfBirth}</p>
                                         </div>
                                     </div>
 
                                     {/* Acciones */}
-                                    <div className="p-6 md:p-8 flex flex-col gap-3 bg-gray-50/50 dark:bg-[#050505]/50 flex-1 justify-end">
+                                    <div className="p-6 md:p-8 flex flex-col gap-3 bg-gray-50/50 dark:bg-[#050505]/50 group-hover:bg-transparent transition-colors duration-300 flex-1 justify-end">
                                         {age < 12 && (
                                             <Link 
                                                 href={`/patient/dashboard/family/${member.id}/vaccinations`} 
