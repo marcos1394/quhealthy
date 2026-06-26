@@ -19,11 +19,11 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, onSearchChange }: ChatSidebarProps) {
     const t = useTranslations('PatientMessages');
-    const { user } = useSessionStore();
+    const { user, role } = useSessionStore();
 
     // 🟢 NUEVO: el "otro" participante depende de quién soy yo.
     // Si yo soy PROVIDER, el otro es un PACIENTE (no un "especialista").
-    const isProvider = user?.role === 'ROLE_PROVIDER';
+    const isProvider = role === 'ROLE_PROVIDER' || user?.role === 'ROLE_PROVIDER';
     const fallbackName = isProvider ? 'Paciente' : 'Especialista';
 
     const formatRelativeTime = (dateString: string) => {
