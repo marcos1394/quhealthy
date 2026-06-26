@@ -21,7 +21,7 @@ interface SocialAuthButtonsProps {
 }
 
 export default function SocialAuthButtons({
-  accountRole = 'PROVIDER',
+  accountRole = 'ROLE_PROVIDER',
   onSuccess
 }: SocialAuthButtonsProps) {
 
@@ -40,7 +40,7 @@ export default function SocialAuthButtons({
       return;
     }
 
-    if (userrole === 'ROLE_CONSUMER') {
+    if (userRole === 'ROLE_CONSUMER') {
       try {
         const profile: any = await consumerProfileService.getProfile();
         const step = profile?.onboardingStep || 0;
@@ -56,14 +56,14 @@ export default function SocialAuthButtons({
     }
 
     if (!status.onboardingComplete) {
-      if (userrole === 'ROLE_PROVIDER') {
+      if (userRole === 'ROLE_PROVIDER') {
         router.push('/provider/onboarding');
       }
       return;
     }
 
     // Si todo está completo, lo mandamos a su panel
-    if (userrole === 'ROLE_PROVIDER') {
+    if (userRole === 'ROLE_PROVIDER') {
       router.push('/provider/dashboard');
     }
   };
@@ -80,7 +80,7 @@ export default function SocialAuthButtons({
         const response = await loginWithGoogle({
           provider: "GOOGLE",
           token: tokenResponse.access_token,
-          role: accountRole as "CONSUMER" | "PROVIDER"
+          role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER"
         });
 
         toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
@@ -115,7 +115,7 @@ export default function SocialAuthButtons({
       const response = await loginWithGoogle({
         provider: "APPLE",
         token: appleToken,
-        role: accountRole as "CONSUMER" | "PROVIDER"
+        role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER"
       });
 
       toast.success(`¡Bienvenido, ${response.user?.firstName || ''}!`);
