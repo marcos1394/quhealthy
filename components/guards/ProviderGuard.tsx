@@ -24,7 +24,7 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
 
     // 1. Si no es provider autenticado, expulsar
-    if (!isAuthenticated || role !== 'PROVIDER') {
+    if (!isAuthenticated || role !== 'ROLE_PROVIDER') {
       console.warn('⛔ Acceso denegado: Área exclusiva para especialistas');
       router.replace('/login');
       return;
@@ -90,7 +90,7 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
     isLoading || 
     isReEvaluating ||
     !isAuthenticated || 
-    role !== 'PROVIDER' || 
+    role !== 'ROLE_PROVIDER' || 
     !status?.emailVerified || 
     !status?.onboardingComplete
   ) {
