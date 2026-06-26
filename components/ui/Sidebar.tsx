@@ -65,7 +65,7 @@ export const Sidebar: React.FC<{ className?: string }> = ({ className = "" }) =>
     return <aside className="hidden md:flex flex-col w-64 bg-slate-900 dark:bg-slate-950 animate-pulse"></aside>;
   }
 
-  if (!user || user.role !== 'PROVIDER') {
+  if (!user || user.role !== 'ROLE_PROVIDER') {
     return null;
   }
 
