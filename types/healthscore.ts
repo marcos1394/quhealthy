@@ -31,6 +31,7 @@ export interface HealthProfilePayload {
 
 // Lo que nos responde el Backend
 export interface HealthScoreResponse {
+  percentile: number | null | undefined;
   consumer_id?: string;
   quscore: number;
   band: ScoreBand;

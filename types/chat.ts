@@ -51,3 +51,11 @@ export interface PresenceEvent {
     online: boolean;
     lastSeenAt?: string;
 }
+
+// 🟢 NUEVO: evento del canal de inbox por usuario
+export interface InboxUpdateEvent {
+    conversationId: string;
+    senderId: number;
+    lastMessagePreview: string;
+    lastMessageAt: string;
+}

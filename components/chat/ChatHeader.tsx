@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Phone, Video, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Conversation } from '@/types/chat';
+import { useSessionStore } from '@/stores/SessionStore';
+import { formatLastSeen } from '@/lib/formatMessageTime';
 
 interface ChatHeaderProps {
     conversation: Conversation;
@@ -15,7 +17,17 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ conversation, onBack, onVoiceCall, onVideoCall }: ChatHeaderProps) {
     const t = useTranslations('PatientMessages');
-    const providerName = conversation.provider?.name || conversation.otherParticipantName || 'Especialista';
+    const { user } = useSessionStore();
+
+    const isProvider = user?.role === 'PROVIDER';
+    const fallbackName = isProvider ? 'Paciente' : 'Especialista';
+    const providerName = conversation.provider?.name || conversation.otherParticipantName || fallbackName;
+
+    // 🔧 FIX: leer el campo real que puebla el backend de presencia.
+    // `provider.online` se mantiene como fallback por si en el futuro
+    // se llena ese objeto desde otro lado.
+    const isOnline = conversation.otherParticipantOnline ?? conversation.provider?.online;
+    const lastSeenLabel = formatLastSeen(conversation.otherParticipantLastSeenAt);
 
     return (
         <div className="p-4 md:p-6 bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
@@ -48,11 +60,18 @@ export function ChatHeader({ conversation, onBack, onVoiceCall, onVideoCall }: C
                     <p className="font-bold text-sm uppercase tracking-wider text-black dark:text-white leading-none mb-2">
                         {providerName}
                     </p>
+                    {/* 🔧 FIX: antes mostraba "ÚLT:" con `lastMessageAt` (hora del último 
+                        mensaje, no tiene relación con si la persona está conectada). 
+                        Ahora usa `otherParticipantLastSeenAt`, el dato real de presencia. */}
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2 leading-none">
-                        {conversation.provider?.online ? (
+                        {isOnline ? (
                             <><span className="w-2 h-2 bg-black dark:bg-white inline-block"></span> {t('online', { defaultValue: 'EN LÍNEA' })}</>
                         ) : (
-                            <><span className="w-2 h-2 border border-black dark:border-white inline-block"></span> {t('offline', { defaultValue: 'DESCONECTADO' })} • ULT: {new Date(conversation.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</>
+                            <>
+                                <span className="w-2 h-2 border border-black dark:border-white inline-block"></span> 
+                                {t('offline', { defaultValue: 'DESCONECTADO' })}
+                                {lastSeenLabel && <> • {lastSeenLabel}</>}
+                            </>
                         )}
                     </p>
                 </div>

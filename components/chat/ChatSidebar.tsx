@@ -7,6 +7,7 @@ import { Search, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Conversation } from '@/types/chat';
 import { cn } from '@/lib/utils';
+import { useSessionStore } from '@/stores/SessionStore';
 
 interface ChatSidebarProps {
     conversations: Conversation[];
@@ -18,6 +19,12 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, onSearchChange }: ChatSidebarProps) {
     const t = useTranslations('PatientMessages');
+    const { user } = useSessionStore();
+
+    // 🟢 NUEVO: el "otro" participante depende de quién soy yo.
+    // Si yo soy PROVIDER, el otro es un PACIENTE (no un "especialista").
+    const isProvider = user?.role === 'PROVIDER';
+    const fallbackName = isProvider ? 'Paciente' : 'Especialista';
 
     const formatRelativeTime = (dateString: string) => {
         const diff = Date.now() - new Date(dateString).getTime();
@@ -45,7 +52,11 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                     <Input
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder={t('search_placeholder', { defaultValue: 'BUSCAR ESPECIALISTA...' })}
+                        placeholder={
+                            isProvider
+                                ? t('search_placeholder_provider', { defaultValue: 'BUSCAR PACIENTE...' })
+                                : t('search_placeholder', { defaultValue: 'BUSCAR ESPECIALISTA...' })
+                        }
                         className="pl-12 rounded-none bg-white dark:bg-black border-gray-300 dark:border-gray-700 h-12 text-xs focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors uppercase placeholder:text-gray-400"
                     />
                 </div>
@@ -55,8 +66,13 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
             <div className="flex-1 overflow-y-auto no-scrollbar">
                 {filtered.length > 0 ? (
                     filtered.map(convo => {
-                        const providerName = convo.provider?.name || convo.otherParticipantName || 'Especialista';
+                        const providerName = convo.provider?.name || convo.otherParticipantName || fallbackName;
                         const isSelected = selectedId === convo.id;
+
+                        // 🔧 FIX: el backend puebla `otherParticipantOnline`, no `provider.online`
+                        // (ese objeto `provider` aún no se llena en ningún lado). Mantenemos
+                        // el fallback a provider?.online por compatibilidad futura.
+                        const isOnline = convo.otherParticipantOnline ?? convo.provider?.online;
 
                         return (
                             <div
@@ -91,7 +107,7 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                                         )}
                                     </div>
                                     {/* Indicador de conexión arquitectónico */}
-                                    {convo.provider?.online && (
+                                    {isOnline && (
                                         <div className={cn(
                                             "absolute -bottom-1 -right-1 w-3.5 h-3.5 border-2",
                                             isSelected ? "bg-white border-black dark:bg-black dark:border-white" : "bg-black border-white dark:bg-white dark:border-black"
@@ -111,11 +127,16 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                                             {formatRelativeTime(convo.lastMessageAt)}
                                         </span>
                                     </div>
+                                    {/* 🔧 FIX: si soy PROVIDER, no tiene sentido mostrar "especialidad" 
+                                        (el otro es un paciente, no tiene especialidad). Mostramos una 
+                                        etiqueta de rol en su lugar. */}
                                     <p className={cn(
                                         "text-[9px] uppercase tracking-widest truncate mb-2",
                                         isSelected ? "text-gray-400 dark:text-gray-500" : "text-gray-500"
                                     )}>
-                                        {convo.provider?.specialty || convo.otherParticipantSpecialty || t('specialist', { defaultValue: 'ESPECIALISTA' })}
+                                        {isProvider
+                                            ? t('patient_label', { defaultValue: 'PACIENTE' })
+                                            : (convo.provider?.specialty || convo.otherParticipantSpecialty || t('specialist', { defaultValue: 'ESPECIALISTA' }))}
                                     </p>
                                     <p className={cn(
                                         "text-xs truncate font-light",

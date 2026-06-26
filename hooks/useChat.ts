@@ -5,7 +5,7 @@ import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
 import { chatService } from '@/services/chat.service';
-import { Conversation, ChatMessage, ChatMessageRequest, PresenceEvent } from '@/types/chat';
+import { Conversation, ChatMessage, ChatMessageRequest, PresenceEvent, InboxUpdateEvent } from '@/types/chat';
 
 export const useChat = () => {
     const { user, token } = useSessionStore();
@@ -18,6 +18,16 @@ export const useChat = () => {
     const [isConnected, setIsConnected] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const stompClientRef = useRef<Client | null>(null);
+
+    // 🟢 NUEVO: ref sincronizado con selectedConversation. La suscripción de
+    // inbox vive mientras dure la conexión (no se reabre por cada chat que
+    // abres), así que necesita esta referencia para saber, en cualquier
+    // momento, si la conversación que recibió el mensaje es la que tienes
+    // abierta — sin volver a montar el listener cada vez.
+    const selectedConversationRef = useRef<Conversation | null>(null);
+    useEffect(() => {
+        selectedConversationRef.current = selectedConversation;
+    }, [selectedConversation]);
 
     // ==========================================================
     // 1. INICIALIZACIÓN (REST) Y CONEXIÓN WSS (TIEMPO REAL)
@@ -128,9 +138,6 @@ export const useChat = () => {
             }
         );
 
-        // 🔧 FIX: ahora parseamos el body y comparamos readerId contra el usuario actual,
-        // para no auto-marcar nuestros propios mensajes como leídos cuando nosotros mismos
-        // abrimos el chat (el broadcast del backend nos rebota a nosotros también).
         const readReceiptSubscription = stompClientRef.current.subscribe(
             `/topic/conversation.${conversationId}.read`,
             (message: IMessage) => {
@@ -147,6 +154,13 @@ export const useChat = () => {
             destination: `/app/chat/${conversationId}/read`
         });
 
+        // 🟢 NUEVO: al abrir el chat, reflejamos de inmediato en el sidebar
+        // que ya no hay mensajes sin leer (optimista — el publish de arriba
+        // ya actualizó la base de datos del lado del backend).
+        setConversations(prev => prev.map(c =>
+            c.id === conversationId ? { ...c, unreadCount: 0 } : c
+        ));
+
         return () => {
             messageSubscription.unsubscribe();
             typingSubscription.unsubscribe();
@@ -160,7 +174,6 @@ export const useChat = () => {
     useEffect(() => {
         if (!selectedConversation || !stompClientRef.current || !isConnected || !user) return;
 
-        // El "otro" participante depende de qué rol soy yo
         const otherParticipantId = user.role === 'PROVIDER'
             ? selectedConversation.patientId
             : selectedConversation.providerId;
@@ -176,7 +189,6 @@ export const useChat = () => {
                     otherParticipantLastSeenAt: event.lastSeenAt,
                 } : prev);
 
-                // También reflejamos el cambio en la lista del inbox
                 setConversations(prev => prev.map(c =>
                     c.id === selectedConversation.id
                         ? { ...c, otherParticipantOnline: event.online, otherParticipantLastSeenAt: event.lastSeenAt }
@@ -191,7 +203,52 @@ export const useChat = () => {
     }, [selectedConversation?.id, isConnected, user]);
 
     // ==========================================================
-    // 4. ENVIAR MENSAJES (Vía WS STOMP)
+    // 4. INBOX EN VIVO (Contador + vista previa estilo WhatsApp)
+    // ==========================================================
+    // 🟢 NUEVO: a diferencia de las suscripciones #2 y #3 (atadas a la
+    // conversación abierta), esta vive mientras dure la conexión completa
+    // y escucha actividad de CUALQUIER conversación del usuario.
+    useEffect(() => {
+        if (!stompClientRef.current || !isConnected || !user) return;
+
+        const inboxSubscription = stompClientRef.current.subscribe(
+            `/topic/user.${user.id}.inbox`,
+            (message: IMessage) => {
+                const event: InboxUpdateEvent = JSON.parse(message.body);
+
+                setConversations(prev => {
+                    const isCurrentlyOpen = selectedConversationRef.current?.id === event.conversationId;
+                    const isOwnMessage = event.senderId === user.id;
+
+                    const updated = prev.map(c => {
+                        if (c.id !== event.conversationId) return c;
+                        return {
+                            ...c,
+                            lastMessagePreview: event.lastMessagePreview,
+                            lastMessageAt: event.lastMessageAt,
+                            // Solo incrementa el badge si NO es tu propio mensaje
+                            // y NO tienes ese chat abierto en este momento.
+                            unreadCount: (!isOwnMessage && !isCurrentlyOpen)
+                                ? (c.unreadCount || 0) + 1
+                                : c.unreadCount,
+                        };
+                    });
+
+                    // Estilo WhatsApp: la conversación con actividad más reciente sube al tope.
+                    return [...updated].sort((a, b) =>
+                        new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+                    );
+                });
+            }
+        );
+
+        return () => {
+            inboxSubscription.unsubscribe();
+        };
+    }, [isConnected, user]);
+
+    // ==========================================================
+    // 5. ENVIAR MENSAJES (Vía WS STOMP)
     // ==========================================================
     const sendMessage = useCallback((content: string, vaultDocumentId?: string) => {
         if (!selectedConversation || !stompClientRef.current || !isConnected || !user) {

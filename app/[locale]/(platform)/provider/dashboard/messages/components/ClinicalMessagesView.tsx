@@ -15,10 +15,12 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatMessageBubble } from '@/components/chat/ChatMessageBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+// Dentro de ClinicalMessagesView, agregar:
 
 export function ClinicalMessagesView() {
     const t = useTranslations('PatientMessages');
     const { user } = useSessionStore();
+    const isProvider = user?.role === 'PROVIDER';
     
     // Estado del Buscador Local
     const [searchQuery, setSearchQuery] = useState('');
@@ -80,9 +82,13 @@ export function ClinicalMessagesView() {
                         <h2 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
                             {t('title', { defaultValue: 'CANAL CLÍNICO' })}
                         </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                            {t('subtitle', { defaultValue: 'COMUNICACIÓN E2E CON PACIENTES' })}
-                        </p>
+                       <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+     {t('subtitle', {
+         defaultValue: isProvider
+             ? 'COMUNICACIÓN E2E CON PACIENTES'
+             : 'COMUNICACIÓN E2E CON ESPECIALISTAS'
+     })}
+ </p>
                     </div>
                 </div>
             </div>
