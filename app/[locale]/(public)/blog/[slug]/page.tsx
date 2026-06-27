@@ -23,10 +23,14 @@ interface BlogPost {
 // Fetch the post from our Java Analytics Service
 async function getPost(slug: string): Promise<BlogPost | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/intelligence/blog/posts/${slug}`, {
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/api/intelligence/blog/posts/${slug}`, {
       next: { revalidate: 3600 } // ISR: Cache for 1 hour
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(`Blog fetch failed with status: ${res.status} for URL: ${baseUrl}/api/intelligence/blog/posts/${slug}`);
+      return null;
+    }
     return await res.json();
   } catch (error) {
     console.error("Error fetching post:", error);
