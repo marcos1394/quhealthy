@@ -135,8 +135,8 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                                         isSelected ? "text-gray-400 dark:text-gray-500" : "text-gray-500"
                                     )}>
                                         {isProvider
-                                            ? t('patient_label', { defaultValue: 'PACIENTE' })
-                                            : (convo.provider?.specialty || convo.otherParticipantSpecialty || t('specialist', { defaultValue: 'ESPECIALISTA' }))}
+                                            ? t('patient_label')
+                                            : (convo.provider?.specialty || convo.otherParticipantSpecialty || t('specialist'))}
                                     </p>
                                     <p className={cn(
                                         "text-xs truncate font-light",
@@ -144,7 +144,7 @@ export function ChatSidebar({ conversations, selectedId, onSelect, searchQuery, 
                                             ? "font-semibold" 
                                             : (isSelected ? "text-gray-300 dark:text-gray-700" : "text-gray-500")
                                     )}>
-                                        {convo.lastMessagePreview || t('new_conversation', { defaultValue: 'Iniciar transmisión' })}
+                                        {convo.lastMessagePreview || t('new_conversation')}
                                     </p>
                                 </div>
 

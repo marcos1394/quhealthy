@@ -102,5 +102,19 @@ export const healthVaultService = {
   getDocumentUrl: async (documentId: string): Promise<string> => {
     const response = await axiosInstance.get<{ url: string }>(`${BASE_URL}/${documentId}/url`);
     return response.data.url;
+  },
+
+  /**
+   * Actualiza el título y/o el JSON de IA de un documento (con log de auditoría en BD)
+   */
+  updateDocument: async (
+    documentId: string, 
+    data: { title?: string; noteContent?: string; aiExtractedData?: any }
+  ): Promise<ConsumerDocument> => {
+    const response = await axiosInstance.put<ConsumerDocument>(
+      `${BASE_URL}/${documentId}`,
+      data
+    );
+    return response.data;
   }
 };

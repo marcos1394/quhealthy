@@ -79,7 +79,7 @@ export function useHealthVault() {
         }
     };
 
-    // 🔗 3. Ver/Descargar documento (Presigned URL)
+    // 🔗 4. Ver/Descargar documento (Presigned URL)
     const viewDocument = async (documentId: string) => {
         try {
             const url = await healthVaultService.getDocumentUrl(documentId);
@@ -90,6 +90,26 @@ export function useHealthVault() {
         }
     };
 
+    // ✏️ 5. Actualizar documento
+    const updateDocument = async (
+        documentId: string, 
+        data: { title?: string; noteContent?: string; aiExtractedData?: any }
+    ) => {
+        try {
+            const updatedDoc = await healthVaultService.updateDocument(documentId, data);
+            
+            // Actualizar el estado local sin recargar
+            setDocuments(prev => prev.map(doc => doc.id === documentId ? updatedDoc : doc));
+            
+            toast.success(t('success_update', { defaultValue: 'Documento actualizado correctamente.' }));
+            return updatedDoc;
+        } catch (error: any) {
+            console.error('Error updating document:', error);
+            toast.error(t('error_update', { defaultValue: 'No se pudo actualizar el documento.' }));
+            return null;
+        }
+    };
+
     return {
         documents,
         isLoading,
@@ -97,6 +117,7 @@ export function useHealthVault() {
         fetchDocuments,
         uploadDocument,
         createNote,
-        viewDocument
+        viewDocument,
+        updateDocument
     };
 }

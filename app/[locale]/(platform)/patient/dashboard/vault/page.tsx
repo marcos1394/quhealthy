@@ -157,6 +157,7 @@ export default function PatientVaultPage() {
                                             <HealthVaultDocumentCard
                                                 document={doc}
                                                 onView={viewDocument}
+                                                onUpdate={(docId, data) => updateDocument(docId, data)}
                                             />
                                         </motion.div>
                                     ))}

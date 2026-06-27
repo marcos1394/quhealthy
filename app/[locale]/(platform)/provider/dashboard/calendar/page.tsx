@@ -169,10 +169,10 @@ function CalendarContent() {
                   </div>
                   <div>
                     <h3 className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
-                      {t('missing_hours_title', { fallback: 'ESCAPARATE DESHABILITADO' })}
+                      {t('missing_hours_title', { defaultValue: 'ESCAPARATE DESHABILITADO' })}
                     </h3>
                     <p className="text-xs font-semibold text-red-700 dark:text-red-300 max-w-2xl leading-relaxed">
-                      {t('missing_hours_desc', { fallback: 'La agenda pública permanecerá bloqueada hasta establecer la matriz de disponibilidad operativa.' })}
+                      {t('missing_hours_desc', { defaultValue: 'La agenda pública permanecerá bloqueada hasta establecer la matriz de disponibilidad operativa.' })}
                     </p>
                   </div>
                 </div>
