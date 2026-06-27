@@ -204,7 +204,7 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
                         </p>
                     )}
 
-                    {(aiData?.medicalConditions?.length > 0 || isEditing) && (
+                    {((aiData?.medicalConditions?.length ?? 0) > 0 || isEditing) && (
                         <div>
                             <div className="flex items-center gap-2 mb-3 text-gray-500 dark:text-gray-400">
                                 <Activity className="w-4 h-4" />
@@ -229,7 +229,7 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
                         </div>
                     )}
 
-                    {(aiData?.medications?.length > 0 || isEditing) && (
+                    {((aiData?.medications?.length ?? 0) > 0 || isEditing) && (
                         <div>
                             <div className="flex items-center gap-2 mb-3 text-gray-500 dark:text-gray-400">
                                 <Pill className="w-4 h-4" />
