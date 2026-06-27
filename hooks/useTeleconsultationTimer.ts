@@ -18,7 +18,7 @@ export const useTeleconsultationTimer = () => {
         clearInterval(interval);
         updateRemainingSeconds(0);
         // El backend se encarga de cambiar el estado, pero como respaldo local:
-        if (state === 'IN_PROGRESS' || state === 'CONNECTED') {
+        if (state === 'CONNECTED') {
           // No forzamos COMPLETED directamente aquí para dejar que el backend mande FINISHED
           // pero podríamos hacerlo.
         }
