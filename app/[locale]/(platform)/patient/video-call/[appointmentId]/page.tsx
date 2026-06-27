@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 export default function VideoCallPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isLoaded } = useSessionStore();
+  const { user, isLoading } = useSessionStore();
   
   const rawId = params.appointmentId;
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
@@ -26,10 +26,10 @@ export default function VideoCallPage() {
   const { state } = useTeleconsultationStore();
 
   useEffect(() => {
-    if (isLoaded && user && state === 'IDLE') {
+    if (!isLoading && user && state === 'IDLE') {
       startSetup();
     }
-  }, [isLoaded, user, state, startSetup]);
+  }, [isLoading, user, state, startSetup]);
 
   useEffect(() => {
     return () => {
@@ -41,7 +41,7 @@ export default function VideoCallPage() {
     await joinCall(appointmentId);
   };
 
-  if (!isLoaded || state === 'IDLE' || state === 'CHECKING_ACCESS') {
+  if (isLoading || state === 'IDLE' || state === 'CHECKING_ACCESS') {
     return (
       <ConsultationLayout>
         <div className="flex flex-col items-center justify-center">
