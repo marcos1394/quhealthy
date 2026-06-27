@@ -22,10 +22,10 @@ export function PackageCard({ pkg }: PackageCardProps) {
 
         if (provider.slug) {
             if (validCredits.length === 1) {
-                // If there's only 1 type of service to book, auto-book it
-                router.push(`/${locale}/store/${provider.slug}?autoBook=${validCredits[0].serviceId}`);
+                // Si solo hay un servicio, mandamos directo al booking con el serviceId
+                router.push(`/${locale}/patient/booking/${provider.slug}?serviceId=${validCredits[0].serviceId}`);
             } else {
-                // Multi-item package or edge case, go to store to pick
+                // Multi-item package, vamos a la tienda a que seleccione
                 router.push(`/${locale}/store/${provider.slug}`);
             }
         } else {

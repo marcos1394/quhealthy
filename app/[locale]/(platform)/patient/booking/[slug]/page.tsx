@@ -5,7 +5,7 @@
 /* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,6 +25,8 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
+import { useStorefront } from "@/hooks/useStorefront";
+import { StorefrontItem } from "@/types/storefront";
 
 import {
   format, addMonths, subMonths, startOfMonth, endOfMonth,
@@ -37,9 +39,15 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const router = useRouter();
   const t = useTranslations('PatientBooking');
 
-  const { cart, providerId, providerName, providerColor, dependentId, getTotalPrice, getTotalDuration } = useBookingStore();
+  const { cart, providerId, providerName, providerColor, dependentId, getTotalPrice, getTotalDuration, setProvider, addToCart } = useBookingStore();
   const { availableSlots, isLoadingSlots, fetchAvailableSlots } = useAvailability();
   const { processCheckout, isProcessing } = useBookingCheckout();
+  
+  const searchParams = useSearchParams();
+  const serviceIdParam = searchParams?.get('serviceId');
+  
+  // Storefront to fetch service if needed
+  const { store, isLoading: isStoreLoading } = useStorefront(serviceIdParam && cart.length === 0 ? slug : null);
 
   // --- ESTADOS DE AGENDAMIENTO ---
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -57,11 +65,23 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const needsPrescription = cart.some(item => item.type === 'PRODUCT' && item.requiresPrescription === true);
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
 
+  // AUTO-BOOK LOGIC
   useEffect(() => {
-    if (cart.length === 0 || !providerId) {
+    if (cart.length === 0 && serviceIdParam && store && !isStoreLoading) {
+      const serviceIdNum = Number(serviceIdParam);
+      const serviceToBook = store.services?.find((s: StorefrontItem) => s.id === serviceIdNum);
+      if (serviceToBook) {
+        setProvider(store.providerId, slug, store.displayName, store.primaryColor || '#000000');
+        addToCart(serviceToBook, slug);
+      }
+    }
+  }, [cart.length, serviceIdParam, store, isStoreLoading, setProvider, addToCart, slug]);
+
+  useEffect(() => {
+    if (cart.length === 0 && !serviceIdParam && !providerId) {
       router.replace(`/store/${slug}`);
     }
-  }, [cart, providerId, router, slug]);
+  }, [cart, providerId, router, slug, serviceIdParam]);
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -99,6 +119,17 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
       }
     }
   };
+
+  if ((cart.length === 0 && serviceIdParam) || isStoreLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+        <Loader2 className="w-12 h-12 text-black dark:text-white animate-spin" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          PREPARANDO SERVICIO...
+        </p>
+      </div>
+    );
+  }
 
   if (cart.length === 0 || !providerId) return null;
 
