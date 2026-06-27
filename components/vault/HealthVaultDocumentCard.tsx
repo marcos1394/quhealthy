@@ -159,8 +159,6 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
                             )}
                         </div>
                     </div>
-                        </div>
-                    </div>
                 </div>
                 {!isEditing && onUpdate && (
                     <Button 
