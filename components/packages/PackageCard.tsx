@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { ShieldCheck, User, Tag, ChevronRight } from 'lucide-react';
 import { ConsumerPackage } from '@/types/packages';
 import { Button } from '@/components/ui/button';
@@ -14,13 +14,22 @@ interface PackageCardProps {
 export function PackageCard({ pkg }: PackageCardProps) {
     const t = useTranslations('PatientPackages');
     const router = useRouter();
+    const locale = useLocale();
 
     const handleUseCredits = () => {
-        const slug = pkg.provider.slug;
-        if (slug) {
-            router.push(`/store/${slug}`);
+        const { provider, creditsRemaining } = pkg;
+        const validCredits = creditsRemaining?.filter(c => c.quantity > 0) || [];
+
+        if (provider.slug) {
+            if (validCredits.length === 1) {
+                // If there's only 1 type of service to book, auto-book it
+                router.push(`/${locale}/store/${provider.slug}?autoBook=${validCredits[0].serviceId}`);
+            } else {
+                // Multi-item package or edge case, go to store to pick
+                router.push(`/${locale}/store/${provider.slug}`);
+            }
         } else {
-            router.push(`/search?provider=${encodeURIComponent(pkg.provider.name)}`);
+            router.push(`/${locale}/search?provider=${encodeURIComponent(provider.name)}`);
         }
     };
 

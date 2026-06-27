@@ -3,8 +3,8 @@
 /* eslint-disable react-doctor/no-giant-component */;
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Clock, MessageCircle, Instagram, Star, CheckCircle2, 
@@ -34,8 +34,12 @@ type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 export default function PublicStorePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
   const slug = params?.slug as string;
   const t = useTranslations('StorePublic');
+  
+  const autoBookServiceId = searchParams?.get('autoBook');
 
   const [activeTab, setActiveTab] = useState<TabType>('servicios');
   const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
@@ -67,6 +71,20 @@ export default function PublicStorePage() {
       fetchSingleScore(store.providerId);
     }
   }, [store?.providerId, store?.displayName, store?.primaryColor, slug, setProvider, fetchSingleScore]);
+
+  // AUTO-BOOK LOGIC
+  useEffect(() => {
+    if (store && autoBookServiceId && !isLoading) {
+      const serviceId = Number(autoBookServiceId);
+      const serviceToBook = store.services?.find((s: StorefrontItem) => s.id === serviceId);
+      
+      if (serviceToBook) {
+        setProvider(store.providerId, slug, store.displayName, store.primaryColor || '#000000');
+        addToCart(serviceToBook, slug);
+        router.replace(`/${locale}/patient/booking/${slug}`);
+      }
+    }
+  }, [store, autoBookServiceId, isLoading, locale, slug, addToCart, setProvider, router]);
 
   const handleAddToCart = (item: StorefrontItem) => {
     addToCart(item, slug);
