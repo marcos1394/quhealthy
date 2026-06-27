@@ -49,6 +49,32 @@ import {
 import { vaccinationService } from '@/services/vaccination.service';
 import { VaccinationStatusDto } from '@/types/vaccination';
 
+// --- MAPEO DE IA A CATÁLOGO ---
+// Gemini devuelve keys como 'bcg', 'hepb_1', etc.
+// Mapeamos a la enfermedad (diseasePrevented) y el número de dosis exacto.
+const AI_VACCINE_MAP: Record<string, { disease: string, dose: number }> = {
+  'bcg': { disease: 'Tuberculosis', dose: 1 },
+  'hepb_1': { disease: 'Hepatitis B', dose: 1 },
+  'hepb_2': { disease: 'Hepatitis B', dose: 2 },
+  'hepb_3': { disease: 'Hepatitis B', dose: 3 },
+  'penta_1': { disease: 'Pentavalente Acelular', dose: 1 },
+  'penta_2': { disease: 'Pentavalente Acelular', dose: 2 },
+  'penta_3': { disease: 'Pentavalente Acelular', dose: 3 },
+  'penta_4': { disease: 'Pentavalente Acelular', dose: 4 }, // Refuerzo
+  'rota_1': { disease: 'Rotavirus', dose: 1 },
+  'rota_2': { disease: 'Rotavirus', dose: 2 },
+  'rota_3': { disease: 'Rotavirus', dose: 3 },
+  'neumo_1': { disease: 'Neumococo', dose: 1 }, // Neumococo conjugada
+  'neumo_2': { disease: 'Neumococo', dose: 2 },
+  'neumo_ref': { disease: 'Neumococo', dose: 3 }, // Refuerzo
+  'srp_1': { disease: 'Sarampión, Rubéola, Parotiditis', dose: 1 },
+  'srp_ref': { disease: 'Sarampión, Rubéola, Parotiditis', dose: 2 }, // Refuerzo
+  'dpt_ref': { disease: 'DPT', dose: 1 }, // DPT Refuerzo
+  'influenza_1': { disease: 'Influenza', dose: 1 },
+  'influenza_2': { disease: 'Influenza', dose: 2 },
+  'influenza_anual': { disease: 'Influenza', dose: 3 }, // Representa el anual
+};
+
 // Helper for mapping age to labels
 function getAgeLabel(months: number) {
     if (months === 0) return 'Al Nacer';
@@ -101,18 +127,62 @@ export default function VaccinationsPage() {
     const setSelectedDate = (val: any) => dispatch({ type: 'SET_SELECTEDDATE', payload: val });
 
 
-
-
-
-
-
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const cameraInputRef = useRef<HTMLInputElement>(null);
 
-    // Modal para seleccionar fecha manual
+    // -- ESTADO Y REFERENCIAS PARA WEBRTC CAMERA --
+    const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const streamRef = useRef<MediaStream | null>(null);
 
+    const openCameraModal = async () => {
+        setIsCameraModalOpen(true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' } 
+            });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
+            streamRef.current = stream;
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            toast.error("No se pudo acceder a la cámara. Revisa los permisos de tu navegador.");
+            setIsCameraModalOpen(false);
+        }
+    };
 
+    const stopCamera = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+    };
 
+    const capturePhotoAndProcess = () => {
+        if (!videoRef.current) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+            if (blob) {
+                const file = new File([blob], 'captura-vacunas.jpg', { type: 'image/jpeg' });
+                setIsCameraModalOpen(false);
+                stopCamera();
+                processFile(file);
+            }
+        }, 'image/jpeg', 0.9);
+    };
+
+    // Cerrar cámara si el modal se desmonta
+    useEffect(() => {
+        if (!isCameraModalOpen) {
+            stopCamera();
+        }
+    }, [isCameraModalOpen]);
 
     const loadVaccines = useCallback(async (dependentId: number) => {
         setIsLoadingVaccines(true);
@@ -191,7 +261,12 @@ export default function VaccinationsPage() {
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file || !member) return;
+        if (!file) return;
+        processFile(file);
+    };
+
+    const processFile = async (file: File) => {
+        if (!member) return;
 
         const formData = new FormData();
         formData.append('file', file);
@@ -207,17 +282,32 @@ export default function VaccinationsPage() {
             let markedCount = 0;
             for (const item of response.data) {
                 if (item.vaccineId && item.dateApplied) {
-                    const catalogMatch = vaccinesData.find((v: any) => 
-                        v.diseasePrevented.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, '')) ||
-                        v.name.toLowerCase().includes(item.vaccineId.toLowerCase().replace(/_[0-9]+$/, ''))
-                    );
+                    const mappedInfo = AI_VACCINE_MAP[item.vaccineId.toLowerCase()];
                     
-                    if (catalogMatch && !catalogMatch.isApplied) {
-                        await vaccinationService.markVaccine(member.id, {
-                            vaccineCatalogId: catalogMatch.vaccineCatalogId,
-                            appliedDate: item.dateApplied
-                        });
-                        markedCount++;
+                    if (mappedInfo) {
+                        // Buscar exactamente en el catálogo del usuario usando diseasePrevented y doseNumber
+                        const catalogMatch = vaccinesData.find((v: any) => 
+                            v.diseasePrevented.toLowerCase().includes(mappedInfo.disease.toLowerCase()) &&
+                            v.doseNumber === mappedInfo.dose
+                        );
+                        
+                        // Si no lo encontró con diseasePrevented, intentar con el nombre
+                        const alternativeMatch = !catalogMatch && vaccinesData.find((v: any) => 
+                            v.name.toLowerCase().includes(mappedInfo.disease.toLowerCase()) &&
+                            v.doseNumber === mappedInfo.dose
+                        );
+
+                        const finalMatch = catalogMatch || alternativeMatch;
+
+                        if (finalMatch && !finalMatch.isApplied) {
+                            await vaccinationService.markVaccine(member.id, {
+                                vaccineCatalogId: finalMatch.vaccineCatalogId,
+                                appliedDate: item.dateApplied
+                            });
+                            markedCount++;
+                        }
+                    } else {
+                        console.warn(`ID de vacuna desconocido desde la IA: ${item.vaccineId}`);
                     }
                 }
             }
@@ -235,7 +325,6 @@ export default function VaccinationsPage() {
         } finally {
             setIsScanning(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
-            if (cameraInputRef.current) cameraInputRef.current.value = '';
         }
     };
 
@@ -319,7 +408,6 @@ export default function VaccinationsPage() {
 
                     <div className="w-full shrink-0 md:w-auto">
                         <input type="file" accept="image/*,application/pdf" hidden ref={fileInputRef} onChange={handleFileSelect} />
-                        <input type="file" accept="image/*" capture="environment" hidden ref={cameraInputRef} onChange={handleFileSelect} />
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -340,14 +428,20 @@ export default function VaccinationsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="z-50 w-64 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-0 shadow-none">
                                 <DropdownMenuItem 
-                                    onClick={() => cameraInputRef.current?.click()} 
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        openCameraModal();
+                                    }}
                                     className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
                                 >
                                     <Camera className="mr-3 h-4 w-4" strokeWidth={1.5} /> Capturar Fotografía
                                 </DropdownMenuItem>
                                 <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
                                 <DropdownMenuItem 
-                                    onClick={() => fileInputRef.current?.click()} 
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        fileInputRef.current?.click();
+                                    }}
                                     className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
                                 >
                                     <FileUp className="mr-3 h-4 w-4" strokeWidth={1.5} /> Subir Archivo Local
@@ -510,6 +604,51 @@ export default function VaccinationsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            {/* --- MODAL PARA LA CAMARA WEBRTC --- */}
+            <Dialog open={isCameraModalOpen} onOpenChange={(open) => {
+                setIsCameraModalOpen(open);
+                if (!open) stopCamera();
+            }}>
+                <DialogContent className="sm:max-w-md rounded-none bg-black border border-white p-0 gap-0 shadow-2xl overflow-hidden">
+                    <DialogHeader className="p-4 bg-black border-b border-gray-800">
+                        <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest flex items-center">
+                            <Camera className="w-4 h-4 mr-2" />
+                            Capturar Cartilla
+                        </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="relative w-full aspect-[3/4] bg-black flex items-center justify-center">
+                        <video 
+                            ref={videoRef} 
+                            autoPlay 
+                            playsInline
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Guías visuales para la cartilla */}
+                        <div className="absolute inset-0 border-2 border-white/30 m-8 rounded-xl pointer-events-none flex flex-col justify-between p-4">
+                            <div className="w-full flex justify-between">
+                                <div className="w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                                <div className="w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                            </div>
+                            <div className="w-full flex justify-between">
+                                <div className="w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                                <div className="w-4 h-4 border-b-2 border-r-2 border-white"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-black flex justify-center border-t border-gray-800">
+                        <Button
+                            onClick={capturePhotoAndProcess}
+                            className="rounded-full w-16 h-16 bg-white hover:bg-gray-200 border-4 border-gray-300 dark:border-gray-800 p-0 flex items-center justify-center transition-transform hover:scale-105"
+                        >
+                            <span className="sr-only">Tomar Foto</span>
+                            <div className="w-14 h-14 rounded-full border-2 border-black"></div>
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
