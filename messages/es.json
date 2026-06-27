@@ -289,46 +289,46 @@
     }
   },
   "Suite": {
-    "badge": "Plataforma Integral",
-    "title": "La Suite Integral",
-    "description": "Una plataforma modular que evoluciona contigo. Activa solo lo que necesitas, cuando lo necesitas.",
-    "products": {
-      "quhealthy": {
-        "description": "Gestión integral para profesionales de la salud. Tu consultorio en la nube.",
-        "features": [
-          "Agenda inteligente integrada",
-          "Expedientes clínicos digitales",
-          "Telemedicina en HD",
-          "Pasarela de pagos automatizada",
-          "Recordatorios vía WhatsApp"
-        ],
-        "explore": "Explorar QuHealthy"
-      },
-      "qumarket": {
-        "description": "El marketplace donde tus productos llegan a miles de pacientes verificados.",
-        "features": [
-          "Tienda personalizada en minutos",
-          "Catálogo global de salud",
-          "Comisiones competitivas",
-          "Logística de envíos resuelta",
-          "Cross-selling inteligente"
-        ],
-        "explore": "Explorar QuMarket"
-      },
-      "qublocks": {
-        "description": "Academia y comunidad para la educación continua del sector wellness.",
-        "features": [
-          "Cursos con certificación Blockchain",
-          "Webinars exclusivos en vivo",
-          "Networking profesional",
-          "Validación de habilidades",
-          "Biblioteca de recursos"
-        ],
-        "explore": "Explorar QuBlocks"
-      }
+  "badge": "Ecosistema Inteligente de Salud",
+  "title": "Todo lo que necesitas. En una sola plataforma.",
+  "description": "Un ecosistema inteligente que conecta profesionales de la salud, pacientes, telemedicina, inteligencia artificial y herramientas digitales en una plataforma segura.",
+  "products": {
+    "quhealthy": {
+      "description": "El sistema operativo para la atención médica moderna. Administra tu consulta, pacientes, teleconsultas e información clínica desde un solo lugar.",
+      "features": [
+        "Agenda inteligente y reservas en línea",
+        "Espacio clínico impulsado por IA",
+        "Health Vault seguro para pacientes",
+        "Teleconsultas integradas",
+        "Seguimiento automatizado del paciente"
+      ],
+      "explore": "Explorar QuHealthy"
     },
-    "footer": "💡 Cada módulo se integra perfectamente con los demás para una experiencia unificada"
+    "qumarket": {
+      "description": "Conecta a pacientes con productos y servicios de salud confiables dentro de un marketplace unificado.",
+      "features": [
+        "Tienda profesional personalizada",
+        "Productos y servicios de salud",
+        "Pagos integrados",
+        "Gestión de pedidos e inventario",
+        "Cross-selling con consultas"
+      ],
+      "explore": "Explorar QuMarket"
+    },
+    "qublocks": {
+      "description": "Un ecosistema colaborativo donde los profesionales de la salud aprenden, colaboran y fortalecen su desarrollo profesional.",
+      "features": [
+        "Rutas de aprendizaje profesional",
+        "Eventos en vivo y masterclasses",
+        "Comunidades clínicas",
+        "Certificaciones verificadas",
+        "Biblioteca de conocimiento y recursos"
+      ],
+      "explore": "Explorar QuBlocks"
+    }
   },
+  "footer": "💡 Todos los módulos comparten la misma información, identidad y flujos para ofrecer una experiencia de salud verdaderamente conectada."
+},
   "Auth": {
     "title": "Bienvenido de nuevo",
     "subtitle": "Accede a tu cuenta para continuar",

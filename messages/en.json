@@ -289,46 +289,46 @@
     }
   },
   "Suite": {
-    "badge": "Comprehensive Platform",
-    "title": "The Comprehensive Suite",
-    "description": "A modular platform that evolves with you. Activate only what you need, when you need it.",
-    "products": {
-      "quhealthy": {
-        "description": "Comprehensive management for health professionals. Your clinic in the cloud.",
-        "features": [
-          "Integrated smart schedule",
-          "Digital medical records",
-          "HD Telemedicine",
-          "Automated payment gateway",
-          "WhatsApp reminders"
-        ],
-        "explore": "Explore QuHealthy"
-      },
-      "qumarket": {
-        "description": "The marketplace where your products reach thousands of verified patients.",
-        "features": [
-          "Personalized store in minutes",
-          "Global health catalog",
-          "Competitive commissions",
-          "Resolved shipping logistics",
-          "Smart cross-selling"
-        ],
-        "explore": "Explore QuMarket"
-      },
-      "qublocks": {
-        "description": "Academy and community for continuous education in the wellness sector.",
-        "features": [
-          "Blockchain certified courses",
-          "Exclusive live webinars",
-          "Professional networking",
-          "Skills validation",
-          "Resource library"
-        ],
-        "explore": "Explore QuBlocks"
-      }
+  "badge": "Connected Health Ecosystem",
+  "title": "Everything You Need. One Connected Platform.",
+  "description": "An intelligent ecosystem that connects healthcare professionals, patients, telemedicine, AI, and digital health tools in one secure platform.",
+  "products": {
+    "quhealthy": {
+      "description": "The operating system for modern healthcare. Manage your practice, patients, teleconsultations, and clinical information from one place.",
+      "features": [
+        "Smart scheduling & online bookings",
+        "AI-powered clinical workspace",
+        "Secure patient Health Vault",
+        "Integrated teleconsultations",
+        "Automated patient follow-up"
+      ],
+      "explore": "Explore QuHealthy"
     },
-    "footer": "💡 Each module integrates perfectly with the others for a unified experience"
+    "qumarket": {
+      "description": "Connect patients with trusted healthcare products and services through a unified marketplace.",
+      "features": [
+        "Personalized professional storefront",
+        "Healthcare products & services",
+        "Integrated payments",
+        "Order and inventory management",
+        "Cross-selling with consultations"
+      ],
+      "explore": "Explore QuMarket"
+    },
+    "qublocks": {
+      "description": "A collaborative learning ecosystem where healthcare professionals learn, connect, and grow together.",
+      "features": [
+        "Professional learning paths",
+        "Live events and masterclasses",
+        "Clinical communities",
+        "Verified certifications",
+        "Knowledge and resource library"
+      ],
+      "explore": "Explore QuBlocks"
+    }
   },
+  "footer": "💡 Every module shares the same data, identity, and workflows for a seamless healthcare experience."
+},
   "Auth": {
     "title": "Welcome back",
     "subtitle": "Access your account to continue",
