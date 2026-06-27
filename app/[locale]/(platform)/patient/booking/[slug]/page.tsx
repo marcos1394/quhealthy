@@ -47,7 +47,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const serviceIdParam = searchParams?.get('serviceId');
   
   // Storefront to fetch service if needed
-  const { store, isLoading: isStoreLoading } = useStorefront(serviceIdParam && cart.length === 0 ? slug : null);
+  const { store, isLoading: isStoreLoading } = useStorefront(slug);
 
   // --- ESTADOS DE AGENDAMIENTO ---
   const [currentMonth, setCurrentMonth] = useState(new Date());
