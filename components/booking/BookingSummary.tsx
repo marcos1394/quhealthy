@@ -493,6 +493,11 @@ export function BookingSummary({
                       <AlertCircle className="w-4 h-4 mr-3" strokeWidth={2} />
                       Definir Parámetro Temporal
                     </>
+                  ) : isUsingPackage ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                      Confirmar Cita (Crédito Aplicado)
+                    </>
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4 mr-3" strokeWidth={1.5} />
