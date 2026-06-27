@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import axiosInstance from '@/lib/axios';
 
 export interface TeleconsultationAccessResponse {
   teleconsultationId: string;
@@ -11,7 +11,7 @@ export interface TeleconsultationAccessResponse {
 
 export const teleconsultationService = {
   joinTeleconsultation: async (appointmentId: string, isProvider: boolean): Promise<TeleconsultationAccessResponse> => {
-    const response = await api.post(`/appointments/teleconsultations/${appointmentId}/join`, {
+    const response = await axiosInstance.post(`/appointments/teleconsultations/${appointmentId}/join`, {
       isProvider
     });
     return response.data;
