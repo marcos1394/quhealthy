@@ -23,6 +23,9 @@ import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
 import { cashRegisterService } from "@/services/cash-register.service";
 import { DenominationMap } from "@/types/cash-register";
 
+// Widget de Teleconsulta
+import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
+
 type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
@@ -360,8 +363,18 @@ export default function ConsultationRoomPage() {
       </header>
 
       {/* MAIN MESA DE TRABAJO TÉCNICA */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative bg-gray-50 dark:bg-[#050505] p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
-        <div className="max-w-6xl mx-auto pb-12">
+      <main className="flex-1 overflow-hidden flex flex-row bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+        
+        {/* === SECCIÓN VIDEOLLAMADA (Solo ONLINE) === */}
+        {appointmentType === 'online' && (
+          <div className="w-full md:w-2/5 xl:w-[45%] border-r border-black dark:border-white shrink-0 bg-black">
+            <ProviderVideoWidget appointmentId={appointmentId} />
+          </div>
+        )}
+
+        {/* === SECCIÓN EHR === */}
+        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden relative p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+          <div className="max-w-4xl mx-auto pb-12">
           
           {currentStep === 'profile' && (
             <PatientProfileStep 
@@ -400,6 +413,7 @@ export default function ConsultationRoomPage() {
              />
           )}
 
+          </div>
         </div>
       </main>
     </div>

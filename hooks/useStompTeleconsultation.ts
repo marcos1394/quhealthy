@@ -11,11 +11,12 @@ export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void)
   const connect = useCallback(() => {
     if (!teleconsultationId || !token) return;
 
-    // Asumiendo que el backend está en la misma URL base pero con /ws
-    const wsUrl = process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'ws://localhost:8080';
-
+    // 🚀 La conexión STOMP usa WebSockets (ws:// o wss://), por lo que no puede pasar por Axios (http://).
+    // Construimos la URL apuntando al endpoint configurado en WebSocketConfig.java
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const wsUrl = baseUrl.replace(/^http/, 'ws') + '/api/appointments/teleconsultation/ws';
     const client = new Client({
-      brokerURL: `${wsUrl}/api/appointments/teleconsultation/ws`,
+      brokerURL: wsUrl,
       connectHeaders: {
         Authorization: `Bearer ${token}`
       },
