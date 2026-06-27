@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
+import { usePackages } from "@/hooks/usePackages";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +33,7 @@ interface BookingSummaryProps {
   selectedTime: string | null;
   isProcessing?: boolean;
   scheduleNow?: boolean;
-  onCheckout: (symptoms: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[]) => void;
+  onCheckout: (symptoms: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[], paymentMethod?: string) => void;
 }
 
 export function BookingSummary({
@@ -85,6 +86,7 @@ export function BookingSummary({
 
 
   const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
+  const { packages, isLoading: isLoadingPackages } = usePackages();
 
   useEffect(() => {
     if (shareVaultAccess && shareVaultMode === 'GRANULAR' && documents.length === 0) {
@@ -132,12 +134,33 @@ export function BookingSummary({
     return { isTimeValid, isReady };
   }, [cartAnalysis, selectedDate, selectedTime, scheduleNow]);
 
+  const packageDetails = useMemo(() => {
+    if (cart.length === 1 && (cart[0].type === 'SERVICE' || cart[0].type === 'PACKAGE')) {
+      const itemId = cart[0].id;
+      let availableCredits = 0;
+      
+      for (const pkg of packages) {
+        const credit = pkg.creditsRemaining?.find(c => c.serviceId === itemId);
+        if (credit) {
+          availableCredits += credit.quantity;
+        }
+      }
+      
+      const canUsePackage = availableCredits >= (cart[0].quantity || 1);
+      return { canUsePackage, availableCredits };
+    }
+    return { canUsePackage: false, availableCredits: 0 };
+  }, [cart, packages]);
+
+  const isUsingPackage = packageDetails.canUsePackage;
+  const finalTotal = isUsingPackage ? 0 : total;
+
   const currencyCalculations = useMemo(() => {
     const currentRate = rates[selectedCurrency] || 1;
-    const convertedTotal = (total * currentRate).toFixed(2);
+    const convertedTotal = (finalTotal * currentRate).toFixed(2);
     const isForeignCurrency = selectedCurrency !== "MXN";
     return { convertedTotal, isForeignCurrency };
-  }, [total, rates, selectedCurrency]);
+  }, [finalTotal, rates, selectedCurrency]);
 
   // ==========================================
   // HANDLERS
@@ -153,7 +176,8 @@ export function BookingSummary({
       finalNotes, 
       undefined, 
       shareVaultAccess, 
-      shareVaultMode === 'GRANULAR' ? selectedDocumentIds : undefined
+      shareVaultMode === 'GRANULAR' ? selectedDocumentIds : undefined,
+      isUsingPackage ? 'PACKAGE_BALANCE' : 'CREDIT_CARD'
     );
   };
 
@@ -409,6 +433,13 @@ export function BookingSummary({
                     <span className="text-black dark:text-white">${total.toLocaleString()} MXN</span>
                   </div>
 
+                  {isUsingPackage && (
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                      <span>Crédito de Paquete Aplicado</span>
+                      <span>-${total.toLocaleString()} MXN</span>
+                    </div>
+                  )}
+
                   <div className="flex flex-col pt-2 border-t border-gray-200 dark:border-gray-800">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
                       Liquidación Total
@@ -423,13 +454,13 @@ export function BookingSummary({
                           <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-3 flex items-start justify-end gap-2 bg-gray-50 dark:bg-[#050505] p-3 border border-gray-200 dark:border-gray-800 text-right">
                             <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" strokeWidth={2} />
                             <span>
-                              El cargo definitivo será procesado en <strong>${total.toLocaleString()} MXN</strong>.
+                              El cargo definitivo será procesado en <strong>${finalTotal.toLocaleString()} MXN</strong>.
                             </span>
                           </div>
                         </>
                       ) : (
                         <span className="text-3xl font-semibold text-black dark:text-white block tracking-tight">
-                          ${total.toLocaleString()} <span className="text-lg font-light text-gray-500">MXN</span>
+                          ${finalTotal.toLocaleString()} <span className="text-lg font-light text-gray-500">MXN</span>
                         </span>
                       )}
                     </div>

@@ -26,7 +26,8 @@ export const useBookingCheckout = () => {
     destinationState,
     scheduleNow = true,
     shareVaultAccess = false,
-    allowedDocumentIds
+    allowedDocumentIds,
+    paymentMethod
   }: CheckoutParams) => {
     setIsProcessing(true);
 
@@ -61,7 +62,7 @@ export const useBookingCheckout = () => {
           startTime: startTimeIso,
           appointmentType: item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON',
           consumerSymptoms: consumerSymptoms || "Reserva de servicio médico",
-          paymentMethod: 'CREDIT_CARD'
+          paymentMethod: paymentMethod || 'CREDIT_CARD'
         };
 
         // 1. Crear Cita Normal (Backend Java: /api/appointments/create)
@@ -85,6 +86,12 @@ export const useBookingCheckout = () => {
         }
 
         // 2. Crear Checkout de Stripe para 1 Cita
+        if (paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+           toast.success("¡Cita agendada exitosamente usando tu crédito/saldo!");
+           router.push('/patient/dashboard/appointments');
+           return;
+        }
+
         const checkoutUrl = await paymentService.createCheckoutSession(appointmentId);
 
         // 3. Redirigir a Stripe
@@ -127,7 +134,7 @@ export const useBookingCheckout = () => {
           providerId,
           consumerId,
           dependentId,
-          paymentMethod: 'CREDIT_CARD',
+          paymentMethod: paymentMethod || 'CREDIT_CARD',
           consumerSymptoms: consumerSymptoms || `Orden desde la tienda. Ítems: ${cart.length}`,
           shippingAddress,
           destinationState,
@@ -161,6 +168,12 @@ export const useBookingCheckout = () => {
             console.error("No se pudo otorgar permiso de expediente", e);
             // No interrumpimos el flujo si falla
           }
+        }
+
+        if (paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+           toast.success("¡Orden procesada exitosamente usando tu crédito/saldo!");
+           router.push('/patient/dashboard/appointments');
+           return;
         }
 
         const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);

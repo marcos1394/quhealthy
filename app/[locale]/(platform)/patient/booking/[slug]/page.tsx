@@ -96,7 +96,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
     }
   };
 
-  const handleCheckout = async (symptomsText: string, shippingAddress?: string, shareVaultAccess?: boolean) => {
+  const handleCheckout = async (symptomsText: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[], paymentMethod?: string) => {
     if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
       return; 
     }
@@ -114,7 +114,9 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           dependentId: (requiresScheduling && scheduleNow) ? dependentId : undefined, 
           consumerSymptoms: symptomsText,
           scheduleNow: requiresScheduling ? scheduleNow : true,
-          shareVaultAccess
+          shareVaultAccess,
+          allowedDocumentIds,
+          paymentMethod
         });
       }
     }

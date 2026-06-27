@@ -17,6 +17,7 @@ export interface CheckoutParams {
   scheduleNow?: boolean;
   shareVaultAccess?: boolean;
   allowedDocumentIds?: string[];
+  paymentMethod?: string;
 }
 
 export interface CreateAppointmentRequest {
