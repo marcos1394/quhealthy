@@ -12,6 +12,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isDiscover = pathname.startsWith("/discover");
+  const isStore = pathname.startsWith("/store");
   
   const { isAuthenticated, _hasHydrated, token } = useSessionStore();
   const isLoggedIn = _hasHydrated && isAuthenticated && !!token;
@@ -21,8 +22,8 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Si estamos en discover y el usuario está logueado, mostramos el layout de plataforma
-  if (isDiscover && mounted && isLoggedIn) {
+  // Si estamos en discover o store y el usuario está logueado, mostramos el layout de plataforma
+  if ((isDiscover || isStore) && mounted && isLoggedIn) {
     return (
       <AuthProvider>
         <div className="flex flex-col md:flex-row h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans antialiased selection:bg-gray-200 dark:selection:bg-white/20 overflow-hidden transition-colors duration-300">
@@ -30,7 +31,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
           <div className="hidden md:flex flex-shrink-0 h-full z-50 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
             <Sidebar />
           </div>
-          <main className="flex-1 relative z-0 overflow-hidden bg-white dark:bg-[#0a0a0a]">
+          <main className={`flex-1 relative z-0 bg-white dark:bg-[#0a0a0a] ${isDiscover ? 'overflow-hidden' : 'overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700'}`}>
             {children}
           </main>
         </div>
@@ -39,7 +40,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
   }
 
   // Prevenir desajustes de hidratación
-  if (isDiscover && !mounted) {
+  if ((isDiscover || isStore) && !mounted) {
     return (
       <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a]">
       </div>
