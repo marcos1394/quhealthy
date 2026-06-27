@@ -160,6 +160,7 @@ export function BookingSummary({
   // ==========================================
   // HELPERS DE RENDERIZADO
   // ==========================================
+  const safeColor = providerColor || '#000000';
   const renderItemIconAndBadge = (item: StorefrontItem) => {
     switch (item.type) {
       case 'SERVICE':
@@ -203,7 +204,10 @@ export function BookingSummary({
             
             {/* 🟦 HEADER DE RESUMEN */}
             <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 flex items-start gap-5">
-              <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-black text-white dark:bg-white dark:text-black shrink-0">
+              <div 
+                className="w-12 h-12 border flex items-center justify-center shrink-0 transition-colors"
+                style={{ backgroundColor: safeColor, color: '#ffffff', borderColor: safeColor }}
+              >
                 <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div>
@@ -229,10 +233,11 @@ export function BookingSummary({
                       className={cn(
                         "flex-1 h-10 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center",
                         selectedCurrency === cur
-                          ? "bg-black text-white dark:bg-white dark:text-black"
+                          ? "text-white"
                           : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111]",
                         index !== 0 && "border-l border-black dark:border-white"
                       )}
+                      style={selectedCurrency === cur ? { backgroundColor: safeColor } : {}}
                       aria-label={`Cambiar moneda a ${cur}`}
                     >
                       {isLoadingRates && selectedCurrency === cur ? (
@@ -292,7 +297,8 @@ export function BookingSummary({
                       placeholder={cartAnalysis.hasServices 
                         ? "EJ. CUADRO SINTOMATOLÓGICO, ANTECEDENTES RELEVANTES..." 
                         : "INSTRUCCIONES DE PROCESAMIENTO..."}
-                      className="w-full bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-none p-4 text-xs text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-none placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
+                      className="w-full bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-none p-4 text-xs text-black dark:text-white focus:outline-none focus:ring-1 transition-colors resize-none placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
+                      style={{ '--tw-ring-color': safeColor, borderColor: symptoms ? safeColor : undefined } as React.CSSProperties}
                       rows={3}
                       maxLength={300}
                       disabled={isProcessing}
@@ -313,7 +319,8 @@ export function BookingSummary({
                           }
                         }}
                         disabled={isProcessing}
-                        className="mt-0.5 rounded-none border-black dark:border-white data-[state=checked]:bg-black data-[state=checked]:text-white dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-black"
+                        className="mt-0.5 rounded-none border-black dark:border-white transition-colors"
+                        style={shareVaultAccess ? { backgroundColor: safeColor, borderColor: safeColor, color: '#ffffff' } : {}}
                       />
                       <label htmlFor="shareVaultAccess" className="text-[10px] uppercase tracking-widest text-black dark:text-white cursor-pointer">
                         <strong>Conceder Acceso a Expediente</strong>
@@ -338,7 +345,8 @@ export function BookingSummary({
                                 name="vaultMode"
                                 checked={shareVaultMode === 'FULL'}
                                 onChange={() => setShareVaultMode('FULL')}
-                                className="w-3.5 h-3.5 accent-black dark:accent-white"
+                                className="w-3.5 h-3.5"
+                                style={{ accentColor: safeColor }}
                               />
                               Acceso Integral (Recomendado)
                             </label>
@@ -348,7 +356,8 @@ export function BookingSummary({
                                 name="vaultMode"
                                 checked={shareVaultMode === 'GRANULAR'}
                                 onChange={() => setShareVaultMode('GRANULAR')}
-                                className="w-3.5 h-3.5 accent-black dark:accent-white"
+                                className="w-3.5 h-3.5"
+                                style={{ accentColor: safeColor }}
                               />
                               Selección Granular
                             </label>

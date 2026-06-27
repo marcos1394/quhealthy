@@ -42,9 +42,9 @@ export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', clas
     const safeColor = brandColor && brandColor !== '#ffffff' && brandColor !== '#000000' ? brandColor : '#000000';
 
     return (
-        <div className={cn("w-full bg-black text-white dark:bg-white dark:text-black py-3 px-6 shadow-md z-40 relative flex flex-col sm:flex-row items-center justify-between gap-4 border-b-4", className)} style={{ borderBottomColor: safeColor }}>
+        <div className={cn("w-full py-3 px-6 shadow-md z-40 relative flex flex-col sm:flex-row items-center justify-between gap-4", className)} style={{ backgroundColor: safeColor, color: '#ffffff' }}>
             <div className="flex items-center gap-3">
-                <div className="bg-white text-black dark:bg-black dark:text-white p-2 shrink-0 border border-black dark:border-white">
+                <div className="bg-white text-black p-2 shrink-0 border border-transparent">
                     <PackageCheck className="w-5 h-5" strokeWidth={2} />
                 </div>
                 <div>
@@ -59,11 +59,11 @@ export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', clas
             </div>
             
             {isBookingView ? (
-                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/30 dark:border-black/30 px-3 py-1.5 shrink-0 bg-white/10 dark:bg-black/10 text-green-400 dark:text-green-600">
+                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/40 px-3 py-1.5 shrink-0 bg-white/20 text-white">
                     Crédito aplicado para agendar
                 </div>
             ) : (
-                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/30 dark:border-black/30 px-3 py-1.5 shrink-0 bg-white/10 dark:bg-black/10">
+                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/40 px-3 py-1.5 shrink-0 bg-white/20 text-white">
                     Selecciona un servicio para agendar
                 </div>
             )}
