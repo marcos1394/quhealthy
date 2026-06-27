@@ -29,7 +29,8 @@ export default function PatientVaultPage() {
         fetchDocuments,
         uploadDocument,
         createNote,
-        viewDocument
+        viewDocument,
+        updateDocument
     } = useHealthVault();
 
     const { family } = useFamily();
