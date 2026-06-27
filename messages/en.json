@@ -2148,7 +2148,9 @@
       "success_upload_ai": "Document successfully processed by AI.",
       "success_upload": "Document encrypted and saved.",
       "success_note": "Note successfully saved.",
-      "error_note": "An error occurred while saving the note."
+      "error_note": "An error occurred while saving the note.",
+      "success_update": "Document updated successfully.",
+      "error_update": "Failed to update the document."
     }
   },
   "PatientAppointments": {

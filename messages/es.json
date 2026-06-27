@@ -2148,7 +2148,9 @@
       "success_upload_ai": "Documento procesado exitosamente por IA.",
       "success_upload": "Documento encriptado y guardado.",
       "success_note": "Nota guardada exitosamente.",
-      "error_note": "Ocurrió un error al guardar la nota."
+      "error_note": "Ocurrió un error al guardar la nota.",
+      "success_update": "Documento actualizado correctamente.",
+      "error_update": "No se pudo actualizar el documento."
     }
   },
   "PatientAppointments": {
