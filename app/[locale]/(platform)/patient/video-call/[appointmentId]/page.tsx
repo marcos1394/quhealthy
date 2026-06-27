@@ -20,7 +20,7 @@ export default function VideoCallPage() {
   const { user, isLoading } = useSessionStore();
   
   const rawId = params.appointmentId;
-  const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
+  const appointmentId = Array.isArray(rawId) ? rawId[0] : (rawId || '');
 
   const { startSetup, joinCall, cleanup, media } = useTeleconsultation(appointmentId, 'PATIENT');
   const { state } = useTeleconsultationStore();
@@ -41,7 +41,7 @@ export default function VideoCallPage() {
     await joinCall(appointmentId);
   };
 
-  if (isLoading || state === 'IDLE' || state === 'CHECKING_ACCESS') {
+  if (isLoading || state === 'IDLE' || state === 'CHECKING_ACCESS' || !appointmentId) {
     return (
       <ConsultationLayout>
         <div className="flex flex-col items-center justify-center">
