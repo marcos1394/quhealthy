@@ -10,9 +10,10 @@ interface ActiveCreditsBannerProps {
     providerSlug: string;
     brandColor?: string;
     className?: string;
+    isBookingView?: boolean;
 }
 
-export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', className }: ActiveCreditsBannerProps) {
+export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', className, isBookingView }: ActiveCreditsBannerProps) {
     const { packages, isLoading } = usePackages();
 
     const activeCreditsCount = useMemo(() => {
@@ -57,9 +58,15 @@ export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', clas
                 </div>
             </div>
             
-            <div className="text-[9px] uppercase tracking-widest font-bold border border-white/30 dark:border-black/30 px-3 py-1.5 shrink-0 bg-white/10 dark:bg-black/10">
-                Selecciona un servicio para agendar
-            </div>
+            {isBookingView ? (
+                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/30 dark:border-black/30 px-3 py-1.5 shrink-0 bg-white/10 dark:bg-black/10 text-green-400 dark:text-green-600">
+                    Crédito aplicado para agendar
+                </div>
+            ) : (
+                <div className="text-[9px] uppercase tracking-widest font-bold border border-white/30 dark:border-black/30 px-3 py-1.5 shrink-0 bg-white/10 dark:bg-black/10">
+                    Selecciona un servicio para agendar
+                </div>
+            )}
         </div>
     );
 }

@@ -167,7 +167,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
         </div>
       </div>
 
-      <ActiveCreditsBanner providerSlug={slug} brandColor={safeColor} />
+      <ActiveCreditsBanner providerSlug={slug} brandColor={safeColor} isBookingView={true} />
 
       <div className="max-w-7xl mx-auto px-6 mt-12 flex flex-col lg:flex-row gap-12">
 
@@ -190,6 +190,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           {requiresScheduling && (
             <>
               {/* Opción de Agendar Ahora o Comprar para Después */}
+              {/* Opción de Agendar Ahora o Comprar para Después */}
+              {!serviceIdParam && (
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
                   <div 
@@ -244,6 +246,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                   </button>
                 </div>
               </motion.section>
+              )}
 
               {/* Step: Calendar */}
               <AnimatePresence>
