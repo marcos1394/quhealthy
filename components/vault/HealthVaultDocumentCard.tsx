@@ -219,7 +219,7 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
                                 />
                             ) : (
                                 <div className="flex flex-wrap gap-2">
-                                    {aiData.medicalConditions.map((cond: string, i: number) => (
+                                    {aiData?.medicalConditions?.map((cond: string, i: number) => (
                                         <span key={i} className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-none text-[11px] font-bold tracking-wide text-gray-700 dark:text-gray-300">
                                             {cond}
                                         </span>
@@ -244,7 +244,7 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
                                 />
                             ) : (
                                 <div className="flex flex-wrap gap-2">
-                                    {aiData.medications.map((med: string, i: number) => (
+                                    {aiData?.medications?.map((med: string, i: number) => (
                                         <span key={i} className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-none text-[11px] font-bold tracking-wide text-gray-700 dark:text-gray-300">
                                             {med}
                                         </span>
