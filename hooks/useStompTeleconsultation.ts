@@ -5,14 +5,12 @@ import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
 
 export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void) => {
   const stompClientRef = useRef<Client | null>(null);
-  const { user } = useSessionStore();
+  const { token } = useSessionStore();
   const { teleconsultationId } = useTeleconsultationStore();
 
   const connect = useCallback(() => {
-    if (!teleconsultationId || !user?.token) return;
+    if (!teleconsultationId || !token) return;
 
-    const token = typeof user.token === 'string' ? user.token : user.token.access_token;
-    
     // Asumiendo que el backend está en la misma URL base pero con /ws
     const wsUrl = process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws') || 'ws://localhost:8080';
 
@@ -53,7 +51,7 @@ export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void)
     client.activate();
     stompClientRef.current = client;
 
-  }, [teleconsultationId, user?.token, onSignalingMessage]);
+  }, [teleconsultationId, token, onSignalingMessage]);
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {
