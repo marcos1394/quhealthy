@@ -25,7 +25,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
   try {
     const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
     const res = await fetch(`${baseUrl}/api/intelligence/blog/posts/${slug}`, {
-      next: { revalidate: 3600 } // ISR: Cache for 1 hour
+      cache: 'no-store' // 🚀 TEMPORAL FIX: Evitar la caché de Vercel que atrapó el 404 antiguo
     });
     if (!res.ok) {
       console.warn(`Blog fetch failed with status: ${res.status} for URL: ${baseUrl}/api/intelligence/blog/posts/${slug}`);
