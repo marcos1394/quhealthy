@@ -217,7 +217,7 @@ export default function LicensePage() {
         
         {/* Header Actions */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
-          <Button variant="ghost" className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest text-gray-500" onClick={() => router.back()}>
+          <Button variant="ghost" className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest text-gray-500" onClick={() => router.push('/onboarding')}>
             <ArrowLeft className="mr-3 h-4 w-4" />{t("back")}
           </Button>
           {!config.isSalud && (
