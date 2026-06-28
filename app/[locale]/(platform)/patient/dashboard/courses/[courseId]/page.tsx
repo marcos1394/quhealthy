@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { cn } from "@/lib/utils";
 
 export default function CoursePlayerPage() {
   const params = useParams();
