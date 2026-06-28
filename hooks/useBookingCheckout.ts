@@ -25,6 +25,7 @@ export const useBookingCheckout = () => {
     pickupTime,
     destinationState,
     scheduleNow = true,
+    scheduledPackageServices,
     shareVaultAccess = false,
     allowedDocumentIds,
     paymentMethod
@@ -105,29 +106,52 @@ export const useBookingCheckout = () => {
         // =======================================================
         // 🛒 FLUJO B: ORDEN HÍBRIDA (Productos, Paquetes o Múltiples)
         // =======================================================
-        const cartItems = cart.map(item => {
-          let startTimeIso: string | null = null;
-          let appointmentType = item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON';
+        // Construimos el Payload del Carrito Híbrido
+        const cartItemsPayload: CartItemRequest[] = [];
+        
+        cart.forEach(item => {
+            let startTimeIso: string | null = null;
+            let appointmentType = item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON';
 
-          if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
-            // Si scheduleNow es true, generamos la fecha seleccionada. Si es false (Comprar para después), enviamos null.
-            if (scheduleNow && selectedDate && selectedTime) {
-              const [hours, minutes] = selectedTime.split(':');
-              const startDateTime = new Date(selectedDate);
-              startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-              startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
-            } else {
-               startTimeIso = null;
+            if (item.type === 'SERVICE' || item.type === 'PACKAGE') {
+                if (scheduleNow && selectedDate && selectedTime && item.type === 'SERVICE') {
+                    const [hours, minutes] = selectedTime.split(':');
+                    const startDateTime = new Date(selectedDate);
+                    startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                    startTimeIso = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+                }
             }
-          }
 
-          return {
-            catalogItemId: item.id,
-            itemType: item.type || 'SERVICE', 
-            quantity: item.quantity || 1,
-            startTime: startTimeIso,
-            appointmentType: appointmentType
-          };
+            // Agregamos el ítem principal
+            cartItemsPayload.push({
+              catalogItemId: item.id,
+              itemType: item.type || 'SERVICE',
+              quantity: item.quantity || 1,
+              startTime: startTimeIso,
+              appointmentType: appointmentType
+            });
+
+            // Si el paquete tiene servicios que fueron agendados, los agregamos separados con el packageId
+            if (item.type === 'PACKAGE' && item.packageContents && scheduledPackageServices) {
+                item.packageContents.forEach(subItem => {
+                    if (scheduledPackageServices[subItem.id]) {
+                        const { date, time } = scheduledPackageServices[subItem.id];
+                        const [hours, minutes] = time.split(':');
+                        const startDateTime = new Date(date);
+                        startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                        const subItemStartTime = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+
+                        cartItemsPayload.push({
+                            catalogItemId: subItem.id,
+                            itemType: subItem.type,
+                            quantity: 1,
+                            startTime: subItemStartTime,
+                            appointmentType: subItem.modality || 'IN_PERSON',
+                            packageId: item.id // 🚀 Enlaza el servicio agendado al paquete comprado
+                        });
+                    }
+                });
+            }
         });
 
         const preparePayload = {
@@ -141,7 +165,7 @@ export const useBookingCheckout = () => {
           pickupTime,
           // 🚀 DIRECT-TO-CLOUD: Enviamos el JSON directo en el body, NO en metadata
           prescriptionUrls: prescriptionUrls, 
-          cartItems
+          cartItems: cartItemsPayload
         };
 
         const preparedOrder = await appointmentService.prepareHybridOrder(preparePayload);

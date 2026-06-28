@@ -60,10 +60,33 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const [scheduleNow, setScheduleNow] = useState(true);
 
   // 🧠 CEREBRO DEL CHECKOUT HÍBRIDO
-  const requiresScheduling = cart.some(item => item.type === 'SERVICE' || item.type === 'PACKAGE');
-  const requiresShipping = cart.some(item => item.type === 'PRODUCT' && item.isDigital !== true);
-  const needsPrescription = cart.some(item => item.type === 'PRODUCT' && item.requiresPrescription === true);
+  const requiresScheduling = cart.some(item => 
+    item.type === 'SERVICE' || 
+    (item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.type === 'SERVICE'))
+  );
+  
+  const requiresShipping = cart.some(item => 
+    (item.type === 'PRODUCT' && item.isDigital !== true) || 
+    (item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.type === 'PRODUCT' && sub.isDigital !== true))
+  );
+  
+  const needsPrescription = cart.some(item => 
+    (item.type === 'PRODUCT' && item.requiresPrescription === true) || 
+    (item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.requiresPrescription === true))
+  );
+  
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
+
+  // ESTADO PARA AGENDAMIENTO MÚLTIPLE DE PAQUETES
+  const [scheduledPackageServices, setScheduledPackageServices] = useState<Record<number, { date: Date, time: string }>>({});
+  
+  // Agendar un servicio individual de un paquete
+  const handleSchedulePackageService = (serviceId: number, date: Date, time: string) => {
+      setScheduledPackageServices(prev => ({
+          ...prev,
+          [serviceId]: { date, time }
+      }));
+  };
 
   // AUTO-BOOK LOGIC
   useEffect(() => {
@@ -96,7 +119,11 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   };
 
   const handleCheckout = async (symptomsText: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[], paymentMethod?: string) => {
-    if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
+    
+    const isPackageMultiSchedule = cart.some(item => item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.type === 'SERVICE'));
+    
+    // Validar si requiere cita simple
+    if (requiresScheduling && scheduleNow && !isPackageMultiSchedule && (!selectedDate || !selectedTime)) {
       return; 
     }
 
@@ -107,8 +134,9 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
       if (providerId) {
         await processCheckout({
           providerId,
-          selectedDate: (requiresScheduling && scheduleNow) ? selectedDate : null,
-          selectedTime: (requiresScheduling && scheduleNow) ? selectedTime : null,
+          selectedDate: (requiresScheduling && scheduleNow && !isPackageMultiSchedule) ? selectedDate : null,
+          selectedTime: (requiresScheduling && scheduleNow && !isPackageMultiSchedule) ? selectedTime : null,
+          scheduledPackageServices,
           cart,
           dependentId: (requiresScheduling && scheduleNow) ? dependentId : undefined, 
           consumerSymptoms: symptomsText,

@@ -7,6 +7,7 @@ export interface CheckoutParams {
   dependentId?: number | null; 
   selectedDate: Date | null;
   selectedTime: string | null;
+  scheduledPackageServices?: Record<number, { date: Date, time: string }>;
   cart: StorefrontItem[];
   consumerSymptoms?: string; 
   shippingAddress?: string;
@@ -44,6 +45,7 @@ export interface CartItemRequest {
   startTime?: string | null;
   appointmentType?: string;
   locationId?: number;
+  packageId?: number;
 }
 
 export interface CheckoutHybridRequest {

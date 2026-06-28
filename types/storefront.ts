@@ -31,6 +31,9 @@ export interface StorefrontItem {
 
   // 🎓 NUEVOS CAMPOS: Cursos y Contenido Digital
   contentUrl?: string;
+
+  // 📦 NUEVOS CAMPOS: Paquetes
+  packageContents?: StorefrontItem[];
 }
 
 export interface StorefrontData {
