@@ -95,18 +95,40 @@ export interface UI_Product {
   hasUnsavedChanges?: boolean;
 }
 
-// 🎓 NUEVO: Interfaz para la UI de Cursos Digitales
+// 🎓 NUEVO: Interfaz para la UI de Cursos Digitales (LMS)
+export interface CourseLesson {
+  id?: number;
+  moduleId?: number;
+  title: string;
+  description?: string;
+  videoUrl?: string;
+  durationMinutes?: number;
+  orderIndex: number;
+  isFreePreview?: boolean;
+}
+
+export interface CourseModule {
+  id?: number;
+  catalogItemId?: number;
+  title: string;
+  description?: string;
+  orderIndex: number;
+  lessons: CourseLesson[];
+}
+
 export interface UI_Course {
   id: number;
   name: string;
   description: string;
   category: string;
   price: number;
-  contentUrl: string; // Enlace del video/PDF
+  contentUrl: string; // Enlace del video/PDF (Legacy, a depreciar)
   imageUrl?: string;
+  curriculum?: CourseModule[]; // Nuevo: Plan de estudios LMS
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
+
 
 // 📦 NUEVO: Interfaz para la UI de Insumos Internos
 export interface UI_Supply {

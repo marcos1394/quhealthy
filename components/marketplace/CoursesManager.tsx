@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UI_Course } from "@/types/catalog";
 import { cn } from "@/lib/utils";
+import { CourseCurriculumBuilder } from "./CourseCurriculumBuilder";
 
 interface CoursesManagerProps {
   courses: UI_Course[];
@@ -268,22 +269,35 @@ export function CoursesManager({
                       />
                     </div>
 
-                    {/* URL Segura (Margin Note Warning) */}
+                    {/* URL Segura (Legacy) */}
                     <div className="border-l-2 border-amber-500 pl-4 py-3 bg-amber-50 dark:bg-amber-900/10 space-y-3 mt-4">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400 flex items-center gap-2">
-                        <Link2 className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('label_url', { defaultValue: 'Enlace del Contenido (Acceso Privado)' })}
+                        <Link2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Enlace Externo (Legacy)
                       </label>
                       <Input
                         type="url"
                         value={course.contentUrl || ''}
                         onChange={e => onUpdate(course.id, { contentUrl: e.target.value })}
-                        placeholder={t('placeholder_url', { defaultValue: 'https://youtube.com/privado o Drive' })}
+                        placeholder="https://youtube.com/privado"
                         className="rounded-none bg-white dark:bg-[#0a0a0a] border-amber-200 dark:border-amber-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-amber-500 transition-colors"
                       />
                       <p className="text-[9px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">
-                        ⚠️ {t('url_warning', { defaultValue: 'El enlace se desbloquea para el paciente tras confirmar la transacción.' })}
+                        ⚠️ Úsalo solo si tu curso no está hospedado aquí.
                       </p>
                     </div>
+
+                    {/* 🎓 BUILDER DE CURRÍCULO (LMS) */}
+                    {!course.isNew && course.id > 0 && (
+                      <div className="pt-6 mt-6 border-t border-gray-200 dark:border-gray-800">
+                        <CourseCurriculumBuilder catalogItemId={course.id} />
+                      </div>
+                    )}
+                    
+                    {course.isNew && (
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-blue-500 bg-blue-50 dark:bg-blue-900/10 p-3 mt-4 text-center border-l-2 border-blue-500">
+                        Guarda el curso primero para construir el plan de estudios (módulos y lecciones).
+                      </div>
+                    )}
 
                     {/* Acciones */}
                     <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
