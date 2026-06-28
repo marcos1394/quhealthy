@@ -104,6 +104,8 @@ export function DatePicker({
           type="text"
           value={inputValue}
           onChange={handleInputChange}
+          onFocus={() => setIsPopoverOpen(true)}
+          onClick={() => setIsPopoverOpen(true)}
           onBlur={handleBlur}
           placeholder={placeholder}
           className="flex-1 bg-transparent px-2 py-2 text-xs uppercase font-semibold text-black dark:text-white outline-none placeholder:text-gray-400"
