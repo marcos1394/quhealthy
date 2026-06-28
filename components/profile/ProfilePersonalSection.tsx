@@ -11,8 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 import { ConsumerProfile } from '@/types/consumerProfile';
 
@@ -27,7 +26,7 @@ export function ProfilePersonalSection({ form, handleInputChange, handleSelectCh
     const locale = useLocale();
     const dateLocale = locale === 'es' ? es : enUS;
 
-    const [calendarOpen, setCalendarOpen] = useState(false);
+
 
     // Parse birthDate string (YYYY-MM-DD) to Date object for the Calendar
     const selectedDate = form.birthDate
@@ -44,7 +43,6 @@ export function ProfilePersonalSection({ form, handleInputChange, handleSelectCh
                 },
             } as React.ChangeEvent<HTMLInputElement>;
             handleInputChange(syntheticEvent);
-            setCalendarOpen(false);
         }
     };
 
@@ -97,40 +95,16 @@ export function ProfilePersonalSection({ form, handleInputChange, handleSelectCh
                         <Label className="text-slate-700 dark:text-slate-300 font-medium">
                             {t('label_birth')}
                         </Label>
-                        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className={cn(
-                                        "w-full h-14 justify-start text-left font-normal rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all",
-                                        !displayDate && "text-slate-400"
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-3 h-5 w-5 text-slate-400" />
-                                    {displayDate || t('placeholder_birth', { defaultValue: 'Selecciona tu fecha de nacimiento' })}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-auto p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl"
-                                align="start"
-                            >
-                                <Calendar
-                                    mode="single"
-                                    selected={selectedDate}
-                                    onSelect={handleDateSelect}
-                                    disabled={(date) =>
-                                        date > new Date() || date < new Date("1900-01-01")
-                                    }
-                                    defaultMonth={selectedDate || new Date(2000, 0)}
-                                    captionLayout="dropdown-buttons"
-                                    fromYear={1920}
-                                    toYear={new Date().getFullYear()}
-                                    locale={dateLocale}
-                                    className="rounded-xl"
-                                />
-                            </PopoverContent>
-                        </Popover>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={handleDateSelect}
+                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            fromYear={1920}
+                            toYear={new Date().getFullYear()}
+                            placeholder={t('placeholder_birth', { defaultValue: 'DD/MM/AAAA' })}
+                            className="h-14 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                            popoverClassName="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl"
+                        />
                     </div>
 
                     {/* Biological Sex */}

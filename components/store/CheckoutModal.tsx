@@ -21,12 +21,7 @@ import { storageService } from "@/services/storage.service";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -362,30 +357,14 @@ export function CheckoutModal({
                       <div className="grid grid-cols-2 gap-6">
                         <div>
                           <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-2.5">Fecha Programada</label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-start text-left rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-[10px] font-bold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
-                                  !pickupDate && "text-gray-400"
-                                )}
-                              >
-                                <CalendarIcon className="mr-3 h-4 w-4" strokeWidth={1.5} />
-                                {pickupDate ? format(pickupDate, "dd MMM yyyy", { locale: es }).toUpperCase() : <span>DD/MM/AAAA</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[100] rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a]" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={pickupDate}
-                                onSelect={setPickupDate}
-                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0 || date.getDay() === 6}
-                                initialFocus
-                                locale={es}
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <DatePicker
+                            value={pickupDate}
+                            onChange={setPickupDate}
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0 || date.getDay() === 6}
+                            placeholder="DD/MM/AAAA"
+                            className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12"
+                            popoverClassName="z-[100] rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
+                          />
                         </div>
                         <div>
                           <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-2.5">Horario</label>

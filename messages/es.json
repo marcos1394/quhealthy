@@ -1988,7 +1988,7 @@
     },
     "toasts": {
       "name_price_required": "El nombre y el precio son obligatorios.",
-      "service_saved": "Servicio '{name}' guardado correctamente.",
+      "service_saved": "Servicio \"{name}\" guardado correctamente.",
       "service_deleted": "Servicio eliminado de tu catálogo.",
       "service_in_package": "No puedes eliminar este servicio porque pertenece a un paquete.",
       "package_saved": "Paquete guardado exitosamente.",

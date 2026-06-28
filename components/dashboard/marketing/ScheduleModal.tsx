@@ -10,8 +10,7 @@ import { useSocial } from "@/hooks/useSocial";
 import type { SocialConnectionDTO, ScheduledPostDTO } from "@/types/social";
 
 // UI Components
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { format, parseISO, setHours, setMinutes, isBefore, addMinutes } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -95,7 +94,7 @@ export default function ScheduleModal({
         }
       },
       {
-        selectedConnectionId: "", content: "", scheduledAt: "", status: "idle", errorMsg: "", showConnectionDropdown: false, calendarOpen: false
+        selectedConnectionId: "", content: "", scheduledAt: "", status: "idle", errorMsg: "", showConnectionDropdown: false
       }
     );
 
@@ -105,7 +104,6 @@ export default function ScheduleModal({
     const setStatus = (val: any) => dispatch({ type: 'SET_STATUS', payload: val });
     const setErrorMsg = (val: any) => dispatch({ type: 'SET_ERRORMSG', payload: val });
     const setShowConnectionDropdown = (val: any) => dispatch({ type: 'SET_SHOWCONNECTIONDROPDOWN', payload: val });
-    const setCalendarOpen = (val: any) => dispatch({ type: 'SET_CALENDAROPEN', payload: val });
 
 
 
@@ -163,7 +161,6 @@ export default function ScheduleModal({
     }
     setScheduledAt(format(newDate, "yyyy-MM-dd'T'HH:mm"));
     setErrorMsg("");
-    setCalendarOpen(false);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,31 +374,12 @@ export default function ScheduleModal({
                 <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">3</span>
                 FECHA DE DISTRIBUCIÓN
               </label>
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className={cn(
-                      "w-full h-14 px-4 flex items-center justify-start gap-3 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] hover:bg-white dark:hover:bg-[#111] transition-colors rounded-none focus:outline-none focus:border-black dark:focus:border-white text-xs uppercase font-semibold",
-                      !selectedDateObj ? "text-gray-400" : "text-black dark:text-white"
-                    )}
-                  >
-                    <Calendar className="w-4 h-4 text-gray-500 shrink-0" strokeWidth={1.5} />
-                    {selectedDateObj ? format(selectedDateObj, "PPP", { locale: dateLocale }) : "SELECCIONAR..."}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl" align="start">
-                  <CalendarUI
-                    mode="single"
-                    selected={selectedDateObj}
-                    onSelect={handleDateSelect}
-                    disabled={(date) => isBefore(date, new Date().setHours(0, 0, 0, 0))}
-                    initialFocus
-                    locale={dateLocale}
-                    className="rounded-none font-sans bg-white dark:bg-[#0a0a0a] text-black dark:text-white p-3"
-                  />
-                </PopoverContent>
-              </Popover>
+              <DatePicker
+                value={selectedDateObj}
+                onChange={handleDateSelect}
+                disabled={(date) => isBefore(date, new Date().setHours(0, 0, 0, 0))}
+                placeholder="SELECCIONAR..."
+              />
             </div>
 
             {/* Hora */}

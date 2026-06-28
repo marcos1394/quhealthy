@@ -1988,7 +1988,7 @@
     },
     "toasts": {
       "name_price_required": "Name and price are required.",
-      "service_saved": "Service '{name}' saved successfully.",
+      "service_saved": "Service \"{name}\" saved successfully.",
       "service_deleted": "Service removed from your catalog.",
       "service_in_package": "You cannot delete this service because it belongs to a package.",
       "package_saved": "Package saved successfully.",
