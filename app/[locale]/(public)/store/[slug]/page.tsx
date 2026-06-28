@@ -19,8 +19,6 @@ import { cn } from "@/lib/utils";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 import { useBookingStore } from "@/hooks/useBookingStore";
-import { ReviewList } from '@/components/store/ReviewList';
-import { WriteReviewModal } from '@/components/store/WriteReviewModal';
 import { CourseCurriculumView } from '@/components/store/CourseCurriculumView';
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
