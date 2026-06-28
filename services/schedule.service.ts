@@ -38,7 +38,7 @@ export const scheduleService = {
    */
   getAvailableSlots: async (
     providerId: number,
-    locationId: number,
+    locationId: number | undefined,
     startDate: string,
     endDate: string,
     durationMinutes: number
@@ -47,7 +47,7 @@ export const scheduleService = {
       `${BASE_URL}/${providerId}/available-slots`,
       {
         params: {
-          locationId,
+          ...(locationId ? { locationId } : {}),
           startDate,
           endDate,
           durationMinutes

@@ -29,6 +29,7 @@ export interface CreateAppointmentRequest {
   appointmentType: 'IN_PERSON' | 'ONLINE'; 
   paymentMethod: 'CREDIT_CARD' | 'CASH' | 'TRANSFER'; 
   consumerSymptoms?: string; 
+  locationId?: number;
 }
 
 export interface StripeCheckoutResponse {
@@ -42,6 +43,7 @@ export interface CartItemRequest {
   quantity: number;
   startTime?: string | null;
   appointmentType?: string;
+  locationId?: number;
 }
 
 export interface CheckoutHybridRequest {

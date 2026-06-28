@@ -10,7 +10,7 @@ export const useAvailability = () => {
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   // Consulta al servicio los horarios libres reales para una fecha exacta
-  const fetchAvailableSlots = useCallback(async (providerId: number, locationId: number, date: Date, durationMinutes: number) => {
+  const fetchAvailableSlots = useCallback(async (providerId: number, locationId: number | undefined, date: Date, durationMinutes: number) => {
     setIsLoadingSlots(true);
     setAvailableSlots([]); // Limpiamos los slots de la fecha anterior mientras carga
 

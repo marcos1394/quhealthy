@@ -39,9 +39,9 @@ export function RescheduleModal({ isOpen, onClose, appointment, onSuccess }: Res
   // Fetch slots whenever the date changes
   useEffect(() => {
     if (selectedDate && appointment.providerId) {
-      // Usamos locationId=1 por defecto y durationMinutes de la cita (o 30 por defecto)
+      // Usamos undefined para autodetectar la sede, y durationMinutes de la cita (o 30 por defecto)
       const duration = appointment.durationMinutes || 30;
-      fetchAvailableSlots(appointment.providerId, 1, selectedDate, duration);
+      fetchAvailableSlots(appointment.providerId, undefined, selectedDate, duration);
       setSelectedTime(null);
     }
   }, [selectedDate, appointment.providerId, appointment.durationMinutes, fetchAvailableSlots]);

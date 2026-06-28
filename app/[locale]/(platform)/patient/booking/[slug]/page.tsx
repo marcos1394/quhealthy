@@ -91,8 +91,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
     setSelectedDate(date);
     setSelectedTime(null);
     if (providerId) {
-      const locationId = 1; 
-      fetchAvailableSlots(providerId, locationId, date, getTotalDuration());
+      fetchAvailableSlots(providerId, undefined, date, getTotalDuration());
     }
   };
 
