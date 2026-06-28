@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation'; 
 import { appointmentService } from '@/services/appointment.service';
 import { paymentService } from '@/services/payment.service';
-import { CheckoutParams } from '@/types/booking';
+import { CheckoutParams, CartItemRequest } from '@/types/booking';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
