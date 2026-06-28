@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 import { useBookingStore } from "@/hooks/useBookingStore";
+import { ReviewList } from '@/components/store/ReviewList';
+import { WriteReviewModal } from '@/components/store/WriteReviewModal';
+import { CourseCurriculumView } from '@/components/store/CourseCurriculumView';
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -660,6 +663,7 @@ export default function PublicStorePage() {
                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
                           {course.description}
                         </p>
+                        <CourseCurriculumView catalogItemId={course.id} />
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-gray-200 dark:border-gray-800 pt-6">
                         <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">

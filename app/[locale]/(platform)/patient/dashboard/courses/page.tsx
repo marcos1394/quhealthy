@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 
 export default function MyCoursesPage() {
   const { courses, isLoading, fetchCourses } = usePurchasedCourses();
+  const router = useRouter();
 
   useEffect(() => {
     fetchCourses();
@@ -200,21 +202,12 @@ export default function MyCoursesPage() {
                       </span>
                       <span className={cn(
                         "flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border transition-colors duration-300",
-                        course.details.contentUrl 
-                          ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900 group-hover:bg-green-900 group-hover:text-green-300 group-hover:border-green-700" 
-                          : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900 group-hover:bg-red-900 group-hover:text-red-300 group-hover:border-red-700"
+                        "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900 group-hover:bg-green-900 group-hover:text-green-300 group-hover:border-green-700" 
                       )}>
-                        {course.details.contentUrl ? (
-                          <>
-                            <Video className="h-3 w-3" strokeWidth={2} />
-                            Disponible
-                          </>
-                        ) : (
-                          <>
-                            <AlertCircle className="h-3 w-3" strokeWidth={2} />
-                            Próximamente
-                          </>
-                        )}
+                        <>
+                          <Video className="h-3 w-3" strokeWidth={2} />
+                          Acceso Activo
+                        </>
                       </span>
                     </div>
 
@@ -228,23 +221,18 @@ export default function MyCoursesPage() {
                     <Button 
                       className={cn(
                         "mt-auto h-12 w-full rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border border-black dark:border-white group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white",
-                        course.details.contentUrl 
-                          ? "bg-black text-white dark:bg-white dark:text-black" 
-                          : "bg-gray-100 text-gray-400 dark:bg-[#050505] cursor-not-allowed group-hover:bg-gray-200 dark:group-hover:bg-gray-800"
+                        // Consideramos el curso disponible siempre, ya sea que tenga LMS o contentUrl legacy
+                        "bg-black text-white dark:bg-white dark:text-black" 
                       )}
                       onClick={() => {
-                        if (course.details.contentUrl) {
-                          window.open(course.details.contentUrl, '_blank');
-                        } else {
-                          toast.info("El contenido fuente aún no ha sido enlazado por el proveedor.");
-                        }
+                        router.push(`/patient/dashboard/courses/${course.details.id}`);
                       }}
                     >
                       <span className="flex items-center gap-2">
                         <PlayCircle className="h-4 w-4" strokeWidth={2} />
-                        Ver Recurso
+                        Acceder al Curso
                       </span>
-                      <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
+                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
                     </Button>
                   </div>
                 </motion.div>
