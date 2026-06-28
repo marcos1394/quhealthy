@@ -4,11 +4,11 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { GoogleMap, useJsApiLoader, MarkerF, StreetViewPanorama } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, MarkerF, StreetViewPanorama, Autocomplete } from "@react-google-maps/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   MapPin, Loader2, CheckCircle2, ZoomIn, ZoomOut, 
-  Eye, Map as MapIcon, Navigation, AlertCircle, Info 
+  Eye, Map as MapIcon, Navigation, AlertCircle, Info, Search
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTheme } from "next-themes";
@@ -72,11 +72,12 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
       case 'SET_INPUTVALUE': return { ...state, inputValue: typeof action.payload === 'function' ? action.payload(state.inputValue) : action.payload };
       case 'SET_SHOWSTREETVIEW': return { ...state, showStreetView: typeof action.payload === 'function' ? action.payload(state.showStreetView) : action.payload };
       case 'SET_ISPROCESSING': return { ...state, isProcessing: typeof action.payload === 'function' ? action.payload(state.isProcessing) : action.payload };
+      case 'SET_AUTOCOMPLETE': return { ...state, autocomplete: typeof action.payload === 'function' ? action.payload(state.autocomplete) : action.payload };
           default: return state;
         }
       },
       {
-        map: null, selectedLocation: null, inputValue: "", showStreetView: false, isProcessing: false
+        map: null, selectedLocation: null, inputValue: "", showStreetView: false, isProcessing: false, autocomplete: null
       }
     );
 
@@ -85,6 +86,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
     const setInputValue = (val: any) => dispatch({ type: 'SET_INPUTVALUE', payload: val });
     const setShowStreetView = (val: any) => dispatch({ type: 'SET_SHOWSTREETVIEW', payload: val });
     const setIsProcessing = (val: any) => dispatch({ type: 'SET_ISPROCESSING', payload: val });
+    const setAutocomplete = (val: any) => dispatch({ type: 'SET_AUTOCOMPLETE', payload: val });
 
 
 
@@ -136,16 +138,40 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, 
     }
   };
 
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        updateLocationDetails(lat, lng, place.place_id);
+        if (map) {
+          map.panTo({ lat, lng });
+          map.setZoom(18);
+        }
+      }
+    }
+  };
+
   return (
     <div className="space-y-3 relative w-full h-full flex flex-col">
-      {/* Info Bar */}
-      <div className="relative z-20 bg-white dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 shadow-sm transition-colors">
-        <div className="p-1.5 bg-medical-50 dark:bg-medical-500/10 rounded-lg">
-          <MapPin className="w-4 h-4 text-medical-600 dark:text-medical-400" />
+      {/* Info Bar / Search Bar */}
+      <div className="relative z-20 bg-white dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl p-2 flex items-center gap-2 shadow-sm transition-colors">
+        <div className="p-2 bg-medical-50 dark:bg-medical-500/10 rounded-lg">
+          <Search className="w-4 h-4 text-medical-600 dark:text-medical-400" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-medium tracking-wider">Selected Location</p>
-          <p className="text-sm text-slate-900 dark:text-white font-medium truncate">{inputValue || "Loading address..."}</p>
+        <div className="flex-1 min-w-0 h-10">
+          <Autocomplete
+            onLoad={setAutocomplete}
+            onPlaceChanged={onPlaceChanged}
+          >
+            <input
+              type="text"
+              placeholder="Busca tu dirección, calle o código postal..."
+              defaultValue={inputValue}
+              className="w-full h-full bg-transparent border-none outline-none focus:ring-0 text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
+            />
+          </Autocomplete>
         </div>
       </div>
 

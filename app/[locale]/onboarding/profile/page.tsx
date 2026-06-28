@@ -165,6 +165,12 @@ export default function OnboardingProfilePage() {
     } catch (e) { console.error("Details error:", e); handleApiError(e); }
   };
 
+  const selectManualPlace = () => {
+    setIsPlaceSelected(true); 
+    setPredictions([]);
+    toast.success("✅ Negocio registrado manualmente");
+  };
+
   const handleFinish = async () => {
     if (formData.parentCategoryId === 0 || formData.categoryId === 0) { return; }
     if (formData.businessName.length < 3 || formData.bio.length < 20) { return; }
@@ -414,7 +420,7 @@ export default function OnboardingProfilePage() {
                           </div>
                           
                           <AnimatePresence>
-                            {predictions.length > 0 && (
+                            {(predictions.length > 0 || (formData.businessName.length >= 3 && !isPlaceSelected)) && (
                               <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                                 className="absolute w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white mt-1 shadow-2xl max-h-60 overflow-y-auto z-50">
                                 {predictions.map((p: any) => (
@@ -427,6 +433,14 @@ export default function OnboardingProfilePage() {
                                     </div>
                                   </button>
                                 ))}
+                                <button onClick={selectManualPlace} type="button"
+                                  className="w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-900 bg-gray-50 dark:bg-[#050505] flex items-start gap-3 transition-colors border-t border-black dark:border-white">
+                                  <Building2 className="w-4 h-4 text-black dark:text-white mt-0.5" strokeWidth={1.5} />
+                                  <div>
+                                    <p className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-0.5">Usar "{formData.businessName}"</p>
+                                    <p className="text-[10px] text-gray-500 font-light">Ingresar datos manualmente</p>
+                                  </div>
+                                </button>
                               </motion.div>
                             )}
                           </AnimatePresence>

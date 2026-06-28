@@ -124,6 +124,41 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
     }
   };
 
+  const extractThumbnail = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = URL.createObjectURL(file);
+      
+      video.onloadeddata = () => {
+        // Seek to 1 second or half the video, whichever is smaller
+        video.currentTime = Math.min(1, video.duration / 2);
+      };
+      
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' }));
+          } else {
+            reject(new Error("No se pudo generar miniatura"));
+          }
+          URL.revokeObjectURL(video.src);
+        }, 'image/jpeg', 0.8);
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(video.src);
+        reject(new Error("Error al cargar video para miniatura"));
+      };
+    });
+  };
+
   const handleVideoUpload = async (moduleId: number, lessonId: number, file: File) => {
     try {
       setUploadingLessons(prev => ({ ...prev, [lessonId]: true }));
@@ -137,6 +172,19 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
       // Update lesson with new video URL
       await handleUpdateLesson(moduleId, lessonId, { videoUrl: publicUrl });
       toast.success("Video subido exitosamente.");
+
+      // Generar y subir miniatura automáticamente
+      try {
+        const thumbnailFile = await extractThumbnail(file);
+        const thumbRes = await CourseCurriculumService.generateVideoUploadUrl(catalogItemId, thumbnailFile);
+        await axios.put(thumbRes.uploadUrl, thumbnailFile, {
+          headers: { "Content-Type": thumbRes.requiredContentType }
+        });
+        await handleUpdateLesson(moduleId, lessonId, { thumbnailUrl: thumbRes.publicUrl });
+      } catch (err) {
+        console.warn("No se pudo extraer/subir la miniatura automáticamente", err);
+      }
+
     } catch (error) {
       console.error(error);
       toast.error("Error al subir el video.");
@@ -203,28 +251,39 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
                             </Button>
                           </div>
                           
-                          <div className="flex items-center gap-3 pl-6">
+                          <div className="flex items-center gap-3 pl-6 mt-2">
                             {lesson.videoUrl ? (
-                              <a href={lesson.videoUrl} target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline">
-                                <Video className="w-3 h-3" /> Ver Video
-                              </a>
+                              <div className="flex flex-col gap-2">
+                                <a href={lesson.videoUrl} target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline">
+                                  <Video className="w-3 h-3" /> Ver Video Completo
+                                </a>
+                                <video 
+                                  src={lesson.videoUrl} 
+                                  poster={lesson.thumbnailUrl}
+                                  controls 
+                                  controlsList="nodownload"
+                                  className="w-48 h-28 bg-black rounded object-contain border border-gray-200 dark:border-gray-800" 
+                                />
+                              </div>
                             ) : (
                               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1">
                                 <Video className="w-3 h-3" /> Sin video
                               </span>
                             )}
                             
-                            <label className={`cursor-pointer text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 px-2 py-1 border transition-colors ${uploadingLessons[lesson.id!] ? 'text-gray-400 border-gray-200 dark:border-gray-800' : 'text-black dark:text-white border-black dark:border-white hover:bg-gray-100 dark:hover:bg-[#111]'}`}>
-                              <UploadCloud className="w-3 h-3" />
-                              {uploadingLessons[lesson.id!] ? 'Subiendo...' : 'Subir MP4'}
-                              <input 
-                                type="file" 
-                                accept="video/mp4" 
-                                className="hidden" 
-                                disabled={uploadingLessons[lesson.id!]}
-                                onChange={(e) => e.target.files?.[0] && handleVideoUpload(mod.id!, lesson.id!, e.target.files[0])}
-                              />
-                            </label>
+                            <div className="flex flex-col justify-start gap-2 h-full pt-6">
+                              <label className={`cursor-pointer text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 px-2 py-1 border transition-colors ${uploadingLessons[lesson.id!] ? 'text-gray-400 border-gray-200 dark:border-gray-800' : 'text-black dark:text-white border-black dark:border-white hover:bg-gray-100 dark:hover:bg-[#111]'}`}>
+                                <UploadCloud className="w-3 h-3" />
+                                {uploadingLessons[lesson.id!] ? 'Subiendo...' : 'Subir MP4'}
+                                <input 
+                                  type="file" 
+                                  accept="video/mp4" 
+                                  className="hidden" 
+                                  disabled={uploadingLessons[lesson.id!]}
+                                  onChange={(e) => e.target.files?.[0] && handleVideoUpload(mod.id!, lesson.id!, e.target.files[0])}
+                                />
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </div>

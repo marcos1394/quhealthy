@@ -102,6 +102,7 @@ export interface CourseLesson {
   title: string;
   description?: string;
   videoUrl?: string;
+  thumbnailUrl?: string;
   durationMinutes?: number;
   orderIndex: number;
   isFreePreview?: boolean;
