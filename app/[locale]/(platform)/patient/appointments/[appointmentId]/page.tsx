@@ -23,6 +23,7 @@ import { handleApiError } from '@/lib/handleApiError';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { RescheduleModal } from '@/components/dashboard/RescheduleModal';
 
 export default function PatientAppointmentDetailsPage() {
   const params = useParams();
@@ -32,6 +33,7 @@ export default function PatientAppointmentDetailsPage() {
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isStartingChat, setIsStartingChat] = useState(false);
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 
   // Hook maestro
   const {
@@ -373,7 +375,11 @@ export default function PatientAppointmentDetailsPage() {
 
               {appointment.status === 'SCHEDULED' && (
                 <div className="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-800 pt-6">
-                  <Button variant="outline" className="w-full rounded-none border border-gray-300 dark:border-gray-700 text-gray-600 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsRescheduleModalOpen(true)}
+                    className="w-full rounded-none border border-gray-300 dark:border-gray-700 text-gray-600 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6"
+                  >
                     <RotateCcw className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Reprogramar Cita
                   </Button>
                   <Button variant="outline" className="w-full rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6">
@@ -386,6 +392,18 @@ export default function PatientAppointmentDetailsPage() {
           </div>
         </div>
       </div>
+
+      {appointment && (
+        <RescheduleModal
+          isOpen={isRescheduleModalOpen}
+          onClose={() => setIsRescheduleModalOpen(false)}
+          appointment={appointment}
+          onSuccess={() => {
+            // Recargar la página o volver a la lista para ver el cambio reflejado
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 }
