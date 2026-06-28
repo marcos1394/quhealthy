@@ -5,6 +5,7 @@ import { CourseModule, CourseLesson } from "@/types/catalog";
 import { CourseCurriculumService } from "@/services/course-curriculum.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Plus, Trash2, Video, FileText, ChevronDown, ChevronRight, UploadCloud } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +20,7 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
   const [uploadingLessons, setUploadingLessons] = useState<Record<number, boolean>>({});
+  const [deleteState, setDeleteState] = useState<{ type: 'module' | 'lesson' | null; moduleId?: number; lessonId?: number }>({ type: null });
 
   useEffect(() => {
     loadCurriculum();
@@ -55,8 +57,11 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
     }
   };
 
-  const handleDeleteModule = async (moduleId: number) => {
-    if (!confirm("¿Eliminar módulo y todas sus lecciones?")) return;
+  const handleDeleteModule = (moduleId: number) => {
+    setDeleteState({ type: 'module', moduleId });
+  };
+
+  const confirmDeleteModule = async (moduleId: number) => {
     try {
       await CourseCurriculumService.deleteModule(catalogItemId, moduleId);
       setModules(modules.filter(m => m.id !== moduleId));
@@ -102,8 +107,11 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
     }
   };
 
-  const handleDeleteLesson = async (moduleId: number, lessonId: number) => {
-    if (!confirm("¿Eliminar lección?")) return;
+  const handleDeleteLesson = (moduleId: number, lessonId: number) => {
+    setDeleteState({ type: 'lesson', moduleId, lessonId });
+  };
+
+  const confirmDeleteLesson = async (moduleId: number, lessonId: number) => {
     try {
       await CourseCurriculumService.deleteLesson(catalogItemId, moduleId, lessonId);
       setModules(modules.map(m => m.id === moduleId ? {
@@ -237,6 +245,23 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteState.type !== null}
+        onClose={() => setDeleteState({ type: null })}
+        onConfirm={() => {
+          if (deleteState.type === 'module' && deleteState.moduleId !== undefined) {
+             confirmDeleteModule(deleteState.moduleId);
+          } else if (deleteState.type === 'lesson' && deleteState.moduleId !== undefined && deleteState.lessonId !== undefined) {
+             confirmDeleteLesson(deleteState.moduleId, deleteState.lessonId);
+          }
+          setDeleteState({ type: null });
+        }}
+        title={deleteState.type === 'module' ? "Eliminar Módulo" : "Eliminar Lección"}
+        message={deleteState.type === 'module' 
+          ? "¿Estás seguro de eliminar este módulo y todas sus lecciones? Esta acción no se puede deshacer." 
+          : "¿Estás seguro de eliminar esta lección? Esta acción no se puede deshacer."}
+      />
     </div>
   );
 }
