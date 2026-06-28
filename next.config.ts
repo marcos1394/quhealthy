@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
       img-src * data: blob: 'unsafe-inline';      
       font-src 'self' data: https://fonts.gstatic.com;
 
-      media-src 'self' https://storage.googleapis.com;
+      media-src 'self' https://storage.googleapis.com blob:;
       
       frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com;
       
