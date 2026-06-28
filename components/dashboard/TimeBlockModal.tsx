@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { useTimeBlock } from "@/hooks/useTimeBlock";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 interface TimeBlockModalProps { isOpen: boolean; onClose: () => void; onSaveSuccess: () => void; initialDate?: Date; }
 
@@ -259,13 +261,13 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
                   </span>
                 </div>
                 <div className="flex flex-col gap-4">
-                  <Input 
-                    type="date" 
-                    name="startDate" 
-                    value={formData.startDate} 
-                    onChange={handleInput}
-                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
-                    disabled={loading} 
+                  <DatePicker
+                    value={formData.startDate ? new Date(formData.startDate + "T12:00:00") : undefined}
+                    onChange={(date) => handleInput({ target: { name: 'startDate', value: date ? format(date, "yyyy-MM-dd") : "" } } as any)}
+                    disabled={loading ? () => true : undefined}
+                    placeholder="DD/MM/AAAA"
+                    className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-black/20 dark:border-white/20"
+                    popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
                   />
                   <Input 
                     type="time" 
@@ -290,13 +292,13 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
                   </span>
                 </div>
                 <div className="flex flex-col gap-4">
-                  <Input 
-                    type="date" 
-                    name="endDate" 
-                    value={formData.endDate} 
-                    onChange={handleInput}
-                    className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
-                    disabled={loading} 
+                  <DatePicker
+                    value={formData.endDate ? new Date(formData.endDate + "T12:00:00") : undefined}
+                    onChange={(date) => handleInput({ target: { name: 'endDate', value: date ? format(date, "yyyy-MM-dd") : "" } } as any)}
+                    disabled={loading ? () => true : undefined}
+                    placeholder="DD/MM/AAAA"
+                    className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-black/20 dark:border-white/20"
+                    popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
                   />
                   <Input 
                     type="time" 

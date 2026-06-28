@@ -8,6 +8,8 @@ import { CalendarPlus, Check, ChevronsUpDown, Loader2, PlusCircle, UserPlus, Sea
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -451,12 +453,19 @@ export function NewAppointmentModal({ isOpen, onClose, onCreated, onSuccess, ini
                   <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">4</span>
                   {t('new_appointment_modal.date_label')} *
                 </label>
-                <Input
-                  type="date"
-                  required
-                  value={formData.appointmentDate}
-                  onChange={(e) => setFormData({ ...formData, appointmentDate: e.target.value })}
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white uppercase transition-colors w-full"
+                <DatePicker
+                  value={formData.appointmentDate ? new Date(formData.appointmentDate + "T12:00:00") : undefined}
+                  onChange={(date) => {
+                    if (date) {
+                      setFormData({ ...formData, appointmentDate: format(date, "yyyy-MM-dd") });
+                    } else {
+                      setFormData({ ...formData, appointmentDate: "" });
+                    }
+                  }}
+                  disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                  placeholder="DD/MM/AAAA"
+                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-black/20 dark:border-white/20"
+                  popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
                 />
               </div>
 

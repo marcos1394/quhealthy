@@ -10,12 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -57,30 +52,14 @@ export function VaccinationModals({
             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
               Fecha de Registro
             </label>
-            <Popover>
-              <PopoverTrigger asChild suppressHydrationWarning>
-                <Button type="button"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-black h-12 text-xs font-mono focus:ring-0",
-                    !selectedDate && "text-gray-400"
-                  )}
-                >
-                  <CalendarIcon className="mr-3 h-4 w-4" strokeWidth={1.5} />
-                  {selectedDate ? format(selectedDate, "dd MMM yyyy", { locale: es }) : <span>Seleccionar fecha</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 z-[60] bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none" align="start">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={(date) => date > todayDate || date < minDate}
-                  initialFocus
-                  locale={es} 
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
+              disabled={(date) => date > todayDate || date < minDate}
+              placeholder="Seleccionar fecha"
+              className="w-full h-12 text-xs font-mono rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
+              popoverClassName="z-[60] bg-white dark:bg-[#0a0a0a] border-black dark:border-white rounded-none"
+            />
           </div>
         </div>
 

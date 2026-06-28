@@ -11,9 +11,8 @@ import { toast } from "react-toastify";
 import { dependentService } from "@/services/dependent.service";
 import { Dependent, DependentRequest } from "@/types/dependent";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
 import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -248,38 +247,23 @@ export const DependentsStep = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2 flex flex-col">
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Fecha Nacimiento *</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          className={cn(
-                            "w-full h-12 flex items-center justify-between border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] px-4 transition-colors hover:border-black dark:hover:border-white text-sm",
-                            !formData.dateOfBirth && "text-gray-500"
-                          )}
-                        >
-                          {formData.dateOfBirth ? format(new Date(formData.dateOfBirth + "T12:00:00"), "PP", { locale: es }) : "Selecciona la fecha"}
-                          <CalendarIcon className="w-4 h-4 opacity-50" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 rounded-none border-black dark:border-white bg-white dark:bg-[#050505]" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={formData.dateOfBirth ? new Date(formData.dateOfBirth + "T12:00:00") : undefined}
-                          onSelect={(date) => {
-                            if (date) {
-                              const yyyy = date.getFullYear();
-                              const mm = String(date.getMonth() + 1).padStart(2, '0');
-                              const dd = String(date.getDate()).padStart(2, '0');
-                              setFormData({ ...formData, dateOfBirth: `${yyyy}-${mm}-${dd}` });
-                            }
-                          }}
-                          disabled={(date) => date > new Date()}
-                          initialFocus
-                          locale={es}
-                          className="rounded-none font-sans"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <DatePicker
+                      value={formData.dateOfBirth ? new Date(formData.dateOfBirth + "T12:00:00") : undefined}
+                      onChange={(date) => {
+                        if (date) {
+                          const yyyy = date.getFullYear();
+                          const mm = String(date.getMonth() + 1).padStart(2, '0');
+                          const dd = String(date.getDate()).padStart(2, '0');
+                          setFormData({ ...formData, dateOfBirth: `${yyyy}-${mm}-${dd}` });
+                        } else {
+                          setFormData({ ...formData, dateOfBirth: "" });
+                        }
+                      }}
+                      disabled={(date) => date > new Date()}
+                      placeholder="Selecciona la fecha"
+                      className="h-12 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white text-sm"
+                      popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#050505]"
+                    />
                   </div>
                   <div className="space-y-3">
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Sexo *</label>
