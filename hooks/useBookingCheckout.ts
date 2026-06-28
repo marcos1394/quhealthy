@@ -86,8 +86,8 @@ export const useBookingCheckout = () => {
         }
 
         // 2. Crear Checkout de Stripe para 1 Cita
-        if (paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
-           toast.success("¡Cita agendada exitosamente usando tu crédito/saldo!");
+        if (item.price === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+           toast.success(item.price === 0 ? "¡Cita agendada exitosamente!" : "¡Cita agendada exitosamente usando tu crédito/saldo!");
            router.push('/patient/dashboard/appointments');
            return;
         }
@@ -170,8 +170,8 @@ export const useBookingCheckout = () => {
           }
         }
 
-        if (paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
-           toast.success("¡Orden procesada exitosamente usando tu crédito/saldo!");
+        if (preparedOrder.totalAmount === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+           toast.success(preparedOrder.totalAmount === 0 ? "¡Orden procesada exitosamente!" : "¡Orden procesada exitosamente usando tu crédito/saldo!");
            router.push('/patient/dashboard/appointments');
            return;
         }
