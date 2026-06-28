@@ -33,7 +33,13 @@ export function NextAppointmentHero({ appointment, onNavigate, onSearch, locale 
             </div>
 
             <h2 className="text-3xl md:text-5xl font-semibold tracking-tight leading-tight max-w-2xl">
-              {appointment.serviceNameSnapshot || appointment.serviceName}
+              {(() => {
+                const title = appointment.serviceNameSnapshot || appointment.serviceName || '';
+                if (title === 'IN_PERSON') return locale === 'es' ? 'Presencial' : 'In Person';
+                if (title === 'ONLINE') return locale === 'es' ? 'En Línea' : 'Online';
+                if (title === 'HOME_VISIT') return locale === 'es' ? 'A Domicilio' : 'Home Visit';
+                return title;
+              })()}
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-10 border-t border-white/20 dark:border-black/20 pt-8 w-full">
