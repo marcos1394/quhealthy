@@ -111,10 +111,10 @@ export function RescheduleModal({ isOpen, onClose, appointment, onSuccess }: Res
                   1. Nueva Fecha
                 </label>
                 <DatePicker
-                  date={selectedDate}
-                  onDateChange={setSelectedDate}
+                  value={selectedDate}
+                  onChange={setSelectedDate}
                   placeholder="Selecciona una fecha"
-                  disabledDays={isPastDate}
+                  disabled={isPastDate}
                   className="w-full"
                 />
               </div>
