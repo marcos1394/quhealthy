@@ -58,6 +58,7 @@ export const useCatalog = () => {
             serviceDeliveryType: mapModalityToDelivery(item.modality),
             cancellationPolicy: (item.cancellationPolicy as CancellationPolicy) || 'flexible',
             followUpPeriodDays: item.followUpPeriodDays,
+            requiresEvaluation: item.requiresEvaluation || false,
             imageUrl: item.imageUrl, 
             isNew: false,
             hasUnsavedChanges: false
@@ -170,6 +171,7 @@ export const useCatalog = () => {
       modality: mapDeliveryToModality(service.serviceDeliveryType),
       cancellationPolicy: service.cancellationPolicy,
       followUpPeriodDays: service.followUpPeriodDays,
+      requiresEvaluation: service.requiresEvaluation || false,
       imageUrl: service.imageUrl 
     };
 

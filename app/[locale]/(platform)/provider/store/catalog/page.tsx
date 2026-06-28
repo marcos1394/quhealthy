@@ -77,7 +77,7 @@ export default function CatalogSetupPage() {
   };
 
   const handleSaveService = async (service: UI_Service) => {
-    if (!service.name || service.price <= 0) return;
+    if (!service.name || (!service.requiresEvaluation && service.price <= 0)) return;
     const saved = await saveService(service);
     if (saved) {
       setServices(prev => prev.map(s => s.id === service.id ? saved : s));

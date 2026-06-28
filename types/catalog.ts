@@ -13,6 +13,7 @@ export interface CatalogItemDTO {
   category?: string;
   description?: string;
   price: number;
+  requiresEvaluation?: boolean;
   imageUrl?: string; 
   
   // Específico de Servicios
@@ -46,6 +47,7 @@ export interface UI_Service {
   duration: number;
   category: string; 
   price: number;
+  requiresEvaluation?: boolean;
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
   followUpPeriodDays?: number;

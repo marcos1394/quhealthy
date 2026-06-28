@@ -398,7 +398,9 @@ export default function PublicStorePage() {
                         {service.compareAtPrice && service.compareAtPrice > service.price && (
                           <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${service.compareAtPrice}</span>
                         )}
-                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">${service.price}</span>
+                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                          {service.requiresEvaluation ? t('requires_eval', { defaultValue: 'REQUIERE VALORACIÓN' }) : `$${service.price}`}
+                        </span>
                       </div>
                       
                       {(() => {

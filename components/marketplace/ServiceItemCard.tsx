@@ -72,7 +72,7 @@ export function ServiceItemCard({
   };
 
   // Validaciones
-  const isValid = service.name && service.category && service.price > 0 && service.duration > 0;
+  const isValid = service.name && service.category && (service.requiresEvaluation || service.price > 0) && service.duration > 0;
   
   const getPriceWarning = (price: number) => {
     if (price < 200) return { level: 'low', message: t('price_warning_low', { defaultValue: 'PRECIO INUSUALMENTE BAJO' }) };
@@ -276,13 +276,27 @@ export function ServiceItemCard({
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" strokeWidth={1.5} />
                 <input 
                   type="number" min="0" step="50"
-                  value={service.price || ''}
+                  value={service.requiresEvaluation ? 0 : (service.price || '')}
                   onChange={(e) => onUpdate(service.id, { price: Number(e.target.value), hasUnsavedChanges: true })}
+                  disabled={service.requiresEvaluation}
                   className={cn(
                     "w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
-                    (!service.price || service.price <= 0) && "border-red-500/50"
+                    (!service.requiresEvaluation && (!service.price || service.price <= 0)) && "border-red-500/50",
+                    service.requiresEvaluation && "opacity-50 cursor-not-allowed"
                   )}
                 />
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  id={`req-eval-${service.id}`}
+                  checked={!!service.requiresEvaluation}
+                  onChange={(e) => onUpdate(service.id, { requiresEvaluation: e.target.checked, price: e.target.checked ? 0 : service.price, hasUnsavedChanges: true })}
+                  className="w-4 h-4 rounded-none border-black/20 dark:border-white/20 text-black dark:text-white focus:ring-black dark:focus:ring-white bg-gray-50 dark:bg-[#050505] cursor-pointer"
+                />
+                <label htmlFor={`req-eval-${service.id}`} className="text-[9px] font-bold uppercase tracking-widest text-gray-500 cursor-pointer">
+                  {t('requires_evaluation', { defaultValue: 'PRECIO A CONVENIR / REQUIERE VALORACIÓN' })}
+                </label>
               </div>
             </div>
 

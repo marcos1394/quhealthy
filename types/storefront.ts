@@ -7,6 +7,7 @@ export interface StorefrontItem {
   price: number;
   quantity?: number; // Solo para productos físicos
   imageUrl?: string;
+  requiresEvaluation?: boolean;
   
   // 🩺 Campos de Servicio
   durationMinutes?: number;
