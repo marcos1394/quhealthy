@@ -64,7 +64,7 @@ const darkMapStyle = [
 // 1. COMPONENTE INTERNO DEL MAPA (Reactivo al Tema)
 // ============================================================================
 const MapWithAutocomplete: React.FC<LocationPickerProps> = ({ onLocationSelect, initialLocation }) => {
-    const [{ map, selectedLocation, inputValue, showStreetView, isProcessing }, dispatch] = React.useReducer(
+    const [{ map, selectedLocation, inputValue, showStreetView, isProcessing, autocomplete }, dispatch] = React.useReducer(
       (state: any, action: any) => {
         switch (action.type) {
       case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
