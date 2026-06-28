@@ -148,6 +148,7 @@ export interface ProviderAppointment {
 
 export interface ReschedulePayload {
   newStartTime: string; // ISO 8601
+  reason?: string;
 }
 
 export interface PageResponse<T> {
