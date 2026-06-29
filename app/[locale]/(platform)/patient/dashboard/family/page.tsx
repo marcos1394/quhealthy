@@ -311,7 +311,7 @@ export default function PatientFamilyDashboard() {
                                     key={member.id}
                                     className="group relative z-0 hover:z-10 flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer"
                                 >
-                                    <DependentVaccineAlert memberId={member.id} />
+                                    {age < 12 && <DependentVaccineAlert memberId={member.id} />}
 
                                     <div className="p-6 md:p-8 flex items-start justify-between gap-4 border-b border-gray-200 dark:border-gray-800">
                                         <div className="flex items-center gap-4">
