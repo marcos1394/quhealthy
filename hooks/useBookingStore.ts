@@ -37,13 +37,26 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   cart: [],
   dependentId: null,
 
-  // 🚀 ACTUALIZADO: Guardamos el ID en el estado global
+  // 🚀 ACTUALIZADO: Guardamos el ID en el estado global y limpiamos el carrito si cambia
   setProvider: (id, slug, name, color) =>
-    set({
-      providerId: id,
-      providerSlug: slug,
-      providerName: name,
-      providerColor: color
+    set((state) => {
+      // Si el paciente cambia de doctor, limpiamos el carrito anterior por seguridad
+      if (state.providerId !== null && state.providerId !== id) {
+        return {
+          cart: [],
+          dependentId: null,
+          providerId: id,
+          providerSlug: slug,
+          providerName: name,
+          providerColor: color
+        };
+      }
+      return {
+        providerId: id,
+        providerSlug: slug,
+        providerName: name,
+        providerColor: color
+      };
     }),
 
   addToCart: (item, currentSlug) => {

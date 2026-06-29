@@ -203,7 +203,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
         </div>
       </div>
 
-      <ActiveCreditsBanner providerSlug={slug} brandColor={safeColor} isBookingView={true} />
+      <ActiveCreditsBanner providerId={providerId} brandColor={safeColor} isBookingView={true} />
 
       <div className="max-w-7xl mx-auto px-6 mt-12 flex flex-col lg:flex-row gap-12">
 

@@ -137,7 +137,7 @@ export default function PublicStorePage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
 
       {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
-      <ActiveCreditsBanner providerSlug={slug} brandColor={store.primaryColor} />
+      <ActiveCreditsBanner providerId={store.providerId} brandColor={store.primaryColor} />
 
       {/* --- HERO SECTION CORREGIDO --- */}
       <div className="w-full border-b border-gray-200 dark:border-gray-800">

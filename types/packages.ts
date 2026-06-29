@@ -1,6 +1,7 @@
 // src/types/packages.ts
 
 export interface PackageProviderInfo {
+    id: number;
     name: string;
     specialty: string;
     slug?: string; // Optional slug for redirection to the store

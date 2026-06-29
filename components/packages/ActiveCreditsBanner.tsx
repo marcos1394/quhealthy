@@ -7,13 +7,13 @@ import { cn } from '@/lib/utils';
 import { ConsumerPackage } from '@/types/packages';
 
 interface ActiveCreditsBannerProps {
-    providerSlug: string;
+    providerId: number;
     brandColor?: string;
     className?: string;
     isBookingView?: boolean;
 }
 
-export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', className, isBookingView }: ActiveCreditsBannerProps) {
+export function ActiveCreditsBanner({ providerId, brandColor = '#000000', className, isBookingView }: ActiveCreditsBannerProps) {
     const { packages, isLoading } = usePackages();
 
     const activeCreditsCount = useMemo(() => {
@@ -21,7 +21,7 @@ export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', clas
         
         // Find packages belonging to this provider
         const providerPackages = packages.filter(
-            (pkg: ConsumerPackage) => pkg.provider?.slug === providerSlug
+            (pkg: ConsumerPackage) => pkg.provider?.id === providerId
         );
 
         // Sum remaining credits
@@ -33,7 +33,7 @@ export function ActiveCreditsBanner({ providerSlug, brandColor = '#000000', clas
         });
 
         return totalRemaining;
-    }, [packages, providerSlug]);
+    }, [packages, providerId]);
 
     if (isLoading || activeCreditsCount === 0) {
         return null;
