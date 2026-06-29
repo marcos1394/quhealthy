@@ -37,9 +37,10 @@ export default function EldercarePage() {
         try {
             await eldercareService.addVitalSign(member.id, {
                 type: metricKey as any,
-                value,
-                secondaryValue,
-                unit: metricKey === 'TEMPERATURE' ? '°C' : metricKey === 'WEIGHT' ? 'kg' : ''
+                value: value.toString(),
+                secondaryValue: secondaryValue ? secondaryValue.toString() : undefined,
+                unit: metricKey === 'TEMPERATURE' ? '°C' : metricKey === 'WEIGHT' ? 'kg' : '',
+                source: 'MANUAL'
             });
             toast.success("Signo vital registrado");
             const data = await eldercareService.getDashboard(member.id);
