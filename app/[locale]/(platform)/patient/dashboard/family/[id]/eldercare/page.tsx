@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import { eldercareService, EldercareDashboardDto, MedicationTaskDto, AddMedicationRequest } from '@/services/eldercare.service';
 import { HealthMetricsCarousel, HealthMetricDto } from '@/components/dashboard/HealthMetricsCarousel';
 import { HealthMetricInputModal } from '@/components/dashboard/HealthMetricInputModal';
-import { MedicationInputModal } from '@/components/dashboard/MedicationInputModal';
+import { MedicationInputModal, FREQUENCY_OPTIONS } from '@/components/dashboard/MedicationInputModal';
 import { Trash2, Edit2 } from 'lucide-react';
 export default function EldercarePage() {
     const params = useParams();
@@ -285,7 +285,7 @@ export default function EldercarePage() {
                                         </div>
                                         <div className="border border-black dark:border-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 w-fit">
                                             <CalendarClock className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                            {med.frequency}
+                                            {FREQUENCY_OPTIONS.find(opt => opt.value === med.frequency)?.label || med.frequency}
                                         </div>
                                     </div>
                                     

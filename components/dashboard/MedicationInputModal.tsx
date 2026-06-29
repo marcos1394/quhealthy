@@ -13,7 +13,7 @@ interface MedicationInputModalProps {
   onSave: (data: AddMedicationRequest, taskId?: number) => Promise<void>;
 }
 
-const FREQUENCY_OPTIONS = [
+export const FREQUENCY_OPTIONS = [
   { value: 'EVERY_4_HOURS', label: 'Cada 4 horas' },
   { value: 'EVERY_6_HOURS', label: 'Cada 6 horas' },
   { value: 'EVERY_8_HOURS', label: 'Cada 8 horas' },
