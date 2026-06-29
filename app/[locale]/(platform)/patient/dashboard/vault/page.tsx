@@ -14,6 +14,13 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 import { useFamily } from '@/hooks/useFamily';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ChevronDown } from 'lucide-react';
 
 export default function PatientVaultPage() {
     const t = useTranslations('HealthVault');
@@ -103,6 +110,21 @@ export default function PatientVaultPage() {
     }, [documents, activeTab]);
 
     const activeDependentId = activeTab === 'titular' ? undefined : Number(activeTab);
+
+    const activeDependent = useMemo(() => {
+        if (!family || activeDependentId === undefined) return undefined;
+        return family.find(m => m.id === activeDependentId);
+    }, [family, activeDependentId]);
+
+    const activeDependentAge = useMemo(() => {
+        if (!activeDependent?.dateOfBirth) return undefined;
+        const dob = new Date(activeDependent.dateOfBirth);
+        const diff_ms = Date.now() - dob.getTime();
+        const age_dt = new Date(diff_ms); 
+        return Math.abs(age_dt.getUTCFullYear() - 1970);
+    }, [activeDependent]);
+
+    const showVaccinationCard = activeDependentId !== undefined && activeDependentAge !== undefined && activeDependentAge <= 12;
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
@@ -220,18 +242,41 @@ export default function PatientVaultPage() {
                             </section>
                         )}
 
-                        {/* --- CARTILLA DIGITAL DEL PACIENTE ACTIVO --- */}
-                        {activeDependentId !== undefined && (
-                            <section className="space-y-6">
+                        {/* --- CARTILLA DIGITAL DEL PACIENTE ACTIVO (SOLO <= 12 AÑOS) --- */}
+                        {showVaccinationCard && (
+                            <section className="space-y-6 pt-4">
                                 <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
                                     <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
                                         <Syringe className="w-4 h-4" strokeWidth={1.5} />
-                                        Cartilla de Vacunación
+                                        Cartillas de Salud
                                     </h2>
                                 </div>
-                                <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-                                    <DigitalVaccinationCard memberId={activeDependentId} hideHeader={true} />
-                                </div>
+                                <Accordion type="single" collapsible className="grid grid-cols-1 gap-6">
+                                    <AccordionItem 
+                                        value="vaccination-card" 
+                                        className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
+                                    >
+                                        <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
+                                                    <Syringe className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+                                                </div>
+                                                <div className="text-left">
+                                                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                                                        Cartilla Digital
+                                                    </h2>
+                                                    <p className="text-xs text-gray-500 font-medium mt-0.5">
+                                                        Haz clic para ver el historial de dosis
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-0 border-t-0">
+                                            <DigitalVaccinationCard memberId={activeDependentId} hideHeader={true} />
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
                             </section>
                         )}
 
