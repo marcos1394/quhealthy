@@ -33,6 +33,8 @@ export function MedicationInputModal({
   const [frequency, setFrequency] = useState('EVERY_8_HOURS');
   const [durationDays, setDurationDays] = useState('30');
   const [instructions, setInstructions] = useState('');
+  const [startsNow, setStartsNow] = useState(true);
+  const [firstDoseTime, setFirstDoseTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -43,12 +45,24 @@ export function MedicationInputModal({
         setFrequency(medicationToEdit.frequency || 'EVERY_8_HOURS');
         setDurationDays(medicationToEdit.durationDays ? medicationToEdit.durationDays.toString() : '30');
         setInstructions(medicationToEdit.instructions || '');
+        setStartsNow(false);
+        // Formatear fecha para el input datetime-local si existe
+        if (medicationToEdit.nextDueTime) {
+          try {
+            const dateStr = medicationToEdit.nextDueTime.slice(0, 16); // yyyy-MM-ddThh:mm
+            setFirstDoseTime(dateStr);
+          } catch (e) {
+            setFirstDoseTime('');
+          }
+        }
       } else {
         setMedicationName('');
         setDosage('');
         setFrequency('EVERY_8_HOURS');
         setDurationDays('30');
         setInstructions('');
+        setStartsNow(true);
+        setFirstDoseTime('');
       }
     }
   }, [isOpen, medicationToEdit]);
@@ -60,12 +74,28 @@ export function MedicationInputModal({
     
     try {
       setIsSubmitting(true);
+      
+      let finalFirstDoseTime = undefined;
+      if (!isEditMode) {
+        if (!startsNow && firstDoseTime) {
+          // Convertimos al formato LocalDateTime ISO que espera Spring
+          finalFirstDoseTime = new Date(firstDoseTime).toISOString();
+        } else if (startsNow) {
+          finalFirstDoseTime = new Date().toISOString();
+        }
+      } else {
+         if (firstDoseTime) {
+            finalFirstDoseTime = new Date(firstDoseTime).toISOString();
+         }
+      }
+
       await onSave({
         medicationName,
         dosage,
         frequency,
         durationDays: durationDays ? parseInt(durationDays) : undefined,
-        instructions
+        instructions,
+        firstDoseTime: finalFirstDoseTime
       }, medicationToEdit?.id);
       onClose();
     } catch (error) {
@@ -147,6 +177,33 @@ export function MedicationInputModal({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              ¿Cuándo es la primera toma?
+            </label>
+            {!isEditMode && (
+              <div className="flex gap-4 mb-2 mt-1">
+                <label className="flex items-center gap-2 text-sm text-black dark:text-white cursor-pointer">
+                  <input type="radio" checked={startsNow} onChange={() => setStartsNow(true)} className="accent-black dark:accent-white" />
+                  Ahora
+                </label>
+                <label className="flex items-center gap-2 text-sm text-black dark:text-white cursor-pointer">
+                  <input type="radio" checked={!startsNow} onChange={() => setStartsNow(false)} className="accent-black dark:accent-white" />
+                  Programar
+                </label>
+              </div>
+            )}
+            
+            {(!startsNow || isEditMode) && (
+              <input
+                type="datetime-local"
+                value={firstDoseTime}
+                onChange={(e) => setFirstDoseTime(e.target.value)}
+                className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 p-2 text-base focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+              />
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

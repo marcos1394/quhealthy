@@ -19,6 +19,9 @@ export interface MedicationTaskDto {
     durationDays: number;
     instructions: string;
     isManual: boolean;
+    nextDueTime?: string;
+    totalExpected?: number;
+    adherenceCount?: number;
 }
 
 export interface EldercareDashboardDto {
@@ -41,6 +44,7 @@ export interface AddMedicationRequest {
     frequency: string;
     durationDays?: number;
     instructions?: string;
+    firstDoseTime?: string;
 }
 
 export const eldercareService = {
@@ -63,5 +67,9 @@ export const eldercareService = {
 
     deleteMedication: async (dependentId: string | number, taskId: string | number): Promise<void> => {
         await axiosInstance.delete(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications/${taskId}`);
+    },
+
+    takeMedication: async (dependentId: string | number, taskId: string | number): Promise<void> => {
+        await axiosInstance.post(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications/${taskId}/take`);
     }
 };

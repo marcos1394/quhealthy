@@ -86,6 +86,18 @@ export default function EldercarePage() {
         }
     };
 
+    const handleTakeMedication = async (taskId: number) => {
+        try {
+            await eldercareService.takeMedication(member.id, taskId);
+            toast.success("Dosis registrada correctamente");
+            const dashboardData = await eldercareService.getDashboard(member.id);
+            setDashboardData(dashboardData);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al registrar dosis");
+        }
+    };
+
     const baseMetrics = [
         { metricKey: 'BLOOD_PRESSURE', title: 'Presión Arterial', icon: 'heart.fill', subtitle: 'Normal: 120/80', recommendedFrequency: 'Diario' },
         { metricKey: 'HEART_RATE', title: 'Frecuencia Cardíaca', icon: 'heart.fill', subtitle: 'Normal: 60-100', recommendedFrequency: 'Diario' },
@@ -277,6 +289,31 @@ export default function EldercarePage() {
                                         </div>
                                     </div>
                                     
+                                    
+                                    <div className="mt-4 flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Progreso</span>
+                                            <span className="text-[10px] font-bold text-black dark:text-white">
+                                                {med.adherenceCount || 0} / {med.totalExpected || '-'} dosis
+                                            </span>
+                                        </div>
+                                        {med.nextDueTime && (
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Próxima toma</span>
+                                                <span className="text-[10px] font-bold text-black dark:text-white">
+                                                    {new Date(med.nextDueTime).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <Button 
+                                            onClick={() => handleTakeMedication(med.id)}
+                                            disabled={med.totalExpected !== undefined && med.adherenceCount !== undefined && med.adherenceCount >= med.totalExpected}
+                                            className="w-full mt-2 rounded-none bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-200 dark:text-black uppercase tracking-widest text-[9px] font-bold h-8"
+                                        >
+                                            ✅ Tomar Dosis
+                                        </Button>
+                                    </div>
+
                                     <div className="flex items-center justify-between mt-4 border-t border-gray-100 dark:border-gray-900 pt-4">
                                         {med.isManual ? (
                                             <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Ingresado manualmente</p>
