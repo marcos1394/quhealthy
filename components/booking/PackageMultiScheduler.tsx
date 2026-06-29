@@ -14,11 +14,12 @@ interface PackageServiceSchedulerItemProps {
   service: StorefrontItem;
   providerId: number;
   providerColor: string;
-  onSchedule: (serviceId: number, date: Date, time: string) => void;
+  onSchedule: (serviceId: number, date: Date | null, time: string | null) => void;
   index: number;
 }
 
 const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSchedule, index }: PackageServiceSchedulerItemProps) => {
+  const [saveAsCredit, setSaveAsCredit] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -58,7 +59,7 @@ const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSch
   return (
     <div className="mb-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
       {/* Header del Servicio */}
-      <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col">
           <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
             SESIÓN {index + 1}
@@ -66,16 +67,55 @@ const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSch
           <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
             {service.name}
           </h3>
+          <span className="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+            <Clock className="w-3 h-3" strokeWidth={1.5} /> {service.durationMinutes || 30} MIN
+          </span>
         </div>
-        <span 
-          className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2"
-          style={{ backgroundColor: providerColor, color: '#ffffff' }}
-        >
-          <Clock className="w-3 h-3" strokeWidth={2} /> {service.durationMinutes || 30} MIN
-        </span>
+        
+        <div className="flex bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-1">
+          <button
+            onClick={() => {
+              setSaveAsCredit(false);
+            }}
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+              !saveAsCredit 
+                ? 'bg-black text-white dark:bg-white dark:text-black' 
+                : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900'
+            }`}
+            style={!saveAsCredit ? { backgroundColor: providerColor, color: '#ffffff' } : {}}
+          >
+            Agendar Ahora
+          </button>
+          <button
+            onClick={() => {
+              setSaveAsCredit(true);
+              onSchedule(service.id, null, null); // Clear from parent
+            }}
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+              saveAsCredit 
+                ? 'bg-black text-white dark:bg-white dark:text-black' 
+                : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900'
+            }`}
+          >
+            Guardar para después
+          </button>
+        </div>
       </div>
 
-      <div className="p-6 md:p-8 flex flex-col xl:flex-row gap-8">
+      {saveAsCredit ? (
+        <div className="p-8 md:p-12 text-center bg-gray-50 dark:bg-[#050505] flex flex-col items-center">
+          <div className="w-12 h-12 border border-black dark:border-white bg-white dark:bg-[#111] flex items-center justify-center mb-4">
+            <Package className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+            SESIÓN GUARDADA COMO CRÉDITO
+          </h4>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 max-w-md mx-auto leading-relaxed">
+            Esta sesión se agregará a tu cuenta tras el pago. Podrás agendarla cuando lo desees desde tu panel de paciente.
+          </p>
+        </div>
+      ) : (
+        <div className="p-6 md:p-8 flex flex-col xl:flex-row gap-8">
         {/* Calendario */}
         <div className="flex-1 xl:max-w-md">
           <div className="flex items-center justify-between mb-6">
@@ -145,6 +185,7 @@ const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSch
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

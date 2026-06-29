@@ -83,11 +83,18 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   const [scheduledPackageServices, setScheduledPackageServices] = useState<Record<number, { date: Date, time: string }>>({});
   
   // Agendar un servicio individual de un paquete
-  const handleSchedulePackageService = (serviceId: number, date: Date, time: string) => {
-      setScheduledPackageServices(prev => ({
-          ...prev,
-          [serviceId]: { date, time }
-      }));
+  const handleSchedulePackageService = (serviceId: number, date: Date | null, time: string | null) => {
+      setScheduledPackageServices(prev => {
+          if (!date || !time) {
+              const newState = { ...prev };
+              delete newState[serviceId];
+              return newState;
+          }
+          return {
+              ...prev,
+              [serviceId]: { date, time }
+          };
+      });
   };
 
   // AUTO-BOOK LOGIC
