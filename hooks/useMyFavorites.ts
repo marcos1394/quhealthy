@@ -5,12 +5,17 @@ import { useSessionStore } from '@/stores/SessionStore';
 export const useMyFavorites = (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE') => {
     const { token, user } = useSessionStore();
     const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        // Limpiamos los IDs viejos de inmediato al cambiar el tipo
+        setFavoriteIds(new Set());
+        
         // Solo buscamos si el paciente está logueado
         if (!token || !user) return;
 
         const fetchFavorites = async () => {
+            setIsLoading(true);
             try {
                 // Traemos los favoritos (ponemos un size grande para abarcar el mapa)
                 const res = await axiosInstance.get(`/api/catalog/favorites/me?typeFilter=${entityType}&size=100`);
@@ -20,11 +25,13 @@ export const useMyFavorites = (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | '
                 setFavoriteIds(new Set(ids));
             } catch (error) {
                 console.error(`Error cargando favoritos de ${entityType}:`, error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchFavorites();
     }, [token, user, entityType]);
 
-    return { favoriteIds };
+    return { favoriteIds, isLoading };
 };

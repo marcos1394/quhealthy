@@ -164,10 +164,14 @@ export default function PatientFavoritesDashboard() {
                             {savedProviders.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {savedProviders.map((provider) => (
-                                        <div key={provider.id} className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
+                                        <div 
+                                            key={provider.id} 
+                                            className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)] transition-colors"
+                                            style={{ '--provider-color': provider.primaryColor || '#000000' } as React.CSSProperties}
+                                        >
                                             
                                             {/* Portada */}
-                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center">
+                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center group-hover:[border-color:var(--provider-color)] transition-colors">
                                                 <SafeImage 
                                                     src={provider.imageUrl || ''} 
                                                     alt={provider.name} 
@@ -182,7 +186,7 @@ export default function PatientFavoritesDashboard() {
                                                     />
                                                 </div>
 
-                                                <div className="absolute bottom-4 left-4 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 px-2 py-1 flex items-center gap-1.5">
+                                                <div className="absolute bottom-4 left-4 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 px-2 py-1 flex items-center gap-1.5 group-hover:[border-color:var(--provider-color)] transition-colors">
                                                     <Star className="w-2.5 h-2.5 text-black dark:text-white fill-black dark:fill-white" />
                                                     <span className="text-[9px] font-bold text-black dark:text-white">{provider.rating || 'N/A'}</span>
                                                 </div>
@@ -197,7 +201,7 @@ export default function PatientFavoritesDashboard() {
                                                     {provider.category || 'Especialista'}
                                                 </p>
 
-                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6">
+                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6 group-hover:[border-color:var(--provider-color)] transition-colors">
                                                     <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500 truncate mr-4">
                                                         <MapPin className="w-3 h-3 mr-1.5 shrink-0" strokeWidth={1.5} />
                                                         {provider.city || 'Ubicación Remota'}
@@ -205,7 +209,7 @@ export default function PatientFavoritesDashboard() {
                                                     <Button 
                                                         variant="outline"
                                                         onClick={() => router.push(`/store/${provider.slug}`)}
-                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
+                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-[var(--provider-color)] hover:text-white hover:border-[var(--provider-color)] dark:hover:bg-[var(--provider-color)] dark:hover:text-white dark:hover:border-[var(--provider-color)] text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
                                                     >
                                                         Auditar Perfil <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
                                                     </Button>
@@ -247,10 +251,14 @@ export default function PatientFavoritesDashboard() {
                             ) : savedItems.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {savedItems.map((item) => (
-                                        <div key={item.id} className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
+                                        <div 
+                                            key={item.id} 
+                                            className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)] transition-colors"
+                                            style={{ '--provider-color': item.providerColor || '#000000' } as React.CSSProperties}
+                                        >
                                             
                                             {/* Portada del Item */}
-                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center shrink-0">
+                                            <div className="h-48 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 overflow-hidden flex items-center justify-center shrink-0 group-hover:[border-color:var(--provider-color)] transition-colors">
                                                 <SafeImage 
                                                     src={item.imageUrl || ''} 
                                                     alt={item.name} 
@@ -274,7 +282,7 @@ export default function PatientFavoritesDashboard() {
                                                     {item.description || 'Sin descripción detallada.'}
                                                 </p>
 
-                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6">
+                                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6 group-hover:[border-color:var(--provider-color)] transition-colors">
                                                     <div className="flex flex-col">
                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Inversión</span>
                                                         <span className="text-sm font-semibold text-black dark:text-white tracking-tight">
@@ -284,7 +292,7 @@ export default function PatientFavoritesDashboard() {
                                                     <Button 
                                                         variant="outline"
                                                         onClick={() => router.push(`/store/checkout/${item.id}`)}
-                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
+                                                        className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-[var(--provider-color)] hover:text-white hover:border-[var(--provider-color)] dark:hover:bg-[var(--provider-color)] dark:hover:text-white dark:hover:border-[var(--provider-color)] text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
                                                     >
                                                         {t('buy_item', { defaultValue: 'Ver Detalles' })} <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
                                                     </Button>
