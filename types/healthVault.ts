@@ -13,6 +13,7 @@ export interface AIExtractedData {
 
 export interface ConsumerDocument {
     id: string;
+    dependentId?: number;
     title?: string;
     noteContent?: string;
     fileName?: string;

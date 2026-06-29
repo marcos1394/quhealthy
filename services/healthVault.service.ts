@@ -22,11 +22,12 @@ export const healthVaultService = {
     fileName: string,
     contentType: string,
     sizeInBytes: number,
-    documentType: string = 'GENERAL'
+    documentType: string = 'GENERAL',
+    dependentId?: number
   ): Promise<{ uploadUrl: string; fileKey: string }> => {
     const response = await axiosInstance.post<{ uploadUrl: string; fileKey: string }>(
       `${BASE_URL}/upload-url`,
-      { fileName, contentType, sizeInBytes, documentType }
+      { fileName, contentType, sizeInBytes, documentType, dependentId }
     );
     return response.data;
   },
@@ -41,11 +42,12 @@ export const healthVaultService = {
     title: string | undefined,
     contentType: string,
     fileSizeBytes: number,
-    documentType: string = 'GENERAL'
+    documentType: string = 'GENERAL',
+    dependentId?: number
   ): Promise<ConsumerDocument> => {
     const response = await axiosInstance.post<ConsumerDocument>(
       `${BASE_URL}/confirm`,
-      { fileKey, originalFileName, title, contentType, fileSizeBytes, documentType }
+      { fileKey, originalFileName, title, contentType, fileSizeBytes, documentType, dependentId }
     );
     return response.data;
   },
@@ -56,13 +58,14 @@ export const healthVaultService = {
    * 2. Subir archivo directamente a GCP
    * 3. Confirmar subida al backend
    */
-  uploadDocument: async (file: File, title?: string, documentType: string = 'GENERAL'): Promise<ConsumerDocument> => {
+  uploadDocument: async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number): Promise<ConsumerDocument> => {
     // Paso 1: Generar URL firmada
     const { uploadUrl, fileKey } = await healthVaultService.generateUploadUrl(
       file.name,
       file.type,
       file.size,
-      documentType
+      documentType,
+      dependentId
     );
 
     // Paso 2: Subir directamente a GCP usando la URL firmada
@@ -79,7 +82,8 @@ export const healthVaultService = {
       title,
       file.type,
       file.size,
-      documentType
+      documentType,
+      dependentId
     );
 
     return savedDoc;
@@ -88,10 +92,10 @@ export const healthVaultService = {
   /**
    * Crea una nota de texto en el expediente
    */
-  createNote: async (title: string, noteContent: string): Promise<ConsumerDocument> => {
+  createNote: async (title: string, noteContent: string, dependentId?: number): Promise<ConsumerDocument> => {
     const response = await axiosInstance.post<ConsumerDocument>(
       `${BASE_URL}/notes`,
-      { title, noteContent }
+      { title, noteContent, dependentId }
     );
     return response.data;
   },
