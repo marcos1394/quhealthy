@@ -32,7 +32,8 @@ export default function PatientVaultPage() {
         uploadDocument,
         createNote,
         viewDocument,
-        updateDocument
+        updateDocument,
+        generatePanorama
     } = useHealthVault();
 
     const { family } = useFamily();
