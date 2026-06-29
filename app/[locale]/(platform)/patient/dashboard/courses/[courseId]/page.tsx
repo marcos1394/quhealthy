@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import ReactPlayer from 'react-player';
 import { useParams, useRouter } from "next/navigation";
 import { CourseCurriculumService } from "@/services/course-curriculum.service";
 import { ConsumerCourseService, CatalogItemResponse } from "@/services/consumer-course.service";
@@ -29,6 +30,11 @@ export default function CoursePlayerPage() {
   const [loading, setLoading] = useState(true);
   const [activeLesson, setActiveLesson] = useState<CourseLesson | null>(null);
   const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;
@@ -150,16 +156,17 @@ export default function CoursePlayerPage() {
           {activeLesson ? (
             <div className="w-full flex flex-col">
               <div className="w-full bg-black aspect-video relative flex items-center justify-center">
-                {activeLesson.videoUrl ? (
-                  <video 
-                    src={activeLesson.videoUrl} 
-                    controls 
-                    controlsList="nodownload"
-                    className="w-full h-full outline-none"
-                    poster={courseDetails.imageUrl}
-                  >
-                    Tu navegador no soporta el formato de video.
-                  </video>
+                {activeLesson.videoUrl && isMounted ? (
+                  <div className="absolute inset-0">
+                    <ReactPlayer
+                      url={activeLesson.videoUrl}
+                      controls
+                      width="100%"
+                      height="100%"
+                      light={courseDetails.imageUrl}
+                      playing={true}
+                    />
+                  </div>
                 ) : (
                   <div className="text-center space-y-4">
                     <PlayCircle className="w-12 h-12 text-gray-700 mx-auto" />
