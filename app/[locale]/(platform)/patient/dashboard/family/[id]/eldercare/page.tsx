@@ -17,7 +17,48 @@ import { eldercareService, EldercareDashboardDto, MedicationTaskDto, AddMedicati
 import { HealthMetricsCarousel, HealthMetricDto } from '@/components/dashboard/HealthMetricsCarousel';
 import { HealthMetricInputModal } from '@/components/dashboard/HealthMetricInputModal';
 import { MedicationInputModal, FREQUENCY_OPTIONS } from '@/components/dashboard/MedicationInputModal';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, Timer } from 'lucide-react';
+
+const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
+    const [timeLeft, setTimeLeft] = useState<string>('');
+    const [isOverdue, setIsOverdue] = useState(false);
+
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const target = new Date(targetDate).getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+            
+            setIsOverdue(diff < 0);
+            
+            const absDiff = Math.abs(diff);
+            const hours = Math.floor(absDiff / (1000 * 60 * 60));
+            const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 24) {
+                const days = Math.floor(hours / 24);
+                setTimeLeft(`${days}d ${hours % 24}h`);
+            } else if (hours > 0) {
+                setTimeLeft(`${hours}h ${minutes}m`);
+            } else {
+                setTimeLeft(`${minutes}m`);
+            }
+        };
+
+        calculateTimeLeft();
+        const timer = setInterval(calculateTimeLeft, 60000); // update every minute
+
+        return () => clearInterval(timer);
+    }, [targetDate]);
+
+    return (
+        <span className={`text-[10px] font-bold flex items-center gap-1 ${isOverdue ? 'text-red-500' : 'text-blue-500'}`}>
+            <Timer className="w-3 h-3" />
+            {isOverdue ? `Atrasado por ${timeLeft}` : `En ${timeLeft}`}
+        </span>
+    );
+};
+
 export default function EldercarePage() {
     const params = useParams();
     const router = useRouter();
@@ -298,11 +339,14 @@ export default function EldercarePage() {
                                             </span>
                                         </div>
                                         {med.nextDueTime && (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Próxima toma</span>
-                                                <span className="text-[10px] font-bold text-black dark:text-white">
-                                                    {new Date(med.nextDueTime).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
-                                                </span>
+                                            <div className="flex justify-between items-center bg-gray-50 dark:bg-[#050505] p-2 mt-1 border border-gray-100 dark:border-gray-900">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Próxima toma</span>
+                                                    <span className="text-[10px] font-bold text-black dark:text-white">
+                                                        {new Date(med.nextDueTime).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+                                                    </span>
+                                                </div>
+                                                <CountdownTimer targetDate={med.nextDueTime} />
                                             </div>
                                         )}
                                         <Button 
