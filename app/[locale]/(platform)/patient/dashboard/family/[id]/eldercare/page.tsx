@@ -73,6 +73,7 @@ export default function EldercarePage() {
 
     const [isMedModalOpen, setIsMedModalOpen] = useState(false);
     const [medicationToEdit, setMedicationToEdit] = useState<MedicationTaskDto | null>(null);
+    const [medicationToDelete, setMedicationToDelete] = useState<number | null>(null);
 
     const handleMetricClick = (metricKey: string) => {
         setSelectedMetric(metricKey);
@@ -115,12 +116,12 @@ export default function EldercarePage() {
     };
 
     const handleDeleteMedication = async (taskId: number) => {
-        if (!confirm("¿Estás seguro de eliminar este medicamento?")) return;
         try {
             await eldercareService.deleteMedication(member.id, taskId);
             toast.success("Medicamento eliminado");
             const dashboardData = await eldercareService.getDashboard(member.id);
             setDashboardData(dashboardData);
+            setMedicationToDelete(null);
         } catch (error) {
             console.error(error);
             toast.error("Error al eliminar medicamento");
@@ -376,7 +377,7 @@ export default function EldercarePage() {
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleDeleteMedication(med.id)}
+                                                    onClick={() => setMedicationToDelete(med.id)}
                                                     className="text-gray-400 hover:text-red-500 transition-colors"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -406,6 +407,31 @@ export default function EldercarePage() {
                 medicationToEdit={medicationToEdit}
                 onSave={handleSaveMedication}
             />
+
+            {medicationToDelete !== null && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white w-full max-w-sm shadow-2xl relative p-6">
+                        <h2 className="text-xl font-bold tracking-tight text-black dark:text-white mb-2">Eliminar Medicamento</h2>
+                        <p className="text-xs text-gray-500 mb-6">¿Estás seguro de que deseas eliminar este medicamento? Esta acción no se puede deshacer.</p>
+                        
+                        <div className="flex justify-end gap-3">
+                            <Button
+                                variant="outline"
+                                onClick={() => setMedicationToDelete(null)}
+                                className="rounded-none border-black dark:border-white hover:bg-gray-100 dark:hover:bg-gray-900 uppercase tracking-widest text-[10px] font-bold"
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                onClick={() => handleDeleteMedication(medicationToDelete)}
+                                className="rounded-none bg-red-600 hover:bg-red-700 text-white uppercase tracking-widest text-[10px] font-bold border-0"
+                            >
+                                Eliminar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
