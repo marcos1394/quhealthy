@@ -13,6 +13,7 @@ import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
+import { eldercareService, EldercareDashboardDto } from '@/services/eldercare.service';
 
 export default function EldercarePage() {
     const params = useParams();
@@ -20,12 +21,24 @@ export default function EldercarePage() {
     const t = useTranslations();
     const { family, isLoading } = useFamily();
     const [member, setMember] = useState<any>(null);
+    const [dashboardData, setDashboardData] = useState<EldercareDashboardDto | null>(null);
+    const [isLoadingData, setIsLoadingData] = useState(true);
 
     useEffect(() => {
         if (!isLoading && family) {
             const found = family.find(f => f.id === Number(params.id));
             if (found) {
                 setMember(found);
+                eldercareService.getDashboard(found.id)
+                    .then(data => {
+                        setDashboardData(data);
+                        setIsLoadingData(false);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        toast.error("Error al cargar datos clínicos");
+                        setIsLoadingData(false);
+                    });
             } else {
                 toast.error("Familiar no encontrado");
                 router.push('/patient/dashboard/family');
@@ -38,7 +51,7 @@ export default function EldercarePage() {
         router.push('/patient/dashboard/appointments/book?service=nursing');
     };
 
-    if (isLoading || !member) {
+    if (isLoading || !member || isLoadingData) {
         return (
             <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white dark:bg-[#0a0a0a]">
                 <QhSpinner size="lg" />
@@ -127,41 +140,35 @@ export default function EldercarePage() {
                         </div>
 
                         <div className="flex-1 grid grid-cols-1 divide-y divide-gray-200 dark:divide-gray-800">
-                            {/* Presión Arterial */}
-                            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
-                                        <HeartPulse className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Presión Arterial</div>
-                                        <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
-                                            120/80 <span className="text-xs font-light text-gray-500 ml-1">mmHg</span>
+                            {dashboardData?.recentVitals?.length === 0 && (
+                                <div className="p-6 text-center">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">No hay registros recientes</p>
+                                </div>
+                            )}
+                            {dashboardData?.recentVitals?.map(vital => (
+                                <div key={vital.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
+                                            {vital.type === 'BLOOD_PRESSURE' ? (
+                                                <HeartPulse className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                                            ) : vital.type === 'TEMPERATURE' ? (
+                                                <Thermometer className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                                            ) : (
+                                                <Activity className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{vital.type}</div>
+                                            <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                                                {vital.value} {vital.secondaryValue ? `/${vital.secondaryValue}` : ''} <span className="text-xs font-light text-gray-500 ml-1">{vital.unit}</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
+                                        {new Date(vital.measuredAt).toLocaleString()}
+                                    </span>
                                 </div>
-                                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
-                                    Hoy 08:00 AM
-                                </span>
-                            </div>
-
-                            {/* Temperatura */}
-                            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
-                                        <Thermometer className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Temperatura</div>
-                                        <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
-                                            36.5 <span className="text-xs font-light text-gray-500 ml-1">°C</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
-                                    Ayer 20:30 PM
-                                </span>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
@@ -180,30 +187,30 @@ export default function EldercarePage() {
                             </Button>
                         </div>
 
-                        <div className="p-6">
-                            <div className="border border-gray-200 dark:border-gray-800 p-6 hover:border-black dark:hover:border-white transition-colors group">
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                                    <div>
-                                        <h4 className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase mb-1">Losartán</h4>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">50 mg • Tableta oral</p>
-                                    </div>
-                                    <div className="border border-black dark:border-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 w-fit">
-                                        <CalendarClock className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                        Cada 12 HRS
-                                    </div>
+                        <div className="p-6 grid grid-cols-1 gap-4">
+                            {dashboardData?.activeMedications?.length === 0 && (
+                                <div className="text-center p-6">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Sin medicación activa</p>
                                 </div>
-                                
-                                {/* Progress Bar Estilo Blueprint */}
-                                <div className="flex gap-1 mb-3">
-                                    <div className="h-2 flex-1 bg-black dark:bg-white" />
-                                    <div className="h-2 flex-1 bg-black dark:bg-white" />
-                                    <div className="h-2 flex-1 bg-gray-200 dark:bg-gray-800" />
+                            )}
+                            {dashboardData?.activeMedications?.map(med => (
+                                <div key={med.id} className="border border-gray-200 dark:border-gray-800 p-6 hover:border-black dark:hover:border-white transition-colors group">
+                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+                                        <div>
+                                            <h4 className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase mb-1">{med.medicationName}</h4>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{med.dosage}</p>
+                                        </div>
+                                        <div className="border border-black dark:border-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 w-fit">
+                                            <CalendarClock className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                            {med.frequency}
+                                        </div>
+                                    </div>
+                                    
+                                    {med.isManual && (
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500 mb-2">Ingresado manualmente</p>
+                                    )}
                                 </div>
-                                
-                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 text-right">
-                                    Próxima toma: 20:00 HRS
-                                </p>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
