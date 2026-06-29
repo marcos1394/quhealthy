@@ -194,7 +194,7 @@ interface PackageMultiSchedulerProps {
   cart: StorefrontItem[];
   providerId: number;
   providerColor: string;
-  onSchedulePackageService: (serviceId: number, date: Date, time: string) => void;
+  onSchedulePackageService: (serviceId: number, date: Date | null, time: string | null) => void;
   stepCounterStart: number;
 }
 
