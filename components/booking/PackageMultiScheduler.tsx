@@ -16,9 +16,10 @@ interface PackageServiceSchedulerItemProps {
   providerColor: string;
   onSchedule: (serviceId: number, date: Date | null, time: string | null) => void;
   index: number;
+  scheduledPackageServices: Record<number, { date: Date, time: string }>;
 }
 
-const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSchedule, index }: PackageServiceSchedulerItemProps) => {
+const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSchedule, index, scheduledPackageServices }: PackageServiceSchedulerItemProps) => {
   const [saveAsCredit, setSaveAsCredit] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -55,6 +56,20 @@ const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSch
     calendarDays.push(day);
     day = addDays(day, 1);
   }
+
+  const isTimeDisabled = (time: string) => {
+    if (!selectedDate) return false;
+    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+    
+    for (const [idStr, slot] of Object.entries(scheduledPackageServices)) {
+      if (Number(idStr) !== service.id && slot.date && slot.time === time) {
+        if (format(new Date(slot.date), "yyyy-MM-dd") === selectedDateStr) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
   return (
     <div className="mb-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
@@ -163,7 +178,14 @@ const PackageServiceSchedulerItem = ({ service, providerId, providerColor, onSch
             ) : availableSlots.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-3 gap-3">
                 {availableSlots.map((time) => (
-                  <TimeSlot key={time} time={time} isSelected={selectedTime === time} providerColor={providerColor} onSelect={handleTimeSelect} />
+                  <TimeSlot 
+                    key={time} 
+                    time={time} 
+                    isSelected={selectedTime === time} 
+                    isDisabled={isTimeDisabled(time)}
+                    providerColor={providerColor} 
+                    onSelect={handleTimeSelect} 
+                  />
                 ))}
               </div>
             ) : (
@@ -196,9 +218,10 @@ interface PackageMultiSchedulerProps {
   providerColor: string;
   onSchedulePackageService: (serviceId: number, date: Date | null, time: string | null) => void;
   stepCounterStart: number;
+  scheduledPackageServices: Record<number, { date: Date, time: string }>;
 }
 
-export function PackageMultiScheduler({ cart, providerId, providerColor, onSchedulePackageService, stepCounterStart }: PackageMultiSchedulerProps) {
+export function PackageMultiScheduler({ cart, providerId, providerColor, onSchedulePackageService, stepCounterStart, scheduledPackageServices }: PackageMultiSchedulerProps) {
   // Extraemos todos los servicios que vienen dentro de los paquetes del carrito
   const packageServices = cart
     .filter(item => item.type === 'PACKAGE')
@@ -234,6 +257,7 @@ export function PackageMultiScheduler({ cart, providerId, providerColor, onSched
             providerId={providerId}
             providerColor={providerColor}
             onSchedule={onSchedulePackageService}
+            scheduledPackageServices={scheduledPackageServices}
           />
         ))}
       </div>

@@ -293,6 +293,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                     providerColor={safeColor}
                     onSchedulePackageService={handleSchedulePackageService}
                     stepCounterStart={stepCounter++}
+                    scheduledPackageServices={scheduledPackageServices}
                   />
                 )}
               </AnimatePresence>
@@ -426,8 +427,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
           cart={cart}
           total={total}
           providerColor={safeColor}
-          selectedDate={requiresScheduling ? selectedDate : new Date()}
-          selectedTime={requiresScheduling ? selectedTime : "00:00"}
+          selectedDate={isPackageMultiSchedule ? new Date() : (requiresScheduling ? selectedDate : new Date())}
+          selectedTime={isPackageMultiSchedule ? "00:00" : (requiresScheduling ? selectedTime : "00:00")}
           isProcessing={isProcessing}
           scheduleNow={scheduleNow}
           onCheckout={handleCheckout}
