@@ -191,7 +191,8 @@ export function CheckoutModal({
 
         {/* Panel Blueprint */}
         <motion.div
-          className="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-[#0a0a0a] rounded-none border border-black dark:border-white flex flex-col shadow-2xl max-h-[90vh]"
+          className="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-[#0a0a0a] rounded-none border flex flex-col shadow-2xl max-h-[90vh]"
+          style={{ borderColor: themeColor }}
           initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -218,8 +219,8 @@ export function CheckoutModal({
             {!hasPhysical && !needsPrescription && (
               <section className="py-6">
                 <div className="flex flex-col items-center justify-center text-center space-y-6 mb-10">
-                  <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                    {isBooking ? <CalendarIcon className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} /> : <MonitorPlay className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />}
+                  <div className="w-16 h-16 border bg-gray-50 dark:bg-[#050505] flex items-center justify-center" style={{ borderColor: themeColor }}>
+                    {isBooking ? <CalendarIcon className="w-6 h-6" style={{ color: themeColor }} strokeWidth={1.5} /> : <MonitorPlay className="w-6 h-6" style={{ color: themeColor }} strokeWidth={1.5} />}
                   </div>
                   <div>
                     <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
@@ -255,7 +256,7 @@ export function CheckoutModal({
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">{item.name}</span>
                       </div>
-                      <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] text-black dark:text-white ml-4">
+                      <span className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] ml-4" style={{ borderColor: themeColor, color: themeColor }}>
                         {item.type === 'PACKAGE' ? 'PAQUETE' : (item.type === 'SERVICE' ? 'SERVICIO' : 'INTANGIBLE')}
                       </span>
                     </div>
@@ -264,11 +265,11 @@ export function CheckoutModal({
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                    <Zap className="w-4 h-4 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+                    <Zap className="w-4 h-4 flex-shrink-0" style={{ color: themeColor }} strokeWidth={1.5} />
                     <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Ejecución Inmediata</span>
                   </div>
                   <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                    <ShieldCheck className="w-4 h-4 text-black dark:text-white flex-shrink-0" strokeWidth={1.5} />
+                    <ShieldCheck className="w-4 h-4 flex-shrink-0" style={{ color: themeColor }} strokeWidth={1.5} />
                     <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Transacción Cifrada</span>
                   </div>
                 </div>
@@ -279,7 +280,7 @@ export function CheckoutModal({
             {hasPhysical && (
               <section>
                 <div className="flex items-center gap-3 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
-                  <div className="w-8 h-8 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                  <div className="w-8 h-8 border flex items-center justify-center" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
                     <Truck className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
@@ -421,7 +422,7 @@ export function CheckoutModal({
             {needsPrescription && (
               <section className="pt-4">
                 <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
-                  <div className="w-8 h-8 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                  <div className="w-8 h-8 border flex items-center justify-center" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
                     <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
@@ -446,7 +447,7 @@ export function CheckoutModal({
                             )}
                           </div>
                           {uploaded && (
-                            <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                            <span className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
                               <CheckCircle2 className="w-3 h-3" strokeWidth={2} /> VERIFICADA
                             </span>
                           )}
@@ -501,7 +502,7 @@ export function CheckoutModal({
                   })}
                 </div>
 
-                <div className="mt-8 p-5 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-start gap-3">
+                <div className="mt-8 p-5 border flex items-start gap-3" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
                   <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
                   <p className="text-[9px] font-bold uppercase tracking-widest leading-relaxed">
                     LA RECETA SERÁ CIFRADA DE EXTREMO A EXTREMO. USO EXCLUSIVO PARA AUDITORÍA DE DISPENSACIÓN POR PARTE DEL ESPECIALISTA.
