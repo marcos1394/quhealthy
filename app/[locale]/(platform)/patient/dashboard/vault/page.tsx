@@ -41,6 +41,9 @@ export default function PatientVaultPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [documentFilter, setDocumentFilter] = useState<string>('ALL'); // ALL, LAB_RESULT, PRESCRIPTION, IMAGING, GENERAL, NOTE
 
+    const [panoramaData, setPanoramaData] = useState<{ [key: string]: { clinicalSummary: string; careRecommendations: string[] } | null }>({});
+    const [isGeneratingPanorama, setIsGeneratingPanorama] = useState(false);
+
     // Cargar los documentos al montar la página
     useEffect(() => {
         fetchDocuments();
@@ -75,40 +78,6 @@ export default function PatientVaultPage() {
         });
     }, [documents, activeTab, searchQuery, documentFilter]);
 
-    // Calcular el resumen de IA
-    const aiSummary = useMemo(() => {
-        const conditions = new Set<string>();
-        const allergies = new Set<string>();
-        const medications = new Set<string>();
-
-        // Solo procesamos los documentos del paciente activo (titular o el dependiente)
-        const dependentId = activeTab === 'titular' ? null : Number(activeTab);
-        const personDocs = documents.filter(doc => 
-            (dependentId === null && doc.dependentId == null) || 
-            (doc.dependentId === dependentId)
-        );
-
-        personDocs.forEach(doc => {
-            if (doc.aiExtractedData) {
-                if (doc.aiExtractedData.medicalConditions) {
-                    doc.aiExtractedData.medicalConditions.forEach((c: string) => conditions.add(c));
-                }
-                if (doc.aiExtractedData.allergies) {
-                    doc.aiExtractedData.allergies.forEach((a: string) => allergies.add(a));
-                }
-                if (doc.aiExtractedData.medications) {
-                    doc.aiExtractedData.medications.forEach((m: string) => medications.add(m));
-                }
-            }
-        });
-
-        return {
-            conditions: Array.from(conditions),
-            allergies: Array.from(allergies),
-            medications: Array.from(medications)
-        };
-    }, [documents, activeTab]);
-
     const activeDependentId = activeTab === 'titular' ? undefined : Number(activeTab);
 
     const activeDependent = useMemo(() => {
@@ -125,6 +94,23 @@ export default function PatientVaultPage() {
     }, [activeDependent]);
 
     const showVaccinationCard = activeDependentId !== undefined && activeDependentAge !== undefined && activeDependentAge <= 12;
+
+    // Manejar generación del panorama
+    const handleGeneratePanorama = async () => {
+        const dependentId = activeTab === 'titular' ? undefined : Number(activeTab);
+        setIsGeneratingPanorama(true);
+        try {
+            const result = await generatePanorama(dependentId);
+            if (result) {
+                setPanoramaData(prev => ({
+                    ...prev,
+                    [activeTab]: result
+                }));
+            }
+        } finally {
+            setIsGeneratingPanorama(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
@@ -180,67 +166,60 @@ export default function PatientVaultPage() {
                         </section>
 
                         {/* --- RESUMEN DE IA (HEALTH SUMMARY) --- */}
-                        {(aiSummary.conditions.length > 0 || aiSummary.allergies.length > 0 || aiSummary.medications.length > 0) && (
-                            <section className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-6 space-y-4">
-                                <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+                        <section className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-6 space-y-4">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 gap-4">
+                                <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 border border-black dark:border-white bg-black dark:bg-white flex items-center justify-center shrink-0">
                                         <BrainCircuit className="w-4 h-4 text-white dark:text-black" strokeWidth={2} />
                                     </div>
                                     <div>
                                         <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                                            Resumen Clínico Inteligente
+                                            Panorama Clínico Inteligente
                                         </h2>
                                         <p className="text-xs text-gray-500 font-medium mt-0.5">
-                                            Datos extraídos automáticamente de los documentos subidos
+                                            Generado por IA en base a todo el expediente (notas, vacunas y estudios).
                                         </p>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                                    {aiSummary.conditions.length > 0 && (
+                                <button
+                                    onClick={handleGeneratePanorama}
+                                    disabled={isGeneratingPanorama}
+                                    className="px-4 py-2 border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors disabled:opacity-50"
+                                >
+                                    {isGeneratingPanorama ? 'Generando...' : 'Generar Panorama'}
+                                </button>
+                            </div>
+
+                            <div className="pt-2">
+                                {!panoramaData[activeTab] ? (
+                                    <div className="text-sm text-gray-500 italic py-4 text-center">
+                                        Aún no se ha generado un panorama clínico. Haz clic en "Generar Panorama" para consultar a la IA.
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
                                         <div>
-                                            <h3 className="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-2">
-                                                <AlertTriangle className="w-3 h-3" /> Condiciones Médicas
-                                            </h3>
-                                            <ul className="space-y-2">
-                                                {aiSummary.conditions.map((c, i) => (
-                                                    <li key={i} className="text-sm font-medium text-black dark:text-white flex items-start gap-2">
-                                                        <span className="text-gray-400 mt-1">•</span> {c}
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <h3 className="text-xs font-bold uppercase text-gray-400 mb-2">Panorama General</h3>
+                                            <p className="text-sm text-black dark:text-white leading-relaxed">
+                                                {panoramaData[activeTab]?.clinicalSummary}
+                                            </p>
                                         </div>
-                                    )}
-                                    {aiSummary.allergies.length > 0 && (
-                                        <div>
-                                            <h3 className="text-xs font-bold uppercase text-red-400 mb-3 flex items-center gap-2">
-                                                <AlertTriangle className="w-3 h-3" /> Alergias
-                                            </h3>
-                                            <ul className="space-y-2">
-                                                {aiSummary.allergies.map((a, i) => (
-                                                    <li key={i} className="text-sm font-medium text-red-600 dark:text-red-400 flex items-start gap-2">
-                                                        <span className="text-red-400 mt-1">•</span> {a}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                    {aiSummary.medications.length > 0 && (
-                                        <div>
-                                            <h3 className="text-xs font-bold uppercase text-blue-400 mb-3 flex items-center gap-2">
-                                                <Pill className="w-3 h-3" /> Medicamentos Mencionados
-                                            </h3>
-                                            <ul className="space-y-2">
-                                                {aiSummary.medications.map((m, i) => (
-                                                    <li key={i} className="text-sm font-medium text-black dark:text-white flex items-start gap-2">
-                                                        <span className="text-blue-400 mt-1">•</span> {m}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        )}
+                                        {panoramaData[activeTab]!.careRecommendations && panoramaData[activeTab]!.careRecommendations.length > 0 && (
+                                            <div>
+                                                <h3 className="text-xs font-bold uppercase text-blue-400 mb-2">Recomendaciones de Cuidado</h3>
+                                                <ul className="space-y-2">
+                                                    {panoramaData[activeTab]?.careRecommendations.map((rec, idx) => (
+                                                        <li key={idx} className="text-sm text-black dark:text-white flex items-start gap-2">
+                                                            <span className="text-blue-400 mt-1">•</span>
+                                                            <span className="leading-relaxed">{rec}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
                         {/* --- CARTILLA DIGITAL DEL PACIENTE ACTIVO (SOLO <= 12 AÑOS) --- */}
                         {showVaccinationCard && (

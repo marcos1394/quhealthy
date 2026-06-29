@@ -110,6 +110,17 @@ export function useHealthVault() {
         }
     };
 
+    // 🧠 6. Generar Panorama Clínico
+    const generatePanorama = async (dependentId?: number) => {
+        try {
+            return await healthVaultService.generatePanorama(dependentId);
+        } catch (error: any) {
+            console.error('Error generating panorama:', error);
+            toast.error(t('error_panorama', { defaultValue: 'Error al generar el panorama clínico.' }));
+            return null;
+        }
+    };
+
     return {
         documents,
         isLoading,
@@ -118,6 +129,7 @@ export function useHealthVault() {
         uploadDocument,
         createNote,
         viewDocument,
-        updateDocument
+        updateDocument,
+        generatePanorama
     };
 }

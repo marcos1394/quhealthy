@@ -120,5 +120,14 @@ export const healthVaultService = {
       data
     );
     return response.data;
+  },
+
+  /**
+   * Genera el panorama clínico usando IA, basándose en todo el contexto disponible
+   */
+  generatePanorama: async (dependentId?: number): Promise<{ clinicalSummary: string; careRecommendations: string[] }> => {
+    const url = dependentId ? `${BASE_URL}/${dependentId}/panorama/generate` : `${BASE_URL}/panorama/generate`;
+    const response = await axiosInstance.post(url);
+    return response.data;
   }
 };
