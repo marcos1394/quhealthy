@@ -12,6 +12,104 @@ interface HealthMetricInputModalProps {
   onSave: (metricKey: string, value: number, secondaryValue?: number) => Promise<void>;
 }
 
+type MetricConfig = {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  hasSecondary: boolean;
+  primaryLabel: string;
+  primaryPlaceholder: string;
+  secondaryLabel?: string;
+  secondaryPlaceholder?: string;
+};
+
+const METRIC_CONFIG_MAP: Record<string, MetricConfig> = {
+  "BMI": {
+      title: "Peso y Altura (IMC)",
+      description: "Para calcular tu IMC actualiza tu peso y altura.",
+      icon: Scale,
+      hasSecondary: true,
+      primaryLabel: "Peso (kg)",
+      primaryPlaceholder: "Ej. 70.5",
+      secondaryLabel: "Altura (cm)",
+      secondaryPlaceholder: "Ej. 175"
+  },
+  "BLOOD_PRESSURE": {
+      title: "Presión Arterial",
+      description: "Ingresa tu presión sistólica y diastólica.",
+      icon: Heart,
+      hasSecondary: true,
+      primaryLabel: "Sistólica",
+      primaryPlaceholder: "Ej. 120",
+      secondaryLabel: "Diastólica",
+      secondaryPlaceholder: "Ej. 80"
+  },
+  "HEART_RATE": {
+      title: "Frecuencia Cardíaca",
+      description: "Ingresa tu frecuencia cardíaca en reposo.",
+      icon: Heart,
+      hasSecondary: false,
+      primaryLabel: "Latidos por minuto (lpm)",
+      primaryPlaceholder: "Ej. 72"
+  },
+  "SLEEP_HOURS": {
+      title: "Horas de Sueño",
+      description: "Ingresa el promedio de horas que duermes por noche.",
+      icon: Moon,
+      hasSecondary: false,
+      primaryLabel: "Horas (hrs)",
+      primaryPlaceholder: "Ej. 7.5"
+  },
+  "GLUCOSE": {
+      title: "Glucosa en Sangre",
+      description: "Ingresa tu nivel de glucosa.",
+      icon: Droplet,
+      hasSecondary: false,
+      primaryLabel: "Glucosa (mg/dL)",
+      primaryPlaceholder: "Ej. 95"
+  },
+  "BLOOD_GLUCOSE": {
+      title: "Glucosa en Sangre",
+      description: "Ingresa tu nivel de glucosa en ayuno.",
+      icon: Droplet,
+      hasSecondary: false,
+      primaryLabel: "Glucosa (mg/dL)",
+      primaryPlaceholder: "Ej. 95"
+  },
+  "SPO2": {
+      title: "Saturación de Oxígeno",
+      description: "Ingresa tu porcentaje de SpO2.",
+      icon: Droplet,
+      hasSecondary: false,
+      primaryLabel: "SpO2 (%)",
+      primaryPlaceholder: "Ej. 98"
+  },
+  "BLOOD_OXYGEN": {
+      title: "Saturación de Oxígeno",
+      description: "Ingresa tu porcentaje de SpO2.",
+      icon: Droplet,
+      hasSecondary: false,
+      primaryLabel: "SpO2 (%)",
+      primaryPlaceholder: "Ej. 98"
+  },
+  "TEMPERATURE": {
+      title: "Temperatura",
+      description: "Ingresa tu temperatura corporal.",
+      icon: Thermometer,
+      hasSecondary: false,
+      primaryLabel: "Temperatura (°C)",
+      primaryPlaceholder: "Ej. 36.5"
+  },
+  "WEIGHT": {
+      title: "Peso Corporal",
+      description: "Ingresa tu peso actual.",
+      icon: Scale,
+      hasSecondary: false,
+      primaryLabel: "Peso (kg)",
+      primaryPlaceholder: "Ej. 70.5"
+  }
+};
+
 export function HealthMetricInputModal({
   isOpen,
   onClose,
@@ -24,65 +122,18 @@ export function HealthMetricInputModal({
 
   if (!isOpen) return null;
 
-  let title = "Actualizar Métrica";
-  let description = "Ingresa el valor más reciente.";
-  let Icon = Activity;
-  let hasSecondary = false;
-  let primaryPlaceholder = "Valor";
-  let secondaryPlaceholder = "";
-  let primaryLabel = "Valor";
-  let secondaryLabel = "";
+  const config = METRIC_CONFIG_MAP[metricKey] || {
+      title: "Actualizar Métrica",
+      description: "Ingresa el valor más reciente.",
+      icon: Activity,
+      hasSecondary: false,
+      primaryLabel: "Valor",
+      primaryPlaceholder: "Valor",
+      secondaryLabel: "",
+      secondaryPlaceholder: ""
+  };
 
-  switch (metricKey) {
-    case "BMI":
-      title = "Peso y Altura (IMC)";
-      description = "Para calcular tu IMC actualiza tu peso y altura.";
-      Icon = Scale;
-      hasSecondary = true;
-      primaryLabel = "Peso (kg)";
-      primaryPlaceholder = "Ej. 70.5";
-      secondaryLabel = "Altura (cm)";
-      secondaryPlaceholder = "Ej. 175";
-      break;
-    case "BLOOD_PRESSURE":
-      title = "Presión Arterial";
-      description = "Ingresa tu presión sistólica y diastólica.";
-      Icon = Heart;
-      hasSecondary = true;
-      primaryLabel = "Sistólica";
-      primaryPlaceholder = "Ej. 120";
-      secondaryLabel = "Diastólica";
-      secondaryPlaceholder = "Ej. 80";
-      break;
-    case "HEART_RATE":
-      title = "Frecuencia Cardíaca";
-      description = "Ingresa tu frecuencia cardíaca en reposo.";
-      Icon = Heart;
-      primaryLabel = "Latidos por minuto (lpm)";
-      primaryPlaceholder = "Ej. 72";
-      break;
-    case "SLEEP_HOURS":
-      title = "Horas de Sueño";
-      description = "Ingresa el promedio de horas que duermes por noche.";
-      Icon = Moon;
-      primaryLabel = "Horas (hrs)";
-      primaryPlaceholder = "Ej. 7.5";
-      break;
-    case "BLOOD_GLUCOSE":
-      title = "Glucosa en Sangre";
-      description = "Ingresa tu nivel de glucosa en ayuno.";
-      Icon = Droplet;
-      primaryLabel = "Glucosa (mg/dL)";
-      primaryPlaceholder = "Ej. 95";
-      break;
-    case "BLOOD_OXYGEN":
-      title = "Saturación de Oxígeno";
-      description = "Ingresa tu porcentaje de SpO2.";
-      Icon = Droplet;
-      primaryLabel = "SpO2 (%)";
-      primaryPlaceholder = "Ej. 98";
-      break;
-  }
+  const { title, description, icon: Icon, hasSecondary, primaryLabel, primaryPlaceholder, secondaryLabel, secondaryPlaceholder } = config;
 
   const handleSave = async () => {
     if (!value) return;

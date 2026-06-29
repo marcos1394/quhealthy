@@ -14,7 +14,8 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
 import { eldercareService, EldercareDashboardDto } from '@/services/eldercare.service';
-
+import { HealthMetricsCarousel, HealthMetricDto } from '@/components/dashboard/HealthMetricsCarousel';
+import { HealthMetricInputModal } from '@/components/dashboard/HealthMetricInputModal';
 export default function EldercarePage() {
     const params = useParams();
     const router = useRouter();
@@ -23,6 +24,61 @@ export default function EldercarePage() {
     const [member, setMember] = useState<any>(null);
     const [dashboardData, setDashboardData] = useState<EldercareDashboardDto | null>(null);
     const [isLoadingData, setIsLoadingData] = useState(true);
+
+    const [selectedMetric, setSelectedMetric] = useState<string>('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleMetricClick = (metricKey: string) => {
+        setSelectedMetric(metricKey);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveVital = async (metricKey: string, value: number, secondaryValue?: number) => {
+        try {
+            await eldercareService.addVitalSign(member.id, {
+                type: metricKey as any,
+                value,
+                secondaryValue,
+                unit: metricKey === 'TEMPERATURE' ? '°C' : metricKey === 'WEIGHT' ? 'kg' : ''
+            });
+            toast.success("Signo vital registrado");
+            const data = await eldercareService.getDashboard(member.id);
+            setDashboardData(data);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al registrar signo vital");
+        }
+    };
+
+    const baseMetrics = [
+        { metricKey: 'BLOOD_PRESSURE', title: 'Presión Arterial', icon: 'heart.fill', subtitle: 'Normal: 120/80', recommendedFrequency: 'Diario' },
+        { metricKey: 'HEART_RATE', title: 'Frecuencia Cardíaca', icon: 'heart.fill', subtitle: 'Normal: 60-100', recommendedFrequency: 'Diario' },
+        { metricKey: 'GLUCOSE', title: 'Glucosa', icon: 'drop.fill', subtitle: 'Normal: 70-100', recommendedFrequency: 'Semanal' },
+        { metricKey: 'SPO2', title: 'Oxigenación', icon: 'drop.fill', subtitle: 'Normal: >95%', recommendedFrequency: 'Diario' },
+        { metricKey: 'TEMPERATURE', title: 'Temperatura', icon: 'thermometer', subtitle: 'Normal: 36.5°C', recommendedFrequency: 'Diario' },
+        { metricKey: 'WEIGHT', title: 'Peso Corporal', icon: 'scalemass', subtitle: 'Monitoreo de cambios', recommendedFrequency: 'Mensual' },
+    ];
+
+    const mappedMetrics: HealthMetricDto[] = baseMetrics.map(base => {
+        const vital = dashboardData?.recentVitals?.find(v => v.type === base.metricKey);
+        let value = "";
+        let lastUpdated = "";
+        if (vital) {
+            if (vital.type === 'BLOOD_PRESSURE') {
+                value = `${vital.value}/${vital.secondaryValue}`;
+            } else {
+                value = `${vital.value} ${vital.unit || ''}`.trim();
+            }
+            lastUpdated = new Date(vital.measuredAt).toLocaleDateString();
+        }
+
+        return {
+            ...base,
+            value,
+            lastUpdated,
+            color: '#000000'
+        };
+    });
 
     useEffect(() => {
         if (!isLoading && family) {
@@ -126,49 +182,24 @@ export default function EldercarePage() {
                     
                     {/* Signos Vitales */}
                     <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
-                        <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
-                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                                <HeartPulse className="w-4 h-4" strokeWidth={1.5} />
-                                Signos Vitales
-                            </h3>
-                            <Button 
-                                variant="outline" 
-                                className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-                            >
-                                <Plus className="w-3 h-3 mr-2" strokeWidth={2} /> Registrar
-                            </Button>
+                        <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 dark:bg-[#050505] gap-4">
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-1">
+                                    <HeartPulse className="w-4 h-4" strokeWidth={1.5} />
+                                    Signos Vitales
+                                </h3>
+                                <p className="text-[9px] uppercase tracking-widest text-gray-500">
+                                    Haz clic en una métrica para registrar un nuevo valor
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="flex-1 grid grid-cols-1 divide-y divide-gray-200 dark:divide-gray-800">
-                            {dashboardData?.recentVitals?.length === 0 && (
-                                <div className="p-6 text-center">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">No hay registros recientes</p>
-                                </div>
-                            )}
-                            {dashboardData?.recentVitals?.map(vital => (
-                                <div key={vital.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0">
-                                            {vital.type === 'BLOOD_PRESSURE' ? (
-                                                <HeartPulse className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                                            ) : vital.type === 'TEMPERATURE' ? (
-                                                <Thermometer className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                                            ) : (
-                                                <Activity className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{vital.type}</div>
-                                            <div className="text-2xl font-semibold tracking-tight text-black dark:text-white">
-                                                {vital.value} {vital.secondaryValue ? `/${vital.secondaryValue}` : ''} <span className="text-xs font-light text-gray-500 ml-1">{vital.unit}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 whitespace-nowrap w-fit">
-                                        {new Date(vital.measuredAt).toLocaleString()}
-                                    </span>
-                                </div>
-                            ))}
+                        <div className="flex-1 p-6">
+                            <HealthMetricsCarousel 
+                                metrics={mappedMetrics} 
+                                isLoading={isLoadingData} 
+                                onMetricClick={handleMetricClick} 
+                            />
                         </div>
                     </div>
 
@@ -217,6 +248,13 @@ export default function EldercarePage() {
                 </div>
 
             </div>
+            
+            <HealthMetricInputModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                metricKey={selectedMetric}
+                onSave={handleSaveVital}
+            />
         </div>
     );
 }
