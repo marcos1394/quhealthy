@@ -221,18 +221,19 @@ export default function PatientVaultPage() {
                         )}
 
                         {/* --- CARTILLA DIGITAL DEL PACIENTE ACTIVO --- */}
-                        <section className="space-y-6">
-                            <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
-                                <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
-                                    <Syringe className="w-4 h-4" strokeWidth={1.5} />
-                                    Cartilla de Vacunación
-                                </h2>
-                            </div>
-                            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-                                {/* Usamos el ID del dependiente si existe, de lo contrario la cartilla principal */}
-                                <DigitalVaccinationCard memberId={activeDependentId} hideHeader={true} />
-                            </div>
-                        </section>
+                        {activeDependentId !== undefined && (
+                            <section className="space-y-6">
+                                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
+                                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+                                        <Syringe className="w-4 h-4" strokeWidth={1.5} />
+                                        Cartilla de Vacunación
+                                    </h2>
+                                </div>
+                                <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                                    <DigitalVaccinationCard memberId={activeDependentId} hideHeader={true} />
+                                </div>
+                            </section>
+                        )}
 
                         {/* --- LISTA DE DOCUMENTOS CON FILTROS --- */}
                         <section className="space-y-6">
