@@ -37,7 +37,7 @@ const getIconComponent = (iconName: string) => {
 
 export function HealthMetricsCarousel({ metrics, isLoading, onMetricClick }: HealthMetricsCarouselProps) {
   if (!isLoading && (!metrics || metrics.length === 0)) {
-    return null; // Si no hay métricas, no mostramos el componente
+    return null; // Si no hay métricass, no mostramos el componente
   }
 
   return (
