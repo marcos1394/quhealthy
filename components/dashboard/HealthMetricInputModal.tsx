@@ -110,6 +110,8 @@ const METRIC_CONFIG_MAP: Record<string, MetricConfig> = {
   }
 };
 
+import { DatePicker } from '@/components/ui/date-picker';
+
 export function HealthMetricInputModal({
   isOpen,
   onClose,
@@ -119,7 +121,10 @@ export function HealthMetricInputModal({
   const [value, setValue] = useState<string>('');
   const [secondaryValue, setSecondaryValue] = useState<string>('');
   const [measuredNow, setMeasuredNow] = useState(true);
-  const [measuredAt, setMeasuredAt] = useState<string>('');
+  const [measuredDate, setMeasuredDate] = useState<Date | undefined>(new Date());
+  const [measuredTime, setMeasuredTime] = useState<string>(
+      new Date().toTimeString().slice(0, 5) // "HH:MM"
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -145,8 +150,11 @@ export function HealthMetricInputModal({
       let finalMeasuredAt = undefined;
       if (measuredNow) {
           finalMeasuredAt = new Date().toISOString();
-      } else if (measuredAt) {
-          finalMeasuredAt = new Date(measuredAt).toISOString();
+      } else if (measuredDate && measuredTime) {
+          const [hours, minutes] = measuredTime.split(':').map(Number);
+          const finalDate = new Date(measuredDate);
+          finalDate.setHours(hours, minutes, 0, 0);
+          finalMeasuredAt = finalDate.toISOString();
       } else {
           finalMeasuredAt = new Date().toISOString(); // fallback
       }
@@ -160,7 +168,8 @@ export function HealthMetricInputModal({
       setValue('');
       setSecondaryValue('');
       setMeasuredNow(true);
-      setMeasuredAt('');
+      setMeasuredDate(new Date());
+      setMeasuredTime(new Date().toTimeString().slice(0, 5));
       onClose();
     } catch (error) {
       console.error("Error updating metric:", error);
@@ -244,12 +253,24 @@ export function HealthMetricInputModal({
             </div>
             
             {!measuredNow && (
-              <input
-                type="datetime-local"
-                value={measuredAt}
-                onChange={(e) => setMeasuredAt(e.target.value)}
-                className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 p-2 text-base focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
-              />
+              <div className="flex gap-4">
+                <div className="flex-1">
+                    <DatePicker
+                        value={measuredDate}
+                        onChange={setMeasuredDate}
+                        placeholder="DD/MM/AAAA"
+                        toYear={new Date().getFullYear()}
+                    />
+                </div>
+                <div className="w-1/3">
+                    <input
+                        type="time"
+                        value={measuredTime}
+                        onChange={(e) => setMeasuredTime(e.target.value)}
+                        className="w-full h-12 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 px-3 text-xs uppercase font-semibold text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                    />
+                </div>
+              </div>
             )}
           </div>
         </div>
