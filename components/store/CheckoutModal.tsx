@@ -10,7 +10,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Truck, FileText, Upload, X, CheckCircle2,
-  Loader2, MapPin, ShieldCheck, AlertCircle, Store, Zap, MonitorPlay, Calendar as CalendarIcon
+  Loader2, MapPin, ShieldCheck, AlertCircle, Store, Zap, MonitorPlay, Calendar as CalendarIcon, Package
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,10 @@ export function CheckoutModal({
   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
   const itemsNeedingRx = cart.filter(i => i.type === 'PRODUCT' && i.requiresPrescription === true);
   const needsPrescription = itemsNeedingRx.length > 0;
+  
+  const hasPackage = cart.some(i => i.type === 'PACKAGE');
+  const hasService = cart.some(i => i.type === 'SERVICE');
+  const isBooking = hasPackage || hasService;
 
   // --- State ---
     const [{ address, prescriptionUrls, uploadingId, uploadErrors, shippingMethod, pickupDate, pickupTimeStr }, dispatch] = React.useReducer(
@@ -195,7 +199,7 @@ export function CheckoutModal({
           <div className="flex items-center justify-between p-6 md:p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex-shrink-0">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                Finalización de Contrato
+                {hasPhysical ? "Finalización de Pedido" : (isBooking ? "Confirmación de Reserva" : "Finalización de Contrato")}
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
                 {[hasPhysical && "Logística", needsPrescription && "Validación Clínica"]
@@ -215,12 +219,16 @@ export function CheckoutModal({
               <section className="py-6">
                 <div className="flex flex-col items-center justify-center text-center space-y-6 mb-10">
                   <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                    <MonitorPlay className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                    {isBooking ? <CalendarIcon className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} /> : <MonitorPlay className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />}
                   </div>
                   <div>
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Acceso Digital Habilitado</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                      {isBooking ? "Reserva de Sesiones" : "Acceso Digital Habilitado"}
+                    </h3>
                     <p className="text-xs text-gray-500 font-light max-w-sm mx-auto leading-relaxed uppercase tracking-widest">
-                      LA DISPONIBILIDAD DEL CONTENIDO SE ACTIVARÁ AUTOMÁTICAMENTE TRAS CONFIRMAR LA LIQUIDACIÓN.
+                      {isBooking 
+                        ? "TUS SESIONES SE ACTIVARÁN Y PROGRAMARÁN TRAS CONFIRMAR EL PAGO."
+                        : "LA DISPONIBILIDAD DEL CONTENIDO SE ACTIVARÁ AUTOMÁTICAMENTE TRAS CONFIRMAR LA LIQUIDACIÓN."}
                     </p>
                   </div>
                 </div>
@@ -229,18 +237,26 @@ export function CheckoutModal({
                   {cart.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group">
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 flex items-center justify-center overflow-hidden">
-                          {item.imageUrl ? (
+                        <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                          {item.imageUrl && (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
-                          ) : (
-                            <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                            <img 
+                              src={item.imageUrl} 
+                              alt={item.name} 
+                              className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all z-10 bg-white dark:bg-black" 
+                              onError={(e) => {
+                                e.currentTarget.style.opacity = '0';
+                              }}
+                            />
                           )}
+                          <div className="absolute inset-0 flex items-center justify-center z-0">
+                            {item.type === 'PACKAGE' ? <Package className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : (item.type === 'SERVICE' ? <CalendarIcon className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />)}
+                          </div>
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">{item.name}</span>
                       </div>
                       <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] text-black dark:text-white ml-4">
-                        INTANGIBLE
+                        {item.type === 'PACKAGE' ? 'PAQUETE' : (item.type === 'SERVICE' ? 'SERVICIO' : 'INTANGIBLE')}
                       </span>
                     </div>
                   ))}
