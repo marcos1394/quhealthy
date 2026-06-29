@@ -80,13 +80,14 @@ export default function EldercarePage() {
         setIsModalOpen(true);
     };
 
-    const handleSaveVital = async (metricKey: string, value: number, secondaryValue?: number) => {
+    const handleSaveVital = async (metricKey: string, value: number, secondaryValue?: number, measuredAt?: string) => {
         try {
             await eldercareService.addVitalSign(member.id, {
                 type: metricKey as any,
                 value: value.toString(),
                 secondaryValue: secondaryValue ? secondaryValue.toString() : undefined,
                 unit: metricKey === 'TEMPERATURE' ? '°C' : metricKey === 'WEIGHT' ? 'kg' : '',
+                measuredAt: measuredAt,
                 source: 'MANUAL'
             });
             toast.success("Signo vital registrado");

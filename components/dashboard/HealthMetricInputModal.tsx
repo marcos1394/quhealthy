@@ -9,7 +9,7 @@ interface HealthMetricInputModalProps {
   isOpen: boolean;
   onClose: () => void;
   metricKey: string;
-  onSave: (metricKey: string, value: number, secondaryValue?: number) => Promise<void>;
+  onSave: (metricKey: string, value: number, secondaryValue?: number, measuredAt?: string) => Promise<void>;
 }
 
 type MetricConfig = {
@@ -118,6 +118,8 @@ export function HealthMetricInputModal({
 }: HealthMetricInputModalProps) {
   const [value, setValue] = useState<string>('');
   const [secondaryValue, setSecondaryValue] = useState<string>('');
+  const [measuredNow, setMeasuredNow] = useState(true);
+  const [measuredAt, setMeasuredAt] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -139,13 +141,26 @@ export function HealthMetricInputModal({
     if (!value) return;
     try {
       setIsSubmitting(true);
+      
+      let finalMeasuredAt = undefined;
+      if (measuredNow) {
+          finalMeasuredAt = new Date().toISOString();
+      } else if (measuredAt) {
+          finalMeasuredAt = new Date(measuredAt).toISOString();
+      } else {
+          finalMeasuredAt = new Date().toISOString(); // fallback
+      }
+
       await onSave(
         metricKey, 
         parseFloat(value), 
-        hasSecondary && secondaryValue ? parseFloat(secondaryValue) : undefined
+        hasSecondary && secondaryValue ? parseFloat(secondaryValue) : undefined,
+        finalMeasuredAt
       );
       setValue('');
       setSecondaryValue('');
+      setMeasuredNow(true);
+      setMeasuredAt('');
       onClose();
     } catch (error) {
       console.error("Error updating metric:", error);
@@ -212,6 +227,31 @@ export function HealthMetricInputModal({
               />
             </div>
           )}
+
+          <div className="flex flex-col gap-2 mt-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              ¿Cuándo se tomó la medida?
+            </label>
+            <div className="flex gap-4 mb-2 mt-1">
+              <label className="flex items-center gap-2 text-sm text-black dark:text-white cursor-pointer">
+                <input type="radio" checked={measuredNow} onChange={() => setMeasuredNow(true)} className="accent-black dark:accent-white" />
+                Ahora mismo
+              </label>
+              <label className="flex items-center gap-2 text-sm text-black dark:text-white cursor-pointer">
+                <input type="radio" checked={!measuredNow} onChange={() => setMeasuredNow(false)} className="accent-black dark:accent-white" />
+                Otra fecha
+              </label>
+            </div>
+            
+            {!measuredNow && (
+              <input
+                type="datetime-local"
+                value={measuredAt}
+                onChange={(e) => setMeasuredAt(e.target.value)}
+                className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 p-2 text-base focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white"
+              />
+            )}
+          </div>
         </div>
 
         {/* Footer */}
