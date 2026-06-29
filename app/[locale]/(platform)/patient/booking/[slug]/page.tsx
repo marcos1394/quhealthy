@@ -440,6 +440,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
         onClose={() => setShowCheckoutModal(false)}
         cart={cart}
         isProcessing={isProcessing}
+        themeColor={safeColor}
         onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState) => {
           setShowCheckoutModal(false);
           if (providerId) {
