@@ -167,7 +167,7 @@ export default function PatientFavoritesDashboard() {
                                         <div 
                                             key={provider.id} 
                                             className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)] transition-colors"
-                                            style={{ '--provider-color': provider.primaryColor || '#000000' } as React.CSSProperties}
+                                            style={{ '--provider-color': provider.color || '#000000' } as React.CSSProperties}
                                         >
                                             
                                             {/* Portada */}
@@ -254,7 +254,7 @@ export default function PatientFavoritesDashboard() {
                                         <div 
                                             key={item.id} 
                                             className="group flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:[border-color:var(--provider-color)] transition-colors"
-                                            style={{ '--provider-color': item.providerColor || '#000000' } as React.CSSProperties}
+                                            style={{ '--provider-color': (item as any).providerColor || '#000000' } as React.CSSProperties}
                                         >
                                             
                                             {/* Portada del Item */}
