@@ -25,6 +25,7 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
+import { PackageMultiScheduler } from "@/components/booking/PackageMultiScheduler";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 
@@ -76,6 +77,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   );
   
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
+  const isPackageMultiSchedule = cart.some(item => item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.type === 'SERVICE'));
 
   // ESTADO PARA AGENDAMIENTO MÚLTIPLE DE PAQUETES
   const [scheduledPackageServices, setScheduledPackageServices] = useState<Record<number, { date: Date, time: string }>>({});
@@ -119,8 +121,6 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
   };
 
   const handleCheckout = async (symptomsText: string, shippingAddress?: string, shareVaultAccess?: boolean, allowedDocumentIds?: string[], paymentMethod?: string) => {
-    
-    const isPackageMultiSchedule = cart.some(item => item.type === 'PACKAGE' && item.packageContents?.some(sub => sub.type === 'SERVICE'));
     
     // Validar si requiere cita simple
     if (requiresScheduling && scheduleNow && !isPackageMultiSchedule && (!selectedDate || !selectedTime)) {
@@ -277,9 +277,22 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               </motion.section>
               )}
 
+              {/* Step: Package Services Scheduler */}
+              <AnimatePresence>
+                {scheduleNow && isPackageMultiSchedule && (
+                  <PackageMultiScheduler
+                    cart={cart}
+                    providerId={providerId}
+                    providerColor={safeColor}
+                    onSchedulePackageService={handleSchedulePackageService}
+                    stepCounterStart={stepCounter++}
+                  />
+                )}
+              </AnimatePresence>
+
               {/* Step: Calendar */}
               <AnimatePresence>
-                {scheduleNow && (
+                {scheduleNow && !isPackageMultiSchedule && (
                   <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
                       <div 
@@ -330,7 +343,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
 
               {/* Step: Time Slots */}
               <AnimatePresence>
-                {scheduleNow && selectedDate && (
+                {scheduleNow && !isPackageMultiSchedule && selectedDate && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
                       <div 
@@ -376,7 +389,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
 
               {/* Step: Patient Selector */}
               <AnimatePresence>
-                {scheduleNow && selectedTime && (
+                {scheduleNow && (isPackageMultiSchedule || selectedTime) && (
                   <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                     <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
                       <div 
