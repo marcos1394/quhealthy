@@ -55,5 +55,13 @@ export const eldercareService = {
 
     addMedication: async (dependentId: string | number, data: AddMedicationRequest): Promise<void> => {
         await axiosInstance.post(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications`, data);
+    },
+
+    updateMedication: async (dependentId: string | number, taskId: string | number, data: AddMedicationRequest): Promise<void> => {
+        await axiosInstance.put(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications/${taskId}`, data);
+    },
+
+    deleteMedication: async (dependentId: string | number, taskId: string | number): Promise<void> => {
+        await axiosInstance.delete(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications/${taskId}`);
     }
 };

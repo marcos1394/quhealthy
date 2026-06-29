@@ -13,9 +13,11 @@ import { useFamily } from '@/hooks/useFamily';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
-import { eldercareService, EldercareDashboardDto } from '@/services/eldercare.service';
+import { eldercareService, EldercareDashboardDto, MedicationTaskDto, AddMedicationRequest } from '@/services/eldercare.service';
 import { HealthMetricsCarousel, HealthMetricDto } from '@/components/dashboard/HealthMetricsCarousel';
 import { HealthMetricInputModal } from '@/components/dashboard/HealthMetricInputModal';
+import { MedicationInputModal } from '@/components/dashboard/MedicationInputModal';
+import { Trash2, Edit2 } from 'lucide-react';
 export default function EldercarePage() {
     const params = useParams();
     const router = useRouter();
@@ -27,6 +29,9 @@ export default function EldercarePage() {
 
     const [selectedMetric, setSelectedMetric] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [isMedModalOpen, setIsMedModalOpen] = useState(false);
+    const [medicationToEdit, setMedicationToEdit] = useState<MedicationTaskDto | null>(null);
 
     const handleMetricClick = (metricKey: string) => {
         setSelectedMetric(metricKey);
@@ -48,6 +53,36 @@ export default function EldercarePage() {
         } catch (error) {
             console.error(error);
             toast.error("Error al registrar signo vital");
+        }
+    };
+
+    const handleSaveMedication = async (data: AddMedicationRequest, taskId?: number) => {
+        try {
+            if (taskId) {
+                await eldercareService.updateMedication(member.id, taskId, data);
+                toast.success("Medicamento actualizado");
+            } else {
+                await eldercareService.addMedication(member.id, data);
+                toast.success("Medicamento añadido");
+            }
+            const dashboardData = await eldercareService.getDashboard(member.id);
+            setDashboardData(dashboardData);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al guardar medicamento");
+        }
+    };
+
+    const handleDeleteMedication = async (taskId: number) => {
+        if (!confirm("¿Estás seguro de eliminar este medicamento?")) return;
+        try {
+            await eldercareService.deleteMedication(member.id, taskId);
+            toast.success("Medicamento eliminado");
+            const dashboardData = await eldercareService.getDashboard(member.id);
+            setDashboardData(dashboardData);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al eliminar medicamento");
         }
     };
 
@@ -213,6 +248,10 @@ export default function EldercarePage() {
                             </h3>
                             <Button 
                                 variant="outline" 
+                                onClick={() => {
+                                    setMedicationToEdit(null);
+                                    setIsMedModalOpen(true);
+                                }}
                                 className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                             >
                                 <Plus className="w-3 h-3 mr-2" strokeWidth={2} /> Añadir
@@ -238,9 +277,32 @@ export default function EldercarePage() {
                                         </div>
                                     </div>
                                     
-                                    {med.isManual && (
-                                        <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500 mb-2">Ingresado manualmente</p>
-                                    )}
+                                    <div className="flex items-center justify-between mt-4 border-t border-gray-100 dark:border-gray-900 pt-4">
+                                        {med.isManual ? (
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Ingresado manualmente</p>
+                                        ) : (
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Recetado por doctor</p>
+                                        )}
+                                        {med.isManual && (
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => {
+                                                        setMedicationToEdit(med);
+                                                        setIsMedModalOpen(true);
+                                                    }}
+                                                    className="text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDeleteMedication(med.id)}
+                                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -255,6 +317,13 @@ export default function EldercarePage() {
                 onClose={() => setIsModalOpen(false)}
                 metricKey={selectedMetric}
                 onSave={handleSaveVital}
+            />
+
+            <MedicationInputModal
+                isOpen={isMedModalOpen}
+                onClose={() => setIsMedModalOpen(false)}
+                medicationToEdit={medicationToEdit}
+                onSave={handleSaveMedication}
             />
         </div>
     );
