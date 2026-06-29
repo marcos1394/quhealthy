@@ -45,15 +45,15 @@ export interface AddMedicationRequest {
 
 export const eldercareService = {
     getDashboard: async (dependentId: string | number): Promise<EldercareDashboardDto> => {
-        const response = await axiosInstance.get(`/appointment_service/api/appointments/consumer/dependents/${dependentId}/eldercare/dashboard`);
+        const response = await axiosInstance.get(`/api/appointments/consumer/dependents/${dependentId}/eldercare/dashboard`);
         return response.data;
     },
 
     addVitalSign: async (dependentId: string | number, data: AddVitalSignRequest): Promise<void> => {
-        await axiosInstance.post(`/appointment_service/api/appointments/consumer/dependents/${dependentId}/eldercare/vital-signs`, data);
+        await axiosInstance.post(`/api/appointments/consumer/dependents/${dependentId}/eldercare/vital-signs`, data);
     },
 
     addMedication: async (dependentId: string | number, data: AddMedicationRequest): Promise<void> => {
-        await axiosInstance.post(`/appointment_service/api/appointments/consumer/dependents/${dependentId}/eldercare/medications`, data);
+        await axiosInstance.post(`/api/appointments/consumer/dependents/${dependentId}/eldercare/medications`, data);
     }
 };
