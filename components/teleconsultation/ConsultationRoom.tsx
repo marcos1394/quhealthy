@@ -52,11 +52,11 @@ export const ConsultationRoom: React.FC = () => {
             className="w-full h-full object-cover xl:object-contain"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-gray-500">
+          <div className="flex flex-col items-center justify-center text-gray-500 px-4 text-center">
             <div className="animate-pulse bg-gray-200 dark:bg-[#222] p-8 mb-4 border border-black dark:border-white">
               <Video className="w-12 h-12 text-black dark:text-white" />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-tight">
               {state === 'CONNECTING' ? 'Estableciendo conexión...' : 'Esperando video...'}
             </p>
           </div>
@@ -109,39 +109,38 @@ export const ConsultationRoom: React.FC = () => {
         </div>
       </div>
 
-      {/* Controles Inferiores */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-6 flex justify-center bg-gradient-to-t from-white via-white/80 dark:from-[#050505] dark:via-[#050505]/80 to-transparent">
-        <div className="flex items-center gap-4 bg-white dark:bg-[#0a0a0a] px-6 py-4 border border-black dark:border-white shadow-2xl">
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-4 flex justify-center bg-gradient-to-t from-white via-white/80 dark:from-[#050505] dark:via-[#050505]/80 to-transparent">
+        <div className="flex items-center gap-2 bg-white dark:bg-[#0a0a0a] px-3 py-2 border border-black dark:border-white shadow-2xl">
           
           <button
-            className={`w-14 h-14 flex items-center justify-center border transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center border transition-colors ${
               isAudioMuted 
                 ? 'bg-red-500 hover:bg-red-600 text-white border-black dark:border-white' 
                 : 'bg-white dark:bg-[#050505] hover:bg-black dark:hover:bg-white text-black dark:text-white hover:text-white dark:hover:text-black border-black dark:border-white'
             }`}
             onClick={toggleAudioMuted}
           >
-            {isAudioMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isAudioMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
 
           <button
-            className={`w-14 h-14 flex items-center justify-center border transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center border transition-colors ${
               isVideoMuted 
                 ? 'bg-red-500 hover:bg-red-600 text-white border-black dark:border-white' 
                 : 'bg-white dark:bg-[#050505] hover:bg-black dark:hover:bg-white text-black dark:text-white hover:text-white dark:hover:text-black border-black dark:border-white'
             }`}
             onClick={toggleVideoMuted}
           >
-            {isVideoMuted ? <VideoOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+            {isVideoMuted ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
           </button>
 
-          <div className="w-px h-10 bg-black dark:bg-white mx-2"></div>
+          <div className="w-px h-8 bg-black/20 dark:bg-white/20 mx-1"></div>
 
           <button
-            className="w-14 h-14 flex items-center justify-center border border-black dark:border-white bg-red-600 hover:bg-red-700 text-white transition-colors"
+            className="w-10 h-10 flex items-center justify-center border border-black dark:border-white bg-red-600 hover:bg-red-700 text-white transition-colors"
             onClick={handleHangup}
           >
-            <PhoneOff className="w-5 h-5" />
+            <PhoneOff className="w-4 h-4" />
           </button>
           
         </div>

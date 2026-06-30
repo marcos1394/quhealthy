@@ -284,7 +284,20 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                         </p>
                       </div>
                     </div>
-                    <button className="border border-black dark:border-white bg-transparent px-6 h-10 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:border-white dark:group-hover:border-black shrink-0 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center rounded-none">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (doc.documentType === 'CONSULTA_PREVIA') {
+                          setSelectedPastConsultation({
+                            id: parseInt(doc.id),
+                            date: doc.uploadDate
+                          });
+                        } else if (doc.secureUrl) {
+                          window.open(doc.secureUrl, '_blank');
+                        }
+                      }}
+                      className="border border-black dark:border-white px-6 h-10 text-[9px] font-bold uppercase tracking-widest shrink-0 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center rounded-none bg-transparent text-black dark:text-white group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent hover:scale-105"
+                    >
                       {t('view_btn', { defaultValue: 'VISUALIZAR' })}
                     </button>
                   </div>
