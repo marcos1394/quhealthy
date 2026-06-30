@@ -289,46 +289,46 @@
     }
   },
   "Suite": {
-  "badge": "Connected Health Ecosystem",
-  "title": "Everything You Need. One Connected Platform.",
-  "description": "An intelligent ecosystem that connects healthcare professionals, patients, telemedicine, AI, and digital health tools in one secure platform.",
-  "products": {
-    "quhealthy": {
-      "description": "The operating system for modern healthcare. Manage your practice, patients, teleconsultations, and clinical information from one place.",
-      "features": [
-        "Smart scheduling & online bookings",
-        "AI-powered clinical workspace",
-        "Secure patient Health Vault",
-        "Integrated teleconsultations",
-        "Automated patient follow-up"
-      ],
-      "explore": "Explore QuHealthy"
+    "badge": "Connected Health Ecosystem",
+    "title": "Everything You Need. One Connected Platform.",
+    "description": "An intelligent ecosystem that connects healthcare professionals, patients, telemedicine, AI, and digital health tools in one secure platform.",
+    "products": {
+      "quhealthy": {
+        "description": "The operating system for modern healthcare. Manage your practice, patients, teleconsultations, and clinical information from one place.",
+        "features": [
+          "Smart scheduling & online bookings",
+          "AI-powered clinical workspace",
+          "Secure patient Health Vault",
+          "Integrated teleconsultations",
+          "Automated patient follow-up"
+        ],
+        "explore": "Explore QuHealthy"
+      },
+      "qumarket": {
+        "description": "Connect patients with trusted healthcare products and services through a unified marketplace.",
+        "features": [
+          "Personalized professional storefront",
+          "Healthcare products & services",
+          "Integrated payments",
+          "Order and inventory management",
+          "Cross-selling with consultations"
+        ],
+        "explore": "Explore QuMarket"
+      },
+      "qublocks": {
+        "description": "A collaborative learning ecosystem where healthcare professionals learn, connect, and grow together.",
+        "features": [
+          "Professional learning paths",
+          "Live events and masterclasses",
+          "Clinical communities",
+          "Verified certifications",
+          "Knowledge and resource library"
+        ],
+        "explore": "Explore QuBlocks"
+      }
     },
-    "qumarket": {
-      "description": "Connect patients with trusted healthcare products and services through a unified marketplace.",
-      "features": [
-        "Personalized professional storefront",
-        "Healthcare products & services",
-        "Integrated payments",
-        "Order and inventory management",
-        "Cross-selling with consultations"
-      ],
-      "explore": "Explore QuMarket"
-    },
-    "qublocks": {
-      "description": "A collaborative learning ecosystem where healthcare professionals learn, connect, and grow together.",
-      "features": [
-        "Professional learning paths",
-        "Live events and masterclasses",
-        "Clinical communities",
-        "Verified certifications",
-        "Knowledge and resource library"
-      ],
-      "explore": "Explore QuBlocks"
-    }
+    "footer": "💡 Every module shares the same data, identity, and workflows for a seamless healthcare experience."
   },
-  "footer": "💡 Every module shares the same data, identity, and workflows for a seamless healthcare experience."
-},
   "Auth": {
     "title": "Welcome back",
     "subtitle": "Access your account to continue",
@@ -1649,226 +1649,6 @@
       "trust_ssl": "Secure SSL",
       "trust_pci": "PCI Compliant",
       "trust_no_commitment": "No commitment"
-    },
-    "SettingsPreferences": {
-      "title": "Preferences",
-      "subtitle": "Customize your QuHealthy experience and configure your notifications.",
-      "tabs": {
-        "general": "General",
-        "notifications": "Notifications",
-        "appearance": "Appearance"
-      },
-      "general": {
-        "title": "General Settings",
-        "language": "Platform Language",
-        "timezone": "Time Zone",
-        "timezone_desc": "The time zone used for your appointments",
-        "save": "Save Changes"
-      },
-      "notifications": {
-        "title": "Notifications",
-        "email_alerts": "Email Alerts",
-        "email_alerts_desc": "Receive daily summaries and important notices",
-        "sms_alerts": "SMS Reminders",
-        "sms_alerts_desc": "Send appointment reminders via SMS to patients",
-        "marketing": "Offers and Marketing",
-        "marketing_desc": "Promotions and new QuHealthy features"
-      },
-      "appearance": {
-        "title": "Appearance",
-        "theme": "Application Theme",
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System"
-      },
-      "toast_save": "Preferences successfully updated"
-    },
-    "SettingsConnections": {
-      "title": "Connections",
-      "subtitle": "Manage your linked accounts and access devices.",
-      "social": {
-        "title": "Social Accounts",
-        "desc": "Connect your networks to log in faster and show your profiles to patients.",
-        "google": "Google",
-        "google_desc": "Connected for quick login",
-        "facebook": "Facebook",
-        "facebook_desc": "Connect to show on your public profile",
-        "instagram": "Instagram",
-        "instagram_desc": "Connect to show your clinical feed",
-        "linkedin": "LinkedIn",
-        "linkedin_desc": "Show your professional profile",
-        "connect": "Connect",
-        "disconnect": "Disconnect"
-      },
-      "devices": {
-        "title": "Connected Devices",
-        "desc": "Control where you are logged in.",
-        "current": "This device",
-        "revoke": "Revoke access",
-        "revoke_all": "Log out from all other devices"
-      }
-    },
-    "SettingsSecurity": {
-      "title": "Security Hub",
-      "subtitle": "Manage your account protection and sensitive data.",
-      "options": {
-        "2fa": {
-          "title": "Two-Factor Authentication (2FA)",
-          "desc": "Add an extra layer of security to your mobile account.",
-          "status": "Recommended"
-        },
-        "password": {
-          "title": "Password",
-          "desc": "Change your password or set complexity rules."
-        },
-        "alerts": {
-          "title": "Login Alerts",
-          "desc": "Receive notifications about new login devices."
-        },
-        "devices": {
-          "title": "Connected Devices",
-          "desc": "Review and log out of unrecognized devices."
-        },
-        "activity": {
-          "title": "Activity History",
-          "desc": "Complete audit of actions taken on your account."
-        }
-      },
-      "configure": "Configure"
-    },
-    "Settings2FA": {
-      "title": "Two-Factor Authentication (2FA)",
-      "subtitle": "Protect your account with an extra layer of security.",
-      "step1": {
-        "instructions_title": "Instructions",
-        "instructions_desc": "Open your authenticator app (Google Authenticator, Authy) and scan the code.",
-        "cannot_scan": "Cannot scan? Use this code:",
-        "error_secret": "Error loading the secret. Please reload the page.",
-        "continue": "Continue"
-      },
-      "step2": {
-        "instructions": "Enter the 6-digit code shown in your application.",
-        "placeholder": "000 000",
-        "verify": "Verify and Activate",
-        "back": "Back to QR"
-      },
-      "step3": {
-        "success_title": "2FA Configured!",
-        "success_desc": "Your account is now much more secure.",
-        "important_title": "IMPORTANT",
-        "important_desc": "If you lose your phone, these codes are the only way to recover your account. Keep them in a safe place.",
-        "no_backup_codes": "No backup codes generated (Check Backend)",
-        "download": "Download",
-        "go_to_dashboard": "Go to Dashboard"
-      },
-      "toast_copy": "Copied to clipboard",
-      "toast_download": "File downloaded",
-      "toast_error_init": "Error starting security setup.",
-      "toast_success": "Two-factor authentication activated!",
-      "toast_error_verify": "Incorrect code. Try again."
-    },
-    "SettingsPassword": {
-      "title": "Password Rules",
-      "subtitle": "Define the complexity requirements for your account.",
-      "card_title": "Complexity Policy",
-      "card_desc": "Set how strict passwords must be.",
-      "security": {
-        "strong": "Strong Security",
-        "medium": "Medium Security",
-        "weak": "Weak Security"
-      },
-      "min_length": {
-        "title": "Minimum Character Length",
-        "recommendation": "We recommend at least 12 characters."
-      },
-      "uppercase": {
-        "title": "Uppercase",
-        "desc": "Require at least one uppercase letter (A-Z)"
-      },
-      "numbers": {
-        "title": "Numbers",
-        "desc": "Require at least one number (0-9)"
-      },
-      "special": {
-        "title": "Special Characters",
-        "desc": "Require symbols (!@#$%)"
-      },
-      "warning": "A weak policy makes your account vulnerable to brute-force attacks.",
-      "save": "Save Rules",
-      "saving": "Saving...",
-      "toast_success": "Password policy updated"
-    },
-    "SettingsAlerts": {
-      "title": "Login Alerts",
-      "subtitle": "Receive notifications about suspicious activity on your account.",
-      "status": {
-        "title": "Alerts Status",
-        "desc": "Enable or disable all security notifications."
-      },
-      "channels": {
-        "title": "Delivery Channels",
-        "email": "Email",
-        "email_desc": "Send to your email",
-        "sms": "SMS Message",
-        "sms_desc": "Charges may apply"
-      },
-      "frequency": {
-        "title": "Notification Frequency",
-        "placeholder": "Select schedule",
-        "always": "Always (24/7)",
-        "suspicious": "Only high-risk activity",
-        "new_device": "Only new devices"
-      },
-      "info": "We recommend keeping email alerts enabled to receive immediate notifications if someone accesses your account from an unknown location.",
-      "save": "Save Changes",
-      "saving": "Saving...",
-      "toast_success": "Alerts configuration updated"
-    },
-    "SettingsDevices": {
-      "title": "Connected Devices",
-      "subtitle": "Manage devices that have access to your account.",
-      "loading": "Loading devices...",
-      "empty": "No connected devices found.",
-      "current_device": "This device",
-      "active_now": "Active now",
-      "disconnect": "Disconnect",
-      "disconnect_dialog": {
-        "title": "Disconnect device?",
-        "desc": "You will be logged out on <strong>{device}</strong>. If the device is being used by someone else, they will lose access immediately.",
-        "cancel": "Cancel",
-        "confirm": "Yes, disconnect",
-        "disconnecting": "Disconnecting..."
-      },
-      "toast_success": "Device successfully disconnected",
-      "toast_sim_success": "Device disconnected (Simulation)"
-    },
-    "SettingsActivity": {
-      "title": "Activity History",
-      "subtitle": "Monitor accesses and security changes on your account.",
-      "export": "Export CSV",
-      "search_placeholder": "Search by IP, location or activity...",
-      "filter": {
-        "placeholder": "Filter by type",
-        "all": "All events",
-        "success": "Success",
-        "error": "Errors / Failed",
-        "warning": "Critical Changes"
-      },
-      "table": {
-        "activity": "Activity",
-        "status": "Status",
-        "location_ip": "Location & IP",
-        "device": "Device",
-        "date": "Date"
-      },
-      "badges": {
-        "success": "Success",
-        "error": "Failed",
-        "warning": "Security",
-        "info": "Info"
-      },
-      "loading": "Loading history...",
-      "empty": "No records found matching your search."
     }
   },
   "StoreHub": {
@@ -4072,5 +3852,225 @@
     "meta_description": "Find the best doctors and health specialists near you. Search by specialty, location, and verified reviews.",
     "hero_badge": "VERIFIED MEDICAL NETWORK",
     "location_disabled": "LOCATION TELEMETRY DISABLED. PRECISION COMPROMISED."
+  },
+  "SettingsPreferences": {
+    "title": "Preferences",
+    "subtitle": "Customize your QuHealthy experience and configure your notifications.",
+    "tabs": {
+      "general": "General",
+      "notifications": "Notifications",
+      "appearance": "Appearance"
+    },
+    "general": {
+      "title": "General Settings",
+      "language": "Platform Language",
+      "timezone": "Time Zone",
+      "timezone_desc": "The time zone used for your appointments",
+      "save": "Save Changes"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "email_alerts": "Email Alerts",
+      "email_alerts_desc": "Receive daily summaries and important notices",
+      "sms_alerts": "SMS Reminders",
+      "sms_alerts_desc": "Send appointment reminders via SMS to patients",
+      "marketing": "Offers and Marketing",
+      "marketing_desc": "Promotions and new QuHealthy features"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Application Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "toast_save": "Preferences successfully updated"
+  },
+  "SettingsConnections": {
+    "title": "Connections",
+    "subtitle": "Manage your linked accounts and access devices.",
+    "social": {
+      "title": "Social Accounts",
+      "desc": "Connect your networks to log in faster and show your profiles to patients.",
+      "google": "Google",
+      "google_desc": "Connected for quick login",
+      "facebook": "Facebook",
+      "facebook_desc": "Connect to show on your public profile",
+      "instagram": "Instagram",
+      "instagram_desc": "Connect to show your clinical feed",
+      "linkedin": "LinkedIn",
+      "linkedin_desc": "Show your professional profile",
+      "connect": "Connect",
+      "disconnect": "Disconnect"
+    },
+    "devices": {
+      "title": "Connected Devices",
+      "desc": "Control where you are logged in.",
+      "current": "This device",
+      "revoke": "Revoke access",
+      "revoke_all": "Log out from all other devices"
+    }
+  },
+  "SettingsSecurity": {
+    "title": "Security Hub",
+    "subtitle": "Manage your account protection and sensitive data.",
+    "options": {
+      "2fa": {
+        "title": "Two-Factor Authentication (2FA)",
+        "desc": "Add an extra layer of security to your mobile account.",
+        "status": "Recommended"
+      },
+      "password": {
+        "title": "Password",
+        "desc": "Change your password or set complexity rules."
+      },
+      "alerts": {
+        "title": "Login Alerts",
+        "desc": "Receive notifications about new login devices."
+      },
+      "devices": {
+        "title": "Connected Devices",
+        "desc": "Review and log out of unrecognized devices."
+      },
+      "activity": {
+        "title": "Activity History",
+        "desc": "Complete audit of actions taken on your account."
+      }
+    },
+    "configure": "Configure"
+  },
+  "Settings2FA": {
+    "title": "Two-Factor Authentication (2FA)",
+    "subtitle": "Protect your account with an extra layer of security.",
+    "step1": {
+      "instructions_title": "Instructions",
+      "instructions_desc": "Open your authenticator app (Google Authenticator, Authy) and scan the code.",
+      "cannot_scan": "Cannot scan? Use this code:",
+      "error_secret": "Error loading the secret. Please reload the page.",
+      "continue": "Continue"
+    },
+    "step2": {
+      "instructions": "Enter the 6-digit code shown in your application.",
+      "placeholder": "000 000",
+      "verify": "Verify and Activate",
+      "back": "Back to QR"
+    },
+    "step3": {
+      "success_title": "2FA Configured!",
+      "success_desc": "Your account is now much more secure.",
+      "important_title": "IMPORTANT",
+      "important_desc": "If you lose your phone, these codes are the only way to recover your account. Keep them in a safe place.",
+      "no_backup_codes": "No backup codes generated (Check Backend)",
+      "download": "Download",
+      "go_to_dashboard": "Go to Dashboard"
+    },
+    "toast_copy": "Copied to clipboard",
+    "toast_download": "File downloaded",
+    "toast_error_init": "Error starting security setup.",
+    "toast_success": "Two-factor authentication activated!",
+    "toast_error_verify": "Incorrect code. Try again."
+  },
+  "SettingsPassword": {
+    "title": "Password Rules",
+    "subtitle": "Define the complexity requirements for your account.",
+    "card_title": "Complexity Policy",
+    "card_desc": "Set how strict passwords must be.",
+    "security": {
+      "strong": "Strong Security",
+      "medium": "Medium Security",
+      "weak": "Weak Security"
+    },
+    "min_length": {
+      "title": "Minimum Character Length",
+      "recommendation": "We recommend at least 12 characters."
+    },
+    "uppercase": {
+      "title": "Uppercase",
+      "desc": "Require at least one uppercase letter (A-Z)"
+    },
+    "numbers": {
+      "title": "Numbers",
+      "desc": "Require at least one number (0-9)"
+    },
+    "special": {
+      "title": "Special Characters",
+      "desc": "Require symbols (!@#$%)"
+    },
+    "warning": "A weak policy makes your account vulnerable to brute-force attacks.",
+    "save": "Save Rules",
+    "saving": "Saving...",
+    "toast_success": "Password policy updated"
+  },
+  "SettingsAlerts": {
+    "title": "Login Alerts",
+    "subtitle": "Receive notifications about suspicious activity on your account.",
+    "status": {
+      "title": "Alerts Status",
+      "desc": "Enable or disable all security notifications."
+    },
+    "channels": {
+      "title": "Delivery Channels",
+      "email": "Email",
+      "email_desc": "Send to your email",
+      "sms": "SMS Message",
+      "sms_desc": "Charges may apply"
+    },
+    "frequency": {
+      "title": "Notification Frequency",
+      "placeholder": "Select schedule",
+      "always": "Always (24/7)",
+      "suspicious": "Only high-risk activity",
+      "new_device": "Only new devices"
+    },
+    "info": "We recommend keeping email alerts enabled to receive immediate notifications if someone accesses your account from an unknown location.",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "toast_success": "Alerts configuration updated"
+  },
+  "SettingsDevices": {
+    "title": "Connected Devices",
+    "subtitle": "Manage devices that have access to your account.",
+    "loading": "Loading devices...",
+    "empty": "No connected devices found.",
+    "current_device": "This device",
+    "active_now": "Active now",
+    "disconnect": "Disconnect",
+    "disconnect_dialog": {
+      "title": "Disconnect device?",
+      "desc": "You will be logged out on <strong>{device}</strong>. If the device is being used by someone else, they will lose access immediately.",
+      "cancel": "Cancel",
+      "confirm": "Yes, disconnect",
+      "disconnecting": "Disconnecting..."
+    },
+    "toast_success": "Device successfully disconnected",
+    "toast_sim_success": "Device disconnected (Simulation)"
+  },
+  "SettingsActivity": {
+    "title": "Activity History",
+    "subtitle": "Monitor accesses and security changes on your account.",
+    "export": "Export CSV",
+    "search_placeholder": "Search by IP, location or activity...",
+    "filter": {
+      "placeholder": "Filter by type",
+      "all": "All events",
+      "success": "Success",
+      "error": "Errors / Failed",
+      "warning": "Critical Changes"
+    },
+    "table": {
+      "activity": "Activity",
+      "status": "Status",
+      "location_ip": "Location & IP",
+      "device": "Device",
+      "date": "Date"
+    },
+    "badges": {
+      "success": "Success",
+      "error": "Failed",
+      "warning": "Security",
+      "info": "Info"
+    },
+    "loading": "Loading history...",
+    "empty": "No records found matching your search."
   }
 }
