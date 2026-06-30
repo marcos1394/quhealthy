@@ -2777,7 +2777,8 @@
       "quick_templates": "Quick Templates",
       "quick_templates_desc": "Add popular pre-configured services for your specialty",
       "delete_confirm_title": "Delete Service",
-      "delete_confirm_message": "Are you sure you want to permanently delete this service from the catalog? This action cannot be undone."
+      "delete_confirm_message": "Are you sure you want to permanently delete this service from the catalog? This action cannot be undone.",
+      "delete": "Delete"
     },
     "packages": {
       "title": "Special Packages",

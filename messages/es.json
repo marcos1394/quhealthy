@@ -2784,7 +2784,8 @@
       "quick_templates": "Plantillas Rápidas",
       "quick_templates_desc": "Agrega servicios pre-configurados populares en tu especialidad",
       "delete_confirm_title": "Anular Servicio",
-      "delete_confirm_message": "¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer."
+      "delete_confirm_message": "¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer.",
+      "delete": "Eliminar"
     },
     "packages": {
       "title": "Paquetes Especiales",
