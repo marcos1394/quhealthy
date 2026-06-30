@@ -65,12 +65,13 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
 
   useEffect(() => {
     // If it's an HLS stream and HLS is supported in this browser
-    if (isHls && Hls.isSupported() && ref.current?.plyr?.media) {
+    const player = ref.current?.plyr as any;
+    if (isHls && Hls.isSupported() && player?.media) {
       const hls = new Hls({
         debug: false,
       });
       hls.loadSource(url);
-      hls.attachMedia(ref.current.plyr.media as HTMLMediaElement);
+      hls.attachMedia(player.media as HTMLMediaElement);
       
       return () => {
         hls.destroy();
