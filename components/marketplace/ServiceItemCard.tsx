@@ -23,7 +23,7 @@ import {
 import { useTranslations } from "next-intl";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 import { cn } from "@/lib/utils";
 import { UI_Service, CancellationPolicy } from "@/types/catalog";
 
@@ -121,41 +121,7 @@ export function ServiceItemCard({
           </div>
         </div>
 
-        {/* Acciones Rápidas */}
-        <div className="flex items-center gap-0 w-full sm:w-auto justify-end mt-4 sm:mt-0 border border-black/20 dark:border-white/20">
-          {onDuplicate && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button 
-                    onClick={() => onDuplicate(service)}
-                    className="h-8 w-10 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-                  >
-                    <Copy className="w-3.5 h-3.5" strokeWidth={1.5} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-none border-none">
-                  {t('duplicate', { defaultValue: 'DUPLICAR' })}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
 
-          <button 
-            onClick={() => setIsDeleteModalOpen(true)}
-            className="h-8 w-10 flex items-center justify-center border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-          </button>
-
-          <button 
-            onClick={() => onSave(service)}
-            disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
-            className="h-8 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 disabled:opacity-50 transition-colors"
-          >
-            <Save className="w-3 h-3" strokeWidth={1.5} /> {t('save', { defaultValue: 'CONFIRMAR' })}
-          </button>
-        </div>
       </div>
 
       {/* --- MATRIZ DEL FORMULARIO PRINCIPAL --- */}
@@ -410,6 +376,36 @@ export function ServiceItemCard({
           </div>
         </div>
 
+      </div>
+
+      {/* --- ACCIONES PRINCIPALES (FOOTER) --- */}
+      <div className="flex flex-col sm:flex-row border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+        {onDuplicate && (
+          <button 
+            onClick={() => onDuplicate(service)}
+            className="flex-1 sm:flex-none sm:w-1/4 h-16 flex items-center justify-center gap-2 border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#111] transition-colors text-[11px] font-bold uppercase tracking-widest"
+          >
+            <Copy className="w-4 h-4" strokeWidth={1.5} />
+            <span>{t('duplicate', { defaultValue: 'DUPLICAR' })}</span>
+          </button>
+        )}
+
+        <button 
+          onClick={() => setIsDeleteModalOpen(true)}
+          className="flex-1 sm:flex-none sm:w-1/4 h-16 flex items-center justify-center gap-2 border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-[11px] font-bold uppercase tracking-widest"
+        >
+          <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+          <span>{t('delete', { defaultValue: 'ELIMINAR' })}</span>
+        </button>
+
+        <button 
+          onClick={() => onSave(service)}
+          disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
+          className="flex-1 sm:flex-auto h-16 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 transition-colors"
+        >
+          <Save className="w-5 h-5" strokeWidth={1.5} /> 
+          {t('save', { defaultValue: 'GUARDAR SERVICIO' })}
+        </button>
       </div>
 
       {/* Brutalist Confirmation Modal */}

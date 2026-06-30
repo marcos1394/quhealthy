@@ -67,7 +67,6 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
         poster={poster}
         controls
         className="w-full h-full max-h-full object-contain"
-        crossOrigin="anonymous" // Helpful for CORS if headers exist
       />
     </div>
   );
