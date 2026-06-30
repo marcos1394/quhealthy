@@ -272,6 +272,12 @@ export default function CoursePlayerPage() {
                     >
                       Mis Notas
                     </TabsTrigger>
+                    <TabsTrigger 
+                      value="evaluation" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent px-4 py-3 font-bold uppercase tracking-widest text-[11px] text-amber-600 dark:text-amber-500"
+                    >
+                      Evaluación & Constancia
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="overview" className="outline-none">
@@ -298,6 +304,41 @@ export default function CoursePlayerPage() {
                           {savingNotes ? <QhSpinner size="sm" className="mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                           Guardar Notas
                         </Button>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="evaluation" className="outline-none space-y-6">
+                    <div className="max-w-3xl border border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505]">
+                      <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Evaluación del Módulo</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Para obtener tu constancia, debes aprobar la evaluación y subir la evidencia de aprendizaje requerida.
+                      </p>
+                      
+                      <div className="space-y-4 mb-6">
+                        <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800">
+                          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Paso 1: Cuestionario</p>
+                          <Button variant="outline" className="w-full rounded-none font-bold text-xs uppercase tracking-widest">
+                            Iniciar Cuestionario
+                          </Button>
+                        </div>
+
+                        <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800">
+                          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Paso 2: Subir Evidencia</p>
+                          <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
+                            <p className="text-sm text-gray-500">Arrastra tus archivos aquí o haz clic para subir</p>
+                            <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">Formatos permitidos: PDF, JPG, PNG (Max 5MB)</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-800">
+                         <div className="text-xs text-gray-500">
+                           Estado: <span className="font-bold text-amber-600">Pendiente</span>
+                         </div>
+                         <Button className="rounded-none bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-[10px]">
+                           Generar Constancia
+                         </Button>
                       </div>
                     </div>
                   </TabsContent>
