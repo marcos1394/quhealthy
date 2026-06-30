@@ -8,7 +8,6 @@ import { useMediaDevices } from './useMediaDevices';
 import { toast } from 'react-toastify';
 
 export const useTeleconsultation = (appointmentId: string, role: ParticipantRole) => {
-  const store = useTeleconsultationStore();
   const isJoinedRef = useRef(false);
 
   // Timer is just called to run its interval in the background
@@ -19,6 +18,7 @@ export const useTeleconsultation = (appointmentId: string, role: ParticipantRole
 
   // STOMP Messaging
   const handleSignalingMessage = useCallback((msg: any) => {
+    const store = useTeleconsultationStore.getState();
     switch (msg.type) {
       case 'TELECONSULTATION_STARTED':
         store.setState('CONNECTING');
@@ -54,7 +54,7 @@ export const useTeleconsultation = (appointmentId: string, role: ParticipantRole
       default:
         console.warn('Unknown message type:', msg.type);
     }
-  }, [role, store]);
+  }, [role]);
 
   const stomp = useStompTeleconsultation(handleSignalingMessage);
   
@@ -63,15 +63,17 @@ export const useTeleconsultation = (appointmentId: string, role: ParticipantRole
 
   // Funciones de Orquestación
   const startSetup = useCallback(() => {
+    const store = useTeleconsultationStore.getState();
     store.setState('CHECKING_ACCESS');
     // Pre-validar o simplemente ir a setup
     store.setState('DEVICE_SETUP');
     media.getDevices();
-  }, [store, media]);
+  }, [media]);
 
   const joinCall = useCallback(async (teleconsultationId: string) => {
     if (isJoinedRef.current) return;
     
+    const store = useTeleconsultationStore.getState();
     store.setState('JOINING');
     store.setIdentifiers(appointmentId, teleconsultationId, role);
     
@@ -109,21 +111,23 @@ export const useTeleconsultation = (appointmentId: string, role: ParticipantRole
     } catch (error: any) {
       console.error('Failed to join teleconsultation:', error);
       toast.error(error?.response?.data?.message || 'Error al conectar a la consulta');
-      store.setState('FAILED');
+      const latestStore = useTeleconsultationStore.getState();
+      latestStore.setState('FAILED');
     }
-  }, [appointmentId, role, store, media, stomp, webrtc]);
+  }, [appointmentId, role, media, stomp, webrtc]);
 
   const cleanup = useCallback(() => {
     webrtc.cleanupWebRTC();
     stomp.disconnect();
     
+    const store = useTeleconsultationStore.getState();
     if (store.localStream) {
       store.localStream.getTracks().forEach(track => track.stop());
     }
     
     store.reset();
     isJoinedRef.current = false;
-  }, [webrtc, stomp, store]);
+  }, [webrtc, stomp]);
 
   // Limpieza al desmontar el componente padre
   useEffect(() => {

@@ -3,7 +3,6 @@ import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
 
 export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const { localStream, setRemoteStream, setState } = useTeleconsultationStore();
 
   const getIceServers = () => {
     return [
@@ -23,6 +22,8 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
     const pc = new RTCPeerConnection(configuration);
     peerConnectionRef.current = pc;
 
+    const { localStream, setRemoteStream, setState } = useTeleconsultationStore.getState();
+
     // Agregar tracks locales
     if (localStream) {
       localStream.getTracks().forEach((track) => {
@@ -32,6 +33,7 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
 
     // Escuchar tracks remotos
     pc.ontrack = (event) => {
+      const { setRemoteStream } = useTeleconsultationStore.getState();
       if (event.streams && event.streams[0]) {
         setRemoteStream(event.streams[0]);
       } else {
@@ -55,6 +57,7 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
     // Manejar el estado de conexión
     pc.oniceconnectionstatechange = () => {
       const state = pc.iceConnectionState;
+      const { setState } = useTeleconsultationStore.getState();
       console.log('ICE Connection State:', state);
       
       if (state === 'failed' || state === 'disconnected') {
@@ -64,7 +67,7 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
         setState('CONNECTED');
       }
     };
-  }, [localStream, sendSignalingMessage, setRemoteStream, setState]);
+  }, [sendSignalingMessage]);
 
   const createOffer = useCallback(async () => {
     const pc = peerConnectionRef.current;
@@ -127,8 +130,9 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
+    const { setRemoteStream } = useTeleconsultationStore.getState();
     setRemoteStream(null);
-  }, [setRemoteStream]);
+  }, []);
 
   return useMemo(() => ({
     initPeerConnection,

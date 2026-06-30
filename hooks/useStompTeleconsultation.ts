@@ -6,7 +6,12 @@ import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
 export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void) => {
   const stompClientRef = useRef<Client | null>(null);
   const { token } = useSessionStore();
-  const { teleconsultationId } = useTeleconsultationStore();
+  const teleconsultationId = useTeleconsultationStore(state => state.teleconsultationId);
+  
+  const onSignalingMessageRef = useRef(onSignalingMessage);
+  useEffect(() => {
+    onSignalingMessageRef.current = onSignalingMessage;
+  }, [onSignalingMessage]);
 
   const connect = useCallback(() => {
     if (!teleconsultationId || !token) return;
@@ -34,13 +39,13 @@ export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void)
       // Suscripción a mensajes dirigidos (Señalización WebRTC)
       client.subscribe('/user/queue/teleconsultation', (message) => {
         const body = JSON.parse(message.body);
-        onSignalingMessage(body);
+        onSignalingMessageRef.current(body);
       });
 
       // Suscripción a eventos de sala generales (Opcional, si mantenemos el topic para START/FINISH)
       client.subscribe(`/topic/teleconsultation/${teleconsultationId}`, (message) => {
         const body = JSON.parse(message.body);
-        onSignalingMessage(body);
+        onSignalingMessageRef.current(body);
       });
     };
 
@@ -52,7 +57,7 @@ export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void)
     client.activate();
     stompClientRef.current = client;
 
-  }, [teleconsultationId, token, onSignalingMessage]);
+  }, [teleconsultationId, token]);
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {
