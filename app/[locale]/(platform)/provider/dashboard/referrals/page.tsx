@@ -25,7 +25,7 @@ export default function ProviderReferralsPage() {
   const [copied, setCopied] = useState(false);
 
   const userReferralCode = data?.referralCode || "MI-CODIGO"; 
-  const referralLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.quhealthy.org'}/signup?ref=${userReferralCode}`;
+  const referralLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.quhealthy.org'}/${locale}/provider/register?ref=${userReferralCode}`;
 
   const handleCopy = () => {
     if (!referralLink) return;

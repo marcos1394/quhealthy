@@ -39,6 +39,7 @@ export interface RegisterProviderRequest {
   password: string;
   termsAccepted: true;
   privacyPolicyVersion: string;
+  referralCode?: string;
   captchaToken: string;
 }
 

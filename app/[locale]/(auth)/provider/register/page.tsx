@@ -66,6 +66,16 @@ export default function ProviderSignupPage() {
   // ✅ CAMBIO 1: Añadir esta línea
   const isIntentionalSubmitRef = useRef(false);
 
+  const [referralCode, setReferralCode] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) setReferralCode(ref);
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -132,6 +142,7 @@ export default function ProviderSignupPage() {
         password: formData.password,
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
+        referralCode: referralCode,
         captchaToken: token // Usamos el token validado
       };
 
