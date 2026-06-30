@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { VaultDocument } from '@/types/ehr';
 import { PastConsultationModal } from '@/components/consultation/PastConsultationModal';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface PatientProfileStepProps {
   patientProfile: any;
@@ -37,6 +38,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   const displayInitial = displayFullName.charAt(0).toUpperCase();
 
   const [selectedPastConsultation, setSelectedPastConsultation] = useState<{ id: number; date: string } | null>(null);
+  const [selectedNote, setSelectedNote] = useState<VaultDocument | null>(null);
   const [isRequestingAccess, setIsRequestingAccess] = useState(false);
 
   const handleRequestAccess = async () => {
@@ -86,6 +88,8 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
         id: parseInt(doc.id),
         date: doc.uploadDate
       });
+    } else if (doc.documentType === 'NOTE' || doc.noteContent) {
+      setSelectedNote(doc);
     } else {
       if (doc.secureUrl) {
         window.open(doc.secureUrl, '_blank');
@@ -336,6 +340,36 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
         patientName={displayFullName}
         consultationDate={selectedPastConsultation?.date || ''}
       />
+
+      {/* MODAL DE NOTA CLÍNICA */}
+      <Dialog open={!!selectedNote} onOpenChange={(open) => { if (!open) setSelectedNote(null); }}>
+        <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-2xl p-0 rounded-none overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+          <div className="p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
+              <FileCheck className="w-3.5 h-3.5" strokeWidth={1.5} /> NOTA CLÍNICA
+            </p>
+            <DialogTitle className="text-xl font-semibold uppercase tracking-tight leading-none mb-2">
+              {selectedNote?.title || 'DOCUMENTO DE TEXTO'}
+            </DialogTitle>
+            <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Registrado el: {selectedNote ? new Date(selectedNote.uploadDate).toLocaleDateString() : ''}
+            </DialogDescription>
+          </div>
+          
+          <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 whitespace-pre-wrap text-sm leading-relaxed text-black/80 dark:text-white/80 font-light">
+            {selectedNote?.noteContent || 'SIN CONTENIDO'}
+          </div>
+          
+          <div className="p-6 border-t border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex justify-end">
+            <button 
+              onClick={() => setSelectedNote(null)}
+              className="h-10 px-8 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+            >
+              CERRAR VISOR
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
+}
