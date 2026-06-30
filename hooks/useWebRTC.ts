@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
 
 export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
@@ -130,12 +130,19 @@ export const useWebRTC = (sendSignalingMessage: (msg: any) => void) => {
     setRemoteStream(null);
   }, [setRemoteStream]);
 
-  return {
+  return useMemo(() => ({
     initPeerConnection,
     createOffer,
     handleReceiveOffer,
     handleReceiveAnswer,
     handleReceiveIceCandidate,
     cleanupWebRTC
-  };
+  }), [
+    initPeerConnection,
+    createOffer,
+    handleReceiveOffer,
+    handleReceiveAnswer,
+    handleReceiveIceCandidate,
+    cleanupWebRTC
+  ]);
 };

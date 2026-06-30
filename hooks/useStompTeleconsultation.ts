@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Client } from '@stomp/stompjs';
 import { useSessionStore } from '@/stores/SessionStore';
 import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
@@ -78,5 +78,5 @@ export const useStompTeleconsultation = (onSignalingMessage: (msg: any) => void)
     };
   }, [disconnect]);
 
-  return { connect, disconnect, sendSignalingMessage };
+  return useMemo(() => ({ connect, disconnect, sendSignalingMessage }), [connect, disconnect, sendSignalingMessage]);
 };
