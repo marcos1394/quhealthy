@@ -17,47 +17,47 @@ export const WaitingRoom: React.FC = () => {
   const isPatient = role === 'PATIENT';
 
   return (
-    <div className="w-full h-full flex items-center justify-center relative bg-white">
+    <div className="w-full h-full flex items-center justify-center relative bg-white dark:bg-[#050505] text-black dark:text-white border-l border-black dark:border-white">
       <div className="z-10 w-full max-w-4xl p-4 flex flex-col md:flex-row items-center gap-8">
         
         {/* Información y Estado */}
-        <div className="w-full md:w-1/2 flex flex-col gap-6 text-slate-900 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full w-fit mx-auto md:mx-0 border border-blue-200">
+        <div className="w-full md:w-1/2 flex flex-col gap-6 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-4 py-2 w-fit mx-auto md:mx-0 border border-black dark:border-white uppercase tracking-widest text-[10px] font-bold">
             <Shield className="w-4 h-4" />
-            <span className="text-sm font-medium">Conexión Segura Encriptada</span>
+            <span>Conexión Segura</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            {isPatient ? 'Tu médico se unirá en breve' : 'Esperando al paciente'}
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight uppercase">
+            {isPatient ? 'Médico en breve' : 'Esperando paciente'}
           </h1>
           
-          <p className="text-xl text-slate-600">
+          <p className="text-sm uppercase font-semibold text-gray-500">
             {isPatient 
-              ? 'Por favor espera en esta pantalla. Hemos notificado al especialista que ya estás aquí.'
-              : 'El paciente aún no ha ingresado a la sala. Te notificaremos cuando se conecte.'}
+              ? 'Espera en esta pantalla. El especialista ha sido notificado.'
+              : 'El paciente aún no ha ingresado a la sala. Te notificaremos.'}
           </p>
 
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 mt-4 shadow-sm">
+          <div className="bg-white dark:bg-[#0a0a0a] p-6 border border-black dark:border-white mt-4">
             <div className="flex items-center gap-4 mb-4">
-              <div className="bg-blue-50 p-3 rounded-full">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="border border-black dark:border-white p-3">
+                <Clock className="w-6 h-6" />
               </div>
               <div className="text-left">
-                <p className="text-sm text-slate-500 font-medium">Tiempo restante programado</p>
-                <p className="text-2xl font-bold font-mono text-slate-900">{formattedTime}</p>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500">Tiempo restante</p>
+                <p className="text-2xl font-bold font-mono text-black dark:text-white">{formattedTime}</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 text-sm text-slate-500 border-t border-slate-100 pt-4 mt-2">
+            <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest font-bold text-gray-500 border-t border-black dark:border-white pt-4 mt-2">
               <Bell className="w-4 h-4" />
-              <p>Te avisaremos automáticamente cuando la consulta inicie.</p>
+              <p>Aviso automático al iniciar.</p>
             </div>
           </div>
         </div>
 
         {/* Vista miniatura del usuario */}
         <div className="w-full md:w-1/2 max-w-sm">
-          <div className="bg-slate-100 rounded-3xl overflow-hidden aspect-[3/4] relative border-4 border-white shadow-lg ring-1 ring-slate-900/5">
+          <div className="bg-gray-100 dark:bg-[#111] overflow-hidden aspect-[3/4] relative border-4 border-black dark:border-white">
             {localStream ? (
               <video
                 ref={videoRef}
@@ -67,14 +67,14 @@ export const WaitingRoom: React.FC = () => {
                 className="w-full h-full object-cover transform scale-x-[-1]"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+              <div className="w-full h-full flex items-center justify-center text-[10px] uppercase font-bold tracking-widest text-gray-400">
                 Cámara desactivada
               </div>
             )}
             
             <div className="absolute bottom-4 left-4 right-4 text-center">
-              <div className="bg-white/90 backdrop-blur-sm text-slate-900 font-medium text-sm py-2 px-4 rounded-full inline-block shadow-sm">
-                Tu video (Vista previa)
+              <div className="bg-white dark:bg-black text-black dark:text-white border border-black dark:border-white font-bold text-[10px] uppercase tracking-widest py-2 px-4 inline-block">
+                Tu video (Local)
               </div>
             </div>
           </div>

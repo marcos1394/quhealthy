@@ -40,23 +40,23 @@ export const ConsultationRoom: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full relative flex flex-col bg-black">
+    <div className="w-full h-full relative flex flex-col bg-white dark:bg-[#050505]">
       
       {/* Video Remoto (Especialista/Paciente) - Ocupa todo el fondo */}
-      <div className="absolute inset-0 z-0 bg-gray-900 flex items-center justify-center">
+      <div className="absolute inset-0 z-0 bg-gray-100 dark:bg-[#111] flex items-center justify-center">
         {remoteStream ? (
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover xl:object-contain"
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-500">
-            <div className="animate-pulse rounded-full bg-gray-800 p-8 mb-4">
-              <Video className="w-12 h-12" />
+            <div className="animate-pulse bg-gray-200 dark:bg-[#222] p-8 mb-4 border border-black dark:border-white">
+              <Video className="w-12 h-12 text-black dark:text-white" />
             </div>
-            <p className="text-xl">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
               {state === 'CONNECTING' ? 'Estableciendo conexión...' : 'Esperando video...'}
             </p>
           </div>
@@ -69,21 +69,21 @@ export const ConsultationRoom: React.FC = () => {
         {/* Top Bar: Timer */}
         <div className="flex justify-center w-full">
           <div className={`
-            pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full font-mono text-lg font-bold shadow-lg backdrop-blur-md transition-colors
+            pointer-events-auto flex items-center gap-2 px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-widest transition-colors border
             ${isCritical 
-              ? 'bg-red-500 text-white animate-pulse' 
+              ? 'bg-red-500 text-white border-red-500 animate-pulse' 
               : isWarning 
-                ? 'bg-orange-500/80 text-white' 
-                : 'bg-black/50 text-white border border-gray-600'}
+                ? 'bg-orange-500 text-white border-orange-500' 
+                : 'bg-white dark:bg-[#050505] text-black dark:text-white border-black dark:border-white'}
           `}>
-            <Clock className="w-5 h-5" />
+            <Clock className="w-4 h-4" />
             {formattedTime}
           </div>
         </div>
 
         {/* Video Local (Miniatura) */}
         <div className="flex-1 w-full flex items-end justify-end pb-20 md:pb-0">
-          <div className="pointer-events-auto w-32 md:w-48 aspect-[3/4] bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800 relative group">
+          <div className="pointer-events-auto w-32 md:w-48 aspect-[3/4] bg-white dark:bg-black overflow-hidden shadow-2xl border-2 border-black dark:border-white relative group">
             {localStream ? (
               <video
                 ref={localVideoRef}
@@ -96,12 +96,12 @@ export const ConsultationRoom: React.FC = () => {
             
             {isVideoMuted && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <VideoOff className="w-8 h-8 text-gray-400" />
+                <VideoOff className="w-8 h-8 text-black dark:text-white" />
               </div>
             )}
             
             {isAudioMuted && (
-              <div className="absolute bottom-2 right-2 bg-red-500 p-1.5 rounded-full">
+              <div className="absolute bottom-2 right-2 bg-red-500 p-1.5 border border-black dark:border-white">
                 <MicOff className="w-4 h-4 text-white" />
               </div>
             )}
@@ -110,45 +110,39 @@ export const ConsultationRoom: React.FC = () => {
       </div>
 
       {/* Controles Inferiores */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-6 flex justify-center bg-gradient-to-t from-black/80 to-transparent">
-        <div className="flex items-center gap-4 bg-gray-900/80 backdrop-blur-xl px-6 py-4 rounded-full border border-gray-800 shadow-2xl">
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-6 flex justify-center bg-gradient-to-t from-white via-white/80 dark:from-[#050505] dark:via-[#050505]/80 to-transparent">
+        <div className="flex items-center gap-4 bg-white dark:bg-[#0a0a0a] px-6 py-4 border border-black dark:border-white shadow-2xl">
           
-          <Button
-            variant="outline"
-            size="icon"
-            className={`w-14 h-14 rounded-full border-none transition-colors ${
+          <button
+            className={`w-14 h-14 flex items-center justify-center border transition-colors ${
               isAudioMuted 
-                ? 'bg-red-500 hover:bg-red-600 text-white' 
-                : 'bg-gray-700 hover:bg-gray-600 text-white'
+                ? 'bg-red-500 hover:bg-red-600 text-white border-black dark:border-white' 
+                : 'bg-white dark:bg-[#050505] hover:bg-black dark:hover:bg-white text-black dark:text-white hover:text-white dark:hover:text-black border-black dark:border-white'
             }`}
             onClick={toggleAudioMuted}
           >
-            {isAudioMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-          </Button>
+            {isAudioMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className={`w-14 h-14 rounded-full border-none transition-colors ${
+          <button
+            className={`w-14 h-14 flex items-center justify-center border transition-colors ${
               isVideoMuted 
-                ? 'bg-red-500 hover:bg-red-600 text-white' 
-                : 'bg-gray-700 hover:bg-gray-600 text-white'
+                ? 'bg-red-500 hover:bg-red-600 text-white border-black dark:border-white' 
+                : 'bg-white dark:bg-[#050505] hover:bg-black dark:hover:bg-white text-black dark:text-white hover:text-white dark:hover:text-black border-black dark:border-white'
             }`}
             onClick={toggleVideoMuted}
           >
-            {isVideoMuted ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
-          </Button>
+            {isVideoMuted ? <VideoOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+          </button>
 
-          <div className="w-px h-10 bg-gray-700 mx-2"></div>
+          <div className="w-px h-10 bg-black dark:bg-white mx-2"></div>
 
-          <Button
-            variant="destructive"
-            size="icon"
-            className="w-14 h-14 rounded-full hover:bg-red-700 shadow-lg shadow-red-500/20"
+          <button
+            className="w-14 h-14 flex items-center justify-center border border-black dark:border-white bg-red-600 hover:bg-red-700 text-white transition-colors"
             onClick={handleHangup}
           >
-            <PhoneOff className="w-6 h-6" />
-          </Button>
+            <PhoneOff className="w-5 h-5" />
+          </button>
           
         </div>
       </div>

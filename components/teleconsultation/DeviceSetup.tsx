@@ -30,9 +30,9 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({ media, onJoin, isLoadi
   const allChecksPassed = systemChecks.camera && systemChecks.mic && systemChecks.internet;
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start text-slate-900">
+    <div className="w-full h-full p-4 md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start bg-white dark:bg-[#050505] text-black dark:text-white border-l border-black dark:border-white">
       {/* Vista previa de cámara */}
-      <div className="w-full md:w-3/5 rounded-2xl overflow-hidden bg-slate-100 aspect-video relative border border-slate-200 shadow-xl flex items-center justify-center">
+      <div className="w-full md:w-3/5 bg-gray-100 dark:bg-[#111] aspect-video relative border-4 border-black dark:border-white flex items-center justify-center">
         {localStream ? (
           <video
             ref={videoRef}
@@ -42,19 +42,19 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({ media, onJoin, isLoadi
             className="w-full h-full object-cover transform scale-x-[-1]" // Espejo
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-slate-500 p-6 text-center">
+          <div className="flex flex-col items-center justify-center p-6 text-center text-gray-500">
             {media.isInitializing ? (
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+              <div className="animate-spin h-12 w-12 border-2 border-black dark:border-white mb-4"></div>
             ) : (
-              <Video className="w-16 h-16 mb-4 opacity-50" />
+              <Video className="w-12 h-12 mb-4 opacity-50" />
             )}
-            <p className="text-lg">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">
               {media.error 
-                ? 'No pudimos acceder a tu cámara' 
-                : 'Solicitando permisos de cámara y micrófono...'}
+                ? 'Cámara no accesible' 
+                : 'Solicitando permisos...'}
             </p>
             {media.error && (
-              <Button onClick={() => media.requestPermissions()} variant="outline" className="mt-4 text-black">
+              <Button onClick={() => media.requestPermissions()} variant="outline" className="mt-4 rounded-none border-black dark:border-white uppercase text-[10px] tracking-widest font-bold">
                 Reintentar
               </Button>
             )}
@@ -64,11 +64,11 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({ media, onJoin, isLoadi
         {/* Badges de estado en la cámara */}
         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
           <div className="flex gap-2">
-            <div className={`p-2 rounded-full backdrop-blur-md ${systemChecks.mic ? 'bg-white/90 text-slate-900 shadow-sm' : 'bg-red-500 text-white shadow-sm'}`}>
-              <Mic className="w-5 h-5" />
+            <div className={`p-2 border border-black dark:border-white ${systemChecks.mic ? 'bg-white dark:bg-black text-black dark:text-white' : 'bg-red-500 text-white'}`}>
+              <Mic className="w-4 h-4" />
             </div>
-            <div className={`p-2 rounded-full backdrop-blur-md ${systemChecks.camera ? 'bg-white/90 text-slate-900 shadow-sm' : 'bg-red-500 text-white shadow-sm'}`}>
-              <Video className="w-5 h-5" />
+            <div className={`p-2 border border-black dark:border-white ${systemChecks.camera ? 'bg-white dark:bg-black text-black dark:text-white' : 'bg-red-500 text-white'}`}>
+              <Video className="w-4 h-4" />
             </div>
           </div>
         </div>
@@ -77,53 +77,53 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({ media, onJoin, isLoadi
       {/* Panel de configuración */}
       <div className="w-full md:w-2/5 flex flex-col gap-6">
         <div>
-          <h2 className="text-2xl font-bold mb-2">Preparación</h2>
-          <p className="text-slate-600">Verifica que tu equipo funcione correctamente antes de entrar a la sala.</p>
+          <h2 className="text-2xl font-bold uppercase tracking-tight">Preparación</h2>
+          <p className="text-sm uppercase font-semibold text-gray-500 mt-2">Verifica tu equipo antes de entrar.</p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-slate-200 flex flex-col gap-4 shadow-sm">
+        <div className="bg-white dark:bg-[#0a0a0a] p-6 border border-black dark:border-white flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${systemChecks.camera ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                <Video className="w-5 h-5" />
+              <div className={`p-2 border border-black dark:border-white ${systemChecks.camera ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}>
+                <Video className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Cámara</p>
-                <p className="text-sm text-slate-500">{systemChecks.camera ? 'Detectada y funcionando' : 'No detectada'}</p>
+                <p className="font-bold uppercase tracking-widest text-[10px]">Cámara</p>
+                <p className="text-[9px] uppercase font-semibold text-gray-500">{systemChecks.camera ? 'Funcionando' : 'No detectada'}</p>
               </div>
             </div>
-            {systemChecks.camera && <CheckCircle2 className="w-5 h-5 text-green-500" />}
+            {systemChecks.camera && <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />}
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${systemChecks.mic ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                <Mic className="w-5 h-5" />
+              <div className={`p-2 border border-black dark:border-white ${systemChecks.mic ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}>
+                <Mic className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Micrófono</p>
-                <p className="text-sm text-slate-500">{systemChecks.mic ? 'Detectado y funcionando' : 'No detectado'}</p>
+                <p className="font-bold uppercase tracking-widest text-[10px]">Micrófono</p>
+                <p className="text-[9px] uppercase font-semibold text-gray-500">{systemChecks.mic ? 'Funcionando' : 'No detectado'}</p>
               </div>
             </div>
-            {systemChecks.mic && <CheckCircle2 className="w-5 h-5 text-green-500" />}
+            {systemChecks.mic && <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />}
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${systemChecks.internet ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                <AlertCircle className="w-5 h-5" />
+              <div className={`p-2 border border-black dark:border-white ${systemChecks.internet ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-red-500 text-white'}`}>
+                <AlertCircle className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-medium">Conexión</p>
-                <p className="text-sm text-slate-500">{systemChecks.internet ? 'Estable' : 'Sin conexión'}</p>
+                <p className="font-bold uppercase tracking-widest text-[10px]">Conexión</p>
+                <p className="text-[9px] uppercase font-semibold text-gray-500">{systemChecks.internet ? 'Estable' : 'Sin conexión'}</p>
               </div>
             </div>
-            {systemChecks.internet && <CheckCircle2 className="w-5 h-5 text-green-500" />}
+            {systemChecks.internet && <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />}
           </div>
         </div>
 
         <Button 
-          className="w-full py-6 text-lg rounded-xl font-medium shadow-lg hover:shadow-blue-500/25 transition-all"
+          className="w-full py-6 text-xs uppercase tracking-widest rounded-none font-bold border border-transparent bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200"
           size="lg"
           onClick={onJoin}
           disabled={!allChecksPassed || isLoading}

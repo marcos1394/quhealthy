@@ -363,11 +363,11 @@ export default function ConsultationRoomPage() {
       </header>
 
       {/* MAIN MESA DE TRABAJO TÉCNICA */}
-      <main className="flex-1 overflow-hidden flex flex-row bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <main className="flex-1 overflow-hidden flex flex-col lg:flex-row bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
         
         {/* === SECCIÓN VIDEOLLAMADA (Solo ONLINE) === */}
         {appointmentType === 'online' && (
-          <div className="w-full md:w-2/5 xl:w-[45%] border-r border-black dark:border-white shrink-0 bg-black">
+          <div className="w-full lg:w-[35%] xl:w-[30%] h-[45vh] lg:h-auto border-b lg:border-b-0 lg:border-r border-black dark:border-white shrink-0 bg-white dark:bg-[#050505]">
             <ProviderVideoWidget appointmentId={appointmentId} />
           </div>
         )}
