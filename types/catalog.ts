@@ -128,6 +128,9 @@ export interface UI_Course {
   curriculum?: CourseModule[]; // Nuevo: Plan de estudios LMS
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
+  minimumPassingScore?: number;
+  hasCertificate?: boolean;
+  certificateTemplateColor?: string;
 }
 
 

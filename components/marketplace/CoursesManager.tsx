@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/click-events-have-key-events */;
 
 import React, { useRef } from "react";
-import { Plus, Trash2, Save, FileVideo, GraduationCap, Tag, Link2, Info, Sparkles } from "lucide-react";
+import { Plus, Trash2, Save, FileVideo, GraduationCap, Tag, Link2, Info, Sparkles, Award } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -284,6 +284,71 @@ export function CoursesManager({
                       <p className="text-[9px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500">
                         ⚠️ Úsalo solo si tu curso no está hospedado aquí.
                       </p>
+                    </div>
+
+                    {/* 🏆 EVALUACIÓN Y CERTIFICACIÓN */}
+                    <div className="pt-6 mt-6 border-t border-gray-200 dark:border-gray-800 space-y-6">
+                      <h3 className="text-[12px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                        <Award className="w-4 h-4" /> Evaluación y Certificación
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Minimum Passing Score */}
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                            Aprobación Mínima (%)
+                          </label>
+                          <Input 
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={course.minimumPassingScore || ''} 
+                            onChange={e => onUpdate(course.id, { minimumPassingScore: parseFloat(e.target.value) || 0 })} 
+                            placeholder="Ej: 80" 
+                            className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors" 
+                          />
+                          <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold">
+                            Si es 0, no hay evaluación estricta.
+                          </p>
+                        </div>
+
+                        {/* Emisión de constancia */}
+                        <div className="space-y-4">
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={course.hasCertificate || false}
+                              onChange={e => onUpdate(course.id, { hasCertificate: e.target.checked })}
+                              className="w-4 h-4 rounded-none border-gray-300 text-black focus:ring-black dark:border-gray-700 dark:bg-black dark:checked:bg-white"
+                            />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                              Emitir constancia al aprobar
+                            </span>
+                          </label>
+
+                          {course.hasCertificate && (
+                            <div className="space-y-2 pl-7 border-l-2 border-gray-200 dark:border-gray-800">
+                              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                                Color de plantilla (Hex)
+                              </label>
+                              <div className="flex gap-2">
+                                <Input 
+                                  type="color"
+                                  value={course.certificateTemplateColor || '#000000'}
+                                  onChange={e => onUpdate(course.id, { certificateTemplateColor: e.target.value })}
+                                  className="w-12 h-12 p-1 rounded-none border-gray-200 dark:border-gray-800 bg-white dark:bg-black"
+                                />
+                                <Input 
+                                  type="text"
+                                  value={course.certificateTemplateColor || '#000000'}
+                                  onChange={e => onUpdate(course.id, { certificateTemplateColor: e.target.value })}
+                                  className="flex-1 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm uppercase"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* 🎓 BUILDER DE CURRÍCULO (LMS) */}
