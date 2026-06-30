@@ -189,7 +189,7 @@ export function ProviderSubscriptionSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-4 py-12 md:p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-transparent px-4 py-12 md:p-8 flex flex-col items-center font-sans">
       <div className="w-full max-w-7xl mx-auto space-y-12">
 
         {/* Header con Toggle */}
@@ -202,8 +202,8 @@ export function ProviderSubscriptionSettings() {
         {/* Grid de Planes */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-medium animate-pulse">{t('loading') || "Cargando planes..."}</p>
+            <div className="w-10 h-10 border-4 border-black/20 border-t-black rounded-none animate-spin dark:border-white/20 dark:border-t-white"></div>
+            <p className="text-black dark:text-white font-bold uppercase tracking-widest text-[10px] animate-pulse">{t('loading') || "Cargando planes..."}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
@@ -225,18 +225,18 @@ export function ProviderSubscriptionSettings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="pt-16 pb-8 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 text-slate-500 dark:text-slate-400 text-sm font-medium tracking-wide"
+          className="pt-16 pb-8 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 text-black dark:text-white text-[9px] font-bold tracking-widest uppercase"
         >
-          <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
-            <ShieldCheck className="w-5 h-5 text-emerald-500" />
+          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
+            <ShieldCheck className="w-5 h-5 text-black dark:text-white" />
             <span>{t('secure_payments') || "Pagos Seguros"}</span>
           </div>
-          <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
-            <CreditCard className="w-5 h-5 text-blue-500" />
+          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
+            <CreditCard className="w-5 h-5 text-black dark:text-white" />
             <span>{t('accept_cards') || "Aceptamos todas las tarjetas"}</span>
           </div>
-          <div className="flex items-center gap-2.5 bg-white dark:bg-slate-900 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
-            <CheckCircle2 className="w-5 h-5 text-slate-500" />
+          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
+            <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />
             <span>{t('cancel_anytime') || "Cancela cuando quieras"}</span>
           </div>
         </motion.div>

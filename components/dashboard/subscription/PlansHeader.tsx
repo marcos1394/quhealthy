@@ -64,8 +64,8 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         transition={{ type: "spring", stiffness: 200 }}
         className="inline-flex items-center justify-center.tsx"
       >
-        <div className="p-3 bg-slate-50 dark:bg-slate-500/10 rounded-2xl border border-slate-100 dark:border-slate-500/20 shadow-sm">
-          <Icon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
+        <div className="p-3 bg-black dark:bg-white rounded-none border border-black dark:border-white w-fit">
+          <Icon className="w-8 h-8 text-white dark:text-black" />
         </div>
       </motion.div>
 
@@ -76,11 +76,11 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         transition={{ duration: 0.5, delay: 0.1 }}
         className="space-y-3"
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-tighter text-black dark:text-white">
           {content.title}
         </h1>
 
-        <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+        <p className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest max-w-2xl mx-auto leading-relaxed mt-1">
           {content.subtitle}
         </p>
 
@@ -89,10 +89,10 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="inline-flex items-center gap-2 px-4 py-2 mt-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-full"
+          className="inline-flex items-center gap-2 px-4 py-2 mt-4 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 rounded-none"
         >
-          <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+          <Users className="w-4 h-4 text-black dark:text-white" />
+          <span className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">
             {content.highlight}
           </span>
         </motion.div>
@@ -111,36 +111,29 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl px-4 py-2 flex items-center gap-2"
+            className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white rounded-none px-4 py-2 flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
-            <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">
               {t('savings_yearly', { amount: yearlySavings })}
             </span>
           </motion.div>
         )}
 
         {/* Toggle Buttons */}
-        <div className="inline-flex items-center p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+        <div className="inline-flex items-center p-1 bg-transparent border border-black/20 dark:border-white/20 rounded-none shadow-none">
 
           {/* Monthly Button */}
           <Button
             variant="ghost"
             onClick={() => setBillingCycle("monthly")}
             className={cn(
-              "relative rounded-xl px-8 py-3 font-semibold transition-all duration-300",
+              "relative rounded-none px-8 py-3 font-bold uppercase tracking-widest text-[10px] transition-all duration-300",
               billingCycle === "monthly"
-                ? "text-slate-900 bg-slate-100 dark:text-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700"
-                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:hover:text-white"
+                ? "text-white bg-black dark:text-black dark:bg-white border-black dark:border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "text-gray-500 hover:text-black hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white"
             )}
           >
-            {billingCycle === "monthly" && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute inset-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
             <span className="relative z-10 flex items-center gap-2">
               {t('toggle_monthly')}
             </span>
@@ -151,26 +144,19 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
             variant="ghost"
             onClick={() => setBillingCycle("yearly")}
             className={cn(
-              "relative rounded-xl px-8 py-3 font-semibold transition-all duration-300",
+              "relative rounded-none px-8 py-3 font-bold uppercase tracking-widest text-[10px] transition-all duration-300",
               billingCycle === "yearly"
-                ? "bg-slate-600 text-white shadow-md shadow-slate-500/20"
-                : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
+                ? "text-white bg-black dark:text-black dark:bg-white border-black dark:border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "text-gray-500 hover:text-black hover:bg-black/5 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"
             )}
           >
-            {billingCycle === "yearly" && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute inset-0 bg-slate-600 rounded-xl"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
             <span className="relative z-10 flex items-center gap-2">
               {t('toggle_yearly')}
               <Badge className={cn(
-                "ml-1 text-xs px-2 py-0.5 font-bold transition-all shadow-none",
+                "ml-1 text-[9px] px-2 py-0.5 font-bold transition-all shadow-none rounded-none uppercase tracking-widest",
                 billingCycle === "yearly"
-                  ? "bg-white/20 text-white hover:bg-white/30"
-                  : "bg-slate-50 text-slate-600 dark:bg-slate-500/20 dark:text-slate-300 hover:bg-slate-100"
+                  ? "bg-white/20 text-white dark:bg-black/20 dark:text-black hover:bg-white/30"
+                  : "bg-black/5 text-gray-500 dark:bg-white/5 dark:text-gray-400 hover:bg-black/10"
               )}>
                 <Zap className="w-3 h-3 mr-1" />
                 {t('badge_discount')}
@@ -184,7 +170,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-xs text-slate-500 dark:text-slate-400 mt-2"
+          className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-2"
         >
           {billingCycle === "yearly"
             ? t('info_yearly')
@@ -192,12 +178,12 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({
         </motion.p>
       </motion.div>
 
-      {/* Separator with gradient */}
+      {/* Separator */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
-        className="w-24 h-1 bg-gradient-to-r from-transparent via-slate-500 to-transparent mx-auto rounded-full mt-8 opacity-50"
+        className="w-24 h-[1px] bg-black dark:bg-white mx-auto rounded-none mt-8 opacity-20"
       />
     </div>
   );

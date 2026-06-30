@@ -46,8 +46,8 @@ export function ProviderSecuritySettings() {
       icon: Smartphone,
       link: "security/2fa",
       status: t('options.2fa.status'),
-      color: "text-medical-600 dark:text-medical-400",
-      bgHover: "group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10"
+      color: "text-black dark:text-white",
+      bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
     },
     {
       id: "password",
@@ -55,8 +55,8 @@ export function ProviderSecuritySettings() {
       description: t('options.password.desc'),
       icon: Lock,
       link: "security/password",
-      color: "text-blue-600 dark:text-blue-400",
-      bgHover: "group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10"
+      color: "text-black dark:text-white",
+      bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
     },
     {
       id: "login-alerts",
@@ -64,8 +64,8 @@ export function ProviderSecuritySettings() {
       description: t('options.alerts.desc'),
       icon: Bell,
       link: "security/alerts",
-      color: "text-amber-600 dark:text-amber-400",
-      bgHover: "group-hover:bg-amber-50 dark:group-hover:bg-amber-500/10"
+      color: "text-black dark:text-white",
+      bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
     },
     {
       id: "devices",
@@ -73,8 +73,8 @@ export function ProviderSecuritySettings() {
       description: t('options.devices.desc'),
       icon: Laptop,
       link: "security/devices",
-      color: "text-emerald-600 dark:text-emerald-400",
-      bgHover: "group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/10"
+      color: "text-black dark:text-white",
+      bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
     },
     {
       id: "activity",
@@ -82,8 +82,8 @@ export function ProviderSecuritySettings() {
       description: t('options.activity.desc'),
       icon: Activity,
       link: "security/activity",
-      color: "text-medical-600 dark:text-medical-400",
-      bgHover: "group-hover:bg-medical-50 dark:group-hover:bg-medical-500/10"
+      color: "text-black dark:text-white",
+      bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
     },
     {
       id: "delete-account",
@@ -91,23 +91,23 @@ export function ProviderSecuritySettings() {
       description: "Borrar permanentemente tu cuenta y todos tus datos.",
       icon: UserX,
       link: "security/delete-account",
-      color: "text-rose-600 dark:text-rose-400",
-      bgHover: "group-hover:bg-rose-50 dark:group-hover:bg-rose-500/10"
+      color: "text-red-600 dark:text-red-400",
+      bgHover: "group-hover:bg-red-500/10 dark:group-hover:bg-red-500/20"
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
+    <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
 
         {/* Encabezado de la Sección */}
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-            <Shield className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-4">
+          <div className="p-3 bg-black dark:bg-white rounded-none border border-black dark:border-white w-fit">
+            <Shield className="w-8 h-8 text-white dark:text-black" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
+            <h1 className="text-2xl font-bold uppercase tracking-tighter text-black dark:text-white">{t('title')}</h1>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
           </div>
         </div>
 
@@ -124,28 +124,28 @@ export function ProviderSecuritySettings() {
             return (
               <Link key={option.id} href={option.link} className="block group h-full">
                 <motion.div variants={itemVariants} className="h-full">
-                  <Card className="h-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-medical-300 dark:hover:border-medical-500/50 transition-all duration-300 hover:shadow-md hover:-translate-y-1 overflow-hidden relative">
+                  <Card className="h-full bg-transparent border-black/20 dark:border-white/20 rounded-none hover:border-black dark:hover:border-white transition-all duration-300 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] relative group-hover:-translate-y-1 overflow-hidden">
                     <CardHeader className="pb-4">
                       <div className="flex justify-between items-start mb-2">
-                        <div className={`p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 transition-colors ${option.bgHover} ${option.color}`}>
+                        <div className={`p-3 border border-black/10 dark:border-white/10 transition-colors ${option.bgHover} ${option.color}`}>
                           <Icon className="w-6 h-6" />
                         </div>
                         {option.status && (
-                          <Badge variant="outline" className="bg-medical-50 text-medical-700 border-medical-200 dark:bg-medical-500/10 dark:text-medical-300 dark:border-medical-500/20 text-[10px] font-medium px-2 py-0.5">
+                          <Badge variant="outline" className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5">
                             {option.status}
                           </Badge>
                         )}
                       </div>
-                      <CardTitle className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors mt-2">
+                      <CardTitle className="text-lg font-bold uppercase tracking-tight text-black dark:text-white group-hover:underline transition-all mt-2">
                         {option.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col h-[calc(100%-88px)]">
-                      <CardDescription className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-grow">
+                      <CardDescription className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wide leading-relaxed mb-4 flex-grow">
                         {option.description}
                       </CardDescription>
 
-                      <div className="flex items-center text-sm font-semibold text-slate-400 dark:text-slate-500 group-hover:text-medical-600 dark:group-hover:text-medical-400 transition-colors mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                      <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black/50 dark:text-white/50 group-hover:text-black dark:group-hover:text-white transition-colors mt-auto pt-4 border-t border-black/10 dark:border-white/10">
                         {t('configure')} <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                       </div>
                     </CardContent>

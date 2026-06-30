@@ -75,27 +75,27 @@ export function ProviderConnectionsSettings() {
     const providersList: ("google" | "facebook" | "instagram" | "linkedin" | "apple")[] = ["google", "facebook", "instagram", "linkedin", "apple"];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 font-sans selection:bg-medical-500/30">
+        <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
             <div className="max-w-4xl mx-auto space-y-6">
 
                 {/* Header */}
-                <div className="flex items-center space-x-4 mb-8">
-                    <div className="p-3 bg-medical-50 dark:bg-medical-500/10 rounded-xl border border-medical-100 dark:border-medical-500/20 shadow-sm">
-                        <Shield className="w-8 h-8 text-medical-600 dark:text-medical-400" />
+                <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+                    <div className="p-3 bg-black dark:bg-white rounded-none border border-black dark:border-white w-fit">
+                        <Shield className="w-8 h-8 text-white dark:text-black" />
                     </div>
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{t('title')}</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">{t('subtitle')}</p>
+                        <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tighter text-black dark:text-white">{t('title')}</h1>
+                        <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-gray-400 mt-1">{t('subtitle')}</p>
                     </div>
                 </div>
 
                 <div className="grid gap-6">
 
                     {/* Cuentas Activas */}
-                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="bg-transparent rounded-none border-black/20 dark:border-white/20 shadow-none">
                         <CardHeader>
-                            <CardTitle className="text-slate-900 dark:text-white text-lg">{t('social.title')}</CardTitle>
-                            <CardDescription className="text-slate-500 dark:text-slate-400">{t('social.desc')}</CardDescription>
+                            <CardTitle className="text-black dark:text-white text-lg font-bold uppercase tracking-tight">{t('social.title')}</CardTitle>
+                            <CardDescription className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-widest">{t('social.desc')}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {connections.length > 0 ? (
@@ -105,43 +105,43 @@ export function ProviderConnectionsSettings() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl group hover:border-slate-300 dark:hover:border-slate-700 transition-all gap-4"
+                                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-transparent border border-black/20 dark:border-white/20 rounded-none group hover:border-black dark:hover:border-white transition-all gap-4"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 shrink-0 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+                                            <div className="h-10 w-10 shrink-0 rounded-none bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/10 dark:border-white/10">
                                                 {getProviderIcon(conn.provider)}
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <h4 className="font-semibold text-slate-900 dark:text-white capitalize">{t(`social.${conn.provider}`)}</h4>
+                                                    <h4 className="font-bold text-black dark:text-white uppercase tracking-tight">{t(`social.${conn.provider}`)}</h4>
                                                     {conn.status === 'active' ? (
-                                                        <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 text-[10px] h-5 px-1.5 font-medium">Activo</Badge>
+                                                        <Badge className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5">Activo</Badge>
                                                     ) : (
-                                                        <Badge className="bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 text-[10px] h-5 px-1.5 font-medium flex gap-1">
+                                                        <Badge className="bg-red-500 text-white border-red-500 rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5 flex gap-1">
                                                             <AlertCircle className="w-3 h-3" /> Reconectar
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">{conn.email}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">{conn.email}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-4 self-end sm:self-auto">
-                                            <span className="text-xs text-slate-400 dark:text-slate-500 hidden md:block">Conectado el {conn.connectedAt}</span>
+                                            <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 hidden md:block">Conectado {conn.connectedAt}</span>
                                             <Button
-                                                variant="ghost"
+                                                variant="outline"
                                                 size="sm"
                                                 onClick={() => handleDisconnect(conn.id)}
-                                                className="text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-900/20"
+                                                className="rounded-none border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                                             >
                                                 <Trash2 className="w-4 h-4 mr-1.5 md:mr-0" />
-                                                <span className="md:hidden">{t('social.disconnect')}</span>
+                                                <span className="md:hidden text-[10px] uppercase tracking-widest">{t('social.disconnect')}</span>
                                             </Button>
                                         </div>
                                     </motion.div>
                                 ))
                             ) : (
-                                <div className="text-center py-8 text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
+                                <div className="text-center py-8 text-gray-500 text-xs font-bold uppercase tracking-widest border border-dashed border-black/20 dark:border-white/20 rounded-none bg-black/5 dark:bg-white/5">
                                     {t('social.desc')}
                                 </div>
                             )}
@@ -149,10 +149,10 @@ export function ProviderConnectionsSettings() {
                     </Card>
 
                     {/* Añadir Nuevas Conexiones */}
-                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="bg-transparent rounded-none border-black/20 dark:border-white/20 shadow-none">
                         <CardHeader>
-                            <CardTitle className="text-slate-900 dark:text-white text-lg">Añadir otra cuenta</CardTitle>
-                            <CardDescription className="text-slate-500 dark:text-slate-400">Vincula servicios adicionales para facilitar tu acceso.</CardDescription>
+                            <CardTitle className="text-black dark:text-white text-lg font-bold uppercase tracking-tight">Añadir otra cuenta</CardTitle>
+                            <CardDescription className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-widest">Vincula servicios adicionales para facilitar tu acceso.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -164,20 +164,20 @@ export function ProviderConnectionsSettings() {
                                         <Button
                                             key={provider}
                                             variant="outline"
-                                            className="h-auto py-4 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 justify-start gap-3 transition-colors"
+                                            className="h-auto py-4 bg-transparent rounded-none border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white hover:bg-black/5 dark:hover:bg-white/5 text-black dark:text-white justify-start gap-3 transition-colors"
                                             onClick={() => handleConnect(provider)}
                                             disabled={!!connecting}
                                         >
                                             {connecting === provider ? (
-                                                <Loader2 className="w-5 h-5 animate-spin text-medical-500" />
+                                                <Loader2 className="w-5 h-5 animate-spin text-black dark:text-white" />
                                             ) : (
-                                                <div className="h-8 w-8 shrink-0 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
-                                                    <Plus className="w-4 h-4 text-slate-400" />
+                                                <div className="h-8 w-8 shrink-0 rounded-none bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/10 dark:border-white/10">
+                                                    <Plus className="w-4 h-4 text-black dark:text-white" />
                                                 </div>
                                             )}
                                             <div className="text-left overflow-hidden">
-                                                <p className="font-semibold text-sm truncate">{t(`social.${provider}`)}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-500 truncate" title={t(`social.${provider}_desc`)}>{t(`social.${provider}_desc`)}</p>
+                                                <p className="font-bold text-sm uppercase tracking-tight truncate">{t(`social.${provider}`)}</p>
+                                                <p className="text-[9px] font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400 truncate" title={t(`social.${provider}_desc`)}>{t(`social.${provider}_desc`)}</p>
                                             </div>
                                         </Button>
                                     );
@@ -187,29 +187,29 @@ export function ProviderConnectionsSettings() {
                     </Card>
 
                     {/* Dispositivos Conectados */}
-                    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="bg-transparent rounded-none border-black/20 dark:border-white/20 shadow-none">
                         <CardHeader>
-                            <CardTitle className="text-slate-900 dark:text-white text-lg">{t('devices.title')}</CardTitle>
-                            <CardDescription className="text-slate-500 dark:text-slate-400">{t('devices.desc')}</CardDescription>
+                            <CardTitle className="text-black dark:text-white text-lg font-bold uppercase tracking-tight">{t('devices.title')}</CardTitle>
+                            <CardDescription className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-widest">{t('devices.desc')}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-medical-50 dark:bg-medical-900/10 border border-medical-100 dark:border-medical-500/20 rounded-xl gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/20 rounded-none gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 shrink-0 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border border-medical-200 dark:border-medical-500/30 shadow-sm text-medical-600 dark:text-medical-400">
+                                    <div className="h-10 w-10 shrink-0 rounded-none bg-black dark:bg-white flex items-center justify-center border border-black dark:border-white text-white dark:text-black">
                                         <Smartphone className="w-5 h-5" />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h4 className="font-semibold text-slate-900 dark:text-white">MacBook Pro - Chrome</h4>
-                                            <Badge className="bg-medical-100 text-medical-700 border-medical-200 dark:bg-medical-500/20 dark:text-medical-300 dark:border-medical-500/30 text-[10px] h-5 px-1.5 font-medium">{t('devices.current')}</Badge>
+                                            <h4 className="font-bold text-black dark:text-white uppercase tracking-tight">MacBook Pro - Chrome</h4>
+                                            <Badge className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5">{t('devices.current')}</Badge>
                                         </div>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">Ciudad de México, MX • Activo ahora</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-1">Ciudad de México, MX • Activo ahora</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex justify-end pt-2">
-                                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900/30 dark:hover:bg-red-900/20">
+                                <Button variant="outline" className="rounded-none border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-xs font-bold uppercase tracking-widest transition-colors">
                                     {t('devices.revoke_all')}
                                 </Button>
                             </div>
