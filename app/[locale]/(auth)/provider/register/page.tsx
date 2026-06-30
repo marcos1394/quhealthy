@@ -66,13 +66,13 @@ export default function ProviderSignupPage() {
   // ✅ CAMBIO 1: Añadir esta línea
   const isIntentionalSubmitRef = useRef(false);
 
-  const [referralCode, setReferralCode] = useState<string | undefined>(undefined);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const ref = params.get('ref');
-      if (ref) setReferralCode(ref);
+      if (ref) {
+        setFormData(prev => ({ ...prev, referralCode: ref }));
+      }
     }
   }, []);
 
@@ -82,6 +82,7 @@ export default function ProviderSignupPage() {
     password: "",
     confirmPassword: "",
     acceptTerms: false,
+    referralCode: "",
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(() =>
@@ -142,7 +143,7 @@ export default function ProviderSignupPage() {
         password: formData.password,
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
-        referralCode: referralCode,
+        referralCode: formData.referralCode.trim() || undefined,
         captchaToken: token // Usamos el token validado
       };
 
@@ -386,6 +387,21 @@ export default function ProviderSignupPage() {
                       {t('passwords_not_match')}
                     </p>
                   )}
+                </div>
+
+                {/* Referral Code */}
+                <div className="space-y-2 pt-1">
+                  <Label htmlFor="referralCode" className="text-gray-700 dark:text-gray-300 font-medium">
+                    {t('referral_code_label', { defaultValue: 'Código de referido (Opcional)' })}
+                  </Label>
+                  <Input
+                    id="referralCode"
+                    name="referralCode"
+                    placeholder={t('referral_code_placeholder', { defaultValue: 'Ej. QU-DOC-1234' })}
+                    value={formData.referralCode}
+                    onChange={handleInputChange}
+                    className="h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all uppercase"
+                  />
                 </div>
 
                 {/* Terms */}
