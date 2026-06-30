@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from 'react';
-import Plyr, { APITypes, PlyrProps } from 'plyr-react';
+import { Plyr, APITypes, PlyrProps } from 'plyr-react';
 import 'plyr-react/plyr.css';
 import { PlayCircle } from 'lucide-react';
 
