@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import ReactPlayer from 'react-player';
-
-// Bypass React 19 type errors with react-player
-const Player = ReactPlayer as any;
 import { useParams, useRouter } from "next/navigation";
 import { CourseCurriculumService } from "@/services/course-curriculum.service";
 import { ConsumerCourseService, CatalogItemResponse } from "@/services/consumer-course.service";
@@ -21,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { EnterpriseVideoPlayer } from "@/components/ui/EnterpriseVideoPlayer";
 import { cn } from "@/lib/utils";
 
 export default function CoursePlayerPage() {
@@ -160,14 +157,10 @@ export default function CoursePlayerPage() {
             <div className="w-full flex flex-col">
               <div className="w-full bg-black aspect-video relative flex items-center justify-center">
                 {activeLesson.videoUrl && isMounted ? (
-                  <div className="absolute inset-0">
-                    <Player
+                  <div className="absolute inset-0 w-full h-full">
+                    <EnterpriseVideoPlayer
                       url={activeLesson.videoUrl}
-                      controls
-                      width="100%"
-                      height="100%"
-                      light={courseDetails.imageUrl}
-                      playing={true}
+                      poster={courseDetails.imageUrl}
                     />
                   </div>
                 ) : (
