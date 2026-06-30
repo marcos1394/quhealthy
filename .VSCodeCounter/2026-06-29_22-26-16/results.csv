@@ -1,0 +1,597 @@
+"filename", "language", "TypeScript", "JSON with Comments", "JavaScript", "JSON", "Markdown", "YAML", "TypeScript JSX", "XML", "PostCSS", "comment", "blank", "total"
+"/Users/marcossandovalruiz/Documents/quhealthy/.claude/skills/react-doctor/SKILL.md", "Markdown", 0, 0, 0, 0, 34, 0, 0, 0, 0, 0, 18, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/.claude/skills/react-doctor/references/explain.md", "Markdown", 0, 0, 0, 0, 53, 0, 0, 0, 0, 0, 20, 73
+"/Users/marcossandovalruiz/Documents/quhealthy/.github/workflows/deploy.yml", "YAML", 0, 0, 0, 0, 0, 58, 0, 0, 0, 9, 15, 82
+"/Users/marcossandovalruiz/Documents/quhealthy/README.md", "Markdown", 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 14, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/forgot-password/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 117, 0, 0, 10, 18, 145
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 2, 14
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/loading.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 16, 0, 0, 1, 2, 19
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/login/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 410, 0, 0, 22, 46, 478
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/provider/register/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 428, 0, 0, 29, 48, 505
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/register/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 433, 0, 0, 29, 51, 513
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/reset-password/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 159, 0, 0, 3, 19, 181
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/staff/activate/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 192, 0, 0, 1, 18, 211
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/verify-email/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 171, 0, 0, 1, 15, 187
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(auth)/verify-phone/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 157, 0, 0, 5, 20, 182
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 25, 0, 0, 5, 6, 36
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/loading.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 43, 0, 0, 5, 8, 56
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/appointments/[appointmentId]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 354, 0, 0, 21, 34, 409
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/booking/[slug]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 399, 0, 0, 21, 46, 466
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/booking/success/[appointmentId]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 148, 0, 0, 13, 24, 185
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/booking/success/hybrid/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 193, 0, 0, 14, 33, 240
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/appointments/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 163, 0, 0, 21, 26, 210
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/courses/[courseId]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 389, 0, 0, 10, 38, 437
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/courses/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 221, 0, 0, 11, 14, 246
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/family/[id]/eldercare/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 391, 0, 0, 5, 42, 438
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/family/[id]/vaccinations/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 560, 0, 0, 19, 54, 633
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/family/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 378, 0, 0, 10, 29, 417
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/favorites/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 279, 0, 0, 4, 20, 303
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/messages/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 141, 0, 0, 20, 21, 182
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/orders/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 371, 0, 0, 14, 29, 414
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/packages/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 89, 0, 0, 4, 11, 104
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 138, 0, 0, 16, 25, 179
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/profile/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 335, 0, 0, 13, 33, 381
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/reviews/leave/[token]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 39, 0, 0, 8, 8, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/reviews/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 94, 0, 0, 4, 11, 109
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/settings/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 103, 0, 0, 0, 13, 116
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/support/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 166, 0, 0, 7, 20, 193
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/vault/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 323, 0, 0, 13, 29, 365
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dashboard/wallet/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 243, 0, 0, 1, 21, 265
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/dependents/[id]/vaccinations/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 173, 0, 0, 5, 17, 195
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/discover/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 9, 0, 0, 5, 2, 16
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/video-call/[appointmentId]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 80, 0, 0, 0, 13, 93
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/patient/wallet/success/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 67, 0, 0, 5, 11, 83
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/consultation/[id]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 346, 0, 0, 10, 65, 421
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/appointments/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 513, 0, 0, 20, 54, 587
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/billing/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 363, 0, 0, 9, 22, 394
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/calendar/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 278, 0, 0, 6, 24, 308
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/cash-register/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 497, 0, 0, 11, 42, 550
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/documents/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 229, 0, 0, 10, 28, 267
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/history/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 166, 0, 0, 5, 22, 193
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/inventory/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 333, 0, 0, 11, 46, 390
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/inventory/purchases/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 447, 0, 0, 14, 53, 514
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/inventory/suppliers/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 295, 0, 0, 8, 37, 340
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/marketing/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 292, 0, 0, 20, 38, 350
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/messages/components/ClinicalMessagesView.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 152, 0, 0, 24, 22, 198
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/messages/components/SocialMessagesView.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 469, 0, 0, 17, 55, 541
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/messages/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 56, 0, 0, 6, 10, 72
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/orders/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 728, 0, 0, 26, 78, 832
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 392, 0, 0, 21, 33, 446
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/patients/[id]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 372, 0, 0, 19, 37, 428
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/patients/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 341, 0, 0, 12, 22, 375
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/profile/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 47, 0, 0, 0, 9, 56
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/referrals/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 269, 0, 0, 8, 27, 304
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/reviews/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 217, 0, 0, 21, 26, 264
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/settings/billing/success/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 49, 0, 0, 3, 7, 59
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/dashboard/settings/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 67, 0, 0, 0, 12, 79
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 3, 2, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/settings/prescription/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 3, 16
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/catalog/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 342, 0, 0, 35, 45, 422
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/identity/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 255, 0, 0, 21, 33, 309
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/integrations/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 41, 0, 0, 5, 7, 53
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 404, 0, 0, 35, 40, 479
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/policies/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 93, 0, 0, 15, 17, 125
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(platform)/provider/store/staff/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 155, 0, 0, 16, 26, 197
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/about/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 281, 0, 0, 14, 27, 322
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/academy/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 214, 0, 0, 6, 18, 238
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/blog/[slug]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 191, 0, 0, 11, 23, 225
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/blog/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 230, 0, 0, 13, 29, 272
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/business/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 315, 0, 0, 12, 37, 364
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/careers/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 229, 0, 0, 12, 25, 266
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/como-funciona-el-quscore/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 157, 0, 0, 5, 14, 176
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/contact/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 176, 0, 0, 6, 24, 206
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/cookies/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 286, 0, 0, 12, 33, 331
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/discover/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 59, 0, 0, 0, 5, 64
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/discover/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 667, 0, 0, 30, 62, 759
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/intelligence/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 98, 0, 0, 4, 14, 116
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 2, 11
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/loading.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 23, 0, 0, 2, 3, 28
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/market/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 206, 0, 0, 9, 21, 236
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 34, 0, 0, 10, 11, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/privacy/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 209, 0, 0, 9, 22, 240
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/sitemap/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 116, 0, 0, 6, 9, 131
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/store/[slug]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 709, 0, 0, 25, 72, 806
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/(public)/terms/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 153, 0, 0, 9, 19, 181
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/admin/dashboard/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 167, 0, 0, 10, 17, 194
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/admin/login/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 110, 0, 0, 4, 16, 130
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 138, 0, 0, 10, 16, 164
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/OnboardingHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 48, 0, 0, 0, 8, 56
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/fiscal/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 383, 0, 0, 20, 25, 428
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/kyc/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 305, 0, 0, 12, 33, 350
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/layout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 22, 0, 0, 2, 1, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/license/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 282, 0, 0, 25, 33, 340
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/loading.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 16, 0, 0, 1, 2, 19
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 245, 0, 0, 17, 29, 291
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/patient/DependentsStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 343, 0, 0, 14, 32, 389
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/patient/WearablesStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 206, 0, 0, 12, 30, 248
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/patient/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 495, 0, 0, 7, 23, 525
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/onboarding/profile/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 573, 0, 0, 33, 62, 668
+"/Users/marcossandovalruiz/Documents/quhealthy/app/[locale]/patient/prescription/[id]/page.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 98, 0, 0, 5, 15, 118
+"/Users/marcossandovalruiz/Documents/quhealthy/app/actions/auth-cookies.ts", "TypeScript", 19, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 31
+"/Users/marcossandovalruiz/Documents/quhealthy/app/actions/contact.ts", "TypeScript", 51, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/app/actions/support.ts", "TypeScript", 48, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 59
+"/Users/marcossandovalruiz/Documents/quhealthy/app/api/contact/route.ts", "TypeScript", 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 61
+"/Users/marcossandovalruiz/Documents/quhealthy/app/api/support/route.ts", "TypeScript", 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/app/globals.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 0, 35, 1, 5, 41
+"/Users/marcossandovalruiz/Documents/quhealthy/components/Footer.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 185, 0, 0, 5, 19, 209
+"/Users/marcossandovalruiz/Documents/quhealthy/components/Navbar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 384, 0, 0, 15, 39, 438
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ProductPill.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 34, 0, 0, 1, 4, 39
+"/Users/marcossandovalruiz/Documents/quhealthy/components/StatsCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 113, 0, 0, 39, 11, 163
+"/Users/marcossandovalruiz/Documents/quhealthy/components/TrustBage.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 34, 0, 0, 36, 6, 76
+"/Users/marcossandovalruiz/Documents/quhealthy/components/animations/FadeIn.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 128, 0, 0, 1, 13, 142
+"/Users/marcossandovalruiz/Documents/quhealthy/components/animations/HeroParticle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 111, 0, 0, 60, 16, 187
+"/Users/marcossandovalruiz/Documents/quhealthy/components/animations/StaggerContainer.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 5, 48
+"/Users/marcossandovalruiz/Documents/quhealthy/components/animations/StaggerItem.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 5, 48
+"/Users/marcossandovalruiz/Documents/quhealthy/components/animations/TypeWriter.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 206, 0, 0, 59, 35, 300
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/AppointmentCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 230, 0, 0, 12, 22, 264
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/AppointmentEmptyState.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 9, 61
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/AppointmentFilters.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 71, 0, 0, 9, 11, 91
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/AppointmentStats.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 45, 0, 0, 5, 5, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentActionsCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 3, 43
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentDetailsCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 4, 59
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentFinancesCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 69, 0, 0, 2, 4, 75
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 3, 46
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentLocationCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 3, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentQrCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 3, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/components/appointments/details/AppointmentTimeCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 44, 0, 0, 0, 2, 46
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/AuthEditorialPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 58, 0, 0, 2, 8, 68
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/ConsumerSignupEditorialPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 6, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/ConsumerSignupForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 327, 0, 0, 7, 33, 367
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/LoginForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 200, 0, 0, 5, 22, 227
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/Privacymodal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 355, 0, 0, 39, 43, 437
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/ProviderSignupEditorialPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 6, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/ProviderSignupForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 290, 0, 0, 7, 30, 327
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/SocialButtons.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 167, 0, 0, 23, 21, 211
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/TermsModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 261, 0, 0, 37, 20, 318
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/recovery/Step1SendCode.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 146, 0, 0, 14, 21, 181
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/recovery/Step2VerifyCode.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 213, 0, 0, 17, 24, 254
+"/Users/marcossandovalruiz/Documents/quhealthy/components/auth/recovery/Step3ResetPassword.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 153, 0, 0, 1, 23, 177
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/BookingCalendarStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 94, 0, 0, 1, 6, 101
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/BookingModeSelector.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 52, 0, 0, 0, 5, 57
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/BookingSummary.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 451, 0, 0, 27, 45, 523
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/BookingTimeStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 85, 0, 0, 0, 5, 90
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/CalendarDay.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 61, 0, 0, 0, 5, 66
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/PackageMultiScheduler.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 241, 0, 0, 4, 22, 267
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/PatientSelector.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 112, 0, 0, 5, 10, 127
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/TimeSlot.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 3, 38
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/success/ActionButtons.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 79, 0, 0, 3, 9, 91
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/success/AppointmentSummary.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 84, 0, 0, 6, 11, 101
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/success/QrCodeCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 33, 0, 0, 1, 3, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/success/SuccessEffects.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 2, 3, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/components/booking/success/SuccessHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 32, 0, 0, 1, 7, 40
+"/Users/marcossandovalruiz/Documents/quhealthy/components/cash-register/CloseRegisterModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 171, 0, 0, 7, 15, 193
+"/Users/marcossandovalruiz/Documents/quhealthy/components/cash-register/ManualExpenseModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 238, 0, 0, 9, 27, 274
+"/Users/marcossandovalruiz/Documents/quhealthy/components/chat/ChatHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 81, 0, 0, 8, 9, 98
+"/Users/marcossandovalruiz/Documents/quhealthy/components/chat/ChatInput.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 131, 0, 0, 0, 16, 147
+"/Users/marcossandovalruiz/Documents/quhealthy/components/chat/ChatMessageBubble.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 88, 0, 0, 9, 10, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/components/chat/ChatSidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 155, 0, 0, 15, 12, 182
+"/Users/marcossandovalruiz/Documents/quhealthy/components/chat/ChatVaultModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 117, 0, 0, 2, 11, 130
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/CashCheckoutModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 338, 0, 0, 11, 38, 387
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/ClinicalAssetsPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 180, 0, 0, 7, 10, 197
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/ClinicalEvaluationStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 179, 0, 0, 11, 19, 209
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/ConsultationSuccessStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 115, 0, 0, 6, 23, 144
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/DocumentationPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 123, 0, 0, 4, 13, 140
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/PastConsultationModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 206, 0, 0, 13, 20, 239
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/PatientContextPanel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 96, 0, 0, 3, 10, 109
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/PatientProfileStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 283, 0, 0, 8, 27, 318
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/TreatmentCheckoutStep.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 347, 0, 0, 18, 30, 395
+"/Users/marcossandovalruiz/Documents/quhealthy/components/consultation/WorkspaceHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 70, 0, 0, 3, 5, 78
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/CalendarView.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 445, 0, 0, 24, 32, 501
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/CompletionModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 179, 0, 0, 6, 14, 199
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/DashboardHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 4, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/EditHealthProfileModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 301, 0, 0, 10, 29, 340
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/EditPatientModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 128, 0, 0, 4, 15, 147
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/HealthMetricInputModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 276, 0, 0, 3, 20, 299
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/HealthMetricsCarousel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 98, 0, 0, 11, 9, 118
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/HealthOnboardingModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 278, 0, 0, 8, 24, 310
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/HealthScoreCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 111, 0, 0, 13, 13, 137
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/HealthScoreWidget.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 67, 0, 0, 5, 11, 83
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/KanbanCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 169, 0, 0, 14, 26, 209
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/MedicationInputModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 229, 0, 0, 6, 22, 257
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/NewAppointmentModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 507, 0, 0, 14, 53, 574
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/NewPatientModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 301, 0, 0, 7, 15, 323
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/NextAppointmentHero.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 108, 0, 0, 4, 12, 124
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/OperatingHours.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 320, 0, 0, 10, 34, 364
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/ProviderReputationCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 174, 0, 0, 9, 16, 199
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/QuickAccessCards.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 84, 0, 0, 8, 8, 100
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/QuickActions.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 69, 0, 0, 5, 5, 79
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/RescheduleModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 191, 0, 0, 8, 20, 219
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/RevenueChart.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 102, 0, 0, 5, 11, 118
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/SummaryCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 170, 0, 0, 10, 19, 199
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/SummaryCardCompact.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 6, 64
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/SummaryCardGrid.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 16, 0, 0, 1, 3, 20
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/TimeBlockModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 326, 0, 0, 14, 35, 375
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/UpcomingAppointments.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 361, 0, 0, 60, 31, 452
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/VerificationStatus.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 380, 0, 0, 60, 32, 472
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/billing/BillingTransactions.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 303, 0, 0, 6, 16, 325
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/billing/StripeConnectCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 140, 0, 0, 8, 16, 164
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/DocumentCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 112, 0, 0, 4, 16, 132
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/DocumentDetailModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 218, 0, 0, 8, 21, 247
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/DocumentGrid.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 3, 13
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/DocumentList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 3, 13
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/DocumentUpload.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 222, 0, 0, 7, 19, 248
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/documents/StatBlock.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 91, 0, 0, 1, 9, 101
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/history/HistoryDetailModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 284, 0, 0, 11, 28, 323
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/history/HistoryFilters.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 202, 0, 0, 7, 22, 231
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/history/HistoryHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 81, 0, 0, 0, 10, 91
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/history/HistoryTable.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 249, 0, 0, 7, 21, 277
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/marketing/AiStudioForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 764, 0, 0, 21, 90, 875
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/marketing/ContentGallery.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 270, 0, 0, 21, 40, 331
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/marketing/MetricsDashboard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 254, 0, 0, 11, 19, 284
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/marketing/ScheduleModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 368, 0, 0, 23, 55, 446
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/AppearanceTab.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 342, 0, 0, 55, 24, 421
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/LanguageTab.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 367, 0, 0, 56, 29, 452
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/NotificationsTab.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 432, 0, 0, 59, 29, 520
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/PreferenceCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 214, 0, 0, 53, 20, 287
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/PreferenceCardAction.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 47, 0, 0, 0, 6, 53
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/PreferenceCardCompact.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 54, 0, 0, 0, 6, 60
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/preferences/PrivacyTab.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 445, 0, 0, 59, 27, 531
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/referrals/RecommendationSettingsForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 275, 0, 0, 1, 29, 305
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/referrals/RecommendationsManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 153, 0, 0, 3, 16, 172
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/ConfirmationModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 300, 0, 0, 10, 27, 337
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/PlansHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 203, 0, 0, 12, 23, 238
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/PricingCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 255, 0, 0, 14, 24, 293
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/success/NextStepsList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 4, 54
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/success/SuccessActions.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 3, 36
+"/Users/marcossandovalruiz/Documents/quhealthy/components/dashboard/subscription/success/SuccessHeader.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 36, 0, 0, 0, 3, 39
+"/Users/marcossandovalruiz/Documents/quhealthy/components/discover/CategoryRow.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 68, 0, 0, 12, 12, 92
+"/Users/marcossandovalruiz/Documents/quhealthy/components/discover/ProviderCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 126, 0, 0, 12, 18, 156
+"/Users/marcossandovalruiz/Documents/quhealthy/components/family/AddMemberForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 170, 0, 0, 0, 13, 183
+"/Users/marcossandovalruiz/Documents/quhealthy/components/family/DependentVaccineAlert.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 6, 61
+"/Users/marcossandovalruiz/Documents/quhealthy/components/family/vaccinations/VaccinationModals.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 82, 0, 0, 0, 7, 89
+"/Users/marcossandovalruiz/Documents/quhealthy/components/family/vaccinations/VaccinesList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 96, 0, 0, 3, 8, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/components/guards/ProviderGuard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 74, 0, 0, 18, 15, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/HealthcareExplorerTable.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 127, 0, 0, 4, 10, 141
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/InstitutionDistributionChart.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 70, 0, 0, 1, 7, 78
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/IntelligenceSummaryRow.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 72, 0, 0, 0, 6, 78
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/MapWrapper.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 3, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/NationalHealthcareMap.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 206, 0, 0, 7, 25, 238
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/QueryBuilder.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 78, 0, 0, 2, 9, 89
+"/Users/marcossandovalruiz/Documents/quhealthy/components/intelligence/StateDistributionChart.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 68, 0, 0, 0, 6, 74
+"/Users/marcossandovalruiz/Documents/quhealthy/components/layout/PublicLayoutShell.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 56, 0, 0, 2, 9, 67
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/CameraModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 144, 0, 0, 5, 17, 166
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/CancellationPolicySection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 140, 0, 0, 5, 15, 160
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/ContactIntegrationsSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 175, 0, 0, 3, 12, 190
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/CourseCurriculumBuilder.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 290, 0, 0, 4, 33, 327
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/CoursesManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 299, 0, 0, 11, 25, 335
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/PackageEditorDialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 316, 0, 0, 17, 43, 376
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/PackageItemCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 149, 0, 0, 6, 13, 168
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/PackagesManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 196, 0, 0, 7, 22, 225
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/ProductsManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 550, 0, 0, 24, 52, 626
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/PublicInfoSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 321, 0, 0, 13, 32, 366
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/ServiceItemCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 406, 0, 0, 10, 34, 450
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/ServiceTemplates.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 86, 0, 0, 4, 8, 98
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/ServicesManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 263, 0, 0, 10, 23, 296
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/StaffManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 387, 0, 0, 16, 34, 437
+"/Users/marcossandovalruiz/Documents/quhealthy/components/marketplace/VisualIdentitySection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 464, 0, 0, 28, 40, 532
+"/Users/marcossandovalruiz/Documents/quhealthy/components/orders/OrderCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 273, 0, 0, 8, 18, 299
+"/Users/marcossandovalruiz/Documents/quhealthy/components/packages/ActiveCreditsBanner.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 59, 0, 0, 2, 12, 73
+"/Users/marcossandovalruiz/Documents/quhealthy/components/packages/EmptyPackages.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 3, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/packages/PackageCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 96, 0, 0, 6, 13, 115
+"/Users/marcossandovalruiz/Documents/quhealthy/components/packages/SuggestedUpgrades.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 60, 0, 0, 2, 13, 75
+"/Users/marcossandovalruiz/Documents/quhealthy/components/platform/Header.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 204, 0, 0, 4, 9, 217
+"/Users/marcossandovalruiz/Documents/quhealthy/components/platform/MobileNavbar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 44, 0, 0, 3, 8, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/components/platform/Sidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 228, 0, 0, 12, 28, 268
+"/Users/marcossandovalruiz/Documents/quhealthy/components/profile/ProfileMedicalSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 94, 0, 0, 8, 10, 112
+"/Users/marcossandovalruiz/Documents/quhealthy/components/profile/ProfilePersonalSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 153, 0, 0, 11, 17, 181
+"/Users/marcossandovalruiz/Documents/quhealthy/components/profile/ProfilePreferencesSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 110, 0, 0, 4, 12, 126
+"/Users/marcossandovalruiz/Documents/quhealthy/components/profile/ProfileSidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 106, 0, 0, 11, 11, 128
+"/Users/marcossandovalruiz/Documents/quhealthy/components/profile/TagInput.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 82, 0, 0, 10, 10, 102
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/PrescriptionSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 414, 0, 0, 37, 58, 509
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/ProviderScoreBadge.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 74, 0, 0, 4, 9, 87
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderConnectionsSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 195, 0, 0, 9, 19, 223
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderLocationsSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 275, 0, 0, 15, 27, 317
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderPreferencesSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 314, 0, 0, 7, 30, 351
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderProfileSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 166, 0, 0, 1, 16, 183
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderSecuritySettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 146, 0, 0, 4, 11, 161
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderSubscriptionSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 198, 0, 0, 18, 40, 256
+"/Users/marcossandovalruiz/Documents/quhealthy/components/provider/settings/ProviderTeamSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 288, 0, 0, 4, 24, 316
+"/Users/marcossandovalruiz/Documents/quhealthy/components/providers/AnalyticsManager.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 48, 0, 0, 17, 11, 76
+"/Users/marcossandovalruiz/Documents/quhealthy/components/providers/AuthProvider.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 28, 0, 0, 15, 8, 51
+"/Users/marcossandovalruiz/Documents/quhealthy/components/providers/ToastProvider.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 50, 0, 0, 11, 11, 72
+"/Users/marcossandovalruiz/Documents/quhealthy/components/reviews/ReviewForm.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 92, 0, 0, 5, 10, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/components/reviews/ReviewHistoryCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 90, 0, 0, 5, 11, 106
+"/Users/marcossandovalruiz/Documents/quhealthy/components/reviews/ReviewStates.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 44, 0, 0, 0, 5, 49
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/CtaSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 72, 0, 0, 5, 9, 86
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/FeatureSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 109, 0, 0, 8, 16, 133
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/HeroSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 277, 0, 0, 20, 31, 328
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/LogoCarousel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 47, 0, 0, 1, 6, 54
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/PlatformModulesSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 295, 0, 0, 14, 29, 338
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/PricingSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 215, 0, 0, 8, 24, 247
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/SuiteSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 264, 0, 0, 19, 29, 312
+"/Users/marcossandovalruiz/Documents/quhealthy/components/sections/TestimonialSection.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 102, 0, 0, 8, 14, 124
+"/Users/marcossandovalruiz/Documents/quhealthy/components/settings/ActiveSessionsList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 124, 0, 0, 0, 12, 136
+"/Users/marcossandovalruiz/Documents/quhealthy/components/settings/NotificationSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 78, 0, 0, 0, 11, 89
+"/Users/marcossandovalruiz/Documents/quhealthy/components/settings/PrivacySettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 179, 0, 0, 1, 19, 199
+"/Users/marcossandovalruiz/Documents/quhealthy/components/settings/SecuritySettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 312, 0, 0, 9, 28, 349
+"/Users/marcossandovalruiz/Documents/quhealthy/components/settings/WearablesSettings.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 200, 0, 0, 11, 30, 241
+"/Users/marcossandovalruiz/Documents/quhealthy/components/shared/AuthGateModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 84, 0, 0, 11, 12, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/components/shared/CategorySelector.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 392, 0, 0, 26, 36, 454
+"/Users/marcossandovalruiz/Documents/quhealthy/components/shared/location/LocationPicker.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 136, 0, 0, 7, 18, 161
+"/Users/marcossandovalruiz/Documents/quhealthy/components/shared/location/MapModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 330, 0, 0, 26, 42, 398
+"/Users/marcossandovalruiz/Documents/quhealthy/components/store/CheckoutModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 490, 0, 0, 30, 57, 577
+"/Users/marcossandovalruiz/Documents/quhealthy/components/store/CourseCurriculumView.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 142, 0, 0, 1, 12, 155
+"/Users/marcossandovalruiz/Documents/quhealthy/components/store/QuScoreModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 140, 0, 0, 8, 17, 165
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/CallFinished.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 53, 0, 0, 0, 10, 63
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/ConsultationLayout.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 46, 0, 0, 2, 7, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/ConsultationRoom.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 130, 0, 0, 8, 21, 159
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/DeviceSetup.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 119, 0, 0, 5, 13, 137
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/ProviderVideoWidget.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 66, 0, 0, 0, 12, 78
+"/Users/marcossandovalruiz/Documents/quhealthy/components/teleconsultation/WaitingRoom.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 73, 0, 0, 3, 14, 90
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AccordionContent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 17, 0, 0, 1, 3, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AccordionItem.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 14, 0, 0, 1, 3, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AccordionRoot.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 4, 0, 0, 1, 2, 7
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AccordionTrigger.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 21, 0, 0, 1, 3, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AlertDescription.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 4, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AlertRoot.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 16, 0, 0, 1, 4, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AlertTitle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 4, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AvatarFallback.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AvatarImage.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 4, 20
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/AvatarRoot.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/BarcodeScanner.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 124, 0, 0, 6, 15, 145
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/ConfirmationModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 51, 0, 0, 0, 4, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/CookieConsent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 212, 0, 0, 33, 24, 269
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/EnterpriseVideoPlayer.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 60, 0, 0, 2, 12, 74
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/FavoriteButton.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 92, 0, 0, 2, 19, 113
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/Icd10Autocomplete.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 151, 0, 0, 8, 13, 172
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/LanguageToggle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 31, 0, 0, 2, 5, 38
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/LocationPrompt.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 153, 0, 0, 11, 13, 177
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/NotificationBell.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 137, 0, 0, 8, 12, 157
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/QhSpinner.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 29, 0, 0, 16, 7, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/Sidebar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 154, 0, 0, 8, 12, 174
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/TabsContent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/TabsList.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/TabsRoot.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 3, 9
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/TabsTrigger.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/ThemeToggle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 4, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/TrialBanner.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 419, 0, 0, 23, 38, 480
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/UpgradeModel.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 167, 0, 0, 13, 14, 194
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/accordion.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 48, 0, 0, 2, 7, 57
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/alert-dialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 126, 0, 0, 0, 15, 141
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/alert.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 54, 0, 0, 1, 7, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/alert.variants.ts", "TypeScript", 16, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 19
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/aspect-ratio.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 4, 9
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/avatar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 46, 0, 0, 0, 7, 53
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/badge.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 35, 0, 0, 1, 7, 43
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/button.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 57, 0, 0, 15, 7, 79
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/button.variants.ts", "TypeScript", 33, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 36
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/calendar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 62, 0, 0, 0, 7, 69
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/card.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 80, 0, 0, 0, 9, 89
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/checkbox.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 5, 32
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/collapsible.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 6, 13
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/command.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 138, 0, 0, 0, 19, 157
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/context-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 183, 0, 0, 0, 19, 202
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/date-picker.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 133, 0, 0, 3, 11, 147
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/dialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 116, 0, 0, 0, 13, 129
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/dropdown-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 183, 0, 0, 0, 19, 202
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/form.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 152, 0, 0, 0, 26, 178
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/hover-card.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 7, 31
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/input.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 4, 36
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/label.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 6, 28
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/menubar.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 218, 0, 0, 0, 20, 238
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/navigation-menu.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 119, 0, 0, 1, 13, 133
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/popover.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 7, 38
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/progress.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 5, 30
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/provider.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 18, 0, 0, 1, 2, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/radio-group.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 6, 46
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/scroll-area.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 46, 0, 0, 0, 6, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/scroll-to-top.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 53, 0, 0, 3, 6, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/select.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 115, 0, 0, 0, 13, 128
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/separator.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 28, 0, 0, 0, 6, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/sheet.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 216, 0, 0, 0, 18, 234
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/skeleton.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 13, 0, 0, 1, 3, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/slider.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 5, 30
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/switch.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 5, 31
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/table.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 104, 0, 0, 1, 11, 116
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/tabs.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 8, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/textarea.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 6, 27
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/toast.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 115, 0, 0, 0, 14, 129
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/toaster.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 4, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/toggle-group.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 86, 0, 0, 0, 11, 97
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/toggle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 39, 0, 0, 2, 7, 48
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/tooltip.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 8, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/use-toast.ts", "TypeScript", 149, 0, 0, 0, 0, 0, 0, 0, 0, 2, 29, 180
+"/Users/marcossandovalruiz/Documents/quhealthy/components/ui/visually-hidden.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 9
+"/Users/marcossandovalruiz/Documents/quhealthy/components/vault/DigitalVaccinationCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 145, 0, 0, 1, 15, 161
+"/Users/marcossandovalruiz/Documents/quhealthy/components/vault/HealthVaultDocumentCard.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 277, 0, 0, 10, 25, 312
+"/Users/marcossandovalruiz/Documents/quhealthy/components/vault/HealthVaultDropzone.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 199, 0, 0, 2, 20, 221
+"/Users/marcossandovalruiz/Documents/quhealthy/eslint.config.mjs", "JavaScript", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 5, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/global.d.ts", "TypeScript", 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useAppointment.ts", "TypeScript", 120, 0, 0, 0, 0, 0, 0, 0, 0, 22, 21, 163
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useAppointmentDetails.ts", "TypeScript", 76, 0, 0, 0, 0, 0, 0, 0, 0, 8, 14, 98
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useAuth.ts", "TypeScript", 168, 0, 0, 0, 0, 0, 0, 0, 0, 22, 26, 216
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useAvailability.ts", "TypeScript", 38, 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 51
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useBillingHistory.ts", "TypeScript", 38, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 46
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useBookingCheckout.ts", "TypeScript", 183, 0, 0, 0, 0, 0, 0, 0, 0, 23, 33, 239
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useBookingStore.ts", "TypeScript", 73, 0, 0, 0, 0, 0, 0, 0, 0, 12, 17, 102
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useCalendarIntegration.ts", "TypeScript", 51, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 64
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useCatalog.ts", "TypeScript", 338, 0, 0, 0, 0, 0, 0, 0, 0, 15, 29, 382
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useCatalogSearch.ts", "TypeScript", 27, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useChat.ts", "TypeScript", 226, 0, 0, 0, 0, 0, 0, 0, 0, 29, 48, 303
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useClinicStaff.ts", "TypeScript", 78, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 87
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsultation.ts", "TypeScript", 184, 0, 0, 0, 0, 0, 0, 0, 0, 17, 30, 231
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsumerDashboard.ts", "TypeScript", 58, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 68
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsumerOnboarding.ts", "TypeScript", 160, 0, 0, 0, 0, 0, 0, 0, 0, 6, 17, 183
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsumerOrders.ts", "TypeScript", 43, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsumerProfile.ts", "TypeScript", 56, 0, 0, 0, 0, 0, 0, 0, 0, 10, 8, 74
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useConsumerWallet.ts", "TypeScript", 48, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 53
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useDasboardAnalytics.ts", "TypeScript", 28, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 36
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useDashboardData.ts", "TypeScript", 31, 0, 0, 0, 0, 0, 0, 0, 0, 7, 6, 44
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useDashboardSummary.ts", "TypeScript", 43, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useDiscover.ts", "TypeScript", 30, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 35
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useFamily.ts", "TypeScript", 60, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7, 69
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useFavoriteToggle.ts", "TypeScript", 37, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 49
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useFinancialData.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 30
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useFiscalOnboarding.ts", "TypeScript", 95, 0, 0, 0, 0, 0, 0, 0, 0, 12, 12, 119
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useGeolocation.ts", "TypeScript", 85, 0, 0, 0, 0, 0, 0, 0, 0, 8, 13, 106
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useGoogleAutocomplete.ts", "TypeScript", 45, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8, 54
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useGoogleBusinessProfile.ts", "TypeScript", 54, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useHealthScore.ts", "TypeScript", 58, 0, 0, 0, 0, 0, 0, 0, 0, 9, 6, 73
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useHealthVault.ts", "TypeScript", 107, 0, 0, 0, 0, 0, 0, 0, 0, 10, 18, 135
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useHistory.ts", "TypeScript", 50, 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 63
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useIntelligence.ts", "TypeScript", 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 78
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useKycOnboarding.ts", "TypeScript", 101, 0, 0, 0, 0, 0, 0, 0, 0, 2, 16, 119
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useLeaveReview.ts", "TypeScript", 78, 0, 0, 0, 0, 0, 0, 0, 0, 11, 19, 108
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useLicenseOnboarding.ts", "TypeScript", 69, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 85
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useMediaDevices.ts", "TypeScript", 60, 0, 0, 0, 0, 0, 0, 0, 0, 4, 10, 74
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useMyFavorites.ts", "TypeScript", 26, 0, 0, 0, 0, 0, 0, 0, 0, 4, 7, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useMyReviews.ts", "TypeScript", 41, 0, 0, 0, 0, 0, 0, 0, 0, 2, 8, 51
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useOnboardingChecklist.ts", "TypeScript", 131, 0, 0, 0, 0, 0, 0, 0, 0, 7, 18, 156
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useOnboardingStatus.ts", "TypeScript", 84, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 110
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useOperatingHours.ts", "TypeScript", 63, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 76
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePackages.ts", "TypeScript", 42, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 61
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePatientDetail.ts", "TypeScript", 76, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 86
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePatientDirectory.ts", "TypeScript", 77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 85
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePlanLimits.ts", "TypeScript", 41, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 50
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useProfileOnboarding.ts", "TypeScript", 118, 0, 0, 0, 0, 0, 0, 0, 0, 6, 17, 141
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useProviderAppointments.ts", "TypeScript", 60, 0, 0, 0, 0, 0, 0, 0, 0, 2, 11, 73
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useProviderLocations.ts", "TypeScript", 86, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 101
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useProviderOrders.ts", "TypeScript", 157, 0, 0, 0, 0, 0, 0, 0, 0, 10, 11, 178
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useProviderScore.ts", "TypeScript", 79, 0, 0, 0, 0, 0, 0, 0, 0, 17, 11, 107
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePublicPrescription.ts", "TypeScript", 44, 0, 0, 0, 0, 0, 0, 0, 0, 4, 10, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePublicStats.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 41
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/usePurchasedCourses.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 28
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useRecommendationConfig.ts", "TypeScript", 45, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 59
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useReferrals.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 44
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useSessionTimeout.ts", "TypeScript", 58, 0, 0, 0, 0, 0, 0, 0, 0, 12, 15, 85
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useSocial.ts", "TypeScript", 398, 0, 0, 0, 0, 0, 0, 0, 0, 88, 77, 563
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useStaff.ts", "TypeScript", 88, 0, 0, 0, 0, 0, 0, 0, 0, 6, 9, 103
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useStompTeleconsultation.ts", "TypeScript", 65, 0, 0, 0, 0, 0, 0, 0, 0, 4, 14, 83
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useStoreProfile.ts", "TypeScript", 77, 0, 0, 0, 0, 0, 0, 0, 0, 10, 11, 98
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useStorefront.ts", "TypeScript", 29, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useStripeConnect.ts", "TypeScript", 56, 0, 0, 0, 0, 0, 0, 0, 0, 18, 11, 85
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useTeleconsultation.ts", "TypeScript", 109, 0, 0, 0, 0, 0, 0, 0, 0, 12, 21, 142
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useTeleconsultationTimer.ts", "TypeScript", 38, 0, 0, 0, 0, 0, 0, 0, 0, 3, 9, 50
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useTimeBlock.ts", "TypeScript", 25, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 29
+"/Users/marcossandovalruiz/Documents/quhealthy/hooks/useWebRTC.ts", "TypeScript", 115, 0, 0, 0, 0, 0, 0, 0, 0, 6, 21, 142
+"/Users/marcossandovalruiz/Documents/quhealthy/i18n/request.ts", "TypeScript", 12, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/i18n/routing.ts", "TypeScript", 8, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 16
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/animations.ts", "TypeScript", 82, 0, 0, 0, 0, 0, 0, 0, 0, 11, 11, 104
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/axios.ts", "TypeScript", 193, 0, 0, 0, 0, 0, 0, 0, 0, 41, 33, 267
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/constants.ts", "TypeScript", 236, 0, 0, 0, 0, 0, 0, 0, 0, 11, 10, 257
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/constants/color.ts", "TypeScript", 48, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 52
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/constants/content.ts", "TypeScript", 77, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 86
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/cookie-consent.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 40
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/firebase.ts", "TypeScript", 12, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/formatMessageTime.ts", "TypeScript", 17, 0, 0, 0, 0, 0, 0, 0, 0, 9, 4, 30
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/handleApiError.ts", "TypeScript", 50, 0, 0, 0, 0, 0, 0, 0, 0, 32, 13, 95
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/hooks/useIntersectionObserver.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/hooks/useScrollProgress.ts", "TypeScript", 14, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/stripe.ts", "TypeScript", 4, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 6
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/subscriptionUtils.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 123, 0, 0, 17, 16, 156
+"/Users/marcossandovalruiz/Documents/quhealthy/lib/utils.ts", "TypeScript", 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 8
+"/Users/marcossandovalruiz/Documents/quhealthy/messages/en.json", "JSON", 0, 0, 0, 4076, 0, 0, 0, 0, 0, 0, 1, 4077
+"/Users/marcossandovalruiz/Documents/quhealthy/messages/es.json", "JSON", 0, 0, 0, 4101, 0, 0, 0, 0, 0, 0, 1, 4102
+"/Users/marcossandovalruiz/Documents/quhealthy/next.config.ts", "TypeScript", 77, 0, 0, 0, 0, 0, 0, 0, 0, 13, 12, 102
+"/Users/marcossandovalruiz/Documents/quhealthy/package-lock.json", "JSON", 0, 0, 0, 18024, 0, 0, 0, 0, 0, 0, 1, 18025
+"/Users/marcossandovalruiz/Documents/quhealthy/package.json", "JSON", 0, 0, 0, 116, 0, 0, 0, 0, 0, 0, 1, 117
+"/Users/marcossandovalruiz/Documents/quhealthy/patch.js", "JavaScript", 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 5, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/postcss.config.js", "JavaScript", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 1, 7
+"/Users/marcossandovalruiz/Documents/quhealthy/proxy.ts", "TypeScript", 80, 0, 0, 0, 0, 0, 0, 0, 0, 22, 26, 128
+"/Users/marcossandovalruiz/Documents/quhealthy/public/animations/health.json", "JSON", 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/Users/marcossandovalruiz/Documents/quhealthy/public/animations/owl.json", "JSON", 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+"/Users/marcossandovalruiz/Documents/quhealthy/public/manifest.json", "JSON", 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 9
+"/Users/marcossandovalruiz/Documents/quhealthy/public/sw.js", "JavaScript", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2
+"/Users/marcossandovalruiz/Documents/quhealthy/public/vercel.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"/Users/marcossandovalruiz/Documents/quhealthy/public/window.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"/Users/marcossandovalruiz/Documents/quhealthy/public/workbox-4754cb34.js", "JavaScript", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2
+"/Users/marcossandovalruiz/Documents/quhealthy/services/admin.service.ts", "TypeScript", 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/services/ai.service.ts", "TypeScript", 11, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/services/appointment.service.ts", "TypeScript", 133, 0, 0, 0, 0, 0, 0, 0, 0, 86, 24, 243
+"/Users/marcossandovalruiz/Documents/quhealthy/services/auth.services.ts", "TypeScript", 171, 0, 0, 0, 0, 0, 0, 0, 0, 30, 27, 228
+"/Users/marcossandovalruiz/Documents/quhealthy/services/calendar-integration.service.ts", "TypeScript", 33, 0, 0, 0, 0, 0, 0, 0, 0, 22, 9, 64
+"/Users/marcossandovalruiz/Documents/quhealthy/services/cash-register.service.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 14, 7, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/services/catalog.service.ts", "TypeScript", 29, 0, 0, 0, 0, 0, 0, 0, 0, 21, 8, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/services/catalogAiService.ts", "TypeScript", 21, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 27
+"/Users/marcossandovalruiz/Documents/quhealthy/services/chat.service.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 19, 7, 65
+"/Users/marcossandovalruiz/Documents/quhealthy/services/checkout.service.ts", "TypeScript", 11, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 19
+"/Users/marcossandovalruiz/Documents/quhealthy/services/compliance.service.ts", "TypeScript", 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/services/consumer-course.service.ts", "TypeScript", 43, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 58
+"/Users/marcossandovalruiz/Documents/quhealthy/services/consumer-order.service.ts", "TypeScript", 12, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 22
+"/Users/marcossandovalruiz/Documents/quhealthy/services/consumer-package.service.ts", "TypeScript", 9, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 18
+"/Users/marcossandovalruiz/Documents/quhealthy/services/consumer-wallet.service.ts", "TypeScript", 13, 0, 0, 0, 0, 0, 0, 0, 0, 6, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/services/consumerProfile.service.ts", "TypeScript", 54, 0, 0, 0, 0, 0, 0, 0, 0, 23, 10, 87
+"/Users/marcossandovalruiz/Documents/quhealthy/services/course-curriculum.service.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 48
+"/Users/marcossandovalruiz/Documents/quhealthy/services/course-progress.service.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 44
+"/Users/marcossandovalruiz/Documents/quhealthy/services/dashboard.service.ts", "TypeScript", 17, 0, 0, 0, 0, 0, 0, 0, 0, 14, 7, 38
+"/Users/marcossandovalruiz/Documents/quhealthy/services/dependent.service.ts", "TypeScript", 20, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 27
+"/Users/marcossandovalruiz/Documents/quhealthy/services/discover.service.ts", "TypeScript", 15, 0, 0, 0, 0, 0, 0, 0, 0, 7, 3, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/services/ehr.service.ts", "TypeScript", 41, 0, 0, 0, 0, 0, 0, 0, 0, 34, 9, 84
+"/Users/marcossandovalruiz/Documents/quhealthy/services/eldercare.service.ts", "TypeScript", 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 76
+"/Users/marcossandovalruiz/Documents/quhealthy/services/favorite.service.ts", "TypeScript", 10, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 14
+"/Users/marcossandovalruiz/Documents/quhealthy/services/google.service.ts", "TypeScript", 16, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/services/healthVault.service.ts", "TypeScript", 87, 0, 0, 0, 0, 0, 0, 0, 0, 33, 13, 133
+"/Users/marcossandovalruiz/Documents/quhealthy/services/healthscore.service.ts", "TypeScript", 13, 0, 0, 0, 0, 0, 0, 0, 0, 8, 4, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/services/intelligence.service.ts", "TypeScript", 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 26
+"/Users/marcossandovalruiz/Documents/quhealthy/services/location.service.ts", "TypeScript", 28, 0, 0, 0, 0, 0, 0, 0, 0, 16, 6, 50
+"/Users/marcossandovalruiz/Documents/quhealthy/services/onboarding.service.ts", "TypeScript", 118, 0, 0, 0, 0, 0, 0, 0, 0, 21, 20, 159
+"/Users/marcossandovalruiz/Documents/quhealthy/services/package.service.ts", "TypeScript", 9, 0, 0, 0, 0, 0, 0, 0, 0, 12, 4, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/services/patientDetail.service.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 13, 5, 42
+"/Users/marcossandovalruiz/Documents/quhealthy/services/patientDirectory.service.ts", "TypeScript", 26, 0, 0, 0, 0, 0, 0, 0, 0, 24, 7, 57
+"/Users/marcossandovalruiz/Documents/quhealthy/services/payment.service.ts", "TypeScript", 59, 0, 0, 0, 0, 0, 0, 0, 0, 14, 8, 81
+"/Users/marcossandovalruiz/Documents/quhealthy/services/provider-order.service.ts", "TypeScript", 41, 0, 0, 0, 0, 0, 0, 0, 0, 3, 9, 53
+"/Users/marcossandovalruiz/Documents/quhealthy/services/providerScore.service.ts", "TypeScript", 25, 0, 0, 0, 0, 0, 0, 0, 0, 14, 9, 48
+"/Users/marcossandovalruiz/Documents/quhealthy/services/public.service.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 7, 4, 35
+"/Users/marcossandovalruiz/Documents/quhealthy/services/purchase-order.service.ts", "TypeScript", 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 40
+"/Users/marcossandovalruiz/Documents/quhealthy/services/recommendationService.ts", "TypeScript", 22, 0, 0, 0, 0, 0, 0, 0, 0, 7, 3, 32
+"/Users/marcossandovalruiz/Documents/quhealthy/services/referral.service.ts", "TypeScript", 8, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 13
+"/Users/marcossandovalruiz/Documents/quhealthy/services/review.service.ts", "TypeScript", 46, 0, 0, 0, 0, 0, 0, 0, 0, 24, 9, 79
+"/Users/marcossandovalruiz/Documents/quhealthy/services/schedule.service.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 19, 7, 65
+"/Users/marcossandovalruiz/Documents/quhealthy/services/security.service.ts", "TypeScript", 53, 0, 0, 0, 0, 0, 0, 0, 0, 7, 11, 71
+"/Users/marcossandovalruiz/Documents/quhealthy/services/social.service.ts", "TypeScript", 134, 0, 0, 0, 0, 0, 0, 0, 0, 44, 27, 205
+"/Users/marcossandovalruiz/Documents/quhealthy/services/staff.service.ts", "TypeScript", 20, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 27
+"/Users/marcossandovalruiz/Documents/quhealthy/services/storage.service.ts", "TypeScript", 40, 0, 0, 0, 0, 0, 0, 0, 0, 16, 7, 63
+"/Users/marcossandovalruiz/Documents/quhealthy/services/store.service.ts", "TypeScript", 38, 0, 0, 0, 0, 0, 0, 0, 0, 17, 7, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/services/storefront.service.ts", "TypeScript", 9, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 16
+"/Users/marcossandovalruiz/Documents/quhealthy/services/stripe-connect.service.ts", "TypeScript", 13, 0, 0, 0, 0, 0, 0, 0, 0, 9, 4, 26
+"/Users/marcossandovalruiz/Documents/quhealthy/services/subscription.service.ts", "TypeScript", 23, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 31
+"/Users/marcossandovalruiz/Documents/quhealthy/services/supplier.service.ts", "TypeScript", 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 29
+"/Users/marcossandovalruiz/Documents/quhealthy/services/teleconsultation.service.ts", "TypeScript", 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 20
+"/Users/marcossandovalruiz/Documents/quhealthy/services/vaccination.service.ts", "TypeScript", 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 14
+"/Users/marcossandovalruiz/Documents/quhealthy/services/wearable.service.ts", "TypeScript", 23, 0, 0, 0, 0, 0, 0, 0, 0, 9, 5, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/store/intelligence.store.ts", "TypeScript", 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 31
+"/Users/marcossandovalruiz/Documents/quhealthy/stores/SessionStore.ts", "TypeScript", 192, 0, 0, 0, 0, 0, 0, 0, 0, 38, 37, 267
+"/Users/marcossandovalruiz/Documents/quhealthy/stores/TeleconsultationStore.ts", "TypeScript", 95, 0, 0, 0, 0, 0, 0, 0, 0, 6, 21, 122
+"/Users/marcossandovalruiz/Documents/quhealthy/tailwind.config.ts", "TypeScript", 52, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 56
+"/Users/marcossandovalruiz/Documents/quhealthy/tsconfig.json", "JSON with Comments", 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 1, 42
+"/Users/marcossandovalruiz/Documents/quhealthy/types/appointments.ts", "TypeScript", 121, 0, 0, 0, 0, 0, 0, 0, 0, 36, 29, 186
+"/Users/marcossandovalruiz/Documents/quhealthy/types/auth.ts", "TypeScript", 120, 0, 0, 0, 0, 0, 0, 0, 0, 33, 32, 185
+"/Users/marcossandovalruiz/Documents/quhealthy/types/booking.ts", "TypeScript", 54, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 62
+"/Users/marcossandovalruiz/Documents/quhealthy/types/cash-register.ts", "TypeScript", 45, 0, 0, 0, 0, 0, 0, 0, 0, 2, 8, 55
+"/Users/marcossandovalruiz/Documents/quhealthy/types/catalog.ts", "TypeScript", 147, 0, 0, 0, 0, 0, 0, 0, 0, 14, 19, 180
+"/Users/marcossandovalruiz/Documents/quhealthy/types/chat.ts", "TypeScript", 53, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 61
+"/Users/marcossandovalruiz/Documents/quhealthy/types/consumer-order.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 32
+"/Users/marcossandovalruiz/Documents/quhealthy/types/consumerOnboarding.ts", "TypeScript", 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 44
+"/Users/marcossandovalruiz/Documents/quhealthy/types/consumerProfile.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 7, 6, 47
+"/Users/marcossandovalruiz/Documents/quhealthy/types/dashboard.ts", "TypeScript", 28, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 33
+"/Users/marcossandovalruiz/Documents/quhealthy/types/dependent.ts", "TypeScript", 19, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 21
+"/Users/marcossandovalruiz/Documents/quhealthy/types/discover.ts", "TypeScript", 56, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 63
+"/Users/marcossandovalruiz/Documents/quhealthy/types/ehr.ts", "TypeScript", 64, 0, 0, 0, 0, 0, 0, 0, 0, 37, 11, 112
+"/Users/marcossandovalruiz/Documents/quhealthy/types/healthProfile.ts", "TypeScript", 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 23
+"/Users/marcossandovalruiz/Documents/quhealthy/types/healthVault.ts", "TypeScript", 22, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 26
+"/Users/marcossandovalruiz/Documents/quhealthy/types/healthscore.ts", "TypeScript", 26, 0, 0, 0, 0, 0, 0, 0, 0, 8, 7, 41
+"/Users/marcossandovalruiz/Documents/quhealthy/types/index.ts", "TypeScript", 63, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 71
+"/Users/marcossandovalruiz/Documents/quhealthy/types/intelligence.ts", "TypeScript", 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 25
+"/Users/marcossandovalruiz/Documents/quhealthy/types/location.ts", "TypeScript", 15, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/types/marketplace.ts", "TypeScript", 16, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 22
+"/Users/marcossandovalruiz/Documents/quhealthy/types/medicalHistory.ts", "TypeScript", 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/types/onboarding.ts", "TypeScript", 196, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 224
+"/Users/marcossandovalruiz/Documents/quhealthy/types/order.ts", "TypeScript", 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 37
+"/Users/marcossandovalruiz/Documents/quhealthy/types/packages.ts", "TypeScript", 25, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 34
+"/Users/marcossandovalruiz/Documents/quhealthy/types/patient.ts", "TypeScript", 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 45
+"/Users/marcossandovalruiz/Documents/quhealthy/types/payment.ts", "TypeScript", 28, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 35
+"/Users/marcossandovalruiz/Documents/quhealthy/types/providerLocation.ts", "TypeScript", 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 28
+"/Users/marcossandovalruiz/Documents/quhealthy/types/providerScore.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 46
+"/Users/marcossandovalruiz/Documents/quhealthy/types/public.ts", "TypeScript", 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5
+"/Users/marcossandovalruiz/Documents/quhealthy/types/referral.ts", "TypeScript", 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 19
+"/Users/marcossandovalruiz/Documents/quhealthy/types/reviews.ts", "TypeScript", 34, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 40
+"/Users/marcossandovalruiz/Documents/quhealthy/types/schedule.ts", "TypeScript", 51, 0, 0, 0, 0, 0, 0, 0, 0, 9, 7, 67
+"/Users/marcossandovalruiz/Documents/quhealthy/types/security.ts", "TypeScript", 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 17
+"/Users/marcossandovalruiz/Documents/quhealthy/types/social.ts", "TypeScript", 166, 0, 0, 0, 0, 0, 0, 0, 0, 41, 36, 243
+"/Users/marcossandovalruiz/Documents/quhealthy/types/staff.ts", "TypeScript", 28, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 35
+"/Users/marcossandovalruiz/Documents/quhealthy/types/store.ts", "TypeScript", 30, 0, 0, 0, 0, 0, 0, 0, 0, 6, 8, 44
+"/Users/marcossandovalruiz/Documents/quhealthy/types/storefront.ts", "TypeScript", 50, 0, 0, 0, 0, 0, 0, 0, 0, 8, 10, 68
+"/Users/marcossandovalruiz/Documents/quhealthy/types/subscriptions.ts", "TypeScript", 20, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 28
+"/Users/marcossandovalruiz/Documents/quhealthy/types/vaccination.ts", "TypeScript", 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 20
+"/Users/marcossandovalruiz/Documents/quhealthy/types/wallet.ts", "TypeScript", 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 18
+"Total", "-", 10953, 41, 38, 26328, 110, 58, 64589, 2, 35, 5042, 8892, 116088

@@ -11,7 +11,7 @@ import {
   Search, SlidersHorizontal, Star,
   ChevronRight, PlayCircle, MapPin, Award,
   Navigation, Heart,
-  Loader2
+  Loader2, Image as ImageIcon, User // <-- NUEVOS ÍCONOS PARA LOS FALLBACKS
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -85,6 +85,9 @@ const MapProviderCard = ({
   onAuthRequired: () => void,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const t = useTranslations('PatientDiscover');
@@ -97,6 +100,15 @@ const MapProviderCard = ({
       videoRef.current.currentTime = 0;
     }
   }, [isHovered, isSelected]);
+
+  const mediaOpacityClasses = cn(
+    "absolute inset-0 w-full h-full transition-opacity duration-500",
+    (isHovered || isSelected) && provider.previewVideoUrl ? "opacity-0" : "opacity-100"
+  );
+
+  // Verificamos si existe la URL y si no ha fallado su carga
+  const hasValidImage = provider.imageUrl && !imgError;
+  const hasValidLogo = provider.logoUrl && !logoError;
 
   return (
     <div
@@ -117,7 +129,7 @@ const MapProviderCard = ({
         </div>
       )}
 
-      {/* 📸 ÁREA MEDIA (Video / Imagen) */}
+      {/* 📸 ÁREA MEDIA (Video / Imagen / Fallback) */}
       <div className="h-40 md:h-48 w-full relative overflow-hidden bg-gray-100 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
         
         {/* Play Overlay (Solo si tiene video y no está activo) */}
@@ -127,14 +139,26 @@ const MapProviderCard = ({
           </div>
         )}
 
-        <img
-          src={provider.imageUrl || '/placeholder-banner.jpg'}
-          alt={provider.name}
-          className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-500 grayscale group-hover:grayscale-0",
-            (isHovered || isSelected) && provider.previewVideoUrl ? "opacity-0" : "opacity-100"
-          )}
-        />
+        {hasValidImage ? (
+          <img
+            src={provider.imageUrl}
+            alt={provider.name}
+            onError={() => setImgError(true)}
+            className={cn(
+              mediaOpacityClasses,
+              "object-cover grayscale group-hover:grayscale-0"
+            )}
+          />
+        ) : (
+          <div className={cn(
+            mediaOpacityClasses,
+            "flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a]"
+          )}>
+            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-3 shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,0.1)]">
+              <ImageIcon className="w-6 h-6 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+            </div>
+          </div>
+        )}
 
         {provider.previewVideoUrl && (
           <video
@@ -190,12 +214,18 @@ const MapProviderCard = ({
               {provider.category || 'ESPECIALISTA'}
             </span>
           </div>
-          {provider.logoUrl && (
+          
+          {hasValidLogo ? (
             <img 
               src={provider.logoUrl} 
               alt="Logo" 
+              onError={() => setLogoError(true)}
               className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 object-cover" 
             />
+          ) : (
+            <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#111] flex items-center justify-center flex-shrink-0">
+              <User className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+            </div>
           )}
         </div>
 
