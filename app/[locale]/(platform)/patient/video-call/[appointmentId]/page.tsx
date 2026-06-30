@@ -46,7 +46,7 @@ export default function VideoCallPage() {
       <ConsultationLayout>
         <div className="flex flex-col items-center justify-center">
           <QhSpinner size="lg" />
-          <p className="text-gray-400 mt-4 animate-pulse">Preparando entorno seguro...</p>
+          <p className="text-slate-600 mt-4 animate-pulse">Preparando entorno seguro...</p>
         </div>
       </ConsultationLayout>
     );
@@ -55,12 +55,12 @@ export default function VideoCallPage() {
   if (state === 'FAILED') {
     return (
       <ConsultationLayout>
-        <div className="flex flex-col items-center justify-center p-6 text-center text-white">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-6">
-            <AlertCircle className="w-8 h-8 text-red-500" />
+        <div className="flex flex-col items-center justify-center p-6 text-center text-slate-900">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold mb-2">Conexión Fallida</h2>
-          <p className="text-gray-400 max-w-sm mx-auto mb-8">
+          <p className="text-slate-600 max-w-sm mx-auto mb-8">
             No pudimos establecer conexión con la sala. Verifica tu internet o si tienes permisos suficientes.
           </p>
           <Button onClick={() => router.push("/patient/dashboard")}>
