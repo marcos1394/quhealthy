@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { Plyr, APITypes, PlyrProps } from 'plyr-react';
+import Hls from 'hls.js';
 import 'plyr-react/plyr.css';
 import { PlayCircle } from 'lucide-react';
 
@@ -11,17 +12,17 @@ interface EnterpriseVideoPlayerProps {
 }
 
 export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProps) {
+  const ref = useRef<APITypes>(null);
+
+  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+  const isVimeo = url.includes('vimeo.com');
+  const isHls = url.includes('.m3u8');
   
+  let provider: 'youtube' | 'vimeo' | 'html5' = 'html5';
+  if (isYouTube) provider = 'youtube';
+  else if (isVimeo) provider = 'vimeo';
+
   const plyrProps = useMemo<PlyrProps>(() => {
-    // Detect YouTube
-    const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-    // Detect Vimeo
-    const isVimeo = url.includes('vimeo.com');
-
-    let provider: 'youtube' | 'vimeo' | 'html5' = 'html5';
-    if (isYouTube) provider = 'youtube';
-    else if (isVimeo) provider = 'vimeo';
-
     return {
       source: {
         type: 'video',
@@ -29,6 +30,8 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
           {
             src: url,
             provider,
+            // For standard MP4, it's good to specify type if not HLS
+            type: !isHls && provider === 'html5' ? 'video/mp4' : undefined
           }
         ],
         poster: poster,
@@ -58,7 +61,22 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
         },
       }
     };
-  }, [url, poster]);
+  }, [url, poster, provider, isHls]);
+
+  useEffect(() => {
+    // If it's an HLS stream and HLS is supported in this browser
+    if (isHls && Hls.isSupported() && ref.current?.plyr?.media) {
+      const hls = new Hls({
+        debug: false,
+      });
+      hls.loadSource(url);
+      hls.attachMedia(ref.current.plyr.media as HTMLMediaElement);
+      
+      return () => {
+        hls.destroy();
+      };
+    }
+  }, [url, isHls]);
 
   if (!url) {
     return (
@@ -71,7 +89,7 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
 
   return (
     <div className="w-full h-full relative group bg-black overflow-hidden [&_.plyr]:h-full [&_.plyr]:w-full">
-      <Plyr {...plyrProps} />
+      <Plyr ref={ref} {...plyrProps} />
     </div>
   );
 }

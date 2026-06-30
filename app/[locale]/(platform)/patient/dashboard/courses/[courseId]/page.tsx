@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CourseCurriculumService } from "@/services/course-curriculum.service";
 import { ConsumerCourseService, CatalogItemResponse } from "@/services/consumer-course.service";
+import { CourseProgressService, CourseProgressDto } from "@/services/course-progress.service";
 import { CourseModule, CourseLesson } from "@/types/catalog";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -13,11 +14,15 @@ import {
   ChevronDown, 
   ChevronRight,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  Save,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { EnterpriseVideoPlayer } from "@/components/ui/EnterpriseVideoPlayer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 export default function CoursePlayerPage() {
@@ -31,6 +36,12 @@ export default function CoursePlayerPage() {
   const [activeLesson, setActiveLesson] = useState<CourseLesson | null>(null);
   const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
   const [isMounted, setIsMounted] = useState(false);
+
+  // LMS Progress State
+  const [progressMap, setProgressMap] = useState<Record<number, CourseProgressDto>>({});
+  const [personalNotes, setPersonalNotes] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [savingCompletion, setSavingCompletion] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -46,10 +57,21 @@ export default function CoursePlayerPage() {
         const detailsList = await ConsumerCourseService.getCourseDetailsBatch([courseId]);
         if (detailsList.length > 0) setCourseDetails(detailsList[0]);
 
-        // 2. Fetch Curriculum
-        const curriculum = await CourseCurriculumService.getCurriculum(courseId);
+        // 2. Fetch Curriculum & Progress
+        const [curriculum, progressList] = await Promise.all([
+          CourseCurriculumService.getCurriculum(courseId),
+          CourseProgressService.getCourseProgress(courseId)
+        ]);
+        
         const fetchedModules = curriculum.modules || [];
         setModules(fetchedModules);
+
+        // Map progress by lesson ID
+        const pMap: Record<number, CourseProgressDto> = {};
+        progressList.forEach(p => {
+          pMap[p.lessonId] = p;
+        });
+        setProgressMap(pMap);
 
         // Auto-expand first module and select first lesson
         if (fetchedModules.length > 0) {
@@ -67,6 +89,13 @@ export default function CoursePlayerPage() {
 
     loadCourseData();
   }, [courseId]);
+
+  // Sync personal notes when active lesson changes
+  useEffect(() => {
+    if (activeLesson) {
+      setPersonalNotes(progressMap[activeLesson.id!]?.personalNotes || "");
+    }
+  }, [activeLesson, progressMap]);
 
   const toggleModule = (moduleId: number) => {
     setExpandedModules(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
@@ -91,6 +120,26 @@ export default function CoursePlayerPage() {
     }
   };
 
+  const handleSaveNotes = async () => {
+    if (!activeLesson) return;
+    setSavingNotes(true);
+    const updated = await CourseProgressService.saveNotes(courseId, activeLesson.id!, personalNotes);
+    if (updated) {
+      setProgressMap(prev => ({ ...prev, [activeLesson.id!]: updated }));
+    }
+    setSavingNotes(false);
+  };
+
+  const handleToggleComplete = async () => {
+    if (!activeLesson) return;
+    setSavingCompletion(true);
+    const updated = await CourseProgressService.toggleCompletion(courseId, activeLesson.id!);
+    if (updated) {
+      setProgressMap(prev => ({ ...prev, [activeLesson.id!]: updated }));
+    }
+    setSavingCompletion(false);
+  };
+
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-64px)] items-center justify-center bg-white dark:bg-[#0a0a0a]">
@@ -111,7 +160,6 @@ export default function CoursePlayerPage() {
     );
   }
 
-  // Si no hay currículo construido, mostramos fallback legacy (solo el link)
   if (modules.length === 0) {
     return (
       <div className="flex flex-col min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-[#050505] p-6 md:p-12">
@@ -139,9 +187,16 @@ export default function CoursePlayerPage() {
     );
   }
 
+  const isCurrentLessonCompleted = progressMap[activeLesson?.id || 0]?.isCompleted;
+  
+  // Calcular progreso general
+  const totalLessons = allLessons.length;
+  const completedCount = Object.values(progressMap).filter(p => p.isCompleted).length;
+  const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] bg-white dark:bg-[#0a0a0a] overflow-hidden">
-      {/* AREA DE VIDEO (Izquierda) */}
+      {/* AREA DE VIDEO E INFORMACION (Izquierda) */}
       <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[#050505] border-r border-gray-200 dark:border-gray-800 relative h-full">
         <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center justify-between z-10 shrink-0">
           <Button onClick={() => router.push('/patient/dashboard/courses')} variant="ghost" className="h-8 px-2 text-[10px] font-bold uppercase tracking-widest">
@@ -155,7 +210,7 @@ export default function CoursePlayerPage() {
         <div className="flex-1 overflow-y-auto">
           {activeLesson ? (
             <div className="w-full flex flex-col">
-              <div className="w-full bg-black aspect-video relative flex items-center justify-center">
+              <div className="w-full bg-black aspect-video relative flex items-center justify-center shrink-0">
                 {activeLesson.videoUrl && isMounted ? (
                   <div className="absolute inset-0 w-full h-full">
                     <EnterpriseVideoPlayer
@@ -170,13 +225,85 @@ export default function CoursePlayerPage() {
                   </div>
                 )}
               </div>
-              <div className="p-8 max-w-4xl mx-auto w-full space-y-6">
-                <h1 className="text-2xl font-bold uppercase tracking-tight">{activeLesson.title}</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {activeLesson.description || "Sin descripción proporcionada para esta lección."}
-                </p>
+              
+              <div className="p-6 md:p-10 max-w-5xl mx-auto w-full flex-1">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+                  <div>
+                    <h1 className="text-2xl font-bold uppercase tracking-tight">{activeLesson.title}</h1>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                        Módulo {modules.find(m => m.id === activeLesson.moduleId)?.title}
+                      </span>
+                      {isCurrentLessonCompleted && (
+                        <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-widest">
+                          <Check className="w-3 h-3" /> Completada
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={handleToggleComplete}
+                    disabled={savingCompletion}
+                    variant={isCurrentLessonCompleted ? "outline" : "default"}
+                    className={cn(
+                      "rounded-none font-bold uppercase tracking-widest text-xs shrink-0",
+                      isCurrentLessonCompleted 
+                        ? "border-green-600 text-green-700 hover:bg-green-50" 
+                        : "bg-black text-white hover:bg-gray-800"
+                    )}
+                  >
+                    {savingCompletion ? <QhSpinner size="sm" className="mr-2" /> : (isCurrentLessonCompleted ? <CheckCircle2 className="w-4 h-4 mr-2" /> : null)}
+                    {isCurrentLessonCompleted ? 'Desmarcar' : 'Marcar Completada'}
+                  </Button>
+                </div>
+
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="w-full justify-start rounded-none border-b border-gray-200 dark:border-gray-800 bg-transparent h-auto p-0 mb-6">
+                    <TabsTrigger 
+                      value="overview" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent px-4 py-3 font-bold uppercase tracking-widest text-[11px]"
+                    >
+                      Descripción
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="notes" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent px-4 py-3 font-bold uppercase tracking-widest text-[11px]"
+                    >
+                      Mis Notas
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="overview" className="outline-none">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl">
+                      {activeLesson.description || "Sin descripción proporcionada para esta lección."}
+                    </p>
+                  </TabsContent>
+                  
+                  <TabsContent value="notes" className="outline-none space-y-4">
+                    <div className="max-w-3xl">
+                      <p className="text-xs text-gray-500 mb-4">Escribe apuntes privados sobre esta lección. Solo tú podrás verlos.</p>
+                      <Textarea 
+                        value={personalNotes}
+                        onChange={(e) => setPersonalNotes(e.target.value)}
+                        placeholder="Escribe tus notas aquí..."
+                        className="min-h-[200px] resize-y rounded-none border-gray-300 focus-visible:ring-black dark:focus-visible:ring-white"
+                      />
+                      <div className="flex justify-end mt-4">
+                        <Button 
+                          onClick={handleSaveNotes}
+                          disabled={savingNotes}
+                          className="rounded-none bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-[10px]"
+                        >
+                          {savingNotes ? <QhSpinner size="sm" className="mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                          Guardar Notas
+                        </Button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
                 
-                <div className="flex items-center justify-between pt-8 border-t border-gray-200 dark:border-gray-800 mt-8">
+                <div className="flex items-center justify-between pt-8 border-t border-gray-200 dark:border-gray-800 mt-12 mb-8">
                   <Button 
                     onClick={goToPrevLesson} 
                     disabled={currentIndex <= 0}
@@ -209,78 +336,99 @@ export default function CoursePlayerPage() {
           <h2 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
             <BookOpen className="w-4 h-4" /> Temario del Curso
           </h2>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-2">
-            {modules.length} Módulos • {allLessons.length} Lecciones
-          </p>
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+              <span>Progreso del Curso</span>
+              <span>{progressPercentage}%</span>
+            </div>
+            <div className="w-full bg-gray-100 dark:bg-gray-900 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className="bg-black dark:bg-white h-full transition-all duration-500 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          {modules.map((mod, index) => (
-            <div key={mod.id} className="border-b border-gray-100 dark:border-gray-900 last:border-0">
-              <button 
-                onClick={() => toggleModule(mod.id!)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-left"
-              >
-                <div className="flex flex-col gap-1 pr-4">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Módulo {index + 1}</span>
-                  <span className="text-xs font-bold">{mod.title}</span>
-                </div>
-                {expandedModules[mod.id!] ? (
-                  <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
-                )}
-              </button>
-              
-              <AnimatePresence>
-                {expandedModules[mod.id!] && (
-                  <motion.div 
-                    initial={{ height: 0 }} 
-                    animate={{ height: "auto" }} 
-                    exit={{ height: 0 }}
-                    className="overflow-hidden bg-gray-50 dark:bg-[#050505]"
-                  >
-                    {mod.lessons.map((lesson, lIndex) => {
-                      const isActive = activeLesson?.id === lesson.id;
-                      return (
-                        <button
-                          key={lesson.id}
-                          onClick={() => setActiveLesson(lesson)}
-                          className={cn(
-                            "w-full flex items-start p-4 border-l-2 transition-all text-left",
-                            isActive 
-                              ? "border-black dark:border-white bg-white dark:bg-[#0a0a0a]" 
-                              : "border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#111]"
-                          )}
-                        >
-                          <div className="mr-3 mt-0.5">
-                            {isActive ? (
-                              <PlayCircle className="w-4 h-4 text-black dark:text-white" />
-                            ) : (
-                              <CheckCircle2 className="w-4 h-4 text-gray-300 dark:text-gray-700" />
+          {modules.map((mod, index) => {
+            // Check if all lessons in module are completed
+            const isModuleCompleted = mod.lessons.length > 0 && mod.lessons.every(l => progressMap[l.id!]?.isCompleted);
+            
+            return (
+              <div key={mod.id} className="border-b border-gray-100 dark:border-gray-900 last:border-0">
+                <button 
+                  onClick={() => toggleModule(mod.id!)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-left"
+                >
+                  <div className="flex flex-col gap-1 pr-4">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                      Módulo {index + 1}
+                      {isModuleCompleted && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+                    </span>
+                    <span className="text-xs font-bold">{mod.title}</span>
+                  </div>
+                  {expandedModules[mod.id!] ? (
+                    <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                  )}
+                </button>
+                
+                <AnimatePresence>
+                  {expandedModules[mod.id!] && (
+                    <motion.div 
+                      initial={{ height: 0 }} 
+                      animate={{ height: "auto" }} 
+                      exit={{ height: 0 }}
+                      className="overflow-hidden bg-gray-50 dark:bg-[#050505]"
+                    >
+                      {mod.lessons.map((lesson, lIndex) => {
+                        const isActive = activeLesson?.id === lesson.id;
+                        const isCompleted = progressMap[lesson.id!]?.isCompleted;
+                        
+                        return (
+                          <button
+                            key={lesson.id}
+                            onClick={() => setActiveLesson(lesson)}
+                            className={cn(
+                              "w-full flex items-start p-4 border-l-2 transition-all text-left group",
+                              isActive 
+                                ? "border-black dark:border-white bg-white dark:bg-[#0a0a0a]" 
+                                : "border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#111]"
                             )}
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <span className={cn(
-                              "text-xs font-semibold leading-tight",
-                              isActive ? "text-black dark:text-white" : "text-gray-600 dark:text-gray-400"
-                            )}>
-                              {index + 1}.{lIndex + 1} {lesson.title}
-                            </span>
-                            {lesson.durationMinutes && (
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                {lesson.durationMinutes} min
+                          >
+                            <div className="mr-3 mt-0.5">
+                              {isActive ? (
+                                <PlayCircle className="w-4 h-4 text-black dark:text-white" />
+                              ) : isCompleted ? (
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <CheckCircle2 className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-gray-400" />
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <span className={cn(
+                                "text-xs font-semibold leading-tight",
+                                isActive ? "text-black dark:text-white" : "text-gray-600 dark:text-gray-400"
+                              )}>
+                                {index + 1}.{lIndex + 1} {lesson.title}
                               </span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
+                              {lesson.durationMinutes && (
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                  {lesson.durationMinutes} min
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
