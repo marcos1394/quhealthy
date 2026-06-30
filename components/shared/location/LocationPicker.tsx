@@ -127,15 +127,6 @@ export default function LocationPicker({ onLocationSelect, initialLocation, clas
         <MapEngine onLocationSelect={onLocationSelect} initialLocation={initialLocation} />
       </div>
 
-      {/* Architectural Pro-Tip Note */}
-      <div className="border-l-2 border-black dark:border-white pl-4 py-1">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1 flex items-center gap-2">
-          <Info className="w-3.5 h-3.5" strokeWidth={2} /> Pro Tip
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed">
-          If your office is inside a plaza or medical tower, move the red marker exactly to the local or main entrance to better guide your patients.
-        </p>
-      </div>
     </div>
   );
 }
