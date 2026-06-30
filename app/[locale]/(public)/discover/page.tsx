@@ -174,15 +174,17 @@ const MapProviderCard = ({
           />
         )}
 
-        {/* Badges Flotantes Strictos */}
-        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-          <ProviderScoreBadge scoreData={scoreData} />
-          {provider.discountPercentage && provider.discountPercentage > 0 && (
-            <span className="border border-black bg-black text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#fff]">
-              -{provider.discountPercentage}%
-            </span>
-          )}
-        </div>
+       {/* Badges Flotantes Strictos */}
+<div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+  <ProviderScoreBadge scoreData={scoreData} />
+  
+  {/* 👇 LÍNEA CORREGIDA 👇 */}
+  {(provider.discountPercentage ?? 0) > 0 && (
+    <span className="border border-black bg-black text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest shadow-[2px_2px_0_0_#fff]">
+      -{provider.discountPercentage}%
+    </span>
+  )}
+</div>
         
         {/* Favorito Component — con Auth Gate para visitantes */}
         <div className="absolute top-3 right-3 z-20">
