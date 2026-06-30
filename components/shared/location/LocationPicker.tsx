@@ -125,24 +125,6 @@ export default function LocationPicker({ onLocationSelect, initialLocation, clas
     <div className={cn("relative space-y-6", className)}>
       <div className="relative z-0 border border-gray-200 dark:border-gray-800 p-1 bg-gray-50 dark:bg-[#050505]">
         <MapEngine onLocationSelect={onLocationSelect} initialLocation={initialLocation} />
-        
-        {/* Success Stamp */}
-        <AnimatePresence>
-          {isMapReady && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              className="absolute top-4 right-4 z-10 pointer-events-none"
-            >
-              <div className="bg-white dark:bg-black border border-black dark:border-white text-black dark:text-white px-3 py-1.5 flex items-center gap-2 shadow-sm">
-                <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
-                <span className="text-[9px] font-bold uppercase tracking-widest">
-                  Synced with Google
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Architectural Pro-Tip Note */}
