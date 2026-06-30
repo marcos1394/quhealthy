@@ -158,6 +158,7 @@ export default function CoursePlayerPage() {
               <div className="w-full bg-black aspect-video relative flex items-center justify-center">
                 {activeLesson.videoUrl && isMounted ? (
                   <div className="absolute inset-0">
+                    {/* @ts-expect-error - React 19 types mismatch with react-player */}
                     <ReactPlayer
                       url={activeLesson.videoUrl}
                       controls
