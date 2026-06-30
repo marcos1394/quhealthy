@@ -11,7 +11,7 @@ export interface TeleconsultationAccessResponse {
 
 export const teleconsultationService = {
   joinTeleconsultation: async (appointmentId: string, isProvider: boolean): Promise<TeleconsultationAccessResponse> => {
-    const response = await axiosInstance.post(`/appointments/teleconsultations/${appointmentId}/join`, {
+    const response = await axiosInstance.post(`/api/appointments/teleconsultations/${appointmentId}/join`, {
       isProvider
     });
     return response.data;
