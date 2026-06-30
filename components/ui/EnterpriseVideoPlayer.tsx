@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useMemo, useRef, useEffect } from 'react';
-import { Plyr, APITypes, PlyrProps } from 'plyr-react';
+import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import 'plyr-react/plyr.css';
 import { PlayCircle } from 'lucide-react';
 
 interface EnterpriseVideoPlayerProps {
@@ -12,72 +10,37 @@ interface EnterpriseVideoPlayerProps {
 }
 
 export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProps) {
-  const ref = useRef<APITypes>(null);
-
-  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-  const isVimeo = url.includes('vimeo.com');
-  const isHls = url.includes('.m3u8');
-  
-  let provider: 'youtube' | 'vimeo' | 'html5' = 'html5';
-  if (isYouTube) provider = 'youtube';
-  else if (isVimeo) provider = 'vimeo';
-
-  const plyrProps = useMemo<PlyrProps>(() => {
-    return {
-      source: {
-        type: 'video',
-        sources: [
-          {
-            src: url,
-            provider,
-            // For standard MP4, it's good to specify type if not HLS
-            type: !isHls && provider === 'html5' ? 'video/mp4' : undefined
-          }
-        ],
-        poster: poster,
-      },
-      options: {
-        controls: [
-          'play-large',
-          'play',
-          'progress',
-          'current-time',
-          'mute',
-          'volume',
-          'captions',
-          'settings',
-          'pip',
-          'airplay',
-          'fullscreen'
-        ],
-        settings: ['captions', 'quality', 'speed'],
-        hideControls: true,
-        youtube: {
-          noCookie: true,
-          rel: 0,
-          showinfo: 0,
-          iv_load_policy: 3,
-          modestbranding: 1
-        },
-      }
-    };
-  }, [url, poster, provider, isHls]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    // If it's an HLS stream and HLS is supported in this browser
-    const player = ref.current?.plyr as any;
-    if (isHls && Hls.isSupported() && player?.media) {
-      const hls = new Hls({
-        debug: false,
-      });
+    const video = videoRef.current;
+    if (!video || !url) return;
+
+    setError(false);
+    const isHls = url.includes('.m3u8');
+
+    if (isHls && Hls.isSupported()) {
+      const hls = new Hls({ debug: false });
       hls.loadSource(url);
-      hls.attachMedia(player.media as HTMLMediaElement);
+      hls.attachMedia(video);
       
-      return () => {
-        hls.destroy();
-      };
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          console.error("HLS Error:", data);
+          setError(true);
+        }
+      });
+      
+      return () => hls.destroy();
+    } else if (isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+      // For Safari
+      video.src = url;
+    } else {
+      // Standard MP4
+      video.src = url;
     }
-  }, [url, isHls]);
+  }, [url]);
 
   if (!url) {
     return (
@@ -88,9 +51,24 @@ export function EnterpriseVideoPlayer({ url, poster }: EnterpriseVideoPlayerProp
     );
   }
 
+  if (error) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-black">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">Error al cargar el video.</p>
+        <p className="text-xs text-gray-400 mt-2">Por favor revisa la consola para errores de CORS o Red.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-full relative group bg-black overflow-hidden [&_.plyr]:h-full [&_.plyr]:w-full">
-      <Plyr ref={ref} {...plyrProps} />
+    <div className="w-full h-full relative group bg-black overflow-hidden flex items-center justify-center">
+      <video 
+        ref={videoRef}
+        poster={poster}
+        controls
+        className="w-full h-full max-h-full object-contain"
+        crossOrigin="anonymous" // Helpful for CORS if headers exist
+      />
     </div>
   );
 }
