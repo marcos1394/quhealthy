@@ -78,6 +78,35 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
     return <span className="border border-black/20 dark:border-white/20 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-50 dark:bg-[#050505]">{String(data)}</span>;
   };
 
+  const handleViewDocument = async (doc: VaultDocument, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
+    if (doc.documentType === 'CONSULTA_PREVIA') {
+      setSelectedPastConsultation({
+        id: parseInt(doc.id),
+        date: doc.uploadDate
+      });
+    } else {
+      if (doc.secureUrl) {
+        window.open(doc.secureUrl, '_blank');
+      } else if (consumerId) {
+        try {
+          const { ehrService } = await import('@/services/ehr.service');
+          const url = await ehrService.getPatientDocumentUrl(consumerId, doc.id);
+          if (url) {
+            window.open(url, '_blank');
+          } else {
+            import('react-toastify').then(({ toast }) => toast.error("DOCUMENTO NO DISPONIBLE."));
+          }
+        } catch (error) {
+          import('react-toastify').then(({ toast }) => toast.error("ERROR AL ABRIR EL DOCUMENTO."));
+        }
+      } else {
+        import('react-toastify').then(({ toast }) => toast.error("NO SE PUEDE ABRIR EL DOCUMENTO LOCAL."));
+      }
+    }
+  };
+
   return (
     <div className="h-full flex flex-col lg:flex-row gap-4 transition-colors duration-300">
       
@@ -260,16 +289,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                   <div 
                     key={doc.id} 
                     className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between"
-                    onClick={() => {
-                      if (doc.documentType === 'CONSULTA_PREVIA') {
-                        setSelectedPastConsultation({
-                          id: parseInt(doc.id),
-                          date: doc.uploadDate
-                        });
-                      } else if (doc.secureUrl) {
-                        window.open(doc.secureUrl, '_blank');
-                      }
-                    }}
+                    onClick={(e) => handleViewDocument(doc, e)}
                   >
                     <div className="flex items-center gap-4 mb-3 sm:mb-0">
                       <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/50 dark:group-hover:border-black/50 transition-colors">
@@ -285,17 +305,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                       </div>
                     </div>
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (doc.documentType === 'CONSULTA_PREVIA') {
-                          setSelectedPastConsultation({
-                            id: parseInt(doc.id),
-                            date: doc.uploadDate
-                          });
-                        } else if (doc.secureUrl) {
-                          window.open(doc.secureUrl, '_blank');
-                        }
-                      }}
+                      onClick={(e) => handleViewDocument(doc, e)}
                       className="border border-black dark:border-white px-6 h-10 text-[9px] font-bold uppercase tracking-widest shrink-0 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center rounded-none bg-transparent text-black dark:text-white group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent hover:scale-105"
                     >
                       {t('view_btn', { defaultValue: 'VISUALIZAR' })}
