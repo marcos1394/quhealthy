@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /**
- * HeroParticle Component
+ * HeroParticle Components
  * 
  * Principios de Psicología UX aplicados:
  * 
