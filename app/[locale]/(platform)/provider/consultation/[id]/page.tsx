@@ -6,7 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from 'react-toastify';
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save } from "lucide-react";
+import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Video, VideoOff, ChevronRight } from "lucide-react";
 
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
@@ -35,7 +35,7 @@ export default function ConsultationRoomPage() {
   
   const appointmentId = Number(params.id);
   
-    const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing }, dispatch] = React.useReducer(
+    const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing, isVideoCollapsed }, dispatch] = React.useReducer(
       (state: any, action: any) => {
         switch (action.type) {
       case 'SET_CURRENTSTEP': return { ...state, currentStep: typeof action.payload === 'function' ? action.payload(state.currentStep) : action.payload };
@@ -53,13 +53,14 @@ export default function ConsultationRoomPage() {
       case 'SET_NEWRX': return { ...state, newRx: typeof action.payload === 'function' ? action.payload(state.newRx) : action.payload };
       case 'SET_ISRECORDING': return { ...state, isRecording: typeof action.payload === 'function' ? action.payload(state.isRecording) : action.payload };
       case 'SET_ISTRANSCRIBING': return { ...state, isTranscribing: typeof action.payload === 'function' ? action.payload(state.isTranscribing) : action.payload };
+      case 'SET_ISVIDEOCOLLAPSED': return { ...state, isVideoCollapsed: typeof action.payload === 'function' ? action.payload(state.isVideoCollapsed) : action.payload };
           default: return state;
         }
       },
       {
         currentStep: 'profile', consumerId: null, patientDirectoryId: null, isOfflinePatient: false, patientName: "", appointmentType: 'in_person', loadingAppointment: true, totalPrice: 0, paymentMethod: '', paymentStatus: '', showCashModal: false, registerDenominations: null, newRx: { 
     medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
-  }, isRecording: false, isTranscribing: false
+  }, isRecording: false, isTranscribing: false, isVideoCollapsed: false
       }
     );
 
@@ -78,6 +79,7 @@ export default function ConsultationRoomPage() {
     const setNewRx = (val: any) => dispatch({ type: 'SET_NEWRX', payload: val });
     const setIsRecording = (val: any) => dispatch({ type: 'SET_ISRECORDING', payload: val });
     const setIsTranscribing = (val: any) => dispatch({ type: 'SET_ISTRANSCRIBING', payload: val });
+    const setIsVideoCollapsed = (val: any) => dispatch({ type: 'SET_ISVIDEOCOLLAPSED', payload: val });
 
 
 
@@ -295,70 +297,79 @@ export default function ConsultationRoomPage() {
         registerDenominations={registerDenominations}
       />
 
-      {/* HEADER TÉCNICO (Fijo) */}
-      <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-6 md:px-10 py-8 flex flex-col gap-8 z-10 shrink-0">
+      {/* HEADER TÉCNICO (Comprimido) */}
+      <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 shrink-0">
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => router.back()} 
-              className="border border-black dark:border-white w-16 h-16 flex justify-center items-center text-black dark:text-white bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0 rounded-none"
-            >
-              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
-            </button>
-            <div>
-              <h1 className="text-xl md:text-3xl font-semibold tracking-tight uppercase text-black dark:text-white flex items-center gap-3">
-                {t('consultation_in_progress', { defaultValue: 'AUDITORÍA CLÍNICA EN CURSO' })}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 mt-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  {displayFullName} <span className="mx-2 text-gray-300 dark:text-gray-700">|</span> {t('appointment_id', { id: appointmentId })}
-                </p>
-                {isOfflinePatient && (
-                  <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white px-2 py-1 text-[9px] uppercase font-bold tracking-widest">
-                    {t('local_catalog', { defaultValue: 'CENSO LOCAL' })}
-                  </span>
-                )}
-              </div>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.back()} 
+            className="border border-black dark:border-white w-10 h-10 flex justify-center items-center text-black dark:text-white bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0 rounded-none"
+          >
+            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+          <div>
+            <h1 className="text-sm md:text-base font-semibold tracking-tight uppercase text-black dark:text-white flex items-center gap-2">
+              {t('consultation_in_progress', { defaultValue: 'AUDITORÍA CLÍNICA' })}
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                {displayFullName} <span className="mx-1 text-gray-300 dark:text-gray-700">|</span> ID: {appointmentId}
+              </p>
+              {isOfflinePatient && (
+                <span className="bg-black text-white dark:bg-white dark:text-black px-1.5 py-0.5 text-[8px] uppercase font-bold tracking-widest">
+                  {t('local_catalog', { defaultValue: 'LOCAL' })}
+                </span>
+              )}
             </div>
-          </div>
-          
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-8 h-16 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-3 rounded-none">
-              <Save className="w-4 h-4" strokeWidth={1.5} /> {t('save_draft', { defaultValue: 'GUARDAR BORRADOR' })}
-            </button>
-            {currentStep === 'treatment' && (
-              <button 
-                onClick={handleCompleteClick} 
-                disabled={isSubmitting} 
-                className="flex-1 md:flex-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border border-transparent transition-colors h-16 px-10 text-[10px] uppercase font-bold tracking-widest flex justify-center items-center gap-3 disabled:opacity-50 rounded-none"
-              >
-                <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> {t('finish_and_charge', { defaultValue: 'FINALIZAR Y COBRAR' })}
-              </button>
-            )}
           </div>
         </div>
 
-        {/* NAVEGADOR DE PASOS TIPO BLUEPRINT GRID */}
-        <div className="flex items-center w-full max-w-4xl border border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
+        {/* BREADCRUMBS COMPACTOS */}
+        <div className="flex items-center gap-1 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 p-1">
           <button 
             onClick={() => setCurrentStep('profile')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'profile' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
           >
-            <User className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_clinical_context', { defaultValue: 'CONTEXTO CLÍNICO' })}</span>
+            <User className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_clinical_context', { defaultValue: 'CONTEXTO' })}</span>
           </button>
+          <ChevronRight className="w-3 h-3 text-gray-400" />
           <button 
             onClick={() => setCurrentStep('evaluation')}
-            className={`flex-1 h-14 border-r border-black dark:border-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
           >
-            <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_evaluation', { defaultValue: 'EVALUACIÓN' })}</span>
+            <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_evaluation', { defaultValue: 'EVALUACIÓN' })}</span>
           </button>
+          <ChevronRight className="w-3 h-3 text-gray-400" />
           <button 
             onClick={() => setCurrentStep('treatment')}
-            className={`flex-1 h-14 text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-black dark:hover:text-white'}`}
+            className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
           >
-            <Pill className="w-4 h-4 shrink-0" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_prescription', { defaultValue: 'PLAN DE ACCIÓN' })}</span>
+            <Pill className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_prescription', { defaultValue: 'PLAN' })}</span>
           </button>
+        </div>
+        
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          {appointmentType === 'online' && (
+            <button 
+              onClick={() => setIsVideoCollapsed(!isVideoCollapsed)}
+              className={`border w-10 h-10 flex items-center justify-center transition-colors rounded-none ${isVideoCollapsed ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-black dark:border-white text-black dark:text-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}`}
+              title={isVideoCollapsed ? "Mostrar Video" : "Ocultar Video"}
+            >
+              {isVideoCollapsed ? <VideoOff className="w-4 h-4" strokeWidth={1.5} /> : <Video className="w-4 h-4" strokeWidth={1.5} />}
+            </button>
+          )}
+          <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-4 h-10 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-2 rounded-none">
+            <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('save_draft', { defaultValue: 'GUARDAR' })}
+          </button>
+          {currentStep === 'treatment' && (
+            <button 
+              onClick={handleCompleteClick} 
+              disabled={isSubmitting} 
+              className="flex-1 md:flex-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border border-transparent transition-colors h-10 px-6 text-[9px] uppercase font-bold tracking-widest flex justify-center items-center gap-2 disabled:opacity-50 rounded-none"
+            >
+              <CheckCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('finish_and_charge', { defaultValue: 'FINALIZAR' })}
+            </button>
+          )}
         </div>
       </header>
 
@@ -367,14 +378,19 @@ export default function ConsultationRoomPage() {
         
         {/* === SECCIÓN VIDEOLLAMADA (Solo ONLINE) === */}
         {appointmentType === 'online' && (
-          <div className="w-full lg:w-[35%] xl:w-[30%] h-[45vh] lg:h-auto border-b lg:border-b-0 lg:border-r border-black dark:border-white shrink-0 bg-white dark:bg-[#050505]">
-            <ProviderVideoWidget appointmentId={appointmentId} />
+          <div 
+            style={{ width: isVideoCollapsed ? '0px' : '35%', minWidth: isVideoCollapsed ? '0px' : '300px' }}
+            className={`h-[45vh] lg:h-auto border-b lg:border-b-0 border-black dark:border-white shrink-0 bg-white dark:bg-[#050505] transition-all duration-300 ease-in-out relative ${isVideoCollapsed ? 'overflow-hidden opacity-0 border-r-0' : 'lg:border-r opacity-100'} resize-x overflow-auto`}
+          >
+            <div className="w-full h-full min-w-[300px]">
+              <ProviderVideoWidget appointmentId={appointmentId} />
+            </div>
           </div>
         )}
 
         {/* === SECCIÓN EHR === */}
-        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden relative p-6 md:p-10 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
-          <div className="max-w-4xl mx-auto pb-12">
+        <div className="flex-1 h-full overflow-y-auto overflow-x-hidden relative p-4 md:p-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+          <div className="max-w-5xl mx-auto pb-12">
           
           {currentStep === 'profile' && (
             <PatientProfileStep 

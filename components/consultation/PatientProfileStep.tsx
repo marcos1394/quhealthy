@@ -79,37 +79,37 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-8 transition-colors duration-300">
+    <div className="h-full flex flex-col lg:flex-row gap-4 transition-colors duration-300">
       
       {/* 👤 COLUMNA IZQUIERDA: RESUMEN DEL PACIENTE */}
       <div className="w-full lg:w-1/3 flex flex-col border border-black dark:border-white bg-white dark:bg-[#0a0a0a] rounded-none">
         
         {/* TARJETA DE IDENTIDAD */}
-        <div className="p-6 md:p-8 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex items-center gap-6 shrink-0">
-          <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0">
-            <span className="text-3xl font-semibold tracking-tight uppercase">{displayInitial}</span>
+        <div className="p-4 md:p-6 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex items-center gap-4 shrink-0">
+          <div className="w-12 h-12 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0">
+            <span className="text-xl font-semibold tracking-tight uppercase">{displayInitial}</span>
           </div>
           
           <div className="flex-1 text-left min-w-0">
             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
               Perfil Biométrico
             </p>
-            <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-black dark:text-white uppercase mb-3 truncate">
+            <h2 className="text-lg md:text-xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2 truncate">
               {displayFullName}
             </h2>
             <div className="flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
                 {patientProfile?.bloodType && (
-                  <span className="border border-black/20 dark:border-white/20 px-2 py-1 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
+                  <span className="border border-black/20 dark:border-white/20 px-2 py-0.5 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
                     GS: {patientProfile.bloodType}
                   </span>
                 )}
                 {patientProfile?.weightKg && (
-                  <span className="border border-black/20 dark:border-white/20 px-2 py-1 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
+                  <span className="border border-black/20 dark:border-white/20 px-2 py-0.5 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
                     {patientProfile.weightKg} KG
                   </span>
                 )}
                 {patientProfile?.heightCm && (
-                  <span className="border border-black/20 dark:border-white/20 px-2 py-1 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
+                  <span className="border border-black/20 dark:border-white/20 px-2 py-0.5 text-black dark:text-white bg-gray-50 dark:bg-[#050505]">
                     {patientProfile.heightCm} CM
                   </span>
                 )}
@@ -118,8 +118,8 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
         </div>
 
         {isOfflinePatient && (
-          <div className="flex items-center justify-center gap-3 border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-6 py-4 text-[9px] font-bold uppercase tracking-widest w-full shrink-0">
-            <BookOpen className="w-4 h-4" strokeWidth={1.5} />
+          <div className="flex items-center justify-center gap-2 border-b border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-4 py-3 text-[9px] font-bold uppercase tracking-widest w-full shrink-0">
+            <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
             <span>{t('local_directory_patient')}</span>
           </div>
         )}
@@ -129,80 +129,80 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
           <div className="grid grid-cols-1 gap-0 border-b border-black/10 dark:border-white/10">
             
             {!isOfflinePatient && (
-              <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 flex items-center justify-between">
+              <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('qu_score')}</span>
-                <span className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                <span className="text-xl font-semibold tracking-tight text-black dark:text-white">
                   {patientProfile?.quScore || '--'}
                 </span>
               </div>
             )}
 
-            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                  <AlertTriangle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                  <AlertTriangle className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                   {t('allergies')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2 pl-14">
+              <div className="flex flex-wrap gap-2 pl-11">
                 {renderHistoryData(patientProfile?.allergies, t('no_allergies_registered'))}
               </div>
             </div>
 
-            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                  <ShieldAlert className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                  <ShieldAlert className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                   {t('conditions')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2 pl-14">
+              <div className="flex flex-wrap gap-2 pl-11">
                 {renderHistoryData(patientProfile?.chronicConditions, t('no_chronic_conditions'))}
               </div>
             </div>
 
-            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                  <Pill className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                  <Pill className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                   {t('current_medication')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2 pl-14">
+              <div className="flex flex-wrap gap-2 pl-11">
                 {renderHistoryData(patientProfile?.currentMedications, t('no_medications_registered'))}
               </div>
             </div>
 
-            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                  <Activity className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                  <Activity className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                   {t('surgical_history')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2 pl-14">
+              <div className="flex flex-wrap gap-2 pl-11">
                 {renderHistoryData(patientProfile?.surgicalHistory, t('no_surgeries_registered'))}
               </div>
             </div>
 
-            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                  <Users className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                  <Users className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
                   {t('family_history')}
                 </h4>
               </div>
-              <div className="flex flex-wrap gap-2 pl-14">
+              <div className="flex flex-wrap gap-2 pl-11">
                 {renderHistoryData(patientProfile?.familyHistory, t('no_family_history_registered'))}
               </div>
             </div>
@@ -212,13 +212,13 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
       </div>
 
       {/* 🗂️ COLUMNA DERECHA: EXPEDIENTE Y BÓVEDA */}
-      <div className="w-full lg:w-2/3 flex flex-col gap-8">
+      <div className="w-full lg:w-2/3 flex flex-col gap-4">
         
         <div className="border border-black dark:border-white flex flex-col bg-white dark:bg-[#0a0a0a] flex-1 rounded-none overflow-hidden">
-          <div className="p-6 md:p-8 border-b border-black dark:border-white flex justify-between items-center bg-white dark:bg-[#0a0a0a] shrink-0">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-4">
-              <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-                <History className="w-4 h-4" strokeWidth={1.5} />
+          <div className="p-4 md:p-6 border-b border-black dark:border-white flex justify-between items-center bg-white dark:bg-[#0a0a0a] shrink-0">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
+              <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
+                <History className="w-3.5 h-3.5" strokeWidth={1.5} />
               </div>
               {isOfflinePatient ? t('local_consultation_history') : t('vault_title')}
             </h3>
@@ -226,29 +226,29 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
           
           <div className="p-0 flex-1 flex flex-col overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505]">
             {vaultAccessDenied ? (
-              <div className="p-12 text-center flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
-                <div className="w-16 h-16 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-6">
-                  <ShieldAlert className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+              <div className="p-8 text-center flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+                <div className="w-12 h-12 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-4">
+                  <ShieldAlert className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
-                <h4 className="text-xl font-semibold text-black dark:text-white uppercase mb-4 tracking-tight">Expediente Restringido</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                <h4 className="text-lg font-semibold text-black dark:text-white uppercase mb-3 tracking-tight">Expediente Restringido</h4>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-6 leading-relaxed">
                   EL PACIENTE MANTIENE SU EXPEDIENTE MÉDICO BAJO PRIVACIDAD. PARA VISUALIZAR EL HISTORIAL COMPLETO, REQUIERE EMITIR UNA SOLICITUD DE ACCESO.
                 </p>
                 <button 
                   onClick={handleRequestAccess} 
                   disabled={isRequestingAccess}
-                  className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors h-14 px-8 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto border-0 rounded-none"
+                  className="bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors h-10 px-6 text-[9px] font-bold uppercase tracking-widest w-full sm:w-auto border-0 rounded-none"
                 >
                   {isRequestingAccess ? 'ENVIANDO PROTOCOLO...' : 'SOLICITAR AUTORIZACIÓN'}
                 </button>
               </div>
             ) : vaultDocuments.length === 0 ? (
-              <div className="p-12 text-center flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
-                <div className="w-16 h-16 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-6">
-                  <History className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+              <div className="p-8 text-center flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+                <div className="w-12 h-12 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-4">
+                  <History className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                 </div>
-                <h4 className="text-xl font-semibold text-black dark:text-white uppercase mb-4 tracking-tight">{t('no_history')}</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto leading-relaxed">
+                <h4 className="text-lg font-semibold text-black dark:text-white uppercase mb-3 tracking-tight">{t('no_history')}</h4>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto leading-relaxed">
                   {isOfflinePatient 
                     ? t('no_past_consultations_local') 
                     : t('vault_empty')}
@@ -259,7 +259,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                 {vaultDocuments.map(doc => (
                   <div 
                     key={doc.id} 
-                    className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between"
+                    className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between"
                     onClick={() => {
                       if (doc.documentType === 'CONSULTA_PREVIA') {
                         setSelectedPastConsultation({
@@ -271,20 +271,20 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                       }
                     }}
                   >
-                    <div className="flex items-center gap-6 mb-4 sm:mb-0">
-                      <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/50 dark:group-hover:border-black/50 transition-colors">
-                        <FileCheck className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} />
+                    <div className="flex items-center gap-4 mb-3 sm:mb-0">
+                      <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/50 dark:group-hover:border-black/50 transition-colors">
+                        <FileCheck className="w-4 h-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm uppercase tracking-widest truncate mb-1">
+                        <p className="font-semibold text-xs uppercase tracking-widest truncate mb-1">
                           {doc.title || doc.fileName || 'DOCUMENTO CLÍNICO'}
                         </p>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">
-                          {doc.documentType} <span className="mx-2">|</span> {new Date(doc.uploadDate).toLocaleDateString()}
+                          {doc.documentType} <span className="mx-1">|</span> {new Date(doc.uploadDate).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <button className="border border-black dark:border-white bg-transparent px-8 h-12 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:border-white dark:group-hover:border-black shrink-0 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center rounded-none">
+                    <button className="border border-black dark:border-white bg-transparent px-6 h-10 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:border-white dark:group-hover:border-black shrink-0 transition-colors sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center rounded-none">
                       {t('view_btn', { defaultValue: 'VISUALIZAR' })}
                     </button>
                   </div>
@@ -295,12 +295,12 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
         </div>
 
         {/* 🚀 BOTÓN PARA AVANZAR AL SIGUIENTE PASO */}
-        <div className="flex justify-end pt-2 shrink-0">
+        <div className="flex justify-end pt-1 shrink-0">
           <button 
             onClick={onNext} 
-            className="flex items-center justify-center gap-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors h-16 px-12 text-[10px] font-bold uppercase tracking-widest border-0 rounded-none w-full sm:w-auto"
+            className="flex items-center justify-center gap-3 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors h-12 px-10 text-[10px] font-bold uppercase tracking-widest border-0 rounded-none w-full sm:w-auto"
           >
-            {t('continue_to_evaluation')} <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+            {t('continue_to_evaluation')} <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
         </div>
       </div>

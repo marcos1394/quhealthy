@@ -97,10 +97,10 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
       <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] mb-8 flex flex-col rounded-none transition-colors">
         
         {/* Cabecera Interna */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-6 md:p-8 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-              <Pill className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-4 md:p-6 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Pill className="w-3.5 h-3.5 text-black dark:text-white" strokeWidth={1.5} />
             </div>
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
               {t('rx_title', { defaultValue: 'FORMULARIO DE INDICACIONES' })}
@@ -118,13 +118,13 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-6 gap-0 border-b border-black dark:border-white">
             
             {/* Buscador de Producto / Medicamento */}
-            <div className="col-span-1 md:col-span-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 relative flex flex-col" ref={dropdownRef}>
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 relative flex flex-col" ref={dropdownRef}>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
                 {t('medication', { defaultValue: 'PRINCIPIO ACTIVO' })} / PRODUCTO
               </label>
               <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" strokeWidth={2} />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black dark:text-white" strokeWidth={2} />
                 <Input 
                   placeholder="ESCRIBA PARA BUSCAR EN INVENTARIO O TEXTO LIBRE..." 
                   value={newRx.medicationName} 
@@ -133,7 +133,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                     setShowDropdown(true);
                   }} 
                   onFocus={() => setShowDropdown(true)}
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest pl-12 pr-10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+                  className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest pl-10 pr-10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
                 />
                 
                 {isLoading && (
@@ -184,8 +184,8 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             </div>
 
             {/* Dosis */}
-            <div className="col-span-1 md:col-span-3 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-3 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">2</span>
                 {t('dosage', { defaultValue: 'DOSIS' })}
               </label>
@@ -193,13 +193,13 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                 placeholder={t('rx_dosage', { defaultValue: 'EJ. 1 TABLETA' })} 
                 value={newRx.dosage} 
                 onChange={e => setNewRx({...newRx, dosage: e.target.value})} 
-                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+                className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
               />
             </div>
 
             {/* Cantidad Venta */}
-            <div className="col-span-1 md:col-span-3 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-3 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">3</span>
                 CANT. (VENTA Opcional)
               </label>
@@ -209,13 +209,13 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                 placeholder="U." 
                 value={newRx.quantity || 1} 
                 onChange={e => setNewRx({...newRx, quantity: parseInt(e.target.value) || 1})} 
-                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold text-center transition-colors w-full" 
+                className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold text-center transition-colors w-full" 
               />
             </div>
             
             {/* Frecuencia */}
-            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">4</span>
                 {t('frequency', { defaultValue: 'FRECUENCIA' })}
               </label>
@@ -225,11 +225,11 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                     placeholder="EJ. CADA 8 HORAS" 
                     value={newRx.frequency} 
                     onChange={e => setNewRx({...newRx, frequency: e.target.value})} 
-                    className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
+                    className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
                   />
                   <button 
                     onClick={() => setNewRx({...newRx, frequencyEnum: '', frequency: ''})}
-                    className="w-12 h-12 bg-white dark:bg-[#0a0a0a] border-l border-black/20 dark:border-white/20 flex justify-center items-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+                    className="w-10 h-10 bg-white dark:bg-[#0a0a0a] border-l border-black/20 dark:border-white/20 flex justify-center items-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
                   >
                     <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
                   </button>
@@ -246,7 +246,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                     }
                   }}
                 >
-                  <SelectTrigger className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors w-full">
+                  <SelectTrigger className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white transition-colors w-full">
                     <SelectValue placeholder="SELECCIONE..." />
                   </SelectTrigger>
                   <SelectContent className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-xl">
@@ -261,8 +261,8 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             </div>
             
             {/* Duración */}
-            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-2 border-b border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">5</span>
                 {t('duration', { defaultValue: 'DURACIÓN' })}
               </label>
@@ -280,20 +280,20 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                       duration: days ? `POR ${days} DÍAS` : ''
                     });
                   }}
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 w-20 shrink-0 text-center placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold border-r border-black/20 dark:border-white/20 transition-colors" 
+                  className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 w-20 shrink-0 text-center placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold border-r border-black/20 dark:border-white/20 transition-colors" 
                 />
                 <Input 
                   placeholder="TEXTO LIBRE..." 
                   value={newRx.duration} 
                   onChange={e => setNewRx({...newRx, duration: e.target.value})} 
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
+                  className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border-0 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 flex-1 placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors" 
                 />
               </div>
             </div>
             
             {/* Instrucciones Extra */}
-            <div className="col-span-1 md:col-span-2 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+            <div className="col-span-1 md:col-span-2 border-b md:border-r-0 border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
                 <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">6</span>
                 {t('extra_instructions', { defaultValue: 'INSTRUCCIONES EXTRA' })}
               </label>
@@ -301,7 +301,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                 placeholder={t('rx_instructions', { defaultValue: 'EJ. TOMAR CON ALIMENTOS' })} 
                 value={newRx.instructions} 
                 onChange={e => setNewRx({...newRx, instructions: e.target.value})} 
-                className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
+                className="bg-gray-50 dark:bg-[#050505] h-10 rounded-none border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white placeholder:text-gray-400 placeholder:text-[9px] placeholder:font-bold transition-colors w-full" 
               />
             </div>
 
@@ -310,7 +310,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
               <button 
                 onClick={handleAddRx} 
                 disabled={!newRx.medicationName} 
-                className="w-full flex justify-center items-center gap-3 bg-black text-white dark:bg-white dark:text-black h-16 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:hover:bg-black rounded-none border-0"
+                className="w-full flex justify-center items-center gap-2 bg-black text-white dark:bg-white dark:text-black h-12 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:hover:bg-black rounded-none border-0"
               >
                 <Plus className="w-4 h-4" strokeWidth={1.5} /> {t('rx_add_item', { defaultValue: 'AGREGAR INDICACIÓN A RECETA' })}
               </button>
@@ -333,9 +333,9 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                 {prescription.map((item: any, index) => (
                   <div key={item.id || index} className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] group hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
                     
-                    <div className="flex-1 p-6 flex flex-col justify-center">
-                      <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white">
+                    <div className="flex-1 p-4 flex flex-col justify-center">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-xs uppercase tracking-widest text-black dark:text-white">
                           {item.medicationName} 
                         </h4>
                         <span className="border border-black/20 dark:border-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 bg-white dark:bg-[#0a0a0a]">
@@ -353,7 +353,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                       </p>
                       
                       {item.instructions && (
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-3 flex items-start gap-2">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-2 flex items-start gap-2">
                           <span className="border border-black/20 dark:border-white/20 px-1.5 bg-gray-50 dark:bg-[#050505] text-black dark:text-white shrink-0">NOTA</span> 
                           {item.instructions}
                         </p>
@@ -362,9 +362,9 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
 
                     <button 
                       onClick={() => removePrescriptionItem(item.id)} 
-                      className="w-full sm:w-16 h-16 sm:h-auto border-t sm:border-t-0 sm:border-l border-black/10 dark:border-white/10 flex justify-center items-center text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 transition-colors shrink-0 bg-white dark:bg-[#0a0a0a]"
+                      className="w-full sm:w-16 h-12 sm:h-auto border-t sm:border-t-0 sm:border-l border-black/10 dark:border-white/10 flex justify-center items-center text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 transition-colors shrink-0 bg-white dark:bg-[#0a0a0a]"
                     >
-                      <Trash2 className="w-5 h-5" strokeWidth={1.5} />
+                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
                 ))}
