@@ -11,6 +11,8 @@ export interface StaffDTO {
   name: string;
   specialty?: string;
   credentials?: string;
+  email?: string;
+  phone?: string;
   bio?: string;
   imageUrl?: string;
   role: StaffRoleBackend;
