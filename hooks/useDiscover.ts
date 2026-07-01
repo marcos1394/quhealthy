@@ -29,7 +29,7 @@ export const useDiscover = (q?: string, type?: string) => {
     providers,
     sponsoredProviders,
     organicProviders,
-    isLoading,
+    isLoading: data === undefined && isLoading, // 🔥 CRITICAL FIX: Only true if there's absolutely no data (initial load)
     isValidating,
     isError: !!error,
     refresh: mutate // Por si necesitas forzar una recarga manual desde algún botón
