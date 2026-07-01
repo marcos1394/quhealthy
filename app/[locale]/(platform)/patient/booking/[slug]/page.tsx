@@ -161,7 +161,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <Loader2 className="w-12 h-12 text-black dark:text-white animate-spin" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          PREPARANDO SERVICIO...
+          Preparando tu reserva...
         </p>
       </div>
     );
@@ -194,7 +194,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
       <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <button onClick={() => router.back()} className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:text-gray-500 transition-colors">
-            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> RETORNAR AL DIRECTORIO
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Volver al directorio
           </button>
           <div className="text-right">
             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">{t('subtitle')}</p>
@@ -215,9 +215,9 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
               <div className="w-16 h-16 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center mb-6">
                 <GraduationCap className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
               </div>
-              <h2 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">Autorización de Acceso Inmediato</h2>
+              <h2 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">Acceso Inmediato a tu Contenido</h2>
               <p className="text-[10px] text-gray-500 font-bold max-w-md leading-relaxed uppercase tracking-widest">
-                EL CARRITO CONTIENE ÚNICAMENTE ACTIVOS DIGITALES. VERIFIQUE LA ORDEN A LA DERECHA Y PROCEDA A LA LIQUIDACIÓN PARA HABILITAR EL ACCESO EN SU BÓVEDA.
+               Tu selección incluye solo contenido digital. Revisa el resumen...
               </p>
             </motion.div>
           )}
@@ -311,7 +311,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                       </div>
                       <div>
                         <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">{t('step_date')}</h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">DEFINA EL DÍA DE ATENCIÓN CLÍNICA.</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">Selecciona el día de tu preferencia.</p>
                       </div>
                     </div>
 
@@ -407,8 +407,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
                         <span className="font-bold text-sm">{stepCounter++}</span>
                       </div>
                       <div className="flex-1">
-                        <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">Identidad Clínica</h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">ASIGNAR TITULAR O DEPENDIENTE PARA LA ATENCIÓN.</p>
+                        <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">¿Quién recibirá la atención?</h2>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">Selecciona al paciente titular o agrega a un familiar.</p>
                       </div>
                     </div>
                     <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 md:p-12 ml-0 md:ml-16">

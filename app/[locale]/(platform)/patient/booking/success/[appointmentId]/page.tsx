@@ -53,8 +53,8 @@ export default function BookingSuccessPage() {
   useEffect(() => {
     if (appointment && user) {
       if (appointment.consumerId !== user.id) {
-        console.warn("ALERTA: Intento de vulneración de acceso a registro ajeno.");
-        toast.error("ACCESO DENEGADO: Credenciales insuficientes para consultar este expediente.");
+        console.warn("Acceso restringido: No tienes permisos para ver esta cita.");
+        toast.error("Acceso restringido: No tienes permisos para ver esta cita.");
         router.push('/patient/dashboard');
       }
     }
@@ -85,7 +85,7 @@ export default function BookingSuccessPage() {
       } else {
         await navigator.clipboard.writeText(text);
         setCopied(true);
-        toast.success("DATOS COPIADOS AL PORTAPAPELES.");
+        toast.success("Detalles copiados para compartir");
         setTimeout(() => setCopied(false), 2000);
       }
     } catch (error) {
@@ -94,7 +94,7 @@ export default function BookingSuccessPage() {
   };
 
   const handleAddToCalendar = () => {
-    toast.info("FUNCIÓN DE SINCRONIZACIÓN CALENDAR INACTIVA EN ENTORNO DE DESARROLLO.");
+    toast.info("La sincronización de calendario estará disponible pronto.");
   };
 
   // ==========================================
@@ -107,7 +107,7 @@ export default function BookingSuccessPage() {
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          {t('loading', { defaultValue: 'RECUPERANDO DOCUMENTO OFICIAL...' })}
+          {t('loading', { defaultValue: 'Cargando confirmación de tu cita...' })}
         </p>
       </div>
     );
@@ -120,16 +120,16 @@ export default function BookingSuccessPage() {
         <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
           <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Registro Inexistente</h2>
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Cita no encontrada</h2>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
-          No ha sido posible localizar los parámetros de esta transacción en la base de datos central.
+         El registro solicitado no existe o no tienes permisos para visualizarlo.
         </p>
         <Button 
           onClick={() => router.push("/patient/dashboard")} 
           className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
-          Retornar al Panel General
+          Volver al Panel Principal
         </Button>
       </div>
     );

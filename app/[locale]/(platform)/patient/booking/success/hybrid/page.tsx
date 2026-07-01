@@ -80,7 +80,7 @@ export default function HybridSuccessPage() {
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          Sincronizando Auditoría Financiera...
+          Confirmando tu pago...
         </p>
       </div>
     );
@@ -92,9 +92,9 @@ export default function HybridSuccessPage() {
         <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
           <ShoppingBag className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Transacción Inubicable</h2>
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Transacción no encontrada</h2>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
-          EL IDENTIFICADOR DE SESIÓN CARECE DE REGISTROS VÁLIDOS EN LA BASE DE DATOS. <br/>ID: <span className="font-mono text-[9px] break-all bg-gray-100 dark:bg-gray-900 px-1">{sessionId}</span>
+          No encontramos los detalles de esta sesión. Revisa tu conexión o vuelve al panel. <br/>ID: <span className="font-mono text-[9px] break-all bg-gray-100 dark:bg-gray-900 px-1">{sessionId}</span>
         </p>
         <Button 
           onClick={() => router.push("/patient/dashboard")} 
@@ -143,10 +143,10 @@ export default function HybridSuccessPage() {
               <CheckCircle2 className="w-10 h-10" strokeWidth={3} />
             </div>
             <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-3">
-              Liquidación Aprobada
+              ¡Pago Exitoso!
             </h1>
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto">
-              LA ADQUISICIÓN HÍBRIDA HA SIDO PROCESADA CON ÉXITO. EL DOCUMENTO FISCAL HA SIDO EMITIDO AL CORREO DEL TITULAR.
+              Tu compra se procesó correctamente. Enviamos el recibo a tu correo electrónico.
             </p>
           </div>
 
@@ -154,13 +154,13 @@ export default function HybridSuccessPage() {
             {/* Header del Ticket */}
             <div className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">ID Transaccional</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Folio de Compra</p>
                 <p className="text-xs font-mono font-bold text-black dark:text-white bg-white dark:bg-black border border-gray-300 dark:border-gray-700 px-3 py-1.5 w-fit">
                   {receipt.transactionId.replace('cs_test_', '***').substring(0, 18)}
                 </p>
               </div>
               <div className="sm:text-right">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Marca Temporal</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Fecha y Hora</p>
                 <p className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">{formattedDate}</p>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function HybridSuccessPage() {
                 <div className="border-l-2 border-black dark:border-white pl-4 py-2 bg-gray-50 dark:bg-[#050505]">
                   <div className="flex items-center gap-3 mb-2 text-black dark:text-white">
                     <Truck className="w-4 h-4" strokeWidth={1.5} />
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest">Coordenadas de Despliegue Logístico</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest">Dirección de Envío</h3>
                   </div>
                   <p className="text-xs font-light text-black dark:text-white uppercase leading-relaxed">
                     {receipt.shippingAddress}
@@ -181,7 +181,7 @@ export default function HybridSuccessPage() {
 
               <div>
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
-                  <Package className="w-4 h-4" strokeWidth={1.5} /> Relación de Activos Adquiridos
+                  <Package className="w-4 h-4" strokeWidth={1.5} /> Resumen de tu Compra
                 </h3>
                 
                 <div className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -196,8 +196,8 @@ export default function HybridSuccessPage() {
                             {item.name}
                           </p>
                           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                            {item.type === 'SERVICE' ? 'PROCEDIMIENTO CLÍNICO' : 
-                             item.type === 'PRODUCT' ? 'BIEN FÍSICO' : 'ACTIVO INTANGIBLE'}
+                            {item.type === 'SERVICE' ? 'Cita Médica' : 
+                             item.type === 'PRODUCT' ? 'Producto Físico' : 'Contenido Digital'}
                           </p>
                         </div>
                       </div>
@@ -209,7 +209,7 @@ export default function HybridSuccessPage() {
 
             {/* Total Footer */}
             <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex justify-between items-end">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Liquidación Neta</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Total Pagado</span>
               <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">{formattedTotal}</span>
             </div>
           </div>
@@ -221,14 +221,14 @@ export default function HybridSuccessPage() {
               className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
             >
               <ReceiptText className="w-4 h-4 mr-3" strokeWidth={1.5} />
-              Auditar Adquisiciones
+             Ver mis Compras
             </Button>
             
             <Button 
               onClick={() => router.push("/patient/dashboard")} 
               className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
             >
-              Retornar al Panel Principal
+              Volver al Inicio
               <ArrowRight className="w-4 h-4 ml-3" strokeWidth={1.5} />
             </Button>
           </div>
