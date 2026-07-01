@@ -329,7 +329,7 @@ const DiscoverMapContent = () => {
   const { isAuthenticated, _hasHydrated, isLoading: isSessionLoading, token } = useSessionStore();
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
   
-  const { providers, isLoading: isFetchingProviders } = useDiscover(debouncedSearchQuery, searchType);
+  const { providers, isLoading: isLoadingProviders, isValidating } = useDiscover(debouncedSearchQuery, searchType);
 // Hook de Geolocation (Extraemos error e isLoading)
   const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
   const { resolvedTheme } = useTheme();
@@ -407,7 +407,7 @@ const DiscoverMapContent = () => {
     setAuthGateOpen(true);
   };
 
-  if (isFetchingProviders) {
+  if (isLoadingProviders) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <div className="flex flex-col items-center gap-4">
@@ -488,8 +488,12 @@ const DiscoverMapContent = () => {
               onSubmit={(e) => e.preventDefault()}
               className="pointer-events-auto w-full md:w-[460px] lg:w-[400px] xl:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
             >
-              <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14">
-                <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
+              <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14 relative">
+                {isValidating ? (
+                  <Loader2 className="w-5 h-5 text-gray-400 mr-3 shrink-0 animate-spin" strokeWidth={2} />
+                ) : (
+                  <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
+                )}
                 <Input
                   placeholder="ESPECIALIDAD, CLÍNICA O NOMBRE..."
                   className="bg-transparent border-none p-0 h-full text-xs font-bold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"

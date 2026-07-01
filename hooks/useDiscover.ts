@@ -8,12 +8,13 @@ import { handleApiError } from '@/lib/handleApiError';
 
 export const useDiscover = (q?: string, type?: string) => {
   // SWR maneja el caché, la carga y los errores por nosotros
-  const { data, error, isLoading, mutate } = useSWR<DiscoverProviderWrapperResponse>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<DiscoverProviderWrapperResponse>(
     ['/discover/providers', q, type], // Llave de caché dinámica
     () => discoverService.getAllProviders(q, type),
     {
       revalidateOnFocus: false, // Evita recargar si el usuario cambia de pestaña
       dedupingInterval: 60000,  // Mantiene la caché por 1 minuto
+      keepPreviousData: true,   // 🚀 FUNDAMENTAL para UX: Mantiene los resultados anteriores mientras trae los nuevos
       onError: (err) => {
         console.error("Error al cargar los especialistas:", err);
       }
@@ -29,6 +30,7 @@ export const useDiscover = (q?: string, type?: string) => {
     sponsoredProviders,
     organicProviders,
     isLoading,
+    isValidating,
     isError: !!error,
     refresh: mutate // Por si necesitas forzar una recarga manual desde algún botón
   };

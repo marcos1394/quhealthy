@@ -85,7 +85,7 @@ export default function PatientAppointmentDetailsPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          Desencriptando expediente clínico...
+          Cargando detalles de tu cita...
         </p>
       </div>
     );
@@ -97,7 +97,7 @@ export default function PatientAppointmentDetailsPage() {
         <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
           <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
         </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Expediente Inaccesible</h2>
+        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Cita no encontrada</h2>
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
           El registro solicitado no existe o carece de permisos de visualización.
         </p>
@@ -162,7 +162,7 @@ export default function PatientAppointmentDetailsPage() {
                 </span>
               </div>
               <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase">
-                Auditoría de Cita Médica
+                Detalles de la Cita
               </h1>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function PatientAppointmentDetailsPage() {
               <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
                   <Calendar className="w-4 h-4" strokeWidth={1.5} />
-                  Programación Temporal
+                  Fecha y Horario
                 </h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-gray-800">
@@ -196,7 +196,7 @@ export default function PatientAppointmentDetailsPage() {
                     <Clock className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Bloque Horario</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Horario</p>
                     <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
                       {timeFormatted} HRS <span className="text-xs font-light text-gray-500 ml-2">[{appointment.durationMinutes} MIN]</span>
                     </p>
@@ -210,7 +210,7 @@ export default function PatientAppointmentDetailsPage() {
               <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
                   <User className="w-4 h-4" strokeWidth={1.5} />
-                  Detalles Clínicos
+                 Información de la Consulta
                 </h3>
               </div>
               <div className="p-8 space-y-8">
@@ -228,7 +228,7 @@ export default function PatientAppointmentDetailsPage() {
 
                 <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
                   <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
-                    <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} /> Procedimiento a Realizar
+                    <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} /> Servicio Programado
                   </p>
                   <p className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase">
                     {appointment.serviceNameSnapshot || appointment.serviceName || 'Consulta Integral'}
@@ -253,7 +253,7 @@ export default function PatientAppointmentDetailsPage() {
                <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
                   <MapPin className="w-4 h-4" strokeWidth={1.5} />
-                  Logística de Asistencia
+                  Ubicación y Modalidad
                 </h3>
               </div>
               <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -336,7 +336,7 @@ export default function PatientAppointmentDetailsPage() {
                       disabled={isDownloading}
                       className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6"
                     >
-                      Extraer Recibo Fiscal
+                    Descargar Factura
                       {isDownloading ? <QhSpinner size="sm" /> : <FileText className="w-4 h-4" strokeWidth={1.5} />}
                     </Button>
                   ) : (
@@ -351,7 +351,7 @@ export default function PatientAppointmentDetailsPage() {
                         disabled={isProcessingPayment}
                         className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6 disabled:opacity-50"
                       >
-                        Ejecutar Pago
+                        Pagar Ahora
                         {isProcessingPayment ? <QhSpinner size="sm" /> : <CreditCard className="w-4 h-4" strokeWidth={1.5} />}
                       </Button>
                     </div>
@@ -368,7 +368,7 @@ export default function PatientAppointmentDetailsPage() {
                   disabled={isStartingChat}
                   className="w-full rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 disabled:opacity-50"
                 >
-                  Mensaje al Proveedor
+                  Contactar al Especialista
                   {isStartingChat ? <QhSpinner size="sm" /> : <MessageSquare className="w-4 h-4" strokeWidth={1.5} />}
                 </Button>
               )}
@@ -383,7 +383,7 @@ export default function PatientAppointmentDetailsPage() {
                     <RotateCcw className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Reprogramar Cita
                   </Button>
                   <Button variant="outline" className="w-full rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6">
-                    <XCircle className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Anular Registro
+                    <XCircle className="w-3.5 h-3.5 mr-3" strokeWidth={2} /> Cancelar Cita
                   </Button>
                 </div>
               )}
