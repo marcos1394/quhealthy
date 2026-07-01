@@ -415,6 +415,8 @@
     "has_account": "¿Ya tienes una cuenta?",
     "login_here": "Inicia sesión aquí",
     "or_register": "O continúa con email",
+    "referral_code_label": "Código de referido (Opcional)",
+    "referral_code_placeholder": "Ej. QU-DOC-1234",
     "area_title": "Impulsa tu Práctica",
     "benefits": [
       "Agenda online 24/7",

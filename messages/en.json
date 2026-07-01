@@ -415,6 +415,8 @@
     "has_account": "Already have an account?",
     "login_here": "Log in here",
     "or_register": "Or continue with email",
+    "referral_code_label": "Referral Code (Optional)",
+    "referral_code_placeholder": "E.g. QU-DOC-1234",
     "area_title": "Boost your Practice",
     "benefits": [
       "Online scheduling 24/7",
