@@ -78,7 +78,7 @@ export default function PatientFamilyDashboard() {
             <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white dark:bg-[#0a0a0a]">
                 <QhSpinner size="lg" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-                    Sincronizando expedientes...
+                   Cargando perfiles familiares...
                 </p>
             </div>
         );
@@ -98,13 +98,13 @@ export default function PatientFamilyDashboard() {
                             <div className="max-w-2xl">
                                 <div className="mb-3 inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
                                     <Sparkles className="h-3 w-3" strokeWidth={2} />
-                                    Expedientes Compartidos
+                                Tu Red de Cuidado
                                 </div>
                                 <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
-                                    {t('title') || 'Núcleo Familiar'}
+                                    {t('title') || 'Mi Familia'}
                                </h1>
                                 <p className="text-xs font-light leading-relaxed text-gray-500">
-                                    {t('subtitle') || 'Administre perfiles médicos, esquemas de vacunación y seguimientos geriátricos de sus dependientes.'}
+                                    {t('subtitle') || 'Gestiona la salud, vacunas y cuidados de tus seres queridos en un solo lugar'}
                                 </p>
                             </div>
                         </div>
@@ -143,14 +143,14 @@ export default function PatientFamilyDashboard() {
                             </div>
                             <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                                 <div className="flex items-center justify-between gap-3 mb-6">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Esquemas Infantiles</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Niños (Vacunas)</p>
                                     <Syringe className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </div>
                                 <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{childCount}</p>
                             </div>
                             <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                                 <div className="flex items-center justify-between gap-3 mb-6">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Cuidados Senior</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Adultos Mayores</p>
                                     <HeartHandshake className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                                 </div>
                                 <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{elderCount}</p>
@@ -172,10 +172,10 @@ export default function PatientFamilyDashboard() {
                                 <div className="flex items-start justify-between gap-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-6 md:p-8">
                                     <div>
                                         <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                                            {t('form_title') || 'Creación de Expediente'}
+                                            {t('form_title') || 'Agregar Familiar'}
                                         </h2>
                                         <p className="text-xs font-light text-gray-500">
-                                            Defina los parámetros básicos de identidad para el nuevo dependiente.
+                                            Ingresa los datos de tu ser querido para llevar su control de salud.
                                         </p>
                                     </div>
                                     <button
@@ -397,17 +397,17 @@ export default function PatientFamilyDashboard() {
                             <HeartPulse className="h-6 w-6 text-gray-400" strokeWidth={1.5} />
                         </div>
                         <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                            {t('empty_title') || 'Núcleo Familiar Vacío'}
+                            {t('empty_title') || 'Aún no tienes familiares agregados'}
                         </h3>
                         <p className="mx-auto mb-8 max-w-md text-xs font-light text-gray-500 leading-relaxed">
-                            {t('empty_desc') || 'Integre a sus dependientes para gestionar valoraciones, recordatorios clínicos y vacunación de forma centralizada.'}
+                            {t('empty_desc') || 'Agrega a tus seres queridos para llevar su control de vacunas, consultas y cuidados.'}
                         </p>
                         <Button
                             onClick={() => setShowAddForm(true)}
                             className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
                         >
                             <UserPlus className="mr-3 h-4 w-4" strokeWidth={2} />
-                            {t('btn_add_first') || 'Vincular Dependiente'}
+                            {t('btn_add_first') || 'Agregar Familiar'}
                         </Button>
                     </motion.div>
                 )}

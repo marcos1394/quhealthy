@@ -169,17 +169,17 @@ export default function CoursePlayerPage() {
         <div className="max-w-2xl mx-auto w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 text-center space-y-6">
           <BookOpen className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto" />
           <h1 className="text-2xl font-bold uppercase tracking-widest">{courseDetails.name}</h1>
-          <p className="text-sm text-gray-500">Este curso se imparte de manera externa o mediante un enlace unificado.</p>
+          <p className="text-sm text-gray-500">Este material se encuentra alojado en una plataforma externa.</p>
           {courseDetails.contentUrl ? (
             <Button 
               className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 w-full h-12 uppercase font-bold tracking-widest"
               onClick={() => window.open(courseDetails.contentUrl, '_blank')}
             >
-              Ir al Material del Curso
+              Acceder al Contenido
             </Button>
           ) : (
             <div className="bg-amber-50 text-amber-800 p-4 border border-amber-200">
-              El contenido aún no ha sido enlazado por el proveedor.
+              El especialista aún no ha habilitado el acceso a este material.
             </div>
           )}
         </div>
@@ -221,7 +221,7 @@ export default function CoursePlayerPage() {
                 ) : (
                   <div className="text-center space-y-4">
                     <PlayCircle className="w-12 h-12 text-gray-700 mx-auto" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Video no disponible</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Video en preparación</p>
                   </div>
                 )}
               </div>
@@ -254,7 +254,7 @@ export default function CoursePlayerPage() {
                     )}
                   >
                     {savingCompletion ? <QhSpinner size="sm" className="mr-2" /> : (isCurrentLessonCompleted ? <CheckCircle2 className="w-4 h-4 mr-2" /> : null)}
-                    {isCurrentLessonCompleted ? 'Desmarcar' : 'Marcar Completada'}
+                    {isCurrentLessonCompleted ? 'Desmarcar' : 'Completar Lección'}
                   </Button>
                 </div>
 
@@ -270,13 +270,13 @@ export default function CoursePlayerPage() {
                       value="notes" 
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent px-4 py-3 font-bold uppercase tracking-widest text-[11px]"
                     >
-                      Mis Notas
+                      Mis Apuntes
                     </TabsTrigger>
                     <TabsTrigger 
                       value="evaluation" 
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent px-4 py-3 font-bold uppercase tracking-widest text-[11px] text-amber-600 dark:text-amber-500"
                     >
-                      Evaluación & Constancia
+                      Evaluación & Certificado
                     </TabsTrigger>
                   </TabsList>
                   
@@ -324,7 +324,7 @@ export default function CoursePlayerPage() {
                         </div>
 
                         <div className="p-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800">
-                          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Paso 2: Subir Evidencia</p>
+                          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Paso 2: Subir Proyecto</p>
                           <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 p-8 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
                             <p className="text-sm text-gray-500">Arrastra tus archivos aquí o haz clic para subir</p>
                             <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">Formatos permitidos: PDF, JPG, PNG (Max 5MB)</p>
@@ -337,7 +337,7 @@ export default function CoursePlayerPage() {
                            Estado: <span className="font-bold text-amber-600">Pendiente</span>
                          </div>
                          <Button className="rounded-none bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-[10px]">
-                           Generar Constancia
+                          Obtener Certificado
                          </Button>
                       </div>
                     </div>

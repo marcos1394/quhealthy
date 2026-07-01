@@ -53,7 +53,7 @@ export default function MyCoursesPage() {
                   Biblioteca Digital
                 </div>
                 <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
-                  Mis Cursos Adquiridos
+                  Mis Cursos
                 </h1>
                 <p className="text-xs font-light leading-relaxed text-gray-500">
                   Accede a tus contenidos, retoma el aprendizaje y consulta tus recursos digitales cuando los necesites.
@@ -68,7 +68,7 @@ export default function MyCoursesPage() {
               className="rounded-none border border-black dark:border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors disabled:opacity-50 shrink-0"
             >
               <RefreshCw className={cn("h-3.5 w-3.5 mr-2", isLoading && "animate-spin")} strokeWidth={2} />
-              Sincronizar
+              Actualizar
             </Button>
           </div>
 
@@ -77,7 +77,7 @@ export default function MyCoursesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
               <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                 <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Volumen Total</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Cursos Totales</p>
                   <Library className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                 </div>
                 <p className="text-3xl font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black tracking-tight">{courses.length}</p>
@@ -91,7 +91,7 @@ export default function MyCoursesPage() {
               </div>
               <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
                 <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Última Transacción</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">Última Compra</p>
                   <CalendarCheck className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
                 </div>
                 <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black truncate">
@@ -135,7 +135,7 @@ export default function MyCoursesPage() {
               <BookOpen className="h-6 w-6 text-gray-400" strokeWidth={1.5} />
             </div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-              Acervo Vacío
+              Tu biblioteca está vacía
             </h3>
             <p className="mx-auto mb-8 max-w-md text-xs font-light leading-relaxed text-gray-500">
               Explora el catálogo de nuestros especialistas para encontrar contenido en video, guías y programas diseñados para ti.
@@ -198,7 +198,7 @@ export default function MyCoursesPage() {
                   <div className="flex flex-1 flex-col p-6 group-hover:bg-transparent transition-colors duration-300">
                     <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-4 transition-colors duration-300 group-hover:border-gray-800 dark:group-hover:border-gray-200">
                       <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:bg-black group-hover:text-gray-400 dark:group-hover:bg-white dark:group-hover:text-gray-600 transition-colors duration-300">
-                        Orden #{course.access.orderId}
+                        Folio #{course.access.orderId}
                       </span>
                       <span className={cn(
                         "flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border transition-colors duration-300",

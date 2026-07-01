@@ -123,7 +123,7 @@ export default function ConsumerAppointmentsPage() {
       <div className="flex flex-col justify-center items-center min-h-screen gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
         <QhSpinner size="lg" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
-          {t('loading', { defaultValue: 'Cargando registros...' })}
+          {t('loading', { defaultValue: 'Cargando tu agenda...' })}
         </p>
       </div>
     );
@@ -142,10 +142,10 @@ export default function ConsumerAppointmentsPage() {
             </div>
             <div>
               <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2 uppercase">
-                {t('title', { defaultValue: 'Expediente de Citas' })}
+                {t('title', { defaultValue: 'Mis Citas' })}
               </h1>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                {t('subtitle', { defaultValue: 'Gestión y auditoría de consultas médicas.' })}
+                {t('subtitle', { defaultValue: 'Gestiona tus próximas consultas y revisa tu historial.' })}
               </p>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function ConsumerAppointmentsPage() {
             className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
           >
             <Plus className="w-4 h-4 mr-3" strokeWidth={2} /> 
-            {t('btn_new', { defaultValue: 'Programar Consulta' })}
+            {t('btn_new', { defaultValue: 'Agendar Cita' })}
           </Button>
         </div>
 
@@ -198,8 +198,8 @@ export default function ConsumerAppointmentsPage() {
           isOpen={cancelModalState.isOpen}
           onClose={() => setCancelModalState({ isOpen: false, appointment: null })}
           onConfirm={handleCancelAppointment}
-          title={t('btn_cancel', { defaultValue: 'Anular Registro' })}
-          message={`¿Confirma la anulación del registro para ${cancelModalState.appointment?.serviceName} con ${cancelModalState.appointment?.providerNameSnapshot}? Esta acción no se puede deshacer.`}
+          title={t('btn_cancel', { defaultValue: 'Cancelar Cita' })}
+          message={`¿¿Estás seguro de que deseas cancelar tu cita de ${cancelModalState.appointment?.serviceName} con ${cancelModalState.appointment?.providerNameSnapshot}? Esta acción no se puede deshacer.`}
           isLoading={isCanceling}
           variant="destructive"
         />

@@ -94,7 +94,7 @@ export default function PatientOrdersPage() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white dark:bg-[#0a0a0a]">
         <QhSpinner size="lg" />
         <p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-          Sincronizando Logística...
+          Cargando tus pedidos...
         </p>
       </div>
     );
@@ -114,10 +114,10 @@ export default function PatientOrdersPage() {
               <div className="max-w-2xl">
                 <div className="mb-3 inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
                   <Sparkles className="h-3 w-3" strokeWidth={2} />
-                  Farmacia & Tienda
+                  Mis Compras
                 </div>
                 <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
-                  Gestión de Pedidos
+                  Historial de Pedidos
                 </h1>
                 <p className="text-xs font-light leading-relaxed text-gray-500">
                   Rastree sus compras, audite la logística de envío y confirme recepciones desde este panel unificado.

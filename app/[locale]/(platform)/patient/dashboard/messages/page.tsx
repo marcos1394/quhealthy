@@ -47,7 +47,7 @@ export default function MessagesPage() {
     }, [messages, isTyping]);
 
     // Handlers de UI para futuras fases
-    const handleVoiceCall = () => toast.info(t('toast_voice', { defaultValue: 'Protocolo de voz encriptada inactivo.' }));
+    const handleVoiceCall = () => toast.info(t('toast_voice', { defaultValue: 'Las llamadas de voz estarán disponibles pronto.' }));
     const handleVideoCall = () => toast.info(t('toast_video', { defaultValue: 'Protocolo de video inactivo.' }));
     const handleBackToInbox = () => setSelectedConversation(null);
 
@@ -57,7 +57,7 @@ export default function MessagesPage() {
             <div className="flex flex-col justify-center items-center min-h-[70vh] bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
                 <QhSpinner size="lg" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-4 animate-pulse">
-                    {t('loading', { defaultValue: 'Desencriptando Bóveda...' })}
+                    {t('loading', { defaultValue: 'Cargando tus mensajes...' })}
                 </p>
             </div>
         );
@@ -77,10 +77,10 @@ export default function MessagesPage() {
                 </div>
                 <div>
                     <h1 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
-                        {t('title', { defaultValue: 'Canales Clínicos' })}
+                        {t('title', { defaultValue: 'Mensajes' })}
                     </h1>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                        {t('subtitle', { defaultValue: 'Comunicación encriptada End-to-End' })}
+                        {t('subtitle', { defaultValue: 'Comunicación privada y directa con tu especialista' })}
                     </p>
                 </div>
             </div>
@@ -131,7 +131,7 @@ export default function MessagesPage() {
                                 {/* Disclaimer de Privacidad */}
                                 <div className="flex justify-center mb-8">
                                     <span className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                                        {t('privacy_notice', { defaultValue: '🔒 Canal Asegurado' })}
+                                        {t('privacy_notice', { defaultValue: '🔒 Chat Privado y Seguro' })}
                                     </span>
                                 </div>
 
@@ -148,7 +148,7 @@ export default function MessagesPage() {
                                 {isTyping && (
                                     <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500 ml-16 mt-4">
                                         <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 animate-pulse" />
-                                        {t('typing', { defaultValue: 'Recibiendo Transmisión...' })}
+                                        {t('typing', { defaultValue: 'Escribiendo...' })}
                                     </div>
                                 )}
                                 {/* Ancla para el auto-scroll */}
@@ -168,10 +168,10 @@ export default function MessagesPage() {
                                 <MessageCircle className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                             </div>
                             <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                                {t('select_conversation', { defaultValue: 'Bandeja de Entrada' })}
+                                {t('select_conversation', { defaultValue: 'Tus Mensajes' })}
                             </h3>
                             <p className="text-xs text-gray-500 font-light max-w-sm leading-relaxed">
-                                {t('select_conversation_desc', { defaultValue: 'Seleccione un registro del directorio a la izquierda para inicializar un canal de comunicación.' })}
+                                {t('select_conversation_desc', { defaultValue: 'Selecciona una conversación de la lista para comunicarte con tu especialista.' })}
                             </p>
                         </div>
                     )}

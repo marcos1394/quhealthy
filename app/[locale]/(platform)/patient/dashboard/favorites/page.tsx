@@ -94,7 +94,7 @@ function ProviderTabContent({ t, router }: { t: any, router: any }) {
                                         onClick={() => router.push(`/store/${provider.slug}`)}
                                         className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-[var(--provider-color)] hover:text-white hover:border-[var(--provider-color)] dark:hover:bg-[var(--provider-color)] dark:hover:text-white dark:hover:border-[var(--provider-color)] text-[9px] font-bold uppercase tracking-widest h-10 px-4 transition-colors shrink-0"
                                     >
-                                        Auditar Perfil <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
+                                       Ver Perfil <ChevronRight className="w-3 h-3 ml-2" strokeWidth={1.5} />
                                     </Button>
                                 </div>
                             </div>
@@ -107,16 +107,16 @@ function ProviderTabContent({ t, router }: { t: any, router: any }) {
                         {getEmptyStateIcon()}
                     </div>
                     <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2 text-center">
-                        {t('empty_providers_title', { defaultValue: 'Registro Vacío' })}
+                        {t('empty_providers_title', { defaultValue: 'Aún no tienes especialistas guardados' })}
                     </h3>
                     <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
-                        {t('empty_providers_desc', { defaultValue: 'Explore el catálogo general para auditar y guardar especialistas de confianza en su archivo personal.' })}
+                        {t('empty_providers_desc', { defaultValue: 'Explora nuestro directorio y guarda a los médicos que más te gusten para encontrarlos rápidamente.' })}
                     </p>
                     <Button 
                         onClick={() => router.push('/discover')}
                         className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
                     >
-                        <Navigation className="w-4 h-4 mr-3" strokeWidth={1.5} /> {t('btn_explore', { defaultValue: 'Navegar Catálogo' })}
+                        <Navigation className="w-4 h-4 mr-3" strokeWidth={1.5} /> {t('btn_explore', { defaultValue: 'Explorar Especialistas' })}
                     </Button>
                 </div>
             )}
@@ -207,7 +207,7 @@ function ItemsTabContent({ activeTab, t, router }: { activeTab: TabType, t: any,
                                 </p>
                                 <div className="mt-auto flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-6 group-hover:[border-color:var(--provider-color)] transition-colors">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Inversión</span>
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Precio</span>
                                         <span className="text-sm font-semibold text-black dark:text-white tracking-tight">
                                             ${item.price?.toLocaleString()} <span className="text-[10px] font-normal text-gray-500">MXN</span>
                                         </span>
@@ -230,7 +230,7 @@ function ItemsTabContent({ activeTab, t, router }: { activeTab: TabType, t: any,
                         {getEmptyStateIcon(activeTab)}
                     </div>
                     <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2 text-center">
-                        {t('empty_items_title', { defaultValue: 'Sin Entradas Registradas' })}
+                        {t('empty_items_title', { defaultValue: 'Aún no hay elementos guardados' })}
                     </h3>
                     <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
                         {t('empty_items_desc', { defaultValue: 'Marque como favoritos los elementos del catálogo para almacenarlos en este directorio.' })}
@@ -264,10 +264,10 @@ export default function PatientFavoritesDashboard() {
                         </div>
                         <div>
                             <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight uppercase mb-2">
-                                {t('title', { defaultValue: 'Archivo de Interés' })}
+                                {t('title', { defaultValue: 'Mis Favoritos' })}
                             </h1>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                {t('subtitle', { defaultValue: 'Directorio de perfiles y servicios guardados' })}
+                                {t('subtitle', { defaultValue: 'Tus especialistas y servicios médicos preferidos a un clic de distancia.' })}
                             </p>
                         </div>
                     </div>

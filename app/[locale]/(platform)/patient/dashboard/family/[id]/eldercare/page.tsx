@@ -54,7 +54,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
     return (
         <span className={`text-[10px] font-bold flex items-center gap-1 ${isOverdue ? 'text-red-500' : 'text-blue-500'}`}>
             <Timer className="w-3 h-3" />
-            {isOverdue ? `Atrasado por ${timeLeft}` : `En ${timeLeft}`}
+            {isOverdue ? `Retraso de ${timeLeft}` : `Faltan ${timeLeft}`}
         </span>
     );
 };
@@ -203,7 +203,7 @@ export default function EldercarePage() {
             <div className="flex flex-col justify-center items-center min-h-[60vh] bg-white dark:bg-[#0a0a0a]">
                 <QhSpinner size="lg" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-                    Accediendo a expediente...
+                   Cargando perfil de salud...
                 </p>
             </div>
         );
@@ -226,10 +226,10 @@ export default function EldercarePage() {
                         <div>
                             <h1 className="text-3xl font-semibold tracking-tight uppercase flex items-center gap-3 mb-1">
                                 <HeartHandshake className="w-8 h-8" strokeWidth={1.5} />
-                                Cuidados Geriátricos
+                                Cuidado y Bienestar
                             </h1>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                Panel de seguimiento y telemetría para <span className="text-black dark:text-white">{member.firstName} {member.lastName}</span>
+                                Monitoreo de salud y rutinas de... <span className="text-black dark:text-white">{member.firstName} {member.lastName}</span>
                             </p>
                         </div>
                     </div>
@@ -240,7 +240,7 @@ export default function EldercarePage() {
                     <div className="p-8 md:p-12 flex-1">
                         <span className="border border-white/30 dark:border-black/30 px-3 py-1 text-[9px] font-bold uppercase tracking-widest mb-6 inline-flex items-center gap-2">
                             <Activity className="w-3.5 h-3.5" strokeWidth={2} />
-                            Servicios a Domicilio
+                            Asistencia en Casa
                         </span>
                         <h2 className="text-3xl md:text-4xl font-semibold mb-4 tracking-tight leading-tight">
                             Atención profesional en la comodidad de su hogar
@@ -299,7 +299,7 @@ export default function EldercarePage() {
                         <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
                             <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
                                 <Pill className="w-4 h-4" strokeWidth={1.5} />
-                                Medicación Activa
+                                Tratamiento Actual
                             </h3>
                             <Button 
                                 variant="outline" 
@@ -356,15 +356,15 @@ export default function EldercarePage() {
                                             disabled={med.totalExpected !== undefined && med.adherenceCount !== undefined && med.adherenceCount >= med.totalExpected}
                                             className="w-full mt-2 rounded-none bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-200 dark:text-black uppercase tracking-widest text-[9px] font-bold h-8"
                                         >
-                                            ✅ Tomar Dosis
+                                            Registrar Toma
                                         </Button>
                                     </div>
 
                                     <div className="flex items-center justify-between mt-4 border-t border-gray-100 dark:border-gray-900 pt-4">
                                         {med.isManual ? (
-                                            <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Ingresado manualmente</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">Agregado por la familia</p>
                                         ) : (
-                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Recetado por doctor</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Indicado por el especialista</p>
                                         )}
                                         {med.isManual && (
                                             <div className="flex gap-2">

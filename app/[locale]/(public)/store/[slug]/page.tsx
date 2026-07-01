@@ -29,6 +29,7 @@ import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useProviderScore } from "@/hooks/useProviderScore";
 import { QuScoreModal } from "@/components/store/QuScoreModal";
+import { CrossSellingCarousel } from "@/components/discover/CrossSellingCarousel";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -699,6 +700,19 @@ export default function PublicStorePage() {
           )}
 
         </AnimatePresence>
+        
+        {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
+        <div className="mt-12 px-6 lg:px-0">
+          <CrossSellingCarousel 
+            itemType="COURSE" 
+            title="Sugerencias Académicas" 
+            subtitle="Otros pacientes también exploraron estos cursos" 
+          />
+          <CrossSellingCarousel 
+            itemType="PRODUCT" 
+            title="Complementos Recomendados" 
+          />
+        </div>
       </div>
 
       {/* --- BOTTOM DOCK (PANEL FIJO) --- */}

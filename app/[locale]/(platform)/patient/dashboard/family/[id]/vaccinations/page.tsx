@@ -328,7 +328,7 @@ export default function VaccinationsPage() {
             <div className="flex flex-col justify-center items-center min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
                 <QhSpinner size="lg" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-4 animate-pulse">
-                    Sincronizando Expediente...
+                   Cargando cartilla...
                 </p>
             </div>
         );
@@ -350,10 +350,10 @@ export default function VaccinationsPage() {
                         <div>
                             <div className="mb-2 inline-flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
                                 <Sparkles className="h-3 w-3" strokeWidth={2} />
-                                Expediente Clínico Oficial
+                                Registro de Salud
                             </div>
                             <h1 className="text-3xl font-semibold tracking-tight uppercase mb-1">
-                                Esquema de Vacunación
+                                Cartilla de Vacunación
                             </h1>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                                 Monitoreo y registro para <span className="text-black dark:text-white">{member.firstName} {member.lastName}</span>
@@ -366,7 +366,7 @@ export default function VaccinationsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
                     <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
                         <div className="flex items-center justify-between gap-3 mb-6">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Avance General</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Progreso</p>
                             <ShieldCheck className="h-4 w-4 text-black dark:text-white" strokeWidth={1.5} />
                         </div>
                         <p className="text-3xl font-semibold tracking-tight">{progress}%</p>
@@ -380,7 +380,7 @@ export default function VaccinationsPage() {
                     </div>
                     <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
                         <div className="flex items-center justify-between gap-3 mb-6">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">Alertas / Retrasos</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">Pendientes o Atrasadas</p>
                             <AlertCircle className="h-4 w-4 text-red-500" strokeWidth={1.5} />
                         </div>
                         <p className="text-3xl font-semibold tracking-tight text-red-500">{delayedCount}</p>
@@ -394,9 +394,9 @@ export default function VaccinationsPage() {
                             <ScanFace className="w-5 h-5" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Módulo de Extracción IA</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Escanear Cartilla Física</h3>
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light">
-                                Sube o captura una imagen de la cartilla física para sincronizar fechas automáticamente.
+                                Toma una foto de tu cartilla física para registrar las vacunas automáticamente.
                             </p>
                         </div>
                     </div>
@@ -459,7 +459,7 @@ export default function VaccinationsPage() {
                                 <div className="flex items-center gap-3">
                                     <Clock className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
                                     <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                                        Fase: {stage.ageGroup}
+                                        A los: {stage.ageGroup}
                                     </h2>
                                 </div>
                                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
@@ -539,10 +539,10 @@ export default function VaccinationsPage() {
                 <DialogContent className="sm:max-w-md rounded-none bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 gap-0 shadow-2xl">
                     <DialogHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
                         <DialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                            Auditoría de Dosis
+                            Registrar Vacuna
                         </DialogTitle>
                         <DialogDescription className="text-[10px] uppercase tracking-widest text-gray-500 mt-2">
-                            Seleccione la fecha cronológica de la aplicación. Por defecto se asigna la fecha actual.
+                            ¿Cuándo se aplicó esta vacuna? Si no recuerdas el día exacto, selecciona un aproximado.
                         </DialogDescription>
                     </DialogHeader>
                     
@@ -578,7 +578,7 @@ export default function VaccinationsPage() {
                             className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto border-0 disabled:opacity-50"
                         >
                             {simulatingAction !== null ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileCheck2 className="w-4 h-4 mr-2" strokeWidth={1.5} />}
-                            Sincronizar
+                          Guardar Registro
                         </Button>
                     </DialogFooter>
                 </DialogContent>
