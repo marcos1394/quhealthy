@@ -209,14 +209,15 @@ const MapProviderCard = ({
       </div>
 
       {/* 📄 INFO BLOCK */}
-      <div className="p-5 flex-1 flex flex-col bg-white dark:bg-[#0a0a0a]">
+      <div className="p-5 flex flex-col bg-white dark:bg-[#0a0a0a]">
         
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex flex-col">
+        {/* Nombre + Logo */}
+        <div className="flex items-start justify-between gap-4 mb-1">
+          <div className="flex flex-col min-w-0">
             <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white leading-tight line-clamp-2">
               {provider.name}
             </h3>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">
               {provider.category || 'ESPECIALISTA'}
             </span>
           </div>
@@ -235,7 +236,11 @@ const MapProviderCard = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-auto mb-6">
+        {/* Separador */}
+        <div className="w-full h-px bg-gray-100 dark:bg-gray-800 my-3" />
+
+        {/* Tarifa + Distancia en línea */}
+        <div className="flex items-center justify-between mb-3">
           <div className="flex flex-col">
             <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">TARIFA BASE</span>
             <div className="flex items-baseline gap-2">
@@ -288,6 +293,7 @@ const MapProviderCard = ({
     </div>
   );
 };
+
 
 // ── MAIN MAP COMPONENT (Versión Pública) ──
 const DiscoverMapContent = () => {
