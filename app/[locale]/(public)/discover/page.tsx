@@ -792,7 +792,7 @@ const DiscoverMapContent = () => {
         </div>
 
         {/* 📇 CAPA FLOTANTE: FICHAS DE PROVEEDOR */}
-        <div className={cn("absolute z-20 pointer-events-none transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col" : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
+        <div className={cn("absolute z-20 transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] pointer-events-none md:pointer-events-none" : "pointer-events-none top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
 
           
           {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
@@ -807,7 +807,7 @@ const DiscoverMapContent = () => {
               </p>
             </div>
           ) : (
-            <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "md:flex-1 md:overflow-y-auto md:overscroll-contain flex flex-col gap-3 pb-6 overflow-x-auto" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")}>
+            <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "flex flex-col gap-3 overflow-y-auto scroll-smooth overscroll-contain pb-6" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")} style={viewMode === "MAP" ? { height: 'calc(100vh - 136px)' } : undefined}>
               
               {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
               {viewMode === "GRID" && (
