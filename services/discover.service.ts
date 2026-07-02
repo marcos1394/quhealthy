@@ -9,9 +9,17 @@ export const discoverService = {
   /**
    * Obtiene la lista de todos los proveedores públicos, con opción de búsqueda NLP
    */
-  getAllProviders: async (q?: string, type?: string): Promise<DiscoverProviderWrapperResponse> => {
+  getAllProviders: async (
+    q?: string, 
+    type?: string,
+    extraParams?: {
+      city?: string;
+      hasDiscount?: boolean;
+      maxPrice?: number;
+    }
+  ): Promise<DiscoverProviderWrapperResponse> => {
     const response = await axiosInstance.get<DiscoverProviderWrapperResponse>(BASE_URL_STOREFRONT, {
-      params: { q, type }
+      params: { q, type, ...extraParams }
     });
     return response.data;
   },
