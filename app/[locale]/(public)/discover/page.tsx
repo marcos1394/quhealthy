@@ -342,6 +342,9 @@ const DiscoverMapContent = () => {
   const { isAuthenticated, _hasHydrated, isLoading: isSessionLoading, token } = useSessionStore();
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
   
+// Hook de Geolocation (Extraemos error e isLoading)
+  const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
+
   const { providers, isLoading: isLoadingProviders, isValidating } = useDiscover(debouncedSearchQuery, searchType);
   const { items, isLoading: isLoadingItems, isValidating: isValidatingItems } = useDiscoverItems({
     q: debouncedSearchQuery,
@@ -351,10 +354,7 @@ const DiscoverMapContent = () => {
   });
   
   const isCurrentlyLoading = searchType === 'STORE' ? isLoadingProviders : isLoadingItems;
-  const isCurrentlyValidating = searchType === 'STORE' ? isValidating : isValidatingItems;
-
-// Hook de Geolocation (Extraemos error e isLoading)
-  const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
+  const isCurrentlyValidating = searchType === 'STORE' ? isValidating : isValidatingItems;  
   const { resolvedTheme } = useTheme();
 
 // Efecto: Cuando conseguimos la ubicación, mostramos mensaje de éxito 2.5 seg y lo cerramos
