@@ -807,7 +807,7 @@ const DiscoverMapContent = () => {
               </p>
             </div>
           ) : (
-            <div className={cn("w-full h-full custom-scrollbar pointer-events-auto flex", viewMode === "MAP" ? "md:flex-col overflow-x-auto md:overflow-y-auto px-6 md:px-0 snap-x snap-mandatory pb-6 md:pb-0" : "pb-20 md:pb-0 gap-8 max-w-7xl mx-auto")} >
+            <div className={cn("w-full custom-scrollbar pointer-events-auto flex items-start", viewMode === "MAP" ? "md:flex-col overflow-x-auto md:overflow-y-auto px-6 md:px-0 snap-x snap-mandatory pb-6 md:pb-0" : "pb-20 md:pb-0 gap-8 max-w-7xl mx-auto")} >
               
               {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
               {viewMode === "GRID" && (
@@ -816,7 +816,7 @@ const DiscoverMapContent = () => {
                 </aside>
               )}
 
-              <div className={cn("flex-1", viewMode === "GRID" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex gap-6")}>
+              <div className={cn("flex-1", viewMode === "GRID" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start" : "flex gap-6")}>
               
               <AnimatePresence>
                 {searchType === 'STORE' ? enrichedProviders.map((provider) => (
