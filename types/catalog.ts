@@ -1,5 +1,7 @@
 // types/catalog.ts
 
+import { GalleryImage } from './store';
+
 export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE' | 'SUPPLY';
 export type ServiceModality = 'IN_PERSON' | 'ONLINE' | 'HYBRID';
 export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
@@ -15,6 +17,7 @@ export interface CatalogItemDTO {
   price: number;
   requiresEvaluation?: boolean;
   imageUrl?: string; 
+  galleryImages?: GalleryImage[]; 
   
   // Específico de Servicios
   durationMinutes?: number;
@@ -52,6 +55,7 @@ export interface UI_Service {
   cancellationPolicy: CancellationPolicy;
   followUpPeriodDays?: number;
   imageUrl?: string; 
+  galleryImages?: GalleryImage[];
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
@@ -65,6 +69,7 @@ export interface UI_Package {
   price: number;
   serviceIds: number[];
   imageUrl?: string; 
+  galleryImages?: GalleryImage[];
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }

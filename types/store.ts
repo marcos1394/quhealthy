@@ -2,8 +2,23 @@
 // types/store.ts
 
 // Tipos de multimedia permitidos por tu backend
-// Agregamos STAFF_AVATAR y ITEM_IMAGE a los tipos permitidos
-export type StoreMediaType = 'LOGO' | 'BANNER' | 'PREVIEW_VIDEO' | 'GALLERY' | 'STAFF_AVATAR' | 'ITEM_IMAGE';
+export type StoreMediaType = 'LOGO' | 'BANNER' | 'PREVIEW_VIDEO' | 'GALLERY' | 'STAFF_AVATAR' | 'ITEM_IMAGE' | 'BEFORE_AFTER' | 'CERTIFICATION' | 'EQUIPMENT' | 'OFFICE';
+
+export type GalleryType = 'OFFICE' | 'EQUIPMENT' | 'CERTIFICATION' | 'BEFORE_AFTER' | 'SERVICE_WORK' | 'PROMOTIONAL';
+
+export interface GalleryImage {
+  id: number;
+  providerId: number;
+  catalogItemId?: number;
+  galleryType: GalleryType;
+  imageUrl: string;
+  caption?: string;
+  displayOrder: number;
+  beforeImageUrl?: string;
+  afterImageUrl?: string;
+  isVideo?: boolean;
+  createdAt: string;
+}
 
 export interface StoreProfile {
   providerId?: number;

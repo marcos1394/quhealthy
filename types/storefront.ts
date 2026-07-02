@@ -1,3 +1,5 @@
+import { GalleryImage } from './store';
+
 export interface StorefrontItem {
   id: number;
   type: 'SERVICE' | 'PACKAGE' | 'PRODUCT' | 'COURSE'; // 🚀 AHORA SOPORTA LOS 4 TIPOS
@@ -7,6 +9,7 @@ export interface StorefrontItem {
   price: number;
   quantity?: number; // Solo para productos físicos
   imageUrl?: string;
+  galleryImages?: GalleryImage[];
   requiresEvaluation?: boolean;
   
   // 🩺 Campos de Servicio
@@ -65,4 +68,6 @@ export interface StorefrontData {
   packages: StorefrontItem[];
   products: StorefrontItem[]; // 🚀 Nueva lista de Farmacia
   courses: StorefrontItem[];  // 🚀 Nueva lista de Cursos
+  
+  galleryImages?: GalleryImage[];
 }

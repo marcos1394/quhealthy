@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
 import { cn } from "@/lib/utils";
 
 // Color presets - Architectural Selection
@@ -498,6 +499,46 @@ export function VisualIdentitySection({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* --- GALERÍAS DE LA CLÍNICA --- */}
+        <div className="space-y-12 border-t border-gray-200 dark:border-gray-800 pt-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+              <ImageIcon className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                Galerías e Instalaciones
+              </h2>
+              <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+                Muestra tu consultorio, equipo médico y certificaciones
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-16">
+            <GalleryUploadManager 
+              galleryType="OFFICE" 
+              title="Fotos del Consultorio / Clínica"
+              description="Sube fotos de tus instalaciones, salas de espera, fachada, etc."
+              maxImages={15}
+            />
+
+            <GalleryUploadManager 
+              galleryType="EQUIPMENT" 
+              title="Equipamiento Médico y Tecnología"
+              description="Destaca la tecnología y equipos especializados con los que cuentas."
+              maxImages={10}
+            />
+
+            <GalleryUploadManager 
+              galleryType="CERTIFICATION" 
+              title="Diplomas y Certificaciones"
+              description="Añade fotos o scans legibles de tus títulos, membresías o reconocimientos."
+              maxImages={10}
+            />
           </div>
         </div>
 

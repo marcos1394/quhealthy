@@ -24,6 +24,8 @@ import { useTranslations } from "next-intl";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
+import { BeforeAfterUploader } from "@/components/ui/gallery/BeforeAfterUploader";
 import { cn } from "@/lib/utils";
 import { UI_Service, CancellationPolicy } from "@/types/catalog";
 
@@ -377,6 +379,35 @@ export function ServiceItemCard({
         </div>
 
       </div>
+
+      {/* --- GALERÍAS DEL SERVICIO (Sólo si ya está guardado) --- */}
+      {!service.isNew && (
+        <div className="border-t border-black/10 dark:border-white/10 p-6 md:p-8 bg-gray-50/50 dark:bg-[#080808]">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+              <Camera className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Galería del Servicio</h3>
+              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Muestra resultados, técnicas o procesos</p>
+            </div>
+          </div>
+
+          <div className="space-y-12">
+            <GalleryUploadManager 
+              galleryType="SERVICE_WORK" 
+              catalogItemId={service.id}
+              title="Fotos del Procedimiento"
+              description="Añade fotos o videos cortos sobre cómo realizas este servicio."
+              maxImages={5}
+            />
+
+            <div className="border-t border-black/10 dark:border-white/10 pt-8">
+              <BeforeAfterUploader catalogItemId={service.id} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* --- ACCIONES PRINCIPALES (FOOTER) --- */}
       <div className="flex flex-col sm:flex-row border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">

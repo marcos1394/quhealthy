@@ -30,6 +30,9 @@ import { useSessionStore } from "@/stores/SessionStore";
 import { useProviderScore } from "@/hooks/useProviderScore";
 import { QuScoreModal } from "@/components/store/QuScoreModal";
 import { CrossSellingCarousel } from "@/components/discover/CrossSellingCarousel";
+import { ImageGalleryViewer } from "@/components/ui/gallery/ImageGalleryViewer";
+import { BeforeAfterComparator } from "@/components/ui/gallery/BeforeAfterComparator";
+import { CertificationGrid } from "@/components/ui/gallery/CertificationGrid";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -392,6 +395,31 @@ export default function PublicStorePage() {
                           </span>
                         ))}
                       </div>
+                      
+                      {/* --- GALERÍA DEL SERVICIO --- */}
+                      {service.galleryImages && service.galleryImages.length > 0 && (
+                        <div className="mt-6 space-y-6">
+                          {/* Galería general (fotos del procedimiento) */}
+                          {service.galleryImages.some(img => img.galleryType === 'SERVICE_WORK') && (
+                            <ImageGalleryViewer 
+                              images={service.galleryImages.filter(img => img.galleryType === 'SERVICE_WORK')}
+                              className="max-w-xl"
+                            />
+                          )}
+
+                          {/* Casos Antes / Después */}
+                          {service.galleryImages.some(img => img.galleryType === 'BEFORE_AFTER') && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {service.galleryImages
+                                .filter(img => img.galleryType === 'BEFORE_AFTER')
+                                .map(pair => (
+                                  <BeforeAfterComparator key={pair.id} imagePair={pair} />
+                                ))
+                              }
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Panel Lateral de Precios y Cierre */}
@@ -470,6 +498,31 @@ export default function PublicStorePage() {
                           {t('preferential_price', { defaultValue: 'VALORACIÓN PREFERENCIAL' })}
                         </li>
                       </ul>
+
+                      {/* --- GALERÍA DEL PAQUETE --- */}
+                      {pkg.galleryImages && pkg.galleryImages.length > 0 && (
+                        <div className="mt-6 space-y-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                          {/* Galería general (fotos del resultado) */}
+                          {pkg.galleryImages.some(img => img.galleryType === 'SERVICE_WORK') && (
+                            <ImageGalleryViewer 
+                              images={pkg.galleryImages.filter(img => img.galleryType === 'SERVICE_WORK')}
+                              className="max-w-xl"
+                            />
+                          )}
+
+                          {/* Casos Antes / Después */}
+                          {pkg.galleryImages.some(img => img.galleryType === 'BEFORE_AFTER') && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {pkg.galleryImages
+                                .filter(img => img.galleryType === 'BEFORE_AFTER')
+                                .map(pair => (
+                                  <BeforeAfterComparator key={pair.id} imagePair={pair} />
+                                ))
+                              }
+                            </div>
+                          )}
+                        </div>
+                      )}
                       </div>
                     </div>
 
@@ -700,6 +753,40 @@ export default function PublicStorePage() {
           )}
 
         </AnimatePresence>
+
+        {/* --- GALERÍAS DE LA TIENDA (Instalaciones, Equipo, Certificaciones) --- */}
+        {store.galleryImages && store.galleryImages.length > 0 && (
+          <div className="mt-16 pt-16 border-t border-gray-200 dark:border-gray-800 space-y-16">
+            
+            {/* Fotos de Instalaciones */}
+            {store.galleryImages.some(img => img.galleryType === 'OFFICE') && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Instalaciones</h3>
+                <ImageGalleryViewer 
+                  images={store.galleryImages.filter(img => img.galleryType === 'OFFICE')} 
+                />
+              </div>
+            )}
+
+            {/* Fotos de Equipo Médico */}
+            {store.galleryImages.some(img => img.galleryType === 'EQUIPMENT') && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Equipamiento y Tecnología</h3>
+                <ImageGalleryViewer 
+                  images={store.galleryImages.filter(img => img.galleryType === 'EQUIPMENT')} 
+                />
+              </div>
+            )}
+
+            {/* Certificaciones */}
+            {store.galleryImages.some(img => img.galleryType === 'CERTIFICATION') && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Certificaciones y Respaldo Médico</h3>
+                <CertificationGrid images={store.galleryImages} />
+              </div>
+            )}
+          </div>
+        )}
         
         {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
         <div className="mt-12 px-6 lg:px-0">

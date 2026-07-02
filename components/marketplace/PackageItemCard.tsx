@@ -9,6 +9,9 @@ import { useTranslations } from "next-intl";
 
 import { UI_Package } from "@/types/catalog"; 
 import { UI_Service } from "@/types/catalog";
+import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
+import { BeforeAfterUploader } from "@/components/ui/gallery/BeforeAfterUploader";
+import { Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PackageItemCardProps {
@@ -95,6 +98,33 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
               </span>
             ) : null;
           })}
+        </div>
+      </div>
+
+      {/* --- GALERÍAS DEL PAQUETE --- */}
+      <div className="p-6 border-t border-black/10 dark:border-white/10 bg-gray-50/50 dark:bg-[#080808]">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <Camera className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Galería del Paquete</h3>
+            <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Muestra resultados integrales</p>
+          </div>
+        </div>
+
+        <div className="space-y-12">
+          <GalleryUploadManager 
+            galleryType="SERVICE_WORK" 
+            catalogItemId={pkg.id}
+            title="Fotos del Resultado"
+            description="Añade fotos sobre los resultados que incluye este paquete."
+            maxImages={5}
+          />
+
+          <div className="border-t border-black/10 dark:border-white/10 pt-8">
+            <BeforeAfterUploader catalogItemId={pkg.id} />
+          </div>
         </div>
       </div>
 
