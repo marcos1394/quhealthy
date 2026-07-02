@@ -111,9 +111,10 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
       </div>
 
       {/* --- ÁREA DE INFORMACIÓN --- */}
-      <div className="p-5 flex-1 flex flex-col z-10 relative bg-[#09090b]/80 backdrop-blur-xl">
-        
-        <div className="flex items-center gap-2 mb-1">
+      <div className="p-5 flex flex-col z-10 relative bg-[#09090b]/80 backdrop-blur-xl">
+
+        {/* Fila: categoría + rating */}
+        <div className="flex items-center gap-2 mb-2">
           <Badge variant="outline" className="border-white/10 text-zinc-400 text-[10px] uppercase font-semibold">
             {provider.category}
           </Badge>
@@ -124,21 +125,18 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
           </div>
         </div>
 
-        <h3 className="font-bold text-lg text-white leading-tight line-clamp-1 group-hover:text-purple-400 transition-colors pr-8">
+        {/* Nombre */}
+        <h3 className="font-bold text-base text-white leading-tight line-clamp-1 group-hover:text-purple-400 transition-colors pr-8 mb-3">
           {provider.name}
         </h3>
 
-        {/* 👇 CORRECCIÓN: Relleno de texto para eliminar el espacio en blanco gigante */}
-        <p className="mt-2 text-xs text-zinc-400 line-clamp-2 leading-relaxed">
-          Atención profesional en {provider.category?.toLowerCase() || 'salud y bienestar'}. Explora los servicios y agenda tu cita hoy mismo.
-        </p>
-        {/* 👆 FIN DE CORRECCIÓN */}
+        {/* Separador */}
+        <div className="w-full h-px bg-white/5 mb-3" />
 
-        {/* 👇 CORRECCIÓN: Se mantiene mt-auto para alinear todas las tarjetas, pero se añade un border-t para enmarcar la sección y que el espacio se vea intencional */}
-        <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Tarifa Base</span>
-            
+        {/* Fila: precio + distancia + acción */}
+        <div className="flex items-end justify-between">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Tarifa base</span>
             {provider.basePrice && provider.basePrice > 0 ? (
               <div className="flex items-baseline gap-1">
                 <span className="text-sm font-bold text-white">${provider.basePrice}</span>
@@ -147,25 +145,21 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
                 )}
               </div>
             ) : (
-              <span className="text-xs font-bold text-white tracking-widest uppercase">
-                Previa Valoración
-              </span>
+              <span className="text-xs font-semibold text-zinc-400 italic">Previa valoración</span>
             )}
-            
             <span className="flex items-center text-[10px] text-zinc-500 font-medium mt-1 uppercase tracking-wider">
-              <MapPin className="w-3 h-3 mr-1" />
-              {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km cerca` : 'Calculando...'}
+              <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+              {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km` : 'Calculando...'}
             </span>
           </div>
 
-          <span 
-            className="text-xs font-bold transition-all uppercase tracking-wider"
+          <span
+            className="text-xs font-bold transition-all uppercase tracking-wider flex-shrink-0"
             style={{ color: provider.color || '#a855f7' }}
           >
             Ver perfil &rarr;
           </span>
         </div>
-        {/* 👆 FIN DE CORRECCIÓN */}
       </div>
     </div>
   );

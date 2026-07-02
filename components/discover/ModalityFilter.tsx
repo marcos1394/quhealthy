@@ -3,43 +3,36 @@
 import React from 'react';
 import { useDiscoverFilters } from '@/hooks/useDiscoverFilters';
 
+const OPTIONS = [
+  { label: 'Cualquiera', value: '' },
+  { label: 'Presencial', value: 'IN_PERSON' },
+  { label: 'Online', value: 'ONLINE' },
+  { label: 'Híbrido', value: 'HYBRID' },
+];
+
 export function ModalityFilter() {
   const { filters, setFilter } = useDiscoverFilters();
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-bold uppercase tracking-wider text-black">Modalidad</h3>
+      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Modalidad</span>
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setFilter('modality', '')}
-          className={`px-4 py-2 text-sm font-bold uppercase border-2 rounded-none transition-colors ${
-            !filters.modality
-              ? 'bg-black text-white border-black'
-              : 'bg-white text-black border-black hover:bg-gray-100'
-          }`}
-        >
-          Cualquiera
-        </button>
-        <button
-          onClick={() => setFilter('modality', 'IN_PERSON')}
-          className={`px-4 py-2 text-sm font-bold uppercase border-2 rounded-none transition-colors ${
-            filters.modality === 'IN_PERSON'
-              ? 'bg-black text-white border-black'
-              : 'bg-white text-black border-black hover:bg-gray-100'
-          }`}
-        >
-          Presencial
-        </button>
-        <button
-          onClick={() => setFilter('modality', 'ONLINE')}
-          className={`px-4 py-2 text-sm font-bold uppercase border-2 rounded-none transition-colors ${
-            filters.modality === 'ONLINE'
-              ? 'bg-black text-white border-black'
-              : 'bg-white text-black border-black hover:bg-gray-100'
-          }`}
-        >
-          Online
-        </button>
+        {OPTIONS.map((opt) => {
+          const isActive = filters.modality === opt.value || (!filters.modality && opt.value === '');
+          return (
+            <button
+              key={opt.value}
+              onClick={() => setFilter('modality', opt.value)}
+              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full border transition-all duration-200 ${
+                isActive
+                  ? 'bg-white text-black border-white shadow-[0_0_12px_rgba(255,255,255,0.15)]'
+                  : 'bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
