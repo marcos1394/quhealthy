@@ -5,6 +5,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Star, MapPin, Sparkles, PlayCircle } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { DiscoverProvider } from '@/types/discover';
@@ -127,30 +128,45 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
           {provider.name}
         </h3>
 
-        <div className="mt-auto pt-4 flex items-center justify-between">
+        {/* 👇 CORRECCIÓN: Relleno de texto para eliminar el espacio en blanco gigante */}
+        <p className="mt-2 text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+          Atención profesional en {provider.category?.toLowerCase() || 'salud y bienestar'}. Explora los servicios y agenda tu cita hoy mismo.
+        </p>
+        {/* 👆 FIN DE CORRECCIÓN */}
+
+        {/* 👇 CORRECCIÓN: Se mantiene mt-auto para alinear todas las tarjetas, pero se añade un border-t para enmarcar la sección y que el espacio se vea intencional */}
+        <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
           <div className="flex flex-col">
-            {provider.basePrice && (
-              <div className="flex items-center gap-1">
+            <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Tarifa Base</span>
+            
+            {provider.basePrice && provider.basePrice > 0 ? (
+              <div className="flex items-baseline gap-1">
                 <span className="text-sm font-bold text-white">${provider.basePrice}</span>
                 {provider.compareAtPrice && provider.compareAtPrice > provider.basePrice && (
                   <span className="text-[10px] text-zinc-500 line-through">${provider.compareAtPrice}</span>
                 )}
               </div>
+            ) : (
+              <span className="text-xs font-bold text-white tracking-widest uppercase">
+                Previa Valoración
+              </span>
             )}
-            <span className="flex items-center text-xs text-zinc-500 font-medium mt-1">
-              <MapPin className="w-3.5 h-3.5 mr-1" />
+            
+            <span className="flex items-center text-[10px] text-zinc-500 font-medium mt-1 uppercase tracking-wider">
+              <MapPin className="w-3 h-3 mr-1" />
               {provider.distanceKm ? `${provider.distanceKm.toFixed(1)} km cerca` : 'Calculando...'}
             </span>
           </div>
+
           <span 
-            className="text-xs font-bold transition-all"
-            style={{ color: provider.color }}
+            className="text-xs font-bold transition-all uppercase tracking-wider"
+            style={{ color: provider.color || '#a855f7' }}
           >
             Ver perfil &rarr;
           </span>
         </div>
+        {/* 👆 FIN DE CORRECCIÓN */}
       </div>
-
     </div>
   );
 };
