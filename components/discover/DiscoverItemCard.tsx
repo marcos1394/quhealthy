@@ -185,10 +185,8 @@ export const DiscoverItemCard = ({ item }: { item: DiscoverItem }) => {
         {/* CTA BUTTON */}
         <Button
           onClick={handleCTA}
-          className={cn(
-            "w-full rounded-none h-10 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center border-0 transition-all",
-            typeConfig.ctaStyle
-          )}
+          className="w-full rounded-none h-10 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center border-0 transition-all text-white hover:opacity-90"
+          style={{ backgroundColor: item.providerColor || '#000' }}
         >
           {typeConfig.ctaIcon}
           {typeConfig.ctaLabel}

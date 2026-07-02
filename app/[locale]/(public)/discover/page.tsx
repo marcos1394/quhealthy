@@ -278,13 +278,8 @@ const MapProviderCard = ({
             e.stopPropagation();
             router.push(`/store/${provider.slug}`);
           }}
-          className={cn(
-            "w-full rounded-none h-12 text-[10px] font-bold uppercase tracking-widest flex justify-between px-5 transition-all border",
-            isSelected 
-              ? "text-white border-transparent" 
-              : "bg-gray-100 dark:bg-[#111] text-black dark:text-white border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-black"
-          )}
-          style={isSelected ? { backgroundColor: provider.color } : {}}
+          className="w-full rounded-none h-12 text-[10px] font-bold uppercase tracking-widest flex justify-between px-5 transition-all border-0 text-white hover:opacity-90"
+          style={{ backgroundColor: provider.color || '#000' }}
         >
           {t('btn_view_store', { defaultValue: 'Acceder a Expediente' })} 
           <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
