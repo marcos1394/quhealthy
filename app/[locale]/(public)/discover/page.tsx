@@ -120,7 +120,7 @@ const MapProviderCard = ({
       onMouseLeave={() => { setIsHovered(false); onLeave(); }}
       onClick={onClick}
       className={cn(
-        "relative w-full self-start bg-white dark:bg-[#0a0a0a] transition-all cursor-pointer flex flex-col group border",
+        "relative w-72 shrink-0 md:w-full self-start bg-white dark:bg-[#0a0a0a] transition-all cursor-pointer flex flex-col group border",
         isSelected 
           ? "border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] z-10" 
           : "border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white"
@@ -792,7 +792,7 @@ const DiscoverMapContent = () => {
         </div>
 
         {/* 📇 CAPA FLOTANTE: FICHAS DE PROVEEDOR */}
-        <div className={cn("absolute z-20 transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] pointer-events-none md:pointer-events-none" : "pointer-events-none top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
+        <div className={cn("absolute z-20 pointer-events-none transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col" : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
 
           
           {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
@@ -807,7 +807,7 @@ const DiscoverMapContent = () => {
               </p>
             </div>
           ) : (
-            <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "flex flex-col gap-3 overflow-y-auto scroll-smooth overscroll-contain pb-6" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")} style={viewMode === "MAP" ? { height: 'calc(100vh - 136px)' } : undefined}>
+            <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "flex overflow-x-auto gap-3 pb-4 md:flex-col md:flex-1 md:overflow-x-visible md:overflow-y-auto md:gap-3 md:pb-6 custom-scrollbar px-4 md:px-0" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")}>
               
               {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
               {viewMode === "GRID" && (
@@ -816,7 +816,7 @@ const DiscoverMapContent = () => {
                 </aside>
               )}
 
-              <div className={cn(viewMode === "GRID" ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start" : "flex flex-col gap-3 w-full")}>
+              <div className={cn(viewMode === "GRID" ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start" : "flex gap-3 md:flex-col md:gap-3 w-full")}>
               
               <AnimatePresence>
                 {searchType === 'STORE' ? enrichedProviders.map((provider) => (
