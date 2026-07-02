@@ -42,7 +42,7 @@ export const useGallery = (type?: GalleryType, catalogItemId?: number) => {
 
     try {
       // Sube secuencialmente (podría optimizarse con Promise.all pero para GCS directo es más seguro así)
-      const newImages = [];
+      const newImages: GalleryImage[] = [];
       for (const file of files) {
         const result = await galleryService.uploadAndAddImage(file, targetType, catalogItemId);
         newImages.push(result);
