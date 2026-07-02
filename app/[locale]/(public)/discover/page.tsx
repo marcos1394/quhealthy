@@ -23,6 +23,7 @@ import { useDiscover } from '@/hooks/useDiscover';
 import { useDiscoverItems } from '@/hooks/useDiscoverItems';
 import { DiscoverItemCard } from '@/components/discover/DiscoverItemCard';
 import { FilterPanel } from '@/components/discover/FilterPanel';
+import { SortDropdown } from '@/components/discover/SortDropdown';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useMyFavorites } from '@/hooks/useMyFavorites';
 import { DiscoverProvider } from '@/types/discover';
@@ -238,12 +239,20 @@ const MapProviderCard = ({
           <div className="flex flex-col">
             <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">TARIFA BASE</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-bold text-black dark:text-white tracking-tight">
-                ${provider.basePrice || 0}
-              </span>
-              {provider.compareAtPrice && provider.compareAtPrice > (provider.basePrice || 0) && (
-                <span className="text-[10px] text-gray-400 line-through">
-                  ${provider.compareAtPrice}
+              {(provider.basePrice && provider.basePrice > 0) ? (
+                <>
+                  <span className="text-sm font-bold text-black dark:text-white tracking-tight">
+                    ${provider.basePrice}
+                  </span>
+                  {provider.compareAtPrice && provider.compareAtPrice > provider.basePrice && (
+                    <span className="text-[10px] text-gray-400 line-through">
+                      ${provider.compareAtPrice}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[10px] font-bold text-black dark:text-white tracking-widest uppercase">
+                  Previa Valoración
                 </span>
               )}
             </div>
@@ -345,8 +354,25 @@ const DiscoverMapContent = () => {
 // Hook de Geolocation (Extraemos error e isLoading)
   const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
 
-  const { providers, isLoading: isLoadingProviders, isValidating } = useDiscover(debouncedSearchQuery, searchType);
-  const { items, isLoading: isLoadingItems, isValidating: isValidatingItems } = useDiscoverItems({
+  const { 
+    providers, 
+    isLoading: isLoadingProviders, 
+    isValidating, 
+    size: providerSize, 
+    setSize: setProviderSize, 
+    isReachingEnd: isReachingEndProviders,
+    isLoadingMore: isLoadingMoreProviders
+  } = useDiscover(debouncedSearchQuery, searchType);
+  
+  const { 
+    items, 
+    isLoading: isLoadingItems, 
+    isValidating: isValidatingItems,
+    size: itemSize,
+    setSize: setItemSize,
+    isReachingEnd: isReachingEndItems,
+    isLoadingMore: isLoadingMoreItems
+  } = useDiscoverItems({
     q: debouncedSearchQuery,
     type: searchType,
     lat: coordinates?.lat,
@@ -354,7 +380,17 @@ const DiscoverMapContent = () => {
   });
   
   const isCurrentlyLoading = searchType === 'STORE' ? isLoadingProviders : isLoadingItems;
-  const isCurrentlyValidating = searchType === 'STORE' ? isValidating : isValidatingItems;  
+  const isCurrentlyValidating = searchType === 'STORE' ? isValidating : isValidatingItems;
+  const isReachingEnd = searchType === 'STORE' ? isReachingEndProviders : isReachingEndItems;
+  const isLoadingMore = searchType === 'STORE' ? isLoadingMoreProviders : isLoadingMoreItems;
+  
+  const handleLoadMore = () => {
+    if (searchType === 'STORE') {
+      setProviderSize(providerSize + 1);
+    } else {
+      setItemSize(itemSize + 1);
+    }
+  };  
   const { resolvedTheme } = useTheme();
 
 // Efecto: Cuando conseguimos la ubicación, mostramos mensaje de éxito 2.5 seg y lo cerramos
@@ -654,6 +690,10 @@ const DiscoverMapContent = () => {
                 💎 Premium
               </Button>
             </div>
+            
+            <div className="flex-shrink-0 pointer-events-auto pl-2">
+               <SortDropdown />
+            </div>
           </div>
 
         {/* 👇 BLOQUE DE UBICACIÓN DINÁMICO 👇 */}
@@ -793,8 +833,24 @@ const DiscoverMapContent = () => {
                   />
                 ))}
               </AnimatePresence>
-
               </div>
+
+              {!isReachingEnd && (
+                <div className="w-full flex justify-center mt-12 mb-8">
+                  <Button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="h-12 px-8 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none font-bold uppercase tracking-widest text-[11px]"
+                  >
+                    {isLoadingMore ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" strokeWidth={2} /> CARGANDO...</>
+                    ) : (
+                      "CARGAR MÁS OPCIONES"
+                    )}
+                  </Button>
+                </div>
+              )}
+
               <div className="w-6 md:hidden flex-shrink-0" />
             </div>
           )}

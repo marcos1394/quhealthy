@@ -16,6 +16,9 @@ export const discoverService = {
       city?: string;
       hasDiscount?: boolean;
       maxPrice?: number;
+      sort?: string;
+      page?: number;
+      size?: number;
     }
   ): Promise<DiscoverProviderWrapperResponse> => {
     const response = await axiosInstance.get<DiscoverProviderWrapperResponse>(BASE_URL_STOREFRONT, {

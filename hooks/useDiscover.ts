@@ -1,6 +1,6 @@
 // hooks/useDiscover.ts
 import { useMemo } from 'react';
-import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 import { discoverService } from '@/services/discover.service';
 import { DiscoverProviderWrapperResponse } from '@/types/discover';
 import { toast } from 'react-toastify';

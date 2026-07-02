@@ -110,9 +110,15 @@ export const DiscoverItemCard = ({ item }: { item: DiscoverItem }) => {
           <div className="flex flex-col">
             <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Inversión</span>
             <div className="flex items-baseline gap-1">
-              <span className="text-sm font-bold text-black dark:text-white">${item.price}</span>
-              {item.compareAtPrice && item.compareAtPrice > item.price && (
-                <span className="text-[9px] text-gray-400 line-through">${item.compareAtPrice}</span>
+              {item.price > 0 ? (
+                <>
+                  <span className="text-sm font-bold text-black dark:text-white">${item.price}</span>
+                  {item.compareAtPrice && item.compareAtPrice > item.price && (
+                    <span className="text-[9px] text-gray-400 line-through">${item.compareAtPrice}</span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[10px] font-bold text-black dark:text-white tracking-widest uppercase">Previa Valoración</span>
               )}
             </div>
           </div>
