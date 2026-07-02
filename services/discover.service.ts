@@ -19,6 +19,8 @@ export const discoverService = {
       sort?: string;
       page?: number;
       size?: number;
+      lat?: number;
+      lng?: number;
     }
   ): Promise<DiscoverProviderWrapperResponse> => {
     const response = await axiosInstance.get<DiscoverProviderWrapperResponse>(BASE_URL_STOREFRONT, {

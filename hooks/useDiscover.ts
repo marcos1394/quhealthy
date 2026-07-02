@@ -6,9 +6,11 @@ import { DiscoverProviderWrapperResponse } from '@/types/discover';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { useSearchParams } from 'next/navigation';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 export const useDiscover = (q?: string, type?: string) => {
   const searchParams = useSearchParams();
+  const { coordinates } = useGeolocation();
   // Solo buscar proveedores si el tipo es STORE o indefinido
   const shouldFetch = !type || type === 'STORE';
   
@@ -25,13 +27,13 @@ export const useDiscover = (q?: string, type?: string) => {
     if (!shouldFetch) return null;
     if (previousPageData && previousPageData.organic.length + previousPageData.sponsored.length < PAGE_SIZE) return null; // reached the end
     
-    return ['/discover/providers', q, type, city, hasDiscount, maxPrice, sort, pageIndex, PAGE_SIZE];
+    return ['/discover/providers', q, type, city, hasDiscount, maxPrice, sort, pageIndex, PAGE_SIZE, coordinates?.lat, coordinates?.lng];
   };
 
   const { data, error, isLoading, isValidating, size, setSize, mutate } = useSWRInfinite<DiscoverProviderWrapperResponse>(
     getKey,
-    ([url, qParam, typeParam, cityParam, hasDiscountParam, maxPriceParam, sortParam, pageIndex, pageSize]) => 
-      discoverService.getAllProviders(qParam, typeParam, { city: cityParam, hasDiscount: hasDiscountParam, maxPrice: maxPriceParam, sort: sortParam, page: pageIndex, size: pageSize }),
+    ([url, qParam, typeParam, cityParam, hasDiscountParam, maxPriceParam, sortParam, pageIndex, pageSize, latParam, lngParam]) => 
+      discoverService.getAllProviders(qParam, typeParam, { city: cityParam, hasDiscount: hasDiscountParam, maxPrice: maxPriceParam, sort: sortParam, page: pageIndex, size: pageSize, lat: latParam, lng: lngParam }),
     {
       revalidateFirstPage: false,
       revalidateOnFocus: false,
