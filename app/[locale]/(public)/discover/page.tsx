@@ -120,7 +120,7 @@ const MapProviderCard = ({
       onMouseLeave={() => { setIsHovered(false); onLeave(); }}
       onClick={onClick}
       className={cn(
-        "relative flex-shrink-0 w-[85vw] md:w-full snap-center bg-white dark:bg-[#0a0a0a] transition-all cursor-pointer flex flex-col group border",
+        "relative flex-shrink-0 w-[300px] md:w-full snap-center bg-white dark:bg-[#0a0a0a] transition-all cursor-pointer flex flex-col group border",
         isSelected 
           ? "border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] z-10" 
           : "border-gray-300 dark:border-gray-800 hover:border-black dark:hover:border-white"
@@ -807,7 +807,7 @@ const DiscoverMapContent = () => {
               </p>
             </div>
           ) : (
-            <div className={cn("w-full custom-scrollbar pointer-events-auto flex items-start", viewMode === "MAP" ? "md:flex-col overflow-x-auto md:overflow-y-auto px-6 md:px-0 snap-x snap-mandatory pb-6 md:pb-0" : "pb-20 md:pb-0 gap-8 max-w-7xl mx-auto")} >
+            <div className={cn("w-full custom-scrollbar pointer-events-auto flex items-start", viewMode === "MAP" ? "h-full md:flex-col overflow-x-auto md:overflow-y-auto px-6 md:px-0 snap-x snap-mandatory pb-6 md:pb-0" : "pb-20 md:pb-0 gap-8 max-w-7xl mx-auto")} >
               
               {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
               {viewMode === "GRID" && (
