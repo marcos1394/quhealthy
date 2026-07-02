@@ -61,3 +61,36 @@ export interface ProviderSearchWrapperResponse {
   sponsored: ProviderSearchResponseDto[];
   organic: ProviderSearchResponseDto[];
 }
+export interface DiscoverItem {
+  id: number;
+  type: 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE';
+  name: string;
+  description: string;
+  category: string;
+  imageUrl: string;
+  price: number;
+  compareAtPrice?: number;
+  discountPercentage?: number;
+  modality?: string;
+  durationMinutes?: number;
+  stockQuantity?: number;
+  isDigital?: boolean;
+  isFeatured?: boolean;
+  requiresEvaluation?: boolean;
+  averageRating?: number;
+  reviewCount?: number;
+  providerId: number;
+  providerName: string;
+  providerSlug: string;
+  providerLogoUrl: string;
+  providerColor: string;
+  providerRating?: number;
+  providerCity?: string;
+  distanceKm?: number;
+  isPromoted?: boolean;
+}
+
+export interface DiscoverItemWrapperResponse {
+  sponsored: DiscoverItem[];
+  organic: DiscoverItem[];
+}

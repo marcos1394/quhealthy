@@ -11,7 +11,7 @@ import {
   Search, SlidersHorizontal, Star,
   ChevronRight, PlayCircle, MapPin, Award,
   Navigation, Heart,
-  Loader2, Image as ImageIcon, User // <-- NUEVOS ÍCONOS PARA LOS FALLBACKS
+  Loader2, Image as ImageIcon, User, LayoutGrid, Map as MapIcon
 } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from '@/lib/utils';
 
 import { useDiscover } from '@/hooks/useDiscover';
+import { useDiscoverItems } from '@/hooks/useDiscoverItems';
+import { DiscoverItemCard } from '@/components/discover/DiscoverItemCard';
+import { FilterPanel } from '@/components/discover/FilterPanel';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useMyFavorites } from '@/hooks/useMyFavorites';
 import { DiscoverProvider } from '@/types/discover';
@@ -282,7 +285,7 @@ const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
   const searchParams = useSearchParams();
   const initialSearchQuery = searchParams.get('q') ?? searchParams.get('provider') ?? '';
-  const [{ map, searchQuery, searchType, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
+  const [{ map, searchQuery, searchType, viewMode, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
     (state: any, action: any) => {
       switch (action.type) {
         case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
@@ -294,23 +297,33 @@ const DiscoverMapContent = () => {
         case 'SET_PREMIUMFILTER': return { ...state, premiumFilter: typeof action.payload === 'function' ? action.payload(state.premiumFilter) : action.payload };
         case 'SET_SELECTEDID': return { ...state, selectedId: typeof action.payload === 'function' ? action.payload(state.selectedId) : action.payload };
         case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
+        case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
         default: return state;
       }
     },
     {
-      map: null, searchQuery: initialSearchQuery, searchType: 'STORE', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null
+      map: null, searchQuery: initialSearchQuery, searchType: searchParams.get('type') || 'STORE', viewMode: 'MAP', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null
     }
   );
 
+  const router = useRouter();
+  const searchParamsHook = useSearchParams();
+
   const setMap = (val: any) => dispatch({ type: 'SET_MAP', payload: val });
   const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
-  const setSearchType = (val: any) => dispatch({ type: 'SET_SEARCHTYPE', payload: val });
+  const setSearchType = (val: any) => {
+    dispatch({ type: 'SET_SEARCHTYPE', payload: val });
+    const params = new URLSearchParams(searchParamsHook.toString());
+    params.set('type', val);
+    router.replace(`/discover?${params.toString()}`);
+  };
   const setHasDiscountFilter = (val: any) => dispatch({ type: 'SET_HASDISCOUNTFILTER', payload: val });
   const setTopRatedFilter = (val: any) => dispatch({ type: 'SET_TOPRATEDFILTER', payload: val });
   const setNearMeFilter = (val: any) => dispatch({ type: 'SET_NEARMEFILTER', payload: val });
   const setPremiumFilter = (val: any) => dispatch({ type: 'SET_PREMIUMFILTER', payload: val });
   const setSelectedId = (val: any) => dispatch({ type: 'SET_SELECTEDID', payload: val });
   const setHoveredId = (val: any) => dispatch({ type: 'SET_HOVEREDID', payload: val });
+  const setViewMode = (val: any) => dispatch({ type: 'SET_VIEWMODE', payload: val });
 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(initialSearchQuery);
 
@@ -330,6 +343,16 @@ const DiscoverMapContent = () => {
   const canUseFavorites = _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
   
   const { providers, isLoading: isLoadingProviders, isValidating } = useDiscover(debouncedSearchQuery, searchType);
+  const { items, isLoading: isLoadingItems, isValidating: isValidatingItems } = useDiscoverItems({
+    q: debouncedSearchQuery,
+    type: searchType,
+    lat: coordinates?.lat,
+    lng: coordinates?.lng,
+  });
+  
+  const isCurrentlyLoading = searchType === 'STORE' ? isLoadingProviders : isLoadingItems;
+  const isCurrentlyValidating = searchType === 'STORE' ? isValidating : isValidatingItems;
+
 // Hook de Geolocation (Extraemos error e isLoading)
   const { coordinates, calculateDistance, error: geoError, isLoading: isGeoLoading, requestLocation } = useGeolocation();  
   const { resolvedTheme } = useTheme();
@@ -407,7 +430,7 @@ const DiscoverMapContent = () => {
     setAuthGateOpen(true);
   };
 
-  if (isLoadingProviders) {
+  if (isCurrentlyLoading) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <div className="flex flex-col items-center gap-4">
@@ -422,10 +445,10 @@ const DiscoverMapContent = () => {
 
   return (
     <>
-      <div className="relative w-full h-full bg-gray-100 dark:bg-[#111] overflow-hidden selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors">
+      <div className={cn("relative w-full h-full overflow-hidden selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors", viewMode === "GRID" ? "bg-white dark:bg-[#0a0a0a] overflow-y-auto" : "bg-gray-100 dark:bg-[#111]")}>
 
         {/* 🗺️ CAPA BASE: MAPA */}
-        <div className="absolute inset-0 z-0">
+        <div className={cn("absolute inset-0 z-0", viewMode === "GRID" && "hidden md:block md:opacity-0 pointer-events-none")}>
           <GoogleMap
             mapContainerStyle={mapContainerStyle}
             zoom={coordinates ? 13 : 11}
@@ -450,8 +473,9 @@ const DiscoverMapContent = () => {
               />
             )}
 
-            {/* Marcadores de Proveedores */}
-            {enrichedProviders.map((provider) => {
+            
+            {/* Marcadores de Proveedores (STORE) */}
+            {searchType === 'STORE' && enrichedProviders.map((provider) => {
               const isSelected = selectedId === provider.id;
               const isHovered = hoveredId === provider.id;
 
@@ -477,7 +501,7 @@ const DiscoverMapContent = () => {
                 />
               );
             })}
-          </GoogleMap>
+</GoogleMap>
         </div>
 
         {/* 🔍 CAPA FLOTANTE: BUSCADOR ARQUITECTÓNICO */}
@@ -489,7 +513,7 @@ const DiscoverMapContent = () => {
               className="pointer-events-auto w-full md:w-[460px] lg:w-[400px] xl:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
             >
               <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14 relative">
-                {isValidating ? (
+                {isCurrentlyValidating ? (
                   <Loader2 className="w-5 h-5 text-gray-400 mr-3 shrink-0 animate-spin" strokeWidth={2} />
                 ) : (
                   <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
@@ -502,6 +526,31 @@ const DiscoverMapContent = () => {
                 />
               </div>
               
+              <div className="hidden md:flex border-l border-gray-300 dark:border-gray-800 h-14 bg-white dark:bg-[#0a0a0a]">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    "rounded-none h-full w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 transition-colors",
+                    viewMode === 'MAP' ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-400"
+                  )}
+                  onClick={() => setViewMode('MAP')}
+                >
+                  <MapIcon className="w-5 h-5" strokeWidth={1.5} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    "rounded-none h-full w-14 border-l border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#111] p-0 transition-colors",
+                    viewMode === 'GRID' ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-400"
+                  )}
+                  onClick={() => setViewMode('GRID')}
+                >
+                  <LayoutGrid className="w-5 h-5" strokeWidth={1.5} />
+                </Button>
+              </div>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -697,9 +746,11 @@ const DiscoverMapContent = () => {
         </div>
 
         {/* 📇 CAPA FLOTANTE: FICHAS DE PROVEEDOR */}
-        <div className="absolute bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] z-20 pointer-events-none">
+        <div className={cn("absolute z-20 pointer-events-none transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px]" : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
 
-          {enrichedProviders.length === 0 ? (
+          
+          {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
+
             <div className="w-[90%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-10 text-center pointer-events-auto shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
               <Search className="w-8 h-8 text-black dark:text-white mx-auto mb-6" strokeWidth={1.5} />
               <h3 className="text-black dark:text-white font-bold text-sm uppercase tracking-widest mb-2">
@@ -710,9 +761,19 @@ const DiscoverMapContent = () => {
               </p>
             </div>
           ) : (
-            <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto w-full h-full gap-6 px-6 md:px-0 custom-scrollbar pointer-events-auto snap-x snap-mandatory pb-6 md:pb-0">
+            <div className={cn("w-full h-full custom-scrollbar pointer-events-auto flex", viewMode === "MAP" ? "md:flex-col overflow-x-auto md:overflow-y-auto px-6 md:px-0 snap-x snap-mandatory pb-6 md:pb-0" : "pb-20 md:pb-0 gap-8 max-w-7xl mx-auto")} >
+              
+              {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
+              {viewMode === "GRID" && (
+                <aside className="hidden md:block w-[300px] flex-shrink-0">
+                  <FilterPanel />
+                </aside>
+              )}
+
+              <div className={cn("flex-1", viewMode === "GRID" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex gap-6")}>
+              
               <AnimatePresence>
-                {enrichedProviders.map((provider) => (
+                {searchType === 'STORE' ? enrichedProviders.map((provider) => (
                   <MapProviderCard
                     key={`card-${provider.id}`}
                     provider={provider}
@@ -725,8 +786,15 @@ const DiscoverMapContent = () => {
                     onLeave={() => setHoveredId(null)}
                     onAuthRequired={() => handleAuthRequired('favorite')}
                   />
+                )) : items.map((item) => (
+                  <DiscoverItemCard
+                    key={`item-card-${item.id}`}
+                    item={item}
+                  />
                 ))}
               </AnimatePresence>
+
+              </div>
               <div className="w-6 md:hidden flex-shrink-0" />
             </div>
           )}

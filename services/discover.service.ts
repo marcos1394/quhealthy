@@ -1,6 +1,6 @@
 // services/discover.service.ts
 import axiosInstance from '@/lib/axios';
-import { DiscoverProviderWrapperResponse, ProviderSearchWrapperResponse, CatalogSearchRequestParams } from '@/types/discover';
+import { DiscoverProviderWrapperResponse, ProviderSearchWrapperResponse, CatalogSearchRequestParams, DiscoverItemWrapperResponse } from '@/types/discover';
 import { CatalogItemDTO } from '@/types/catalog';
 
 const BASE_URL_STOREFRONT = '/api/catalog/storefront';
@@ -31,6 +31,14 @@ export const discoverService = {
     const response = await axiosInstance.get<CatalogItemDTO[]>('/api/catalog/recommendations/cross-selling', {
       params: { itemType, limit }
     });
+    return response.data;
+  },
+
+  /**
+   * Búsqueda global de ítems (servicios, paquetes, productos, cursos) con datos de proveedor embebidos
+   */
+  searchItems: async (params: any): Promise<DiscoverItemWrapperResponse> => {
+    const response = await axiosInstance.get<DiscoverItemWrapperResponse>('/api/catalog/search/items', { params });
     return response.data;
   }
 };

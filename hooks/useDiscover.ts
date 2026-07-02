@@ -5,12 +5,23 @@ import { discoverService } from '@/services/discover.service';
 import { DiscoverProviderWrapperResponse } from '@/types/discover';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
+import { useSearchParams } from 'next/navigation';
 
 export const useDiscover = (q?: string, type?: string) => {
-  // SWR maneja el caché, la carga y los errores por nosotros
+  const searchParams = useSearchParams();
+  // Solo buscar proveedores si el tipo es STORE o indefinido
+  const shouldFetch = !type || type === 'STORE';
+  
+  const city = searchParams.get('city') || undefined;
+  const hasDiscountStr = searchParams.get('hasDiscount');
+  const hasDiscount = hasDiscountStr === 'true';
+  const maxPriceStr = searchParams.get('maxPrice');
+  const maxPrice = maxPriceStr ? Number(maxPriceStr) : undefined;
+
+
   const { data, error, isLoading, isValidating, mutate } = useSWR<DiscoverProviderWrapperResponse>(
-    ['/discover/providers', q, type], // Llave de caché dinámica
-    () => discoverService.getAllProviders(q, type),
+    shouldFetch ? ['/discover/providers', q, type, city, hasDiscount, maxPrice] : null,
+    () => discoverService.getAllProviders(q, type, { city, hasDiscount, maxPrice }),
     {
       revalidateOnFocus: false, // Evita recargar si el usuario cambia de pestaña
       dedupingInterval: 60000,  // Mantiene la caché por 1 minuto
