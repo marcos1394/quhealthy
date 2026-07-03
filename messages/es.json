@@ -1895,7 +1895,8 @@
     "cart_item": "ítem",
     "cart_items": "ítems",
     "btn_continue": "Continuar al Pago",
-    "new_label": "Nuevo"
+    "new_label": "Nuevo",
+    "load_more": "Mostrar más"
   },
   "HealthVault": {
     "title": "Mi Expediente Clínico",

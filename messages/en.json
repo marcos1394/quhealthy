@@ -1894,7 +1894,8 @@
     "cart_item": "item",
     "cart_items": "items",
     "btn_continue": "Continue to Payment",
-    "new_label": "New"
+    "new_label": "New",
+    "load_more": "Load more"
   },
   "HealthVault": {
     "title": "My Clinical Record",
