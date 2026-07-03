@@ -33,7 +33,7 @@ export function useHealthVault() {
         setIsUploading(true);
         
         // Validación básica de tamaño (ej. max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
+        if (file.size > 20 * 1024 * 1024) {
             toast.warn(t('error_size', { defaultValue: 'El archivo excede el límite de 10MB.' }));
             setIsUploading(false);
             return null;

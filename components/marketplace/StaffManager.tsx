@@ -91,7 +91,7 @@ export function StaffManager({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 20 * 1024 * 1024) {
       toast.error(t('image_too_large'));
       return;
     }

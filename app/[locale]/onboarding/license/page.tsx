@@ -75,7 +75,7 @@ export default function LicensePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    if (selectedFile.size > 10 * 1024 * 1024) return;
+    if (selectedFile.size > 20 * 1024 * 1024) return;
     if (!selectedFile.type.startsWith("image/")) return;
     setFile(selectedFile);
     const reader = new FileReader();

@@ -52,7 +52,7 @@ export function GalleryUploadManager({
     const validFiles = newFiles.filter(file => {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/') && (galleryType === 'SERVICE_WORK' || galleryType === 'OFFICE');
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
+      const isValidSize = file.size <= 20 * 1024 * 1024; // 10MB
       
       if (!isImage && !isVideo) toast.error(`${file.name} no es un formato válido.`);
       if (!isValidSize) toast.error(`${file.name} excede el límite de 10MB.`);
