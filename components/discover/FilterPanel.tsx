@@ -6,6 +6,7 @@ import { ModalityFilter } from './ModalityFilter';
 import { PriceFilter } from './PriceFilter';
 import { useDiscoverFilters } from '@/hooks/useDiscoverFilters';
 import { cn } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 
 interface FilterPanelProps {
   isCollapsed?: boolean;
@@ -13,6 +14,9 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({ isCollapsed = false, onToggle }: FilterPanelProps) {
+  const searchParams = useSearchParams();
+  const searchType = searchParams.get('type') || 'STORE';
+  
   const { filters, clearFilters } = useDiscoverFilters();
 
   const hasActiveFilters = Object.keys(filters).some((k) => {
@@ -60,13 +64,21 @@ export function FilterPanel({ isCollapsed = false, onToggle }: FilterPanelProps)
           {/* Divider */}
           <div className="w-full h-px bg-black dark:bg-white" />
 
-          <ModalityFilter />
+          {/* Filtro de Modalidad: Solo para Cursos, Servicios y Paquetes */}
+          {['COURSE', 'SERVICE', 'PACKAGE'].includes(searchType) && (
+            <>
+              <ModalityFilter />
+              <div className="w-full h-px bg-black dark:bg-white" />
+            </>
+          )}
 
-          <div className="w-full h-px bg-black dark:bg-white" />
-
-          <PriceFilter />
-
-          <div className="w-full h-px bg-black dark:bg-white" />
+          {/* Filtro de Precio: Para Productos, Cursos, Servicios y Paquetes (oculto en Tiendas) */}
+          {searchType !== 'STORE' && (
+            <>
+              <PriceFilter />
+              <div className="w-full h-px bg-black dark:bg-white" />
+            </>
+          )}
 
           {/* Ubicación (próximamente) */}
           <div className="space-y-2">
