@@ -834,10 +834,27 @@ const DiscoverMapContent = () => {
                   />
                 ))}
               </AnimatePresence>
+              {/* Botón Load More para GRID VIEW (dentro del grid) */}
+              {!isReachingEnd && viewMode === "GRID" && (
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center mt-8 mb-8 w-full">
+                  <Button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="h-12 px-8 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none font-bold uppercase tracking-widest text-[11px]"
+                  >
+                    {isLoadingMore ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" strokeWidth={2} /> CARGANDO...</>
+                    ) : (
+                      "CARGAR MÁS OPCIONES"
+                    )}
+                  </Button>
+                </div>
+              )}
               </div>
 
-              {!isReachingEnd && (
-                <div className="w-full flex justify-center mt-12 mb-8">
+              {/* Botón Load More para MAP VIEW (fuera del grid) */}
+              {!isReachingEnd && viewMode === "MAP" && (
+                <div className="w-full shrink-0 flex justify-center mt-12 mb-8 pr-4 md:pr-0">
                   <Button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
