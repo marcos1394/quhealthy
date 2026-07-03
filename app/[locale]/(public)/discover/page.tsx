@@ -378,6 +378,7 @@ const DiscoverMapContent = () => {
     type: searchType,
     lat: coordinates?.lat,
     lng: coordinates?.lng,
+    isGeoLoading: isGeoLoading,
   });
   
   const isCurrentlyLoading = searchType === 'STORE' ? isLoadingProviders : isLoadingItems;

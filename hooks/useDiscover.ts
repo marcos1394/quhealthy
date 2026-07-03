@@ -10,7 +10,7 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 
 export const useDiscover = (q?: string, type?: string) => {
   const searchParams = useSearchParams();
-  const { coordinates } = useGeolocation();
+  const { coordinates, isLoading: isGeoLoading } = useGeolocation();
   // Solo buscar proveedores si el tipo es STORE o indefinido
   const shouldFetch = !type || type === 'STORE';
   
@@ -25,6 +25,7 @@ export const useDiscover = (q?: string, type?: string) => {
 
   const getKey = (pageIndex: number, previousPageData: DiscoverProviderWrapperResponse) => {
     if (!shouldFetch) return null;
+    if (isGeoLoading) return null; // Esperar a que la geolocalización resuelva (o falle) antes de buscar
     if (previousPageData && previousPageData.organic.length + previousPageData.sponsored.length < PAGE_SIZE) return null; // reached the end
     
     return ['/discover/providers', q, type, city, hasDiscount, maxPrice, sort, pageIndex, PAGE_SIZE, coordinates?.lat, coordinates?.lng];

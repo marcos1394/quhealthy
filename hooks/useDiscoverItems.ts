@@ -9,6 +9,7 @@ export const useDiscoverItems = (params: any) => {
 
   const getKey = (pageIndex: number, previousPageData: DiscoverItemWrapperResponse) => {
     if (!shouldFetch) return null;
+    if (params?.isGeoLoading) return null; // Esperar a que la geolocalización resuelva (o falle) antes de buscar
     if (previousPageData && previousPageData.organic.length + previousPageData.sponsored.length < PAGE_SIZE) return null; // reached the end
     
     return ['/discover/items', { ...params, page: pageIndex, size: PAGE_SIZE }];
