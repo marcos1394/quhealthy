@@ -101,7 +101,7 @@ export default function PublicStorePage() {
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          EXTRAYENDO EXPEDIENTE COMERCIAL...
+          Cargando la Tienda...
         </p>
       </div>
     );
