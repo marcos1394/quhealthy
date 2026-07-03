@@ -97,8 +97,9 @@ export const Navbar: React.FC = () => {
   // We are loading auth if hydration is pending, or if we are loading and have a user in local storage
   const isAuthLoading = !_hasHydrated || (isLoading && !!user);
 
-  const currentLinks: NavItem[] = (isAuthenticated && role && LINKS[role])
-    ? LINKS[role]
+  const normalizedRole = role ? role.replace('ROLE_', '') : 'GUEST';
+  const currentLinks: NavItem[] = (isAuthenticated && role && LINKS[normalizedRole])
+    ? LINKS[normalizedRole]
     : LINKS.GUEST;
 
   // --- COMPONENTES INTERNOS ---
@@ -400,12 +401,17 @@ export const Navbar: React.FC = () => {
                   <div className="h-12 w-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
                 </div>
               ) : isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-4 p-6 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-left"
-                >
-                  <LogOut size={14} /> {t('user_menu.logout')}
-                </button>
+                <>
+                  <Link href={role === 'ROLE_PROVIDER' ? "/provider/settings" : "/patient/dashboard/settings"} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-colors">
+                    <Settings size={14} /> {t('user_menu.settings')}
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-4 p-6 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full text-left"
+                  >
+                    <LogOut size={14} /> {t('user_menu.logout')}
+                  </button>
+                </>
               ) : (
                 <div className="p-6 flex flex-col gap-4 bg-gray-50 dark:bg-[#050505]">
                   <Link href="/login?clear_session=true" onClick={() => setMobileMenuOpen(false)}>
