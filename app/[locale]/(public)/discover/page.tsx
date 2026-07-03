@@ -295,7 +295,7 @@ const DiscoverMapContent = () => {
   const t = useTranslations('PatientDiscover');
   const searchParams = useSearchParams();
   const initialSearchQuery = searchParams.get('q') ?? searchParams.get('provider') ?? '';
-  const [{ map, searchQuery, searchType, viewMode, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId }, dispatch] = React.useReducer(
+  const [{ map, searchQuery, searchType, viewMode, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId, isFiltersOpen }, dispatch] = React.useReducer(
     (state: any, action: any) => {
       switch (action.type) {
         case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
@@ -308,11 +308,12 @@ const DiscoverMapContent = () => {
         case 'SET_SELECTEDID': return { ...state, selectedId: typeof action.payload === 'function' ? action.payload(state.selectedId) : action.payload };
         case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
         case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
+        case 'SET_ISFILTERSOPEN': return { ...state, isFiltersOpen: typeof action.payload === 'function' ? action.payload(state.isFiltersOpen) : action.payload };
         default: return state;
       }
     },
     {
-      map: null, searchQuery: initialSearchQuery, searchType: searchParams.get('type') || 'STORE', viewMode: 'MAP', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null
+      map: null, searchQuery: initialSearchQuery, searchType: searchParams.get('type') || 'STORE', viewMode: 'MAP', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null, isFiltersOpen: true
     }
   );
 
@@ -334,6 +335,7 @@ const DiscoverMapContent = () => {
   const setSelectedId = (val: any) => dispatch({ type: 'SET_SELECTEDID', payload: val });
   const setHoveredId = (val: any) => dispatch({ type: 'SET_HOVEREDID', payload: val });
   const setViewMode = (val: any) => dispatch({ type: 'SET_VIEWMODE', payload: val });
+  const setIsFiltersOpen = (val: any) => dispatch({ type: 'SET_ISFILTERSOPEN', payload: val });
 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(initialSearchQuery);
 
@@ -807,12 +809,15 @@ const DiscoverMapContent = () => {
               
               {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
               {viewMode === "GRID" && (
-                <aside className="hidden md:block w-[300px] flex-shrink-0">
-                  <FilterPanel />
+                <aside className={cn("hidden md:block flex-shrink-0 transition-all duration-300", isFiltersOpen ? "w-[300px]" : "w-[60px]")}>
+                  <FilterPanel 
+                    isCollapsed={!isFiltersOpen} 
+                    onToggle={() => setIsFiltersOpen(!isFiltersOpen)} 
+                  />
                 </aside>
               )}
 
-              <div className={cn(viewMode === "GRID" ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start" : "flex gap-3 md:flex-col md:gap-3 w-full")}>
+              <div className={cn(viewMode === "GRID" ? (isFiltersOpen ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start transition-all duration-300" : "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start transition-all duration-300") : "flex gap-3 md:flex-col md:gap-3 w-full")}>
               
               <AnimatePresence>
                 {searchType === 'STORE' ? enrichedProviders.map((provider) => (
