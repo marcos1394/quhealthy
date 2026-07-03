@@ -28,7 +28,7 @@ export function PriceFilter() {
 
   return (
     <div className="space-y-4">
-      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Presupuesto máx.</span>
+      <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Presupuesto máx.</span>
 
       {/* Presets rápidos */}
       <div className="flex flex-wrap gap-1.5">
@@ -39,10 +39,10 @@ export function PriceFilter() {
               setMaxPrice(String(p));
               setFilter('maxPrice', p);
             }}
-            className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border transition-all duration-200 ${
+            className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest border transition-all duration-200 ${
               filters.maxPrice === p
-                ? 'bg-white text-black border-white shadow-[0_0_12px_rgba(255,255,255,0.15)]'
-                : 'bg-transparent text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]'
+                  : 'bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]'
             }`}
           >
             ${p.toLocaleString()}
@@ -52,7 +52,7 @@ export function PriceFilter() {
 
       {/* Input personalizado */}
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-bold text-sm pointer-events-none">$</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm pointer-events-none">$</span>
         <input
           type="number"
           value={maxPrice}
@@ -60,17 +60,17 @@ export function PriceFilter() {
           onBlur={applyPrice}
           onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
           placeholder="Personalizado"
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-2.5 text-xs font-bold text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 transition-colors"
+          className="w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white pl-8 pr-3 py-2.5 text-xs font-bold text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:shadow-[2px_2px_0_0_#000] dark:focus:shadow-[2px_2px_0_0_#fff] transition-all"
         />
       </div>
 
       {/* Solo Ofertas */}
       <label className="flex items-center gap-3 cursor-pointer group">
         <div
-          className={`relative flex items-center justify-center w-5 h-5 rounded-md border transition-all duration-200 ${
+          className={`relative flex items-center justify-center w-5 h-5 border transition-all duration-200 ${
             filters.hasDiscount
-              ? 'bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.2)]'
-              : 'bg-transparent border-white/20 group-hover:border-white/40'
+              ? 'bg-black border-black dark:bg-white dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]'
+              : 'bg-white border-black dark:bg-[#0a0a0a] dark:border-white group-hover:shadow-[2px_2px_0_0_#000] dark:group-hover:shadow-[2px_2px_0_0_#fff]'
           }`}
         >
           <input
@@ -80,14 +80,14 @@ export function PriceFilter() {
             className="peer sr-only"
           />
           {filters.hasDiscount && (
-            <svg className="w-3 h-3 text-black pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-3 h-3 text-white dark:text-black pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <Tag className="w-3 h-3 text-green-400" />
-          <span className="text-xs font-bold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">
+          <Tag className="w-3 h-3 text-black dark:text-white" strokeWidth={2} />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white transition-colors">
             Solo ofertas
           </span>
         </div>
