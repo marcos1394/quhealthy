@@ -103,8 +103,16 @@ export function VisualIdentitySection({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) return;
+    if (!file.type.startsWith('image/')) {
+      toast.warning('Por favor selecciona un archivo de imagen válido (JPG, PNG)');
+      event.target.value = '';
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      toast.warning('La imagen no debe superar los 5MB de peso');
+      event.target.value = '';
+      return;
+    }
 
     setUploadingType(type);
 

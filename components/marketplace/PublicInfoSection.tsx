@@ -22,6 +22,8 @@ import {
   Check
 } from "lucide-react";
 
+import { toast } from "react-toastify";
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -61,8 +63,16 @@ export function PublicInfoSection({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) return;
-    if (file.size > 20 * 1024 * 1024) return;
+    if (!file.type.startsWith('video/')) {
+      toast.warning('Por favor selecciona un archivo de video válido (MP4 o WebM)');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      toast.warning('El archivo de video es muy pesado (máximo 20MB)');
+      e.target.value = '';
+      return;
+    }
 
     setIsUploadingVideo(true);
     if (onVideoUpload) {
