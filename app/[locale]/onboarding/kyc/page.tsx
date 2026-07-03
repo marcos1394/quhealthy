@@ -61,7 +61,7 @@ export default function KycPage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: KycDocumentType) => { const f = e.target.files?.[0]; if (f) handleUpload(f, type); };
-  const handleUpload = async (file: File, type: KycDocumentType) => { if (file.size > 10 * 1024 * 1024) { toast.warning("Max 10MB."); return; } await uploadDocument(file, type); };
+  const handleUpload = async (file: File, type: KycDocumentType) => { if (file.size > 20 * 1024 * 1024) { toast.warning("Max 10MB."); return; } await uploadDocument(file, type); };
 
   // Strict Badges
   const getStatusBadge = (status?: KycVerificationStatus) => {
