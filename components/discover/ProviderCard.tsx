@@ -88,7 +88,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({ provider, className 
               <Sparkles className="w-3 h-3 mr-1 text-yellow-400" /> Premium
             </Badge>
           )}
-          {provider.discountPercentage && provider.discountPercentage > 0 && (
+          {(provider.discountPercentage ?? 0) > 0 && (
             <Badge className="bg-green-500/90 backdrop-blur-md border border-green-400/50 text-white font-bold tracking-wider text-[10px] uppercase shadow-xl">
               {provider.discountPercentage}% OFF
             </Badge>

@@ -112,7 +112,7 @@ export const DiscoverItemCard = ({ item }: { item: DiscoverItem }) => {
                 {item.modality === 'IN_PERSON' ? 'Presencial' : item.modality === 'ONLINE' ? 'En Línea' : 'Híbrido'}
               </Badge>
             )}
-            {item.discountPercentage && item.discountPercentage > 0 && (
+            {(item.discountPercentage ?? 0) > 0 && (
               <Badge className="bg-green-500 text-white text-[9px] uppercase font-bold tracking-widest rounded-none border-none">
                 -{item.discountPercentage}%
               </Badge>
