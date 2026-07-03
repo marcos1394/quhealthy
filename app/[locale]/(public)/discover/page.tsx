@@ -150,7 +150,7 @@ const MapProviderCard = ({
             onError={() => setImgError(true)}
             className={cn(
               mediaOpacityClasses,
-              "object-cover grayscale group-hover:grayscale-0"
+              "object-cover"
             )}
           />
         ) : (
