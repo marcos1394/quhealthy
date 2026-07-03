@@ -275,7 +275,7 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 Para preguntas sobre estos términos, contáctenos en:
               </p>
               <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-4 space-y-2 text-sm">
-                <p><strong>Email:</strong> legal@quhealthy.com</p>
+                <p><strong>Email:</strong> legal@quhealthy.org</p>
                 <p><strong>Teléfono:</strong> +52 55 1234 5678</p>
                 <p><strong>Dirección:</strong> Av. Reforma 123, CDMX, México</p>
               </div>

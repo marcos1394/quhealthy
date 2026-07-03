@@ -466,9 +466,9 @@ export default function StoreSetupPage() {
             <Info className="w-3.5 h-3.5" strokeWidth={2} /> Soporte Técnico
           </p>
           <p className="text-xs text-gray-500 font-light">
-            {t('help_desc').split('support@quhealthy.com')[0]}
-            <a href="mailto:support@quhealthy.com" className="font-bold text-black dark:text-white hover:underline ml-1">
-              support@quhealthy.com
+            {t('help_desc').split('support@quhealthy.org')[0]}
+            <a href="mailto:support@quhealthy.org" className="font-bold text-black dark:text-white hover:underline ml-1">
+              support@quhealthy.org
             </a>
           </p>
         </div>

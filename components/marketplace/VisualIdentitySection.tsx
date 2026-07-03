@@ -218,7 +218,7 @@ export function VisualIdentitySection({
                       {settings.storeName || 'NOMBRE_ENTIDAD'}
                     </h3>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                      quhealthy.com/{settings.storeSlug || 'url-entidad'}
+                      quhealthy.org/{settings.storeSlug || 'url-entidad'}
                     </p>
                   </div>
                   <button 
@@ -263,7 +263,7 @@ export function VisualIdentitySection({
             </Label>
             <div className="flex focus-within:ring-1 focus-within:ring-black dark:focus-within:ring-white transition-shadow">
               <span className="bg-gray-100 dark:bg-gray-900 border border-r-0 border-gray-200 dark:border-gray-800 px-4 py-3 text-[10px] font-bold tracking-widest text-gray-500 flex items-center">
-                quhealthy.com/
+                quhealthy.org/
               </span>
               <Input 
                 placeholder="mi-clinica" 

@@ -133,7 +133,7 @@ export function ProviderProfileSettings() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Ej. contacto@quhealthy.com" 
+                placeholder="Ej. contacto@quhealthy.org" 
                 type="email" 
                 className="rounded-none border-black/20 dark:border-white/20 h-12 focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white" 
               />

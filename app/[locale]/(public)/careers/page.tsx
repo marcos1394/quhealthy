@@ -20,7 +20,7 @@ interface JobOpening {
 }
 
 const fetcher = (url: string) => axiosInstance.get<JobOpening[]>(url).then(res => res.data);
-const CAREERS_EMAIL = "careers@quhealthy.com";
+const CAREERS_EMAIL = "careers@quhealthy.org";
 
 function buildMailto(subject: string) {
   return `mailto:${CAREERS_EMAIL}?subject=${encodeURIComponent(subject)}`;

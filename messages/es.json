@@ -1696,7 +1696,7 @@
     "ready_title": "¡Tu tienda está lista! 🎉",
     "ready_desc": "Has completado toda la configuración. Ahora puedes publicar tu tienda y comenzar a recibir reservas.",
     "help_title": "¿Necesitas ayuda con tu tienda?",
-    "help_desc": "Si tienes dudas sobre cómo configurar tu tienda o necesitas asistencia, nuestro equipo está aquí para ayudarte. Contáctanos en support@quhealthy.com"
+    "help_desc": "Si tienes dudas sobre cómo configurar tu tienda o necesitas asistencia, nuestro equipo está aquí para ayudarte. Contáctanos en support@quhealthy.org"
   },
   "StoreIdentity": {
     "title": "Perfil del Consultorio",
@@ -2356,7 +2356,7 @@
         },
         {
           "title": "7. Ejercicio inalienable de los Derechos 'ARCO' y Revocatorias",
-          "content": "Usted ejerce prerrogativa total del usufructo material respecto de su acervo recabado, denominados bajo acrónimo por precepto gubernamental A.R.C.O. (Acceso completo para validarlo, Rectificación obligada en faltas o desfasajes, Cancelación total o segregada de los flujos orgánicos, u Oposición sobre propósitos optativos secundarios dictados).\nCualquier procedimiento derivado requiere el contacto formal a través del Titular Oficial de Datos Personales, por correo verificado a: privacidad@quhealthy.com acreditando su identidad y fundamentación. Su resolución y emisión probatoria toma como máximo un plazo no mayor a 20 días hábiles en su curso para resolución estipulante."
+          "content": "Usted ejerce prerrogativa total del usufructo material respecto de su acervo recabado, denominados bajo acrónimo por precepto gubernamental A.R.C.O. (Acceso completo para validarlo, Rectificación obligada en faltas o desfasajes, Cancelación total o segregada de los flujos orgánicos, u Oposición sobre propósitos optativos secundarios dictados).\nCualquier procedimiento derivado requiere el contacto formal a través del Titular Oficial de Datos Personales, por correo verificado a: privacidad@quhealthy.org acreditando su identidad y fundamentación. Su resolución y emisión probatoria toma como máximo un plazo no mayor a 20 días hábiles en su curso para resolución estipulante."
         },
         {
           "title": "8. Empleo de Cookies, Píxeles de Rastreo e Inteligencia Transaccional",
@@ -2678,7 +2678,7 @@
         "product": "Producto",
         "sales": "Ventas y Marketing"
       },
-      "no_openings": "No hay vacantes abiertas por el momento, ¡pero siempre buscamos talento! Envía tu CV a careers@quhealthy.com",
+      "no_openings": "No hay vacantes abiertas por el momento, ¡pero siempre buscamos talento! Envía tu CV a careers@quhealthy.org",
       "apply": "Aplicar Ahora",
       "testimonials_title": "Trabajando en QuHealthy",
       "testimonials": [
@@ -2740,7 +2740,7 @@
         "headquarters": "Oficinas Centrales",
         "address": "Ciudad de México, México",
         "support": "Soporte General",
-        "email": "hola@quhealthy.com",
+        "email": "hola@quhealthy.org",
         "phone_title": "Teléfono",
         "phone": "+52 (55) 1234 5678"
       }
@@ -3480,7 +3480,7 @@
     "governing_law_desc": "Estos Términos se rigen por las leyes de México, sin considerar principios de conflicto de leyes. Cualquier controversia se someterá a los tribunales del domicilio registrado de QuHealthy en Sinaloa, México, salvo que la ley de tu país de residencia te otorgue derechos de protección al consumidor que no puedan renunciarse, o te garantice acceso a tus tribunales locales — en cuyo caso aplicarán esas protecciones.",
     "changes_title": "7. Cambios a Estos Términos",
     "changes_desc": "Podemos actualizar estos Términos de tiempo en tiempo para reflejar cambios en nuestros servicios, nuestras prácticas, o la ley. Actualizaremos la fecha al inicio de esta página, y para cambios sustanciales, te daremos un aviso más visible, como un banner en la aplicación o un correo electrónico. Continuar usando la Plataforma después de que un cambio sustancial entre en vigor significa que aceptas los Términos actualizados; si no estás de acuerdo, debes dejar de usar la Plataforma.",
-    "contact": "¿Tienes dudas sobre estos Términos? Contáctanos en legal@quhealthy.com. Proporcionado por: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
+    "contact": "¿Tienes dudas sobre estos Términos? Contáctanos en legal@quhealthy.org. Proporcionado por: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
   },
   "PublicPrivacy": {
     "breadcrumb": "Legal",
@@ -3520,7 +3520,7 @@
     "s7_note": "Si te encuentras en México y consideras que tus derechos no han sido respetados, puedes presentar una queja ante la Secretaría Anticorrupción y Buen Gobierno (Dirección General de Datos Personales en el Sector Privado), la autoridad mexicana en materia de protección de datos.",
     "s8_title": "8. Privacidad de Menores",
     "s8_desc": "QuHealthy no está dirigido a, ni recopila intencionalmente información personal directamente de, personas menores de 18 años. Si un menor recibe atención agendada a través de QuHealthy, esto ocurre bajo la cuenta, supervisión y consentimiento de un padre, madre o tutor legal.",
-    "contact": "Para ejercer tus derechos de privacidad (ARCO, CCPA u otros) o si tienes preguntas sobre nuestras prácticas de seguridad, contacta a nuestro equipo de privacidad en privacy@quhealthy.com. Responsable del tratamiento: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
+    "contact": "Para ejercer tus derechos de privacidad (ARCO, CCPA u otros) o si tienes preguntas sobre nuestras prácticas de seguridad, contacta a nuestro equipo de privacidad en privacy@quhealthy.org. Responsable del tratamiento: [Razón social y domicilio de QuHealthy — pendiente de completar al concluir el registro del RFC]."
   },
   "PublicCookies": {
     "breadcrumb": "Legal",
@@ -3581,7 +3581,7 @@
     "changes_desc": "Actualizaremos esta política a medida que evolucionen nuestras prácticas, la ley o nuestra presencia en México, EE. UU. y América Latina. Indicaremos la fecha de la última actualización en la parte superior de esta página, y para cambios materiales, proporcionaremos un aviso más prominente (como un banner o un correo electrónico).",
     "contact_title": "11. Contáctanos",
     "contact_desc": "Si tienes preguntas sobre esta Política de Cookies, deseas ejercer tus derechos de privacidad (ARCO, CCPA u otros), o deseas una lista completa de las cookies actualmente activas en la plataforma, comunícate con nuestro equipo de privacidad:",
-    "contact_link": "legal@quhealthy.com",
+    "contact_link": "legal@quhealthy.org",
     "manage_btn": "Gestionar Preferencias de Cookies"
   },
   "PublicBusiness": {

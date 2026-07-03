@@ -314,7 +314,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               </ul>
               
               <p className="text-sm text-blue-300 ml-4 mt-3">
-                Para ejercer estos derechos, contáctanos en <strong>privacy@quhealthy.com</strong>
+                Para ejercer estos derechos, contáctanos en <strong>privacy@quhealthy.org</strong>
               </p>
             </section>
 
@@ -392,7 +392,7 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
               </p>
               
               <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-4 space-y-2 text-sm ml-4">
-                <p><strong>Email:</strong> privacy@quhealthy.com</p>
+                <p><strong>Email:</strong> privacy@quhealthy.org</p>
                 <p><strong>Responsable de Datos:</strong> QuHealthy Data Protection Officer</p>
                 <p><strong>Teléfono:</strong> +52 55 1234 5678</p>
                 <p><strong>Dirección:</strong> Av. Reforma 123, CDMX, México</p>

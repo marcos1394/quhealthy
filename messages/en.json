@@ -1696,7 +1696,7 @@
     "ready_title": "Your store is ready! 🎉",
     "ready_desc": "You have completed all setup steps. You can now publish your store and start receiving bookings.",
     "help_title": "Need help with your store?",
-    "help_desc": "If you have questions about setting up your store or need assistance, our team is here to help. Contact us at support@quhealthy.com"
+    "help_desc": "If you have questions about setting up your store or need assistance, our team is here to help. Contact us at support@quhealthy.org"
   },
   "StoreIdentity": {
     "title": "Practice Profile",
@@ -2355,7 +2355,7 @@
         },
         {
           "title": "7. Inalienable Exercise of 'ARCO' Rights and Revocations",
-          "content": "You exercise total prerogative of the material usufruct regarding your collected asset, named by acronym by government precept A.R.C.O. (Complete Access to validate it, Obligatory Rectification in faults or lags, Total or segregated Cancellation of organic flows, or Opposition over dictated secondary optative purposes).\nAny derivative procedure requires formal contact through the Official Personal Data Holder, by verified email to: privacy@quhealthy.com accrediting your identity and foundation. Its resolution and probatory issuance takes a maximum term no greater than 20 business days in its course for stipulating resolution."
+          "content": "You exercise total prerogative of the material usufruct regarding your collected asset, named by acronym by government precept A.R.C.O. (Complete Access to validate it, Obligatory Rectification in faults or lags, Total or segregated Cancellation of organic flows, or Opposition over dictated secondary optative purposes).\nAny derivative procedure requires formal contact through the Official Personal Data Holder, by verified email to: privacy@quhealthy.org accrediting your identity and foundation. Its resolution and probatory issuance takes a maximum term no greater than 20 business days in its course for stipulating resolution."
         },
         {
           "title": "8. Use of Cookies, Tracking Pixels, and Transactional Intelligence",
@@ -2677,7 +2677,7 @@
         "product": "Product",
         "sales": "Sales & Marketing"
       },
-      "no_openings": "No open positions at the moment, but we are always looking for talent! Send your CV to careers@quhealthy.com",
+      "no_openings": "No open positions at the moment, but we are always looking for talent! Send your CV to careers@quhealthy.org",
       "apply": "Apply Now",
       "testimonials_title": "Working at QuHealthy",
       "testimonials": [
@@ -3455,7 +3455,7 @@
     "governing_law_desc": "These Terms are governed by the laws of Mexico, without regard to conflict-of-law principles. Any dispute will be subject to the courts of QuHealthy's registered domicile in Sinaloa, Mexico, except where the law of your country of residence grants you non-waivable consumer protection rights or guarantees access to your local courts — in which case those protections apply instead.",
     "changes_title": "7. Changes to These Terms",
     "changes_desc": "We may update these Terms from time to time to reflect changes in our services, our practices, or the law. We'll update the date at the top of this page, and for material changes, we'll provide more prominent notice, such as an in-app banner or an email. Continuing to use the Platform after a material change takes effect means you accept the updated Terms; if you don't agree, you should stop using the Platform.",
-    "contact": "Questions about these Terms? Contact us at legal@quhealthy.com. Provided by: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
+    "contact": "Questions about these Terms? Contact us at legal@quhealthy.org. Provided by: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
   "PublicPrivacy": {
     "breadcrumb": "Legal",
@@ -3495,7 +3495,7 @@
     "s7_note": "If you're in Mexico and believe your rights haven't been respected, you can file a complaint with the Secretaría Anticorrupción y Buen Gobierno (Dirección General de Datos Personales en el Sector Privado), Mexico's data protection authority.",
     "s8_title": "8. Children's Privacy",
     "s8_desc": "QuHealthy is not directed at, and we do not knowingly collect personal information directly from, individuals under 18. If a minor receives care booked through QuHealthy, this occurs under the account, supervision, and consent of a parent or legal guardian.",
-    "contact": "To exercise your privacy rights (ARCO, CCPA, or otherwise) or for questions about our security practices, contact our privacy team at privacy@quhealthy.com. Data controller: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
+    "contact": "To exercise your privacy rights (ARCO, CCPA, or otherwise) or for questions about our security practices, contact our privacy team at privacy@quhealthy.org. Data controller: [QuHealthy legal entity name and registered address — to be completed upon RFC registration]."
   },
   "PublicCookies": {
     "breadcrumb": "Legal",
@@ -3556,7 +3556,7 @@
     "changes_desc": "We'll update this policy as our practices, the law, or our footprint across Mexico, the U.S., and Latin America evolve. We'll note the date of the last update at the top of this page, and for material changes, we'll provide more prominent notice (such as a banner or email).",
     "contact_title": "11. Contact Us",
     "contact_desc": "If you have questions about this Cookie Policy, want to exercise your privacy rights (ARCO, CCPA, or otherwise), or want a full list of cookies currently active on the platform, reach our privacy team:",
-    "contact_link": "legal@quhealthy.com",
+    "contact_link": "legal@quhealthy.org",
     "manage_btn": "Manage Cookie Preferences"
   },
   "PublicBusiness": {

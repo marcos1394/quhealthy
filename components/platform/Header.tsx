@@ -171,7 +171,7 @@ export const Header = () => {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-slate-900 dark:text-white mb-0.5">Dr. Marcos Sandoval</p>
-                  <p className="text-xs text-slate-500 truncate font-light">m.sandoval@quhealthy.com</p>
+                  <p className="text-xs text-slate-500 truncate font-light">m.sandoval@quhealthy.org</p>
                   <Badge className="bg-medical-50 dark:bg-medical-500/10 text-medical-600 dark:text-medical-400 border-0 mt-1.5 text-[10px]">
                     <Sparkles className="w-2.5 h-2.5 mr-1" />Premium Plan
                   </Badge>

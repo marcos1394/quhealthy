@@ -13,7 +13,7 @@ export const SITE_CONFIG = {
     rating: '4.9',
   },
   contact: {
-    email: 'hola@quhealthy.com',
+    email: 'hola@quhealthy.org',
     phone: '+52 (55) 1234-5678',
   },
   social: {

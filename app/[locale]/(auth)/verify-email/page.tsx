@@ -168,7 +168,7 @@ function VerificationContent() {
                   <Button onClick={() => router.push("/login")} className="w-full h-12 bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-none shadow-none font-semibold">{t("go_to_login")}</Button>
                   <Button onClick={() => window.location.reload()} variant="outline" className="w-full h-12 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 rounded-none"><RefreshCw className="w-4 h-4 mr-2" />{t("try_again")}</Button>
                 </div>
-                <p className="text-xs text-gray-400 font-light">{t("need_help")} <a href="mailto:support@quhealthy.com" className="text-black dark:text-white hover:underline">support@quhealthy.com</a></p>
+                <p className="text-xs text-gray-400 font-light">{t("need_help")} <a href="mailto:support@quhealthy.org" className="text-black dark:text-white hover:underline">support@quhealthy.org</a></p>
               </motion.div>
             )}
           </AnimatePresence>
