@@ -8,6 +8,7 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Sidebar } from "@/components/platform/Sidebar";
 import { useSessionStore } from "@/stores/SessionStore";
 
@@ -49,7 +50,10 @@ export function MobileNavbar() {
         </Link>
       </div>
       
-      <NotificationBell isCollapsed={false} />
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <NotificationBell isCollapsed={false} />
+      </div>
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { subscriptionService, CurrentSubscription } from "@/services/subscription.service";
 import { useTranslations } from "next-intl";
 
@@ -162,6 +163,7 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
         )}
 
         <div className={cn("flex items-center gap-2", isCollapsed ? "mx-auto flex-col gap-4" : "ml-auto")}>
+          {!isCollapsed && <ThemeToggle />}
           {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
           
           {/* El botón de hamburguesa se oculta si estamos en móvil, ya que el Sheet controla el cierre */}
