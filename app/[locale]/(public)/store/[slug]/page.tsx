@@ -47,6 +47,7 @@ export default function PublicStorePage() {
   const autoBookServiceId = searchParams?.get('autoBook');
 
   const [activeTab, setActiveTab] = useState<TabType>('servicios');
+  const [visibleProducts, setVisibleProducts] = useState(12);
   const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
   const { processCheckout, isProcessing } = useBookingCheckout();
@@ -310,7 +311,7 @@ export default function PublicStorePage() {
               )} 
               style={activeTab === 'productos' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
             >
-              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> FARMACIA 
+              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> PRODUCTOS 
               <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.products?.length || 0}</span>
             </button>
 
@@ -562,12 +563,13 @@ export default function PublicStorePage() {
             </motion.div>
           )}
 
-          {/* VISTA 3: FARMACIA Y PRODUCTOS CORREGIDA */}
+          {/* VISTA 3: PRODUCTOS CORREGIDA */}
           {activeTab === 'productos' && (
             <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               {store.products && store.products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {store.products.map((product) => {
+                <div className="flex flex-col gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {store.products.slice(0, visibleProducts).map((product) => {
                     const isOutOfStock = product.stockQuantity === 0 && !product.isDigital;
                     const isLowStock = !product.isDigital && product.stockQuantity != null && product.stockQuantity > 0 && product.stockQuantity <= 5;
 
@@ -666,6 +668,18 @@ export default function PublicStorePage() {
                       </div>
                     );
                   })}
+                  </div>
+                  {visibleProducts < store.products.length && (
+                    <div className="flex justify-center mt-4">
+                      <Button
+                        onClick={() => setVisibleProducts((prev) => prev + 12)}
+                        variant="outline"
+                        className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                      >
+                        {t('load_more', { defaultValue: 'Mostrar más' })}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
