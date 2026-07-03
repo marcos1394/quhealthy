@@ -22,6 +22,7 @@ export const useDiscoverItems = (params: any) => {
       revalidateFirstPage: false,
       revalidateOnFocus: false,
       persistSize: false,
+      keepPreviousData: true,
       onError: (err) => {
         console.error("Error al cargar los items:", err);
       }

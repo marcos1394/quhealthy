@@ -470,19 +470,6 @@ const DiscoverMapContent = () => {
     setAuthGateOpen(true);
   };
 
-  if (isCurrentlyLoading) {
-    return (
-      <div className="h-full w-full flex items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-        <div className="flex flex-col items-center gap-4">
-          <QhSpinner size="lg" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-              ESTAMOS PREPARANDO TODO PARA TI...
-            </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className={cn("relative w-full h-full overflow-hidden selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors", viewMode === "GRID" ? "bg-white dark:bg-[#0a0a0a] overflow-y-auto" : "bg-gray-100 dark:bg-[#111]")}>
@@ -794,16 +781,24 @@ const DiscoverMapContent = () => {
 
           
           {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
-
-            <div className="w-[90%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-10 text-center pointer-events-auto shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
-              <Search className="w-8 h-8 text-black dark:text-white mx-auto mb-6" strokeWidth={1.5} />
-              <h3 className="text-black dark:text-white font-bold text-sm uppercase tracking-widest mb-2">
-                BÚSQUEDA SIN COINCIDENCIAS
-              </h3>
-              <p className="text-gray-500 text-[10px] uppercase tracking-widest font-light">
-                AMPLÍE LOS PARÁMETROS O ELIMINE FILTROS PARA VISUALIZAR RESULTADOS GLOBALES.
-              </p>
-            </div>
+            isCurrentlyLoading ? (
+              <div className="w-[90%] md:w-full mx-auto text-center pointer-events-none p-10">
+                <Loader2 className="w-8 h-8 text-black dark:text-white mx-auto mb-6 animate-spin" strokeWidth={1.5} />
+                <h3 className="text-black dark:text-white font-bold text-sm uppercase tracking-widest mb-2">
+                  CARGANDO...
+                </h3>
+              </div>
+            ) : (
+              <div className="w-[90%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-10 text-center pointer-events-auto shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
+                <Search className="w-8 h-8 text-black dark:text-white mx-auto mb-6" strokeWidth={1.5} />
+                <h3 className="text-black dark:text-white font-bold text-sm uppercase tracking-widest mb-2">
+                  BÚSQUEDA SIN COINCIDENCIAS
+                </h3>
+                <p className="text-gray-500 text-[10px] uppercase tracking-widest font-light">
+                  AMPLÍE LOS PARÁMETROS O ELIMINE FILTROS PARA VISUALIZAR RESULTADOS GLOBALES.
+                </p>
+              </div>
+            )
           ) : (
             <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "flex overflow-x-auto gap-3 pb-4 md:flex-col md:flex-1 md:overflow-x-visible md:overflow-y-auto md:gap-3 md:pb-6 custom-scrollbar px-4 md:px-0" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")}>
               
