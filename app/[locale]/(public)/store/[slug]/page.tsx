@@ -36,6 +36,10 @@ import { CertificationGrid } from "@/components/ui/gallery/CertificationGrid";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
+const formatPrice = (price: number) => {
+  return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export default function PublicStorePage() {
   const params = useParams();
   const router = useRouter();
@@ -427,10 +431,10 @@ export default function PublicStorePage() {
                     <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px] self-stretch justify-end">
                       <div className="flex flex-col items-start md:items-end">
                         {service.compareAtPrice && service.compareAtPrice > service.price && (
-                          <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${service.compareAtPrice}</span>
+                          <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${formatPrice(service.compareAtPrice)}</span>
                         )}
                         <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
-                          {service.requiresEvaluation ? t('requires_eval', { defaultValue: 'REQUIERE VALORACIÓN' }) : `$${service.price}`}
+                          {service.requiresEvaluation ? t('requires_eval', { defaultValue: 'REQUIERE VALORACIÓN' }) : `$${formatPrice(service.price)}`}
                         </span>
                       </div>
                       
@@ -530,9 +534,9 @@ export default function PublicStorePage() {
                     <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[180px] self-stretch md:self-auto">
                       <div className="text-left sm:text-right">
                         {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
-                          <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">${pkg.compareAtPrice}</span>
+                          <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">${formatPrice(pkg.compareAtPrice)}</span>
                         )}
-                        <span className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">${pkg.price}</span>
+                        <span className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">${formatPrice(pkg.price)}</span>
                       </div>
                       
                       {(() => {
@@ -640,9 +644,9 @@ export default function PublicStorePage() {
                           <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800 mt-auto">
                             <div className="flex flex-col">
                               {product.compareAtPrice && product.compareAtPrice > product.price && (
-                                <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">${product.compareAtPrice}</span>
+                                <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">${formatPrice(product.compareAtPrice)}</span>
                               )}
-                              <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">${product.price}</span>
+                              <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">${formatPrice(product.price)}</span>
                             </div>
 
                             {(() => {
@@ -733,7 +737,7 @@ export default function PublicStorePage() {
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-gray-200 dark:border-gray-800 pt-6">
                         <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
-                          ${course.price}
+                          ${formatPrice(course.price)}
                         </span>
                         {(() => {
                           const isInCart = cart.some(c => c.id === course.id && c.type === course.type);
