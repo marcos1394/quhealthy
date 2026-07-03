@@ -212,22 +212,23 @@ export function VisualIdentitySection({
                 </div>
 
                 {/* Profile Info Preview */}
-                <div className="pl-8 space-y-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-black dark:text-white tracking-tight">
-                      {settings.storeName || 'NOMBRE_ENTIDAD'}
-                    </h3>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                      quhealthy.org/{settings.storeSlug || 'url-entidad'}
-                    </p>
-                  </div>
-                  <button 
-                    className="h-10 px-6 text-[10px] font-bold uppercase tracking-widest text-white border border-transparent hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: settings.primaryColor }}
-                  >
-                    Agendar Cita
-                  </button>
-                </div>
+               <div className="pl-8 space-y-4">
+  <div>
+    <h3 className="text-xl font-bold text-black dark:text-white tracking-tight">
+      {settings.storeName || 'NOMBRE_ENTIDAD'}
+    </h3>
+    {/* Se eliminó la clase 'uppercase' y se armó la URL completa */}
+    <p className="text-[10px] font-bold tracking-widest text-gray-500 mt-1">
+      https://www.quhealthy.org/es/store/{settings.storeSlug ? settings.storeSlug.toLowerCase() : 'url-entidad'}
+    </p>
+  </div>
+  <button 
+    className="h-10 px-6 text-[10px] font-bold uppercase tracking-widest text-white border border-transparent hover:opacity-90 transition-opacity"
+    style={{ backgroundColor: settings.primaryColor }}
+  >
+    Agendar Cita
+  </button>
+</div>
               </div>
             </motion.div>
           )}
