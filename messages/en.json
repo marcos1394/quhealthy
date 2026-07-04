@@ -2743,6 +2743,7 @@
   },
   "Marketplace": {
     "addToCart": "Add to cart",
+    "addedToCart": "Added to cart",
     "services": {
       "title": "Your Services",
       "description": "Manage the medical services you offer.",

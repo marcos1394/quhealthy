@@ -2749,6 +2749,7 @@
   },
   "Marketplace": {
     "addToCart": "Agregar al carrito",
+    "addedToCart": "Agregado al carrito",
     "services": {
       "title": "Tus Servicios",
       "description": "Gestiona los servicios médicos que ofreces.",
