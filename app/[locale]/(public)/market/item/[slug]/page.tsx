@@ -6,6 +6,9 @@ import { ArrowLeft, CheckCircle2, ShieldCheck, Tag as TagIcon, Building2 } from 
 import { CatalogItemDTO } from '@/types/catalog';
 import { AddToCartButton } from './AddToCartButton';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
   try {
     const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
