@@ -38,7 +38,7 @@ export interface CatalogItemDTO {
   contentUrl?: string;
 
   // Específico de Paquetes
-  packageItemIds?: number[];
+  packageItems?: { itemId: number; quantity: number }[];
   packageContents?: any[]; 
 }
 
@@ -67,7 +67,14 @@ export interface UI_Package {
   description: string;
   category?: string; 
   price: number;
-  serviceIds: number[];
+  packageItems?: {
+    id: number;
+    name: string;
+    type: 'SERVICE' | 'PRODUCT';
+    imageUrl?: string;
+    price: number;
+    quantity: number;
+  }[];
   imageUrl?: string; 
   galleryImages?: GalleryImage[];
   isNew?: boolean;

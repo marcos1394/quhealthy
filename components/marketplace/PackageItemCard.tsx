@@ -26,9 +26,9 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Helpers de cálculo
-  const realVal = pkg.serviceIds.reduce((sum, id) => {
-    const s = availableServices.find(srv => srv.id === id);
-    return sum + (s ? s.price : 0);
+  const realVal = (pkg.packageItems || []).reduce((sum, item) => {
+    const s = availableServices.find(srv => srv.id === item.id);
+    return sum + (s ? (s.price * item.quantity) : 0);
   }, 0);
   
   const savingsAmt = Math.max(0, realVal - pkg.price);
@@ -86,14 +86,16 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
           CONTENIDO DEL ENSAMBLE
         </span>
         <div className="flex flex-wrap gap-2 content-start">
-          {pkg.serviceIds.map(id => {
-            const s = availableServices.find(service => service.id === id);
-            return s ? (
+          {(pkg.packageItems || []).map(item => {
+            const s = availableServices.find(service => service.id === item.id);
+            return s && item.quantity > 0 ? (
               <span 
-                key={id} 
+                key={item.id} 
                 className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-50 dark:bg-[#050505] border border-black/10 dark:border-white/10 px-2.5 py-1.5 flex items-center gap-1.5"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                <div className="w-4 h-4 flex items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] rounded-sm text-[8px] font-bold">
+                  {item.quantity}x
+                </div>
                 {s.name}
               </span>
             ) : null;

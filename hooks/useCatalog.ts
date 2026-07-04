@@ -76,7 +76,13 @@ export const useCatalog = () => {
             description: item.description || '',
             category: item.category || '', 
             price: item.price,
-            serviceIds: item.packageContents ? item.packageContents.map(c => c.id) : [],
+            packageItems: item.packageContents ? item.packageContents.map(c => ({
+              id: c.id,
+              name: c.name,
+              type: c.type,
+              price: c.price,
+              quantity: c.quantity || 1
+            })) : [],
             imageUrl: item.imageUrl, 
             isNew: false,
             hasUnsavedChanges: false
@@ -205,7 +211,10 @@ export const useCatalog = () => {
       category: pkg.category, 
       description: pkg.description,
       price: pkg.price,
-      packageItemIds: pkg.serviceIds,
+      packageItems: pkg.packageItems?.map(pi => ({
+        itemId: pi.id,
+        quantity: pi.quantity
+      })) || [],
       imageUrl: pkg.imageUrl 
     };
 

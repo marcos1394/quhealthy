@@ -37,29 +37,50 @@ export function PackageEditorDialog({
 
   useEffect(() => {
     if (isOpen && initialData) {
-      setPkg({ ...initialData });
-      const rVal = calculateRealValue(initialData.serviceIds);
-      setDiscountPercent(rVal > 0 ? Math.round(((rVal - initialData.price) / rVal) * 100) : 15);
+      const p = { ...initialData, packageItems: initialData.packageItems || [] };
+      setPkg(p);
+      const rVal = calculateRealValue(p.packageItems);
+      setDiscountPercent(rVal > 0 ? Math.round(((rVal - p.price) / rVal) * 100) : 15);
     }
   }, [isOpen, initialData]);
 
   if (!pkg) return null;
 
-  const realValue = calculateRealValue(pkg.serviceIds);
+  const realValue = calculateRealValue(pkg.packageItems);
   const savings = Math.max(0, realValue - pkg.price);
 
-  function calculateRealValue(serviceIds: number[]) {
-    return serviceIds.reduce((sum, id) => sum + (availableServices.find(s => s.id === id)?.price || 0), 0);
+  function calculateRealValue(items: UI_Package['packageItems']) {
+    if (!items) return 0;
+    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
-  const handleServiceToggle = (serviceId: number) => {
-    const ids = pkg.serviceIds.includes(serviceId)
-      ? pkg.serviceIds.filter(id => id !== serviceId)
-      : [...pkg.serviceIds, serviceId];
+  const handleQuantityChange = (serviceId: number, delta: number) => {
+    let currentItems = [...(pkg.packageItems || [])];
+    const existingIndex = currentItems.findIndex(i => i.id === serviceId);
     
-    const newRealValue = calculateRealValue(ids);
+    if (existingIndex >= 0) {
+      const newQuantity = Math.max(0, currentItems[existingIndex].quantity + delta);
+      if (newQuantity === 0) {
+        currentItems.splice(existingIndex, 1);
+      } else {
+        currentItems[existingIndex].quantity = newQuantity;
+      }
+    } else if (delta > 0) {
+      const service = availableServices.find(s => s.id === serviceId);
+      if (service) {
+        currentItems.push({
+          id: service.id,
+          name: service.name,
+          type: 'SERVICE',
+          price: service.price,
+          quantity: delta
+        });
+      }
+    }
+    
+    const newRealValue = calculateRealValue(currentItems);
     const newPrice = Math.round(newRealValue * (1 - discountPercent / 100));
-    setPkg({ ...pkg, serviceIds: ids, price: newPrice });
+    setPkg({ ...pkg, packageItems: currentItems, price: newPrice });
   };
 
   const applyDiscountPercent = (percent: number) => {
@@ -90,7 +111,7 @@ export function PackageEditorDialog({
     { label: '25%', percent: 25 },
   ];
 
-  const isValid = pkg.name && pkg.category && pkg.price >= 0 && pkg.serviceIds.length > 0;
+  const isValid = pkg.name && pkg.category && pkg.price >= 0 && (pkg.packageItems || []).length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -207,7 +228,7 @@ export function PackageEditorDialog({
                     <CheckSquare className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('included_services', { defaultValue: 'SERVICIOS INTEGRADOS' })}
                   </label>
                   <span className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-black dark:text-white">
-                    {pkg.serviceIds.length} ITEMS
+                    {(pkg.packageItems || []).reduce((acc, i) => acc + i.quantity, 0)} ITEMS
                   </span>
                 </div>
                 
@@ -221,30 +242,50 @@ export function PackageEditorDialog({
                   ) : (
                     <div className="flex flex-col">
                       {availableServices.map(service => {
-                        const isSelected = pkg.serviceIds.includes(service.id);
+                        const packageItem = (pkg.packageItems || []).find(i => i.id === service.id);
+                        const quantity = packageItem ? packageItem.quantity : 0;
+                        const isSelected = quantity > 0;
                         return (
                           <div 
                             key={service.id} 
-                            onClick={() => handleServiceToggle(service.id)}
                             className={cn(
-                              "flex items-center gap-4 p-4 border-b border-black/10 dark:border-white/10 transition-colors cursor-pointer",
+                              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-black/10 dark:border-white/10 transition-colors",
                               isSelected ? "bg-black/5 dark:bg-white/5" : "hover:bg-gray-50 dark:hover:bg-[#111]"
                             )}
                           >
-                            <Checkbox 
-                              checked={isSelected} 
-                              className="w-5 h-5 rounded-none border-black/30 dark:border-white/30 data-[state=checked]:bg-black data-[state=checked]:text-white dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-black transition-none" 
-                            />
-                            <div className="flex-1 min-w-0 flex items-center justify-between gap-4">
-                              <p className={cn(
-                                "text-xs font-semibold uppercase tracking-widest truncate",
-                                isSelected ? "text-black dark:text-white" : "text-gray-700 dark:text-gray-300"
-                              )}>
-                                {service.name}
-                              </p>
-                              <span className="text-[10px] font-mono font-bold tracking-widest shrink-0 text-gray-500">
-                                ${service.price}
-                              </span>
+                            <div className="flex-1 min-w-0 flex items-center gap-4">
+                              <div className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-[#1a1a1a] border border-black/10 dark:border-white/10 text-[10px] font-bold">
+                                {quantity}x
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <p className={cn(
+                                  "text-xs font-semibold uppercase tracking-widest truncate",
+                                  isSelected ? "text-black dark:text-white" : "text-gray-700 dark:text-gray-300"
+                                )}>
+                                  {service.name}
+                                </p>
+                                <span className="text-[10px] font-mono font-bold tracking-widest shrink-0 text-gray-500">
+                                  ${service.price} C/U
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center border border-black/20 dark:border-white/20 shrink-0 h-8">
+                              <button 
+                                onClick={() => handleQuantityChange(service.id, -1)}
+                                className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white transition-colors"
+                              >
+                                -
+                              </button>
+                              <div className="w-8 h-full flex items-center justify-center text-xs font-bold font-mono border-x border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                                {quantity}
+                              </div>
+                              <button 
+                                onClick={() => handleQuantityChange(service.id, 1)}
+                                className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white transition-colors"
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
                         );
@@ -257,7 +298,7 @@ export function PackageEditorDialog({
               {/* 2. MOTOR DE PRECIOS Y VALOR */}
               <div className={cn(
                 "p-6 md:p-8 flex flex-col bg-gray-50 dark:bg-[#050505] transition-opacity",
-                pkg.serviceIds.length === 0 && "opacity-50 pointer-events-none"
+                (pkg.packageItems || []).length === 0 && "opacity-50 pointer-events-none"
               )}>
                 
                 {/* Valuación */}

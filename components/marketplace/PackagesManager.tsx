@@ -60,7 +60,7 @@ export function PackagesManager({
         description: "",
         category: "",
         price: 0,
-        serviceIds: [],
+        packageItems: [],
         isNew: true
       });
     }
