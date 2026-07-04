@@ -121,7 +121,7 @@ export default function CatalogSetupPage() {
       return;
     }
     const newPackage: UI_Package = {
-      id: Date.now(), name: "", description: "", price: 0, serviceIds: [], isNew: true, hasUnsavedChanges: true,
+      id: -Date.now(), name: "", description: "", price: 0, packageItems: [], isNew: true, hasUnsavedChanges: true 
     };
     setPackages([newPackage, ...packages]);
   };
