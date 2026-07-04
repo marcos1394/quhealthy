@@ -820,7 +820,7 @@ export default function PublicStorePage() {
         </div>
       </div>
 
-      {/* --- BOTTOM DOCK (PANEL FIJO) --- */}
+      {/* --- BOTTOM DOCK (PANEL FIJOO) --- */}
       <AnimatePresence>
         {cart.length > 0 && (
           <motion.div 
