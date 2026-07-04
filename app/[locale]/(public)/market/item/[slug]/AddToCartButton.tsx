@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShoppingBag, Loader2 } from 'lucide-react';
+import { ShoppingBag, Loader2, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { CatalogItemDTO } from '@/types/catalog';
 import { useBookingStore } from '@/hooks/useBookingStore';
 import { Button } from '@/components/ui/button';
@@ -19,11 +20,22 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({ item, providerName, providerSlug }: AddToCartButtonProps) {
   const t = useTranslations('Marketplace');
+  const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
   const addToCart = useBookingStore(state => state.addToCart);
   const setProvider = useBookingStore(state => state.setProvider);
+  const cart = useBookingStore(state => state.cart);
+
+  const isInCart = cart.some(c => c.id === item.id && c.type === item.type);
 
   const handleAddToCart = () => {
+    const finalSlug = providerSlug || String(item.providerId);
+    
+    if (isInCart) {
+      router.push(`/store/${finalSlug}`);
+      return;
+    }
+
     setIsAdding(true);
     
     // Convert CatalogItemDTO to StorefrontItem for the store
@@ -58,16 +70,23 @@ export function AddToCartButton({ item, providerName, providerSlug }: AddToCartB
   return (
     <Button
       onClick={handleAddToCart}
-      disabled={isAdding}
+      disabled={isAdding && !isInCart}
       className={cn(
         "w-full h-14 md:h-16 text-sm md:text-base font-bold tracking-widest uppercase transition-all duration-300",
-        "bg-black hover:bg-black/90 text-white rounded-none border border-black",
-        "dark:bg-white dark:hover:bg-gray-200 dark:text-black dark:border-white",
+        isInCart 
+          ? "bg-green-600 hover:bg-green-700 text-white rounded-none border border-green-600 dark:border-green-600"
+          : "bg-black hover:bg-black/90 text-white rounded-none border border-black dark:bg-white dark:hover:bg-gray-200 dark:text-black dark:border-white",
         "flex items-center justify-center gap-3"
       )}
     >
       {isAdding ? (
         <Loader2 className="w-5 h-5 animate-spin" />
+      ) : isInCart ? (
+        <>
+          <ShoppingBag className="w-5 h-5" />
+          Ir al Carrito
+          <ArrowRight className="w-5 h-5 ml-2" />
+        </>
       ) : (
         <>
           <ShoppingBag className="w-5 h-5" />
