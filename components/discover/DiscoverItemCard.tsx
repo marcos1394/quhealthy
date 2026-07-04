@@ -1,11 +1,12 @@
 "use client";
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Clock, Navigation, ShoppingBag, Package, BookOpen, Stethoscope, Calendar, CreditCard, GraduationCap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, generateSlug } from '@/lib/utils';
 import { DiscoverItem } from '@/types/discover';
 import { useBookingStore } from '@/hooks/useBookingStore';
 import { StorefrontItem } from '@/types/storefront';
@@ -24,6 +25,8 @@ export const DiscoverItemCard = ({
  canUseFavorites?: boolean;
 }) => {
  const router = useRouter();
+ const params = useParams();
+ const locale = params?.locale || 'es';
 
  const handleProviderClick = (e: React.MouseEvent) => {
  e.stopPropagation();
@@ -164,9 +167,15 @@ export const DiscoverItemCard = ({
  {/* CONTENIDO */}
  <div className="p-4 flex flex-col flex-1">
  {/* Nombre y descripción */}
- <h3 className="font-bold text-sm text-black dark:text-white uppercase tracking-widest line-clamp-2 mb-1">
- {item.name}
- </h3>
+ <Link 
+   href={`/${locale}/market/item/${item.id}-${generateSlug(item.name)}`}
+   onClick={(e) => e.stopPropagation()}
+   className="hover:underline decoration-black dark:decoration-white cursor-pointer"
+ >
+   <h3 className="font-bold text-sm text-black dark:text-white uppercase tracking-widest line-clamp-2 mb-1">
+     {item.name}
+   </h3>
+ </Link>
  <p className="text-[10px] text-gray-500 uppercase tracking-widest line-clamp-1 mb-3">
  {item.category || item.description}
  </p>
