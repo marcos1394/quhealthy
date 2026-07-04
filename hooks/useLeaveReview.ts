@@ -68,10 +68,25 @@ export const useLeaveReview = (token: string | undefined) => {
         try {
             const payload: CreateReviewPayload = {
                 providerId: context.providerId,
-                appointmentId: context.appointmentId,
                 rating,
                 comment: comment.trim()
             };
+
+            if (context.entityType === 'ORDER') {
+                payload.orderItemId = context.transactionId; // Transaction is orderId or orderItemId
+            } else if (context.entityType === 'PRODUCT') {
+                payload.productId = context.entityId;
+                payload.orderItemId = context.transactionId;
+            } else if (context.entityType === 'PACKAGE') {
+                payload.packageId = context.entityId;
+                payload.orderItemId = context.transactionId;
+            } else {
+                // Default to legacy appointment
+                payload.appointmentId = context.appointmentId || context.transactionId;
+                if (context.entityId) {
+                    payload.serviceId = context.entityId;
+                }
+            }
 
             await reviewService.createReview(payload);
             

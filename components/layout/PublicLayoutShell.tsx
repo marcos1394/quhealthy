@@ -8,6 +8,7 @@ import { useSessionStore } from "@/stores/SessionStore";
 import { Sidebar } from "@/components/platform/Sidebar";
 import { MobileNavbar } from "@/components/platform/MobileNavbar";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { GlobalCartBar } from "@/components/market/GlobalCartBar";
 
 export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
  const pathname = usePathname();
@@ -34,6 +35,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
  <main className={`flex-1 relative z-0 bg-white dark:bg-[#0a0a0a] ${isDiscover ? 'overflow-hidden' : 'overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700'}`}>
  {children}
  </main>
+ <GlobalCartBar />
  </div>
  </AuthProvider>
  );
@@ -52,6 +54,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
  <div className="flex flex-col h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors duration-300 overflow-hidden">
  <Navbar />
  <main className="flex-1 relative z-0 overflow-hidden pt-20 md:pt-24">{children}</main>
+ <GlobalCartBar />
  </div>
  );
  }
@@ -60,6 +63,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
  <div className="flex flex-col min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 font-sans transition-colors duration-300">
  <Navbar />
  <main className="flex-grow relative z-0">{children}</main>
+ <GlobalCartBar />
  <Footer />
  </div>
  );

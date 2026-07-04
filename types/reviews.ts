@@ -1,15 +1,21 @@
 // src/types/reviews.ts
 
 export interface ReviewContext {
-    appointmentId: number;
+    appointmentId?: number; // Opcional, para legacy SERVICE
     consumerId: number;
     providerId: number;
+    entityType?: 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'ORDER';
+    entityId?: number;
+    transactionId?: number; // orderItemId o appointmentId
 }
 
 export interface CreateReviewPayload {
     providerId: number;
-    appointmentId: number;
+    appointmentId?: number;
+    orderItemId?: number;
     serviceId?: number;
+    productId?: number;
+    packageId?: number;
     rating: number;
     comment: string;
 }
