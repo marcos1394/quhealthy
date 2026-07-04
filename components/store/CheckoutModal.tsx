@@ -314,7 +314,7 @@ export function CheckoutModal({
                   </div>
                 </div>
 
-                </div>
+
 
                 {/* 🚀 Selector Arquitectónico (Acento con themeColor) */}
                 <div className="grid grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 mb-8">
