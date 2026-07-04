@@ -154,7 +154,7 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
         </div>
 
         <span className="text-[9px] font-bold uppercase tracking-widest border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] px-2 py-1 text-gray-600 dark:text-gray-400">
-          {pkg.serviceIds.length} {pkg.serviceIds.length === 1 ? 'ITEM' : 'ITEMS'}
+          {(pkg.packageItems || []).reduce((acc, i) => acc + i.quantity, 0)} {((pkg.packageItems || []).reduce((acc, i) => acc + i.quantity, 0)) === 1 ? 'ITEM' : 'ITEMS'}
         </span>
       </div>
       
