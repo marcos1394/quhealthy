@@ -39,7 +39,7 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
     // Simulate network delay for UX
     setTimeout(() => {
       // Use providerId as slug if providerSlug is unavailable from CatalogItemDTO
-      addToCart(storefrontItem, String(item.providerId));
+      addToCart(storefrontItem, String((item as any).providerId));
       setIsAdding(false);
     }, 400);
   };
