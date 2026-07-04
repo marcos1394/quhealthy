@@ -76,15 +76,29 @@ export default function CatalogSetupPage() {
  setServices(prev => prev.map(s => s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s));
  };
 
- const handleSaveService = async (service: UI_Service) => {
- if (!service.name || (!service.requiresEvaluation && service.price <= 0)) return;
- const saved = await saveService(service);
- if (saved) {
- setServices(prev => prev.map(s => s.id === service.id ? saved : s));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.service_saved', { name: saved.name }));
- }
- };
+  const handleSaveService = async (service: UI_Service) => {
+    const wordCount = service.name.trim().split(/\s+/).length;
+    if (wordCount < 3) {
+      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      return;
+    }
+    if ((service.description?.length || 0) < 150) {
+      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      return;
+    }
+    if (!service.imageUrl) {
+      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      return;
+    }
+    if (!service.requiresEvaluation && service.price <= 0) return;
+    
+    const saved = await saveService(service);
+    if (saved) {
+      setServices(prev => prev.map(s => s.id === service.id ? saved : s));
+      refreshLimits(); // 🚀 Refrescamos límites
+      toast.success(t('toasts.service_saved', { name: saved.name }));
+    }
+  };
 
  const handleDeleteService = async (id: number) => {
  const isInPackage = packages.some(pkg => (pkg.packageItems || []).some(item => item.id === id));
@@ -126,15 +140,29 @@ export default function CatalogSetupPage() {
  setPackages([newPackage, ...packages]);
  };
 
- const handleSavePackage = async (pkg: UI_Package) => {
- const saved = await savePackage(pkg);
- if (saved) {
- if (pkg.isNew) setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
- else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
- }
- };
+  const handleSavePackage = async (pkg: UI_Package) => {
+    const wordCount = pkg.name.trim().split(/\s+/).length;
+    if (wordCount < 3) {
+      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      return;
+    }
+    if ((pkg.description?.length || 0) < 150) {
+      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      return;
+    }
+    if (!pkg.imageUrl) {
+      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      return;
+    }
+
+    const saved = await savePackage(pkg);
+    if (saved) {
+      if (pkg.isNew) setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
+      else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
+      refreshLimits(); // 🚀 Refrescamos límites
+      toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
+    }
+  };
 
  const handleDeletePackage = async (id: number) => {
  const p = packages.find(p => p.id === id);
@@ -168,14 +196,28 @@ export default function CatalogSetupPage() {
  setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates, hasUnsavedChanges: true } : p));
  };
 
- const handleSaveProduct = async (product: UI_Product) => {
- const saved = await saveProduct(product);
- if (saved) {
- setProducts(prev => prev.map(p => p.id === product.id ? saved : p));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.product_saved', { defaultValue: 'Producto guardado' }));
- }
- };
+  const handleSaveProduct = async (product: UI_Product) => {
+    const wordCount = product.name.trim().split(/\s+/).length;
+    if (wordCount < 3) {
+      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      return;
+    }
+    if ((product.description?.length || 0) < 150) {
+      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      return;
+    }
+    if (!product.imageUrl) {
+      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      return;
+    }
+
+    const saved = await saveProduct(product);
+    if (saved) {
+      setProducts(prev => prev.map(p => p.id === product.id ? saved : p));
+      refreshLimits(); // 🚀 Refrescamos límites
+      toast.success(t('toasts.product_saved', { defaultValue: 'Producto guardado' }));
+    }
+  };
 
  const handleDeleteProduct = async (id: number) => {
  const p = products.find(p => p.id === id);
@@ -206,14 +248,28 @@ export default function CatalogSetupPage() {
  setCourses(prev => prev.map(c => c.id === id ? { ...c, ...updates, hasUnsavedChanges: true } : c));
  };
 
- const handleSaveCourse = async (course: UI_Course) => {
- const saved = await saveCourse(course);
- if (saved) {
- setCourses(prev => prev.map(c => c.id === course.id ? saved : c));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.course_saved', { defaultValue: 'Curso guardado' }));
- }
- };
+  const handleSaveCourse = async (course: UI_Course) => {
+    const wordCount = course.name.trim().split(/\s+/).length;
+    if (wordCount < 3) {
+      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      return;
+    }
+    if ((course.description?.length || 0) < 150) {
+      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      return;
+    }
+    if (!course.imageUrl) {
+      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      return;
+    }
+
+    const saved = await saveCourse(course);
+    if (saved) {
+      setCourses(prev => prev.map(c => c.id === course.id ? saved : c));
+      refreshLimits(); // 🚀 Refrescamos límites
+      toast.success(t('toasts.course_saved', { defaultValue: 'Curso guardado' }));
+    }
+  };
 
  const handleDeleteCourse = async (id: number) => {
  const c = courses.find(c => c.id === id);

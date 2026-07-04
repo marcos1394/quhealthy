@@ -228,6 +228,47 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                 <p>{item.description}</p>
               </div>
 
+              {/* Contenido Enriquecido para AI Search y Usuarios */}
+              {(item.manufacturer || item.activeIngredient || item.modality || item.durationMinutes) && (
+                <div className="mb-10 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white border-b border-gray-200 dark:border-gray-800 pb-2">
+                    Especificaciones
+                  </h3>
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                    {item.manufacturer && (
+                      <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Fabricante / Marca</dt>
+                        <dd className="font-semibold text-black dark:text-white">{item.manufacturer}</dd>
+                      </div>
+                    )}
+                    {item.activeIngredient && (
+                      <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Principio Activo</dt>
+                        <dd className="font-semibold text-black dark:text-white">{item.activeIngredient}</dd>
+                      </div>
+                    )}
+                    {item.requiresPrescription && (
+                      <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Receta Médica</dt>
+                        <dd className="font-semibold text-red-600 dark:text-red-400">Requerida</dd>
+                      </div>
+                    )}
+                    {item.modality && (
+                      <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Modalidad</dt>
+                        <dd className="font-semibold text-black dark:text-white">{item.modality.replace('_', ' ')}</dd>
+                      </div>
+                    )}
+                    {item.durationMinutes && (
+                      <div>
+                        <dt className="text-gray-500 dark:text-gray-400">Duración Aprox.</dt>
+                        <dd className="font-semibold text-black dark:text-white">{item.durationMinutes} minutos</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+              )}
+
               <div className="mt-auto mb-12">
                 <AddToCartButton item={item} />
               </div>
