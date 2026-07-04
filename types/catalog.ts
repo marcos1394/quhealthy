@@ -10,6 +10,7 @@ export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';
 // Lo que enviamos/recibimos del Backend
 export interface CatalogItemDTO {
   id?: number;
+  providerId?: number;
   type: ItemType;
   name: string;
   category?: string;

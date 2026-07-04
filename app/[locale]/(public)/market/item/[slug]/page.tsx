@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, ShieldCheck, Tag as TagIcon, Building2 } from 'lucide-react';
 import { CatalogItemDTO } from '@/types/catalog';
 import { AddToCartButton } from './AddToCartButton';
+import { ProviderTrustCard } from './ProviderTrustCard';
+import { MoreFromProvider } from './MoreFromProvider';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -29,6 +31,43 @@ async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
   } catch (error) {
     console.error("Error fetching catalog item:", error);
     return null;
+  }
+}
+
+async function getProviderProfile(providerId: number) {
+  try {
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/api/catalog/store/profile/${providerId}`, {
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; QuHealthy/1.0; +Next.js Server)'
+      }
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching provider profile:", error);
+    return null;
+  }
+}
+
+async function getProviderItems(providerId: number): Promise<CatalogItemDTO[]> {
+  try {
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}/api/catalog/provider/${providerId}/items`, {
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; QuHealthy/1.0; +Next.js Server)'
+      }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.content || [];
+  } catch (error) {
+    console.error("Error fetching provider items:", error);
+    return [];
   }
 }
 
@@ -86,6 +125,15 @@ export default async function MarketItemPage({ params }: { params: Params }) {
   if (!item) {
     notFound();
   }
+
+  // Fetch EEAT data in parallel
+  const [providerProfile, allProviderItems] = await Promise.all([
+    getProviderProfile(item.providerId || 0),
+    getProviderItems(item.providerId || 0)
+  ]);
+
+  // Filter out the current item from the related items
+  const relatedItems = allProviderItems.filter((i) => i.id !== item.id);
 
   let schemaType = 'Product';
   if (item.type === 'SERVICE') schemaType = 'Service';
@@ -158,6 +206,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                   <TagIcon className="w-24 h-24 text-gray-300 dark:text-gray-700" />
                 )}
               </div>
+              <ProviderTrustCard provider={providerProfile} locale={locale} />
             </div>
 
             <div className="flex flex-col">
@@ -202,6 +251,12 @@ export default async function MarketItemPage({ params }: { params: Params }) {
               </div>
             </div>
           </div>
+
+          <MoreFromProvider 
+            items={relatedItems} 
+            locale={locale} 
+            providerName={providerProfile?.displayName || 'Proveedor'} 
+          />
         </div>
       </main>
     </>
