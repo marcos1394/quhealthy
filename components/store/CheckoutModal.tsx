@@ -22,6 +22,7 @@ import { storageService } from "@/services/storage.service";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useBookingStore } from "@/hooks/useBookingStore";
 import {
   Select,
   SelectContent,
@@ -63,6 +64,7 @@ function isAddressComplete(f: AddressForm): boolean {
 export function CheckoutModal({
   isOpen, onClose, cart, onConfirm, isProcessing, themeColor = "#000000"
 }: CheckoutModalProps) {
+  const { updateQuantity, removeFromCart } = useBookingStore();
   // --- Derived flags ---
   const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
   const itemsNeedingRx = cart.filter(i => i.type === 'PRODUCT' && i.requiresPrescription === true);
@@ -215,71 +217,89 @@ export function CheckoutModal({
           {/* Scrollable content */}
           <div className="overflow-y-auto flex-1 p-6 md:p-8 space-y-12 custom-scrollbar">
 
-            {/* ── SECCIÓN 0: PRODUCTOS DIGITALES ──────────────── */}
-            {!hasPhysical && !needsPrescription && (
-              <section className="py-6">
-                <div className="flex flex-col items-center justify-center text-center space-y-6 mb-10">
-                  <div className="w-16 h-16 border bg-gray-50 dark:bg-[#050505] flex items-center justify-center" style={{ borderColor: themeColor }}>
-                    {isBooking ? <CalendarIcon className="w-6 h-6" style={{ color: themeColor }} strokeWidth={1.5} /> : <MonitorPlay className="w-6 h-6" style={{ color: themeColor }} strokeWidth={1.5} />}
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                      {isBooking ? "Reserva de Sesiones" : "Acceso Digital Habilitado"}
-                    </h3>
-                    <p className="text-xs text-gray-500 font-light max-w-sm mx-auto leading-relaxed uppercase tracking-widest">
-                      {isBooking 
-                        ? "TUS SESIONES SE ACTIVARÁN Y PROGRAMARÁN TRAS CONFIRMAR EL PAGO."
-                        : "LA DISPONIBILIDAD DEL CONTENIDO SE ACTIVARÁ AUTOMÁTICAMENTE TRAS CONFIRMAR LA LIQUIDACIÓN."}
-                    </p>
-                  </div>
+            {/* ── SECCIÓN 0: ORDER SUMMARY (SIEMPRE VISIBLE) ──────────────── */}
+            <section className="py-2">
+              <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+                <div className="w-8 h-8 border flex items-center justify-center" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
+                  <Package className="w-4 h-4" strokeWidth={1.5} />
                 </div>
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Resumen de Ítems</h3>
+                  <p className="text-[9px] uppercase tracking-widest text-gray-500">Verifique el contenido de su orden antes de liquidar.</p>
+                </div>
+              </div>
 
-                <div className="space-y-4 mb-10 border-t border-b border-gray-200 dark:border-gray-800 py-6">
-                  {cart.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group">
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 flex items-center justify-center overflow-hidden relative">
-                          {item.imageUrl && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img 
-                              src={item.imageUrl} 
-                              alt={item.name} 
-                              className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all z-10 bg-white dark:bg-black" 
-                              onError={(e) => {
-                                e.currentTarget.style.opacity = '0';
-                              }}
-                            />
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center z-0">
-                            {item.type === 'PACKAGE' ? <Package className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : (item.type === 'SERVICE' ? <CalendarIcon className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />)}
-                          </div>
+              <div className="space-y-4 mb-10">
+                {cart.map((item, idx) => (
+                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 group gap-4">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex-shrink-0 flex items-center justify-center overflow-hidden relative">
+                        {item.imageUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.name} 
+                            className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all z-10 bg-white dark:bg-black" 
+                            onError={(e) => {
+                              e.currentTarget.style.opacity = '0';
+                            }}
+                          />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center z-0">
+                          {item.type === 'PACKAGE' ? <Package className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : (item.type === 'SERVICE' ? <CalendarIcon className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />)}
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">
                           {item.name}
-                          {item.type === 'PRODUCT' && item.cartQuantity && item.cartQuantity > 1 && (
-                            <span className="text-gray-500 ml-2">({item.cartQuantity}x)</span>
-                          )}
+                        </span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1" style={{ color: themeColor }}>
+                          {item.type === 'PACKAGE' ? 'PAQUETE' : (item.type === 'SERVICE' ? 'SERVICIO' : (item.isDigital ? 'DIGITAL' : 'FÍSICO'))}
                         </span>
                       </div>
-                      <span className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] ml-4" style={{ borderColor: themeColor, color: themeColor }}>
-                        {item.type === 'PACKAGE' ? 'PAQUETE' : (item.type === 'SERVICE' ? 'SERVICIO' : 'INTANGIBLE')}
+                    </div>
+
+                    <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-2 sm:mt-0">
+                      {/* Control Cuantitativo */}
+                      {item.type === 'PRODUCT' ? (
+                        <div className="flex items-center h-8 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]">
+                          <button 
+                            onClick={() => {
+                              if (item.cartQuantity && item.cartQuantity > 1) {
+                                updateQuantity(item.id, item.cartQuantity - 1);
+                              } else {
+                                removeFromCart(item.id);
+                              }
+                            }}
+                            className="w-8 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                          >
+                            -
+                          </button>
+                          <span className="w-8 text-center text-[10px] font-bold text-black dark:text-white">
+                            {item.cartQuantity || 1}
+                          </span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, (item.cartQuantity || 1) + 1)}
+                            className="w-8 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                          1x
+                        </span>
+                      )}
+
+                      {/* Subtotal del Item */}
+                      <span className="text-sm font-semibold tracking-tight text-black dark:text-white min-w-[80px] text-right">
+                        ${((item.price) * (item.cartQuantity || 1)).toLocaleString()}
                       </span>
                     </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                    <Zap className="w-4 h-4 flex-shrink-0" style={{ color: themeColor }} strokeWidth={1.5} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Ejecución Inmediata</span>
                   </div>
-                  <div className="flex items-center gap-3 p-5 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                    <ShieldCheck className="w-4 h-4 flex-shrink-0" style={{ color: themeColor }} strokeWidth={1.5} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Transacción Cifrada</span>
-                  </div>
-                </div>
-              </section>
-            )}
+                ))}
+              </div>
+            </section>
 
             {/* ── SECCIÓN 1: DIRECCIÓN DE ENVÍO ──────────────────────────── */}
             {hasPhysical && (
@@ -294,13 +314,6 @@ export function CheckoutModal({
                   </div>
                 </div>
 
-                {/* Items físicos */}
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {cart.filter(i => !i.isDigital).map(i => (
-                    <span key={i.id} className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-black dark:hover:border-white transition-colors cursor-default">
-                      {i.cartQuantity && i.cartQuantity > 1 ? `${i.cartQuantity}x ` : ''}{i.name}
-                    </span>
-                  ))}
                 </div>
 
                 {/* 🚀 Selector Arquitectónico (Acento con themeColor) */}
@@ -519,6 +532,14 @@ export function CheckoutModal({
 
           {/* Footer CTA */}
           <div className="flex-shrink-0 p-6 md:p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Liquidación Total
+              </span>
+              <span className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+                ${cart.reduce((acc, item) => acc + (item.price * (item.cartQuantity || 1)), 0).toLocaleString()} <span className="text-sm font-light text-gray-500">MXN</span>
+              </span>
+            </div>
             <Button
               onClick={handleConfirm}
               disabled={!canSubmit}
