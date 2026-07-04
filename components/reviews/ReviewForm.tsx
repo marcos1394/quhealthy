@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 interface ReviewFormProps {
+ entityType?: 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'ORDER';
  rating: number;
  setRating: (rating: number) => void;
  comment: string;
@@ -17,9 +18,18 @@ interface ReviewFormProps {
  isSubmitting: boolean;
 }
 
-export function ReviewForm({ rating, setRating, comment, setComment, onSubmit, isSubmitting }: ReviewFormProps) {
+export function ReviewForm({ entityType = 'SERVICE', rating, setRating, comment, setComment, onSubmit, isSubmitting }: ReviewFormProps) {
  const t = useTranslations('PatientReviews');
  const [hoverRating, setHoverRating] = useState(0);
+
+ const getTitle = () => {
+   switch(entityType) {
+     case 'PRODUCT': return t('title_product', { defaultValue: 'Evaluación de Producto' });
+     case 'PACKAGE': return t('title_package', { defaultValue: 'Evaluación de Paquete' });
+     case 'ORDER': return t('title_order', { defaultValue: 'Evaluación de Orden' });
+     default: return t('title', { defaultValue: 'Evaluación de Servicio' });
+   }
+ };
 
  const handleSubmit = (e: React.FormEvent) => {
  e.preventDefault();
@@ -35,7 +45,7 @@ export function ReviewForm({ rating, setRating, comment, setComment, onSubmit, i
  </div>
  <div>
  <h1 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-2">
- {t('title', { defaultValue: 'Evaluación de Servicio' })}
+ {getTitle()}
  </h1>
  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm">
  {t('subtitle', { defaultValue: 'Suministre datos cualitativos sobre la atención recibida.' })}

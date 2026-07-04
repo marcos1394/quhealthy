@@ -42,6 +42,7 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ token: s
  bordes rígidos, padding y estructura monocromática (Blueprint).
  */}
  <ReviewForm 
+ entityType={context?.entityType}
  rating={rating}
  setRating={setRating}
  comment={comment}

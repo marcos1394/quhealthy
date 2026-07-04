@@ -53,7 +53,7 @@ export default function PublicStorePage() {
 
  const [activeTab, setActiveTab] = useState<TabType>('servicios');
  const [visibleProducts, setVisibleProducts] = useState(12);
- const { cart, addToCart, removeFromCart, setProvider } = useBookingStore();
+ const { cart, addToCart, removeFromCart, setProvider, updateQuantity } = useBookingStore();
  const { user } = useSessionStore();
  const userId = user?.id;
  const [showQuScoreModal, setShowQuScoreModal] = useState(false);
