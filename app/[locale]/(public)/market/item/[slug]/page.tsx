@@ -7,6 +7,7 @@ import { CatalogItemDTO } from '@/types/catalog';
 import { AddToCartButton } from './AddToCartButton';
 import { ProviderTrustCard } from './ProviderTrustCard';
 import { MoreFromProvider } from './MoreFromProvider';
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -269,8 +270,21 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                 </div>
               )}
 
-              <div className="mt-auto mb-12">
-                <AddToCartButton item={item} />
+              <div className="mt-auto mb-12 flex items-center gap-4">
+                <div className="flex-grow">
+                  <AddToCartButton 
+                    item={item} 
+                    providerName={providerProfile?.displayName} 
+                    providerSlug={providerProfile?.slug} 
+                  />
+                </div>
+                <div className="shrink-0">
+                  <FavoriteButton 
+                    entityType={item.type as any} 
+                    entityId={item.id || 0}
+                    className="w-14 h-14 md:h-16 flex items-center justify-center border border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                  />
+                </div>
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-800 pt-8 space-y-4">

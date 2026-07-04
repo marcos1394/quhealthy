@@ -9,14 +9,19 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { StorefrontItem } from '@/types/storefront';
 
+import { toast } from 'react-toastify';
+
 interface AddToCartButtonProps {
   item: CatalogItemDTO;
+  providerName?: string;
+  providerSlug?: string;
 }
 
-export function AddToCartButton({ item }: AddToCartButtonProps) {
+export function AddToCartButton({ item, providerName, providerSlug }: AddToCartButtonProps) {
   const t = useTranslations('Marketplace');
   const [isAdding, setIsAdding] = useState(false);
   const addToCart = useBookingStore(state => state.addToCart);
+  const setProvider = useBookingStore(state => state.setProvider);
 
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -38,9 +43,15 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
 
     // Simulate network delay for UX
     setTimeout(() => {
-      // Use providerId as slug if providerSlug is unavailable from CatalogItemDTO
-      addToCart(storefrontItem, String((item as any).providerId));
+      const finalSlug = providerSlug || String(item.providerId);
+      const finalName = providerName || 'Proveedor';
+      const color = '#000000';
+      
+      setProvider(item.providerId || 0, finalSlug, finalName, color);
+      addToCart(storefrontItem, finalSlug);
+      
       setIsAdding(false);
+      toast.success(t('addedToCart', { fallback: 'Agregado al carrito' }), { theme: 'colored' });
     }, 400);
   };
 
