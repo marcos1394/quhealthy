@@ -16,7 +16,7 @@ interface AddToCartButtonProps {
 export function AddToCartButton({ item }: AddToCartButtonProps) {
   const t = useTranslations('Marketplace');
   const [isAdding, setIsAdding] = useState(false);
-  const addItem = useBookingStore(state => state.addItem);
+  const addToCart = useBookingStore(state => state.addToCart);
 
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -38,7 +38,8 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
 
     // Simulate network delay for UX
     setTimeout(() => {
-      addItem(storefrontItem);
+      // Use providerId as slug if providerSlug is unavailable from CatalogItemDTO
+      addToCart(storefrontItem, String(item.providerId));
       setIsAdding(false);
     }, 400);
   };
