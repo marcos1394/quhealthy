@@ -20,6 +20,7 @@ interface BookingState {
   // 🚀 ACTUALIZADO: Ahora recibe el ID numérico
   setProvider: (id: number, slug: string, name: string, color: string) => void;
   addToCart: (item: StorefrontItem, currentSlug: string) => void;
+  updateQuantity: (itemId: number, qty: number) => void;
   removeFromCart: (itemId: number) => void;
   setDependentId: (id: number | null) => void;
   clearCart: () => void;
@@ -68,13 +69,32 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     }
 
     set((state) => {
-      // Evitamos duplicados en el carrito (buena UX para servicios médicos)
-      const exists = state.cart.some((cartItem) => cartItem.id === item.id);
-      if (exists) return state;
+      const exists = state.cart.find((cartItem) => cartItem.id === item.id);
+      if (exists) {
+        // Solo para productos físicos/digitales permitimos tener más de 1 unidad
+        if (exists.type === 'PRODUCT') {
+          return {
+            cart: state.cart.map(c => 
+              c.id === item.id ? { ...c, cartQuantity: (c.cartQuantity || 1) + 1 } : c
+            ),
+            providerSlug: currentSlug
+          };
+        }
+        return state;
+      }
 
-      return { cart: [...state.cart, item], providerSlug: currentSlug };
+      // Al agregarlo nuevo, le asignamos cantidad 1
+      const newItem = { ...item, cartQuantity: 1 };
+      return { cart: [...state.cart, newItem], providerSlug: currentSlug };
     });
   },
+
+  updateQuantity: (itemId, qty) =>
+    set((state) => ({
+      cart: state.cart.map(item => 
+        item.id === itemId && item.type === 'PRODUCT' ? { ...item, cartQuantity: Math.max(1, qty) } : item
+      )
+    })),
 
   removeFromCart: (itemId) =>
     set((state) => ({ cart: state.cart.filter((i) => i.id !== itemId) })),
@@ -93,7 +113,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     }),
 
   getTotalPrice: () => {
-    return get().cart.reduce((total, item) => total + item.price, 0);
+    return get().cart.reduce((total, item) => total + (item.price * (item.cartQuantity || 1)), 0);
   },
 
   getTotalDuration: () => {

@@ -7,7 +7,8 @@ export interface StorefrontItem {
   name: string;
   description: string;
   price: number;
-  quantity?: number; // Solo para productos físicos
+  quantity?: number; // Solo para productos físicos (Stock)
+  cartQuantity?: number; // 🚀 NUEVO: Cantidad en el carrito
   imageUrl?: string;
   galleryImages?: GalleryImage[];
   requiresEvaluation?: boolean;

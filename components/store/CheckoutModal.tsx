@@ -254,7 +254,12 @@ export function CheckoutModal({
                             {item.type === 'PACKAGE' ? <Package className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : (item.type === 'SERVICE' ? <CalendarIcon className="w-4 h-4 text-gray-400" strokeWidth={1.5} /> : <MonitorPlay className="w-4 h-4 text-gray-400" strokeWidth={1.5} />)}
                           </div>
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">{item.name}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white line-clamp-1">
+                          {item.name}
+                          {item.type === 'PRODUCT' && item.cartQuantity && item.cartQuantity > 1 && (
+                            <span className="text-gray-500 ml-2">({item.cartQuantity}x)</span>
+                          )}
+                        </span>
                       </div>
                       <span className="border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap bg-white dark:bg-[#0a0a0a] ml-4" style={{ borderColor: themeColor, color: themeColor }}>
                         {item.type === 'PACKAGE' ? 'PAQUETE' : (item.type === 'SERVICE' ? 'SERVICIO' : 'INTANGIBLE')}
@@ -293,7 +298,7 @@ export function CheckoutModal({
                 <div className="flex flex-wrap gap-2 mb-8">
                   {cart.filter(i => !i.isDigital).map(i => (
                     <span key={i.id} className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-[9px] font-bold uppercase tracking-widest px-2 py-1 text-gray-600 dark:text-gray-400 hover:border-black dark:hover:border-white transition-colors cursor-default">
-                      {i.name}
+                      {i.cartQuantity && i.cartQuantity > 1 ? `${i.cartQuantity}x ` : ''}{i.name}
                     </span>
                   ))}
                 </div>

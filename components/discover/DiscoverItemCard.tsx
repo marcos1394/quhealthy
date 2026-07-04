@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DiscoverItem } from '@/types/discover';
+import { useBookingStore } from '@/hooks/useBookingStore';
+import { StorefrontItem } from '@/types/storefront';
 
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
 
@@ -32,21 +34,36 @@ export const DiscoverItemCard = ({
     router.push(`/store/${item.providerSlug}?autoShow=${item.id}&type=${item.type}`);
   };
 
+  const { setProvider, addToCart } = useBookingStore();
+
   // CTA: acción primaria según tipo de item
   const handleCTA = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    setProvider(item.providerId, item.providerSlug, item.providerName, item.providerColor);
+    
+    const cartItem: StorefrontItem = {
+      id: item.id,
+      type: item.type,
+      category: item.category || '',
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      durationMinutes: item.durationMinutes,
+      modality: item.modality as any,
+      compareAtPrice: item.compareAtPrice,
+      quantity: item.stockQuantity,
+      isDigital: item.isDigital,
+      requiresEvaluation: item.requiresEvaluation
+    };
+
+    addToCart(cartItem, item.providerSlug);
+    
     if (item.type === 'SERVICE') {
-      // Reservar cita
-      router.push(`/store/${item.providerSlug}?autoBook=${item.id}&type=SERVICE`);
-    } else if (item.type === 'PRODUCT') {
-      // Comprar producto
-      router.push(`/checkout?itemId=${item.id}&type=PRODUCT&slug=${item.providerSlug}`);
-    } else if (item.type === 'PACKAGE') {
-      // Contratar paquete
-      router.push(`/checkout?itemId=${item.id}&type=PACKAGE&slug=${item.providerSlug}`);
-    } else if (item.type === 'COURSE') {
-      // Inscribirse a curso
-      router.push(`/checkout?itemId=${item.id}&type=COURSE&slug=${item.providerSlug}`);
+      router.push(`/patient/booking/${item.providerSlug}?serviceId=${item.id}`);
+    } else {
+      router.push(`/store/${item.providerSlug}?openCart=true`);
     }
   };
 

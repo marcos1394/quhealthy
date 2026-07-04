@@ -52,7 +52,7 @@ export default function PublicStorePage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('servicios');
   const [visibleProducts, setVisibleProducts] = useState(12);
-  const { cart, addToCart, removeFromCart, clearCart, setProvider, getTotalPrice } = useBookingStore();
+  const { cart, addToCart, removeFromCart, updateQuantity, clearCart, setProvider, getTotalPrice } = useBookingStore();
   const totalCart = getTotalPrice();
   const { processCheckout, isProcessing } = useBookingCheckout();
   const { user } = useSessionStore();
@@ -650,20 +650,48 @@ export default function PublicStorePage() {
                             </div>
 
                             {(() => {
-                              const isInCart = cart.some(c => c.id === product.id && c.type === product.type);
+                              const cartItem = cart.find(c => c.id === product.id && c.type === product.type);
+                              const isInCart = !!cartItem;
+                              
+                              if (isInCart) {
+                                return (
+                                  <div className="flex items-center h-10 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                                    <button 
+                                      onClick={() => {
+                                        if (cartItem.cartQuantity && cartItem.cartQuantity > 1) {
+                                          updateQuantity(product.id, cartItem.cartQuantity - 1);
+                                        } else {
+                                          removeFromCart(product.id);
+                                        }
+                                      }}
+                                      className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="w-10 text-center text-[10px] font-bold text-black dark:text-white">
+                                      {cartItem.cartQuantity || 1}
+                                    </span>
+                                    <button 
+                                      onClick={() => updateQuantity(product.id, (cartItem.cartQuantity || 1) + 1)}
+                                      className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                );
+                              }
+
                               return (
                                 <Button
                                   disabled={isOutOfStock}
-                                  onClick={() => isInCart ? removeFromCart(product.id) : handleAddToCart(product)}
+                                  onClick={() => handleAddToCart(product)}
                                   className={cn(
                                     "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
-                                    isInCart
-                                      ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
-                                      : (isOutOfStock ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed" : "text-white")
+                                    isOutOfStock ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed" : "text-white"
                                   )}
-                                  style={!isInCart && !isOutOfStock ? { backgroundColor: safePrimaryColor } : {}}
+                                  style={!isOutOfStock ? { backgroundColor: safePrimaryColor } : {}}
                                 >
-                                  {isOutOfStock ? 'AGOTADO' : (isInCart ? 'REMOVER' : 'AGREGAR')}
+                                  {isOutOfStock ? 'AGOTADO' : 'AGREGAR'}
                                 </Button>
                               );
                             })()}
