@@ -22,19 +22,19 @@ export function AddToCartButton({ item }: AddToCartButtonProps) {
     setIsAdding(true);
     
     // Convert CatalogItemDTO to StorefrontItem for the store
-    const storefrontItem: StorefrontItem = {
-      id: item.id,
+    const storefrontItem = {
+      id: item.id || 0,
       name: item.name,
-      description: item.description,
+      description: item.description || '',
       price: item.price,
-      currency: item.currency || 'MXN',
+      currency: (item as any).currency || 'MXN',
       imageUrl: item.imageUrl,
       type: item.type,
       modality: item.modality,
-      category: item.category,
-      providerId: item.providerId,
-      status: item.status || 'ACTIVE'
-    };
+      category: item.category || 'General',
+      providerId: (item as any).providerId,
+      status: (item as any).status || 'ACTIVE'
+    } as StorefrontItem;
 
     // Simulate network delay for UX
     setTimeout(() => {
