@@ -21,7 +21,8 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ token: s
  comment,
  setComment,
  isSubmitting,
- submitReview
+ submitReview,
+ context
  } = useLeaveReview(token);
 
  // 3. Renderizado Condicional de Estados (Utiliza los componentes ya refactorizados)
