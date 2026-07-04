@@ -13,10 +13,16 @@ async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
   try {
     const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
     const res = await fetch(`${baseUrl}/api/catalog/items/${id}`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; QuHealthy/1.0; +Next.js Server)'
+      }
     });
     if (!res.ok) {
-      console.warn(`Catalog item fetch failed: ${res.status}`);
+      console.warn(`Catalog item fetch failed: ${res.status} ${res.statusText}`);
+      const text = await res.text();
+      console.warn(`Response body: ${text.substring(0, 200)}`);
       return null;
     }
     return await res.json();
