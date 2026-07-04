@@ -409,8 +409,9 @@ const DiscoverMapContent = () => {
   }, [coordinates]);
 
   const { batchScores, fetchBatchScores } = useProviderScore();
-  // useMyFavorites ya tiene guard interno: si no hay token, devuelve Set vacío
-  const { favoriteIds } = useMyFavorites('PROVIDER');
+  // Determinamos qué tipo de favoritos cargar (PROVIDER si es STORE, o el tipo actual)
+  const currentEntityForFavs = searchType === 'STORE' ? 'PROVIDER' : (searchType as 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE');
+  const { favoriteIds } = useMyFavorites(currentEntityForFavs);
 
   useEffect(() => {
     if (providers && providers.length > 0) {
@@ -832,6 +833,12 @@ const DiscoverMapContent = () => {
                   <DiscoverItemCard
                     key={`item-card-${item.id}`}
                     item={item}
+                    isFavorited={favoriteIds.has(item.id)}
+                    canUseFavorites={canUseFavorites}
+                    onAuthRequired={() => {
+                      setAuthGateContext('favorite');
+                      setAuthGateOpen(true);
+                    }}
                   />
                 ))}
               </AnimatePresence>

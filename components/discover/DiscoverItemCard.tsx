@@ -8,7 +8,19 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DiscoverItem } from '@/types/discover';
 
-export const DiscoverItemCard = ({ item }: { item: DiscoverItem }) => {
+import { FavoriteButton } from '@/components/ui/FavoriteButton';
+
+export const DiscoverItemCard = ({ 
+  item,
+  isFavorited = false,
+  onAuthRequired,
+  canUseFavorites = true
+}: { 
+  item: DiscoverItem;
+  isFavorited?: boolean;
+  onAuthRequired?: () => void;
+  canUseFavorites?: boolean;
+}) => {
   const router = useRouter();
 
   const handleProviderClick = (e: React.MouseEvent) => {
@@ -118,6 +130,17 @@ export const DiscoverItemCard = ({ item }: { item: DiscoverItem }) => {
               </Badge>
             )}
           </div>
+        </div>
+
+        {/* Botón de Favorito */}
+        <div className="absolute top-2 right-2 z-20">
+          <FavoriteButton
+            entityType={item.type as 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE'}
+            entityId={item.id}
+            initialIsFavorite={isFavorited}
+            brandColor={item.providerColor || '#000'}
+            onAuthRequired={!canUseFavorites ? onAuthRequired : undefined}
+          />
         </div>
       </div>
 
