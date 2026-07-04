@@ -23,163 +23,163 @@ import { AppointmentSummary } from '@/components/booking/success/AppointmentSumm
 import { ActionButtons } from '@/components/booking/success/ActionButtons';
 
 export default function BookingSuccessPage() {
-  const params = useParams();
-  const router = useRouter();
-  const t = useTranslations('PatientBookingSuccess');
-  const { user } = useSessionStore(); 
+ const params = useParams();
+ const router = useRouter();
+ const t = useTranslations('PatientBookingSuccess');
+ const { user } = useSessionStore(); 
 
-  const rawId = params.appointmentId;
-  const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
+ const rawId = params.appointmentId;
+ const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
-  const {
-    appointment,
-    isLoading,
-    error,
-    isDownloading,
-    downloadInvoice,
-    qrCodeUrl
-  } = useAppointmentDetails(appointmentId);
+ const {
+ appointment,
+ isLoading,
+ error,
+ isDownloading,
+ downloadInvoice,
+ qrCodeUrl
+ } = useAppointmentDetails(appointmentId);
 
-  // Mantenemos los estados aunque desactivamos las animaciones visuales en los subcomponentes
-  const [showConfetti, setShowConfetti] = useState(true);
-  const [copied, setCopied] = useState(false);
+ // Mantenemos los estados aunque desactivamos las animaciones visuales en los subcomponentes
+ const [showConfetti, setShowConfetti] = useState(true);
+ const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
+ useEffect(() => {
+ const timer = setTimeout(() => setShowConfetti(false), 5000);
+ return () => clearTimeout(timer);
+ }, []);
 
-  // 🛡️ VERIFICACIÓN DE PROPIEDAD
-  useEffect(() => {
-    if (appointment && user) {
-      if (appointment.consumerId !== user.id) {
-        console.warn("Acceso restringido: No tienes permisos para ver esta cita.");
-        toast.error("Acceso restringido: No tienes permisos para ver esta cita.");
-        router.push('/patient/dashboard');
-      }
-    }
-  }, [appointment, user, router]);
+ // 🛡️ VERIFICACIÓN DE PROPIEDAD
+ useEffect(() => {
+ if (appointment && user) {
+ if (appointment.consumerId !== user.id) {
+ console.warn("Acceso restringido: No tienes permisos para ver esta cita.");
+ toast.error("Acceso restringido: No tienes permisos para ver esta cita.");
+ router.push('/patient/dashboard');
+ }
+ }
+ }, [appointment, user, router]);
 
-  const generateShareText = () => {
-    if (!appointment) return '';
-    const dateStr = format(
-      new Date(appointment.startTime), 
-      "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", 
-      { locale: es }
-    ).toUpperCase();
-    return t('share_text', { 
-      service: appointment.serviceNameSnapshot || appointment.serviceName || 'PROCEDIMIENTO CLÍNICO', 
-      provider: appointment.providerNameSnapshot || 'ESPECIALISTA ASIGNADO', 
-      date: dateStr 
-    });
-  };
+ const generateShareText = () => {
+ if (!appointment) return '';
+ const dateStr = format(
+ new Date(appointment.startTime), 
+ "eeee d 'de' MMMM 'a las' HH:mm 'hrs'", 
+ { locale: es }
+ ).toUpperCase();
+ return t('share_text', { 
+ service: appointment.serviceNameSnapshot || appointment.serviceName || 'PROCEDIMIENTO CLÍNICO', 
+ provider: appointment.providerNameSnapshot || 'ESPECIALISTA ASIGNADO', 
+ date: dateStr 
+ });
+ };
 
-  const handleShare = async () => {
-    try {
-      const text = generateShareText();
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Confirmación de Cita',
-          text: text,
-        });
-      } else {
-        await navigator.clipboard.writeText(text);
-        setCopied(true);
-        toast.success("Detalles copiados para compartir");
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch (error) {
-      console.log('Error compartiendo', error);
-    }
-  };
+ const handleShare = async () => {
+ try {
+ const text = generateShareText();
+ if (navigator.share) {
+ await navigator.share({
+ title: 'Confirmación de Cita',
+ text: text,
+ });
+ } else {
+ await navigator.clipboard.writeText(text);
+ setCopied(true);
+ toast.success("Detalles copiados para compartir");
+ setTimeout(() => setCopied(false), 2000);
+ }
+ } catch (error) {
+ console.log('Error compartiendo', error);
+ }
+ };
 
-  const handleAddToCalendar = () => {
-    toast.info("La sincronización de calendario estará disponible pronto.");
-  };
+ const handleAddToCalendar = () => {
+ toast.info("La sincronización de calendario estará disponible pronto.");
+ };
 
-  // ==========================================
-  // 🚦 CONTROL DE FLUJO Y ESTADOS
-  // ==========================================
+ // ==========================================
+ // 🚦 CONTROL DE FLUJO Y ESTADOS
+ // ==========================================
 
-  // 1. Estado de Carga Blueprint
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
-        <QhSpinner size="lg" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          {t('loading', { defaultValue: 'Cargando confirmación de tu cita...' })}
-        </p>
-      </div>
-    );
-  }
+ // 1. Estado de Carga Blueprint
+ if (isLoading) {
+ return (
+ <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+ <QhSpinner size="lg" />
+ <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+ {t('loading', { defaultValue: 'Cargando confirmación de tu cita...' })}
+ </p>
+ </div>
+ );
+ }
 
-  // 2. Estado de Error Arquitectónico
-  if (error || !appointment) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
-        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
-          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
-        </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Cita no encontrada</h2>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
-         El registro solicitado no existe o no tienes permisos para visualizarlo.
-        </p>
-        <Button 
-          onClick={() => router.push("/patient/dashboard")} 
-          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
-          Volver al Panel Principal
-        </Button>
-      </div>
-    );
-  }
+ // 2. Estado de Error Arquitectónico
+ if (error || !appointment) {
+ return (
+ <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
+ <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+ <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
+ </div>
+ <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Cita no encontrada</h2>
+ <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
+ El registro solicitado no existe o no tienes permisos para visualizarlo.
+ </p>
+ <Button 
+ onClick={() => router.push("/patient/dashboard")} 
+ className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+ >
+ <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
+ Volver al Panel Principal
+ </Button>
+ </div>
+ );
+ }
 
-  // 3. Estado de Redirección por Seguridad
-  if (user && appointment.consumerId !== user.id) {
-    return <div className="min-h-screen bg-white dark:bg-[#0a0a0a]"></div>;
-  }
+ // 3. Estado de Redirección por Seguridad
+ if (user && appointment.consumerId !== user.id) {
+ return <div className="min-h-screen bg-white dark:bg-[#0a0a0a]"></div>;
+ }
 
-  // ==========================================
-  // ✨ RENDERIZADO PRINCIPAL (ÉXITO)
-  // ==========================================
-  
-  const formattedDateTime = format(
-    new Date(appointment.startTime),
-    "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", 
-    { locale: es }
-  ).toUpperCase();
+ // ==========================================
+ // ✨ RENDERIZADO PRINCIPAL (ÉXITO)
+ // ==========================================
+ 
+ const formattedDateTime = format(
+ new Date(appointment.startTime),
+ "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'", 
+ { locale: es }
+ ).toUpperCase();
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-      
-      {/* Background técnico de puntos sutiles */}
-      <BackgroundEffects />
-      <Confetti show={showConfetti} />
+ return (
+ <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+ 
+ {/* Background técnico de puntos sutiles */}
+ <BackgroundEffects />
+ <Confetti show={showConfetti} />
 
-      <div className="max-w-4xl mx-auto relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        >
-          
-          <SuccessHeader t={t} email={appointment.consumerEmailSnapshot} />
-          <QrCodeCard t={t} qrCodeUrl={qrCodeUrl} />
-          <AppointmentSummary t={t} appointment={appointment} formattedDateTime={formattedDateTime} />
-          
-          <ActionButtons 
-            t={t} 
-            router={router}
-            copied={copied}
-            isDownloading={isDownloading}
-            handleAddToCalendar={handleAddToCalendar}
-            downloadInvoice={downloadInvoice}
-            handleShare={handleShare}
-          />
-          
-        </motion.div>
-      </div>
-    </div>
-  );
+ <div className="max-w-4xl mx-auto relative z-10">
+ <motion.div 
+ initial={{ opacity: 0, y: 20 }} 
+ animate={{ opacity: 1, y: 0 }} 
+ transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+ >
+ 
+ <SuccessHeader t={t} email={appointment.consumerEmailSnapshot} />
+ <QrCodeCard t={t} qrCodeUrl={qrCodeUrl} />
+ <AppointmentSummary t={t} appointment={appointment} formattedDateTime={formattedDateTime} />
+ 
+ <ActionButtons 
+ t={t} 
+ router={router}
+ copied={copied}
+ isDownloading={isDownloading}
+ handleAddToCalendar={handleAddToCalendar}
+ downloadInvoice={downloadInvoice}
+ handleShare={handleShare}
+ />
+ 
+ </motion.div>
+ </div>
+ </div>
+ );
 }

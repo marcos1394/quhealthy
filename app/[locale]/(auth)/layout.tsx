@@ -1,14 +1,14 @@
 import React from "react";
 
 export const metadata = {
-    title: "Autenticación | QuHealthy",
-    description: "Inicia sesión, regístrate o recupera tu cuenta en QuHealthy.",
+ title: "Autenticación | QuHealthy",
+ description: "Inicia sesión, regístrate o recupera tu cuenta en QuHealthy.",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <div className="min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-            {children}
-        </div>
-    );
+ return (
+ <div className="min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+ {children}
+ </div>
+ );
 }

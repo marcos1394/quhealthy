@@ -4,15 +4,15 @@ import React from "react";
 import { ProviderGuard } from "@/components/guards/ProviderGuard";
 
 export default function ProviderSpecificLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode;
+ children: React.ReactNode;
 }) {
-  return (
-    // Simplemente envolvemos a los hijos del provider con el Guard.
-    // El layout padre (PlatformLayout) se encargará de pintar el Sidebar y el fondo.
-    <ProviderGuard>
-      {children}
-    </ProviderGuard>
-  );
+ return (
+ // Simplemente envolvemos a los hijos del provider con el Guard.
+ // El layout padre (PlatformLayout) se encargará de pintar el Sidebar y el fondo.
+ <ProviderGuard>
+ {children}
+ </ProviderGuard>
+ );
 }

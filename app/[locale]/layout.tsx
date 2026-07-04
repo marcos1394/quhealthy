@@ -22,143 +22,143 @@ const inter = Inter({ subsets: ["latin"] });
 
 // --- METADATOS DINÁMICOS POR IDIOMA (SEO + Open Graph) ---
 const ogContent = {
-  es: {
-    title: 'QuHealthy - Plataforma de Salud y Bienestar Digital',
-    ogTitle: 'QuHealthy — Tu Ecosistema de Bienestar Digital',
-    description: 'Encuentra, agenda y gestiona tus citas de salud y belleza con los mejores profesionales. La plataforma que conecta pacientes y proveedores de manera eficiente.',
-    ogDescription: 'La plataforma líder para agendar y gestionar servicios de salud y belleza en México.',
-    keywords: ['salud', 'belleza', 'bienestar', 'citas médicas', 'agenda online', 'profesionales de la salud', 'médicos en México'],
-    locale: 'es_MX',
-    imageAlt: 'Dashboard de QuHealthy mostrando una agenda de citas',
-  },
-  en: {
-    title: 'QuHealthy - Digital Health & Wellness Platform',
-    ogTitle: 'QuHealthy — Your Digital Wellness Ecosystem',
-    description: 'Find, book, and manage your health and beauty appointments with top professionals. The platform that connects patients and providers efficiently.',
-    ogDescription: 'The leading platform to book and manage health & beauty services.',
-    keywords: ['health', 'beauty', 'wellness', 'medical appointments', 'online booking', 'health professionals'],
-    locale: 'en_US',
-    imageAlt: 'QuHealthy dashboard showing an appointment calendar',
-  },
+ es: {
+ title: 'QuHealthy - Plataforma de Salud y Bienestar Digital',
+ ogTitle: 'QuHealthy — Tu Ecosistema de Bienestar Digital',
+ description: 'Encuentra, agenda y gestiona tus citas de salud y belleza con los mejores profesionales. La plataforma que conecta pacientes y proveedores de manera eficiente.',
+ ogDescription: 'La plataforma líder para agendar y gestionar servicios de salud y belleza en México.',
+ keywords: ['salud', 'belleza', 'bienestar', 'citas médicas', 'agenda online', 'profesionales de la salud', 'médicos en México'],
+ locale: 'es_MX',
+ imageAlt: 'Dashboard de QuHealthy mostrando una agenda de citas',
+ },
+ en: {
+ title: 'QuHealthy - Digital Health & Wellness Platform',
+ ogTitle: 'QuHealthy — Your Digital Wellness Ecosystem',
+ description: 'Find, book, and manage your health and beauty appointments with top professionals. The platform that connects patients and providers efficiently.',
+ ogDescription: 'The leading platform to book and manage health & beauty services.',
+ keywords: ['health', 'beauty', 'wellness', 'medical appointments', 'online booking', 'health professionals'],
+ locale: 'en_US',
+ imageAlt: 'QuHealthy dashboard showing an appointment calendar',
+ },
 } as const;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  const lang = (locale === 'en' ? 'en' : 'es') as keyof typeof ogContent;
-  const content = ogContent[lang];
-  const siteUrl = 'https://www.quhealthy.org';
+ const { locale } = await params;
+ const lang = (locale === 'en' ? 'en' : 'es') as keyof typeof ogContent;
+ const content = ogContent[lang];
+ const siteUrl = 'https://www.quhealthy.org';
 
-  return {
-    metadataBase: new URL(siteUrl),
-    title: {
-      template: '%s | QuHealthy',
-      default: content.title,
-    },
-    description: content.description,
-    keywords: [...content.keywords],
-    authors: [{ name: 'QuHealthy Team', url: siteUrl }],
-    creator: 'QuHealthy',
-    publisher: 'QuHealthy',
-    openGraph: {
-      title: content.ogTitle,
-      description: content.ogDescription,
-      url: `${siteUrl}/${lang}`,
-      siteName: 'QuHealthy',
-      images: [
-        {
-          url: `${siteUrl}/og-image.png`,
-          width: 1200,
-          height: 630,
-          alt: content.imageAlt,
-        },
-      ],
-      locale: content.locale,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: content.ogTitle,
-      description: content.ogDescription,
-      creator: '@QuHealthyApp',
-      images: [`${siteUrl}/og-image.png`],
-    },
-    manifest: '/manifest.json',
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-  };
+ return {
+ metadataBase: new URL(siteUrl),
+ title: {
+ template: '%s | QuHealthy',
+ default: content.title,
+ },
+ description: content.description,
+ keywords: [...content.keywords],
+ authors: [{ name: 'QuHealthy Team', url: siteUrl }],
+ creator: 'QuHealthy',
+ publisher: 'QuHealthy',
+ openGraph: {
+ title: content.ogTitle,
+ description: content.ogDescription,
+ url: `${siteUrl}/${lang}`,
+ siteName: 'QuHealthy',
+ images: [
+ {
+ url: `${siteUrl}/og-image.png`,
+ width: 1200,
+ height: 630,
+ alt: content.imageAlt,
+ },
+ ],
+ locale: content.locale,
+ type: 'website',
+ },
+ twitter: {
+ card: 'summary_large_image',
+ title: content.ogTitle,
+ description: content.ogDescription,
+ creator: '@QuHealthyApp',
+ images: [`${siteUrl}/og-image.png`],
+ },
+ manifest: '/manifest.json',
+ robots: {
+ index: true,
+ follow: true,
+ googleBot: {
+ index: true,
+ follow: true,
+ 'max-video-preview': -1,
+ 'max-image-preview': 'large',
+ 'max-snippet': -1,
+ },
+ },
+ };
 }
 
 // --- VIEWPORT ---
 export const viewport: Viewport = {
-  themeColor: '#111827',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
+ themeColor: '#111827',
+ width: 'device-width',
+ initialScale: 1,
+ maximumScale: 1,
 };
 
 export default async function RootLayout({
-  children,
-  params
+ children,
+ params
 }: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+ children: React.ReactNode;
+ params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-  const messages = await getMessages();
+ const { locale } = await params;
+ const messages = await getMessages();
 
-  return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}>
+ return (
+ <html lang={locale} suppressHydrationWarning>
+ <body className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}>
 
-        <NextIntlClientProvider messages={messages}>
-          <CustomProvider>
+ <NextIntlClientProvider messages={messages}>
+ <CustomProvider>
 
-            {/* 🚀 ELIMINADO EL AUTHPROVIDER DE AQUÍ PARA EVITAR EL BUCLE EN PÁGINAS PÚBLICAS */}
-            {children}
+ {/* 🚀 ELIMINADO EL AUTHPROVIDER DE AQUÍ PARA EVITAR EL BUCLE EN PÁGINAS PÚBLICAS */}
+ {children}
 
-            {/* Componente de notificaciones global (auto dark/light + i18n errors) */}
-            <ToastProvider />
+ {/* Componente de notificaciones global (auto dark/light + i18n errors) */}
+ <ToastProvider />
 
-            {/* Global Enterprise Prompts & Analytics */}
-            <AnalyticsManager />
-            <CookieConsent />
-            <LocationPrompt />
+ {/* Global Enterprise Prompts & Analytics */}
+ <AnalyticsManager />
+ <CookieConsent />
+ <LocationPrompt />
 
-            {/* Vercel Pro Analytics & Insights */}
-            <Analytics />
-            <SpeedInsights />
-            
-            {/* Chatwoot Live Chat */}
-            <Script id="chatwoot-widget" strategy="afterInteractive">
-              {`
-                (function(d,t) {
-                  var BASE_URL="https://app.chatwoot.com";
-                  var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-                  g.src=BASE_URL+"/packs/js/sdk.js";
-                  g.async = true;
-                  s.parentNode.insertBefore(g,s);
-                  g.onload=function(){
-                    window.chatwootSDK.run({
-                      websiteToken: '8NAP7B6kCJdHWj4S3vemxeJb',
-                      baseUrl: BASE_URL
-                    })
-                  }
-                })(document,"script");
-              `}
-            </Script>
-          </CustomProvider>
-        </NextIntlClientProvider>
+ {/* Vercel Pro Analytics & Insights */}
+ <Analytics />
+ <SpeedInsights />
+ 
+ {/* Chatwoot Live Chat */}
+ <Script id="chatwoot-widget" strategy="afterInteractive">
+ {`
+ (function(d,t) {
+ var BASE_URL="https://app.chatwoot.com";
+ var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+ g.src=BASE_URL+"/packs/js/sdk.js";
+ g.async = true;
+ s.parentNode.insertBefore(g,s);
+ g.onload=function(){
+ window.chatwootSDK.run({
+ websiteToken: '8NAP7B6kCJdHWj4S3vemxeJb',
+ baseUrl: BASE_URL
+ })
+ }
+ })(document,"script");
+ `}
+ </Script>
+ </CustomProvider>
+ </NextIntlClientProvider>
 
-      </body>
-    </html>
-  );
+ </body>
+ </html>
+ );
 }

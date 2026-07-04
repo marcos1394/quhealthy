@@ -2,9 +2,9 @@ import React from "react";
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
 
 export default function PublicLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode;
+ children: React.ReactNode;
 }) {
-  return <PublicLayoutShell>{children}</PublicLayoutShell>;
+ return <PublicLayoutShell>{children}</PublicLayoutShell>;
 }

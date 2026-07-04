@@ -7,15 +7,15 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
 
 export default function CustomProvider({ children, ...props }: ThemeProviderProps) {
-  return (
-    <NextThemesProvider
-      attribute="class"      // Usa clases de Tailwind (.dark) en lugar de data-attributes
-      defaultTheme="light"   // Por defecto modo claro
-      enableSystem={true}    // Permite respetar la preferencia del sistema operativo si el usuario cambia
-      disableTransitionOnChange // Evita parpadeos molestos al cambiar de tema
-      {...props}
-    >
-      {children}
-    </NextThemesProvider>
-  );
+ return (
+ <NextThemesProvider
+ attribute="class" // Usa clases de Tailwind (.dark) en lugar de data-attributes
+ defaultTheme="light" // Por defecto modo claro
+ enableSystem={true} // Permite respetar la preferencia del sistema operativo si el usuario cambia
+ disableTransitionOnChange // Evita parpadeos molestos al cambiar de tema
+ {...props}
+ >
+ {children}
+ </NextThemesProvider>
+ );
 }
