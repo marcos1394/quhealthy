@@ -87,7 +87,7 @@ export default function CatalogSetupPage() {
   };
 
   const handleDeleteService = async (id: number) => {
-    const isInPackage = packages.some(pkg => pkg.serviceIds.includes(id));
+    const isInPackage = packages.some(pkg => (pkg.packageItems || []).some(item => item.id === id));
     if (isInPackage) return;
     const s = services.find(s => s.id === id);
     if (!s) return;
