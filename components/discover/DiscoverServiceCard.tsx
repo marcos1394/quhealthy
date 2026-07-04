@@ -2,29 +2,29 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
 import { Clock, Navigation, MapPin, Building, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, generateSlug } from '@/lib/utils';
 import { DiscoverItem } from '@/types/discover';
 
 export const DiscoverServiceCard = ({ item }: { item: DiscoverItem }) => {
  const router = useRouter();
+ const locale = useLocale();
 
  const handleProviderClick = (e: React.MouseEvent) => {
  e.stopPropagation();
  router.push(`/store/${item.providerSlug}`);
  };
 
- const handleItemClick = () => {
- // Navigate to store with service selected or something similar
- router.push(`/store/${item.providerSlug}?autoBook=${item.id}`);
- };
+  const href = `/${locale}/market/item/${item.id}-${generateSlug(item.name)}`;
 
- return (
- <div 
- onClick={handleItemClick}
- className="group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-all cursor-pointer shadow-[4px_4px_0_0_rgba(0,0,0,0.05)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,0.05)] hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff]"
- >
+  return (
+    <Link 
+      href={href}
+      className="group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-all cursor-pointer shadow-[4px_4px_0_0_rgba(0,0,0,0.05)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,0.05)] hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] block"
+    >
  <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-900 overflow-hidden border-b border-gray-200 dark:border-gray-800">
  {item.imageUrl ? (
  <img 
@@ -95,8 +95,8 @@ export const DiscoverServiceCard = ({ item }: { item: DiscoverItem }) => {
  <Clock className="w-3 h-3 mr-1" /> {item.durationMinutes} MIN
  </div>
  )}
- </div>
- </div>
- </div>
- );
+        </div>
+      </div>
+    </Link>
+  );
 };

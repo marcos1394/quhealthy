@@ -17,6 +17,14 @@ export const catalogService = {
   },
 
   /**
+   * Obtiene el detalle público de un ítem por ID
+   */
+  getItemDetail: async (id: number): Promise<CatalogItemDTO> => {
+    const response = await axiosInstance.get(`${BASE_URL}/items/${id}`);
+    return response.data;
+  },
+
+  /**
    * Crea un nuevo Ítem (Servicio o Paquete)
    */
   createItem: async (item: CatalogItemDTO): Promise<CatalogItemDTO> => {
