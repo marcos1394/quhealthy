@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title,
     description,
-    keywords: item.searchTags ? item.searchTags.join(', ') : '',
+    keywords: (item as any).searchTags ? (item as any).searchTags.join(', ') : '',
     openGraph: {
       title,
       description,
@@ -91,7 +91,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
     offers: {
       '@type': 'Offer',
       price: item.price,
-      priceCurrency: item.currency || 'MXN',
+      priceCurrency: (item as any).currency || 'MXN',
       availability: 'https://schema.org/InStock',
       url: `https://www.quhealthy.org/${locale}/market/item/${slug}`,
     }
@@ -102,14 +102,14 @@ export default async function MarketItemPage({ params }: { params: Params }) {
       '@type': 'Brand',
       name: 'QuHealthy Provider'
     };
-    if (item.sku) jsonLd.sku = item.sku;
+    if ((item as any).sku) jsonLd.sku = (item as any).sku;
   }
 
-  if (item.averageRating && item.reviewCount && item.reviewCount > 0) {
+  if ((item as any).averageRating && (item as any).reviewCount && (item as any).reviewCount > 0) {
     jsonLd.aggregateRating = {
       '@type': 'AggregateRating',
-      ratingValue: item.averageRating,
-      reviewCount: item.reviewCount
+      ratingValue: (item as any).averageRating,
+      reviewCount: (item as any).reviewCount
     };
   }
 
@@ -163,7 +163,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
               </h1>
 
               <div className="text-3xl font-bold text-black dark:text-white mb-8">
-                ${item.price?.toFixed(2)} {item.currency || 'MXN'}
+                ${item.price?.toFixed(2)} {(item as any).currency || 'MXN'}
               </div>
 
               <div className="prose prose-gray dark:prose-invert max-w-none mb-10 text-gray-600 dark:text-gray-300 font-light leading-relaxed">
