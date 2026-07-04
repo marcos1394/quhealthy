@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from 'next/link';
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, generateSlug } from "@/lib/utils";
 
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
@@ -385,9 +386,11 @@ export default function PublicStorePage() {
  </div>
 
  <div className="space-y-2">
+ <Link href={`/${locale}/market/item/${service.id}-${generateSlug(service.name)}`} className="hover:underline">
  <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
  {service.name}
  </h3>
+ </Link>
  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
  {service.description}
  </p>
@@ -490,7 +493,9 @@ export default function PublicStorePage() {
  </div>
 
  <div className="space-y-4">
+ <Link href={`/${locale}/market/item/${pkg.id}-${generateSlug(pkg.name)}`} className="hover:underline">
  <h3 className="font-bold text-xl uppercase tracking-wider text-black dark:text-white">{pkg.name}</h3>
+ </Link>
  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">{pkg.description}</p>
  
  <ul className="space-y-3 mt-6 border-t border-gray-200 dark:border-gray-800 pt-6">
@@ -634,9 +639,11 @@ export default function PublicStorePage() {
  </span>
  )}
 
+ <Link href={`/${locale}/market/item/${product.id}-${generateSlug(product.name)}`} className="hover:underline">
  <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-1 mb-2">
  {product.name}
  </h3>
+ </Link>
  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
  {product.description}
  </p>
@@ -755,9 +762,11 @@ export default function PublicStorePage() {
  brandColor={safePrimaryColor}
  />
  </div>
+ <Link href={`/${locale}/market/item/${course.id}-${generateSlug(course.name)}`} className="hover:underline">
  <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
  {course.name}
  </h3>
+ </Link>
  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
  {course.description}
  </p>
