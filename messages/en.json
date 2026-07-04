@@ -2742,6 +2742,7 @@
     }
   },
   "Marketplace": {
+    "addToCart": "Add to cart",
     "services": {
       "title": "Your Services",
       "description": "Manage the medical services you offer.",
