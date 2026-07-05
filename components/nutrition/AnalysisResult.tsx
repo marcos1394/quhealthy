@@ -55,24 +55,24 @@ export default function AnalysisResult({ analysis }: AnalysisResultProps) {
           <h3 className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-4">Resumen Nutricional</h3>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <MacroCard icon={<Flame className="w-5 h-5 text-orange-500" />} label="Calorías" value={`${totals.calories} kcal`} />
-            <MacroCard icon={<Activity className="w-5 h-5 text-blue-500" />} label="Proteínas" value={`${totals.protein}g`} />
-            <MacroCard icon={<Wheat className="w-5 h-5 text-yellow-600" />} label="Carbs" value={`${totals.carbs}g`} />
-            <MacroCard icon={<Droplet className="w-5 h-5 text-yellow-400" />} label="Grasas" value={`${totals.fats}g`} />
+            <MacroCard icon={<Flame className="w-5 h-5 text-orange-500" />} label="Calorías" value={`${totals?.calories ?? 0} kcal`} />
+            <MacroCard icon={<Activity className="w-5 h-5 text-blue-500" />} label="Proteínas" value={`${totals?.protein ?? 0}g`} />
+            <MacroCard icon={<Wheat className="w-5 h-5 text-yellow-600" />} label="Carbs" value={`${totals?.carbs ?? 0}g`} />
+            <MacroCard icon={<Droplet className="w-5 h-5 text-yellow-400" />} label="Grasas" value={`${totals?.fats ?? 0}g`} />
           </div>
           
           <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-800 grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-[10px] text-gray-400 font-bold uppercase">Fibra</p>
-              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals.fiber}g</p>
+              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals?.fiber ?? 0}g</p>
             </div>
             <div>
               <p className="text-[10px] text-gray-400 font-bold uppercase">Azúcares</p>
-              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals.sugars}g</p>
+              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals?.sugars ?? 0}g</p>
             </div>
             <div>
               <p className="text-[10px] text-gray-400 font-bold uppercase">Sodio</p>
-              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals.sodium}mg</p>
+              <p className="font-bold text-sm text-gray-700 dark:text-gray-300">{totals?.sodium ?? 0}mg</p>
             </div>
           </div>
         </div>
@@ -83,41 +83,46 @@ export default function AnalysisResult({ analysis }: AnalysisResultProps) {
         <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-4">Alimentos Identificados</h3>
         
         <div className="space-y-3">
-          {detectedFoods.map((food, idx) => (
-            <div key={idx} className={`p-4 rounded-xl flex items-center justify-between border ${!food.is_confident ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-900/50 dark:bg-yellow-900/10' : 'border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900'}`}>
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-white capitalize">{food.name}</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Porción est: <span className="font-medium text-gray-700 dark:text-gray-300">{food.estimated_portion}</span>
-                  {food.preparation_method && ` • Prep: ${food.preparation_method}`}
-                </p>
-              </div>
-              
-              {!food.is_confident && (
-                <div className="flex items-center text-yellow-600 bg-yellow-100 px-3 py-1.5 rounded-full">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Baja Confianza</span>
+          {detectedFoods && detectedFoods.length > 0 ? (
+            detectedFoods.map((food, idx) => (
+              <div key={idx} className={`p-4 rounded-xl flex items-center justify-between border ${!food.is_confident ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-900/50 dark:bg-yellow-900/10' : 'border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900'}`}>
+                <div>
+                  <h4 className="font-bold text-gray-900 dark:text-white capitalize">{food.name}</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Porción est: <span className="font-medium text-gray-700 dark:text-gray-300">{food.estimated_portion}</span>
+                    {food.preparation_method && ` • Prep: ${food.preparation_method}`}
+                  </p>
                 </div>
-              )}
-            </div>
-          ))}
+                {!food.is_confident && (
+                  <div className="flex items-center gap-1 text-yellow-600 dark:text-yellow-500 text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-md">
+                    <AlertTriangle className="w-3 h-3" />
+                    Baja Confianza
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-sm italic">No se identificaron alimentos con claridad.</p>
+          )}
         </div>
       </div>
 
       {/* Recomendaciones */}
-      {recommendations && recommendations.length > 0 && (
-        <div className="bg-quhealthy-green/5 rounded-2xl border border-quhealthy-green/20 p-6">
-          <h3 className="text-quhealthy-green font-bold text-lg mb-4">Sugerencias de IA</h3>
-          <ul className="space-y-2">
-            {recommendations.map((rec, idx) => (
-              <li key={idx} className="flex items-start text-sm text-gray-700">
-                <span className="text-quhealthy-green mr-2 mt-0.5">•</span>
+      <div className="bg-quhealthy-green/5 dark:bg-quhealthy-green/10 rounded-2xl p-6 border border-quhealthy-green/20">
+        <h3 className="text-quhealthy-green font-bold text-lg mb-4">Recomendaciones del Nutricionista</h3>
+        <ul className="space-y-3">
+          {recommendations && recommendations.length > 0 ? (
+            recommendations.map((rec, idx) => (
+              <li key={idx} className="flex gap-3 text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-quhealthy-green font-bold flex-shrink-0">•</span>
                 {rec}
               </li>
-            ))}
-          </ul>
-        </div>
-      )}
+            ))
+          ) : (
+            <li className="text-sm text-gray-700 dark:text-gray-300">No hay recomendaciones disponibles para este análisis.</li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
