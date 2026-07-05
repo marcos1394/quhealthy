@@ -19,7 +19,7 @@ interface PackagesManagerProps {
  packages: UI_Package[];
  availableServices: UI_Service[];
  onAdd?: () => void;
- onSave: (pkg: UI_Package) => void;
+ onSave: (pkg: UI_Package) => Promise<boolean> | void | boolean;
  onDelete: (id: number) => void;
  onImageUpload?: (id: number, file: File) => void;
  canAdd?: boolean;
@@ -67,9 +67,11 @@ export function PackagesManager({
  setIsDialogOpen(true);
  };
 
- const handleSaveWrapper = (pkg: UI_Package) => {
- onSave(pkg);
+ const handleSaveWrapper = async (pkg: UI_Package) => {
+ const success = await onSave(pkg);
+ if (success !== false) {
  setIsDialogOpen(false);
+ }
  };
 
  return (

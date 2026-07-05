@@ -365,11 +365,11 @@ export function CoursesManager({
  )}
 
  {/* Acciones */}
- <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
+ <div className="flex flex-wrap items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
  <Button 
  variant="ghost" 
  onClick={() => onDelete(course.id)} 
- className="rounded-none border border-transparent text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 transition-colors h-12 px-6 text-[10px] font-bold uppercase tracking-widest"
+ className="w-full sm:w-auto rounded-none border border-transparent text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 transition-colors h-12 px-6 text-[10px] font-bold uppercase tracking-widest"
  >
  <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} /> {tGlobal('delete', { defaultValue: 'Purgar' })}
  </Button>
@@ -377,7 +377,7 @@ export function CoursesManager({
  onClick={() => onSave(course)}
  disabled={!course.hasUnsavedChanges && !course.isNew}
  className={cn(
- "rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+ "w-full sm:w-auto rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
  course.hasUnsavedChanges || course.isNew 
  ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200" 
  : "bg-gray-100 text-gray-400 dark:bg-gray-900 cursor-not-allowed"

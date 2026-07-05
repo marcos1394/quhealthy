@@ -140,19 +140,15 @@ export default function CatalogSetupPage() {
  setPackages([newPackage, ...packages]);
  };
 
-  const handleSavePackage = async (pkg: UI_Package) => {
+  const handleSavePackage = async (pkg: UI_Package): Promise<boolean> => {
     const wordCount = pkg.name.trim().split(/\s+/).length;
     if (wordCount < 3) {
       toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
-      return;
+      return false;
     }
     if ((pkg.description?.length || 0) < 150) {
       toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
-      return;
-    }
-    if (!pkg.imageUrl) {
-      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
-      return;
+      return false;
     }
 
     const saved = await savePackage(pkg);
@@ -161,7 +157,9 @@ export default function CatalogSetupPage() {
       else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
       refreshLimits(); // 🚀 Refrescamos límites
       toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
+      return true;
     }
+    return false;
   };
 
  const handleDeletePackage = async (id: number) => {
@@ -377,7 +375,7 @@ export default function CatalogSetupPage() {
  key={tab.id}
  onClick={() => setActiveTab(tab.id as TabType)}
  className={cn(
- "flex items-center gap-3 px-6 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap border-r border-gray-200 dark:border-gray-800",
+ "flex shrink-0 items-center gap-3 px-6 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap border-r border-gray-200 dark:border-gray-800",
  activeTab === tab.id
  ? "bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-t-2 border-t-black dark:border-t-white"
  : "bg-gray-50 dark:bg-[#050505] text-gray-500 hover:text-black dark:hover:text-white border-t-2 border-t-transparent hover:bg-white dark:hover:bg-[#0a0a0a]"
