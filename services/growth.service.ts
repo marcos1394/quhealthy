@@ -1,27 +1,27 @@
-import { axiosInstance } from './axiosInstance';
+import { axiosInstance } from './axios';
 import { GrowthMeasurementRequest, GrowthMeasurementResponse, WhoGrowthStandard } from '@/types/growth';
 
 export const growthService = {
   
   // PROVIDER
-  recordProviderMeasurement: async (data: GrowthMeasurementRequest): Promise<GrowthMeasurementResponse> => {
-    const response = await axiosInstance.post('/api/onboarding/provider/growth/measurements', data);
+  getPatientHistoryProvider: async (dependentId: number): Promise<GrowthMeasurementResponse[]> => {
+    const response = await axiosInstance.get(`/api/onboarding/provider/growth/dependent/${dependentId}`);
     return response.data;
   },
-  
-  getPatientHistoryProvider: async (patientId: number): Promise<GrowthMeasurementResponse[]> => {
-    const response = await axiosInstance.get(`/api/onboarding/provider/growth/patient/${patientId}`);
+
+  recordMeasurementProvider: async (data: GrowthMeasurementRequest): Promise<GrowthMeasurementResponse> => {
+    const response = await axiosInstance.post('/api/onboarding/provider/growth/measurements', data);
     return response.data;
   },
 
   // CONSUMER
-  recordConsumerMeasurement: async (data: GrowthMeasurementRequest): Promise<GrowthMeasurementResponse> => {
-    const response = await axiosInstance.post('/api/onboarding/consumer/growth/measurements', data);
+  getConsumerHistory: async (dependentId: number): Promise<GrowthMeasurementResponse[]> => {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/growth/dependent/${dependentId}/history`);
     return response.data;
   },
-  
-  getConsumerHistory: async (): Promise<GrowthMeasurementResponse[]> => {
-    const response = await axiosInstance.get('/api/onboarding/consumer/growth/history');
+
+  recordMeasurementConsumer: async (dependentId: number, data: GrowthMeasurementRequest): Promise<GrowthMeasurementResponse> => {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/growth/dependent/${dependentId}/measurements`, data);
     return response.data;
   },
 

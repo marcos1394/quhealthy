@@ -7,7 +7,7 @@ export interface GrowthMeasurementRequest {
 
 export interface GrowthMeasurementResponse {
   id: number;
-  patientId: number;
+  dependentId: number;
   measurementDate: string;
   ageInMonths: number;
   weightKg?: number;
