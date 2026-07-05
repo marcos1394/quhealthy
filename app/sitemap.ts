@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'; // Desactiva caché estática para gener
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.quhealthy.org';
-  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || baseUrl).replace(/\/$/, '');
+  const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org').replace(/\/$/, '');
 
   const routes: MetadataRoute.Sitemap = [
     {
