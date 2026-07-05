@@ -13,7 +13,7 @@ import {
  BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, 
  Star, HeartIcon, Menu, Package, ClipboardIcon, 
  Handshake, History, BadgeX, PackageCheck, Calculator, BookOpen,
- X
+ X, Utensils
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +49,7 @@ const patientLinks = [
  { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
  { key: "discover", href: "/discover", icon: Sparkles, badge: null },
  { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
+ { key: "nutrition", href: "/patient/dashboard/nutrition", icon: Utensils, badge: "IA" },
  { key: "messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
  { key: "packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
  { key: "reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
