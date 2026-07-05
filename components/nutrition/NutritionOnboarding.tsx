@@ -124,7 +124,7 @@ export default function NutritionOnboarding({ initialData, onSubmit, isLoading }
         <Button 
           type="submit" 
           disabled={isLoading}
-          className="w-full bg-quhealthy-green hover:bg-quhealthy-green/90 text-white font-bold rounded-xl py-6 mt-4"
+          className="w-full bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black font-bold rounded-xl py-6 mt-4 transition-colors"
         >
           {isLoading ? 'Calculando...' : 'Calcular Plan Inteligente'}
         </Button>
