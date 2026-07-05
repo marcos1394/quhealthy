@@ -44,7 +44,7 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center min-h-[400px]">
+    <div className="bg-white dark:bg-[#050505] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 flex flex-col items-center justify-center min-h-[400px]">
       <input 
         type="file" 
         accept="image/*" 
@@ -57,11 +57,11 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
       
       {!previewUrl ? (
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-green-50 dark:bg-quhealthy-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Camera className="w-10 h-10 text-quhealthy-green" />
           </div>
-          <h2 className="text-xl font-bold mb-3">Toma una foto a tu comida</h2>
-          <p className="text-gray-500 mb-8 text-sm">
+          <h2 className="text-xl font-bold mb-3 text-black dark:text-white">Toma una foto a tu comida</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
             Nuestra IA analizará la imagen para detectar alimentos, porciones estimadas y calcular el valor nutricional de tu plato.
           </p>
           <div className="flex gap-4 justify-center">
