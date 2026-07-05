@@ -25,5 +25,15 @@ export const nutritionService = {
   getHistory: async (): Promise<NutritionAnalysis[]> => {
     const response = await axiosInstance.get<NutritionAnalysis[]>(`${BASE_URL}/history`);
     return response.data;
+  },
+
+  /**
+   * Obtiene la URL completa de la imagen usando la base de axiosInstance
+   */
+  getImageUrl: (url: string): string => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const baseUrl = axiosInstance.defaults.baseURL || process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
+    return `${baseUrl}/${url.replace(/^\//, '')}`;
   }
 };
