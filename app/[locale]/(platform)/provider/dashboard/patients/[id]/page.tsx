@@ -18,6 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 import { EditHealthProfileModal } from '@/components/dashboard/EditHealthProfileModal';
+import { MedicalGrowthContainer } from '@/components/growth/MedicalGrowthContainer';
+import { Baby } from 'lucide-react';
 
 // Hooks & Services
 import { usePatientDetail } from '@/hooks/usePatientDetail';
@@ -53,6 +55,14 @@ export default function PatientDetailPage() {
  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
  const [isEditHealthModalOpen, setIsEditHealthModalOpen] = React.useState(false);
  const [downloadingAppointmentId, setDownloadingAppointmentId] = useState<number | null>(null);
+
+ const isPediatric = React.useMemo(() => {
+    if (!profile?.birthDate) return false;
+    const dob = new Date(profile.birthDate);
+    const age_dt = new Date(Date.now() - dob.getTime());
+    const age = Math.abs(age_dt.getUTCFullYear() - 1970);
+    return age <= 5;
+  }, [profile]);
 
  const hasHealthData = Boolean(
  healthProfile && (
@@ -193,6 +203,15 @@ export default function PatientDetailPage() {
  <ClipboardList className="w-3.5 h-3.5" strokeWidth={1.5} /> 
  {t("base_background", { defaultValue: 'FICHA CLÍNICA' })}
  </TabsTrigger>
+ {isPediatric && (
+   <TabsTrigger 
+     value="growth" 
+     className="flex-1 rounded-none border-0 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+   >
+     <Baby className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+     CRECIMIENTO PEDIÁTRICO
+   </TabsTrigger>
+ )}
  </TabsList>
 
  {/* --- TAB: HISTORIAL CLÍNICO --- */}
@@ -403,6 +422,16 @@ export default function PatientDetailPage() {
 
  </div>
  </TabsContent>
+ 
+ {/* --- TAB: CRECIMIENTO PEDIÁTRICO --- */}
+ {isPediatric && (
+   <TabsContent value="growth" className="m-0 p-0 border-0 outline-none flex flex-col">
+     <MedicalGrowthContainer 
+       dependentId={patientDirectoryId} 
+       sex={profile.gender === 'FEMALE' ? 'FEMALE' : 'MALE'} 
+     />
+   </TabsContent>
+ )}
  </Tabs>
  </div>
 
