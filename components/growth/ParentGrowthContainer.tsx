@@ -7,6 +7,7 @@ import { GrowthMeasurementRequest, GrowthMeasurementResponse } from '@/types/gro
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import GrowthMeasurementForm from './GrowthMeasurementForm';
+import ParentGrowthHistory from './ParentGrowthHistory';
 
 interface ParentGrowthContainerProps {
   dependentId: number;
@@ -14,17 +15,20 @@ interface ParentGrowthContainerProps {
 
 export function ParentGrowthContainer({ dependentId }: ParentGrowthContainerProps) {
   const [latestMeasurement, setLatestMeasurement] = useState<GrowthMeasurementResponse | null>(null);
+  const [history, setHistory] = useState<GrowthMeasurementResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchHistory = async () => {
     setIsLoading(true);
     try {
-      const history = await growthService.getConsumerHistory(dependentId);
-      if (history && history.length > 0) {
-        setLatestMeasurement(history[0]);
+      const historyData = await growthService.getConsumerHistory(dependentId);
+      if (historyData && historyData.length > 0) {
+        setLatestMeasurement(historyData[0]);
+        setHistory(historyData);
       } else {
         setLatestMeasurement(null);
+        setHistory([]);
       }
     } catch (error) {
       console.error("Error fetching growth history:", error);
@@ -69,6 +73,10 @@ export function ParentGrowthContainer({ dependentId }: ParentGrowthContainerProp
       </div>
 
       <ParentGrowthView latestMeasurement={latestMeasurement} />
+      
+      {history.length > 0 && (
+        <ParentGrowthHistory history={history} />
+      )}
     </div>
   );
 }
