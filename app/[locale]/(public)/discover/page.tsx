@@ -569,7 +569,7 @@ const DiscoverMapContent = () => {
  className="w-full mt-3 h-8 text-[9px] font-bold uppercase tracking-widest rounded-none text-white transition-opacity hover:opacity-90"
  style={{ backgroundColor: provider.color || '#000' }}
  >
- Ver Expediente
+ Ver Tienda
  </Button>
  </div>
  </InfoWindowF>
