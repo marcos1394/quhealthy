@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { generateSlug } from '@/lib/utils';
 
+export const revalidate = 3600; // Revalidate sitemap every hour
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.quhealthy.org';
   const apiUrl = (process.env.NEXT_PUBLIC_API_URL || baseUrl).replace(/\/$/, '');
