@@ -49,7 +49,7 @@ const patientLinks = [
  { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
  { key: "discover", href: "/discover", icon: Sparkles, badge: null },
  { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
- { key: "nutrition", href: "/patient/dashboard/nutrition", icon: Utensils, badge: "IA" },
+ { key: "nutrition", href: "/patient/dashboard/nutrition", icon: Utensils, badge: { count: "IA" } },
  { key: "messages", href: "/patient/dashboard/messages", icon: MessageCircle, badge: null },
  { key: "packages", href: "/patient/dashboard/packages", icon: Crown, badge: null },
  { key: "reviews", href: "/patient/dashboard/reviews", icon: Star, badge: null },
@@ -66,7 +66,7 @@ const patientSettingsLinks = [
 ];
 
 const NavItem = ({ href, icon: Icon, label, badge, isCollapsed, pathname }: {
- href: string; icon: any; label: string; badge?: { count: number; color: string } | null; isCollapsed: boolean; pathname: string | null;
+ href: string; icon: any; label: string; badge?: { count: number | string; color?: string } | null; isCollapsed: boolean; pathname: string | null;
 }) => {
  const isActive = pathname === href || (href !== "/provider/dashboard" && href !== "/patient/dashboard" && pathname?.startsWith(href));
 
