@@ -112,7 +112,7 @@ export default function NutritionDashboard() {
                       }}
                     >
                       <div className="flex items-center gap-4">
-                        <img src={nutritionService.getImageUrl(item.imageUrl)} alt="Food" className="w-16 h-16 rounded-lg object-cover" />
+                        <img src={nutritionService.getImageUrl(item)} alt="Food" className="w-16 h-16 rounded-lg object-cover" />
                         <div>
                           <p className="font-bold text-gray-900 dark:text-white">{new Date(item.createdAt).toLocaleDateString()}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.totals?.calories || 0} kcal • {item.totals?.protein || 0}g proteína</p>

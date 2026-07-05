@@ -28,12 +28,15 @@ export const nutritionService = {
   },
 
   /**
-   * Obtiene la URL completa de la imagen usando la base de axiosInstance
+   * Obtiene la URL completa de la imagen. Usa la url prefirmada si existe.
    */
-  getImageUrl: (url: string): string => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
+  getImageUrl: (item: Partial<NutritionAnalysis>): string => {
+    if (item.presignedImageUrl) return item.presignedImageUrl;
+    if (!item.imageUrl) return '';
+    if (item.imageUrl.startsWith('http')) return item.imageUrl;
+    
+    // Fallback por si en algún momento se expone públicamente
     const baseUrl = axiosInstance.defaults.baseURL || process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
-    return `${baseUrl}/${url.replace(/^\//, '')}`;
+    return `${baseUrl}/${item.imageUrl.replace(/^\//, '')}`;
   }
 };

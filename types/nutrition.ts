@@ -20,6 +20,7 @@ export interface NutritionAnalysis {
   id: number;
   patientId: number;
   imageUrl: string;
+  presignedImageUrl?: string;
   healthScore: number;
   totals: NutritionAnalysisTotals;
   detectedFoods: DetectedFood[];
