@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
 import { NutritionAnalysis } from '@/types/nutrition';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { nutritionService } from '@/services/nutrition.service';
 
 interface FoodAnalyzerProps {
