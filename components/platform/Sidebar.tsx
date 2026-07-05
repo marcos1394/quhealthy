@@ -152,17 +152,17 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
  {/* Header */}
  <div className={cn(
  "h-20 flex items-center border-b border-gray-200 dark:border-gray-800 flex-shrink-0 transition-all", 
- isCollapsed ? "justify-center px-0" : "justify-between px-6"
+ isCollapsed ? "justify-center px-0" : "px-4 sm:px-6 gap-1"
  )}>
  {!isCollapsed && (
- <Link href={homeLink} className="flex-1 overflow-hidden">
- <span className="text-sm font-black uppercase tracking-[0.2em] text-black dark:text-white whitespace-nowrap">
+ <Link href={homeLink} className="flex-1 overflow-hidden min-w-0 mr-1 sm:mr-2">
+ <span className="text-[10px] sm:text-sm font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-black dark:text-white truncate block">
  QUHEALTHY
  </span>
  </Link>
  )}
 
- <div className={cn("flex items-center gap-2", isCollapsed ? "mx-auto flex-col gap-4" : "ml-auto")}>
+ <div className={cn("flex items-center gap-1 sm:gap-2", isCollapsed ? "mx-auto flex-col gap-4" : "ml-auto")}>
  {!isCollapsed && <ThemeToggle />}
  {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
  
@@ -188,7 +188,7 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
  {/* Plan Banner (Solo Provider) */}
  {!isCollapsed && !isConsumer && (
  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
- <Link href="/provider/settings/subscription">
+ <Link href="/provider/dashboard/settings#subscription">
  <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-4 flex items-start gap-3 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group">
  <Crown className="w-4 h-4 shrink-0 mt-0.5 group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} />
  <div>

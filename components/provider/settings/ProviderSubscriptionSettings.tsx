@@ -116,7 +116,7 @@ export function ProviderSubscriptionSettings() {
  features: buildFeaturesForPlan(bp, currentInterval === "YEARLY", tPricing),
  planKey
  };
- });
+ }).sort((a: Plan, b: Plan) => a.price - b.price);
 
  setDisplayPlans(uiPlans);
 

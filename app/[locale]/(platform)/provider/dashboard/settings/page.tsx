@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Shield, PenTool, CreditCard, Plug, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,6 +14,23 @@ export default function ProviderSettingsPage() {
  const t = useTranslations('ProviderSettings');
  const [activeTab, setActiveTab] = useState("security");
 
+ useEffect(() => {
+ const handleHashChange = () => {
+ const hash = window.location.hash.replace('#', '');
+ if (['security', 'subscription', 'connections', 'team'].includes(hash)) {
+ setActiveTab(hash);
+ }
+ };
+ handleHashChange();
+ window.addEventListener('hashchange', handleHashChange);
+ return () => window.removeEventListener('hashchange', handleHashChange);
+ }, []);
+
+ const handleTabChange = (value: string) => {
+ setActiveTab(value);
+ window.history.replaceState(null, '', `#${value}`);
+ };
+
  return (
  <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 font-sans">
  <div className="mb-8 border-b border-black/20 dark:border-white/20 pb-6">
@@ -25,7 +42,7 @@ export default function ProviderSettingsPage() {
  </p>
  </div>
 
- <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+ <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
  <TabsList className="bg-transparent border-b border-gray-200 dark:border-gray-800 w-full justify-start h-auto p-0 rounded-none overflow-x-auto flex-nowrap hide-scrollbar">
 
  <TabsTrigger 
