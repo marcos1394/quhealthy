@@ -4,7 +4,7 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from '@react-google-maps/api';
 import { useTheme } from 'next-themes';
 import {
