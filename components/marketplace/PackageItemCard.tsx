@@ -24,6 +24,7 @@ interface PackageItemCardProps {
 export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: PackageItemCardProps) {
  const t = useTranslations('Marketplace.packages');
  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+ const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
  // Helpers de cálculo
  const realVal = (pkg.packageItems || []).reduce((sum, item) => {
@@ -103,7 +104,26 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
  </div>
  </div>
 
- {/* --- GALERÍAS DEL PAQUETE --- */}
+ {/* --- BOTÓN PARA TOGGLE DE GALERÍAS --- */}
+ <div className="p-4 border-t border-black/10 dark:border-white/10 flex justify-center bg-gray-50/50 dark:bg-[#080808]">
+ <button
+ onClick={() => setIsGalleryOpen(!isGalleryOpen)}
+ className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:text-gray-500 transition-colors"
+ >
+ <Camera className="w-4 h-4" strokeWidth={1.5} />
+ {isGalleryOpen ? 'OCULTAR GALERÍAS' : 'GESTIONAR GALERÍAS (OPCIONAL)'}
+ </button>
+ </div>
+
+ {/* --- GALERÍAS DEL PAQUETE (TOGGLEABLE) --- */}
+ <AnimatePresence>
+ {isGalleryOpen && (
+ <motion.div 
+ initial={{ height: 0, opacity: 0 }}
+ animate={{ height: 'auto', opacity: 1 }}
+ exit={{ height: 0, opacity: 0 }}
+ className="overflow-hidden"
+ >
  <div className="p-6 border-t border-black/10 dark:border-white/10 bg-gray-50/50 dark:bg-[#080808]">
  <div className="flex items-center gap-3 mb-6">
  <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
@@ -129,6 +149,9 @@ export function PackageItemCard({ pkg, availableServices, onEdit, onDelete }: Pa
  </div>
  </div>
  </div>
+ </motion.div>
+ )}
+ </AnimatePresence>
 
  {/* --- TOTALES (FOOTER DE PRECIOS) --- */}
  <div className="p-6 bg-gray-50 dark:bg-[#050505] border-t border-black/10 dark:border-white/10 flex items-end justify-between shrink-0">

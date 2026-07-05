@@ -1770,6 +1770,7 @@
     },
     "toasts": {
       "validation_name": "El título debe tener al menos 3 palabras.",
+      "validation_desc": "La descripción debe tener al menos 150 caracteres.",
       "name_price_required": "El nombre y el precio son obligatorios.",
       "service_saved": "Servicio \"{name}\" guardado correctamente.",
       "service_deleted": "Servicio eliminado de tu catálogo.",

@@ -189,6 +189,13 @@ export function PackageEditorDialog({
  placeholder="EJ. PAQUETE PREVENTIVO" 
  className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400" 
  />
+ <div className="mt-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-between">
+ <span className={cn(
+ (pkg.name.trim() ? pkg.name.trim().split(/\s+/).length : 0) < 3 ? "text-red-500" : "text-emerald-500"
+ )}>
+ {(pkg.name.trim() ? pkg.name.trim().split(/\s+/).length : 0)} / 3 PALABRAS MÍN.
+ </span>
+ </div>
  </div>
  <div className="flex-1 p-6">
  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
@@ -214,6 +221,13 @@ export function PackageEditorDialog({
  rows={4} 
  className="w-full min-h-[120px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-y placeholder:text-gray-400" 
  />
+ <div className="mt-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-between">
+ <span className={cn(
+ (pkg.description?.length || 0) < 150 ? "text-red-500" : "text-emerald-500"
+ )}>
+ {(pkg.description?.length || 0)} / 150 CARACTERES MÍN.
+ </span>
+ </div>
  </div>
  </div>
  </div>

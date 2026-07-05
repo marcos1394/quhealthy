@@ -133,8 +133,9 @@ export function GalleryUploadManager({
  <Reorder.Item 
  key={img.id} 
  value={img}
- className="bg-card border rounded-lg p-3 flex items-center gap-4 group"
+ className="bg-card border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center gap-4 group"
  >
+ <div className="flex items-center gap-4 w-full sm:w-auto">
  <div className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground">
  <GripVertical size={20} />
  </div>
@@ -146,8 +147,9 @@ export function GalleryUploadManager({
  <img src={img.imageUrl} alt={img.caption || ""} className="w-full h-full object-cover" />
  )}
  </div>
+ </div>
 
- <div className="flex-1 min-w-0">
+ <div className="flex-1 min-w-0 w-full">
  {editingCaptionId === img.id ? (
  <div className="flex items-center gap-2">
  <Input 
@@ -170,13 +172,14 @@ export function GalleryUploadManager({
  <p className="text-sm font-medium truncate flex-1">
  {img.caption || <span className="text-muted-foreground italic">Sin descripción</span>}
  </p>
- <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => startEditCaption(img)}>
+ <Button size="icon" variant="ghost" className="h-8 w-8 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => startEditCaption(img)}>
  <Edit2 size={14} />
  </Button>
  </div>
  )}
  </div>
 
+ <div className="flex justify-end w-full sm:w-auto">
  <Button 
  size="icon" 
  variant="destructive" 
@@ -185,6 +188,7 @@ export function GalleryUploadManager({
  >
  <Trash2 size={14} />
  </Button>
+ </div>
  </Reorder.Item>
  ))}
  </Reorder.Group>

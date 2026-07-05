@@ -48,7 +48,7 @@ export function BeforeAfterUploader({ catalogItemId }: BeforeAfterUploaderProps)
  <p className="text-xs text-muted-foreground">Sube fotos comparativas para mostrar los resultados de tus procedimientos.</p>
  </div>
 
- <div className="grid grid-cols-2 gap-4">
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  {/* Before Dropzone */}
  <div 
  className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors relative overflow-hidden h-40 flex flex-col items-center justify-center"
