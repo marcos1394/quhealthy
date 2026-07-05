@@ -1,6 +1,6 @@
 import React from 'react';
 import { GrowthMeasurementResponse } from '@/types/growth';
-import { ShieldCheckIcon, ShieldExclamationIcon, ShieldAlertIcon } from '@heroicons/react/24/solid';
+import { ShieldCheck, AlertTriangle, ShieldAlert } from 'lucide-react';
 
 interface ParentGrowthViewProps {
   latestMeasurement: GrowthMeasurementResponse | null;
@@ -37,9 +37,9 @@ export default function ParentGrowthView({ latestMeasurement }: ParentGrowthView
             isVigilance ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-yellow-500/30' : 
             'bg-gradient-to-br from-red-400 to-red-600 shadow-red-500/30'}
         `}>
-          {isNormal && <ShieldCheckIcon className="w-16 h-16 text-white" />}
-          {isVigilance && <ShieldExclamationIcon className="w-16 h-16 text-white" />}
-          {isAlert && <ShieldAlertIcon className="w-16 h-16 text-white" />}
+          {isNormal && <ShieldCheck className="w-16 h-16 text-white" strokeWidth={1.5} />}
+          {isVigilance && <AlertTriangle className="w-16 h-16 text-white" strokeWidth={1.5} />}
+          {isAlert && <ShieldAlert className="w-16 h-16 text-white" strokeWidth={1.5} />}
         </div>
         
         <h3 className={`text-2xl font-black mb-2
