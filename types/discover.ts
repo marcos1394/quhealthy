@@ -86,6 +86,8 @@ export interface DiscoverItem {
   providerColor: string;
   providerRating?: number;
   providerCity?: string;
+  providerLat?: number;
+  providerLng?: number;
   distanceKm?: number;
   isPromoted?: boolean;
 }

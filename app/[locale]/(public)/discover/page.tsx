@@ -5,7 +5,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence } from 'framer-motion';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from '@react-google-maps/api';
 import { useTheme } from 'next-themes';
 import {
  Search, SlidersHorizontal, Star,
@@ -295,7 +295,7 @@ const DiscoverMapContent = () => {
  const t = useTranslations('PatientDiscover');
  const searchParams = useSearchParams();
  const initialSearchQuery = searchParams.get('q') ?? searchParams.get('provider') ?? '';
- const [{ map, searchQuery, searchType, viewMode, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId, isFiltersOpen }, dispatch] = React.useReducer(
+ const [{ map, searchQuery, searchType, viewMode, hasDiscountFilter, topRatedFilter, nearMeFilter, premiumFilter, selectedId, hoveredId, isFiltersOpen, isMapImmersive }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_MAP': return { ...state, map: typeof action.payload === 'function' ? action.payload(state.map) : action.payload };
@@ -309,11 +309,12 @@ const DiscoverMapContent = () => {
  case 'SET_HOVEREDID': return { ...state, hoveredId: typeof action.payload === 'function' ? action.payload(state.hoveredId) : action.payload };
  case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
  case 'SET_ISFILTERSOPEN': return { ...state, isFiltersOpen: typeof action.payload === 'function' ? action.payload(state.isFiltersOpen) : action.payload };
+ case 'SET_ISMAPIMMERSIVE': return { ...state, isMapImmersive: typeof action.payload === 'function' ? action.payload(state.isMapImmersive) : action.payload };
  default: return state;
  }
  },
  {
- map: null, searchQuery: initialSearchQuery, searchType: searchParams.get('type') || 'STORE', viewMode: 'MAP', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null, isFiltersOpen: true
+ map: null, searchQuery: initialSearchQuery, searchType: searchParams.get('type') || 'STORE', viewMode: 'MAP', hasDiscountFilter: false, topRatedFilter: false, nearMeFilter: false, premiumFilter: false, selectedId: null, hoveredId: null, isFiltersOpen: true, isMapImmersive: false
  }
  );
 
@@ -322,6 +323,7 @@ const DiscoverMapContent = () => {
 
  const setMap = (val: any) => dispatch({ type: 'SET_MAP', payload: val });
  const setSearchQuery = (val: any) => dispatch({ type: 'SET_SEARCHQUERY', payload: val });
+ const setIsMapImmersive = (val: any) => dispatch({ type: 'SET_ISMAPIMMERSIVE', payload: val });
  const setSearchType = (val: any) => {
  dispatch({ type: 'SET_SEARCHTYPE', payload: val });
  const params = new URLSearchParams(searchParamsHook.toString());
@@ -466,6 +468,13 @@ const DiscoverMapContent = () => {
  }
  };
 
+ const handleMapClick = () => {
+ setSelectedId(null);
+ if (viewMode === 'MAP') {
+ setIsMapImmersive(true);
+ }
+ };
+
  const handleAuthRequired = (context: 'favorite' | 'booking' = 'favorite') => {
  setAuthGateContext(context);
  setAuthGateOpen(true);
@@ -482,7 +491,7 @@ const DiscoverMapContent = () => {
  zoom={coordinates ? 13 : 11}
  center={mapCenter}
  onLoad={onMapLoad}
- onClick={() => setSelectedId(null)}
+ onClick={handleMapClick}
  options={dynamicMapOptions}
  >
  {/* Marcador del Paciente */}
@@ -502,8 +511,8 @@ const DiscoverMapContent = () => {
  )}
 
  
- {/* Marcadores de Proveedores (STORE) */}
- {searchType === 'STORE' && enrichedProviders.map((provider) => {
+ {/* Marcadores de Proveedores (STORE) o Items */}
+ {searchType === 'STORE' ? enrichedProviders.map((provider) => {
  const isSelected = selectedId === provider.id;
  const isHovered = hoveredId === provider.id;
 
@@ -511,29 +520,156 @@ const DiscoverMapContent = () => {
 
  return (
  <MarkerF
- key={`marker-${provider.id}`}
+ key={`marker-store-${provider.id}`}
  position={{ lat: provider.lat, lng: provider.lng }}
- onClick={() => handleSelectProvider(provider)}
+ onClick={(e) => {
+ if (e.domEvent) { e.domEvent.stopPropagation(); }
+ handleSelectProvider(provider);
+ }}
  onMouseOver={() => setHoveredId(provider.id)}
  onMouseOut={() => setHoveredId(null)}
  icon={{
  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
- fillColor: isSelected || isHovered ? provider.color : (resolvedTheme === 'dark' ? '#333' : '#999'),
- fillOpacity: 1,
+ fillColor: isSelected || isHovered ? provider.color : provider.color,
+ fillOpacity: isSelected || isHovered ? 1 : 0.8,
  strokeWeight: isSelected ? 2 : 1,
  strokeColor: isSelected ? '#ffffff' : '#000000', 
  scale: isSelected ? 1.8 : 1.3,
  anchor: new google.maps.Point(12, 24),
  }}
  zIndex={isSelected ? 50 : 10}
+ >
+ {isSelected && (
+ <InfoWindowF
+ position={{ lat: provider.lat, lng: provider.lng }}
+ onCloseClick={() => setSelectedId(null)}
+ options={{ pixelOffset: new google.maps.Size(0, -45) }}
+ >
+ <div className="p-2 min-w-[200px] max-w-[250px] font-sans">
+ <div className="flex gap-3 items-start">
+ <img 
+ src={provider.logoUrl || provider.imageUrl} 
+ alt={provider.name} 
+ className="w-10 h-10 object-cover border border-gray-200 rounded-sm"
  />
+ <div className="flex-1 min-w-0">
+ <h4 className="font-bold text-[11px] uppercase tracking-wider text-black line-clamp-2 leading-tight">
+ {provider.name}
+ </h4>
+ <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">
+ {provider.category || 'Clínica / Tienda'}
+ </p>
+ </div>
+ </div>
+ <Button 
+ onClick={(e) => {
+ e.stopPropagation();
+ router.push(`/store/${provider.slug}`);
+ }}
+ className="w-full mt-3 h-8 text-[9px] font-bold uppercase tracking-widest rounded-none text-white transition-opacity hover:opacity-90"
+ style={{ backgroundColor: provider.color || '#000' }}
+ >
+ Ver Expediente
+ </Button>
+ </div>
+ </InfoWindowF>
+ )}
+ </MarkerF>
+ );
+ }) : items.map((item) => {
+ const isSelected = selectedId === item.id;
+ const isHovered = hoveredId === item.id;
+
+ if (!item.providerLat || !item.providerLng) return null;
+
+ return (
+ <MarkerF
+ key={`marker-item-${item.id}`}
+ position={{ lat: item.providerLat, lng: item.providerLng }}
+ onClick={(e) => {
+ if (e.domEvent) { e.domEvent.stopPropagation(); }
+ setSelectedId(item.id);
+ if (map) {
+ map.panTo({ lat: item.providerLat!, lng: item.providerLng! });
+ map.setZoom(14);
+ }
+ }}
+ onMouseOver={() => setHoveredId(item.id)}
+ onMouseOut={() => setHoveredId(null)}
+ icon={{
+ path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+ fillColor: isSelected || isHovered ? item.providerColor : item.providerColor,
+ fillOpacity: isSelected || isHovered ? 1 : 0.8,
+ strokeWeight: isSelected ? 2 : 1,
+ strokeColor: isSelected ? '#ffffff' : '#000000', 
+ scale: isSelected ? 1.8 : 1.3,
+ anchor: new google.maps.Point(12, 24),
+ }}
+ zIndex={isSelected ? 50 : 10}
+ >
+ {isSelected && (
+ <InfoWindowF
+ position={{ lat: item.providerLat, lng: item.providerLng }}
+ onCloseClick={() => setSelectedId(null)}
+ options={{ pixelOffset: new google.maps.Size(0, -45) }}
+ >
+ <div className="p-2 min-w-[200px] max-w-[250px] font-sans">
+ <div className="flex gap-3 items-start">
+ <img 
+ src={item.imageUrl || item.providerLogoUrl} 
+ alt={item.name} 
+ className="w-10 h-10 object-cover border border-gray-200 rounded-sm"
+ />
+ <div className="flex-1 min-w-0">
+ <h4 className="font-bold text-[11px] uppercase tracking-wider text-black line-clamp-2 leading-tight">
+ {item.name}
+ </h4>
+ <p className="text-[10px] font-bold text-black mt-1">
+ ${item.price}
+ </p>
+ </div>
+ </div>
+ <Button 
+ onClick={(e) => {
+ e.stopPropagation();
+ router.push(`/market/item/${item.id}`);
+ }}
+ className="w-full mt-3 h-8 text-[9px] font-bold uppercase tracking-widest rounded-none text-white transition-opacity hover:opacity-90"
+ style={{ backgroundColor: item.providerColor || '#000' }}
+ >
+ Ver Detalles
+ </Button>
+ </div>
+ </InfoWindowF>
+ )}
+ </MarkerF>
  );
  })}
 </GoogleMap>
  </div>
 
+ {/* 🗺️ BOTÓN FLOTANTE PARA SALIR DEL MODO INMERSIVO */}
+ <AnimatePresence>
+ {isMapImmersive && viewMode === "MAP" && (
+ <motion.div
+ initial={{ opacity: 0, y: -20 }}
+ animate={{ opacity: 1, y: 0 }}
+ exit={{ opacity: 0, y: -20 }}
+ className="absolute top-6 left-1/2 -translate-x-1/2 z-30"
+ >
+ <Button
+ onClick={() => setIsMapImmersive(false)}
+ className="bg-black text-white dark:bg-white dark:text-black shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,0.2)] rounded-full px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:translate-y-1 hover:shadow-none transition-all"
+ >
+ <LayoutGrid className="w-4 h-4 mr-2" strokeWidth={2} />
+ MOSTRAR INTERFAZ
+ </Button>
+ </motion.div>
+ )}
+ </AnimatePresence>
+
  {/* 🔍 CAPA FLOTANTE: BUSCADOR ARQUITECTÓNICO */}
- <div className="absolute top-6 left-4 right-4 md:left-8 md:right-8 z-20 flex flex-col gap-3 pointer-events-none">
+ <div className={cn("absolute top-6 left-4 right-4 md:left-8 md:right-8 z-20 flex flex-col gap-3 pointer-events-none transition-all duration-500", isMapImmersive ? "-translate-y-[150%] opacity-0" : "translate-y-0 opacity-100")}>
  
  <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
  <form 
@@ -778,9 +914,12 @@ const DiscoverMapContent = () => {
  </div>
 
  {/* 📇 CAPA FLOTANTE: FICHAS DE PROVEEDOR */}
- <div className={cn("absolute z-20 pointer-events-none transition-all duration-300", viewMode === "MAP" ? "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col" : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4")}>
+ <div className={cn("absolute z-20 pointer-events-none transition-all duration-500", 
+ viewMode === "MAP" 
+ ? cn("bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col", isMapImmersive ? "translate-y-[150%] md:-translate-x-[150%] opacity-0" : "translate-y-0 opacity-100") 
+ : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4"
+ )}>
 
- 
  {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
  isCurrentlyLoading ? (
  <div className="w-[90%] md:w-full mx-auto text-center pointer-events-none p-10">
