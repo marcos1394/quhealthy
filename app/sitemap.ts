@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { generateSlug } from '@/lib/utils';
 
-export const revalidate = 3600; // Revalidate sitemap every hour
+export const dynamic = 'force-dynamic'; // Desactiva caché estática para generar en tiempo real
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.quhealthy.org';
