@@ -27,3 +27,26 @@ export interface NutritionAnalysis {
   recommendations: string[];
   createdAt: string;
 }
+
+export interface NutritionProfile {
+  weightKg?: number;
+  heightCm?: number;
+  age?: number;
+  gender?: string;
+  activityLevel?: string;
+  primaryGoal?: string;
+  bmr?: number;
+  targetCalories?: number;
+  targetProtein?: number;
+  targetCarbs?: number;
+  targetFats?: number;
+}
+
+export interface NutritionProfileRequest {
+  weightKg?: number;
+  heightCm?: number;
+  age?: number;
+  gender?: string;
+  activityLevel?: string;
+  primaryGoal?: string;
+}

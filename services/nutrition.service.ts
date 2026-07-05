@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import { NutritionAnalysis } from '@/types/nutrition';
+import { NutritionAnalysis, NutritionProfile, NutritionProfileRequest } from '@/types/nutrition';
 
 const BASE_URL = '/api/onboarding/consumer/nutrition';
 
@@ -38,5 +38,21 @@ export const nutritionService = {
     // Fallback por si en algún momento se expone públicamente
     const baseUrl = axiosInstance.defaults.baseURL || process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
     return `${baseUrl}/${item.imageUrl.replace(/^\//, '')}`;
+  },
+
+  /**
+   * Obtiene el perfil nutricional y metas
+   */
+  getProfile: async (): Promise<NutritionProfile> => {
+    const response = await axiosInstance.get<NutritionProfile>(`${BASE_URL}/profile`);
+    return response.data;
+  },
+
+  /**
+   * Actualiza el perfil biométrico y recalcula metas
+   */
+  updateProfile: async (data: NutritionProfileRequest): Promise<NutritionProfile> => {
+    const response = await axiosInstance.post<NutritionProfile>(`${BASE_URL}/profile`, data);
+    return response.data;
   }
 };
