@@ -1,4 +1,4 @@
-import { axiosInstance } from './axios';
+import axiosInstance from '@/lib/axios';
 import { GrowthMeasurementRequest, GrowthMeasurementResponse, WhoGrowthStandard } from '@/types/growth';
 
 export const growthService = {
