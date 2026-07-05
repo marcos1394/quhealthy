@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Edit2, Trash2, Sparkles, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
