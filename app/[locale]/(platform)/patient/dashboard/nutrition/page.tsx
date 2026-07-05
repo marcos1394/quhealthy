@@ -91,29 +91,29 @@ export default function NutritionDashboard() {
         />
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-gray-100 dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-800">
+          <TabsList className="flex w-full max-w-2xl overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-gray-100 dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-800">
             <TabsTrigger 
               value="progress" 
-              className="rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+              className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
             >
               Progreso
             </TabsTrigger>
             <TabsTrigger 
               value="analyze" 
-              className="rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+              className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
             >
               Analizar Comida
             </TabsTrigger>
           <TabsTrigger 
             value="result" 
             disabled={!currentAnalysis}
-            className="rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+            className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
           >
             Resultado
           </TabsTrigger>
           <TabsTrigger 
             value="history" 
-            className="rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+            className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
           >
             Historial
           </TabsTrigger>
