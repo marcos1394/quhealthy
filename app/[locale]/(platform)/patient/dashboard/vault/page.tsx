@@ -10,7 +10,6 @@ import { useHealthVault } from '@/hooks/useHealthVault';
 import { HealthVaultDropzone } from '@/components/vault/HealthVaultDropzone';
 import { HealthVaultDocumentCard } from '@/components/vault/HealthVaultDocumentCard';
 import { DigitalVaccinationCard } from '@/components/vault/DigitalVaccinationCard';
-import { ParentGrowthContainer } from '@/components/growth/ParentGrowthContainer';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { useFamily } from '@/hooks/useFamily';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -258,13 +257,6 @@ export default function PatientVaultPage() {
  </AccordionContent>
  </AccordionItem>
  </Accordion>
-
- {/* Módulo de Crecimiento Pediátrico para <= 5 años */}
- {activeDependentAge !== undefined && activeDependentAge <= 5 && activeDependentId !== undefined && (
- <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
- <ParentGrowthContainer dependentId={activeDependentId} />
- </div>
- )}
  </section>
  )}
 

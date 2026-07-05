@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
  Users, UserPlus, Baby, User, Trash2, CalendarIcon, Plus, X,
  Loader2, HeartPulse, Syringe, HeartHandshake, FolderHeart,
- Sparkles, RefreshCw
+ Sparkles, RefreshCw, Activity
 } from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -353,6 +353,15 @@ export default function PatientFamilyDashboard() {
 
  {/* Acciones */}
  <div className="p-6 md:p-8 flex flex-col gap-3 bg-gray-50/50 dark:bg-[#050505]/50 group-hover:bg-transparent transition-colors duration-300 flex-1 justify-end">
+ {age <= 5 && (
+ <Link 
+ href={`/patient/dashboard/family/${member.id}/growth`} 
+ className="flex h-10 w-full items-center justify-start px-4 border border-black dark:border-white bg-white dark:bg-black text-[9px] font-bold uppercase tracking-widest text-black dark:text-white transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+ >
+ <Activity className="h-3.5 w-3.5 mr-3" strokeWidth={1.5} />
+ Crecimiento Pediátrico
+ </Link>
+ )}
  {age < 12 && (
  <Link 
  href={`/patient/dashboard/family/${member.id}/vaccinations`} 
