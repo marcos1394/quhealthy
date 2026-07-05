@@ -67,9 +67,9 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
           <div className="flex gap-4 justify-center">
             <Button 
               onClick={() => fileInputRef.current?.click()}
-              className="bg-quhealthy-green hover:bg-quhealthy-green/90 text-white rounded-full font-bold px-8"
+              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 flex items-center transition-colors"
             >
-              <Camera className="w-4 h-4 mr-2" />
+              <Camera className="w-4 h-4 mr-3" />
               Tomar Foto
             </Button>
           </div>
@@ -95,7 +95,7 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
                 setPreviewUrl(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
-              className="rounded-full"
+              className="rounded-none border-gray-300 dark:border-gray-700 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
             >
               Intentar con otra foto
             </Button>
