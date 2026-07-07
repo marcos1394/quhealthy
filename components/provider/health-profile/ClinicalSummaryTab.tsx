@@ -81,7 +81,7 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 md:px-8 pb-8">
         
         {/* 1. PROBLEMAS ACTIVOS */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-72">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-full">
           <div className="p-4 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
             <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
               <AlertCircle className="w-3.5 h-3.5 text-blue-500" /> Problemas Activos
@@ -105,8 +105,8 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
         </div>
 
         {/* 2. ALERGIAS Y MEDICACIÓN */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 h-[132px]">
+        <div className="flex flex-col gap-6 h-full">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 min-h-[140px]">
             <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
               <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
                 <AlertTriangle className="w-3.5 h-3.5 text-red-500" /> Alergias
@@ -127,7 +127,7 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
               )}
             </div>
           </div>
-          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 h-[132px]">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 min-h-[140px]">
             <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
               <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
                 <Pill className="w-3.5 h-3.5 text-emerald-500" /> Medicación
@@ -148,7 +148,7 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
         </div>
 
         {/* 3. ÚLTIMA CONSULTA & CONTEXTO */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-72">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-full">
           <div className="p-4 border-b border-black/10 dark:border-white/10">
             <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
               <FileText className="w-3.5 h-3.5 text-indigo-500" /> Última Intervención

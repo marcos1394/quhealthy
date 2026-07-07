@@ -49,6 +49,41 @@ export function MedicationsTable({ medications, isReadOnly, onAdd, onDelete }: M
         )}
       </div>
 
+      {isAdding && (
+        <div className="p-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-xs font-semibold uppercase tracking-widest">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-[9px] text-gray-500">Medicamento</label>
+              <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Medicamento" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] text-gray-500">Dosis</label>
+              <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Ej. 500mg" value={formData.dosage} onChange={e => setFormData({...formData, dosage: e.target.value})} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] text-gray-500">Frecuencia</label>
+              <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Ej. Cada 8 horas" value={formData.frequency} onChange={e => setFormData({...formData, frequency: e.target.value})} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] text-gray-500">Vía</label>
+              <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Ej. Oral, Intravenosa" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})} />
+            </div>
+            <div className="flex flex-col gap-1 md:col-span-5">
+              <label className="text-[9px] text-gray-500">Motivo</label>
+              <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Motivo" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} />
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-3 mt-2">
+            <button onClick={() => setIsAdding(false)} className="px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white border border-transparent hover:border-black/20 dark:hover:border-white/20 transition-colors">
+              Cancelar
+            </button>
+            <button disabled={isSubmitting} onClick={handleSubmit} className="px-6 py-2 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 transition-colors">
+              {isSubmitting ? 'Guardando...' : 'Guardar Registro'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs uppercase tracking-widest border-collapse">
           <thead>
@@ -61,27 +96,6 @@ export function MedicationsTable({ medications, isReadOnly, onAdd, onDelete }: M
             </tr>
           </thead>
           <tbody>
-            {isAdding && (
-              <tr className="bg-gray-50 dark:bg-black/20 border-b border-black/10 dark:border-white/10">
-                <td className="px-4 py-2">
-                  <input type="text" className="w-full bg-transparent border border-black/20 dark:border-white/20 p-1 text-xs" placeholder="Medicamento" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                </td>
-                <td className="px-4 py-2 flex gap-1">
-                  <input type="text" className="w-1/2 bg-transparent border border-black/20 dark:border-white/20 p-1 text-xs" placeholder="Dosis" value={formData.dosage} onChange={e => setFormData({...formData, dosage: e.target.value})} />
-                  <input type="text" className="w-1/2 bg-transparent border border-black/20 dark:border-white/20 p-1 text-xs" placeholder="Frecuencia" value={formData.frequency} onChange={e => setFormData({...formData, frequency: e.target.value})} />
-                </td>
-                <td className="px-4 py-2">
-                  <input type="text" className="w-full bg-transparent border border-black/20 dark:border-white/20 p-1 text-xs" placeholder="Vía (Oral, etc)" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})} />
-                </td>
-                <td className="px-4 py-2">
-                  <input type="text" className="w-full bg-transparent border border-black/20 dark:border-white/20 p-1 text-xs" placeholder="Motivo" value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})} />
-                </td>
-                <td className="px-4 py-2 text-right">
-                  <button disabled={isSubmitting} onClick={handleSubmit} className="text-emerald-500 hover:text-emerald-700 mr-2">Guardar</button>
-                  <button onClick={() => setIsAdding(false)} className="text-gray-500 hover:text-black dark:hover:text-white">X</button>
-                </td>
-              </tr>
-            )}
             {medications.length === 0 && !isAdding ? (
               <tr>
                 <td colSpan={5} className="p-8 text-center text-gray-400">Sin medicamentos registrados</td>
