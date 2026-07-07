@@ -16,29 +16,42 @@ export default function MedicalGrowthChart({ measurements, standards, sex, indic
     const std = standards.find(s => s.indicator === indicator && s.sex === sex);
     if (!std || !std.lmsData) return [];
     
-    // Sort measurements to easily overlay
-    const sortedMeasurements = [...measurements].sort((a, b) => a.ageInMonths - b.ageInMonths);
+    // Create base data from standards
+    const mergedData = std.lmsData.map((data: any) => ({
+      month: data.month,
+      P3: data.percentiles?.P3 || null,
+      P50: data.percentiles?.P50 || null,
+      P97: data.percentiles?.P97 || null,
+      Paciente: null as number | null
+    }));
 
-    return std.lmsData.map((data: any) => {
-      const month = data.month;
-      // Find a measurement close to this month for overlay
-      const measurement = sortedMeasurements.find(m => Math.round(m.ageInMonths) === month);
+    // Inject measurements at their exact age in months
+    measurements.forEach(m => {
+      const patientValue = indicator === 'WEIGHT_FOR_AGE' ? m.weightKg : 
+                           indicator === 'LENGTH_FOR_AGE' ? m.heightCm : 
+                           m.headCircumferenceCm;
       
-      let patientValue = null;
-      if (measurement) {
-        if (indicator === 'WEIGHT_FOR_AGE') patientValue = measurement.weightKg;
-        if (indicator === 'LENGTH_FOR_AGE') patientValue = measurement.heightCm;
-        if (indicator === 'HEAD_CIRCUMFERENCE_FOR_AGE') patientValue = measurement.headCircumferenceCm;
-      }
+      if (patientValue == null) return;
 
-      return {
-        month: month,
-        P3: data.percentiles?.P3 || null,
-        P50: data.percentiles?.P50 || null,
-        P97: data.percentiles?.P97 || null,
-        Paciente: patientValue
-      };
+      const exactMonth = m.ageInMonths;
+      const existingPoint = mergedData.find(d => Math.abs(d.month - exactMonth) < 0.01);
+      
+      if (existingPoint) {
+         existingPoint.Paciente = patientValue;
+      } else {
+         mergedData.push({
+           month: exactMonth,
+           P3: null,
+           P50: null,
+           P97: null,
+           Paciente: patientValue
+         });
+      }
     });
+
+    // Sort by month ascending
+    mergedData.sort((a, b) => a.month - b.month);
+    return mergedData;
   }, [standards, measurements, sex, indicator]);
 
   const yAxisLabel = indicator === 'WEIGHT_FOR_AGE' ? 'Peso (kg)' : indicator === 'LENGTH_FOR_AGE' ? 'Talla (cm)' : 'Perímetro (cm)';
@@ -53,7 +66,12 @@ export default function MedicalGrowthChart({ measurements, standards, sex, indic
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={standardData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-            <XAxis dataKey="month" label={{ value: 'Edad (meses)', position: 'insideBottomRight', offset: -10 }} />
+            <XAxis 
+              type="number" 
+              dataKey="month" 
+              domain={['dataMin', 'dataMax']}
+              label={{ value: 'Edad (meses)', position: 'insideBottomRight', offset: -10 }} 
+            />
             <YAxis label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }} />
             <Tooltip 
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
@@ -61,9 +79,9 @@ export default function MedicalGrowthChart({ measurements, standards, sex, indic
             <Legend verticalAlign="top" height={36}/>
             
             {/* OMS Curves */}
-            <Line type="monotone" dataKey="P97" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 97" />
-            <Line type="monotone" dataKey="P50" stroke="#22c55e" strokeWidth={2} dot={false} name="Percentil 50 (Mediana)" />
-            <Line type="monotone" dataKey="P3" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 3" />
+            <Line type="monotone" dataKey="P97" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 97" connectNulls />
+            <Line type="monotone" dataKey="P50" stroke="#22c55e" strokeWidth={2} dot={false} name="Percentil 50 (Mediana)" connectNulls />
+            <Line type="monotone" dataKey="P3" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 3" connectNulls />
             
             {/* Patient Curve */}
             <Line 
@@ -74,6 +92,7 @@ export default function MedicalGrowthChart({ measurements, standards, sex, indic
               dot={{ stroke: '#3b82f6', strokeWidth: 2, r: 4, fill: '#fff' }} 
               activeDot={{ r: 6 }} 
               name="Paciente"
+              connectNulls
             />
           </LineChart>
         </ResponsiveContainer>
