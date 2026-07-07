@@ -52,7 +52,7 @@ export const Icd10Autocomplete: React.FC<Icd10AutocompleteProps> = ({ diagnoses,
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="relative">
+            <div className="relative z-50">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-gray-400" />
                 </div>
@@ -70,7 +70,7 @@ export const Icd10Autocomplete: React.FC<Icd10AutocompleteProps> = ({ diagnoses,
                 )}
 
                 {showResults && results.length > 0 && (
-                    <ul className="absolute z-10 mt-1 w-full bg-white dark:bg-[#0a0a0a] shadow-lg max-h-60 rounded-none border border-black/20 dark:border-white/20 overflow-auto text-xs font-semibold uppercase tracking-widest">
+                    <ul className="absolute z-[100] mt-1 w-full bg-white dark:bg-[#0a0a0a] shadow-2xl max-h-60 rounded-none border border-black/20 dark:border-white/20 overflow-auto text-xs font-semibold uppercase tracking-widest">
                         {results.map((item) => (
                             <li
                                 key={item.code}

@@ -168,7 +168,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  </div>
 
  {/* 🩺 DIAGNÓSTICOS (CIE-10) */}
- <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
+ <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a] relative z-20">
  <div className="flex items-center gap-3 mb-4">
  <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
  CIE
