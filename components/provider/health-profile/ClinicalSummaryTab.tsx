@@ -92,9 +92,11 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
             {activeProblems.length > 0 ? activeProblems.map(p => (
               <div key={p.id} className="text-sm font-semibold text-black dark:text-white border-l-2 border-blue-500 pl-3">
                 {p.diagnosis}
-                <div className="text-[10px] uppercase text-gray-500 mt-1 font-normal tracking-widest">
-                  Desde {format(new Date(p.startDate), 'MMM yyyy', { locale: dateLocale })}
-                </div>
+                {p.startDate && (
+                  <div className="text-[10px] uppercase text-gray-500 mt-1 font-normal tracking-widest">
+                    Desde {format(new Date(p.startDate), 'MMM yyyy', { locale: dateLocale })}
+                  </div>
+                )}
               </div>
             )) : (
               <div className="h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-400">Sin problemas activos</div>
