@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import {
- User, Mail, Phone, Save, HeartPulse, AlertTriangle, Loader2, RotateCcw
+ User, Mail, Phone, Save, HeartPulse, AlertTriangle, Loader2, RotateCcw, Activity
 } from 'lucide-react';
 
 import { useSessionStore } from '@/stores/SessionStore';
