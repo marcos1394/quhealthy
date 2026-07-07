@@ -9,8 +9,8 @@ interface ParentGrowthViewProps {
 export default function ParentGrowthView({ latestMeasurement }: ParentGrowthViewProps) {
   if (!latestMeasurement) {
     return (
-      <div className="w-full bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 text-center">
-        <p className="text-gray-500">Aún no hay mediciones registradas para mostrar el estado de crecimiento.</p>
+      <div className="w-full bg-white dark:bg-[#0a0a0a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 text-center">
+        <p className="text-sm text-gray-500">Aún no hay mediciones registradas para mostrar el estado de crecimiento.</p>
       </div>
     );
   }
@@ -19,62 +19,52 @@ export default function ParentGrowthView({ latestMeasurement }: ParentGrowthView
 
   const isNormal = clinicalStatus === 'NORMAL';
   const isVigilance = clinicalStatus === 'VIGILANCIA';
-  const isAlert = clinicalStatus === 'ALERTA';
 
   return (
-    <div className="w-full bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+    <div className="w-full bg-white dark:bg-[#0a0a0a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6">
       
-      {/* Background Glow */}
-      <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none
-        ${isNormal ? 'bg-green-500' : isVigilance ? 'bg-yellow-500' : 'bg-red-500'}
-      `} />
-
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Estado de Crecimiento</h2>
-
-      <div className="flex flex-col items-center justify-center py-8">
-        <div className={`w-32 h-32 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-[color:var(--tw-shadow-color)]
-          ${isNormal ? 'bg-gradient-to-br from-green-400 to-green-600 shadow-green-500/30' : 
-            isVigilance ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-yellow-500/30' : 
-            'bg-gradient-to-br from-red-400 to-red-600 shadow-red-500/30'}
+      <div className="flex items-center gap-4 flex-1">
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border
+          ${isNormal ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800' : 
+            isVigilance ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-900/50' : 
+            'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/50'}
         `}>
-          {isNormal && <ShieldCheck className="w-16 h-16 text-white" strokeWidth={1.5} />}
-          {isVigilance && <AlertTriangle className="w-16 h-16 text-white" strokeWidth={1.5} />}
-          {isAlert && <ShieldAlert className="w-16 h-16 text-white" strokeWidth={1.5} />}
+          {isNormal && <ShieldCheck className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />}
+          {isVigilance && <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-500" strokeWidth={1.5} />}
+          {!isNormal && !isVigilance && <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-500" strokeWidth={1.5} />}
         </div>
         
-        <h3 className={`text-2xl font-black mb-2
-          ${isNormal ? 'text-green-600 dark:text-green-400' : 
-            isVigilance ? 'text-yellow-600 dark:text-yellow-400' : 
-            'text-red-600 dark:text-red-400'}
-        `}>
-          {isNormal ? 'Crecimiento Saludable' : 
-           isVigilance ? 'Requiere Seguimiento' : 
-           'Alerta Médica'}
-        </h3>
-        
-        <p className="text-gray-600 dark:text-gray-300 text-center max-w-md text-lg leading-relaxed">
-          {parentMessage || 'Los indicadores de crecimiento están siendo monitoreados constantemente por nuestro sistema.'}
-        </p>
+        <div>
+          <h3 className="text-base font-bold text-black dark:text-white">
+            {isNormal ? 'Crecimiento Estable' : 
+             isVigilance ? 'Requiere Seguimiento' : 
+             'Alerta Médica'}
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+            {parentMessage || 'Los indicadores de crecimiento están siendo monitoreados constantemente.'}
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
-        <div className="text-center">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Última Medición</p>
-          <p className="text-sm font-semibold dark:text-white">{new Date(latestMeasurement.measurementDate).toLocaleDateString()}</p>
+      <div className="flex flex-wrap items-center gap-6 md:gap-8 shrink-0">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Última Medición</span>
+          <span className="text-sm font-semibold text-black dark:text-white">{new Date(latestMeasurement.measurementDate).toLocaleDateString()}</span>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Edad</p>
-          <p className="text-sm font-semibold dark:text-white">{latestMeasurement.ageInMonths} meses</p>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Edad</span>
+          <span className="text-sm font-semibold text-black dark:text-white">{latestMeasurement.ageInMonths} meses</span>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Peso</p>
-          <p className="text-sm font-semibold dark:text-white">{latestMeasurement.weightKg ? `${latestMeasurement.weightKg} kg` : '--'}</p>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Peso</span>
+          <span className="text-sm font-semibold text-black dark:text-white">{latestMeasurement.weightKg ? `${latestMeasurement.weightKg} kg` : '--'}</span>
         </div>
-        <div className="text-center">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Talla</p>
-          <p className="text-sm font-semibold dark:text-white">{latestMeasurement.heightCm ? `${latestMeasurement.heightCm} cm` : '--'}</p>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Estatura</span>
+          <span className="text-sm font-semibold text-black dark:text-white">{latestMeasurement.heightCm ? `${latestMeasurement.heightCm} cm` : '--'}</span>
         </div>
       </div>
+
     </div>
   );
 }
