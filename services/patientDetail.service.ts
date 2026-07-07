@@ -38,5 +38,41 @@ export const patientDetailService = {
   ): Promise<PatientHealthProfile> => {
     const response = await axiosInstance.put<PatientHealthProfile>(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile`, payload);
     return response.data;
+  },
+
+  // ==========================================
+  // Problemas Activos
+  // ==========================================
+  addActiveProblem: async (patientDirectoryId: number, problem: any) => {
+    const response = await axiosInstance.post(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/problems`, problem);
+    return response.data;
+  },
+
+  deleteActiveProblem: async (patientDirectoryId: number, problemId: number) => {
+    await axiosInstance.delete(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/problems/${problemId}`);
+  },
+
+  // ==========================================
+  // Alergias
+  // ==========================================
+  addAllergy: async (patientDirectoryId: number, allergy: any) => {
+    const response = await axiosInstance.post(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/allergies`, allergy);
+    return response.data;
+  },
+
+  deleteAllergy: async (patientDirectoryId: number, allergyId: number) => {
+    await axiosInstance.delete(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/allergies/${allergyId}`);
+  },
+
+  // ==========================================
+  // Medicamentos
+  // ==========================================
+  addMedication: async (patientDirectoryId: number, medication: any) => {
+    const response = await axiosInstance.post(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/medications`, medication);
+    return response.data;
+  },
+
+  deleteMedication: async (patientDirectoryId: number, medicationId: number) => {
+    await axiosInstance.delete(`/api/appointments/provider/directory/${patientDirectoryId}/health-profile/medications/${medicationId}`);
   }
 };

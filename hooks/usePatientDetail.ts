@@ -69,6 +69,96 @@ export const usePatientDetail = (patientDirectoryId: number) => {
     }
   };
 
+  const addActiveProblem = async (problem: any) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.addActiveProblem(patientDirectoryId, problem);
+      toast.success('Problema activo registrado');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const deleteActiveProblem = async (problemId: number) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.deleteActiveProblem(patientDirectoryId, problemId);
+      toast.success('Problema activo eliminado');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const addAllergy = async (allergy: any) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.addAllergy(patientDirectoryId, allergy);
+      toast.success('Alergia registrada');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const deleteAllergy = async (allergyId: number) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.deleteAllergy(patientDirectoryId, allergyId);
+      toast.success('Alergia eliminada');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const addMedication = async (medication: any) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.addMedication(patientDirectoryId, medication);
+      toast.success('Medicamento registrado');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const deleteMedication = async (medicationId: number) => {
+    setIsUpdating(true);
+    try {
+      await patientDetailService.deleteMedication(patientDirectoryId, medicationId);
+      toast.success('Medicamento eliminado');
+      await fetchData();
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -81,6 +171,12 @@ export const usePatientDetail = (patientDirectoryId: number) => {
     isUpdating,
     hasAccessError,
     updateHealthProfile,
+    addActiveProblem,
+    deleteActiveProblem,
+    addAllergy,
+    deleteAllergy,
+    addMedication,
+    deleteMedication,
     refetch: fetchData
   };
 };

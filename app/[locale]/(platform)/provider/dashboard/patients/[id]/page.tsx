@@ -19,6 +19,9 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 import { EditPatientModal } from '@/components/dashboard/EditPatientModal';
 import { EditHealthProfileModal } from '@/components/dashboard/EditHealthProfileModal';
 import { MedicalGrowthContainer } from '@/components/growth/MedicalGrowthContainer';
+import { ActiveProblemsTable } from '@/components/provider/health-profile/ActiveProblemsTable';
+import { AllergiesTable } from '@/components/provider/health-profile/AllergiesTable';
+import { MedicationsTable } from '@/components/provider/health-profile/MedicationsTable';
 import { Baby } from 'lucide-react';
 
 // Hooks & Services
@@ -49,7 +52,7 @@ export default function PatientDetailPage() {
 
  const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
  
- const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, refetch } = usePatientDetail(patientDirectoryId);
+ const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, addActiveProblem, deleteActiveProblem, addAllergy, deleteAllergy, addMedication, deleteMedication, refetch } = usePatientDetail(patientDirectoryId);
  const { requestAccess } = usePatientDirectory();
  
  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -67,9 +70,9 @@ export default function PatientDetailPage() {
  const hasHealthData = Boolean(
  healthProfile && (
  healthProfile.bloodType ||
+ (healthProfile.activeProblems?.length ?? 0) > 0 ||
  (healthProfile.allergies?.length ?? 0) > 0 ||
- (healthProfile.chronicConditions?.length ?? 0) > 0 ||
- (healthProfile.currentMedications?.length ?? 0) > 0 ||
+ (healthProfile.medications?.length ?? 0) > 0 ||
  healthProfile.surgicalHistory ||
  healthProfile.familyHistory
  )
@@ -358,49 +361,29 @@ export default function PatientDetailPage() {
  </div>
  </div>
 
- {/* Fila 2: Alergias y Condiciones */}
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10">
- <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
- {t("allergies", { defaultValue: 'ALERGIAS' })}
- </p>
- <div className="flex flex-wrap gap-2">
- {healthProfile?.allergies?.length ? healthProfile.allergies.map((allergy) => (
- <span key={allergy} className="border border-red-500/30 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
- {allergy}
- </span>
- )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
- </div>
- </div>
- <div className="p-6 flex flex-col">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
- {t("chronic_conditions", { defaultValue: 'CONDICIONES CRÓNICAS' })}
- </p>
- <div className="flex flex-wrap gap-2">
- {healthProfile?.chronicConditions?.length ? healthProfile.chronicConditions.map((condition) => (
- <span key={condition} className="border border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
- {condition}
- </span>
- )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
- </div>
- </div>
- </div>
+        {/* Fila 2: Problemas Activos, Alergias, Medicación */}
+        <div className="p-6 border-b border-black/10 dark:border-white/10">
+          <ActiveProblemsTable 
+            problems={healthProfile?.activeProblems || []}
+            isReadOnly={profile.isPlatformUser}
+            onAdd={addActiveProblem}
+            onDelete={deleteActiveProblem}
+          />
+          <AllergiesTable 
+            allergies={healthProfile?.allergies || []}
+            isReadOnly={profile.isPlatformUser}
+            onAdd={addAllergy}
+            onDelete={deleteAllergy}
+          />
+          <MedicationsTable 
+            medications={healthProfile?.medications || []}
+            isReadOnly={profile.isPlatformUser}
+            onAdd={addMedication}
+            onDelete={deleteMedication}
+          />
+        </div>
 
- {/* Fila 3: Medicación */}
- <div className="p-6 border-b border-black/10 dark:border-white/10">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
- {t("current_medications", { defaultValue: 'MEDICACIÓN ACTUAL' })}
- </p>
- <div className="flex flex-wrap gap-2">
- {healthProfile?.currentMedications?.length ? healthProfile.currentMedications.map((medication) => (
- <span key={medication} className="border border-blue-500/30 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
- {medication}
- </span>
- )) : <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
- </div>
- </div>
-
- {/* Fila 4: Historiales Textuales */}
+ {/* Fila 3: Historiales Textuales */}
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 bg-gray-50 dark:bg-[#050505]">
  <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
