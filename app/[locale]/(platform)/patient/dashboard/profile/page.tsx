@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { handleApiError } from '@/lib/handleApiError';
 import { cn } from '@/lib/utils';
-import { TreatmentHistoryList } from "@/components/consultation/TreatmentHistoryList";
+
 import { ClinicalFormsHistory } from "@/components/consultation/ClinicalFormsHistory";
 
 // Esquema de Validación
