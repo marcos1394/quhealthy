@@ -66,6 +66,17 @@ export function DynamicFormRenderer({ template, initialData, onSave, isSaving, i
                         FICHA FINALIZADA
                     </div>
                 )}
+                
+                {/* DEBUG BLOCK TO HELP US FIND THE ISSUE */}
+                {schemaFields.length === 0 && (
+                    <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 text-xs">
+                        <strong>Error:</strong> No se encontraron campos en la plantilla.
+                        <br/>
+                        <strong>Type of template.schema:</strong> {typeof template.schema}
+                        <br/>
+                        <strong>Value of template.schema:</strong> {JSON.stringify(template.schema, null, 2)}
+                    </div>
+                )}
             </div>
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
