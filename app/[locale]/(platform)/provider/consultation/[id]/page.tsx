@@ -97,6 +97,8 @@ export default function ConsultationRoomPage() {
  const {
  patientProfile, vaultDocuments, vaultAccessDenied, isLoading, isSubmitting,
  soapNotes, setSoapNotes, prescription, loadPatientRecord, updateSoapNote, 
+ addDiagnosis, removeDiagnosis, diagnoses,
+ addVitalSign, removeVitalSign, vitalSigns,
  addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
  } = useConsultation(appointmentId, consumerId || 0);
 
@@ -409,6 +411,12 @@ export default function ConsultationRoomPage() {
  <ClinicalEvaluationStep 
  soapNotes={soapNotes}
  updateSoapNote={updateSoapNote}
+ diagnoses={diagnoses}
+ addDiagnosis={addDiagnosis}
+ removeDiagnosis={removeDiagnosis}
+ vitalSigns={vitalSigns}
+ addVitalSign={addVitalSign}
+ removeVitalSign={removeVitalSign}
  isRecording={isRecording}
  isTranscribing={isTranscribing}
  handleToggleRecording={handleToggleRecording}

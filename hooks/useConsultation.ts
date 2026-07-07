@@ -10,7 +10,9 @@ import {
   PatientClinicalProfile, 
   VaultDocument, 
   SoapNotes, 
-  PrescriptionItem 
+  PrescriptionItem,
+  AppointmentDiagnosis,
+  VitalSignRequest
 } from '@/types/ehr';
 import { v4 as uuidv4 } from 'uuid'; 
 
@@ -29,6 +31,8 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     plan: ''
   });
 
+  const [diagnoses, setDiagnoses] = useState<AppointmentDiagnosis[]>([]);
+  const [vitalSigns, setVitalSigns] = useState<VitalSignRequest[]>([]);
   const [prescription, setPrescription] = useState<PrescriptionItem[]>([]);
 
   // 🚀 PLUS FU-003: RECUPERAR RESPALDO LOCAL AL MONTAR (Opcional pero recomendado)
@@ -132,6 +136,23 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     setPrescription(prev => prev.filter(item => item.id !== id));
   };
 
+  const addDiagnosis = (diagnosis: Omit<AppointmentDiagnosis, 'id'>) => {
+    const newDiagnosis: AppointmentDiagnosis = { ...diagnosis, id: uuidv4() };
+    setDiagnoses(prev => [...prev, newDiagnosis]);
+  };
+
+  const removeDiagnosis = (id: string) => {
+    setDiagnoses(prev => prev.filter(item => item.id !== id));
+  };
+
+  const addVitalSign = (vs: VitalSignRequest) => {
+    setVitalSigns(prev => [...prev, vs]);
+  };
+
+  const removeVitalSign = (index: number) => {
+    setVitalSigns(prev => prev.filter((_, i) => i !== index));
+  };
+
   const updateSoapNote = (field: keyof SoapNotes, value: string) => {
     setSoapNotes(prev => ({ ...prev, [field]: value }));
   };
@@ -172,9 +193,19 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         return cleaned;
       });
 
+      // 🚀 HU-11: Mapear diagnósticos eliminando el ID temporal
+      const cleanedDiagnoses = diagnoses.map(diag => ({
+        cie10Code: diag.cie10Code,
+        cie10Description: diag.cie10Description,
+        type: diag.type,
+        notes: diag.notes
+      }));
+
       const payload = {
         clinicalNotes: soapNotes,
         prescriptionItems: cleanedPrescriptionItems,
+        diagnoses: cleanedDiagnoses,
+        vitalSigns: vitalSigns,
         sendPrescriptionToVault: true // 🚀 ESTO ES CLAVE PARA QUE JAVA GENERE EL PDF
       };
 
@@ -219,10 +250,16 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     isLoading,
     isSubmitting,
     soapNotes,
+    diagnoses,
+    vitalSigns,
     prescription,
     setSoapNotes,
     loadPatientRecord,
     updateSoapNote,
+    addDiagnosis,
+    removeDiagnosis,
+    addVitalSign,
+    removeVitalSign,
     addPrescriptionItem,
     removePrescriptionItem,
     completeConsultation,

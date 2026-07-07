@@ -63,6 +63,31 @@ export interface PrescriptionItemDto {
   price?: number;
 }
 
+export interface AppointmentDiagnosis {
+  id: string; // UUID local para React
+  cie10Code: string;
+  cie10Description: string;
+  type: 'PRIMARY' | 'SECONDARY';
+  notes?: string;
+}
+
+export interface AppointmentDiagnosisDto {
+  cie10Code: string;
+  cie10Description: string;
+  type: string;
+  notes?: string;
+}
+
+export interface VitalSignRequest {
+  type: 'HEART_RATE' | 'BLOOD_PRESSURE' | 'BLOOD_OXYGEN' | 'BODY_TEMPERATURE' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'RESPIRATORY_RATE' | 'GLUCOSE' | string;
+  value: number;
+  secondaryValue?: number;
+  unit: string;
+  measuredAt: string; // ISO String
+  deviceModel?: string;
+  source?: string;
+}
+
 // ==========================================================
 // 3. PAYLOAD GLOBAL DE FINALIZACIÓN (CONTRACT)
 // ==========================================================
@@ -74,6 +99,8 @@ export interface PrescriptionItemDto {
 export interface CompleteConsultationPayload {
   clinicalNotes: ClinicalNotesDto;
   prescriptionItems: PrescriptionItemDto[];
+  diagnoses?: AppointmentDiagnosisDto[];
+  vitalSigns?: VitalSignRequest[];
   sendPrescriptionToVault: boolean;
 }
 

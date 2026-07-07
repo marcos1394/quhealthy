@@ -6,12 +6,20 @@ import { useTranslations } from "next-intl";
 import { Mic, Square, Sparkles, Video, ArrowRight, ArrowLeft, FileText, Cpu } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { QhSpinner } from '@/components/ui/QhSpinner';
-import { SoapNotes } from '@/types/ehr';
+import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from '@/types/ehr';
 import { cn } from '@/lib/utils';
+import { Icd10Autocomplete } from './Icd10Autocomplete';
+import { VitalSignsCapture } from './VitalSignsCapture';
 
 interface ClinicalEvaluationStepProps {
  soapNotes: SoapNotes;
  updateSoapNote: (field: keyof SoapNotes, value: string) => void;
+ diagnoses: AppointmentDiagnosis[];
+ addDiagnosis: (diagnosis: Omit<AppointmentDiagnosis, 'id'>) => void;
+ removeDiagnosis: (id: string) => void;
+ vitalSigns: VitalSignRequest[];
+ addVitalSign: (vs: VitalSignRequest) => void;
+ removeVitalSign: (index: number) => void;
  isRecording: boolean;
  isTranscribing: boolean;
  handleToggleRecording: () => void;
@@ -23,6 +31,12 @@ interface ClinicalEvaluationStepProps {
 export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  soapNotes,
  updateSoapNote,
+ diagnoses,
+ addDiagnosis,
+ removeDiagnosis,
+ vitalSigns,
+ addVitalSign,
+ removeVitalSign,
  isRecording,
  isTranscribing,
  handleToggleRecording,
@@ -151,6 +165,52 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  </div>
 
  </div>
+ </div>
+
+ {/* 🩺 DIAGNÓSTICOS (CIE-10) */}
+ <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
+ <div className="flex items-center gap-3 mb-4">
+ <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
+ CIE
+ </div>
+ <div>
+ <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
+ DIAGNÓSTICOS (CIE-10)
+ </h4>
+ <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
+ SE AGREGARÁN AUTOMÁTICAMENTE A LOS PROBLEMAS ACTIVOS DEL PACIENTE
+ </p>
+ </div>
+ </div>
+ 
+ <Icd10Autocomplete 
+ diagnoses={diagnoses} 
+ addDiagnosis={addDiagnosis} 
+ removeDiagnosis={removeDiagnosis} 
+ />
+ </div>
+
+ {/* 💓 SIGNOS VITALES */}
+ <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
+ <div className="flex items-center gap-3 mb-4">
+ <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
+ SV
+ </div>
+ <div>
+ <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
+ SIGNOS VITALES
+ </h4>
+ <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
+ REGISTRO ESTRUCTURADO PARA GRÁFICAS DE EVOLUCIÓN
+ </p>
+ </div>
+ </div>
+ 
+ <VitalSignsCapture 
+ vitalSigns={vitalSigns}
+ addVitalSign={addVitalSign}
+ removeVitalSign={removeVitalSign}
+ />
  </div>
  </div>
 
