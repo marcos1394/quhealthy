@@ -3,6 +3,7 @@ import { ClinicalTemplateResponse, ClinicalTemplateField } from '@/services/clin
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Save, Loader2 } from 'lucide-react';
 
 interface DynamicFormRendererProps {
@@ -103,12 +104,19 @@ export function DynamicFormRenderer({ template, initialData, onSave, isSaving, i
                         )}
 
                         {field.type === 'date' && (
-                            <Input 
-                                type="date"
-                                className="rounded-none border-gray-300 focus-visible:ring-black h-10 text-xs"
-                                value={formData[field.id] || ''}
-                                onChange={e => handleChange(field.id, e.target.value)}
-                                disabled={isFinalized}
+                            <DatePicker 
+                                disabled={isFinalized ? () => true : undefined}
+                                value={formData[field.id] ? new Date(formData[field.id]) : undefined}
+                                onChange={(date) => {
+                                    if (date) {
+                                        const yyyy = date.getFullYear();
+                                        const mm = String(date.getMonth() + 1).padStart(2, '0');
+                                        const dd = String(date.getDate()).padStart(2, '0');
+                                        handleChange(field.id, `${yyyy}-${mm}-${dd}`);
+                                    } else {
+                                        handleChange(field.id, '');
+                                    }
+                                }}
                             />
                         )}
 

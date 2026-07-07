@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ClinicalTemplateResponse } from '@/services/clinicalTemplates.service';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Save, CheckCircle, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -87,12 +89,19 @@ export function SportsTemplateRenderer({ template, initialData, onSave, isSaving
                     <div className="pt-4 space-y-4">
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold uppercase text-gray-500">Fecha Estimada de Regreso {(formData.evaluationResult && formData.evaluationResult !== 'APT') ? '*' : ''}</label>
-                            <input 
-                                type="date" 
-                                value={formData.estimatedReturnDate || ''}
-                                onChange={(e) => handleInputChange('estimatedReturnDate', e.target.value)}
-                                disabled={isFinalized}
-                                className="border border-black dark:border-white bg-transparent text-sm p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white rounded-none"
+                            <DatePicker 
+                                value={formData.estimatedReturnDate ? new Date(formData.estimatedReturnDate) : undefined}
+                                onChange={(date) => {
+                                    if (date) {
+                                        // Format as YYYY-MM-DD
+                                        const yyyy = date.getFullYear();
+                                        const mm = String(date.getMonth() + 1).padStart(2, '0');
+                                        const dd = String(date.getDate()).padStart(2, '0');
+                                        handleInputChange('estimatedReturnDate', `${yyyy}-${mm}-${dd}`);
+                                    } else {
+                                        handleInputChange('estimatedReturnDate', '');
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -105,39 +114,54 @@ export function SportsTemplateRenderer({ template, initialData, onSave, isSaving
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold uppercase text-gray-500">Tipo de Lesión</label>
-                            <select 
-                                value={formData.injuryType || ''}
-                                onChange={(e) => handleInputChange('injuryType', e.target.value)}
+                            <Select 
                                 disabled={isFinalized}
-                                className="border border-black dark:border-white bg-transparent text-xs p-2 text-black dark:text-white rounded-none"
+                                value={formData.injuryType || ''}
+                                onValueChange={(val) => handleInputChange('injuryType', val)}
                             >
-                                <option value="" className="text-black bg-white">-- Seleccionar --</option>
-                                {["FRACTURA", "ESGUINCE", "LUXACION", "DESGARRO", "CONTUSION", "OTRO"].map(val => <option key={val} value={val} className="text-black bg-white">{val}</option>)}
-                            </select>
+                                <SelectTrigger className="rounded-none border-gray-300 h-10 text-xs text-black dark:text-white">
+                                    <SelectValue placeholder="-- Seleccionar --" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none">
+                                    {["FRACTURA", "ESGUINCE", "LUXACION", "DESGARRO", "CONTUSION", "OTRO"].map(val => (
+                                        <SelectItem key={val} value={val}>{val}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold uppercase text-gray-500">Lateralidad</label>
-                            <select 
-                                value={formData.laterality || ''}
-                                onChange={(e) => handleInputChange('laterality', e.target.value)}
+                            <Select 
                                 disabled={isFinalized}
-                                className="border border-black dark:border-white bg-transparent text-xs p-2 text-black dark:text-white rounded-none"
+                                value={formData.laterality || ''}
+                                onValueChange={(val) => handleInputChange('laterality', val)}
                             >
-                                <option value="" className="text-black bg-white">-- Seleccionar --</option>
-                                {["IZQUIERDA", "DERECHA", "BILATERAL", "NA"].map(val => <option key={val} value={val} className="text-black bg-white">{val}</option>)}
-                            </select>
+                                <SelectTrigger className="rounded-none border-gray-300 h-10 text-xs text-black dark:text-white">
+                                    <SelectValue placeholder="-- Seleccionar --" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none">
+                                    {["IZQUIERDA", "DERECHA", "BILATERAL", "NA"].map(val => (
+                                        <SelectItem key={val} value={val}>{val}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="flex flex-col gap-1 col-span-2">
                             <label className="text-[10px] font-bold uppercase text-gray-500">Zona Anatómica</label>
-                            <select 
-                                value={formData.anatomicalZone || ''}
-                                onChange={(e) => handleInputChange('anatomicalZone', e.target.value)}
+                            <Select 
                                 disabled={isFinalized}
-                                className="border border-black dark:border-white bg-transparent text-xs p-2 text-black dark:text-white rounded-none"
+                                value={formData.anatomicalZone || ''}
+                                onValueChange={(val) => handleInputChange('anatomicalZone', val)}
                             >
-                                <option value="" className="text-black bg-white">-- Seleccionar --</option>
-                                {["CABEZA", "CUELLO", "HOMBRO", "CODO", "MUÑECA", "MANO", "TORAX", "ABDOMEN", "COLUMNA", "PELVIS", "CADERA", "RODILLA", "TOBILLO", "PIE", "OTRO"].map(val => <option key={val} value={val} className="text-black bg-white">{val}</option>)}
-                            </select>
+                                <SelectTrigger className="rounded-none border-gray-300 h-10 text-xs text-black dark:text-white">
+                                    <SelectValue placeholder="-- Seleccionar --" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none">
+                                    {["CABEZA", "CUELLO", "HOMBRO", "CODO", "MUÑECA", "MANO", "TORAX", "ABDOMEN", "COLUMNA", "PELVIS", "CADERA", "RODILLA", "TOBILLO", "PIE", "OTRO"].map(val => (
+                                        <SelectItem key={val} value={val}>{val}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 
