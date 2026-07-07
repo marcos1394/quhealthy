@@ -77,107 +77,114 @@ export const ClinicalSummaryTab: React.FC<ClinicalSummaryTabProps> = ({ healthPr
         </div>
       )}
 
-      {/* 🔹 WIDGETS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 md:px-8 pb-8">
+      {/* 🔹 EDITORIAL TWO-COLUMN LAYOUT */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-6 md:px-8 pb-8">
         
-        {/* 1. PROBLEMAS ACTIVOS */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-full">
-          <div className="p-4 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
-              <AlertCircle className="w-3.5 h-3.5 text-blue-500" /> Problemas Activos
-            </h4>
-            <span className="text-[9px] font-bold uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">{activeProblems.length}</span>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {activeProblems.length > 0 ? activeProblems.map(p => (
-              <div key={p.id} className="text-sm font-semibold text-black dark:text-white border-l-2 border-blue-500 pl-3">
-                {p.diagnosis}
-                {p.startDate && (
-                  <div className="text-[10px] uppercase text-gray-500 mt-1 font-normal tracking-widest">
-                    Desde {format(new Date(p.startDate), 'MMM yyyy', { locale: dateLocale })}
-                  </div>
-                )}
-              </div>
-            )) : (
-              <div className="h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-400">Sin problemas activos</div>
-            )}
-          </div>
-        </div>
-
-        {/* 2. ALERGIAS Y MEDICACIÓN */}
-        <div className="flex flex-col gap-6 h-full">
-          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 min-h-[140px]">
-            <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
-                <AlertTriangle className="w-3.5 h-3.5 text-red-500" /> Alergias
+        {/* COLUMN 1 */}
+        <div className="flex flex-col gap-8">
+          
+          {/* PROBLEMAS ACTIVOS */}
+          <div className="flex flex-col border-t-2 border-black dark:border-white pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} /> Problemas Activos
               </h4>
-              <span className="text-[9px] font-bold uppercase bg-red-50 dark:bg-red-900/10 text-red-600 px-2 py-1 rounded-full">{allergies.length}</span>
+              <span className="text-[9px] font-bold uppercase border border-black/20 dark:border-white/20 px-2 py-1">{activeProblems.length}</span>
             </div>
-            <div className="flex-1 overflow-y-auto p-3">
-              {allergies.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {allergies.map(a => (
-                    <span key={a.id} className="text-[9px] font-bold uppercase tracking-widest border border-red-500/30 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 px-2 py-1">
-                      {a.substance} ({a.severity})
+            <div className="flex flex-col gap-3">
+              {activeProblems.length > 0 ? activeProblems.map(p => (
+                <div key={p.id} className="flex flex-col text-sm font-semibold text-black dark:text-white border-l border-black/20 dark:border-white/20 pl-4 py-1">
+                  <span>{p.diagnosis}</span>
+                  {p.startDate && (
+                    <span className="text-[9px] uppercase text-gray-500 mt-1 font-normal tracking-widest">
+                      Desde {format(new Date(p.startDate), 'MMM yyyy', { locale: dateLocale })}
                     </span>
-                  ))}
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-400">Sin alergias</div>
-              )}
-            </div>
-          </div>
-          <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col flex-1 min-h-[140px]">
-            <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
-              <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
-                <Pill className="w-3.5 h-3.5 text-emerald-500" /> Medicación
-              </h4>
-              <span className="text-[9px] font-bold uppercase bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 px-2 py-1 rounded-full">{medications.length}</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {medications.length > 0 ? medications.map(m => (
-                <div key={m.id} className="flex justify-between items-center text-[11px] font-semibold text-black dark:text-white border-b border-black/5 pb-1">
-                  <span>{m.name}</span>
-                  <span className="text-[9px] uppercase text-gray-500 tracking-widest">{m.dosage}</span>
+                  )}
                 </div>
               )) : (
-                <div className="h-full flex items-center justify-center text-[10px] uppercase tracking-widest text-gray-400">Sin medicación actual</div>
+                <div className="text-[10px] uppercase tracking-widest text-gray-400 py-2">Sin problemas activos</div>
               )}
             </div>
           </div>
-        </div>
 
-        {/* 3. ÚLTIMA CONSULTA & CONTEXTO */}
-        <div className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 flex flex-col h-full">
-          <div className="p-4 border-b border-black/10 dark:border-white/10">
-            <h4 className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-black dark:text-white">
-              <FileText className="w-3.5 h-3.5 text-indigo-500" /> Última Intervención
-            </h4>
-          </div>
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-6">
-            {latestAppointment ? (
-              <>
-                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-500/20 flex items-center justify-center rounded-full mb-4">
-                  <CheckCircle2 className="w-6 h-6 text-indigo-500" />
-                </div>
-                <h5 className="font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
-                  {latestAppointment.serviceName}
-                </h5>
-                <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-4">
-                  {format(new Date(latestAppointment.date), "dd MMM yyyy", { locale: dateLocale })}
-                </p>
-                {latestAppointment.publicNotes && (
-                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 line-clamp-3">
-                    "{latestAppointment.publicNotes}"
+          {/* ÚLTIMA CONSULTA & CONTEXTO */}
+          <div className="flex flex-col border-t-2 border-black dark:border-white pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <FileText className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} /> Última Intervención
+              </h4>
+            </div>
+            <div className="flex flex-col">
+              {latestAppointment ? (
+                <div className="p-5 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CheckCircle2 className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                    <h5 className="font-semibold uppercase tracking-tight text-black dark:text-white">
+                      {latestAppointment.serviceName}
+                    </h5>
+                  </div>
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-4 border-b border-black/10 dark:border-white/10 pb-3">
+                    {format(new Date(latestAppointment.date), "dd MMM yyyy", { locale: dateLocale })}
                   </p>
-                )}
-              </>
-            ) : (
-              <div className="text-[10px] uppercase tracking-widest text-gray-400">Sin consultas registradas</div>
-            )}
+                  {latestAppointment.publicNotes ? (
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                      "{latestAppointment.publicNotes}"
+                    </p>
+                  ) : (
+                    <p className="text-[10px] uppercase tracking-widest text-gray-400">Sin notas registradas</p>
+                  )}
+                </div>
+              ) : (
+                <div className="text-[10px] uppercase tracking-widest text-gray-400 py-2">Sin consultas registradas</div>
+              )}
+            </div>
           </div>
+
         </div>
 
+        {/* COLUMN 2 */}
+        <div className="flex flex-col gap-8">
+          
+          {/* ALERGIAS */}
+          <div className="flex flex-col border-t-2 border-black dark:border-white pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} /> Alergias
+              </h4>
+              <span className="text-[9px] font-bold uppercase border border-black/20 dark:border-white/20 px-2 py-1">{allergies.length}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {allergies.length > 0 ? allergies.map(a => (
+                <span key={a.id} className="text-[9px] font-bold uppercase tracking-widest border border-black dark:border-white bg-transparent text-black dark:text-white px-3 py-1.5">
+                  {a.substance} <span className="opacity-50">({a.severity})</span>
+                </span>
+              )) : (
+                <div className="text-[10px] uppercase tracking-widest text-gray-400 py-2">Sin alergias documentadas</div>
+              )}
+            </div>
+          </div>
+
+          {/* MEDICACIÓN */}
+          <div className="flex flex-col border-t-2 border-black dark:border-white pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                <Pill className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} /> Medicación Actual
+              </h4>
+              <span className="text-[9px] font-bold uppercase border border-black/20 dark:border-white/20 px-2 py-1">{medications.length}</span>
+            </div>
+            <div className="flex flex-col">
+              {medications.length > 0 ? medications.map((m, index) => (
+                <div key={m.id} className={`flex justify-between items-center text-sm font-semibold text-black dark:text-white py-3 ${index !== medications.length - 1 ? 'border-b border-black/10 dark:border-white/10' : ''}`}>
+                  <span>{m.name}</span>
+                  <span className="text-[9px] uppercase text-gray-500 tracking-widest text-right max-w-[50%]">{m.dosage}</span>
+                </div>
+              )) : (
+                <div className="text-[10px] uppercase tracking-widest text-gray-400 py-2">Sin medicación actual</div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PatientActiveProblem } from '@/types/healthProfile';
 import { Trash2, AlertTriangle, CheckCircle, Activity, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface ActiveProblemsTableProps {
   problems: PatientActiveProblem[];
@@ -65,7 +66,12 @@ export function ActiveProblemsTable({ problems, isReadOnly, onAdd, onDelete }: A
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[9px] text-gray-500">Fecha Inicio</label>
-              <input type="date" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} />
+              <DatePicker
+                value={formData.startDate ? new Date(formData.startDate + 'T12:00:00') : undefined}
+                onChange={date => setFormData({...formData, startDate: date ? format(date, 'yyyy-MM-dd') : ''})}
+                containerClassName="w-full"
+                className="h-[34px] rounded-none border border-black/20 dark:border-white/20"
+              />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[9px] text-gray-500">Prioridad</label>
