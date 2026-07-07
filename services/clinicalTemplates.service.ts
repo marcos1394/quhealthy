@@ -4,7 +4,7 @@ export type TemplateType = 'SYSTEM' | 'CUSTOM';
 
 export interface ClinicalTemplateField {
     id: string;
-    type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'date';
+    type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'date' | 'boolean';
     label: string;
     required: boolean;
     options?: string[]; // Para select, radio
