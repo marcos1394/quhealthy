@@ -91,7 +91,8 @@ export default function LoginForm({ userType, onSuccess }: LoginFormProps) {
  const response = await login({
  email: state.email.toLowerCase().trim(),
  password: state.password,
- captchaToken: ""
+ captchaToken: "",
+ role: userType === 'consumer' ? 'ROLE_CONSUMER' : 'ROLE_PROVIDER'
  });
 
  toast.success(t('title'));
