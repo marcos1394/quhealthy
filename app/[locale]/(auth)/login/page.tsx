@@ -134,7 +134,8 @@ export default function LoginPage() {
  const response = await login({
  email: formData.email.toLowerCase().trim(),
  password: formData.password,
- captchaToken: token
+ captchaToken: token,
+ role: userType === 'consumer' ? 'ROLE_CONSUMER' : 'ROLE_PROVIDER'
  });
 
  toast.success(t('title'));
