@@ -1,4 +1,4 @@
-import api from './api';
+import axiosInstance from './axios';
 
 export type TemplateType = 'SYSTEM' | 'CUSTOM';
 
@@ -32,28 +32,28 @@ export interface ClinicalTemplateResponse extends ClinicalTemplateRequest {
 
 export const clinicalTemplateService = {
     getTemplates: async (providerId?: number): Promise<ClinicalTemplateResponse[]> => {
-        const response = await api.get('/appointments/clinical-templates', {
+        const response = await axiosInstance.get('/appointments/clinical-templates', {
             params: { providerId }
         });
         return response.data;
     },
 
     getTemplate: async (id: number): Promise<ClinicalTemplateResponse> => {
-        const response = await api.get(`/appointments/clinical-templates/${id}`);
+        const response = await axiosInstance.get(`/appointments/clinical-templates/${id}`);
         return response.data;
     },
 
     createTemplate: async (data: ClinicalTemplateRequest): Promise<ClinicalTemplateResponse> => {
-        const response = await api.post('/appointments/clinical-templates', data);
+        const response = await axiosInstance.post('/appointments/clinical-templates', data);
         return response.data;
     },
 
     updateTemplate: async (id: number, data: ClinicalTemplateRequest): Promise<ClinicalTemplateResponse> => {
-        const response = await api.put(`/appointments/clinical-templates/${id}`, data);
+        const response = await axiosInstance.put(`/appointments/clinical-templates/${id}`, data);
         return response.data;
     },
 
     deleteTemplate: async (id: number): Promise<void> => {
-        await api.delete(`/appointments/clinical-templates/${id}`);
+        await axiosInstance.delete(`/appointments/clinical-templates/${id}`);
     }
 };
