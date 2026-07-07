@@ -8,7 +8,7 @@ import { DynamicFormRenderer } from './DynamicFormRenderer';
 import { Button } from '@/components/ui/button';
 import { FileText, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { handleApiError } from '@/lib/handleApiError';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 interface ClinicalTemplatesManagerProps {
     appointmentId: number;

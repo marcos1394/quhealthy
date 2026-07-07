@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { handleApiError } from '@/lib/handleApiError';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export default function TemplatesSettingsPage() {
     const { user } = useSessionStore();
