@@ -73,8 +73,9 @@ export default function PatientDetailPage() {
  (healthProfile.activeProblems?.length ?? 0) > 0 ||
  (healthProfile.allergies?.length ?? 0) > 0 ||
  (healthProfile.medications?.length ?? 0) > 0 ||
- healthProfile.surgicalHistory ||
- healthProfile.familyHistory
+ healthProfile.personalBackground ||
+ healthProfile.familyBackground ||
+ healthProfile.socialBackground
  )
  );
 
@@ -383,24 +384,50 @@ export default function PatientDetailPage() {
           />
         </div>
 
- {/* Fila 3: Historiales Textuales */}
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 bg-gray-50 dark:bg-[#050505]">
- <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
- {t("surgical_history", { defaultValue: 'HISTORIAL QUIRÚRGICO' })}
- </p>
- <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
- {healthProfile?.surgicalHistory || <span className="text-gray-400 text-[9px]">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
- </p>
- </div>
- <div className="p-6">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
- {t("family_history", { defaultValue: 'HISTORIAL FAMILIAR' })}
- </p>
- <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
- {healthProfile?.familyHistory || <span className="text-gray-400 text-[9px]">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
- </p>
- </div>
+ {/* Fila 3: Antecedentes Estructurados */}
+ <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 bg-gray-50 dark:bg-[#050505]">
+   <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+       {t("personal_background", { defaultValue: 'ANTECEDENTES PERSONALES' })}
+     </p>
+     <div className="text-xs font-semibold text-black dark:text-white leading-relaxed">
+       {healthProfile?.personalBackground && Object.keys(healthProfile.personalBackground).length > 0 ? (
+         <ul className="list-disc pl-4 space-y-1">
+           {Object.entries(healthProfile.personalBackground).map(([k, v]) => (
+             <li key={k}><span className="text-gray-500 capitalize">{k}:</span> {String(v)}</li>
+           ))}
+         </ul>
+       ) : <span className="text-gray-400 text-[9px] uppercase">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
+     </div>
+   </div>
+   <div className="p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
+     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+       {t("family_background", { defaultValue: 'ANTECEDENTES FAMILIARES' })}
+     </p>
+     <div className="text-xs font-semibold text-black dark:text-white leading-relaxed">
+       {healthProfile?.familyBackground && Object.keys(healthProfile.familyBackground).length > 0 ? (
+         <ul className="list-disc pl-4 space-y-1">
+           {Object.entries(healthProfile.familyBackground).map(([k, v]) => (
+             <li key={k}><span className="text-gray-500 capitalize">{k}:</span> {String(v)}</li>
+           ))}
+         </ul>
+       ) : <span className="text-gray-400 text-[9px] uppercase">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
+     </div>
+   </div>
+   <div className="p-6">
+     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+       {t("social_background", { defaultValue: 'ANTECEDENTES SOCIALES' })}
+     </p>
+     <div className="text-xs font-semibold text-black dark:text-white leading-relaxed">
+       {healthProfile?.socialBackground && Object.keys(healthProfile.socialBackground).length > 0 ? (
+         <ul className="list-disc pl-4 space-y-1">
+           {Object.entries(healthProfile.socialBackground).map(([k, v]) => (
+             <li key={k}><span className="text-gray-500 capitalize">{k}:</span> {String(v)}</li>
+           ))}
+         </ul>
+       ) : <span className="text-gray-400 text-[9px] uppercase">{t("no_records", { defaultValue: 'SIN REGISTRO' })}</span>}
+     </div>
+   </div>
  </div>
 
  </div>
