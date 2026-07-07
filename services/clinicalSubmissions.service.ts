@@ -1,4 +1,4 @@
-import axiosInstance from './axios';
+import axiosInstance from '@/lib/axios';
 import { ClinicalTemplateResponse } from './clinicalTemplates.service';
 
 export type DocumentStatus = 'DRAFT' | 'FINALIZED';
