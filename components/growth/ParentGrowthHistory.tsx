@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { GrowthMeasurementResponse } from '@/types/growth';
+import React, { useMemo, useState } from 'react';
+import { GrowthMeasurementResponse, WhoGrowthStandard } from '@/types/growth';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ShieldCheck, AlertTriangle, ShieldAlert, Activity } from 'lucide-react';
@@ -16,18 +16,55 @@ import {
 
 interface ParentGrowthHistoryProps {
   history: GrowthMeasurementResponse[];
+  standards: WhoGrowthStandard[];
+  sex: 'MALE' | 'FEMALE';
 }
 
-export default function ParentGrowthHistory({ history }: ParentGrowthHistoryProps) {
-  // We reverse the array to plot from oldest to newest
-  const chartData = useMemo(() => {
-    return [...history].reverse().map(m => ({
-      date: format(new Date(m.measurementDate), 'dd MMM yy', { locale: es }),
-      age: m.ageInMonths,
-      weight: m.weightKg,
-      height: m.heightCm
+export default function ParentGrowthHistory({ history, standards, sex }: ParentGrowthHistoryProps) {
+  const [activeIndicator, setActiveIndicator] = useState<'WEIGHT_FOR_AGE' | 'LENGTH_FOR_AGE' | 'HEAD_CIRCUMFERENCE_FOR_AGE'>('WEIGHT_FOR_AGE');
+
+  const standardData = useMemo(() => {
+    const std = standards.find(s => s.indicator === activeIndicator && s.sex === sex);
+    if (!std || !std.lmsData) return [];
+    
+    // Create base data from standards
+    const mergedData = std.lmsData.map((data: any) => ({
+      month: data.month,
+      P3: data.percentiles?.P3 || null,
+      P50: data.percentiles?.P50 || null,
+      P97: data.percentiles?.P97 || null,
+      Paciente: null as number | null
     }));
-  }, [history]);
+
+    // Inject measurements at their exact age in months
+    history.forEach(m => {
+      const patientValue = activeIndicator === 'WEIGHT_FOR_AGE' ? m.weightKg : 
+                           activeIndicator === 'LENGTH_FOR_AGE' ? m.heightCm : 
+                           m.headCircumferenceCm;
+      
+      if (patientValue == null) return;
+
+      const exactMonth = m.ageInMonths;
+      const existingPoint = mergedData.find(d => Math.abs(d.month - exactMonth) < 0.01);
+      
+      if (existingPoint) {
+         existingPoint.Paciente = patientValue;
+      } else {
+         mergedData.push({
+           month: exactMonth,
+           P3: null,
+           P50: null,
+           P97: null,
+           Paciente: patientValue
+         });
+      }
+    });
+
+    mergedData.sort((a, b) => a.month - b.month);
+    return mergedData;
+  }, [standards, history, sex, activeIndicator]);
+
+  const yAxisLabel = activeIndicator === 'WEIGHT_FOR_AGE' ? 'Peso (kg)' : activeIndicator === 'LENGTH_FOR_AGE' ? 'Talla (cm)' : 'Perímetro (cm)';
 
   const renderStatusBadge = (status?: string) => {
     if (!status) return null;
@@ -58,72 +95,82 @@ export default function ParentGrowthHistory({ history }: ParentGrowthHistoryProp
       
       {/* Chart Section */}
       <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-            <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                Curva de Crecimiento OMS
+              </h3>
+              <p className="text-xs text-gray-500">Desarrollo comparado con estándares internacionales</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
-              Curva de Crecimiento
-            </h3>
-            <p className="text-xs text-gray-500">Evolución de peso y talla</p>
+
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+            <button 
+              onClick={() => setActiveIndicator('WEIGHT_FOR_AGE')}
+              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
+                ${activeIndicator === 'WEIGHT_FOR_AGE' 
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white' 
+                  : 'bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white'}`}
+            >
+              Peso
+            </button>
+            <button 
+              onClick={() => setActiveIndicator('LENGTH_FOR_AGE')}
+              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
+                ${activeIndicator === 'LENGTH_FOR_AGE' 
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white' 
+                  : 'bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white'}`}
+            >
+              Talla
+            </button>
+            <button 
+              onClick={() => setActiveIndicator('HEAD_CIRCUMFERENCE_FOR_AGE')}
+              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
+                ${activeIndicator === 'HEAD_CIRCUMFERENCE_FOR_AGE' 
+                  ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white' 
+                  : 'bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white'}`}
+            >
+              Perímetro Cef.
+            </button>
           </div>
         </div>
 
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" className="dark:stroke-gray-800" />
+            <LineChart data={standardData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
               <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 12, fill: '#6b7280' }} 
-                tickMargin={10} 
-                axisLine={false}
-                tickLine={false}
+                type="number" 
+                dataKey="month" 
+                domain={['dataMin', 'dataMax']}
+                label={{ value: 'Edad (meses)', position: 'insideBottomRight', offset: -10 }} 
+                tick={{ fontSize: 12, fill: '#6b7280' }}
               />
               <YAxis 
-                yAxisId="left" 
-                tick={{ fontSize: 12, fill: '#6b7280' }} 
-                tickMargin={10}
-                axisLine={false}
-                tickLine={false}
-                label={{ value: 'Peso (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#6b7280', fontSize: 12 } }}
-              />
-              <YAxis 
-                yAxisId="right" 
-                orientation="right" 
-                tick={{ fontSize: 12, fill: '#6b7280' }} 
-                tickMargin={10}
-                axisLine={false}
-                tickLine={false}
-                label={{ value: 'Talla (cm)', angle: 90, position: 'insideRight', style: { textAnchor: 'middle', fill: '#6b7280', fontSize: 12 } }}
+                label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }} 
+                tick={{ fontSize: 12, fill: '#6b7280' }}
               />
               <Tooltip 
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                labelStyle={{ fontWeight: 'bold', marginBottom: '8px' }}
               />
               <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
               
+              <Line type="monotone" dataKey="P97" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 97" connectNulls />
+              <Line type="monotone" dataKey="P50" stroke="#22c55e" strokeWidth={2} dot={false} name="Percentil 50" connectNulls />
+              <Line type="monotone" dataKey="P3" stroke="#ef4444" strokeWidth={1} dot={false} name="Percentil 3" connectNulls />
+              
               <Line 
-                yAxisId="left"
                 type="monotone" 
-                dataKey="weight" 
-                name="Peso (kg)"
+                dataKey="Paciente" 
                 stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ r: 4, strokeWidth: 2 }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-                connectNulls
-              />
-              <Line 
-                yAxisId="right"
-                type="monotone" 
-                dataKey="height" 
-                name="Talla (cm)"
-                stroke="#10b981" 
-                strokeWidth={3}
-                dot={{ r: 4, strokeWidth: 2 }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
+                strokeWidth={3} 
+                dot={{ stroke: '#3b82f6', strokeWidth: 2, r: 4, fill: '#fff' }} 
+                activeDot={{ r: 6 }} 
+                name="Paciente"
                 connectNulls
               />
             </LineChart>

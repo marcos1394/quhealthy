@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import ParentGrowthView from './ParentGrowthView';
 import { growthService } from '@/services/growth.service';
-import { GrowthMeasurementRequest, GrowthMeasurementResponse } from '@/types/growth';
+import { GrowthMeasurementRequest, GrowthMeasurementResponse, WhoGrowthStandard } from '@/types/growth';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { toast } from 'react-toastify';
 import GrowthMeasurementForm from './GrowthMeasurementForm';
@@ -11,18 +11,24 @@ import ParentGrowthHistory from './ParentGrowthHistory';
 
 interface ParentGrowthContainerProps {
   dependentId: number;
+  sex: 'MALE' | 'FEMALE';
 }
 
-export function ParentGrowthContainer({ dependentId }: ParentGrowthContainerProps) {
+export function ParentGrowthContainer({ dependentId, sex }: ParentGrowthContainerProps) {
   const [latestMeasurement, setLatestMeasurement] = useState<GrowthMeasurementResponse | null>(null);
   const [history, setHistory] = useState<GrowthMeasurementResponse[]>([]);
+  const [standards, setStandards] = useState<WhoGrowthStandard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchHistory = async () => {
     setIsLoading(true);
     try {
-      const historyData = await growthService.getConsumerHistory(dependentId);
+      const [historyData, stdRes] = await Promise.all([
+        growthService.getConsumerHistory(dependentId),
+        growthService.getStandards()
+      ]);
+      setStandards(stdRes);
       if (historyData && historyData.length > 0) {
         setLatestMeasurement(historyData[0]);
         setHistory(historyData);
@@ -75,7 +81,7 @@ export function ParentGrowthContainer({ dependentId }: ParentGrowthContainerProp
       <ParentGrowthView latestMeasurement={latestMeasurement} />
       
       {history.length > 0 && (
-        <ParentGrowthHistory history={history} />
+        <ParentGrowthHistory history={history} standards={standards} sex={sex} />
       )}
     </div>
   );
