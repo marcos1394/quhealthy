@@ -12,6 +12,7 @@ export const usePatientDetail = (patientDirectoryId: number) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [hasAccessError, setHasAccessError] = useState<boolean>(false);
+  const [vaultDocuments, setVaultDocuments] = useState<any[]>([]);
 
   const fetchData = useCallback(async () => {
     if (!patientDirectoryId) return;
@@ -23,9 +24,10 @@ export const usePatientDetail = (patientDirectoryId: number) => {
       const profileData = await patientDetailService.getPatientProfile(patientDirectoryId);
       setProfile(profileData);
 
-      const [historyResult, healthResult] = await Promise.allSettled([
+      const [historyResult, healthResult, vaultResult] = await Promise.allSettled([
         patientDetailService.getMedicalHistory(patientDirectoryId),
-        patientDetailService.getHealthProfile(patientDirectoryId)
+        patientDetailService.getHealthProfile(patientDirectoryId),
+        profileData.consumerId ? import('@/services/ehr.service').then(m => m.ehrService.getPatientVault(profileData.consumerId)) : Promise.resolve([])
       ]);
 
       if (historyResult.status === 'fulfilled') {
@@ -46,6 +48,12 @@ export const usePatientDetail = (patientDirectoryId: number) => {
         setHealthProfile(healthResult.value);
       } else {
         setHealthProfile(null);
+      }
+
+      if (vaultResult.status === 'fulfilled') {
+        setVaultDocuments(vaultResult.value);
+      } else {
+        setVaultDocuments([]);
       }
     } catch (error) {
       handleApiError(error);
@@ -167,6 +175,7 @@ export const usePatientDetail = (patientDirectoryId: number) => {
     profile,
     history,
     healthProfile,
+    vaultDocuments,
     isLoading,
     isUpdating,
     hasAccessError,

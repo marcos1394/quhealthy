@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
  Calendar, ArrowLeft, Mail, Phone,
- FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle, Loader2, User
+ FileText, Clock, Lock, Download, Activity, ClipboardList, Edit3, PlusCircle, Loader2, User, Paperclip
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, es } from 'date-fns/locale';
@@ -22,7 +22,8 @@ import { MedicalGrowthContainer } from '@/components/growth/MedicalGrowthContain
 import { ActiveProblemsTable } from '@/components/provider/health-profile/ActiveProblemsTable';
 import { AllergiesTable } from '@/components/provider/health-profile/AllergiesTable';
 import { MedicationsTable } from '@/components/provider/health-profile/MedicationsTable';
-import { Baby } from 'lucide-react';
+import { ClinicalSummaryTab } from '@/components/provider/health-profile/ClinicalSummaryTab';
+import { Baby, ActivitySquare } from 'lucide-react';
 
 // Hooks & Services
 import { usePatientDetail } from '@/hooks/usePatientDetail';
@@ -52,7 +53,7 @@ export default function PatientDetailPage() {
 
  const patientDirectoryId = Number(Array.isArray(params.id) ? params.id[0] : params.id);
  
- const { profile, history, healthProfile, isLoading, isUpdating, hasAccessError, updateHealthProfile, addActiveProblem, deleteActiveProblem, addAllergy, deleteAllergy, addMedication, deleteMedication, refetch } = usePatientDetail(patientDirectoryId);
+ const { profile, history, healthProfile, vaultDocuments, isLoading, isUpdating, hasAccessError, updateHealthProfile, addActiveProblem, deleteActiveProblem, addAllergy, deleteAllergy, addMedication, deleteMedication, refetch } = usePatientDetail(patientDirectoryId);
  const { requestAccess } = usePatientDirectory();
  
  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -66,6 +67,32 @@ export default function PatientDetailPage() {
     const age = Math.abs(age_dt.getUTCFullYear() - 1970);
     return age <= 5;
   }, [profile]);
+
+ const combinedTimeline = React.useMemo(() => {
+    const items: Array<{ type: 'APPOINTMENT' | 'VAULT_DOCUMENT'; date: Date; data: any }> = [];
+
+    if (history?.timeline) {
+      history.timeline.forEach((appt: any) => {
+        items.push({
+          type: 'APPOINTMENT',
+          date: new Date(appt.date),
+          data: appt
+        });
+      });
+    }
+
+    if (vaultDocuments && vaultDocuments.length > 0) {
+      vaultDocuments.forEach((doc: any) => {
+        items.push({
+          type: 'VAULT_DOCUMENT',
+          date: new Date(doc.uploadDate || doc.createdAt),
+          data: doc
+        });
+      });
+    }
+
+    return items.sort((a, b) => b.date.getTime() - a.date.getTime());
+ }, [history?.timeline, vaultDocuments]);
 
  const hasHealthData = Boolean(
  healthProfile && (
@@ -187,23 +214,30 @@ export default function PatientDetailPage() {
  </div>
  </div>
 
- {/* --- COLUMNA DERECHA: PESTAÑAS Y CONTENIDO --- */}
- <div className="lg:col-span-2 space-y-0 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
- 
- <Tabs defaultValue="history" className="w-full flex flex-col">
- {/* Tabs Headers (Blueprint Style) */}
- <TabsList className="flex flex-row w-full bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20 p-0 h-auto rounded-none">
- <TabsTrigger 
- value="history" 
- className="flex-1 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
- >
- <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> 
- {t("clinical_history", { defaultValue: 'HISTORIAL OPERATIVO' })}
- </TabsTrigger>
- <TabsTrigger 
- value="health-profile" 
- className="flex-1 rounded-none border-0 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
- >
+  {/* --- COLUMNA DERECHA: PESTAÑAS Y CONTENIDO --- */}
+  <div className="lg:col-span-2 space-y-0 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
+  
+  <Tabs defaultValue="summary" className="w-full flex flex-col">
+  {/* Tabs Headers (Blueprint Style) */}
+  <TabsList className="flex flex-row w-full bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20 p-0 h-auto rounded-none overflow-x-auto">
+  <TabsTrigger 
+  value="summary" 
+  className="flex-1 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 min-w-[140px]"
+  >
+  <ActivitySquare className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+  RESUMEN
+  </TabsTrigger>
+  <TabsTrigger 
+  value="history" 
+  className="flex-1 rounded-none border-0 border-r border-black/20 dark:border-white/20 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 min-w-[140px]"
+  >
+  <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> 
+  CRONOLOGÍA
+  </TabsTrigger>
+  <TabsTrigger 
+  value="health-profile" 
+  className="flex-1 rounded-none border-0 data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black bg-transparent text-gray-500 py-4 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 min-w-[140px]"
+  >
  <ClipboardList className="w-3.5 h-3.5" strokeWidth={1.5} /> 
  {t("base_background", { defaultValue: 'FICHA CLÍNICA' })}
  </TabsTrigger>
@@ -214,12 +248,17 @@ export default function PatientDetailPage() {
    >
      <Baby className="w-3.5 h-3.5" strokeWidth={1.5} /> 
      CRECIMIENTO PEDIÁTRICO
-   </TabsTrigger>
- )}
- </TabsList>
+    </TabsTrigger>
+  )}
+  </TabsList>
 
- {/* --- TAB: HISTORIAL CLÍNICO --- */}
- <TabsContent value="history" className="m-0 p-0 border-0 outline-none">
+  {/* --- TAB: RESUMEN (DASHBOARD) --- */}
+  <TabsContent value="summary" className="m-0 p-0 border-0 outline-none">
+    <ClinicalSummaryTab healthProfile={healthProfile} history={history} />
+  </TabsContent>
+
+  {/* --- TAB: HISTORIAL CLÍNICO --- */}
+  <TabsContent value="history" className="m-0 p-0 border-0 outline-none">
  {hasAccessError ? (
  <div className="p-16 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
  <div className="w-16 h-16 border border-red-500/30 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
@@ -239,62 +278,98 @@ export default function PatientDetailPage() {
  {t("request_access", { defaultValue: 'SOLICITAR PERMISO' })}
  </button>
  </div>
- ) : history?.timeline && history.timeline.length > 0 ? (
- <div className="flex flex-col bg-gray-50 dark:bg-[#050505]">
- {history.timeline.map((appt) => (
- <div key={appt.appointmentId} className="border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex flex-col">
- 
- {/* Header del Registro */}
- <div className="px-6 md:px-8 py-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
- <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500">
- <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
- {format(new Date(appt.date), "dd MMM yyyy", { locale: dateLocale })}
- </div>
- <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
- {t("status_completed", { defaultValue: 'COMPLETADO' })}
- </span>
- </div>
+ ) : combinedTimeline.length > 0 ? (
+ <div className="flex flex-col bg-gray-50 dark:bg-[#050505] relative">
+  {/* Línea vertical de la cronología */}
+  <div className="absolute left-10 md:left-14 top-0 bottom-0 w-px bg-black/10 dark:bg-white/10 z-0"></div>
+  
+ {combinedTimeline.map((item, index) => (
+ <div key={`${item.type}-${item.data.id || item.data.appointmentId || index}`} className="relative z-10 flex flex-col pt-8 pb-4">
+    
+    {item.type === 'APPOINTMENT' ? (
+      <div className="bg-white dark:bg-[#0a0a0a] ml-16 md:ml-24 mr-6 border border-black/10 dark:border-white/10 flex flex-col shadow-sm">
+        {/* Marcador cronología */}
+        <div className="absolute left-[34px] md:left-[50px] mt-4 w-4 h-4 rounded-full bg-emerald-500 border-4 border-gray-50 dark:border-[#050505]"></div>
+        
+        {/* Header del Registro */}
+        <div className="px-6 py-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+        <Clock className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2} />
+        {format(item.date, "dd MMM yyyy", { locale: dateLocale })}
+        </div>
+        <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+        {t("status_completed", { defaultValue: 'COMPLETADO' })}
+        </span>
+        </div>
 
- {/* Cuerpo del Registro */}
- <div className="p-6 md:p-8 flex flex-col gap-6">
- <h4 className="font-semibold text-lg uppercase tracking-tight text-black dark:text-white leading-none">
- {appt.serviceName}
- </h4>
+        {/* Cuerpo del Registro */}
+        <div className="p-6 flex flex-col gap-6">
+        <h4 className="font-semibold text-lg uppercase tracking-tight text-black dark:text-white leading-none">
+        {item.data.serviceName}
+        </h4>
 
- {appt.publicNotes && (
- <div className="border-l-2 border-black/20 dark:border-white/20 pl-4 py-1">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">
- {t("instructions", { defaultValue: 'OBSERVACIONES / INDICACIONES' })}
- </p>
- <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
- {appt.publicNotes}
- </p>
- </div>
- )}
+        {item.data.publicNotes && (
+        <div className="border-l-2 border-black/20 dark:border-white/20 pl-4 py-1">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+        {t("instructions", { defaultValue: 'OBSERVACIONES / INDICACIONES' })}
+        </p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-black dark:text-white leading-relaxed">
+        {item.data.publicNotes}
+        </p>
+        </div>
+        )}
 
- {appt.prescriptions && appt.prescriptions.length > 0 && (
- <div className="flex flex-wrap gap-4 pt-4 border-t border-black/10 dark:border-white/10">
- {appt.prescriptions.map(doc => {
- const isThisPrinting = downloadingAppointmentId === appt.appointmentId;
- return (
- <button 
- key={doc.documentId} 
- disabled={downloadingAppointmentId !== null}
- onClick={() => handlePrintPdf(appt.appointmentId)}
- className="h-10 px-4 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
- >
- {isThisPrinting ? (
- <QhSpinner size="sm" className="text-current" />
- ) : (
- <FileText className="w-3.5 h-3.5" strokeWidth={1.5} />
- )}
- {t("prescription_document", { defaultValue: 'RECETA MÉDICA' })} 
- {!isThisPrinting && <Download className="w-3 h-3 ml-2 opacity-50" strokeWidth={1.5} />}
- </button>
- )})}
- </div>
- )}
- </div>
+        {item.data.prescriptions && item.data.prescriptions.length > 0 && (
+        <div className="flex flex-wrap gap-4 pt-4 border-t border-black/10 dark:border-white/10">
+        {item.data.prescriptions.map((doc: any) => {
+        const isThisPrinting = downloadingAppointmentId === item.data.appointmentId;
+        return (
+        <button 
+        key={doc.documentId} 
+        disabled={downloadingAppointmentId !== null}
+        onClick={() => handlePrintPdf(item.data.appointmentId)}
+        className="h-10 px-4 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+        >
+        {isThisPrinting ? (
+        <QhSpinner size="sm" className="text-current" />
+        ) : (
+        <FileText className="w-3.5 h-3.5" strokeWidth={1.5} />
+        )}
+        {t("prescription_document", { defaultValue: 'RECETA MÉDICA' })} 
+        {!isThisPrinting && <Download className="w-3 h-3 ml-2 opacity-50" strokeWidth={1.5} />}
+        </button>
+        )})}
+        </div>
+        )}
+        </div>
+      </div>
+    ) : (
+      <div className="bg-white dark:bg-[#0a0a0a] ml-16 md:ml-24 mr-6 border border-black/10 dark:border-white/10 flex flex-col shadow-sm opacity-90 hover:opacity-100 transition-opacity">
+        {/* Marcador cronología */}
+        <div className="absolute left-[34px] md:left-[50px] mt-4 w-4 h-4 rounded-full bg-blue-500 border-4 border-gray-50 dark:border-[#050505]"></div>
+        
+        {/* Header Documento */}
+        <div className="px-6 py-4 bg-gray-50/50 dark:bg-[#050505]/50 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+            <Paperclip className="w-3.5 h-3.5 text-blue-500" strokeWidth={2} />
+            {format(item.date, "dd MMM yyyy", { locale: dateLocale })}
+          </div>
+          <span className="bg-blue-50 dark:bg-blue-900/10 text-blue-600 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+            BÓVEDA DE SALUD
+          </span>
+        </div>
+        
+        {/* Contenido Documento */}
+        <div className="px-6 pb-6 pt-2">
+          <h4 className="font-semibold text-sm uppercase tracking-tight text-black dark:text-white flex items-center gap-2">
+            {item.data.documentType === 'MEDICAL_RECORD' ? 'Expediente Médico' : 
+             item.data.documentType === 'LAB_RESULT' ? 'Estudio de Laboratorio' : 
+             item.data.documentType === 'PRESCRIPTION' ? 'Receta' : 'Documento Clínico'}
+          </h4>
+          <p className="text-xs text-gray-500 mt-1">{item.data.fileName || item.data.title}</p>
+        </div>
+      </div>
+    )}
  </div>
  ))}
  </div>

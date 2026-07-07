@@ -119,6 +119,7 @@ export interface PatientClinicalProfile {
   bloodType?: string;
   allergies?: string[];
   chronicConditions?: string[];
+  latestVitalSigns?: VitalSignRequest[];
   quScore?: number;     // Puntuación de salud algorítmica
   quScoreBand?: string; // Clasificación: "Óptimo", "En Riesgo", etc.
   phone?: string;       // Teléfono de contacto

@@ -45,6 +45,19 @@ export interface PatientMedication {
   updatedAt: string | null;
 }
 
+export interface PatientVitalSignDto {
+  id: number;
+  type: 'HEART_RATE' | 'BLOOD_PRESSURE' | 'BLOOD_OXYGEN' | 'BODY_TEMPERATURE' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'RESPIRATORY_RATE' | 'GLUCOSE' | string;
+  value: number;
+  secondaryValue?: number;
+  unit: string;
+  measuredAt: string;
+  deviceModel?: string;
+  source?: string;
+  isOutOfRange: boolean;
+  alertMessage?: string;
+}
+
 export interface PatientHealthProfile {
   bloodType: BloodType | null;
   heightCm: number | null;
@@ -57,6 +70,7 @@ export interface PatientHealthProfile {
   activeProblems: PatientActiveProblem[];
   allergies: PatientAllergy[];
   medications: PatientMedication[];
+  latestVitalSigns?: PatientVitalSignDto[];
   
   updatedAt: string | null;
 }
