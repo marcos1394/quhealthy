@@ -25,11 +25,22 @@ export function DynamicFormRenderer({ template, initialData, onSave, isSaving, i
         onSave(formData, false);
     };
 
+    let schemaFields: ClinicalTemplateField[] = [];
+    try {
+        if (typeof template.schema === 'string') {
+            schemaFields = JSON.parse(template.schema).fields || [];
+        } else if (template.schema && template.schema.fields) {
+            schemaFields = template.schema.fields;
+        }
+    } catch (e) {
+        console.error("Error parsing schema", e);
+    }
+
     const handleFinalize = (e: React.FormEvent) => {
         e.preventDefault();
         
         // Basic validation: check required fields
-        const missing = template.schema.fields.filter(f => f.required && !formData[f.id]);
+        const missing = schemaFields.filter(f => f.required && !formData[f.id]);
         if (missing.length > 0) {
             alert(`Por favor completa los campos obligatorios: ${missing.map(f => f.label).join(', ')}`);
             return;
@@ -57,7 +68,7 @@ export function DynamicFormRenderer({ template, initialData, onSave, isSaving, i
             </div>
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {template.schema.fields.map((field) => (
+                {schemaFields.map((field) => (
                     <div key={field.id} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
                         <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">
                             {field.label} {field.required && <span className="text-red-500">*</span>}
