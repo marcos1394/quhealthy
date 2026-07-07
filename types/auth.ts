@@ -93,6 +93,7 @@ export interface LoginRequest {
   email: string;
   password: string;
   captchaToken: string;
+  role?: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_STAFF' | 'ROLE_ADMIN';
 }
 
 export interface SocialLoginRequest {
