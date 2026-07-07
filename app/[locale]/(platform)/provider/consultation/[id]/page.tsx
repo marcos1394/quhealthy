@@ -450,7 +450,7 @@ export default function ConsultationRoomPage() {
  setNewRx={setNewRx}
  handleAddRx={handleAddRx}
  removePrescriptionItem={removePrescriptionItem}
- onBack={() => setCurrentStep('sports')}
+ onBack={() => setCurrentStep('templates')}
  />
  )}
 
