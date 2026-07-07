@@ -378,7 +378,7 @@ export default function PatientProfilePage() {
  </Form>
 
  {/* --- SECCIÓN DE HISTORIAL DEPORTIVO --- */}
- {profile?.id && (
+ {user?.id && (
  <div className="mt-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
  <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
  <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
@@ -389,7 +389,7 @@ export default function PatientProfilePage() {
  </h2>
  </div>
  <div className="p-8">
- <SportsMedicalEvaluationHistory patientId={profile.id} />
+ <SportsMedicalEvaluationHistory patientId={user?.id || 0} />
  </div>
  </div>
  )}
