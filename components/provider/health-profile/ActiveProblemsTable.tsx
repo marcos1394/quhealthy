@@ -52,19 +52,19 @@ export function ActiveProblemsTable({ problems, isReadOnly, onAdd, onDelete }: A
 
       {isAdding && (
         <div className="p-4 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-xs font-semibold uppercase tracking-widest">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 text-xs font-semibold uppercase tracking-widest">
             <div className="flex flex-col gap-1 md:col-span-2">
               <label className="text-[9px] text-gray-500">Diagnóstico</label>
               <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Ej. Diabetes Mellitus" value={formData.diagnosis} onChange={e => setFormData({...formData, diagnosis: e.target.value})} />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 md:col-span-1">
               <label className="text-[9px] text-gray-500">Estado</label>
               <select className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
                 <option value="ACTIVE">Activo</option>
                 <option value="RESOLVED">Resuelto</option>
               </select>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 md:col-span-2">
               <label className="text-[9px] text-gray-500">Fecha Inicio</label>
               <DatePicker
                 value={formData.startDate ? new Date(formData.startDate + 'T12:00:00') : undefined}
@@ -73,7 +73,7 @@ export function ActiveProblemsTable({ problems, isReadOnly, onAdd, onDelete }: A
                 className="h-[34px] rounded-none border border-black/20 dark:border-white/20"
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 md:col-span-1">
               <label className="text-[9px] text-gray-500">Prioridad</label>
               <select className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" value={formData.priority} onChange={e => setFormData({...formData, priority: e.target.value})}>
                 <option value="ALTA">Alta</option>
@@ -81,7 +81,7 @@ export function ActiveProblemsTable({ problems, isReadOnly, onAdd, onDelete }: A
                 <option value="BAJA">Baja</option>
               </select>
             </div>
-            <div className="flex flex-col gap-1 md:col-span-2">
+            <div className="flex flex-col gap-1 md:col-span-3">
               <label className="text-[9px] text-gray-500">Profesional</label>
               <input type="text" className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-2 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" placeholder="Dr/Dra..." value={formData.professional} onChange={e => setFormData({...formData, professional: e.target.value})} />
             </div>
