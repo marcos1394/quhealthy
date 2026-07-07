@@ -6,7 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from 'react-toastify';
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Video, VideoOff, ChevronRight } from "lucide-react";
+import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Video, VideoOff, ChevronRight, Activity } from "lucide-react";
 
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
@@ -17,6 +17,7 @@ import { PatientProfileStep } from "@/components/consultation/PatientProfileStep
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; 
+import { SportsMedicalEvaluationStep } from "@/components/consultation/SportsMedicalEvaluationStep";
 
 // Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
@@ -26,7 +27,7 @@ import { DenominationMap } from "@/types/cash-register";
 // Widget de Teleconsulta
 import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
 
-type PipelineStep = 'profile' | 'evaluation' | 'treatment' | 'success';
+type PipelineStep = 'profile' | 'evaluation' | 'sports' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
  const t = useTranslations('EHR');
@@ -343,6 +344,13 @@ export default function ConsultationRoomPage() {
  </button>
  <ChevronRight className="w-3 h-3 text-gray-400" />
  <button 
+ onClick={() => setCurrentStep('sports')}
+ className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'sports' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+ >
+ <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">DEPORTIVA</span>
+ </button>
+ <ChevronRight className="w-3 h-3 text-gray-400" />
+ <button 
  onClick={() => setCurrentStep('treatment')}
  className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
  >
@@ -422,6 +430,15 @@ export default function ConsultationRoomPage() {
  handleToggleRecording={handleToggleRecording}
  appointmentType={appointmentType}
  onBack={() => setCurrentStep('profile')}
+ onNext={() => setCurrentStep('sports')}
+ />
+ )}
+
+ {currentStep === 'sports' && (
+ <SportsMedicalEvaluationStep
+ appointmentId={appointmentId}
+ consumerId={consumerId || 0}
+ onBack={() => setCurrentStep('evaluation')}
  onNext={() => setCurrentStep('treatment')}
  />
  )}
@@ -433,7 +450,7 @@ export default function ConsultationRoomPage() {
  setNewRx={setNewRx}
  handleAddRx={handleAddRx}
  removePrescriptionItem={removePrescriptionItem}
- onBack={() => setCurrentStep('evaluation')}
+ onBack={() => setCurrentStep('sports')}
  />
  )}
 
