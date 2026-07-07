@@ -24,7 +24,7 @@ export const Icd10Autocomplete: React.FC<Icd10AutocompleteProps> = ({ diagnoses,
                 setLoading(true);
                 try {
                     const data = await consumerProfileService.searchIcd10(query, 10);
-                    setResults(data);
+                    setResults(data.content || data || []);
                     setShowResults(true);
                 } catch (error) {
                     console.error("Error fetching ICD10", error);
@@ -43,7 +43,7 @@ export const Icd10Autocomplete: React.FC<Icd10AutocompleteProps> = ({ diagnoses,
     const handleSelect = (item: any) => {
         addDiagnosis({
             cie10Code: item.code,
-            cie10Description: item.description,
+            cie10Description: item.name || item.description,
             type: 'PRIMARY'
         });
         setQuery('');
@@ -77,7 +77,7 @@ export const Icd10Autocomplete: React.FC<Icd10AutocompleteProps> = ({ diagnoses,
                                 className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-[#111] text-black dark:text-white border-b border-black/10 dark:border-white/10"
                                 onClick={() => handleSelect(item)}
                             >
-                                <span className="font-bold">{item.code}</span> - {item.description}
+                                <span className="font-bold">{item.code}</span> - {item.name || item.description}
                             </li>
                         ))}
                     </ul>

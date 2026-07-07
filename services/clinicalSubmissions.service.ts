@@ -26,22 +26,22 @@ export interface ClinicalSubmissionResponse {
 
 export const clinicalSubmissionService = {
     getPatientHistory: async (consumerId: number): Promise<ClinicalSubmissionResponse[]> => {
-        const response = await axiosInstance.get(`/appointments/clinical-submissions/patient/${consumerId}`);
+        const response = await axiosInstance.get(`/api/appointments/clinical-submissions/patient/${consumerId}`);
         return response.data;
     },
 
     getAppointmentSubmissions: async (appointmentId: number): Promise<ClinicalSubmissionResponse[]> => {
-        const response = await axiosInstance.get(`/appointments/clinical-submissions/appointment/${appointmentId}`);
+        const response = await axiosInstance.get(`/api/appointments/clinical-submissions/appointment/${appointmentId}`);
         return response.data;
     },
 
     getSubmission: async (id: number): Promise<ClinicalSubmissionResponse> => {
-        const response = await axiosInstance.get(`/appointments/clinical-submissions/${id}`);
+        const response = await axiosInstance.get(`/api/appointments/clinical-submissions/${id}`);
         return response.data;
     },
 
     saveSubmission: async (data: ClinicalSubmissionRequest): Promise<ClinicalSubmissionResponse> => {
-        const response = await axiosInstance.post('/appointments/clinical-submissions', data);
+        const response = await axiosInstance.post('/api/appointments/clinical-submissions', data);
         return response.data;
     }
 };
