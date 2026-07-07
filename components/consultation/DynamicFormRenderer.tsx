@@ -136,6 +136,22 @@ export function DynamicFormRenderer({ template, initialData, onSave, isSaving, i
                                 </SelectContent>
                             </Select>
                         )}
+
+                        {(field.type === 'boolean' || field.type === 'checkbox') && (
+                            <div className="flex items-center h-10">
+                                <input 
+                                    type="checkbox" 
+                                    id={field.id}
+                                    checked={formData[field.id] || false}
+                                    onChange={(e) => handleChange(field.id, e.target.checked)}
+                                    disabled={isFinalized || field.readonly}
+                                    className="accent-black dark:accent-white w-4 h-4 rounded-none"
+                                />
+                                <label htmlFor={field.id} className="ml-2 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    {field.label}
+                                </label>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
