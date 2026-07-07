@@ -379,7 +379,7 @@ export default function PatientProfilePage() {
  </Form>
 
  {/* --- SECCIÓN DE FICHAS CLÍNICAS (PLANTILLAS) --- */}
- {profile?.id && (
+ {user?.id && (
  <div className="mt-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none">
  <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
  <div className="flex items-center gap-4">
@@ -395,7 +395,7 @@ export default function PatientProfilePage() {
  </div>
  </div>
  <div className="p-6">
- <ClinicalFormsHistory patientId={profile.id} />
+ <ClinicalFormsHistory patientId={user.id} />
  </div>
  </div>
  )}
