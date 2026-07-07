@@ -27,7 +27,8 @@ export const usePatientDetail = (patientDirectoryId: number) => {
       const [historyResult, healthResult, vaultResult] = await Promise.allSettled([
         patientDetailService.getMedicalHistory(patientDirectoryId),
         patientDetailService.getHealthProfile(patientDirectoryId),
-        profileData.consumerId ? import('@/services/ehr.service').then(m => m.ehrService.getPatientVault(profileData.consumerId)) : Promise.resolve([])
+        // Fetch vault documents solo si el paciente tiene consumerId
+        profileData.consumerId ? import('@/services/ehr.service').then(m => m.ehrService.getPatientVault(profileData.consumerId!)) : Promise.resolve([])
       ]);
 
       if (historyResult.status === 'fulfilled') {
