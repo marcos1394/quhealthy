@@ -17,7 +17,7 @@ import { PatientProfileStep } from "@/components/consultation/PatientProfileStep
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; 
-import { SportsMedicalEvaluationStep } from "@/components/consultation/SportsMedicalEvaluationStep";
+import { ClinicalTemplatesManager } from "@/components/consultation/ClinicalTemplatesManager";
 
 // Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
@@ -27,7 +27,7 @@ import { DenominationMap } from "@/types/cash-register";
 // Widget de Teleconsulta
 import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
 
-type PipelineStep = 'profile' | 'evaluation' | 'sports' | 'treatment' | 'success';
+type PipelineStep = 'profile' | 'evaluation' | 'templates' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
  const t = useTranslations('EHR');
@@ -344,10 +344,10 @@ export default function ConsultationRoomPage() {
  </button>
  <ChevronRight className="w-3 h-3 text-gray-400" />
  <button 
- onClick={() => setCurrentStep('sports')}
- className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'sports' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+ onClick={() => setCurrentStep('templates')}
+ className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'templates' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
  >
- <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">DEPORTIVA</span>
+ <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">PLANTILLAS</span>
  </button>
  <ChevronRight className="w-3 h-3 text-gray-400" />
  <button 
@@ -430,12 +430,12 @@ export default function ConsultationRoomPage() {
  handleToggleRecording={handleToggleRecording}
  appointmentType={appointmentType}
  onBack={() => setCurrentStep('profile')}
- onNext={() => setCurrentStep('sports')}
+ onNext={() => setCurrentStep('templates')}
  />
  )}
 
- {currentStep === 'sports' && (
- <SportsMedicalEvaluationStep
+ {currentStep === 'templates' && (
+ <ClinicalTemplatesManager
  appointmentId={appointmentId}
  consumerId={consumerId || 0}
  onBack={() => setCurrentStep('evaluation')}

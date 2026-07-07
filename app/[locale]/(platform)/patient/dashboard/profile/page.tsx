@@ -26,7 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { handleApiError } from '@/lib/handleApiError';
 import { cn } from '@/lib/utils';
-import { SportsMedicalEvaluationHistory } from '@/components/sportsMedicine/SportsMedicalEvaluationHistory';
+import { TreatmentHistoryList } from "@/components/consultation/TreatmentHistoryList";
+import { ClinicalFormsHistory } from "@/components/consultation/ClinicalFormsHistory";
 
 // Esquema de Validación
 const patientProfileSchema = z.object({
@@ -377,19 +378,24 @@ export default function PatientProfilePage() {
  </form>
  </Form>
 
- {/* --- SECCIÓN DE HISTORIAL DEPORTIVO --- */}
- {user?.id && (
- <div className="mt-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
- <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-4">
- <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
- <HeartPulse className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+ {/* --- SECCIÓN DE FICHAS CLÍNICAS (PLANTILLAS) --- */}
+ {profile?.id && (
+ <div className="mt-12 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none">
+ <div className="bg-gray-50 dark:bg-[#050505] p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+ <div className="flex items-center gap-4">
+ <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black">
+ <Activity className="w-4 h-4 text-black dark:text-white" />
  </div>
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
- Historial Deportivo y Evaluaciones Físicas
- </h2>
+ <div>
+ <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">Fichas y Evaluaciones Clínicas</h2>
+ <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+ Evaluaciones realizadas mediante plantillas dinámicas
+ </p>
  </div>
- <div className="p-8">
- <SportsMedicalEvaluationHistory patientId={user?.id || 0} />
+ </div>
+ </div>
+ <div className="p-6">
+ <ClinicalFormsHistory patientId={profile.id} />
  </div>
  </div>
  )}
