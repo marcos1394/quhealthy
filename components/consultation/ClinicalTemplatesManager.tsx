@@ -5,6 +5,7 @@ import { useSessionStore } from '@/stores/SessionStore';
 import { clinicalTemplateService, ClinicalTemplateResponse } from '@/services/clinicalTemplates.service';
 import { clinicalSubmissionService, ClinicalSubmissionResponse, ClinicalSubmissionRequest } from '@/services/clinicalSubmissions.service';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
+import { SportsTemplateRenderer } from './SportsTemplateRenderer';
 import { Button } from '@/components/ui/button';
 import { FileText, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { handleApiError } from '@/lib/handleApiError';
@@ -122,13 +123,23 @@ export function ClinicalTemplatesManager({ appointmentId, consumerId, onBack, on
             {/* Contenido */}
             <div className="flex-1 overflow-y-auto">
                 {activeTemplate ? (
-                    <DynamicFormRenderer 
-                        template={activeTemplate}
-                        initialData={activeSubmission?.data}
-                        onSave={handleSave}
-                        isSaving={isSaving}
-                        isFinalized={activeSubmission?.status === 'FINALIZED'}
-                    />
+                    activeTemplate.category === 'Sports' ? (
+                        <SportsTemplateRenderer
+                            template={activeTemplate}
+                            initialData={activeSubmission?.data}
+                            onSave={handleSave}
+                            isSaving={isSaving}
+                            isFinalized={activeSubmission?.status === 'FINALIZED'}
+                        />
+                    ) : (
+                        <DynamicFormRenderer 
+                            template={activeTemplate}
+                            initialData={activeSubmission?.data}
+                            onSave={handleSave}
+                            isSaving={isSaving}
+                            isFinalized={activeSubmission?.status === 'FINALIZED'}
+                        />
+                    )
                 ) : (
                     <div className="p-6 md:p-8">
                         <p className="text-xs text-gray-500 uppercase tracking-widest mb-6">
