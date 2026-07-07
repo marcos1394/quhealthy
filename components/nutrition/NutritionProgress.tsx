@@ -7,9 +7,17 @@ interface Props {
 }
 
 export default function NutritionProgress({ profile, history }: Props) {
+  // Helper para manejar fechas sin timezone explícito desde el backend
+  const parseDate = (dateStr: string) => {
+    if (!dateStr) return new Date();
+    const str = String(dateStr);
+    const hasTimezone = /(Z|[+-]\d{2}(:\d{2})?)$/.test(str);
+    return new Date(hasTimezone ? str : `${str}Z`);
+  };
+
   // Calculate today's totals
   const today = new Date().toDateString();
-  const todaysHistory = history.filter(item => new Date(item.createdAt).toDateString() === today);
+  const todaysHistory = history.filter(item => parseDate(item.createdAt).toDateString() === today);
   
   const consumed = todaysHistory.reduce((acc, curr) => ({
     calories: acc.calories + (curr.totals.calories || 0),

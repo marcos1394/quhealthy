@@ -64,6 +64,13 @@ export default function NutritionDashboard() {
     setActiveTab('result');
   };
 
+  const parseDate = (dateStr: string) => {
+    if (!dateStr) return new Date();
+    const str = String(dateStr);
+    const hasTimezone = /(Z|[+-]\d{2}(:\d{2})?)$/.test(str);
+    return new Date(hasTimezone ? str : `${str}Z`);
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 md:py-16">
@@ -160,7 +167,7 @@ export default function NutritionDashboard() {
                       <div className="flex items-center gap-4">
                         <img src={nutritionService.getImageUrl(item)} alt="Food" className="w-16 h-16 rounded-lg object-cover" />
                         <div>
-                          <p className="font-bold text-gray-900 dark:text-white">{new Date(item.createdAt).toLocaleDateString()}</p>
+                          <p className="font-bold text-gray-900 dark:text-white">{parseDate(item.createdAt).toLocaleDateString()}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.totals?.calories || 0} kcal • {item.totals?.protein || 0}g proteína</p>
                         </div>
                       </div>
