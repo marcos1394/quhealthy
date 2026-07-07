@@ -7,6 +7,7 @@ export interface ClinicalTemplateField {
     type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'date' | 'boolean';
     label: string;
     required: boolean;
+    readonly?: boolean;
     options?: string[]; // Para select, radio
 }
 
