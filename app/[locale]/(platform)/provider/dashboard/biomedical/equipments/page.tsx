@@ -21,7 +21,7 @@ export default function BiomedicalEquipmentsPage() {
     const [isRegisterDrawerOpen, setIsRegisterDrawerOpen] = useState(false);
 
     const { user } = useSessionStore();
-    const providerId = user?.id || ''; 
+    const providerId = user?.id?.toString() || ''; 
 
     const [equipments, setEquipments] = useState<BiomedicalEquipmentDTO[]>([]);
 

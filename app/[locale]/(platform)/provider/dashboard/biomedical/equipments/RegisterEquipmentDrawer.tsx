@@ -47,7 +47,7 @@ export const RegisterEquipmentDrawer = ({
                 status: 'ACTIVE' // Default status for new equipment
             };
             
-            await biomedicalService.createEquipment(user.id, payload);
+            await biomedicalService.createEquipment(user.id.toString(), payload);
             toast.success("Equipo registrado correctamente", { theme: "colored" });
             reset();
             onSuccess();

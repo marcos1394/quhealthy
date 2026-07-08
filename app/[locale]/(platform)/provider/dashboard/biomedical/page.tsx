@@ -14,7 +14,7 @@ export default function BiomedicalDashboardPage() {
     const t = useTranslations('SidebarNav'); 
     const router = useRouter();
     const { user } = useSessionStore();
-    const providerId = user?.id;
+    const providerId = user?.id?.toString();
 
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({

@@ -16,7 +16,7 @@ export default function EquipmentDetailPage() {
     const equipmentId = params.id as string;
     
     const { user } = useSessionStore();
-    const providerId = user?.id;
+    const providerId = user?.id?.toString();
 
     const [equipment, setEquipment] = useState<BiomedicalEquipmentDTO | null>(null);
     const [mttr, setMttr] = useState<number | null>(null);
