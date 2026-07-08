@@ -1,19 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { budgetService, BudgetDTO } from "@/services/budget.service";
+import { toast } from "react-toastify";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function BudgetsPage() {
     const router = useRouter();
+    const [budgets, setBudgets] = useState<BudgetDTO[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Mock data
-    const budgets = [
-        { id: 1, name: "Presupuesto Operativo 2027", status: "APPROVED", totalProjectedIncome: 500000, totalProjectedExpense: 350000 },
-        { id: 2, name: "Presupuesto Q3 2026", status: "CLOSED", totalProjectedIncome: 120000, totalProjectedExpense: 90000 },
-    ];
+    useEffect(() => {
+        const fetchBudgets = async () => {
+            try {
+                const data = await budgetService.listBudgets();
+                setBudgets(data);
+            } catch (error) {
+                toast.error("Error al cargar presupuestos", { theme: "colored" });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchBudgets();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+                <QhSpinner size="lg" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    Cargando presupuestos...
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -42,12 +66,12 @@ export default function BudgetsPage() {
                                     <FileText className="w-4 h-4" />
                                 </div>
                                 <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 border ${budget.status === 'APPROVED' ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10' : 'border-gray-500/30 text-gray-500'}`}>
-                                    {budget.status}
+                                    {budget.status || 'DRAFT'}
                                 </span>
                             </div>
                             <h3 className="font-semibold text-sm uppercase tracking-widest mb-1">{budget.name}</h3>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-6">
-                                Ingresos: ${budget.totalProjectedIncome.toLocaleString()} | Gastos: ${budget.totalProjectedExpense.toLocaleString()}
+                                Ingresos: ${budget.totalProjectedIncome?.toLocaleString() || 0} | Gastos: ${budget.totalProjectedExpense?.toLocaleString() || 0}
                             </p>
                         </div>
                         <div className="flex items-center justify-end text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
@@ -55,6 +79,11 @@ export default function BudgetsPage() {
                         </div>
                     </div>
                 ))}
+                {budgets.length === 0 && (
+                    <div className="col-span-full p-8 text-center border border-dashed border-black/20 dark:border-white/20">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">NO HAY PRESUPUESTOS REGISTRADOS</p>
+                    </div>
+                )}
             </div>
         </div>
     );
