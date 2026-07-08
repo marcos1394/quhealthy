@@ -7,6 +7,7 @@ import { useRouter, useParams } from "next/navigation";
 import useSWR from "swr";
 import { financeService } from "@/services/finance.service";
 import { toast } from "react-toastify";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const INCOME_CATEGORIES = [
     { value: 'CONSULTATIONS', label: 'Consultas Médicas' },
@@ -145,15 +146,19 @@ export default function BudgetBuilderPage() {
                     <div className="p-4 space-y-4">
                         {localItems.filter((i: any) => i.type === 'INCOME').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
-                                <select 
-                                    className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 p-2 text-xs focus:outline-none focus:border-black dark:focus:border-white"
-                                    value={item.category}
-                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                <Select 
+                                    value={item.category} 
+                                    onValueChange={(value) => handleItemChange(item.id, 'category', value)}
                                 >
-                                    {INCOME_CATEGORIES.map(cat => (
-                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 h-auto p-2 text-xs focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white rounded-none">
+                                        <SelectValue placeholder="Seleccione Categoría" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-none border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                                        {INCOME_CATEGORIES.map(cat => (
+                                            <SelectItem key={cat.value} value={cat.value} className="text-xs">{cat.label}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
                                     value={item.description || ''}
@@ -190,15 +195,19 @@ export default function BudgetBuilderPage() {
                     <div className="p-4 space-y-4">
                         {localItems.filter((i: any) => i.type === 'EXPENSE').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
-                                <select 
-                                    className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 p-2 text-xs focus:outline-none focus:border-black dark:focus:border-white"
-                                    value={item.category}
-                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                <Select 
+                                    value={item.category} 
+                                    onValueChange={(value) => handleItemChange(item.id, 'category', value)}
                                 >
-                                    {EXPENSE_CATEGORIES.map(cat => (
-                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 h-auto p-2 text-xs focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white rounded-none">
+                                        <SelectValue placeholder="Seleccione Categoría" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-none border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                                        {EXPENSE_CATEGORIES.map(cat => (
+                                            <SelectItem key={cat.value} value={cat.value} className="text-xs">{cat.label}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
                                     value={item.description || ''}
