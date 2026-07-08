@@ -9,26 +9,27 @@ import { financeService } from "@/services/finance.service";
 import { toast } from "react-toastify";
 
 const INCOME_CATEGORIES = [
-    { value: 'MEDICAL_CONSULTATIONS', label: 'Consultas Médicas' },
-    { value: 'MEDICAL_PROCEDURES', label: 'Procedimientos Médicos' },
-    { value: 'LABORATORY_STUDIES', label: 'Estudios de Laboratorio' },
-    { value: 'TELEMEDICINE', label: 'Telemedicina' },
-    { value: 'SAAS_SUBSCRIPTIONS', label: 'Suscripciones SaaS' },
-    { value: 'MARKETPLACE_COMMISSIONS', label: 'Comisiones de Marketplace' },
-    { value: 'CORPORATE_AGREEMENTS', label: 'Convenios Corporativos' },
+    { value: 'CONSULTATIONS', label: 'Consultas Médicas' },
+    { value: 'SURGERIES_AND_PROCEDURES', label: 'Cirugías y Procedimientos' },
+    { value: 'LABORATORY', label: 'Laboratorio y Diagnóstico' },
+    { value: 'PHARMACY', label: 'Venta de Farmacia' },
+    { value: 'HOSPITALIZATION', label: 'Hospitalización' },
+    { value: 'IMAGING', label: 'Imagenología / Rayos X' },
     { value: 'OTHER_INCOME', label: 'Otros Ingresos' },
 ];
 
 const EXPENSE_CATEGORIES = [
-    { value: 'PAYROLL', label: 'Nómina (Sueldos)' },
-    { value: 'RENT', label: 'Renta (Alquiler)' },
-    { value: 'UTILITIES', label: 'Servicios Básicos (Agua, Luz, Internet)' },
-    { value: 'CLOUD_INFRASTRUCTURE', label: 'Infraestructura en la Nube' },
-    { value: 'MARKETING', label: 'Marketing y Publicidad' },
-    { value: 'MEDICAL_SUPPLIES', label: 'Insumos Médicos' },
-    { value: 'OPERATIONAL_EXPENSES', label: 'Gastos Operativos' },
+    { value: 'PAYROLL_MEDICAL', label: 'Nómina Médica' },
+    { value: 'PAYROLL_ADMIN', label: 'Nómina Administrativa' },
+    { value: 'MEDICAL_SUPPLIES', label: 'Insumos Médicos / Quirúrgicos' },
+    { value: 'PHARMACEUTICALS', label: 'Compra de Medicamentos' },
+    { value: 'EQUIPMENT_MAINTENANCE', label: 'Mantenimiento de Equipo Médico' },
+    { value: 'RENT', label: 'Renta / Arrendamientos' },
+    { value: 'UTILITIES', label: 'Servicios Básicos (Agua, Luz)' },
+    { value: 'MARKETING', label: 'Publicidad y RR.PP.' },
+    { value: 'INSURANCE_AND_MALPRACTICE', label: 'Seguros y Responsabilidad Civil' },
     { value: 'TAXES', label: 'Impuestos' },
-    { value: 'OTHER_EXPENSE', label: 'Otros Gastos' },
+    { value: 'OTHER_EXPENSE', label: 'Otros Gastos Operativos' },
 ];
 
 export default function BudgetBuilderPage() {
@@ -65,7 +66,7 @@ export default function BudgetBuilderPage() {
         setLocalItems([...localItems, {
             id: `new-${Date.now()}`,
             type,
-            category: type === 'INCOME' ? 'MEDICAL_CONSULTATIONS' : 'OPERATIONAL_EXPENSES',
+            category: type === 'INCOME' ? 'CONSULTATIONS' : 'OTHER_EXPENSE',
             description: '',
             projectedAmount: 0
         }]);
