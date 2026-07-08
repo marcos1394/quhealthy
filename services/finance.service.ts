@@ -25,5 +25,25 @@ export const financeService = {
   createBudgetPeriod: async (year: number): Promise<BudgetPeriodDTO> => {
     const response = await axiosInstance.post(`${BASE_URL}/periods`, { year });
     return response.data;
+  },
+
+  getBudgets: async (): Promise<any[]> => {
+    try {
+      const response = await axiosInstance.get(`${BASE_URL}/budgets`);
+      return response.data;
+    } catch (error) {
+      console.warn("Failed to fetch budgets", error);
+      return [];
+    }
+  },
+
+  getBudget: async (id: string): Promise<any> => {
+    const response = await axiosInstance.get(`${BASE_URL}/budgets/${id}`);
+    return response.data;
+  },
+
+  updateBudget: async (id: string, data: any): Promise<any> => {
+    const response = await axiosInstance.put(`${BASE_URL}/budgets/${id}`, data);
+    return response.data;
   }
 };

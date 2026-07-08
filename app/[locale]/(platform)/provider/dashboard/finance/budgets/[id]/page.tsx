@@ -4,24 +4,29 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Plus } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { financeService } from "@/services/finance.service";
 
 export default function BudgetBuilderPage() {
     const router = useRouter();
     const params = useParams();
     const isEditing = params.id !== "new";
 
-    // Mock data
-    const budget = {
-        name: "Presupuesto Operativo 2027",
-        totalIncome: 500000,
-        totalExpense: 350000,
-        items: [
-            { id: 1, type: "INCOME", category: "Consultas", amount: 300000 },
-            { id: 2, type: "INCOME", category: "Estudios", amount: 200000 },
-            { id: 3, type: "EXPENSE", category: "Nómina", amount: 150000 },
-            { id: 4, type: "EXPENSE", category: "Marketing", amount: 50000 },
-            { id: 5, type: "EXPENSE", category: "Renta", amount: 150000 },
-        ]
+    const { data: budget, isLoading } = useQuery({
+        queryKey: ['budget', params.id],
+        queryFn: () => financeService.getBudget(params.id as string),
+        enabled: !isEditing // Wait, if it's new we don't fetch.
+    });
+
+    if (isLoading) {
+        return <div className="p-8 text-center">Cargando presupuesto...</div>;
+    }
+
+    const currentBudget = budget || {
+        name: "Nuevo Presupuesto",
+        totalProjectedIncome: 0,
+        totalProjectedExpense: 0,
+        items: []
     };
 
     return (
@@ -36,7 +41,7 @@ export default function BudgetBuilderPage() {
                     </button>
                     <div>
                         <h2 className="text-lg font-semibold uppercase tracking-tight">
-                            {isEditing ? budget.name : 'Nuevo Presupuesto'}
+                            {isEditing ? currentBudget.name : 'Nuevo Presupuesto'}
                         </h2>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                             Constructor de Presupuesto (Grid)
@@ -55,19 +60,19 @@ export default function BudgetBuilderPage() {
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-green-700 dark:text-green-400">
                             Ingresos Proyectados
                         </h3>
-                        <span className="text-sm font-semibold">${budget.totalIncome.toLocaleString()}</span>
+                        <span className="text-sm font-semibold">${currentBudget.totalProjectedIncome?.toLocaleString()}</span>
                     </div>
                     <div className="p-4 space-y-4">
-                        {budget.items.filter(i => i.type === 'INCOME').map(item => (
+                        {currentBudget.items?.filter((i: any) => i.type === 'INCOME').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    defaultValue={item.category}
+                                    defaultValue={item.description || item.category}
                                 />
                                 <input 
                                     className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
-                                    defaultValue={item.amount}
+                                    defaultValue={item.projectedAmount || item.amount}
                                 />
                             </div>
                         ))}
@@ -83,19 +88,19 @@ export default function BudgetBuilderPage() {
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-orange-700 dark:text-orange-400">
                             Gastos Proyectados
                         </h3>
-                        <span className="text-sm font-semibold">${budget.totalExpense.toLocaleString()}</span>
+                        <span className="text-sm font-semibold">${currentBudget.totalProjectedExpense?.toLocaleString()}</span>
                     </div>
                     <div className="p-4 space-y-4">
-                        {budget.items.filter(i => i.type === 'EXPENSE').map(item => (
+                        {currentBudget.items?.filter((i: any) => i.type === 'EXPENSE').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    defaultValue={item.category}
+                                    defaultValue={item.description || item.category}
                                 />
                                 <input 
                                     className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
-                                    defaultValue={item.amount}
+                                    defaultValue={item.projectedAmount || item.amount}
                                 />
                             </div>
                         ))}
@@ -109,7 +114,7 @@ export default function BudgetBuilderPage() {
             <div className="border-t border-black/20 dark:border-white/20 pt-6 text-right">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Utilidad Proyectada</p>
                 <h2 className="text-3xl font-semibold tracking-tight text-blue-600 dark:text-blue-400">
-                    ${(budget.totalIncome - budget.totalExpense).toLocaleString()}
+                    ${((currentBudget.totalProjectedIncome || 0) - (currentBudget.totalProjectedExpense || 0)).toLocaleString()}
                 </h2>
             </div>
         </div>
