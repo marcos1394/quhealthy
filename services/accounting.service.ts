@@ -1,7 +1,7 @@
 import axiosInstance from '@/lib/axios';
 import { AccountDTO, CostCenterDTO } from '@/types/accounting';
 
-const BASE_URL = '/api/finance/accounting';
+const BASE_URL = '/api/payments/accounting';
 
 export const accountingService = {
   // Cuentas Contables

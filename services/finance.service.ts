@@ -8,13 +8,13 @@ export interface BudgetPeriodDTO {
     status: 'PLANNING' | 'ACTIVE' | 'CLOSED';
 }
 
-const BASE_URL = '/api/finance';
+const BASE_URL = '/api/payments/finance';
 
 export const financeService = {
   // Budget Periods (Años Fiscales)
   listBudgetPeriods: async (): Promise<BudgetPeriodDTO[]> => {
     try {
-      const response = await axiosInstance.get(`${BASE_URL}/budgets/periods`);
+      const response = await axiosInstance.get(`${BASE_URL}/periods`);
       return response.data;
     } catch (error) {
       console.warn("Failed to fetch budget periods, returning empty");
