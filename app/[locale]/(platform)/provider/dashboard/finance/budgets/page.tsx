@@ -8,23 +8,27 @@ import { useRouter } from "next/navigation";
 import { budgetService, BudgetDTO } from "@/services/budget.service";
 import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { CreateBudgetDrawer } from "./CreateBudgetDrawer";
 
 export default function BudgetsPage() {
     const router = useRouter();
     const [budgets, setBudgets] = useState<BudgetDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const fetchBudgets = async () => {
+        setIsLoading(true);
+        try {
+            const data = await budgetService.listBudgets();
+            setBudgets(data);
+        } catch (error) {
+            toast.error("Error al cargar presupuestos", { theme: "colored" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchBudgets = async () => {
-            try {
-                const data = await budgetService.listBudgets();
-                setBudgets(data);
-            } catch (error) {
-                toast.error("Error al cargar presupuestos", { theme: "colored" });
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchBudgets();
     }, []);
 
@@ -48,7 +52,10 @@ export default function BudgetsPage() {
                         Planeación financiera por periodo
                     </p>
                 </div>
-                <Button className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest">
+                <Button 
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                >
                     <Plus className="w-4 h-4 mr-2" /> Nuevo Presupuesto
                 </Button>
             </div>
@@ -85,6 +92,12 @@ export default function BudgetsPage() {
                     </div>
                 )}
             </div>
+
+            <CreateBudgetDrawer 
+                open={isDrawerOpen} 
+                onOpenChange={setIsDrawerOpen} 
+                onSuccess={fetchBudgets} 
+            />
         </div>
     );
 }

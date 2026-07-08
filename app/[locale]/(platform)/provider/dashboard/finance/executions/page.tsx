@@ -51,7 +51,10 @@ export default function ExecutionsPage() {
                         Historial de movimientos reales y CFDI
                     </p>
                 </div>
-                <Button className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest">
+                <Button 
+                    onClick={() => toast.info("Módulo de registro manual de movimientos en desarrollo", { theme: "colored" })}
+                    className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                >
                     <Plus className="w-4 h-4 mr-2" /> Registrar Movimiento
                 </Button>
             </div>
