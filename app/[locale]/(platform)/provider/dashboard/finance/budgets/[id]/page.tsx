@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Plus } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import useSWR from "swr";
 import { financeService } from "@/services/finance.service";
 
 export default function BudgetBuilderPage() {
@@ -12,11 +12,10 @@ export default function BudgetBuilderPage() {
     const params = useParams();
     const isEditing = params.id !== "new";
 
-    const { data: budget, isLoading } = useQuery({
-        queryKey: ['budget', params.id],
-        queryFn: () => financeService.getBudget(params.id as string),
-        enabled: !isEditing // Wait, if it's new we don't fetch.
-    });
+    const { data: budget, isLoading } = useSWR(
+        isEditing ? ['budget', params.id] : null,
+        () => financeService.getBudget(params.id as string)
+    );
 
     if (isLoading) {
         return <div className="p-8 text-center">Cargando presupuesto...</div>;
