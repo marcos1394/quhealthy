@@ -13,7 +13,7 @@ import {
  BriefcaseMedical, UserCircle, Sparkles, Vault, MessageCircle, 
  Star, HeartIcon, Menu, Package, ClipboardIcon, 
  Handshake, History, BadgeX, PackageCheck, Calculator, BookOpen,
- X, Utensils
+ X, Utensils, Activity
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +31,7 @@ const providerLinks = [
  { key: "cash_register", href: "/provider/dashboard/cash-register", icon: Calculator, badge: null },
  { key: "orders", href: "/provider/dashboard/orders", icon: Package, badge: null },
  { key: "inventory", href: "/provider/dashboard/inventory", icon: PackageCheck, badge: null },
+ { key: "biomedical", href: "/provider/dashboard/biomedical", icon: Activity, badge: null },
  { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
  { key: "finance", href: "/provider/dashboard/finance", icon: Calculator, badge: null },
  { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },

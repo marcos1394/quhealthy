@@ -1,0 +1,245 @@
+"use client"
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Activity, ArrowLeft, CheckCircle, ShieldAlert, Wrench, Settings, FileText, Calendar, Edit3, Trash2 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { QhSpinner } from '@/components/ui/QhSpinner';
+import { cn } from '@/lib/utils';
+import { BiomedicalEquipmentDTO } from '@/types/biomedical';
+import { biomedicalService } from '@/services/biomedical.service';
+import { toast } from 'react-toastify';
+
+export default function EquipmentDetailPage() {
+    const params = useParams();
+    const router = useRouter();
+    const equipmentId = Number(params.id);
+    
+    const [equipment, setEquipment] = useState<BiomedicalEquipmentDTO | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEquipment = async () => {
+            setIsLoading(true);
+            try {
+                // simulated for now
+                setTimeout(() => {
+                    setEquipment({
+                        id: equipmentId,
+                        name: "Monitor de Signos Vitales",
+                        category: "Monitoreo",
+                        manufacturer: "Philips",
+                        model: "IntelliVue MX400",
+                        serialNumber: "PHL-MX400-001",
+                        internalCode: "MON-01",
+                        status: "ACTIVE",
+                        riskLevel: "HIGH",
+                        lifespanYears: 10,
+                        acquisitionDate: "2023-01-15"
+                    });
+                    setIsLoading(false);
+                }, 600);
+            } catch (err) {
+                toast.error("Error al cargar equipo", { theme: 'colored' });
+                setIsLoading(false);
+            }
+        };
+        fetchEquipment();
+    }, [equipmentId]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 bg-gray-50 dark:bg-[#050505]">
+                <QhSpinner size="lg" className="text-black dark:text-white" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">CARGANDO FICHA DEL EQUIPO...</p>
+            </div>
+        );
+    }
+
+    if (!equipment) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+                <ShieldAlert className="w-12 h-12 text-red-500" strokeWidth={1.5} />
+                <h2 className="text-xl font-bold">EQUIPO NO ENCONTRADO</h2>
+                <button onClick={() => router.back()} className="text-[10px] font-bold uppercase tracking-widest underline">VOLVER</button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 transition-colors duration-500 font-sans">
+            <div className="max-w-7xl mx-auto space-y-8">
+                
+                {/* --- HEADER ARQUITECTÓNICO --- */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+                    <div className="flex items-start gap-5">
+                        <button 
+                            onClick={() => router.back()}
+                            className="w-12 h-12 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+                        </button>
+                        <div>
+                            <div className="flex items-center gap-3 mb-1">
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                    FICHA TÉCNICA / {equipment.category}
+                                </p>
+                                {equipment.status === 'ACTIVE' && <span className="px-2 py-0.5 text-[8px] font-bold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">ACTIVO</span>}
+                                {equipment.status === 'OUT_OF_SERVICE' && <span className="px-2 py-0.5 text-[8px] font-bold uppercase bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">FUERA DE SERVICIO</span>}
+                            </div>
+                            <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none flex items-center gap-4">
+                                {equipment.name}
+                            </h1>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                S/N: {equipment.serialNumber} {equipment.internalCode && ` | ID: ${equipment.internalCode}`}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                        <button className="h-10 px-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 rounded-none">
+                            <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            EDITAR
+                        </button>
+                        <button className="h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border-0 rounded-none shrink-0">
+                            <Wrench className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            NUEVA ORDEN
+                        </button>
+                    </div>
+                </div>
+
+                {/* --- TABS --- */}
+                <Tabs defaultValue="general" className="w-full">
+                    <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-black/10 dark:border-white/10 rounded-none flex-wrap">
+                        <TabsTrigger 
+                            value="general"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <Activity className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
+                            INFO GENERAL
+                        </TabsTrigger>
+                        <TabsTrigger 
+                            value="orders"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <Wrench className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
+                            ÓRDENES DE TRABAJO
+                        </TabsTrigger>
+                        <TabsTrigger 
+                            value="schedule"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <Calendar className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
+                            PROGRAMACIÓN
+                        </TabsTrigger>
+                        <TabsTrigger 
+                            value="documents"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <FileText className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
+                            DOCUMENTOS
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <div className="pt-6">
+                        <TabsContent value="general" className="mt-0 outline-none">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {/* Details Card */}
+                                <div className="lg:col-span-2 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 rounded-none space-y-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/10 dark:border-white/10 pb-4">
+                                        DETALLES DEL FABRICANTE
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Fabricante</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.manufacturer}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Modelo</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.model}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Categoría</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.category}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Nivel de Riesgo</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.riskLevel}</p>
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/10 dark:border-white/10 pb-4 mt-8">
+                                        CICLO DE VIDA
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Fecha Adquisición</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.acquisitionDate || 'NO REGISTRADA'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Vida Útil Estimada</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.lifespanYears ? `${equipment.lifespanYears} Años` : 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sidebar Stats Card */}
+                                <div className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] p-6 rounded-none space-y-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/10 dark:border-white/10 pb-4">
+                                        MÉTRICAS
+                                    </h3>
+                                    <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">MTTR (Tiempo Medio Reparación)</p>
+                                        <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">-- <span className="text-xs font-normal">MIN</span></p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">Total Órdenes Correctivas</p>
+                                        <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">0</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">Último Mantenimiento</p>
+                                        <p className="text-sm font-semibold text-black dark:text-white">--/--/----</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="orders" className="mt-0 outline-none">
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 text-center min-h-[300px] flex flex-col items-center justify-center">
+                                <Wrench className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                    NO HAY ÓRDENES DE TRABAJO REGISTRADAS
+                                </p>
+                            </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="schedule" className="mt-0 outline-none">
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 text-center min-h-[300px] flex flex-col items-center justify-center">
+                                <Calendar className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                    NO HAY PROGRAMACIÓN DE MANTENIMIENTO PREVENTIVO
+                                </p>
+                                <button className="mt-4 h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest">
+                                    CONFIGURAR PROGRAMACIÓN
+                                </button>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="documents" className="mt-0 outline-none">
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 text-center min-h-[300px] flex flex-col items-center justify-center">
+                                <FileText className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                    NO HAY DOCUMENTOS ASOCIADOS (MANUALES, GUÍAS)
+                                </p>
+                                <button className="mt-4 h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest">
+                                    SUBIR DOCUMENTO
+                                </button>
+                            </div>
+                        </TabsContent>
+
+                    </div>
+                </Tabs>
+
+            </div>
+        </div>
+    );
+}
