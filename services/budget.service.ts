@@ -26,6 +26,22 @@ export interface BudgetSummaryDTO {
     alerts: BudgetAlertDTO[];
 }
 
+export interface BudgetLineItemDTO {
+    id: number;
+    name: string;
+    category: string;
+    type: string; // INCOME or EXPENSE
+}
+
+export interface BudgetExecutionLogDTO {
+    id: number;
+    amount: number;
+    description: string;
+    cfdiUuid: string | null;
+    createdAt: string;
+    budgetLineItem: BudgetLineItemDTO;
+}
+
 export const budgetService = {
   // Lista los presupuestos
   listBudgets: async (): Promise<BudgetDTO[]> => {
@@ -37,6 +53,12 @@ export const budgetService = {
   // Obtiene el summary analítico del presupuesto
   getBudgetSummary: async (budgetId: number): Promise<BudgetSummaryDTO> => {
     const response = await axiosInstance.get(`/api/analytics/budgets/${budgetId}/summary`);
+    return response.data;
+  },
+
+  // Obtiene el historial de ejecución real
+  getExecutionHistory: async (budgetId: number): Promise<BudgetExecutionLogDTO[]> => {
+    const response = await axiosInstance.get(`/api/payments/finance/budgets/${budgetId}/execution`);
     return response.data;
   }
 };
