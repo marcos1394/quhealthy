@@ -8,6 +8,29 @@ import useSWR from "swr";
 import { financeService } from "@/services/finance.service";
 import { toast } from "react-toastify";
 
+const INCOME_CATEGORIES = [
+    { value: 'MEDICAL_CONSULTATIONS', label: 'Consultas Médicas' },
+    { value: 'MEDICAL_PROCEDURES', label: 'Procedimientos Médicos' },
+    { value: 'LABORATORY_STUDIES', label: 'Estudios de Laboratorio' },
+    { value: 'TELEMEDICINE', label: 'Telemedicina' },
+    { value: 'SAAS_SUBSCRIPTIONS', label: 'Suscripciones SaaS' },
+    { value: 'MARKETPLACE_COMMISSIONS', label: 'Comisiones de Marketplace' },
+    { value: 'CORPORATE_AGREEMENTS', label: 'Convenios Corporativos' },
+    { value: 'OTHER_INCOME', label: 'Otros Ingresos' },
+];
+
+const EXPENSE_CATEGORIES = [
+    { value: 'PAYROLL', label: 'Nómina (Sueldos)' },
+    { value: 'RENT', label: 'Renta (Alquiler)' },
+    { value: 'UTILITIES', label: 'Servicios Básicos (Agua, Luz, Internet)' },
+    { value: 'CLOUD_INFRASTRUCTURE', label: 'Infraestructura en la Nube' },
+    { value: 'MARKETING', label: 'Marketing y Publicidad' },
+    { value: 'MEDICAL_SUPPLIES', label: 'Insumos Médicos' },
+    { value: 'OPERATIONAL_EXPENSES', label: 'Gastos Operativos' },
+    { value: 'TAXES', label: 'Impuestos' },
+    { value: 'OTHER_EXPENSE', label: 'Otros Gastos' },
+];
+
 export default function BudgetBuilderPage() {
     const router = useRouter();
     const params = useParams();
@@ -42,7 +65,7 @@ export default function BudgetBuilderPage() {
         setLocalItems([...localItems, {
             id: `new-${Date.now()}`,
             type,
-            category: '',
+            category: type === 'INCOME' ? 'MEDICAL_CONSULTATIONS' : 'OPERATIONAL_EXPENSES',
             description: '',
             projectedAmount: 0
         }]);
@@ -61,8 +84,8 @@ export default function BudgetBuilderPage() {
             for (const item of newItems) {
                 await financeService.addBudgetLineItem(params.id as string, {
                     type: item.type,
-                    category: item.category || 'Otros',
-                    description: item.category || 'N/A',
+                    category: item.category,
+                    description: item.description || 'N/A',
                     projectedAmount: Number(item.projectedAmount)
                 });
             }
@@ -121,14 +144,23 @@ export default function BudgetBuilderPage() {
                     <div className="p-4 space-y-4">
                         {localItems.filter((i: any) => i.type === 'INCOME').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
+                                <select 
+                                    className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 p-2 text-xs focus:outline-none focus:border-black dark:focus:border-white"
+                                    value={item.category}
+                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                >
+                                    {INCOME_CATEGORIES.map(cat => (
+                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                    ))}
+                                </select>
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    value={item.description || item.category || ''}
-                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
-                                    placeholder="Ej: Consultas"
+                                    value={item.description || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
+                                    placeholder="Nota o Descripción (Opcional)"
                                 />
                                 <input 
-                                    className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
+                                    className="w-28 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
                                     value={item.projectedAmount || item.amount || ''}
                                     onChange={(e) => handleItemChange(item.id, 'projectedAmount', e.target.value)}
@@ -157,14 +189,23 @@ export default function BudgetBuilderPage() {
                     <div className="p-4 space-y-4">
                         {localItems.filter((i: any) => i.type === 'EXPENSE').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
+                                <select 
+                                    className="w-1/3 bg-transparent border border-black/20 dark:border-white/20 p-2 text-xs focus:outline-none focus:border-black dark:focus:border-white"
+                                    value={item.category}
+                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                >
+                                    {EXPENSE_CATEGORIES.map(cat => (
+                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                    ))}
+                                </select>
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    value={item.description || item.category || ''}
-                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
-                                    placeholder="Ej: Nómina"
+                                    value={item.description || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
+                                    placeholder="Nota o Descripción (Opcional)"
                                 />
                                 <input 
-                                    className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
+                                    className="w-28 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
                                     value={item.projectedAmount || item.amount || ''}
                                     onChange={(e) => handleItemChange(item.id, 'projectedAmount', e.target.value)}
