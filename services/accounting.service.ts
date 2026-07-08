@@ -3,6 +3,12 @@ import { AccountDTO, CostCenterDTO } from '@/types/accounting';
 
 const BASE_URL = '/api/payments/accounting';
 
+export interface CostCenterRequestDTO {
+  name: string;
+  code: string;
+  locationId: number;
+}
+
 export const accountingService = {
   // Cuentas Contables
   listAccounts: async (): Promise<AccountDTO[]> => {
@@ -21,7 +27,7 @@ export const accountingService = {
     return response.data;
   },
 
-  createCostCenter: async (data: Omit<CostCenterDTO, 'id' | 'active'>): Promise<CostCenterDTO> => {
+  createCostCenter: async (data: CostCenterRequestDTO): Promise<CostCenterDTO> => {
     const response = await axiosInstance.post(`${BASE_URL}/cost-centers`, data);
     return response.data;
   }

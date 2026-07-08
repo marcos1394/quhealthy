@@ -20,5 +20,10 @@ export const financeService = {
       console.warn("Failed to fetch budget periods, returning empty");
       return [];
     }
+  },
+
+  createBudgetPeriod: async (year: number): Promise<BudgetPeriodDTO> => {
+    const response = await axiosInstance.post(`${BASE_URL}/periods`, { year });
+    return response.data;
   }
 };

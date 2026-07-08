@@ -8,27 +8,35 @@ import { toast } from "react-toastify";
 import { accountingService } from "@/services/accounting.service";
 import { financeService, BudgetPeriodDTO } from "@/services/finance.service";
 import { CostCenterDTO } from "@/types/accounting";
+import { CreateFiscalYearDrawer } from "./CreateFiscalYearDrawer";
+import { CreateCostCenterDrawer } from "./CreateCostCenterDrawer";
 
 export default function SettingsPage() {
     const [budgetPeriods, setBudgetPeriods] = useState<BudgetPeriodDTO[]>([]);
     const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    
+    // Drawer States
+    const [isPeriodDrawerOpen, setIsPeriodDrawerOpen] = useState(false);
+    const [isCostCenterDrawerOpen, setIsCostCenterDrawerOpen] = useState(false);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const [periodsRes, costCentersRes] = await Promise.all([
+                financeService.listBudgetPeriods(),
+                accountingService.listCostCenters()
+            ]);
+            setBudgetPeriods(periodsRes);
+            setCostCenters(costCentersRes);
+        } catch (error) {
+            toast.error("Error al cargar configuraciones", { theme: "colored" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [periodsRes, costCentersRes] = await Promise.all([
-                    financeService.listBudgetPeriods(),
-                    accountingService.listCostCenters()
-                ]);
-                setBudgetPeriods(periodsRes);
-                setCostCenters(costCentersRes);
-            } catch (error) {
-                toast.error("Error al cargar configuraciones", { theme: "colored" });
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchData();
     }, []);
 
@@ -64,7 +72,12 @@ export default function SettingsPage() {
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
                             Años Fiscales (Periodos)
                         </h3>
-                        <Button variant="ghost" size="sm" className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none">
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none"
+                            onClick={() => setIsPeriodDrawerOpen(true)}
+                        >
                             <Plus className="w-3 h-3 mr-1" /> Nuevo
                         </Button>
                     </div>
@@ -101,7 +114,12 @@ export default function SettingsPage() {
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
                             Centros de Costo
                         </h3>
-                        <Button variant="ghost" size="sm" className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none">
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none"
+                            onClick={() => setIsCostCenterDrawerOpen(true)}
+                        >
                             <Plus className="w-3 h-3 mr-1" /> Nuevo
                         </Button>
                     </div>
@@ -130,6 +148,18 @@ export default function SettingsPage() {
                     </div>
                 </div>
             </div>
+
+            <CreateFiscalYearDrawer 
+                open={isPeriodDrawerOpen}
+                onOpenChange={setIsPeriodDrawerOpen}
+                onSuccess={fetchData}
+            />
+
+            <CreateCostCenterDrawer 
+                open={isCostCenterDrawerOpen}
+                onOpenChange={setIsCostCenterDrawerOpen}
+                onSuccess={fetchData}
+            />
         </div>
     );
 }
