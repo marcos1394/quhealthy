@@ -1,10 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings } from "lucide-react";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { toast } from "react-toastify";
+import { accountingService } from "@/services/accounting.service";
+import { financeService, BudgetPeriodDTO } from "@/services/finance.service";
+import { CostCenterDTO } from "@/types/accounting";
 
 export default function SettingsPage() {
+    const [budgetPeriods, setBudgetPeriods] = useState<BudgetPeriodDTO[]>([]);
+    const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [periodsRes, costCentersRes] = await Promise.all([
+                    financeService.listBudgetPeriods(),
+                    accountingService.listCostCenters()
+                ]);
+                setBudgetPeriods(periodsRes);
+                setCostCenters(costCentersRes);
+            } catch (error) {
+                toast.error("Error al cargar configuraciones", { theme: "colored" });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+                <QhSpinner size="lg" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    Cargando configuraciones...
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
@@ -31,15 +69,29 @@ export default function SettingsPage() {
                         </Button>
                     </div>
                     <div className="p-4 space-y-3">
-                        <div className="flex justify-between items-center p-3 border border-black/10 dark:border-white/10">
-                            <div>
-                                <p className="font-semibold text-sm">Año Fiscal 2026</p>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Ene 1 - Dic 31</p>
+                        {budgetPeriods.length > 0 ? (
+                            budgetPeriods.map((period) => (
+                                <div key={period.id} className="flex justify-between items-center p-3 border border-black/10 dark:border-white/10">
+                                    <div>
+                                        <p className="font-semibold text-sm">Año Fiscal {period.year}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+                                            {period.startDate} - {period.endDate}
+                                        </p>
+                                    </div>
+                                    <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest border ${
+                                        period.status === 'ACTIVE' 
+                                        ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10'
+                                        : 'border-gray-500/30 text-gray-600 bg-gray-50 dark:bg-gray-900/10'
+                                    }`}>
+                                        {period.status}
+                                    </span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-4 text-center border border-dashed border-black/20 dark:border-white/20">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">NO HAY PERIODOS FISCALES</p>
                             </div>
-                            <span className="px-2 py-1 text-[9px] font-bold uppercase tracking-widest border border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10">
-                                Activo
-                            </span>
-                        </div>
+                        )}
                     </div>
                 </div>
 
@@ -47,25 +99,34 @@ export default function SettingsPage() {
                 <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
                     <div className="p-4 border-b border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex justify-between items-center">
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
-                            Centros de Costo (Clínicas)
+                            Centros de Costo
                         </h3>
                         <Button variant="ghost" size="sm" className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none">
                             <Plus className="w-3 h-3 mr-1" /> Nuevo
                         </Button>
                     </div>
                     <div className="p-4 space-y-3">
-                        <div className="flex justify-between items-center p-3 border border-black/10 dark:border-white/10">
-                            <div>
-                                <p className="font-semibold text-sm">Clínica Norte</p>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">CC-001</p>
+                        {costCenters.length > 0 ? (
+                            costCenters.map((cc) => (
+                                <div key={cc.id} className="flex justify-between items-center p-3 border border-black/10 dark:border-white/10">
+                                    <div>
+                                        <p className="font-semibold text-sm">{cc.name}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{cc.code}</p>
+                                    </div>
+                                    <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest border ${
+                                        cc.active 
+                                        ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10'
+                                        : 'border-red-500/30 text-red-600 bg-red-50 dark:bg-red-900/10'
+                                    }`}>
+                                        {cc.active ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-4 text-center border border-dashed border-black/20 dark:border-white/20">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">NO HAY CENTROS DE COSTO</p>
                             </div>
-                        </div>
-                        <div className="flex justify-between items-center p-3 border border-black/10 dark:border-white/10">
-                            <div>
-                                <p className="font-semibold text-sm">Laboratorio Central</p>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">CC-002</p>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
