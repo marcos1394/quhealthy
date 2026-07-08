@@ -56,9 +56,14 @@ export const budgetService = {
     return response.data;
   },
 
-  // Obtiene el summary analítico del presupuesto
   getBudgetSummary: async (budgetId: number): Promise<BudgetSummaryDTO> => {
-    const response = await axiosInstance.get(`/api/analytics/budgets/${budgetId}/summary`);
+    const { useSessionStore } = await import('@/stores/SessionStore');
+    const providerId = useSessionStore.getState().user?.id;
+    const response = await axiosInstance.get(`/api/intelligence/finance/budgets/${budgetId}/summary`, {
+        headers: {
+            'X-Provider-Id': providerId ? providerId.toString() : '1'
+        }
+    });
     return response.data;
   },
 
