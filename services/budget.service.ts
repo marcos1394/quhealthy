@@ -46,7 +46,6 @@ export const budgetService = {
   // Lista los presupuestos
   listBudgets: async (): Promise<BudgetDTO[]> => {
     const response = await axiosInstance.get('/api/payments/finance/budgets');
-    // Assuming backend returns a list of Budget entity objects which might differ slightly from the frontend mock
     return response.data;
   },
 
