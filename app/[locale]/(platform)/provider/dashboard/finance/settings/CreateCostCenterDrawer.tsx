@@ -108,7 +108,7 @@ export const CreateCostCenterDrawer = ({
                                 >
                                     <option value="">SELECCIONAR SUCURSAL...</option>
                                     {locations.map(loc => (
-                                        <option key={loc.id} value={loc.id}>{loc.name} {loc.isMatriz ? '(MATRIZ)' : ''}</option>
+                                        <option key={loc.id} value={loc.id}>{loc.name} {loc.isMain ? '(MATRIZ)' : ''}</option>
                                     ))}
                                 </select>
                                 {errors.locationId && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
