@@ -1,21 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Plus } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import useSWR from "swr";
 import { financeService } from "@/services/finance.service";
+import { toast } from "react-toastify";
 
 export default function BudgetBuilderPage() {
     const router = useRouter();
     const params = useParams();
     const isEditing = params.id !== "new";
 
-    const { data: budget, isLoading } = useSWR(
+    const { data: budget, isLoading, mutate } = useSWR(
         isEditing ? ['budget', params.id] : null,
         () => financeService.getBudget(params.id as string)
     );
+
+    const [localItems, setLocalItems] = useState<any[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (budget && budget.items) {
+            setLocalItems(budget.items);
+        }
+    }, [budget]);
 
     if (isLoading) {
         return <div className="p-8 text-center">Cargando presupuesto...</div>;
@@ -26,6 +36,49 @@ export default function BudgetBuilderPage() {
         totalProjectedIncome: 0,
         totalProjectedExpense: 0,
         items: []
+    };
+
+    const handleAddItem = (type: 'INCOME' | 'EXPENSE') => {
+        setLocalItems([...localItems, {
+            id: `new-${Date.now()}`,
+            type,
+            category: '',
+            description: '',
+            projectedAmount: 0
+        }]);
+    };
+
+    const handleItemChange = (id: string | number, field: string, value: any) => {
+        setLocalItems(localItems.map(item => item.id === id ? { ...item, [field]: value } : item));
+    };
+
+    const handleSaveChanges = async () => {
+        setIsSaving(true);
+        try {
+            // Filter only new items that haven't been saved yet
+            const newItems = localItems.filter(item => typeof item.id === 'string' && item.id.startsWith('new-'));
+            
+            for (const item of newItems) {
+                await financeService.addBudgetLineItem(params.id as string, {
+                    type: item.type,
+                    category: item.category || 'Otros',
+                    description: item.category || 'N/A',
+                    projectedAmount: Number(item.projectedAmount)
+                });
+            }
+
+            if (newItems.length > 0) {
+                toast.success("Presupuesto actualizado correctamente.");
+                mutate(); // Refresh data from backend
+            } else {
+                toast.info("No hay partidas nuevas para guardar.");
+            }
+        } catch (error) {
+            toast.error("Hubo un error al guardar las partidas.");
+            console.error(error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -47,8 +100,12 @@ export default function BudgetBuilderPage() {
                         </p>
                     </div>
                 </div>
-                <Button className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest">
-                    <Save className="w-4 h-4 mr-2" /> Guardar Cambios
+                <Button 
+                    onClick={handleSaveChanges}
+                    disabled={isSaving}
+                    className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest disabled:opacity-50"
+                >
+                    <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                 </Button>
             </div>
 
@@ -62,20 +119,28 @@ export default function BudgetBuilderPage() {
                         <span className="text-sm font-semibold">${currentBudget.totalProjectedIncome?.toLocaleString()}</span>
                     </div>
                     <div className="p-4 space-y-4">
-                        {currentBudget.items?.filter((i: any) => i.type === 'INCOME').map((item: any) => (
+                        {localItems.filter((i: any) => i.type === 'INCOME').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    defaultValue={item.description || item.category}
+                                    value={item.description || item.category || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                    placeholder="Ej: Consultas"
                                 />
                                 <input 
                                     className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
-                                    defaultValue={item.projectedAmount || item.amount}
+                                    value={item.projectedAmount || item.amount || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'projectedAmount', e.target.value)}
+                                    placeholder="0"
                                 />
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full rounded-none border-dashed border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest h-10">
+                        <Button 
+                            onClick={() => handleAddItem('INCOME')}
+                            variant="outline" 
+                            className="w-full rounded-none border-dashed border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest h-10"
+                        >
                             <Plus className="w-3 h-3 mr-2" /> Añadir Ingreso
                         </Button>
                     </div>
@@ -90,20 +155,28 @@ export default function BudgetBuilderPage() {
                         <span className="text-sm font-semibold">${currentBudget.totalProjectedExpense?.toLocaleString()}</span>
                     </div>
                     <div className="p-4 space-y-4">
-                        {currentBudget.items?.filter((i: any) => i.type === 'EXPENSE').map((item: any) => (
+                        {localItems.filter((i: any) => i.type === 'EXPENSE').map((item: any) => (
                             <div key={item.id} className="flex gap-4">
                                 <input 
                                     className="flex-1 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white" 
-                                    defaultValue={item.description || item.category}
+                                    value={item.description || item.category || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'category', e.target.value)}
+                                    placeholder="Ej: Nómina"
                                 />
                                 <input 
                                     className="w-32 bg-transparent border border-black/20 dark:border-white/20 p-2 text-sm focus:outline-none focus:border-black dark:focus:border-white text-right" 
                                     type="number"
-                                    defaultValue={item.projectedAmount || item.amount}
+                                    value={item.projectedAmount || item.amount || ''}
+                                    onChange={(e) => handleItemChange(item.id, 'projectedAmount', e.target.value)}
+                                    placeholder="0"
                                 />
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full rounded-none border-dashed border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest h-10">
+                        <Button 
+                            onClick={() => handleAddItem('EXPENSE')}
+                            variant="outline" 
+                            className="w-full rounded-none border-dashed border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest h-10"
+                        >
                             <Plus className="w-3 h-3 mr-2" /> Añadir Gasto
                         </Button>
                     </div>

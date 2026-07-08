@@ -45,5 +45,10 @@ export const financeService = {
   updateBudget: async (id: string, data: any): Promise<any> => {
     const response = await axiosInstance.put(`${BASE_URL}/budgets/${id}`, data);
     return response.data;
+  },
+
+  addBudgetLineItem: async (budgetId: string, data: any): Promise<any> => {
+    const response = await axiosInstance.post(`${BASE_URL}/budgets/${budgetId}/lines`, data);
+    return response.data;
   }
 };
