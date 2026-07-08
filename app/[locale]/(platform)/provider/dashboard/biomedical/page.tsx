@@ -6,24 +6,48 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
-// Simulating some data since we don't have the global analytics endpoint yet, only per equipment.
-const dummyStats = {
-    totalEquipments: 45,
-    outOfService: 3,
-    activeWorkOrders: 8,
-    avgMttrMinutes: 145 
-};
+import { useSessionStore } from '@/stores/SessionStore';
+import { biomedicalService } from '@/services/biomedical.service';
+import { BiomedicalEquipmentDTO } from '@/types/biomedical';
 
 export default function BiomedicalDashboardPage() {
-    const t = useTranslations('SidebarNav'); // Or a new namespace for Biomedical
+    const t = useTranslations('SidebarNav'); 
     const router = useRouter();
+    const { user } = useSessionStore();
+    const providerId = user?.id;
+
     const [isLoading, setIsLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalEquipments: 0,
+        outOfService: 0,
+        activeWorkOrders: 0, // Requires separate endpoints, leaving at 0
+        avgMttrMinutes: 0 // Requires separate endpoints, leaving at 0
+    });
 
     useEffect(() => {
-        // Simulate fetch
-        const timer = setTimeout(() => setIsLoading(false), 800);
-        return () => clearTimeout(timer);
-    }, []);
+        const fetchDashboardData = async () => {
+            if (!providerId) return;
+            setIsLoading(true);
+            try {
+                const equipments = await biomedicalService.listEquipments(providerId);
+                const outOfServiceCount = equipments.filter((eq: BiomedicalEquipmentDTO) => eq.status === 'OUT_OF_SERVICE').length;
+                
+                // For a real application, we should have a specific analytics endpoint.
+                // For now, we compute what we can from the list.
+                setStats({
+                    totalEquipments: equipments.length,
+                    outOfService: outOfServiceCount,
+                    activeWorkOrders: 0,
+                    avgMttrMinutes: 0
+                });
+            } catch (error) {
+                console.error("Failed to load biomedical stats", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, [providerId]);
 
     if (isLoading) {
         return (
@@ -78,7 +102,7 @@ export default function BiomedicalDashboardPage() {
                             <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">TOTAL EQUIPOS</span>
                         </div>
                         <div className="text-4xl font-semibold tracking-tight text-black dark:text-white mb-2">
-                            {dummyStats.totalEquipments}
+                            {stats.totalEquipments}
                         </div>
                     </div>
 
@@ -90,7 +114,7 @@ export default function BiomedicalDashboardPage() {
                             <span className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">FUERA DE SERVICIO</span>
                         </div>
                         <div className="text-4xl font-semibold tracking-tight text-red-700 dark:text-red-300 mb-2">
-                            {dummyStats.outOfService}
+                            {stats.outOfService}
                         </div>
                     </div>
 
@@ -102,7 +126,7 @@ export default function BiomedicalDashboardPage() {
                             <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">ÓRDENES PENDIENTES</span>
                         </div>
                         <div className="text-4xl font-semibold tracking-tight text-amber-700 dark:text-amber-300 mb-2">
-                            {dummyStats.activeWorkOrders}
+                            {stats.activeWorkOrders}
                         </div>
                     </div>
 
@@ -114,7 +138,7 @@ export default function BiomedicalDashboardPage() {
                             <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">MTTR PROMEDIO</span>
                         </div>
                         <div className="text-4xl font-semibold tracking-tight text-blue-700 dark:text-blue-300 mb-2">
-                            {dummyStats.avgMttrMinutes} <span className="text-sm font-normal text-blue-600/70 dark:text-blue-400/70">min</span>
+                            {stats.avgMttrMinutes} <span className="text-sm font-normal text-blue-600/70 dark:text-blue-400/70">min</span>
                         </div>
                     </div>
 

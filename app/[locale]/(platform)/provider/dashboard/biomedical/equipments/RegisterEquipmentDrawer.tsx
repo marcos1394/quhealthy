@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetCl
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { biomedicalService } from '@/services/biomedical.service';
 
+import { useSessionStore } from '@/stores/SessionStore';
+
 interface RegisterEquipmentForm {
     name: string;
     category: string;
@@ -32,10 +34,12 @@ export const RegisterEquipmentDrawer = ({
 }) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<RegisterEquipmentForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { user } = useSessionStore();
 
     const onSubmit = async (data: RegisterEquipmentForm) => {
         setIsSubmitting(true);
         try {
+            if (!user?.id) throw new Error("Provider ID is missing");
             const payload = {
                 ...data,
                 lifespanYears: Number(data.lifespanYears),
@@ -43,7 +47,7 @@ export const RegisterEquipmentDrawer = ({
                 status: 'ACTIVE' // Default status for new equipment
             };
             
-            await biomedicalService.createEquipment(payload);
+            await biomedicalService.createEquipment(user.id, payload);
             toast.success("Equipo registrado correctamente", { theme: "colored" });
             reset();
             onSuccess();

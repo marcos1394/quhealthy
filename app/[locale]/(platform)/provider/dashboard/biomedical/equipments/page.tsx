@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 
-// Type definitions (mocked from what we defined in biomedical types)
 import { BiomedicalEquipmentDTO } from '@/types/biomedical';
 import { RegisterEquipmentDrawer } from './RegisterEquipmentDrawer';
+import { biomedicalService } from '@/services/biomedical.service';
+import { useSessionStore } from '@/stores/SessionStore';
+import { toast } from 'react-toastify';
 
 export default function BiomedicalEquipmentsPage() {
     const t = useTranslations('SidebarNav'); 
@@ -18,59 +20,30 @@ export default function BiomedicalEquipmentsPage() {
     const [filterStatus, setFilterStatus] = useState<string>('ALL');
     const [isRegisterDrawerOpen, setIsRegisterDrawerOpen] = useState(false);
 
-    // Simulate fetch
+    const { user } = useSessionStore();
+    const providerId = user?.id || ''; 
+
     const [equipments, setEquipments] = useState<BiomedicalEquipmentDTO[]>([]);
 
+    const fetchEquipments = async () => {
+        if (!providerId) return;
+        setIsLoading(true);
+        try {
+            const data = await biomedicalService.listEquipments(providerId);
+            setEquipments(data);
+        } catch (error) {
+            toast.error("Error al cargar inventario", { theme: 'colored' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchEquipments = async () => {
-            setIsLoading(true);
-            // Simulating API call
-            setTimeout(() => {
-                setEquipments([
-                    {
-                        id: 1,
-                        name: "Monitor de Signos Vitales",
-                        category: "Monitoreo",
-                        manufacturer: "Philips",
-                        model: "IntelliVue MX400",
-                        serialNumber: "PHL-MX400-001",
-                        internalCode: "MON-01",
-                        status: "ACTIVE",
-                        riskLevel: "HIGH"
-                    },
-                    {
-                        id: 2,
-                        name: "Bomba de Infusión",
-                        category: "Terapia",
-                        manufacturer: "Baxter",
-                        model: "Sigma Spectrum",
-                        serialNumber: "BXT-SS-082",
-                        internalCode: "INF-12",
-                        status: "OUT_OF_SERVICE",
-                        riskLevel: "HIGH"
-                    },
-                    {
-                        id: 3,
-                        name: "Desfibrilador",
-                        category: "Reanimación",
-                        manufacturer: "Zoll",
-                        model: "R Series",
-                        serialNumber: "ZOL-RS-911",
-                        internalCode: "DEF-03",
-                        status: "IN_MAINTENANCE",
-                        riskLevel: "HIGH"
-                    }
-                ]);
-                setIsLoading(false);
-            }, 800);
-        };
         fetchEquipments();
-    }, []);
+    }, [providerId]);
 
     const handleEquipmentRegistered = () => {
-        // Here we would normally refetch the list
-        // fetchEquipments();
-        console.log("Equipment registered");
+        fetchEquipments();
     };
 
     const filteredEquipments = equipments.filter(eq => {

@@ -8,43 +8,45 @@ import { cn } from '@/lib/utils';
 import { BiomedicalEquipmentDTO } from '@/types/biomedical';
 import { biomedicalService } from '@/services/biomedical.service';
 import { toast } from 'react-toastify';
+import { useSessionStore } from '@/stores/SessionStore';
 
 export default function EquipmentDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const equipmentId = Number(params.id);
+    const equipmentId = params.id as string;
     
+    const { user } = useSessionStore();
+    const providerId = user?.id;
+
     const [equipment, setEquipment] = useState<BiomedicalEquipmentDTO | null>(null);
+    const [mttr, setMttr] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchEquipment = async () => {
+        const fetchEquipmentDetails = async () => {
+            if (!equipmentId || !providerId) return;
             setIsLoading(true);
             try {
-                // simulated for now
-                setTimeout(() => {
-                    setEquipment({
-                        id: equipmentId,
-                        name: "Monitor de Signos Vitales",
-                        category: "Monitoreo",
-                        manufacturer: "Philips",
-                        model: "IntelliVue MX400",
-                        serialNumber: "PHL-MX400-001",
-                        internalCode: "MON-01",
-                        status: "ACTIVE",
-                        riskLevel: "HIGH",
-                        lifespanYears: 10,
-                        acquisitionDate: "2023-01-15"
-                    });
-                    setIsLoading(false);
-                }, 600);
+                // Fetching MTTR
+                const mttrValue = await biomedicalService.getMTTR(equipmentId).catch(() => null);
+                if (mttrValue !== null) setMttr(mttrValue);
+
+                // Fetching the equipment from the provider's list
+                const equipments = await biomedicalService.listEquipments(providerId);
+                const found = equipments.find((eq: BiomedicalEquipmentDTO) => eq.id === equipmentId);
+                if (found) {
+                    setEquipment(found);
+                } else {
+                    toast.error("Equipo no encontrado", { theme: 'colored' });
+                }
             } catch (err) {
-                toast.error("Error al cargar equipo", { theme: 'colored' });
+                toast.error("Error al cargar detalles", { theme: 'colored' });
+            } finally {
                 setIsLoading(false);
             }
         };
-        fetchEquipment();
-    }, [equipmentId]);
+        fetchEquipmentDetails();
+    }, [equipmentId, providerId]);
 
     if (isLoading) {
         return (
@@ -189,7 +191,7 @@ export default function EquipmentDetailPage() {
                                     </h3>
                                     <div>
                                         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">MTTR (Tiempo Medio Reparación)</p>
-                                        <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">-- <span className="text-xs font-normal">MIN</span></p>
+                                        <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">{mttr !== null ? Math.round(mttr) : '--'} <span className="text-xs font-normal">MIN</span></p>
                                     </div>
                                     <div>
                                         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2">Total Órdenes Correctivas</p>

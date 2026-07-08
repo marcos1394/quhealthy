@@ -4,7 +4,7 @@ export type EquipmentStatus = 'ACTIVE' | 'OUT_OF_SERVICE' | 'IN_MAINTENANCE' | '
 export type EquipmentRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface BiomedicalEquipmentDTO {
-    id: number;
+    id: string;
     name: string;
     category: string;
     manufacturer: string;
@@ -26,8 +26,8 @@ export type WorkOrderType = 'PREVENTIVE' | 'CORRECTIVE' | 'CALIBRATION';
 export type WorkOrderPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
 
 export interface WorkOrderDTO {
-    id: number;
-    equipmentId: number;
+    id: string;
+    equipmentId: string;
     type: WorkOrderType;
     status: WorkOrderStatus;
     priority: WorkOrderPriority;
@@ -43,8 +43,8 @@ export interface WorkOrderDTO {
 }
 
 export interface EquipmentDocumentDTO {
-    id: number;
-    equipmentId: number;
+    id: string;
+    equipmentId: string;
     documentType: string;
     fileUrl: string;
     fileName: string;
@@ -52,8 +52,8 @@ export interface EquipmentDocumentDTO {
 }
 
 export interface MaintenanceScheduleDTO {
-    id: number;
-    equipmentId: number;
+    id: string;
+    equipmentId: string;
     frequencyDays: number;
     lastMaintenanceDate?: string;
     nextMaintenanceDate?: string;
