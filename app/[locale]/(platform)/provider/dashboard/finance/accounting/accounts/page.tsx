@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export default function ChartOfAccountsPage() {
     const [accounts, setAccounts] = useState<AccountDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+    const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         const fetchAccounts = async () => {
@@ -28,18 +28,18 @@ export default function ChartOfAccountsPage() {
         fetchAccounts();
     }, []);
 
-    const toggleRow = (id: number) => {
+    const toggleRow = (id: string) => {
         setExpandedRows(prev => ({
             ...prev,
             [id]: !prev[id]
         }));
     };
 
-    // Helper para estructurar las cuentas en árbol asumiendo parentAccount
-    const rootAccounts = accounts.filter(acc => !acc.parentAccount);
+    // Helper para estructurar las cuentas en árbol asumiendo parentAccountId
+    const rootAccounts = accounts.filter(acc => !acc.parentAccountId);
 
     const renderAccountRow = (account: AccountDTO, depth: number = 0) => {
-        const children = accounts.filter(acc => acc.parentAccount?.id === account.id);
+        const children = accounts.filter(acc => acc.parentAccountId === account.id);
         const hasChildren = children.length > 0;
         const isExpanded = expandedRows[account.id] || false;
 
