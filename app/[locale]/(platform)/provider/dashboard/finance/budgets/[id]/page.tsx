@@ -125,13 +125,24 @@ export default function BudgetBuilderPage() {
                         </p>
                     </div>
                 </div>
-                <Button 
-                    onClick={handleSaveChanges}
-                    disabled={isSaving}
-                    className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest disabled:opacity-50"
-                >
-                    <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                </Button>
+                <div className="flex gap-2">
+                    {isEditing && (
+                        <Button 
+                            onClick={() => router.push(`/provider/dashboard/finance/budgets/${params.id}/calendar`)}
+                            variant="outline"
+                            className="rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest"
+                        >
+                            Calendarizar
+                        </Button>
+                    )}
+                    <Button 
+                        onClick={handleSaveChanges}
+                        disabled={isSaving}
+                        className="rounded-none h-10 px-6 bg-black text-white dark:bg-white dark:text-black border-0 text-[9px] font-bold uppercase tracking-widest disabled:opacity-50"
+                    >
+                        <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -38,7 +38,9 @@ const CATEGORY_TRANSLATIONS: Record<string, string> = {
 
 export default function ExecutionsPage() {
     const [executions, setExecutions] = useState<BudgetExecutionLogDTO[]>([]);
+    const [filteredExecutions, setFilteredExecutions] = useState<BudgetExecutionLogDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState<string>("ALL");
     
     // State for modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,6 +88,7 @@ export default function ExecutionsPage() {
                     accountingService.getSatCurrencies()
                 ]);
                 setExecutions(data);
+                setFilteredExecutions(data);
                 setLineItems(linesData);
                 setAccounts(accountsData);
                 setSatBanks(banks);
@@ -102,6 +105,14 @@ export default function ExecutionsPage() {
     useEffect(() => {
         fetchExecutions();
     }, []);
+
+    useEffect(() => {
+        if (statusFilter === "ALL") {
+            setFilteredExecutions(executions);
+        } else {
+            setFilteredExecutions(executions.filter(e => e.approvalStatus === statusFilter));
+        }
+    }, [statusFilter, executions]);
 
     const handleRegisterExecution = async () => {
         if (!activeBudget) return;
@@ -162,22 +173,35 @@ export default function ExecutionsPage() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
                 <div>
-                    <h2 className="text-lg font-semibold uppercase tracking-tight">Ejecución y Facturación</h2>
+                    <h2 className="text-lg font-semibold uppercase tracking-tight">Ejecución del Presupuesto</h2>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                        Historial de movimientos reales y CFDI
+                        Registro de ingresos y gastos reales de {activeBudget?.name || '...'}
                     </p>
                 </div>
                 
-                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                    <DialogTrigger asChild>
-                        <Button 
-                            className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
-                        >
-                            <Plus className="w-4 h-4 mr-2" /> Registrar Movimiento
-                        </Button>
-                    </DialogTrigger>
+                <div className="flex items-center gap-4">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[180px] h-10 rounded-none border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest">
+                            <SelectValue placeholder="Estado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">Todos los Estados</SelectItem>
+                            <SelectItem value="APPROVED">Aprobados</SelectItem>
+                            <SelectItem value="PENDING">Pendientes</SelectItem>
+                            <SelectItem value="REJECTED">Rechazados / Bloqueados</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button 
+                                className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Ejecutar Gasto o Ingreso
+                            </Button>
+                        </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#0a0a0a]">
                         <DialogHeader>
                             <DialogTitle className="uppercase tracking-tight text-lg">Registrar Ejecución</DialogTitle>
@@ -440,11 +464,14 @@ export default function ExecutionsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {executions.length > 0 ? (
-                            executions.map((exec) => (
-                                <tr key={exec.id} className="border-b border-black/10 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-[#050505]/50 transition-colors">
+                        {filteredExecutions.length > 0 ? (
+                            filteredExecutions.map((exec) => (
+                                <tr key={exec.id} className={`border-b border-black/10 dark:border-white/10 transition-colors ${exec.approvalStatus === 'REJECTED' ? 'bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-gray-50 dark:hover:bg-[#050505]/50'}`}>
                                     <td className="px-6 py-4">
                                         {exec.createdAt ? new Date(exec.createdAt).toLocaleDateString() : 'N/A'}
+                                        {exec.approvalStatus === 'REJECTED' && (
+                                            <p className="text-[8px] font-bold text-red-600 mt-1 uppercase tracking-widest">Bloqueado</p>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest border ${exec.budgetLineItem?.type === 'INCOME' ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10' : 'border-orange-500/30 text-orange-600 bg-orange-50 dark:bg-orange-900/10'}`}>
@@ -455,7 +482,9 @@ export default function ExecutionsPage() {
                                     <td className="px-6 py-4 text-gray-500">{exec.description}</td>
                                     <td className="px-6 py-4 text-right font-mono">${(exec.amount || 0).toLocaleString()}</td>
                                     <td className="px-6 py-4 text-center">
-                                        {exec.cfdiUuid ? (
+                                        {exec.approvalStatus === 'REJECTED' ? (
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-red-500">Rechazado (Políticas)</span>
+                                        ) : exec.cfdiUuid ? (
                                             <div className="flex items-center justify-center gap-2">
                                                 <CheckCircle className="w-4 h-4 text-green-600" />
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 dark:hover:bg-white/5 rounded-none" title={`CFDI: ${exec.cfdiUuid}`}>

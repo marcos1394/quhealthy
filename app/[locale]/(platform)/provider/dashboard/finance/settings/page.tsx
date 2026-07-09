@@ -10,8 +10,10 @@ import { financeService, BudgetPeriodDTO } from "@/services/finance.service";
 import { CostCenterDTO } from "@/types/accounting";
 import { CreateFiscalYearDrawer } from "./CreateFiscalYearDrawer";
 import { CreateCostCenterDrawer } from "./CreateCostCenterDrawer";
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+    const router = useRouter();
     const [budgetPeriods, setBudgetPeriods] = useState<BudgetPeriodDTO[]>([]);
     const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,8 +62,18 @@ export default function SettingsPage() {
                         Años fiscales, centros de costo y áreas
                     </p>
                 </div>
-                <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                    <Settings className="w-4 h-4 text-gray-500" />
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        className="rounded-none h-10 text-[10px] font-bold uppercase tracking-widest gap-2"
+                        onClick={() => router.push('/provider/dashboard/finance/settings/policies')}
+                    >
+                        <Settings className="w-3.5 h-3.5" />
+                        Políticas
+                    </Button>
+                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                        <Settings className="w-4 h-4 text-gray-500" />
+                    </div>
                 </div>
             </div>
 
@@ -114,14 +126,24 @@ export default function SettingsPage() {
                         <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
                             Centros de Costo
                         </h3>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none"
-                            onClick={() => setIsCostCenterDrawerOpen(true)}
-                        >
-                            <Plus className="w-3 h-3 mr-1" /> Nuevo
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none"
+                                onClick={() => router.push('/provider/dashboard/finance/settings/cost-centers')}
+                            >
+                                Ver Árbol
+                            </Button>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-6 px-2 text-[9px] uppercase tracking-widest rounded-none"
+                                onClick={() => setIsCostCenterDrawerOpen(true)}
+                            >
+                                <Plus className="w-3 h-3 mr-1" /> Nuevo
+                            </Button>
+                        </div>
                     </div>
                     <div className="p-4 space-y-3">
                         {costCenters.length > 0 ? (

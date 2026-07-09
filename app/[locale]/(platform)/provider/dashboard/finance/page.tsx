@@ -91,23 +91,71 @@ export default function FinanceDashboardPage() {
                 </div>
 
                 <div className="border border-black/20 dark:border-white/20 p-6 bg-white dark:bg-[#0a0a0a]">
-                    <div className="flex items-center gap-3 mb-6">
-                        <Activity className="w-5 h-5 text-orange-500" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest">Consumo de Presupuesto (Gastos)</h3>
-                    </div>
-                    <div className="space-y-2">
-                        <p className="text-3xl font-semibold tracking-tight">
-                            ${(summary.totalActualExpense || 0).toLocaleString()} <span className="text-sm text-gray-500 font-normal">/ ${(summary.totalProjectedExpense || 0).toLocaleString()}</span>
-                        </p>
-                        <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 mt-4 flex">
-                            <div 
-                                className="bg-orange-500 h-2 transition-all duration-1000"
-                                style={{ width: `${Math.min(summary.expenseConsumptionPercentage || 0, 100)}%` }}
-                            />
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <Activity className="w-5 h-5 text-orange-500" />
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest">Embudo de Gastos</h3>
                         </div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 text-right mt-1">
-                            {summary.expenseConsumptionPercentage || 0}% Consumido
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                            Total Autorizado: ${(summary.totalProjectedExpense || 0).toLocaleString()}
                         </p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                        {/* Autorizado */}
+                        <div>
+                            <div className="flex justify-between text-xs mb-1">
+                                <span className="font-semibold">Presupuesto Autorizado</span>
+                                <span className="font-mono">100%</span>
+                            </div>
+                            <div className="w-full bg-blue-100 h-2">
+                                <div className="bg-blue-600 h-2 w-full" />
+                            </div>
+                        </div>
+
+                        {/* Comprometido */}
+                        <div>
+                            <div className="flex justify-between text-xs mb-1">
+                                <span className="font-semibold text-amber-600">Comprometido</span>
+                                <span className="font-mono">
+                                    ${(summary.totalCommittedExpense || 0).toLocaleString()} 
+                                    ({Math.round(((summary.totalCommittedExpense || 0) / (summary.totalProjectedExpense || 1)) * 100)}%)
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-100 dark:bg-gray-800 h-2">
+                                <div 
+                                    className="bg-amber-500 h-2 transition-all duration-1000"
+                                    style={{ width: `${Math.min(((summary.totalCommittedExpense || 0) / (summary.totalProjectedExpense || 1)) * 100, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Ejecutado */}
+                        <div>
+                            <div className="flex justify-between text-xs mb-1">
+                                <span className="font-semibold text-orange-600">Ejecutado (Real)</span>
+                                <span className="font-mono">
+                                    ${(summary.totalActualExpense || 0).toLocaleString()} 
+                                    ({Math.round(((summary.totalActualExpense || 0) / (summary.totalProjectedExpense || 1)) * 100)}%)
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-100 dark:bg-gray-800 h-2">
+                                <div 
+                                    className="bg-orange-600 h-2 transition-all duration-1000"
+                                    style={{ width: `${Math.min(summary.expenseConsumptionPercentage || 0, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Disponible */}
+                        <div className="pt-2 border-t border-black/10 dark:border-white/10 mt-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-green-600">Disponible para Comprometer</span>
+                                <span className="text-lg font-bold font-mono text-green-600">
+                                    ${((summary.totalProjectedExpense || 0) - (summary.totalCommittedExpense || 0) - (summary.totalActualExpense || 0)).toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

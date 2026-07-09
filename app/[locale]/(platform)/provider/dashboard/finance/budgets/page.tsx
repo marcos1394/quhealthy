@@ -72,11 +72,19 @@ export default function BudgetsPage() {
                                 <div className="w-10 h-10 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
                                     <FileText className="w-4 h-4" />
                                 </div>
-                                <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 border ${budget.status === 'APPROVED' ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10' : 'border-gray-500/30 text-gray-500'}`}>
+                                <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 border ${
+                                    budget.status === 'ACTIVE' ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10' : 
+                                    budget.status === 'SUPERSEDED' ? 'border-amber-500/30 text-amber-600 bg-amber-50 dark:bg-amber-900/10' :
+                                    budget.status === 'CLOSED' ? 'border-red-500/30 text-red-600 bg-red-50 dark:bg-red-900/10' :
+                                    budget.status === 'ARCHIVED' ? 'border-gray-500/30 text-gray-600 bg-gray-50 dark:bg-gray-900/10' :
+                                    'border-blue-500/30 text-blue-600 bg-blue-50 dark:bg-blue-900/10'
+                                }`}>
                                     {budget.status || 'DRAFT'}
                                 </span>
                             </div>
-                            <h3 className="font-semibold text-sm uppercase tracking-widest mb-1">{budget.name}</h3>
+                            <h3 className="font-semibold text-sm uppercase tracking-widest mb-1">
+                                {budget.name} <span className="text-[10px] text-gray-500 ml-1">v{budget.version || 1}</span>
+                            </h3>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-6">
                                 Ingresos: ${budget.totalProjectedIncome?.toLocaleString() || 0} | Gastos: ${budget.totalProjectedExpense?.toLocaleString() || 0}
                             </p>

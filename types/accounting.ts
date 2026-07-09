@@ -20,4 +20,6 @@ export interface CostCenterDTO {
     associatedAreaType: string;
     associatedAreaId: string;
     active: boolean;
+    parentId?: string | null;
+    children?: CostCenterDTO[];
 }
