@@ -20,7 +20,7 @@ export default function FinanceDashboardPage() {
                 const budgets = await budgetService.listBudgets();
                 
                 // Assuming we want to show the active or first budget summary
-                const activeBudget = budgets.find(b => b.status === 'ACTIVE' || b.status === 'APPROVED') || budgets[0];
+                const activeBudget = budgets.find(b => b.status === 'ACTIVE') || budgets[0];
                 
                 if (activeBudget) {
                     const data = await budgetService.getBudgetSummary(activeBudget.id);

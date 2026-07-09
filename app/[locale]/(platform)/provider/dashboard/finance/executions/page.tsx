@@ -75,7 +75,7 @@ export default function ExecutionsPage() {
     const fetchExecutions = async () => {
         try {
             const budgets = await budgetService.listBudgets();
-            const current = budgets.find(b => b.status === 'ACTIVE' || b.status === 'APPROVED') || budgets[0];
+            const current = budgets.find(b => b.status === 'ACTIVE') || budgets[0];
             
             if (current) {
                 setActiveBudget(current);
