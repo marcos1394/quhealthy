@@ -1,5 +1,6 @@
 import axiosInstance from '@/lib/axios';
 import { AccountDTO, CostCenterDTO } from '@/types/accounting';
+export type { AccountDTO, CostCenterDTO };
 
 const BASE_URL = '/api/payments/accounting';
 
