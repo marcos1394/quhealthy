@@ -102,7 +102,7 @@ export default function CostCentersPage() {
 
                 {isExpanded && hasChildren && (
                     <div className="flex flex-col w-full">
-                        {node.children.map(child => renderNode(child, depth + 1))}
+                        {node.children.map(child => renderNode(child as TreeNode, depth + 1))}
                     </div>
                 )}
             </div>
