@@ -73,8 +73,8 @@ export default function ExecutionsPage() {
                 budgetLineItemId: Number(selectedLineItemId),
                 amount: Number(amount),
                 description,
-                debitAccountId: debitAccountId !== "none" ? Number(debitAccountId) : null,
-                creditAccountId: creditAccountId !== "none" ? Number(creditAccountId) : null
+                debitAccountId: debitAccountId !== "none" ? debitAccountId : null,
+                creditAccountId: creditAccountId !== "none" ? creditAccountId : null
             };
 
             await budgetService.recordExecution(activeBudget.id, request);
@@ -197,7 +197,7 @@ export default function ExecutionsPage() {
                                                     <SelectItem value="none">-- Automático --</SelectItem>
                                                     {accounts.map(acc => (
                                                         <SelectItem key={acc.id} value={acc.id.toString()}>
-                                                            {acc.accountNumber} - {acc.name}
+                                                            {acc.code} - {acc.name}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -213,7 +213,7 @@ export default function ExecutionsPage() {
                                                     <SelectItem value="none">-- Automático --</SelectItem>
                                                     {accounts.map(acc => (
                                                         <SelectItem key={acc.id} value={acc.id.toString()}>
-                                                            {acc.accountNumber} - {acc.name}
+                                                            {acc.code} - {acc.name}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>

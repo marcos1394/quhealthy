@@ -47,8 +47,8 @@ export interface BudgetExecutionRequest {
     transactionId?: number | null;
     amount: number;
     description: string;
-    debitAccountId?: number | null;
-    creditAccountId?: number | null;
+    debitAccountId?: string | null;
+    creditAccountId?: string | null;
 }
 
 export interface BudgetRequestDTO {
