@@ -2,34 +2,101 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, FileText, CheckCircle } from "lucide-react";
-import { budgetService, BudgetExecutionLogDTO } from "@/services/budget.service";
+import { Plus, Download, FileText, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { budgetService, BudgetExecutionLogDTO, BudgetDTO, BudgetLineItemDTO, BudgetExecutionRequest } from "@/services/budget.service";
+import { accountingService, AccountDTO } from "@/services/accounting.service";
 import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ExecutionsPage() {
     const [executions, setExecutions] = useState<BudgetExecutionLogDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    
+    // State for modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeBudget, setActiveBudget] = useState<BudgetDTO | null>(null);
+    const [lineItems, setLineItems] = useState<BudgetLineItemDTO[]>([]);
+    const [accounts, setAccounts] = useState<AccountDTO[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Form state
+    const [selectedLineItemId, setSelectedLineItemId] = useState("");
+    const [amount, setAmount] = useState("");
+    const [description, setDescription] = useState("");
+    
+    // Hybrid options state
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [debitAccountId, setDebitAccountId] = useState<string>("none");
+    const [creditAccountId, setCreditAccountId] = useState<string>("none");
+
+    const fetchExecutions = async () => {
+        try {
+            const budgets = await budgetService.listBudgets();
+            const current = budgets.find(b => b.status === 'ACTIVE' || b.status === 'APPROVED') || budgets[0];
+            
+            if (current) {
+                setActiveBudget(current);
+                const [data, linesData, accountsData] = await Promise.all([
+                    budgetService.getExecutionHistory(current.id),
+                    budgetService.getBudgetLineItems(current.id),
+                    accountingService.getChartOfAccounts()
+                ]);
+                setExecutions(data);
+                setLineItems(linesData);
+                setAccounts(accountsData);
+            }
+        } catch (error) {
+            toast.error("Error al cargar el historial de ejecución", { theme: "colored" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchExecutions = async () => {
-            try {
-                // Obtenemos los presupuestos para buscar el activo
-                const budgets = await budgetService.listBudgets();
-                const activeBudget = budgets.find(b => b.status === 'ACTIVE' || b.status === 'APPROVED') || budgets[0];
-                
-                if (activeBudget) {
-                    const data = await budgetService.getExecutionHistory(activeBudget.id);
-                    setExecutions(data);
-                }
-            } catch (error) {
-                toast.error("Error al cargar el historial de ejecución", { theme: "colored" });
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchExecutions();
     }, []);
+
+    const handleRegisterExecution = async () => {
+        if (!activeBudget) return;
+        if (!selectedLineItemId || !amount || !description) {
+            toast.warning("Por favor completa los campos requeridos", { theme: "colored" });
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            const request: BudgetExecutionRequest = {
+                budgetLineItemId: Number(selectedLineItemId),
+                amount: Number(amount),
+                description,
+                debitAccountId: debitAccountId !== "none" ? Number(debitAccountId) : null,
+                creditAccountId: creditAccountId !== "none" ? Number(creditAccountId) : null
+            };
+
+            await budgetService.recordExecution(activeBudget.id, request);
+            toast.success("Movimiento registrado y póliza borrador generada", { theme: "colored" });
+            
+            // Reset form
+            setIsModalOpen(false);
+            setSelectedLineItemId("");
+            setAmount("");
+            setDescription("");
+            setShowAdvanced(false);
+            setDebitAccountId("none");
+            setCreditAccountId("none");
+            
+            // Reload list
+            fetchExecutions();
+        } catch (error) {
+            toast.error("Error al registrar el movimiento", { theme: "colored" });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -51,12 +118,123 @@ export default function ExecutionsPage() {
                         Historial de movimientos reales y CFDI
                     </p>
                 </div>
-                <Button 
-                    onClick={() => toast.info("Módulo de registro manual de movimientos en desarrollo", { theme: "colored" })}
-                    className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
-                >
-                    <Plus className="w-4 h-4 mr-2" /> Registrar Movimiento
-                </Button>
+                
+                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                    <DialogTrigger asChild>
+                        <Button 
+                            className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                        >
+                            <Plus className="w-4 h-4 mr-2" /> Registrar Movimiento
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle className="uppercase tracking-tight text-lg">Registrar Ejecución</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Partida de Presupuesto</Label>
+                                <Select value={selectedLineItemId} onValueChange={setSelectedLineItemId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecciona una partida" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {lineItems.map(item => (
+                                            <SelectItem key={item.id} value={item.id.toString()}>
+                                                {item.name} ({item.category})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Monto</Label>
+                                    <Input 
+                                        type="number" 
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0.00" 
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Descripción del Movimiento</Label>
+                                <Input 
+                                    placeholder="Ej. Pago de campaña publicitaria" 
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Hybrid Accounting Section */}
+                            <div className="pt-2 border-t border-gray-100 dark:border-gray-800 mt-4">
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowAdvanced(!showAdvanced)}
+                                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+                                >
+                                    {showAdvanced ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                    Opciones Contables (Avanzado)
+                                </button>
+                                
+                                {showAdvanced && (
+                                    <div className="space-y-4 mt-4 bg-gray-50 dark:bg-[#050505] p-4 rounded-md border border-gray-200 dark:border-gray-800">
+                                        <p className="text-xs text-gray-500 mb-2">
+                                            Si dejas estas opciones vacías, el sistema generará la póliza automáticamente usando la cuenta por defecto configurada.
+                                        </p>
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest">Cuenta de Cargo (Debe)</Label>
+                                            <Select value={debitAccountId} onValueChange={setDebitAccountId}>
+                                                <SelectTrigger className="h-8 text-xs">
+                                                    <SelectValue placeholder="Automático" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">-- Automático --</SelectItem>
+                                                    {accounts.map(acc => (
+                                                        <SelectItem key={acc.id} value={acc.id.toString()}>
+                                                            {acc.accountNumber} - {acc.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-bold uppercase tracking-widest">Cuenta de Abono (Haber)</Label>
+                                            <Select value={creditAccountId} onValueChange={setCreditAccountId}>
+                                                <SelectTrigger className="h-8 text-xs">
+                                                    <SelectValue placeholder="Automático" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">-- Automático --</SelectItem>
+                                                    {accounts.map(acc => (
+                                                        <SelectItem key={acc.id} value={acc.id.toString()}>
+                                                            {acc.accountNumber} - {acc.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+                            <Button 
+                                onClick={handleRegisterExecution}
+                                disabled={isSubmitting}
+                                className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                            >
+                                {isSubmitting ? "Registrando..." : "Guardar y Contabilizar"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] overflow-hidden">

@@ -42,6 +42,15 @@ export interface BudgetExecutionLogDTO {
     budgetLineItem: BudgetLineItemDTO;
 }
 
+export interface BudgetExecutionRequest {
+    budgetLineItemId: number;
+    transactionId?: number | null;
+    amount: number;
+    description: string;
+    debitAccountId?: number | null;
+    creditAccountId?: number | null;
+}
+
 export interface BudgetRequestDTO {
     name: string;
     periodId: number;
@@ -53,6 +62,11 @@ export const budgetService = {
   // Lista los presupuestos
   listBudgets: async (): Promise<BudgetDTO[]> => {
     const response = await axiosInstance.get('/api/payments/finance/budgets');
+    return response.data;
+  },
+
+  getBudgetLineItems: async (budgetId: number): Promise<BudgetLineItemDTO[]> => {
+    const response = await axiosInstance.get(`/api/payments/finance/budgets/${budgetId}/lines`);
     return response.data;
   },
 
@@ -70,6 +84,12 @@ export const budgetService = {
   // Obtiene el historial de ejecución real
   getExecutionHistory: async (budgetId: number): Promise<BudgetExecutionLogDTO[]> => {
     const response = await axiosInstance.get(`/api/payments/finance/budgets/${budgetId}/execution`);
+    return response.data;
+  },
+
+  // Registra una nueva ejecución (Gasto o Ingreso)
+  recordExecution: async (budgetId: number, data: BudgetExecutionRequest): Promise<BudgetExecutionLogDTO> => {
+    const response = await axiosInstance.post(`/api/payments/finance/budgets/${budgetId}/execution`, data);
     return response.data;
   },
 
