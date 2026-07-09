@@ -69,6 +69,11 @@ export const accountingService = {
     return response.data;
   },
 
+  getChartOfAccounts: async (): Promise<AccountDTO[]> => {
+    const response = await axiosInstance.get('/api/payments/finance/accounting/accounts');
+    return response.data;
+  },
+
   createAccount: async (data: Omit<AccountDTO, 'id' | 'active'>): Promise<AccountDTO> => {
     const response = await axiosInstance.post(`${BASE_URL}/accounts`, data);
     return response.data;

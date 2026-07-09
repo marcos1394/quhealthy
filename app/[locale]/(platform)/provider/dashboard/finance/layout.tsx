@@ -14,6 +14,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
         { name: "Dashboard", href: "/provider/dashboard/finance" },
         { name: "Presupuestos", href: "/provider/dashboard/finance/budgets" },
         { name: "Ejecución", href: "/provider/dashboard/finance/executions" },
+        { name: "Contabilidad", href: "/provider/dashboard/finance/accounting" },
         { name: "Configuración", href: "/provider/dashboard/finance/settings" },
     ];
 
