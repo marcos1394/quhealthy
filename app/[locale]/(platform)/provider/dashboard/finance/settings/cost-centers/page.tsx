@@ -36,9 +36,11 @@ export default function CostCentersPage() {
     };
 
     // Helper para construir el árbol
-    const buildTree = (centers: CostCenterDTO[]) => {
-        const map = new Map<string, CostCenterDTO & { children: CostCenterDTO[] }>();
-        const roots: (CostCenterDTO & { children: CostCenterDTO[] })[] = [];
+    type TreeNode = CostCenterDTO & { children: TreeNode[] };
+
+    const buildTree = (centers: CostCenterDTO[]): TreeNode[] => {
+        const map = new Map<string, TreeNode>();
+        const roots: TreeNode[] = [];
 
         centers.forEach(cc => {
             map.set(cc.id, { ...cc, children: [] });
@@ -55,7 +57,7 @@ export default function CostCentersPage() {
         return roots;
     };
 
-    const renderNode = (node: CostCenterDTO & { children: CostCenterDTO[] }, depth: number = 0) => {
+    const renderNode = (node: TreeNode, depth: number = 0) => {
         const isExpanded = expandedIds.has(node.id);
         const hasChildren = node.children.length > 0;
 
