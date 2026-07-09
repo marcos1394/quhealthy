@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Plus, Loader2, ChevronDown, ChevronUp, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, FileText, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { budgetService, BudgetExecutionLogDTO, BudgetDTO, BudgetLineItemDTO, BudgetExecutionRequest } from "@/services/budget.service";
 import { accountingService, AccountDTO } from "@/services/accounting.service";
 import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CATEGORY_TRANSLATIONS: Record<string, string> = {
     CONSULTATIONS: "Consultas",
@@ -39,6 +41,10 @@ export default function ExecutionsPage() {
     
     // State for modal
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Combobox state
+    const [openDebitCombobox, setOpenDebitCombobox] = useState(false);
+    const [openCreditCombobox, setOpenCreditCombobox] = useState(false);
     const [activeBudget, setActiveBudget] = useState<BudgetDTO | null>(null);
     const [lineItems, setLineItems] = useState<BudgetLineItemDTO[]>([]);
     const [accounts, setAccounts] = useState<AccountDTO[]>([]);
@@ -210,35 +216,109 @@ export default function ExecutionsPage() {
                                         </p>
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-bold uppercase tracking-widest">Cuenta de Cargo (Debe)</Label>
-                                            <Select value={debitAccountId} onValueChange={setDebitAccountId}>
-                                                <SelectTrigger className="h-8 text-xs">
-                                                    <SelectValue placeholder="Automático" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="none">-- Automático --</SelectItem>
-                                                    {accounts.map(acc => (
-                                                        <SelectItem key={acc.id} value={acc.id.toString()}>
-                                                            {acc.code} - {acc.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <Popover open={openDebitCombobox} onOpenChange={setOpenDebitCombobox}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={openDebitCombobox}
+                                                        className="w-full justify-between h-8 text-xs font-normal"
+                                                    >
+                                                        {debitAccountId !== "none"
+                                                            ? accounts.find((acc) => acc.id.toString() === debitAccountId)?.name
+                                                            : "-- Automático --"}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[400px] p-0" align="start">
+                                                    <Command>
+                                                        <CommandInput placeholder="Buscar cuenta por código o nombre..." className="text-xs" />
+                                                        <CommandList>
+                                                            <CommandEmpty>No se encontró ninguna cuenta.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <CommandItem
+                                                                    value="none"
+                                                                    onSelect={() => {
+                                                                        setDebitAccountId("none");
+                                                                        setOpenDebitCombobox(false);
+                                                                    }}
+                                                                    className="text-xs font-medium"
+                                                                >
+                                                                    <Check className={cn("mr-2 h-4 w-4", debitAccountId === "none" ? "opacity-100" : "opacity-0")} />
+                                                                    -- Automático --
+                                                                </CommandItem>
+                                                                {accounts.map((acc) => (
+                                                                    <CommandItem
+                                                                        key={acc.id}
+                                                                        value={`${acc.code} ${acc.name}`}
+                                                                        onSelect={() => {
+                                                                            setDebitAccountId(acc.id.toString());
+                                                                            setOpenDebitCombobox(false);
+                                                                        }}
+                                                                        className="text-xs"
+                                                                    >
+                                                                        <Check className={cn("mr-2 h-4 w-4", debitAccountId === acc.id.toString() ? "opacity-100" : "opacity-0")} />
+                                                                        <span className="font-mono mr-2">{acc.code}</span> {acc.name}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-bold uppercase tracking-widest">Cuenta de Abono (Haber)</Label>
-                                            <Select value={creditAccountId} onValueChange={setCreditAccountId}>
-                                                <SelectTrigger className="h-8 text-xs">
-                                                    <SelectValue placeholder="Automático" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="none">-- Automático --</SelectItem>
-                                                    {accounts.map(acc => (
-                                                        <SelectItem key={acc.id} value={acc.id.toString()}>
-                                                            {acc.code} - {acc.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <Popover open={openCreditCombobox} onOpenChange={setOpenCreditCombobox}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={openCreditCombobox}
+                                                        className="w-full justify-between h-8 text-xs font-normal"
+                                                    >
+                                                        {creditAccountId !== "none"
+                                                            ? accounts.find((acc) => acc.id.toString() === creditAccountId)?.name
+                                                            : "-- Automático --"}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[400px] p-0" align="start">
+                                                    <Command>
+                                                        <CommandInput placeholder="Buscar cuenta por código o nombre..." className="text-xs" />
+                                                        <CommandList>
+                                                            <CommandEmpty>No se encontró ninguna cuenta.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <CommandItem
+                                                                    value="none"
+                                                                    onSelect={() => {
+                                                                        setCreditAccountId("none");
+                                                                        setOpenCreditCombobox(false);
+                                                                    }}
+                                                                    className="text-xs font-medium"
+                                                                >
+                                                                    <Check className={cn("mr-2 h-4 w-4", creditAccountId === "none" ? "opacity-100" : "opacity-0")} />
+                                                                    -- Automático --
+                                                                </CommandItem>
+                                                                {accounts.map((acc) => (
+                                                                    <CommandItem
+                                                                        key={acc.id}
+                                                                        value={`${acc.code} ${acc.name}`}
+                                                                        onSelect={() => {
+                                                                            setCreditAccountId(acc.id.toString());
+                                                                            setOpenCreditCombobox(false);
+                                                                        }}
+                                                                        className="text-xs"
+                                                                    >
+                                                                        <Check className={cn("mr-2 h-4 w-4", creditAccountId === acc.id.toString() ? "opacity-100" : "opacity-0")} />
+                                                                        <span className="font-mono mr-2">{acc.code}</span> {acc.name}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                     </div>
                                 )}
