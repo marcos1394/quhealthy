@@ -12,6 +12,7 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
         { name: "Resumen", href: "/provider/dashboard/finance/accounting" },
         { name: "Pólizas", href: "/provider/dashboard/finance/accounting/journals" },
         { name: "Catálogo de Cuentas", href: "/provider/dashboard/finance/accounting/accounts" },
+        { name: "Configuración Mapeo", href: "/provider/dashboard/finance/accounting/mapping" },
     ];
 
     return (

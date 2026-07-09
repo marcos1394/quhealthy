@@ -105,5 +105,42 @@ export const accountingService = {
   postJournalEntry: async (id: number): Promise<JournalEntryDTO> => {
     const response = await axiosInstance.post(`/api/payments/finance/accounting/journals/${id}/post`);
     return response.data;
+  },
+
+  // SAT Catalogs
+  getSatBanks: async (): Promise<{ code: string; shortName: string; fullName: string; }[]> => {
+    const response = await axiosInstance.get('/api/payments/accounting/sat/banks');
+    return response.data;
+  },
+  
+  getSatPaymentMethods: async (): Promise<{ code: string; name: string; }[]> => {
+    const response = await axiosInstance.get('/api/payments/accounting/sat/payment-methods');
+    return response.data;
+  },
+
+  getSatCurrencies: async (): Promise<{ code: string; name: string; }[]> => {
+    const response = await axiosInstance.get('/api/payments/accounting/sat/currencies');
+    return response.data;
+  },
+
+  // Account Mapping
+  getCategoryMappings: async (): Promise<any[]> => {
+    const response = await axiosInstance.get('/api/payments/accounting/mapping/category');
+    return response.data;
+  },
+
+  saveCategoryMapping: async (data: any): Promise<any> => {
+    const response = await axiosInstance.post('/api/payments/accounting/mapping/category', data);
+    return response.data;
+  },
+
+  getBankMappings: async (): Promise<any[]> => {
+    const response = await axiosInstance.get('/api/payments/accounting/mapping/bank');
+    return response.data;
+  },
+
+  saveBankMapping: async (data: any): Promise<any> => {
+    const response = await axiosInstance.post('/api/payments/accounting/mapping/bank', data);
+    return response.data;
   }
 };

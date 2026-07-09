@@ -49,6 +49,12 @@ export interface BudgetExecutionRequest {
     description: string;
     debitAccountId?: string | null;
     creditAccountId?: string | null;
+    
+    // Tesorería
+    paymentMethodCode?: string;
+    bankCode?: string;
+    currencyCode?: string;
+    exchangeRate?: number;
 }
 
 export interface BudgetRequestDTO {

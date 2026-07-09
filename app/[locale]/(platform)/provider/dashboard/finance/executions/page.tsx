@@ -56,6 +56,15 @@ export default function ExecutionsPage() {
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
     
+    // Treasury state
+    const [satBanks, setSatBanks] = useState<{code: string; shortName: string; fullName: string;}[]>([]);
+    const [satPaymentMethods, setSatPaymentMethods] = useState<{code: string; name: string;}[]>([]);
+    const [satCurrencies, setSatCurrencies] = useState<{code: string; name: string;}[]>([]);
+    const [paymentMethodCode, setPaymentMethodCode] = useState("");
+    const [bankCode, setBankCode] = useState("");
+    const [currencyCode, setCurrencyCode] = useState("MXN");
+    const [exchangeRate, setExchangeRate] = useState("1.0");
+
     // Hybrid options state
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [debitAccountId, setDebitAccountId] = useState<string>("none");
@@ -68,14 +77,20 @@ export default function ExecutionsPage() {
             
             if (current) {
                 setActiveBudget(current);
-                const [data, linesData, accountsData] = await Promise.all([
+                const [data, linesData, accountsData, banks, methods, currencies] = await Promise.all([
                     budgetService.getExecutionHistory(current.id),
                     budgetService.getBudgetLineItems(current.id),
-                    accountingService.getChartOfAccounts()
+                    accountingService.getChartOfAccounts(),
+                    accountingService.getSatBanks(),
+                    accountingService.getSatPaymentMethods(),
+                    accountingService.getSatCurrencies()
                 ]);
                 setExecutions(data);
                 setLineItems(linesData);
                 setAccounts(accountsData);
+                setSatBanks(banks);
+                setSatPaymentMethods(methods);
+                setSatCurrencies(currencies);
             }
         } catch (error) {
             toast.error("Error al cargar el historial de ejecución", { theme: "colored" });
@@ -101,6 +116,10 @@ export default function ExecutionsPage() {
                 budgetLineItemId: Number(selectedLineItemId),
                 amount: Number(amount),
                 description,
+                paymentMethodCode: paymentMethodCode || undefined,
+                bankCode: bankCode || undefined,
+                currencyCode: currencyCode,
+                exchangeRate: Number(exchangeRate) || 1.0,
                 debitAccountId: debitAccountId !== "none" ? debitAccountId : null,
                 creditAccountId: creditAccountId !== "none" ? creditAccountId : null
             };
@@ -113,6 +132,10 @@ export default function ExecutionsPage() {
             setSelectedLineItemId("");
             setAmount("");
             setDescription("");
+            setPaymentMethodCode("");
+            setBankCode("");
+            setCurrencyCode("MXN");
+            setExchangeRate("1.0");
             setShowAdvanced(false);
             setDebitAccountId("none");
             setCreditAccountId("none");
@@ -197,6 +220,71 @@ export default function ExecutionsPage() {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                 />
+                            </div>
+
+                            {/* Treasury Section */}
+                            <div className="pt-2 border-t border-gray-100 dark:border-gray-800 mt-4">
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">
+                                    Información de Tesorería
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Método de Pago *</Label>
+                                        <Select value={paymentMethodCode} onValueChange={setPaymentMethodCode}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {satPaymentMethods.map(m => (
+                                                    <SelectItem key={m.code} value={m.code}>
+                                                        {m.code} - {m.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Banco</Label>
+                                        <Select value={bankCode} onValueChange={setBankCode}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Opcional" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {satBanks.map(b => (
+                                                    <SelectItem key={b.code} value={b.code}>
+                                                        {b.shortName}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Moneda</Label>
+                                        <Select value={currencyCode} onValueChange={setCurrencyCode}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Moneda" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {satCurrencies.map(c => (
+                                                    <SelectItem key={c.code} value={c.code}>
+                                                        {c.code}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-500">Tipo de Cambio</Label>
+                                        <Input 
+                                            type="number"
+                                            min="0"
+                                            step="0.0001"
+                                            value={exchangeRate}
+                                            onChange={(e) => setExchangeRate(e.target.value)}
+                                            disabled={currencyCode === "MXN"}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Hybrid Accounting Section */}
