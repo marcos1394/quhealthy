@@ -16,8 +16,8 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <nav className="flex items-center gap-4">
+            <div className="border-b border-black/10 dark:border-white/10 pb-2">
+                <nav className="flex items-center gap-6">
                     {tabs.map((tab) => {
                         const isExactlyActive = tab.href === "/provider/dashboard/finance/accounting" 
                             ? pathname === tab.href 
@@ -28,10 +28,10 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
                                 key={tab.href}
                                 href={tab.href}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                                    "text-[10px] font-bold uppercase tracking-widest pb-2 border-b-2 transition-colors",
                                     isExactlyActive 
-                                        ? "bg-black text-white dark:bg-white dark:text-black" 
-                                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700"
+                                        ? "border-black dark:border-white text-black dark:text-white" 
+                                        : "border-transparent text-gray-500 hover:text-black dark:hover:text-white"
                                 )}
                             >
                                 {tab.name}
@@ -41,7 +41,7 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
                 </nav>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-4">
                 {children}
             </div>
         </div>
