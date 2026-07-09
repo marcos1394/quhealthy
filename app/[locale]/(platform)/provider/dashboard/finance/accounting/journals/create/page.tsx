@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { accountingService, AccountDTO, JournalEntryRequest, JournalEntryLineDTO } from "@/services/accounting.service";
 import { toast } from "react-toastify";
-import { ArrowLeft, Plus, Trash2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ShieldAlert, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
