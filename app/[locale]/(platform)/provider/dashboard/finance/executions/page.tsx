@@ -12,6 +12,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const CATEGORY_TRANSLATIONS: Record<string, string> = {
+    CONSULTATIONS: "Consultas",
+    SURGERIES_AND_PROCEDURES: "Cirugías y Proced.",
+    LABORATORY: "Laboratorio",
+    PHARMACY: "Farmacia",
+    HOSPITALIZATION: "Hospitalización",
+    IMAGING: "Imagenología",
+    OTHER_INCOME: "Otros Ingresos",
+    PAYROLL_MEDICAL: "Nómina Médica",
+    PAYROLL_ADMIN: "Nómina Administrativa",
+    MEDICAL_SUPPLIES: "Insumos Médicos",
+    PHARMACEUTICALS: "Fármacos",
+    EQUIPMENT_MAINTENANCE: "Mantenimiento Equipo",
+    RENT: "Renta",
+    UTILITIES: "Servicios",
+    MARKETING: "Marketing",
+    INSURANCE_AND_MALPRACTICE: "Seguros",
+    TAXES: "Impuestos",
+    OTHER_EXPENSE: "Otros Gastos"
+};
+
 export default function ExecutionsPage() {
     const [executions, setExecutions] = useState<BudgetExecutionLogDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -127,7 +148,7 @@ export default function ExecutionsPage() {
                             <Plus className="w-4 h-4 mr-2" /> Registrar Movimiento
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px]">
+                    <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#0a0a0a]">
                         <DialogHeader>
                             <DialogTitle className="uppercase tracking-tight text-lg">Registrar Ejecución</DialogTitle>
                         </DialogHeader>
@@ -141,7 +162,7 @@ export default function ExecutionsPage() {
                                     <SelectContent>
                                         {lineItems.map(item => (
                                             <SelectItem key={item.id} value={item.id.toString()}>
-                                                {item.name} ({item.category})
+                                                {item.name} ({CATEGORY_TRANSLATIONS[item.category] || item.category})
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -261,7 +282,7 @@ export default function ExecutionsPage() {
                                             {exec.budgetLineItem?.type === 'INCOME' ? 'Ingreso' : 'Gasto'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 font-semibold">{exec.budgetLineItem?.category || 'Sin categoría'}</td>
+                                    <td className="px-6 py-4 font-semibold">{CATEGORY_TRANSLATIONS[exec.budgetLineItem?.category] || exec.budgetLineItem?.category || 'Sin categoría'}</td>
                                     <td className="px-6 py-4 text-gray-500">{exec.description}</td>
                                     <td className="px-6 py-4 text-right font-mono">${(exec.amount || 0).toLocaleString()}</td>
                                     <td className="px-6 py-4 text-center">
