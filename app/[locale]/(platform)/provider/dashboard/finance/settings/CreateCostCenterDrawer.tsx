@@ -20,11 +20,15 @@ interface CreateCostCenterForm {
 export const CreateCostCenterDrawer = ({
     open,
     onOpenChange,
-    onSuccess
+    onSuccess,
+    parentId,
+    parentName
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+    parentId?: string | null;
+    parentName?: string;
 }) => {
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateCostCenterForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,6 +60,10 @@ export const CreateCostCenterDrawer = ({
                 code: data.code,
                 locationId: Number(data.locationId)
             };
+
+            if (parentId) {
+                payload.parentId = parentId;
+            }
             
             await accountingService.createCostCenter(payload);
             toast.success("Centro de Costo creado correctamente", { theme: "colored" });
@@ -80,10 +88,10 @@ export const CreateCostCenterDrawer = ({
                             </div>
                             <div>
                                 <SheetTitle className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
-                                    NUEVO CENTRO DE COSTO
+                                    {parentId ? 'NUEVO SUB-CENTRO DE COSTO' : 'NUEVO CENTRO DE COSTO'}
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    VINCULADO A SUCURSAL
+                                    {parentId ? `DEPENDIENTE DE: ${parentName}` : 'VINCULADO A SUCURSAL'}
                                 </SheetDescription>
                             </div>
                         </div>

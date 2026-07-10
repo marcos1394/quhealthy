@@ -8,6 +8,7 @@ export interface CostCenterRequestDTO {
   name: string;
   code: string;
   locationId: number;
+  parentId?: string | null;
 }
 
 export interface JournalEntryLineDTO {

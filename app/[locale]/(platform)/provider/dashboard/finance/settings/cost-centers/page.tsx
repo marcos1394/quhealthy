@@ -7,13 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Plus, Network, ChevronRight, ChevronDown, Edit2 } from "lucide-react";
 import { accountingService } from "@/services/accounting.service";
 import { CostCenterDTO } from "@/types/accounting";
+import { CreateCostCenterDrawer } from "../CreateCostCenterDrawer";
 
 export default function CostCentersPage() {
     const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+    const [isCostCenterDrawerOpen, setIsCostCenterDrawerOpen] = useState(false);
+    const [drawerParentId, setDrawerParentId] = useState<string | null>(null);
+    const [drawerParentName, setDrawerParentName] = useState<string>("");
 
-    useEffect(() => {
+    const fetchData = () => {
+        setIsLoading(true);
         accountingService.listCostCenters()
             .then(data => {
                 setCostCenters(data);
@@ -23,6 +28,10 @@ export default function CostCentersPage() {
             })
             .catch(() => toast.error("Error al cargar centros de costo", { theme: "colored" }))
             .finally(() => setIsLoading(false));
+    };
+
+    useEffect(() => {
+        fetchData();
     }, []);
 
     const toggleExpand = (id: string) => {
@@ -91,10 +100,14 @@ export default function CostCentersPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white" onClick={() => toast.info("Funcionalidad en construcción", { theme: "colored" })}>
                             <Edit2 className="w-3.5 h-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white" onClick={() => {
+                            setDrawerParentId(node.id);
+                            setDrawerParentName(node.name);
+                            setIsCostCenterDrawerOpen(true);
+                        }}>
                             <Plus className="w-3.5 h-3.5" />
                         </Button>
                     </div>
@@ -134,7 +147,14 @@ export default function CostCentersPage() {
                         <Network className="w-3.5 h-3.5" />
                         Ver Grafo
                     </Button>
-                    <Button className="rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2">
+                    <Button 
+                        onClick={() => {
+                            setDrawerParentId(null);
+                            setDrawerParentName("");
+                            setIsCostCenterDrawerOpen(true);
+                        }}
+                        className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2"
+                    >
                         <Plus className="w-3.5 h-3.5" />
                         Nuevo Centro Raíz
                     </Button>
@@ -163,6 +183,13 @@ export default function CostCentersPage() {
                     )}
                 </div>
             </div>
+            <CreateCostCenterDrawer 
+                open={isCostCenterDrawerOpen}
+                onOpenChange={setIsCostCenterDrawerOpen}
+                onSuccess={fetchData}
+                parentId={drawerParentId}
+                parentName={drawerParentName}
+            />
         </div>
     );
 }
