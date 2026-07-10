@@ -127,7 +127,6 @@ export default function BiomedicalEquipmentsPage() {
                             </p>
                         </div>
                     </div>
-                    </div>
                     <div className="flex gap-2 shrink-0">
                         <button 
                             onClick={handleExportPdf}
