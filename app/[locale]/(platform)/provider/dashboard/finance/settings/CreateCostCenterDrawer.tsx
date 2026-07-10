@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Controller } from 'react-hook-form';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { accountingService, CostCenterRequestDTO } from '@/services/accounting.service';
+import { CostCenterDTO } from '@/types/accounting';
 import { locationService } from '@/services/location.service';
 import { ProviderLocation } from '@/types/providerLocation';
 
@@ -29,8 +30,9 @@ export const CreateCostCenterDrawer = ({
     onSuccess: () => void;
     parentId?: string | null;
     parentName?: string;
+    editNode?: CostCenterDTO | null;
 }) => {
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateCostCenterForm>();
+    const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm<CreateCostCenterForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [locations, setLocations] = useState<ProviderLocation[]>([]);
     const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -49,8 +51,18 @@ export const CreateCostCenterDrawer = ({
                 }
             };
             fetchLocations();
+
+            if (editNode) {
+                setValue('name', editNode.name);
+                setValue('code', editNode.code);
+                if (editNode.associatedAreaId) {
+                    setValue('locationId', editNode.associatedAreaId.toString());
+                }
+            } else {
+                reset();
+            }
         }
-    }, [open]);
+    }, [open, editNode, setValue, reset]);
 
     const onSubmit = async (data: CreateCostCenterForm) => {
         setIsSubmitting(true);
@@ -61,12 +73,18 @@ export const CreateCostCenterDrawer = ({
                 locationId: Number(data.locationId)
             };
 
-            if (parentId) {
+            if (parentId && !editNode) {
                 payload.parentId = parentId;
             }
             
-            await accountingService.createCostCenter(payload);
-            toast.success("Centro de Costo creado correctamente", { theme: "colored" });
+            if (editNode) {
+                await accountingService.updateCostCenter(editNode.id, payload);
+                toast.success("Centro de Costo actualizado correctamente", { theme: "colored" });
+            } else {
+                await accountingService.createCostCenter(payload);
+                toast.success("Centro de Costo creado correctamente", { theme: "colored" });
+            }
+            
             reset();
             onSuccess();
             onOpenChange(false);
@@ -88,10 +106,10 @@ export const CreateCostCenterDrawer = ({
                             </div>
                             <div>
                                 <SheetTitle className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
-                                    {parentId ? 'NUEVO SUB-CENTRO DE COSTO' : 'NUEVO CENTRO DE COSTO'}
+                                    {editNode ? 'EDITAR CENTRO DE COSTO' : parentId ? 'NUEVO SUB-CENTRO DE COSTO' : 'NUEVO CENTRO DE COSTO'}
                                 </SheetTitle>
                                 <SheetDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    {parentId ? `DEPENDIENTE DE: ${parentName}` : 'VINCULADO A SUCURSAL'}
+                                    {editNode ? `MODIFICANDO: ${editNode.name}` : parentId ? `DEPENDIENTE DE: ${parentName}` : 'VINCULADO A SUCURSAL'}
                                 </SheetDescription>
                             </div>
                         </div>
@@ -163,9 +181,9 @@ export const CreateCostCenterDrawer = ({
                         className="w-full h-12 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none disabled:opacity-50"
                     >
                         {isSubmitting ? (
-                            <><QhSpinner size="sm" className="text-current" /> CREANDO...</>
+                            <><QhSpinner size="sm" className="text-current" /> GUARDANDO...</>
                         ) : (
-                            <><Save className="w-4 h-4" strokeWidth={1.5} /> CONFIRMAR REGISTRO</>
+                            <><Save className="w-4 h-4" /> GUARDAR CENTRO DE COSTO</>
                         )}
                     </button>
                 </div>

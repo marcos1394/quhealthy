@@ -92,6 +92,11 @@ export const accountingService = {
     return response.data;
   },
 
+  updateCostCenter: async (id: string, data: CostCenterRequestDTO): Promise<CostCenterDTO> => {
+    const response = await axiosInstance.put(`${BASE_URL}/cost-centers/${id}`, data);
+    return response.data;
+  },
+
   // Pólizas Contables
   getJournalEntries: async (): Promise<JournalEntryDTO[]> => {
     const response = await axiosInstance.get('/api/payments/finance/accounting/journals');

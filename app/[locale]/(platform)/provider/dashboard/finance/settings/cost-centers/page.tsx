@@ -8,6 +8,7 @@ import { Plus, Network, ChevronRight, ChevronDown, Edit2 } from "lucide-react";
 import { accountingService } from "@/services/accounting.service";
 import { CostCenterDTO } from "@/types/accounting";
 import { CreateCostCenterDrawer } from "../CreateCostCenterDrawer";
+import { CostCenterGraphDrawer } from "../CostCenterGraphDrawer";
 
 export default function CostCentersPage() {
     const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
@@ -16,6 +17,8 @@ export default function CostCentersPage() {
     const [isCostCenterDrawerOpen, setIsCostCenterDrawerOpen] = useState(false);
     const [drawerParentId, setDrawerParentId] = useState<string | null>(null);
     const [drawerParentName, setDrawerParentName] = useState<string>("");
+    const [drawerEditNode, setDrawerEditNode] = useState<CostCenterDTO | null>(null);
+    const [isGraphOpen, setIsGraphOpen] = useState(false);
 
     const fetchData = () => {
         setIsLoading(true);
@@ -100,12 +103,18 @@ export default function CostCentersPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white" onClick={() => toast.info("Funcionalidad en construcción", { theme: "colored" })}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white" onClick={() => {
+                            setDrawerParentId(null);
+                            setDrawerParentName("");
+                            setDrawerEditNode(node as CostCenterDTO);
+                            setIsCostCenterDrawerOpen(true);
+                        }}>
                             <Edit2 className="w-3.5 h-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-black dark:hover:text-white" onClick={() => {
                             setDrawerParentId(node.id);
                             setDrawerParentName(node.name);
+                            setDrawerEditNode(null);
                             setIsCostCenterDrawerOpen(true);
                         }}>
                             <Plus className="w-3.5 h-3.5" />
@@ -143,7 +152,7 @@ export default function CostCentersPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2">
+                    <Button variant="outline" className="rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2" onClick={() => setIsGraphOpen(true)}>
                         <Network className="w-3.5 h-3.5" />
                         Ver Grafo
                     </Button>
@@ -151,6 +160,7 @@ export default function CostCentersPage() {
                         onClick={() => {
                             setDrawerParentId(null);
                             setDrawerParentName("");
+                            setDrawerEditNode(null);
                             setIsCostCenterDrawerOpen(true);
                         }}
                         className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2"
@@ -189,6 +199,12 @@ export default function CostCentersPage() {
                 onSuccess={fetchData}
                 parentId={drawerParentId}
                 parentName={drawerParentName}
+                editNode={drawerEditNode}
+            />
+            <CostCenterGraphDrawer
+                open={isGraphOpen}
+                onClose={() => setIsGraphOpen(false)}
+                costCenters={costCenters}
             />
         </div>
     );
