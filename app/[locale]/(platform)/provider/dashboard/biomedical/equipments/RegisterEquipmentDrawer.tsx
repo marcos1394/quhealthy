@@ -48,7 +48,7 @@ export const RegisterEquipmentDrawer = ({
                 ...data,
                 lifespanYears: Number(data.lifespanYears),
                 supplierId: data.supplierId ? Number(data.supplierId) : undefined,
-                status: 'ACTIVE' // Default status for new equipment
+                status: 'AVAILABLE' // Default status for new equipment
             };
             
             await biomedicalService.createEquipment(user.id.toString(), payload);
