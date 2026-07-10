@@ -137,7 +137,6 @@ export const RegisterEquipmentDrawer = ({
                                                 <Command className="bg-white dark:bg-[#0a0a0a]">
                                                     <CommandInput 
                                                         placeholder="BUSCAR O CREAR..." 
-                                                        value={categorySearch}
                                                         onValueChange={setCategorySearch}
                                                         className="text-[10px] font-bold uppercase"
                                                     />
@@ -159,8 +158,8 @@ export const RegisterEquipmentDrawer = ({
                                                                 <CommandItem
                                                                     key={cat.id}
                                                                     value={cat.name}
-                                                                    onSelect={(currentValue) => {
-                                                                        field.onChange(currentValue.toUpperCase());
+                                                                    onSelect={() => {
+                                                                        field.onChange(cat.name);
                                                                         setOpenCategoryPopover(false);
                                                                     }}
                                                                     className="text-[10px] font-bold uppercase cursor-pointer"
