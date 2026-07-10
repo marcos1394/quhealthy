@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, X, Building2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Controller } from 'react-hook-form';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { accountingService, CostCenterRequestDTO } from '@/services/accounting.service';
 import { locationService } from '@/services/location.service';
@@ -24,7 +26,7 @@ export const CreateCostCenterDrawer = ({
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateCostCenterForm>();
+    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateCostCenterForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [locations, setLocations] = useState<ProviderLocation[]>([]);
     const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -85,9 +87,6 @@ export const CreateCostCenterDrawer = ({
                                 </SheetDescription>
                             </div>
                         </div>
-                        <SheetClose className="w-10 h-10 border border-transparent hover:border-black/20 dark:hover:border-white/20 flex items-center justify-center transition-colors">
-                            <X className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                        </SheetClose>
                     </div>
                 </SheetHeader>
 
@@ -102,15 +101,25 @@ export const CreateCostCenterDrawer = ({
                             
                             <div className="space-y-2">
                                 <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Ubicación Física (Sucursal) *</label>
-                                <select 
-                                    {...register("locationId", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                >
-                                    <option value="">SELECCIONAR SUCURSAL...</option>
-                                    {locations.map(loc => (
-                                        <option key={loc.id} value={loc.id}>{loc.name} {loc.isMain ? '(MATRIZ)' : ''}</option>
-                                    ))}
-                                </select>
+                                <Controller
+                                    name="locationId"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                                <SelectValue placeholder="SELECCIONAR SUCURSAL..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {locations.map(loc => (
+                                                    <SelectItem key={loc.id} value={loc.id.toString()}>
+                                                        {loc.name} {loc.isMain ? '(MATRIZ)' : ''}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                                 {errors.locationId && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
                             </div>
 

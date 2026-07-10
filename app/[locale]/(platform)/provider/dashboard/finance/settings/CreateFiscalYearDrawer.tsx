@@ -60,9 +60,6 @@ export const CreateFiscalYearDrawer = ({
                                 </SheetDescription>
                             </div>
                         </div>
-                        <SheetClose className="w-10 h-10 border border-transparent hover:border-black/20 dark:hover:border-white/20 flex items-center justify-center transition-colors">
-                            <X className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                        </SheetClose>
                     </div>
                 </SheetHeader>
 

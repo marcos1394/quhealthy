@@ -108,6 +108,7 @@ export default function BudgetPoliciesPage() {
                             <Switch
                                 checked={policy.allowNegativeBudget}
                                 onCheckedChange={(v) => setPolicy(p => ({ ...p, allowNegativeBudget: v }))}
+                                className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-700"
                             />
                         </div>
                         <div className="flex items-center justify-between">
@@ -118,6 +119,7 @@ export default function BudgetPoliciesPage() {
                             <Switch
                                 checked={policy.allowOverExecution}
                                 onCheckedChange={(v) => setPolicy(p => ({ ...p, allowOverExecution: v }))}
+                                className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-700"
                             />
                         </div>
 
@@ -165,8 +167,8 @@ export default function BudgetPoliciesPage() {
                                 type="number"
                                 min={1}
                                 max={5}
-                                value={policy.approvalLevels}
-                                onChange={(e) => setPolicy(p => ({ ...p, approvalLevels: parseInt(e.target.value) || 1 }))}
+                                value={policy.approvalLevels || ""}
+                                onChange={(e) => setPolicy(p => ({ ...p, approvalLevels: e.target.value === "" ? "" as any : parseInt(e.target.value) }))}
                                 className="rounded-none h-9 text-sm"
                             />
                             <p className="text-[10px] text-gray-500">Cuántas aprobaciones requiere un movimiento</p>
@@ -199,6 +201,7 @@ export default function BudgetPoliciesPage() {
                             <Switch
                                 checked={policy.allowCrossDepartmentTransfer}
                                 onCheckedChange={(v) => setPolicy(p => ({ ...p, allowCrossDepartmentTransfer: v }))}
+                                className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-700"
                             />
                         </div>
 
@@ -210,6 +213,7 @@ export default function BudgetPoliciesPage() {
                             <Switch
                                 checked={policy.monthlyControlEnabled}
                                 onCheckedChange={(v) => setPolicy(p => ({ ...p, monthlyControlEnabled: v }))}
+                                className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-200 dark:data-[state=unchecked]:bg-gray-700"
                             />
                         </div>
                     </div>
@@ -221,7 +225,7 @@ export default function BudgetPoliciesPage() {
                 <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="rounded-none h-9 px-6 text-[10px] font-bold uppercase tracking-widest gap-2"
+                    className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 rounded-none h-9 px-6 text-[10px] font-bold uppercase tracking-widest gap-2"
                 >
                     {isSaving ? <QhSpinner size="sm" /> : <Save className="w-3 h-3" />}
                     Guardar Política
