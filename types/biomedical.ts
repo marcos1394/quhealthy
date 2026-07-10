@@ -19,7 +19,7 @@ export interface BiomedicalEquipmentDTO {
     riskLevel?: EquipmentRiskLevel;
     purchasePrice?: number;
     supplierId?: number;
-    currentAreaId?: string;
+    currentAreaId?: number;
     currentAreaName?: string;
     createdAt?: string;
     updatedAt?: string;

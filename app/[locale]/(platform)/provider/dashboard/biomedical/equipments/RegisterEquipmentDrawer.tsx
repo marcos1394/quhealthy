@@ -75,7 +75,7 @@ export const RegisterEquipmentDrawer = ({
                 purchasePrice: data.purchasePrice ? Number(data.purchasePrice) : undefined,
                 riskLevel: data.riskLevel,
                 supplierId: data.supplierId ? Number(data.supplierId) : undefined,
-                currentAreaId: data.currentAreaId || undefined,
+                currentAreaId: data.currentAreaId ? Number(data.currentAreaId) : undefined,
                 status: 'AVAILABLE' // Default status for new equipment
             };
             
