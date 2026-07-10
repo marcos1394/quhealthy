@@ -9,6 +9,7 @@ import { BiomedicalEquipmentDTO } from '@/types/biomedical';
 import { biomedicalService } from '@/services/biomedical.service';
 import { toast } from 'react-toastify';
 import { useSessionStore } from '@/stores/SessionStore';
+import axios from 'axios';
 
 export default function EquipmentDetailPage() {
     const params = useParams();
@@ -21,6 +22,9 @@ export default function EquipmentDetailPage() {
     const [equipment, setEquipment] = useState<BiomedicalEquipmentDTO | null>(null);
     const [mttr, setMttr] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
+    const [documents, setDocuments] = useState<any[]>([]);
+    const [warranties, setWarranties] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchEquipmentDetails = async () => {
@@ -45,8 +49,45 @@ export default function EquipmentDetailPage() {
                 setIsLoading(false);
             }
         };
+        const fetchDocsAndWarranties = async () => {
+            if (!equipmentId) return;
+            try {
+                const docs = await biomedicalService.getDocuments(equipmentId);
+                setDocuments(docs);
+                const warrs = await biomedicalService.getWarranties(equipmentId);
+                setWarranties(warrs);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
         fetchEquipmentDetails();
+        fetchDocsAndWarranties();
     }, [equipmentId, providerId]);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !equipmentId) return;
+
+        setIsUploading(true);
+        try {
+            const { signedUrl, publicUrl } = await biomedicalService.getUploadUrl(equipmentId, file.name, file.type);
+            
+            await axios.put(signedUrl, file, {
+                headers: { 'Content-Type': file.type }
+            });
+
+            await biomedicalService.registerDocument(equipmentId, 'MANUAL', publicUrl);
+            toast.success("Documento subido con éxito", { theme: 'colored' });
+            
+            const docs = await biomedicalService.getDocuments(equipmentId);
+            setDocuments(docs);
+        } catch (err) {
+            toast.error("Error al subir documento", { theme: 'colored' });
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -140,6 +181,13 @@ export default function EquipmentDetailPage() {
                             <FileText className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
                             DOCUMENTOS
                         </TabsTrigger>
+                        <TabsTrigger 
+                            value="warranties"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <ShieldAlert className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
+                            GARANTÍAS
+                        </TabsTrigger>
                     </TabsList>
 
                     <div className="pt-6">
@@ -227,14 +275,96 @@ export default function EquipmentDetailPage() {
                         </TabsContent>
 
                         <TabsContent value="documents" className="mt-0 outline-none">
-                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 text-center min-h-[300px] flex flex-col items-center justify-center">
-                                <FileText className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    NO HAY DOCUMENTOS ASOCIADOS (MANUALES, GUÍAS)
-                                </p>
-                                <button className="mt-4 h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest">
-                                    SUBIR DOCUMENTO
-                                </button>
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 min-h-[300px]">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+                                        DOCUMENTOS ASOCIADOS
+                                    </h3>
+                                    <div>
+                                        <input 
+                                            type="file" 
+                                            id="file-upload" 
+                                            className="hidden" 
+                                            onChange={handleFileUpload} 
+                                            disabled={isUploading}
+                                        />
+                                        <label 
+                                            htmlFor="file-upload" 
+                                            className={cn(
+                                                "h-10 px-6 border border-black/20 dark:border-white/20 transition-colors text-[9px] font-bold uppercase tracking-widest cursor-pointer flex items-center justify-center",
+                                                isUploading ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-white/5" : "hover:bg-gray-50 dark:hover:bg-[#111]"
+                                            )}
+                                        >
+                                            {isUploading ? "SUBIENDO..." : "SUBIR DOCUMENTO"}
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {documents.length === 0 ? (
+                                    <div className="text-center py-12 flex flex-col items-center justify-center">
+                                        <FileText className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                            NO HAY DOCUMENTOS ASOCIADOS
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <ul className="divide-y divide-black/10 dark:divide-white/10 border-t border-black/10 dark:border-white/10">
+                                        {documents.map((doc: any) => (
+                                            <li key={doc.id} className="py-4 flex justify-between items-center">
+                                                <div>
+                                                    <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-black dark:text-white hover:underline uppercase">
+                                                        {doc.type} - v{doc.version}
+                                                    </a>
+                                                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                                                        Subido el: {new Date(doc.uploadedAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="warranties" className="mt-0 outline-none">
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 min-h-[300px]">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+                                        REGISTRO DE GARANTÍAS
+                                    </h3>
+                                    <button className="h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center">
+                                        REGISTRAR GARANTÍA
+                                    </button>
+                                </div>
+
+                                {warranties.length === 0 ? (
+                                    <div className="text-center py-12 flex flex-col items-center justify-center">
+                                        <ShieldAlert className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                            NO HAY GARANTÍAS REGISTRADAS
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <ul className="divide-y divide-black/10 dark:divide-white/10 border-t border-black/10 dark:border-white/10">
+                                        {warranties.map((war: any) => (
+                                            <li key={war.id} className="py-4">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-sm font-semibold text-black dark:text-white uppercase">{war.providerName}</span>
+                                                    <span className={cn(
+                                                        "px-2 py-0.5 text-[9px] font-bold uppercase", 
+                                                        war.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                    )}>
+                                                        {war.isActive ? 'VIGENTE' : 'VENCIDA'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-1">
+                                                    VÁLIDA: {new Date(war.startDate).toLocaleDateString()} - {new Date(war.expirationDate).toLocaleDateString()}
+                                                </p>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">{war.coverageDetails}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         </TabsContent>
 

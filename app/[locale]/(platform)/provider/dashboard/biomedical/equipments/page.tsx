@@ -1,7 +1,10 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Activity, Plus, Search, Filter, Settings, Wrench, AlertTriangle, ShieldCheck, FileText } from 'lucide-react';
+import { Activity, Plus, Search, Filter, Settings, Wrench, AlertTriangle, ShieldCheck, FileText, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '@/components/ui/QhSpinner';
@@ -54,6 +57,51 @@ export default function BiomedicalEquipmentsPage() {
         return matchSearch && matchStatus;
     });
 
+    const handleExportPdf = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text('Inventario de Equipos Biomédicos', 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 22);
+
+        const tableColumn = ["Código", "Nombre", "Categoría", "Fabricante", "Modelo", "Serie", "Estado"];
+        const tableRows = filteredEquipments.map(eq => [
+            eq.internalCode || 'N/A',
+            eq.name,
+            eq.categoryName || 'N/A',
+            eq.manufacturer || 'N/A',
+            eq.model || 'N/A',
+            eq.serialNumber,
+            eq.status
+        ]);
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30,
+        });
+
+        doc.save('inventario-biomedico.pdf');
+    };
+
+    const handleExportExcel = () => {
+        const wsData = filteredEquipments.map(eq => ({
+            'Código Interno': eq.internalCode,
+            'Nombre': eq.name,
+            'Categoría': eq.categoryName,
+            'Fabricante': eq.manufacturer,
+            'Modelo': eq.model,
+            'Número de Serie': eq.serialNumber,
+            'Estado': eq.status,
+            'Vida Útil (Años)': eq.usefulLifeYears
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Inventario");
+        XLSX.writeFile(wb, "inventario-biomedico.xlsx");
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 transition-colors duration-500 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -79,13 +127,30 @@ export default function BiomedicalEquipmentsPage() {
                             </p>
                         </div>
                     </div>
-                    <button 
-                        onClick={() => setIsRegisterDrawerOpen(true)}
-                        className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none shrink-0"
-                    >
-                        <Plus className="w-4 h-4" strokeWidth={1.5} />
-                        REGISTRAR EQUIPO
-                    </button>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                        <button 
+                            onClick={handleExportPdf}
+                            className="h-12 px-4 bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border border-black/10 dark:border-white/10 rounded-none"
+                        >
+                            <Download className="w-4 h-4" strokeWidth={1.5} />
+                            PDF
+                        </button>
+                        <button 
+                            onClick={handleExportExcel}
+                            className="h-12 px-4 bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border border-black/10 dark:border-white/10 rounded-none"
+                        >
+                            <Download className="w-4 h-4" strokeWidth={1.5} />
+                            EXCEL
+                        </button>
+                        <button 
+                            onClick={() => setIsRegisterDrawerOpen(true)}
+                            className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none shrink-0"
+                        >
+                            <Plus className="w-4 h-4" strokeWidth={1.5} />
+                            REGISTRAR EQUIPO
+                        </button>
+                    </div>
                 </div>
 
                 {/* --- FILTROS --- */}

@@ -68,6 +68,8 @@
     "framer-motion": "^11.17.0",
     "hls.js": "^1.6.16",
     "html5-qrcode": "^2.3.8",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.469.0",
     "next": "^16.2.6",
     "next-intl": "^4.8.3",
@@ -92,6 +94,7 @@
     "swr": "^2.3.6",
     "tailwind-merge": "^2.6.0",
     "uuid": "^14.0.1",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6",
     "zustand": "^5.0.8"
   },
