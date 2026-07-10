@@ -124,7 +124,7 @@ export default function EquipmentDetailPage() {
                         <div>
                             <div className="flex items-center gap-3 mb-1">
                                 <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                                    FICHA TÉCNICA / {equipment.category}
+                                    FICHA TÉCNICA / {equipment.categoryName || 'S/N'}
                                 </p>
                                 {equipment.status === 'ACTIVE' && <span className="px-2 py-0.5 text-[8px] font-bold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">ACTIVO</span>}
                                 {equipment.status === 'OUT_OF_SERVICE' && <span className="px-2 py-0.5 text-[8px] font-bold uppercase bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">FUERA DE SERVICIO</span>}
@@ -209,11 +209,11 @@ export default function EquipmentDetailPage() {
                                         </div>
                                         <div>
                                             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Categoría</p>
-                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.category}</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.categoryName || 'S/N'}</p>
                                         </div>
                                         <div>
                                             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Nivel de Riesgo</p>
-                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.riskLevel}</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">N/A</p>
                                         </div>
                                     </div>
 
@@ -227,7 +227,7 @@ export default function EquipmentDetailPage() {
                                         </div>
                                         <div>
                                             <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Vida Útil Estimada</p>
-                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.lifespanYears ? `${equipment.lifespanYears} Años` : 'N/A'}</p>
+                                            <p className="text-sm font-semibold text-black dark:text-white">{equipment.usefulLifeYears ? `${equipment.usefulLifeYears} Años` : 'N/A'}</p>
                                         </div>
                                     </div>
                                 </div>
