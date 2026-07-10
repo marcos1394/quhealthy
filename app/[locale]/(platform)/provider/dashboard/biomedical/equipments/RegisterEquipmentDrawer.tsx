@@ -121,7 +121,7 @@ export const RegisterEquipmentDrawer = ({
                                     control={control}
                                     rules={{ required: true }}
                                     render={({ field }) => (
-                                        <Popover open={openCategoryPopover} onOpenChange={setOpenCategoryPopover}>
+                                        <Popover open={openCategoryPopover} onOpenChange={setOpenCategoryPopover} modal={true}>
                                             <PopoverTrigger asChild>
                                                 <button
                                                     type="button"
@@ -158,6 +158,7 @@ export const RegisterEquipmentDrawer = ({
                                                                 <CommandItem
                                                                     key={cat.id}
                                                                     value={cat.name}
+                                                                    disabled={false}
                                                                     onSelect={() => {
                                                                         field.onChange(cat.name);
                                                                         setOpenCategoryPopover(false);
