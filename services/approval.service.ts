@@ -70,31 +70,30 @@ export interface ApprovalDecisionRequest {
     comments?: string;
 }
 
-const BASE = (providerId: number) =>
-    `/api/v1/providers/${providerId}/finance/approvals`;
+const BASE = `/api/payments/finance/approvals`;
 
 export const approvalService = {
     getApprovalChain: async (providerId: number): Promise<ApprovalChainStepDTO[]> => {
-        const res = await axiosInstance.get(`${BASE(providerId)}/chain`);
+        const res = await axiosInstance.get(`${BASE}/chain`);
         return res.data;
     },
 
     saveChainStep: async (providerId: number, step: ApprovalChainStepDTO): Promise<ApprovalChainStepDTO> => {
-        const res = await axiosInstance.post(`${BASE(providerId)}/chain`, step);
+        const res = await axiosInstance.post(`${BASE}/chain`, step);
         return res.data;
     },
 
     deleteChainStep: async (providerId: number, stepId: number): Promise<void> => {
-        await axiosInstance.delete(`${BASE(providerId)}/chain/${stepId}`);
+        await axiosInstance.delete(`${BASE}/chain/${stepId}`);
     },
 
     getPendingRequests: async (providerId: number): Promise<ApprovalRequestDTO[]> => {
-        const res = await axiosInstance.get(`${BASE(providerId)}/requests/pending`);
+        const res = await axiosInstance.get(`${BASE}/requests/pending`);
         return res.data;
     },
 
     getRequestHistory: async (providerId: number): Promise<ApprovalRequestDTO[]> => {
-        const res = await axiosInstance.get(`${BASE(providerId)}/requests/history`);
+        const res = await axiosInstance.get(`${BASE}/requests/history`);
         return res.data;
     },
 
@@ -104,7 +103,7 @@ export const approvalService = {
         decision: ApprovalDecisionRequest
     ): Promise<ApprovalRequestDTO> => {
         const res = await axiosInstance.post(
-            `${BASE(providerId)}/requests/${requestId}/decisions`,
+            `${BASE}/requests/${requestId}/decisions`,
             decision
         );
         return res.data;
