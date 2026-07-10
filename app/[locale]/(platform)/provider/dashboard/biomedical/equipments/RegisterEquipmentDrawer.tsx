@@ -28,6 +28,7 @@ interface RegisterEquipmentForm {
     operationalDate: string;
     lifespanYears: number;
     riskLevel: string;
+    purchasePrice: number;
     supplierId: string;
     currentAreaId: string;
 }
@@ -70,7 +71,9 @@ export const RegisterEquipmentDrawer = ({
             const payload = {
                 ...data,
                 categoryName: data.category,
-                usefulLifeYears: Number(data.lifespanYears),
+                usefulLifeYears: data.lifespanYears ? Number(data.lifespanYears) : undefined,
+                purchasePrice: data.purchasePrice ? Number(data.purchasePrice) : undefined,
+                riskLevel: data.riskLevel,
                 supplierId: data.supplierId ? Number(data.supplierId) : undefined,
                 currentAreaId: data.currentAreaId || undefined,
                 status: 'AVAILABLE' // Default status for new equipment
@@ -342,8 +345,18 @@ export const RegisterEquipmentDrawer = ({
                                     )}
                                 />
                             </div>
-                        </div>
 
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Precio Proveedor (Opcional)</label>
+                                <input 
+                                    type="number"
+                                    step="0.01"
+                                    {...register("purchasePrice")}
+                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    placeholder="Ej. 15000.50"
+                                />
+                            </div>
+                        </div>
                     </form>
                 </div>
 

@@ -16,6 +16,8 @@ export interface BiomedicalEquipmentDTO {
     operationDate?: string; 
     status: EquipmentStatus;
     usefulLifeYears?: number;
+    riskLevel?: EquipmentRiskLevel;
+    purchasePrice?: number;
     supplierId?: number;
     currentAreaId?: string;
     currentAreaName?: string;
