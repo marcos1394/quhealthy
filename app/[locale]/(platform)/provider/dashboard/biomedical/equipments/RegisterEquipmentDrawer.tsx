@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { cn } from "@/lib/utils";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { biomedicalService } from '@/services/biomedical.service';
+import { accountingService } from '@/services/accounting.service';
 
 import { useSessionStore } from '@/stores/SessionStore';
 
@@ -28,6 +29,7 @@ interface RegisterEquipmentForm {
     lifespanYears: number;
     riskLevel: string;
     supplierId: string;
+    currentAreaId: string;
 }
 
 export const RegisterEquipmentDrawer = ({
@@ -47,10 +49,16 @@ export const RegisterEquipmentDrawer = ({
     const [openCategoryPopover, setOpenCategoryPopover] = useState(false);
     const [categorySearch, setCategorySearch] = useState("");
 
+    const [costCenters, setCostCenters] = useState<any[]>([]);
+
     useEffect(() => {
         if (open && user?.id) {
             biomedicalService.getCategories(user.id.toString())
                 .then(setCategories)
+                .catch(console.error);
+                
+            accountingService.listCostCenters()
+                .then(setCostCenters)
                 .catch(console.error);
         }
     }, [open, user?.id]);
@@ -62,8 +70,9 @@ export const RegisterEquipmentDrawer = ({
             const payload = {
                 ...data,
                 categoryName: data.category,
-                lifespanYears: Number(data.lifespanYears),
+                usefulLifeYears: Number(data.lifespanYears),
                 supplierId: data.supplierId ? Number(data.supplierId) : undefined,
+                currentAreaId: data.currentAreaId || undefined,
                 status: 'AVAILABLE' // Default status for new equipment
             };
             
@@ -310,6 +319,28 @@ export const RegisterEquipmentDrawer = ({
                                     )}
                                 />
                                 {errors.riskLevel && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Centro de Costos / Ubicación (Opcional)</label>
+                                <Controller
+                                    name="currentAreaId"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                                <SelectValue placeholder="SELECCIONAR UBICACIÓN..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-none">
+                                                {costCenters.map(cc => (
+                                                    <SelectItem key={cc.id} value={cc.id.toString()}>{cc.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                             </div>
                         </div>
 

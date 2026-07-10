@@ -6,17 +6,19 @@ export type EquipmentRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 export interface BiomedicalEquipmentDTO {
     id: string;
     name: string;
-    category: string;
+    categoryName: string;
+    categoryId?: string;
     manufacturer: string;
     model: string;
     serialNumber: string;
     internalCode?: string;
-    acquisitionDate?: string; // ISO Date
-    operationalDate?: string; // ISO Date
+    acquisitionDate?: string;
+    operationDate?: string; 
     status: EquipmentStatus;
-    riskLevel: EquipmentRiskLevel;
-    lifespanYears?: number;
+    usefulLifeYears?: number;
     supplierId?: number;
+    currentAreaId?: string;
+    currentAreaName?: string;
     createdAt?: string;
     updatedAt?: string;
 }

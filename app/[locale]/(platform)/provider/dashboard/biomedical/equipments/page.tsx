@@ -68,7 +68,7 @@ export default function BiomedicalEquipmentsPage() {
         const tableRows = filteredEquipments.map(eq => [
             eq.internalCode || 'N/A',
             eq.name,
-            eq.category || 'N/A',
+            eq.categoryName || 'N/A',
             eq.manufacturer || 'N/A',
             eq.model || 'N/A',
             eq.serialNumber,
@@ -88,12 +88,12 @@ export default function BiomedicalEquipmentsPage() {
         const wsData = filteredEquipments.map(eq => ({
             'Código Interno': eq.internalCode,
             'Nombre': eq.name,
-            'Categoría': eq.category,
+            'Categoría': eq.categoryName,
             'Fabricante': eq.manufacturer,
             'Modelo': eq.model,
             'Número de Serie': eq.serialNumber,
             'Estado': eq.status,
-            'Vida Útil (Años)': eq.lifespanYears
+            'Vida Útil (Años)': eq.usefulLifeYears
         }));
 
         const ws = XLSX.utils.json_to_sheet(wsData);
@@ -242,7 +242,7 @@ export default function BiomedicalEquipmentsPage() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-500">{eq.category}</td>
+                                            <td className="px-6 py-4 text-gray-500">{eq.categoryName || 'N/A'}</td>
                                             <td className="px-6 py-4">
                                                 <span className="block">{eq.manufacturer}</span>
                                                 <span className="block text-[9px] text-gray-500">{eq.model}</span>
@@ -254,9 +254,7 @@ export default function BiomedicalEquipmentsPage() {
                                                 {eq.status === 'DECOMMISSIONED' && <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">DADO DE BAJA</span>}
                                             </td>
                                             <td className="px-6 py-4">
-                                                {eq.riskLevel === 'HIGH' && <span className="text-red-600 dark:text-red-400 font-bold">ALTO</span>}
-                                                {eq.riskLevel === 'MEDIUM' && <span className="text-amber-600 dark:text-amber-400 font-bold">MEDIO</span>}
-                                                {eq.riskLevel === 'LOW' && <span className="text-blue-600 dark:text-blue-400 font-bold">BAJO</span>}
+                                                <span className="text-gray-400 font-bold">N/A</span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button 
