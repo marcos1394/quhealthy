@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { budgetService, BudgetPolicyDTO } from "@/services/budget.service";
-import { Shield, Save, AlertTriangle, XCircle, CheckCircle } from "lucide-react";
+import { Shield, Save, AlertTriangle, XCircle, CheckCircle, Link2 } from "lucide-react";
+import { ApprovalChainConfig } from "./ApprovalChainConfig";
 
 const DEFAULT_POLICY: BudgetPolicyDTO = {
     allowNegativeBudget: false,
@@ -37,9 +38,12 @@ const MODE_OPTIONS: { value: BudgetPolicyDTO["overExecutionMode"]; label: string
         value: "AUTHORIZE",
         label: "Autorización especial",
         icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,
-        desc: "Requiere aprobación del director",
+        desc: "Pausa el movimiento y lo envía a la bandeja de aprobaciones",
     },
 ];
+
+// Provider ID temporal - en producción vendría del contexto de autenticación
+const PROVIDER_ID = 1;
 
 export default function BudgetPoliciesPage() {
     const [policy, setPolicy] = useState<BudgetPolicyDTO>(DEFAULT_POLICY);
@@ -91,7 +95,6 @@ export default function BudgetPoliciesPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
                 {/* Control de sobreejercicio */}
                 <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
                     <div className="p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
@@ -147,6 +150,14 @@ export default function BudgetPoliciesPage() {
                                     </button>
                                 ))}
                             </div>
+                            {policy.overExecutionMode === "AUTHORIZE" && (
+                                <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700/40">
+                                    <AlertTriangle className="w-3 h-3 text-amber-600 mt-0.5 shrink-0" />
+                                    <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                                        Los movimientos que excedan el presupuesto quedarán en espera hasta que un aprobador los autorice desde la <strong>Bandeja de Aprobaciones</strong>. Define la cadena de aprobadores en la sección inferior.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -168,10 +179,10 @@ export default function BudgetPoliciesPage() {
                                 min={1}
                                 max={5}
                                 value={policy.approvalLevels || ""}
-                                onChange={(e) => setPolicy(p => ({ ...p, approvalLevels: e.target.value === "" ? "" as any : parseInt(e.target.value) }))}
+                                onChange={(e) => setPolicy(p => ({ ...p, approvalLevels: e.target.value === "" ? 1 : Math.max(1, parseInt(e.target.value) || 1) }))}
                                 className="rounded-none h-9 text-sm"
                             />
-                            <p className="text-[10px] text-gray-500">Cuántas aprobaciones requiere un movimiento</p>
+                            <p className="text-[10px] text-gray-500">Cuántas aprobaciones requiere un movimiento presupuestal</p>
                         </div>
 
                         <div className="space-y-2">
@@ -220,7 +231,7 @@ export default function BudgetPoliciesPage() {
                 </div>
             </div>
 
-            {/* Guardar */}
+            {/* Guardar política */}
             <div className="flex justify-end">
                 <Button
                     onClick={handleSave}
@@ -230,6 +241,32 @@ export default function BudgetPoliciesPage() {
                     {isSaving ? <QhSpinner size="sm" /> : <Save className="w-3 h-3" />}
                     Guardar Política
                 </Button>
+            </div>
+
+            {/* Cadena de Aprobación */}
+            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                <div className="p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between">
+                    <div>
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
+                            Cadena de Aprobación
+                        </h3>
+                        <p className="text-[10px] text-gray-500 mt-0.5">
+                            Define quién aprueba los movimientos en cada nivel y para qué montos
+                        </p>
+                    </div>
+                    <Link2 className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="p-4">
+                    {policy.overExecutionMode !== "AUTHORIZE" && policy.approvalLevels <= 0 ? (
+                        <div className="text-center p-6">
+                            <p className="text-[10px] uppercase tracking-widest text-gray-400">
+                                La cadena de aprobación solo aplica cuando el modo es <strong>Autorización especial</strong> o cuando hay niveles de aprobación configurados.
+                            </p>
+                        </div>
+                    ) : (
+                        <ApprovalChainConfig providerId={PROVIDER_ID} />
+                    )}
+                </div>
             </div>
         </div>
     );
