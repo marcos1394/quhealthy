@@ -5,9 +5,12 @@ import { Save, X, Activity } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Controller } from 'react-hook-form';
 import { format } from 'date-fns';
+import { cn } from "@/lib/utils";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { biomedicalService } from '@/services/biomedical.service';
 
@@ -39,6 +42,18 @@ export const RegisterEquipmentDrawer = ({
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm<RegisterEquipmentForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { user } = useSessionStore();
+    
+    const [categories, setCategories] = useState<any[]>([]);
+    const [openCategoryPopover, setOpenCategoryPopover] = useState(false);
+    const [categorySearch, setCategorySearch] = useState("");
+
+    useEffect(() => {
+        if (open && user?.id) {
+            biomedicalService.getCategories(user.id.toString())
+                .then(setCategories)
+                .catch(console.error);
+        }
+    }, [open, user?.id]);
 
     const onSubmit = async (data: RegisterEquipmentForm) => {
         setIsSubmitting(true);
@@ -46,6 +61,7 @@ export const RegisterEquipmentDrawer = ({
             if (!user?.id) throw new Error("Provider ID is missing");
             const payload = {
                 ...data,
+                categoryName: data.category,
                 lifespanYears: Number(data.lifespanYears),
                 supplierId: data.supplierId ? Number(data.supplierId) : undefined,
                 status: 'AVAILABLE' // Default status for new equipment
@@ -81,9 +97,6 @@ export const RegisterEquipmentDrawer = ({
                                 </SheetDescription>
                             </div>
                         </div>
-                        <SheetClose className="w-10 h-10 border border-transparent hover:border-black/20 dark:hover:border-white/20 flex items-center justify-center transition-colors">
-                            <X className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
-                        </SheetClose>
                     </div>
                 </SheetHeader>
 
@@ -108,19 +121,79 @@ export const RegisterEquipmentDrawer = ({
                                     control={control}
                                     rules={{ required: true }}
                                     render={({ field }) => (
-                                        <Select onValueChange={field.onChange} value={field.value || ""}>
-                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
-                                                <SelectValue placeholder="SELECCIONAR..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-none">
-                                                <SelectItem value="MONITOREO">MONITOREO</SelectItem>
-                                                <SelectItem value="SOPORTE_VIDA">SOPORTE DE VIDA</SelectItem>
-                                                <SelectItem value="IMAGENOLOGIA">IMAGENOLOGÍA</SelectItem>
-                                                <SelectItem value="LABORATORIO">LABORATORIO</SelectItem>
-                                                <SelectItem value="TERAPIA">TERAPIA</SelectItem>
-                                                <SelectItem value="OTROS">OTROS</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <Popover open={openCategoryPopover} onOpenChange={setOpenCategoryPopover}>
+                                            <PopoverTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    role="combobox"
+                                                    aria-expanded={openCategoryPopover}
+                                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center justify-between transition-colors"
+                                                >
+                                                    {field.value || "SELECCIONAR..."}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-black/20 dark:border-white/20">
+                                                <Command>
+                                                    <CommandInput 
+                                                        placeholder="BUSCAR O CREAR..." 
+                                                        value={categorySearch}
+                                                        onValueChange={setCategorySearch}
+                                                        className="text-[10px] font-bold uppercase"
+                                                    />
+                                                    <CommandList>
+                                                        <CommandEmpty className="py-6 text-center text-sm">
+                                                            <button
+                                                                type="button"
+                                                                className="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                onClick={() => {
+                                                                    field.onChange(categorySearch.toUpperCase());
+                                                                    setOpenCategoryPopover(false);
+                                                                }}
+                                                            >
+                                                                CREAR NUEVA: {categorySearch}
+                                                            </button>
+                                                        </CommandEmpty>
+                                                        <CommandGroup>
+                                                            {categories
+                                                                .filter(cat => cat.name.toLowerCase().includes(categorySearch.toLowerCase()))
+                                                                .map((cat) => (
+                                                                <CommandItem
+                                                                    key={cat.id}
+                                                                    value={cat.name}
+                                                                    onSelect={(currentValue) => {
+                                                                        field.onChange(currentValue.toUpperCase());
+                                                                        setOpenCategoryPopover(false);
+                                                                    }}
+                                                                    className="text-[10px] font-bold uppercase cursor-pointer"
+                                                                >
+                                                                    <Check
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            field.value === cat.name ? "opacity-100" : "opacity-0"
+                                                                        )}
+                                                                    />
+                                                                    {cat.name}
+                                                                </CommandItem>
+                                                            ))}
+                                                            {categorySearch && !categories.some(c => c.name.toLowerCase() === categorySearch.toLowerCase()) && (
+                                                                <CommandItem
+                                                                    value={categorySearch}
+                                                                    onSelect={(currentValue) => {
+                                                                        field.onChange(currentValue.toUpperCase());
+                                                                        setOpenCategoryPopover(false);
+                                                                    }}
+                                                                    className="text-[10px] font-bold uppercase cursor-pointer text-blue-600 dark:text-blue-400"
+                                                                >
+                                                                    <Check className="mr-2 h-4 w-4 opacity-0" />
+                                                                    CREAR: {categorySearch}
+                                                                </CommandItem>
+                                                            )}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     )}
                                 />
                                 {errors.category && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}

@@ -11,6 +11,11 @@ export const biomedicalService = {
     return response.data;
   },
 
+  getCategories: async (providerId: string) => {
+    const response = await axiosInstance.get(`${BASE_URL}/${providerId}/categories`);
+    return response.data;
+  },
+
   createEquipment: async (providerId: string, data: any) => {
     const response = await axiosInstance.post(`${BASE_URL}/${providerId}/equipments`, data);
     return response.data;
