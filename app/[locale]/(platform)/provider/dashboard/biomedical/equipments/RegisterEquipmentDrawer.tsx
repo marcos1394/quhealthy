@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form';
 import { Save, X, Activity } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Controller } from 'react-hook-form';
+import { format } from 'date-fns';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { biomedicalService } from '@/services/biomedical.service';
 
@@ -32,7 +36,7 @@ export const RegisterEquipmentDrawer = ({
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<RegisterEquipmentForm>();
+    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<RegisterEquipmentForm>();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { user } = useSessionStore();
 
@@ -99,18 +103,26 @@ export const RegisterEquipmentDrawer = ({
                             
                             <div className="space-y-2">
                                 <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Categoría *</label>
-                                <select 
-                                    {...register("category", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                >
-                                    <option value="">SELECCIONAR...</option>
-                                    <option value="MONITOREO">MONITOREO</option>
-                                    <option value="SOPORTE_VIDA">SOPORTE DE VIDA</option>
-                                    <option value="IMAGENOLOGIA">IMAGENOLOGÍA</option>
-                                    <option value="LABORATORIO">LABORATORIO</option>
-                                    <option value="TERAPIA">TERAPIA</option>
-                                    <option value="OTROS">OTROS</option>
-                                </select>
+                                <Controller
+                                    name="category"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                                <SelectValue placeholder="SELECCIONAR..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-none">
+                                                <SelectItem value="MONITOREO">MONITOREO</SelectItem>
+                                                <SelectItem value="SOPORTE_VIDA">SOPORTE DE VIDA</SelectItem>
+                                                <SelectItem value="IMAGENOLOGIA">IMAGENOLOGÍA</SelectItem>
+                                                <SelectItem value="LABORATORIO">LABORATORIO</SelectItem>
+                                                <SelectItem value="TERAPIA">TERAPIA</SelectItem>
+                                                <SelectItem value="OTROS">OTROS</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                                 {errors.category && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
                             </div>
                         </div>
@@ -161,19 +173,31 @@ export const RegisterEquipmentDrawer = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Fecha de Adquisición</label>
-                                <input 
-                                    type="date"
-                                    {...register("acquisitionDate")}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                <Controller
+                                    name="acquisitionDate"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DatePicker
+                                            value={field.value ? new Date(field.value) : undefined}
+                                            onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                            className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest"
+                                        />
+                                    )}
                                 />
                             </div>
                             
                             <div className="space-y-2">
                                 <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Fecha de Operación</label>
-                                <input 
-                                    type="date"
-                                    {...register("operationalDate")}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                <Controller
+                                    name="operationalDate"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DatePicker
+                                            value={field.value ? new Date(field.value) : undefined}
+                                            onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                            className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest"
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>
@@ -191,15 +215,23 @@ export const RegisterEquipmentDrawer = ({
                             
                             <div className="space-y-2">
                                 <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Nivel de Riesgo *</label>
-                                <select 
-                                    {...register("riskLevel", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                >
-                                    <option value="">SELECCIONAR...</option>
-                                    <option value="LOW">BAJO (CLASE I)</option>
-                                    <option value="MEDIUM">MEDIO (CLASE II)</option>
-                                    <option value="HIGH">ALTO (CLASE III)</option>
-                                </select>
+                                <Controller
+                                    name="riskLevel"
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                                <SelectValue placeholder="SELECCIONAR..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-none">
+                                                <SelectItem value="LOW">BAJO (CLASE I)</SelectItem>
+                                                <SelectItem value="MEDIUM">MEDIO (CLASE II)</SelectItem>
+                                                <SelectItem value="HIGH">ALTO (CLASE III)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                                 {errors.riskLevel && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
                             </div>
                         </div>
