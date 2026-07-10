@@ -23,7 +23,8 @@ export const CreateCostCenterDrawer = ({
     onOpenChange,
     onSuccess,
     parentId,
-    parentName
+    parentName,
+    editNode
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
