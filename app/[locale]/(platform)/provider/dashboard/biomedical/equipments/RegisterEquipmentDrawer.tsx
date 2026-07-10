@@ -163,7 +163,13 @@ export const RegisterEquipmentDrawer = ({
                                                                         field.onChange(cat.name);
                                                                         setOpenCategoryPopover(false);
                                                                     }}
-                                                                    className="text-[10px] font-bold uppercase cursor-pointer"
+                                                                    onMouseDown={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        field.onChange(cat.name);
+                                                                        setOpenCategoryPopover(false);
+                                                                    }}
+                                                                    className="text-[10px] font-bold uppercase cursor-pointer opacity-100 pointer-events-auto data-[disabled]:opacity-100 data-[disabled]:pointer-events-auto hover:bg-gray-100 dark:hover:bg-gray-800"
                                                                 >
                                                                     <Check
                                                                         className={cn(
