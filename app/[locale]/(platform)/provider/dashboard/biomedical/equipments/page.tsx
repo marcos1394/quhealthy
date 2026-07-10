@@ -68,7 +68,7 @@ export default function BiomedicalEquipmentsPage() {
         const tableRows = filteredEquipments.map(eq => [
             eq.internalCode || 'N/A',
             eq.name,
-            eq.categoryName || 'N/A',
+            eq.category || 'N/A',
             eq.manufacturer || 'N/A',
             eq.model || 'N/A',
             eq.serialNumber,
@@ -88,7 +88,7 @@ export default function BiomedicalEquipmentsPage() {
         const wsData = filteredEquipments.map(eq => ({
             'Código Interno': eq.internalCode,
             'Nombre': eq.name,
-            'Categoría': eq.categoryName,
+            'Categoría': eq.category,
             'Fabricante': eq.manufacturer,
             'Modelo': eq.model,
             'Número de Serie': eq.serialNumber,
