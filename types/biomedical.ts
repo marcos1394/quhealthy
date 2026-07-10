@@ -1,6 +1,6 @@
 // types/biomedical.ts
 
-export type EquipmentStatus = 'ACTIVE' | 'OUT_OF_SERVICE' | 'IN_MAINTENANCE' | 'DECOMMISSIONED';
+export type EquipmentStatus = 'AVAILABLE' | 'ACTIVE' | 'OUT_OF_SERVICE' | 'IN_MAINTENANCE' | 'DECOMMISSIONED';
 export type EquipmentRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface BiomedicalEquipmentDTO {
