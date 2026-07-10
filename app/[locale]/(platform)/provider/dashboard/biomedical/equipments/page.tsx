@@ -248,13 +248,17 @@ export default function BiomedicalEquipmentsPage() {
                                                 <span className="block text-[9px] text-gray-500">{eq.model}</span>
                                             </td>
                                             <td className="px-6 py-4">
+                                                {eq.status === 'AVAILABLE' && <span className="inline-flex px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/30">DISPONIBLE</span>}
                                                 {eq.status === 'ACTIVE' && <span className="inline-flex px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-900/30">ACTIVO</span>}
                                                 {eq.status === 'OUT_OF_SERVICE' && <span className="inline-flex px-2 py-1 bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/30">FUERA DE SERVICIO</span>}
                                                 {eq.status === 'IN_MAINTENANCE' && <span className="inline-flex px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/30">EN MANTENIMIENTO</span>}
                                                 {eq.status === 'DECOMMISSIONED' && <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">DADO DE BAJA</span>}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="text-gray-400 font-bold">N/A</span>
+                                                {eq.riskLevel === 'LOW' && <span className="text-emerald-600 dark:text-emerald-400 font-bold">BAJO</span>}
+                                                {eq.riskLevel === 'MEDIUM' && <span className="text-amber-600 dark:text-amber-400 font-bold">MEDIO</span>}
+                                                {eq.riskLevel === 'HIGH' && <span className="text-red-600 dark:text-red-400 font-bold">ALTO</span>}
+                                                {!eq.riskLevel && <span className="text-gray-400 font-bold">N/A</span>}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button 

@@ -25,7 +25,7 @@ export interface BiomedicalEquipmentDTO {
     updatedAt?: string;
 }
 
-export type WorkOrderStatus = 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type WorkOrderStatus = 'PENDING' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 export type WorkOrderType = 'PREVENTIVE' | 'CORRECTIVE' | 'CALIBRATION';
 export type WorkOrderPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
 
@@ -41,9 +41,18 @@ export interface WorkOrderDTO {
     assignedTo?: string;
     cost?: number;
     downtimeMinutes?: number;
-    resolutionNotes?: string;
+    repairNotes?: string;
+    partsUsed?: string;
+    diagnostic?: string;
     createdAt?: string;
     updatedAt?: string;
+}
+
+export interface WorkOrderRequest {
+    type: WorkOrderType;
+    priority: WorkOrderPriority;
+    diagnostic?: string;
+    scheduledDate?: string;
 }
 
 export interface EquipmentDocumentDTO {

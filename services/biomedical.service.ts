@@ -34,9 +34,8 @@ export const biomedicalService = {
     return response.data;
   },
 
-  createCorrectiveOrder: async (equipmentId: string, diagnostic: string) => {
-    const params = new URLSearchParams({ diagnostic });
-    const response = await axiosInstance.post(`${BASE_URL}/work-orders/${equipmentId}/corrective?${params.toString()}`);
+  createWorkOrder: async (equipmentId: string, data: any) => {
+    const response = await axiosInstance.post(`${BASE_URL}/work-orders/${equipmentId}`, data);
     return response.data;
   },
 
