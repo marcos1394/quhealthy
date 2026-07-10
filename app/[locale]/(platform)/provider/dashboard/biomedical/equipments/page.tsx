@@ -93,7 +93,7 @@ export default function BiomedicalEquipmentsPage() {
             'Modelo': eq.model,
             'Número de Serie': eq.serialNumber,
             'Estado': eq.status,
-            'Vida Útil (Años)': eq.usefulLifeYears
+            'Vida Útil (Años)': eq.lifespanYears
         }));
 
         const ws = XLSX.utils.json_to_sheet(wsData);
