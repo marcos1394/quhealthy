@@ -134,7 +134,7 @@ export const RegisterEquipmentDrawer = ({
                                                 </button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
-                                                <Command className="bg-white dark:bg-[#0a0a0a]" shouldFilter={false}>
+                                                <Command className="bg-white dark:bg-[#0a0a0a]">
                                                     <CommandInput 
                                                         placeholder="BUSCAR O CREAR..." 
                                                         value={categorySearch}
@@ -155,9 +155,7 @@ export const RegisterEquipmentDrawer = ({
                                                             </button>
                                                         </CommandEmpty>
                                                         <CommandGroup>
-                                                            {categories
-                                                                .filter(cat => cat.name.toLowerCase().includes(categorySearch.toLowerCase()))
-                                                                .map((cat) => (
+                                                            {categories.map((cat) => (
                                                                 <CommandItem
                                                                     key={cat.id}
                                                                     value={cat.name}
