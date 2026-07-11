@@ -34,6 +34,9 @@ export default function EquipmentDetailPage() {
     const [isWorkOrderDrawerOpen, setIsWorkOrderDrawerOpen] = useState(false);
     const [isWarrantyDrawerOpen, setIsWarrantyDrawerOpen] = useState(false);
     const [isScheduleDrawerOpen, setIsScheduleDrawerOpen] = useState(false);
+    
+    // Data State
+    const [workOrders, setWorkOrders] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchEquipmentDetails = async () => {
