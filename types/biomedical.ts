@@ -2,6 +2,7 @@
 
 export type EquipmentStatus = 'AVAILABLE' | 'ACTIVE' | 'OUT_OF_SERVICE' | 'IN_MAINTENANCE' | 'DECOMMISSIONED';
 export type EquipmentRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export type MaintenancePeriodicity = 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUALLY' | 'ANNUALLY' | 'CUSTOM';
 
 export interface BiomedicalEquipmentDTO {
     id: string;

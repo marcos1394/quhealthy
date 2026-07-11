@@ -91,7 +91,11 @@ export const biomedicalService = {
     return response.data;
   },
 
-  // Mantenimientos
+  getSchedules: async (equipmentId: string) => {
+    const response = await axiosInstance.get(`${BASE_URL}/equipments/${equipmentId}/schedules`);
+    return response.data;
+  },
+
   createSchedule: async (equipmentId: string, data: any) => {
     const response = await axiosInstance.post(`${BASE_URL}/equipments/${equipmentId}/schedules`, data);
     return response.data;

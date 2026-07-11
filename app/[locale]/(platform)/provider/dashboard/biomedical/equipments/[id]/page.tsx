@@ -11,6 +11,8 @@ import { toast } from 'react-toastify';
 import { useSessionStore } from '@/stores/SessionStore';
 import axios from 'axios';
 import { CreateWorkOrderDrawer } from '../CreateWorkOrderDrawer';
+import { CreateWarrantyDrawer } from '../CreateWarrantyDrawer';
+import { CreateScheduleDrawer } from '../CreateScheduleDrawer';
 
 export default function EquipmentDetailPage() {
     const params = useParams();
@@ -26,10 +28,12 @@ export default function EquipmentDetailPage() {
     const [isUploading, setIsUploading] = useState(false);
     const [documents, setDocuments] = useState<any[]>([]);
     const [warranties, setWarranties] = useState<any[]>([]);
+    const [schedules, setSchedules] = useState<any[]>([]);
     
-    // Work Orders State
-    const [workOrders, setWorkOrders] = useState<any[]>([]);
+    // Drawers State
     const [isWorkOrderDrawerOpen, setIsWorkOrderDrawerOpen] = useState(false);
+    const [isWarrantyDrawerOpen, setIsWarrantyDrawerOpen] = useState(false);
+    const [isScheduleDrawerOpen, setIsScheduleDrawerOpen] = useState(false);
 
     useEffect(() => {
         const fetchEquipmentDetails = async () => {
@@ -61,6 +65,8 @@ export default function EquipmentDetailPage() {
                 setDocuments(docs);
                 const warrs = await biomedicalService.getWarranties(equipmentId);
                 setWarranties(warrs);
+                const scheds = await biomedicalService.getSchedules(equipmentId);
+                setSchedules(scheds);
             } catch (err) {
                 console.error(err);
             }
@@ -85,6 +91,24 @@ export default function EquipmentDetailPage() {
         try {
             const orders = await biomedicalService.getWorkOrders(equipmentId);
             setWorkOrders(orders);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const refreshWarranties = async () => {
+        try {
+            const warrs = await biomedicalService.getWarranties(equipmentId);
+            setWarranties(warrs);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const refreshSchedules = async () => {
+        try {
+            const scheds = await biomedicalService.getSchedules(equipmentId);
+            setSchedules(scheds);
         } catch (err) {
             console.error(err);
         }
@@ -366,14 +390,53 @@ export default function EquipmentDetailPage() {
                         </TabsContent>
                         
                         <TabsContent value="schedule" className="mt-0 outline-none">
-                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 text-center min-h-[300px] flex flex-col items-center justify-center">
-                                <Calendar className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    NO HAY PROGRAMACIÓN DE MANTENIMIENTO PREVENTIVO
-                                </p>
-                                <button className="mt-4 h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest">
-                                    CONFIGURAR PROGRAMACIÓN
-                                </button>
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-8 min-h-[300px]">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+                                        MANTENIMIENTO PREVENTIVO
+                                    </h3>
+                                    <button 
+                                        onClick={() => setIsScheduleDrawerOpen(true)}
+                                        className="h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center"
+                                    >
+                                        CONFIGURAR PROGRAMACIÓN
+                                    </button>
+                                </div>
+
+                                {schedules.length === 0 ? (
+                                    <div className="text-center py-12 flex flex-col items-center justify-center">
+                                        <Calendar className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                            NO HAY PROGRAMACIÓN DE MANTENIMIENTO PREVENTIVO
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <ul className="divide-y divide-black/10 dark:divide-white/10 border-t border-black/10 dark:border-white/10">
+                                        {schedules.map((sched: any) => (
+                                            <li key={sched.id} className="py-4">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-sm font-semibold text-black dark:text-white uppercase">
+                                                        {sched.periodicity === 'CUSTOM' ? `CADA ${sched.customDays} DÍAS` : sched.periodicity}
+                                                    </span>
+                                                    <span className={cn(
+                                                        "px-2 py-0.5 text-[9px] font-bold uppercase", 
+                                                        sched.isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                    )}>
+                                                        {sched.isActive ? 'ACTIVO' : 'INACTIVO'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-1">
+                                                    PRÓXIMO MANTENIMIENTO: {sched.nextMaintenanceDate ? new Date(sched.nextMaintenanceDate).toLocaleDateString() : 'N/A'}
+                                                </p>
+                                                {sched.lastMaintenanceDate && (
+                                                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                                                        ÚLTIMO MANTENIMIENTO: {new Date(sched.lastMaintenanceDate).toLocaleDateString()}
+                                                    </p>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         </TabsContent>
 
@@ -435,7 +498,10 @@ export default function EquipmentDetailPage() {
                                     <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
                                         REGISTRO DE GARANTÍAS
                                     </h3>
-                                    <button className="h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center">
+                                    <button 
+                                        onClick={() => setIsWarrantyDrawerOpen(true)}
+                                        className="h-10 px-6 border border-black/20 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center"
+                                    >
                                         REGISTRAR GARANTÍA
                                     </button>
                                 </div>
@@ -480,7 +546,19 @@ export default function EquipmentDetailPage() {
                 isOpen={isWorkOrderDrawerOpen} 
                 onClose={() => setIsWorkOrderDrawerOpen(false)} 
                 onSuccess={refreshWorkOrders}
-                equipmentId={equipmentId}
+                equipmentId={equipment.id}
+            />
+            <CreateWarrantyDrawer
+                isOpen={isWarrantyDrawerOpen}
+                onClose={() => setIsWarrantyDrawerOpen(false)}
+                onSuccess={refreshWarranties}
+                equipmentId={equipment.id}
+            />
+            <CreateScheduleDrawer
+                isOpen={isScheduleDrawerOpen}
+                onClose={() => setIsScheduleDrawerOpen(false)}
+                onSuccess={refreshSchedules}
+                equipmentId={equipment.id}
             />
         </div>
     );
