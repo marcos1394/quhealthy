@@ -99,4 +99,5 @@ export const biomedicalService = {
   createSchedule: async (equipmentId: string, data: any) => {
     const response = await axiosInstance.post(`${BASE_URL}/equipments/${equipmentId}/schedules`, data);
     return response.data;
+  }
 };
