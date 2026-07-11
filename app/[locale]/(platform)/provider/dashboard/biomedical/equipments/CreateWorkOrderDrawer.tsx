@@ -21,7 +21,7 @@ export function CreateWorkOrderDrawer({ isOpen, onClose, onSuccess, equipmentId 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<WorkOrderRequest>({
         type: 'CORRECTIVE',
-        priority: 'NORMAL',
+        priority: 'MEDIUM',
         diagnostic: '',
         scheduledDate: ''
     });
@@ -58,7 +58,7 @@ export function CreateWorkOrderDrawer({ isOpen, onClose, onSuccess, equipmentId 
             // Reset form
             setFormData({
                 type: 'CORRECTIVE',
-                priority: 'NORMAL',
+                priority: 'MEDIUM',
                 diagnostic: '',
                 scheduledDate: ''
             });
@@ -136,7 +136,7 @@ export function CreateWorkOrderDrawer({ isOpen, onClose, onSuccess, equipmentId 
                                         </SelectTrigger>
                                         <SelectContent className="rounded-none">
                                             <SelectItem value="LOW">Baja</SelectItem>
-                                            <SelectItem value="NORMAL">Normal</SelectItem>
+                                            <SelectItem value="MEDIUM">Media</SelectItem>
                                             <SelectItem value="HIGH">Alta</SelectItem>
                                             <SelectItem value="CRITICAL">Crítica</SelectItem>
                                         </SelectContent>
