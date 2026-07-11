@@ -14,6 +14,49 @@ import { CreateWorkOrderDrawer } from '../CreateWorkOrderDrawer';
 import { CreateWarrantyDrawer } from '../CreateWarrantyDrawer';
 import { CreateScheduleDrawer } from '../CreateScheduleDrawer';
 
+// Componente para ver el estado de procesamiento del PDF
+function DocumentProcessingBadge({ documentId, type }: { documentId: string, type: string }) {
+    const [status, setStatus] = useState<string>('UNKNOWN');
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        if (type !== 'MANUAL' && type !== 'MAINTENANCE_GUIDE') return;
+
+        let interval: NodeJS.Timeout;
+        const fetchStatus = async () => {
+            try {
+                const res = await biomedicalService.getDocumentProcessingStatus(documentId);
+                setStatus(res.status);
+                if (res.totalChunks > 0) {
+                    setProgress(Math.round((res.processedChunks / res.totalChunks) * 100));
+                }
+                if (res.status === 'COMPLETED' || res.status === 'FAILED') {
+                    clearInterval(interval);
+                }
+            } catch (err) {
+                // Ignore if not found
+            }
+        };
+
+        fetchStatus();
+        interval = setInterval(fetchStatus, 3000);
+        return () => clearInterval(interval);
+    }, [documentId, type]);
+
+    if (type !== 'MANUAL' && type !== 'MAINTENANCE_GUIDE') return null;
+
+    if (status === 'COMPLETED') {
+        return <span className="px-1.5 py-0.5 text-[8px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">IA LISTA</span>;
+    }
+    if (status === 'PROCESSING' || status === 'STARTED') {
+        return <span className="px-1.5 py-0.5 text-[8px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800 animate-pulse">PROCESANDO IA {progress}%</span>;
+    }
+    if (status === 'FAILED') {
+        return <span className="px-1.5 py-0.5 text-[8px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">ERROR IA</span>;
+    }
+    return null;
+}
+
 export default function EquipmentDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -37,6 +80,11 @@ export default function EquipmentDetailPage() {
     
     // Data State
     const [workOrders, setWorkOrders] = useState<any[]>([]);
+    
+    // Chat State
+    const [chatMessages, setChatMessages] = useState<{role: 'user'|'assistant', content: string}[]>([]);
+    const [currentMessage, setCurrentMessage] = useState('');
+    const [isChatLoading, setIsChatLoading] = useState(false);
 
     useEffect(() => {
         const fetchEquipmentDetails = async () => {
@@ -138,6 +186,25 @@ export default function EquipmentDetailPage() {
             toast.error("Error al subir documento", { theme: 'colored' });
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentMessage.trim() || !equipmentId) return;
+
+        const question = currentMessage.trim();
+        setChatMessages(prev => [...prev, { role: 'user', content: question }]);
+        setCurrentMessage('');
+        setIsChatLoading(true);
+
+        try {
+            const res = await biomedicalService.askAssistant(equipmentId, question);
+            setChatMessages(prev => [...prev, { role: 'assistant', content: res.answer }]);
+        } catch (error) {
+            setChatMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error al consultar la documentación.' }]);
+        } finally {
+            setIsChatLoading(false);
         }
     };
 
@@ -245,6 +312,13 @@ export default function EquipmentDetailPage() {
                         >
                             <ShieldAlert className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} />
                             GARANTÍAS
+                        </TabsTrigger>
+                        <TabsTrigger 
+                            value="ai-chat"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white"
+                        >
+                            <svg className="w-3.5 h-3.5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12 2.1 14.9a10 10 0 0 0 16.8 5z"/></svg>
+                            ASISTENTE IA
                         </TabsTrigger>
                     </TabsList>
 
@@ -481,8 +555,9 @@ export default function EquipmentDetailPage() {
                                         {documents.map((doc: any) => (
                                             <li key={doc.id} className="py-4 flex justify-between items-center">
                                                 <div>
-                                                    <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-black dark:text-white hover:underline uppercase">
+                                                    <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-black dark:text-white hover:underline uppercase flex items-center gap-2">
                                                         {doc.type} - v{doc.version}
+                                                        <DocumentProcessingBadge documentId={doc.id} type={doc.type} />
                                                     </a>
                                                     <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">
                                                         Subido el: {new Date(doc.uploadedAt).toLocaleDateString()}
@@ -537,6 +612,73 @@ export default function EquipmentDetailPage() {
                                         ))}
                                     </ul>
                                 )}
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="ai-chat" className="mt-0 outline-none">
+                            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] min-h-[500px] flex flex-col">
+                                <div className="p-6 border-b border-black/10 dark:border-white/10 flex items-center gap-3 bg-gray-50 dark:bg-[#111]">
+                                    <div className="w-8 h-8 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
+                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12 2.1 14.9a10 10 0 0 0 16.8 5z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+                                            Asistente de Documentación (RAG)
+                                        </h3>
+                                        <p className="text-[9px] text-gray-500 font-bold uppercase">Respuestas basadas estrictamente en manuales indexados</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex-1 p-6 overflow-y-auto space-y-6 max-h-[400px]">
+                                    {chatMessages.length === 0 ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-center opacity-50">
+                                            <FileText className="w-8 h-8 mb-4" strokeWidth={1.5} />
+                                            <p className="text-[10px] font-bold uppercase tracking-widest">Pregunta sobre calibración, mantenimiento o uso.</p>
+                                        </div>
+                                    ) : (
+                                        chatMessages.map((msg, idx) => (
+                                            <div key={idx} className={cn("flex w-full", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                                                <div className={cn(
+                                                    "max-w-[80%] p-4 text-sm",
+                                                    msg.role === 'user' 
+                                                        ? "bg-black text-white dark:bg-white dark:text-black rounded-l-xl rounded-tr-xl" 
+                                                        : "bg-gray-100 text-black dark:bg-[#111] dark:text-white rounded-r-xl rounded-tl-xl border border-black/10 dark:border-white/10"
+                                                )}>
+                                                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                    {isChatLoading && (
+                                        <div className="flex justify-start">
+                                            <div className="bg-gray-100 text-black dark:bg-[#111] dark:text-white p-4 rounded-r-xl rounded-tl-xl border border-black/10 dark:border-white/10 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 bg-black/50 dark:bg-white/50 rounded-full animate-bounce" />
+                                                <div className="w-1.5 h-1.5 bg-black/50 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                                <div className="w-1.5 h-1.5 bg-black/50 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.4s]" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="p-4 border-t border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+                                    <form onSubmit={handleSendMessage} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={currentMessage}
+                                            onChange={(e) => setCurrentMessage(e.target.value)}
+                                            placeholder="Escribe tu pregunta aquí..."
+                                            className="flex-1 h-12 px-4 bg-transparent border border-black/20 dark:border-white/20 text-sm focus:border-black dark:focus:border-white focus:outline-none transition-colors rounded-none"
+                                            disabled={isChatLoading}
+                                        />
+                                        <button 
+                                            type="submit"
+                                            disabled={isChatLoading || !currentMessage.trim()}
+                                            className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center disabled:opacity-50"
+                                        >
+                                            ENVIAR
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </TabsContent>
 

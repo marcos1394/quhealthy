@@ -99,5 +99,15 @@ export const biomedicalService = {
   createSchedule: async (equipmentId: string, data: any) => {
     const response = await axiosInstance.post(`${BASE_URL}/equipments/${equipmentId}/schedules`, data);
     return response.data;
+  },
+
+  // RAG Chat
+  askAssistant: async (equipmentId: string, question: string) => {
+    const response = await axiosInstance.post(`${BASE_URL}/equipments/${equipmentId}/chat`, { question });
+    return response.data;
+  },
+  getDocumentProcessingStatus: async (documentId: string) => {
+    const response = await axiosInstance.get(`${BASE_URL}/documents/${documentId}/processing-status`);
+    return response.data;
   }
 };

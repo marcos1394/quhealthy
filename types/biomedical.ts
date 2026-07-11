@@ -111,3 +111,19 @@ export interface MaintenanceScheduleResponse {
     nextMaintenanceDate: string;
     isActive: boolean;
 }
+
+// RAG Types
+export interface ChatRequest {
+    question: string;
+}
+
+export interface ChatResponse {
+    answer: string;
+}
+
+export interface DocumentProcessingStatus {
+    status: 'STARTED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    processedChunks: number;
+    totalChunks: number;
+    errorMessage?: string;
+}
