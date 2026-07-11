@@ -6,6 +6,9 @@ import { toast } from 'react-toastify';
 import { biomedicalService } from '@/services/biomedical.service';
 import { WorkOrderRequest, WorkOrderType, WorkOrderPriority } from '@/types/biomedical';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 interface CreateWorkOrderDrawerProps {
     isOpen: boolean;
@@ -108,30 +111,36 @@ export function CreateWorkOrderDrawer({ isOpen, onClose, onSuccess, equipmentId 
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">Tipo de Orden</label>
-                                    <select 
-                                        className="w-full h-12 px-4 border border-black/20 dark:border-white/20 bg-transparent text-sm focus:border-black dark:focus:border-white focus:outline-none transition-colors rounded-none appearance-none cursor-pointer uppercase"
+                                    <Select 
                                         value={formData.type}
-                                        onChange={(e) => setFormData({...formData, type: e.target.value as WorkOrderType})}
-                                        required
+                                        onValueChange={(val) => setFormData({...formData, type: val as WorkOrderType})}
                                     >
-                                        <option value="CORRECTIVE">Correctiva (Reparación)</option>
-                                        <option value="PREVENTIVE">Preventiva (Programada)</option>
-                                        <option value="CALIBRATION">Calibración</option>
-                                    </select>
+                                        <SelectTrigger className="w-full h-12 px-4 bg-transparent border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                            <SelectValue placeholder="TIPO..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-none">
+                                            <SelectItem value="CORRECTIVE">Correctiva (Reparación)</SelectItem>
+                                            <SelectItem value="PREVENTIVE">Preventiva (Programada)</SelectItem>
+                                            <SelectItem value="CALIBRATION">Calibración</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">Prioridad</label>
-                                    <select 
-                                        className="w-full h-12 px-4 border border-black/20 dark:border-white/20 bg-transparent text-sm focus:border-black dark:focus:border-white focus:outline-none transition-colors rounded-none appearance-none cursor-pointer uppercase"
+                                    <Select 
                                         value={formData.priority}
-                                        onChange={(e) => setFormData({...formData, priority: e.target.value as WorkOrderPriority})}
-                                        required
+                                        onValueChange={(val) => setFormData({...formData, priority: val as WorkOrderPriority})}
                                     >
-                                        <option value="LOW">Baja</option>
-                                        <option value="NORMAL">Normal</option>
-                                        <option value="HIGH">Alta</option>
-                                        <option value="CRITICAL">Crítica</option>
-                                    </select>
+                                        <SelectTrigger className="w-full h-12 px-4 bg-transparent border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
+                                            <SelectValue placeholder="PRIORIDAD..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-none">
+                                            <SelectItem value="LOW">Baja</SelectItem>
+                                            <SelectItem value="NORMAL">Normal</SelectItem>
+                                            <SelectItem value="HIGH">Alta</SelectItem>
+                                            <SelectItem value="CRITICAL">Crítica</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
@@ -157,12 +166,10 @@ export function CreateWorkOrderDrawer({ isOpen, onClose, onSuccess, equipmentId 
                                         <Calendar className="w-3.5 h-3.5" />
                                         Fecha Programada
                                     </label>
-                                    <input 
-                                        type="datetime-local"
-                                        className="w-full h-12 px-4 border border-black/20 dark:border-white/20 bg-transparent text-sm focus:border-black dark:focus:border-white focus:outline-none transition-colors rounded-none"
-                                        value={formData.scheduledDate}
-                                        onChange={(e) => setFormData({...formData, scheduledDate: e.target.value})}
-                                        required={formData.type === 'PREVENTIVE'}
+                                    <DatePicker
+                                        value={formData.scheduledDate ? new Date(formData.scheduledDate) : undefined}
+                                        onChange={(date) => setFormData({...formData, scheduledDate: date ? format(date, 'yyyy-MM-dd') : ''})}
+                                        className="w-full h-12 px-4 bg-transparent border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest rounded-none"
                                     />
                                 </div>
                             )}
