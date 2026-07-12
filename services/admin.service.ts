@@ -14,6 +14,12 @@ export interface FinanceMetricsDTO {
   chartData: ChartPointDTO[];
 }
 
+export interface ProviderEarningsDTO {
+  providerId: number;
+  providerName: string;
+  totalEarned: number;
+}
+
 export interface UnitEconomicsDTO {
   totalUsers: number;
   activeSubscriptions: number;
@@ -21,6 +27,8 @@ export interface UnitEconomicsDTO {
   totalCommissionsRevenue: number;
   cloudCosts: number;
   marketingCosts: number;
+  stripeFees: number;
+  topProviders: ProviderEarningsDTO[];
   arpu: number;
   costPerUser: number;
   grossMargin: number;

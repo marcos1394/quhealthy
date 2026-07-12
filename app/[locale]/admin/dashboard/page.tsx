@@ -124,48 +124,83 @@ export default function AdminDashboardPage() {
           {/* TAB: ECONOMICS */}
           {activeTab === 'economics' && economics && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                   <p className="text-slate-500 text-sm font-medium">Ingreso Bruto (30 días)</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.totalRevenue)}</h3>
                   <p className="text-xs text-emerald-600 mt-2">Stripe Total</p>
                 </div>
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-orange-500">
+                  <p className="text-slate-500 text-sm font-medium">Comisiones Stripe</p>
+                  <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.stripeFees)}</h3>
+                  <p className="text-xs text-orange-600 mt-2">Costo de procesamiento</p>
+                </div>
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-rose-500">
-                  <p className="text-slate-500 text-sm font-medium">Costos GCP Nube (Mensual)</p>
+                  <p className="text-slate-500 text-sm font-medium">Costos GCP Nube</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.cloudCosts)}</h3>
                   <p className="text-xs text-rose-600 mt-2">API Billing</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-blue-500">
-                  <p className="text-slate-500 text-sm font-medium">ARPU (Ingreso x Usuario)</p>
+                  <p className="text-slate-500 text-sm font-medium">ARPU</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.arpu)}</h3>
                   <p className="text-xs text-slate-400 mt-2">Base: {economics.totalUsers} usuarios</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-emerald-500">
-                  <p className="text-slate-500 text-sm font-medium">Beneficio Neto Estimado</p>
+                  <p className="text-slate-500 text-sm font-medium">Beneficio Neto</p>
                   <h3 className="text-3xl font-bold text-emerald-600 mt-1">{formatCurrency(economics.netProfit)}</h3>
                   <p className="text-xs text-slate-400 mt-2">Ingresos menos Costos</p>
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[300px]">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Rentabilidad por Usuario</h3>
-                <div className="flex gap-8 items-center justify-center">
-                  <div className="text-center p-6 bg-slate-50 rounded-2xl w-48">
-                    <p className="text-sm text-slate-500">Ingreso por Usuario</p>
-                    <p className="text-2xl font-bold text-slate-800 mt-2">{formatCurrency(economics.arpu)}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Rentabilidad por Usuario */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-center">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">Rentabilidad por Usuario</h3>
+                  <div className="flex gap-4 items-center justify-center flex-wrap">
+                    <div className="text-center p-4 bg-slate-50 rounded-2xl flex-1 min-w-[120px]">
+                      <p className="text-xs text-slate-500">Ingreso</p>
+                      <p className="text-xl font-bold text-slate-800 mt-1">{formatCurrency(economics.arpu)}</p>
+                    </div>
+                    <div className="text-xl text-slate-300">-</div>
+                    <div className="text-center p-4 bg-slate-50 rounded-2xl flex-1 min-w-[120px]">
+                      <p className="text-xs text-slate-500">Costo Nube</p>
+                      <p className="text-xl font-bold text-rose-500 mt-1">{formatCurrency(economics.costPerUser)}</p>
+                    </div>
+                    <div className="text-xl text-slate-300">=</div>
+                    <div className="text-center p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex-1 min-w-[120px]">
+                      <p className="text-xs text-emerald-700">Margen</p>
+                      <p className="text-xl font-bold text-emerald-600 mt-1">
+                        {formatCurrency(economics.arpu - economics.costPerUser)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-3xl text-slate-300">-</div>
-                  <div className="text-center p-6 bg-slate-50 rounded-2xl w-48">
-                    <p className="text-sm text-slate-500">Costo de Nube por Usuario</p>
-                    <p className="text-2xl font-bold text-rose-500 mt-2">{formatCurrency(economics.costPerUser)}</p>
-                  </div>
-                  <div className="text-3xl text-slate-300">=</div>
-                  <div className="text-center p-6 bg-emerald-50 rounded-2xl w-48 border border-emerald-100">
-                    <p className="text-sm text-emerald-700">Margen por Usuario</p>
-                    <p className="text-2xl font-bold text-emerald-600 mt-2">
-                      {formatCurrency(economics.arpu - economics.costPerUser)}
-                    </p>
-                  </div>
+                </div>
+
+                {/* Top Médicos */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm overflow-hidden">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center justify-between">
+                    Top Médicos (Ingresos)
+                    <Briefcase className="w-5 h-5 text-medical-500"/>
+                  </h3>
+                  {economics.topProviders && economics.topProviders.length > 0 ? (
+                    <div className="space-y-3">
+                      {economics.topProviders.map((provider, index) => (
+                        <div key={provider.providerId} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <span className="font-medium text-slate-700">{provider.providerName || `Dr. #${provider.providerId}`}</span>
+                          </div>
+                          <span className="font-bold text-slate-900">{formatCurrency(provider.totalEarned)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-slate-400 py-8">
+                      No hay datos de doctores este mes.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
