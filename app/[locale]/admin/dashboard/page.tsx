@@ -446,7 +446,7 @@ export default function AdminDashboardPage() {
                           <th className="px-4 py-3">Tipo / Descripción</th>
                           <th className="px-4 py-3 text-right">Monto Bruto</th>
                           <th className="px-4 py-3 text-right text-orange-600">Stripe Fee</th>
-                          <th className="px-4 py-3 text-right text-emerald-600">QuHealthy (Comisión)</th>
+                          <th className="px-4 py-3 text-right text-emerald-600">QuHealthy (Com. Neta)</th>
                           <th className="px-4 py-3 text-right text-indigo-600 rounded-tr-xl">Ganancia Doctor</th>
                         </tr>
                       </thead>
