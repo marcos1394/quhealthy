@@ -4,20 +4,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, Users, DollarSign, LogOut, Settings, ShieldCheck, Briefcase, CalendarCheck, Server, AlertCircle } from 'lucide-react';
+import { Activity, Users, DollarSign, LogOut, Settings, ShieldCheck, Briefcase, CalendarCheck, Server, AlertCircle, FileText, Download } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { clearAuthCookies } from "@/app/actions/auth-cookies";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, PieChart, Pie } from 'recharts';
-import { adminService, UnitEconomicsDTO, AdminDashboardDTO } from '@/services/admin.service';
+import { adminService, UnitEconomicsDTO, AdminDashboardDTO, TransactionReportDTO } from '@/services/admin.service';
 import { useSessionStore } from '@/stores/SessionStore';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'economics' | 'operations' | 'health'>('economics');
+  const [activeTab, setActiveTab] = useState<'economics' | 'operations' | 'health' | 'transactions'>('economics');
   
   const [economics, setEconomics] = useState<UnitEconomicsDTO | null>(null);
   const [dashboard, setDashboard] = useState<AdminDashboardDTO | null>(null);
+  const [transactions, setTransactions] = useState<TransactionReportDTO[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
 
   useEffect(() => {
     const cookies = document.cookie.split(';');
@@ -49,6 +51,20 @@ export default function AdminDashboardPage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (activeTab === 'transactions' && transactions.length === 0) {
+      setIsLoadingTransactions(true);
+      adminService.getTransactionsReport(30).then((data) => {
+        setTransactions(data);
+      }).catch((err) => {
+        console.error("Error fetching transactions", err);
+        toast.error("Error al cargar las transacciones");
+      }).finally(() => {
+        setIsLoadingTransactions(false);
+      });
+    }
+  }, [activeTab, transactions.length]);
+
   const handleLogout = async () => {
     await clearAuthCookies();
     router.push('/admin/login');
@@ -59,6 +75,7 @@ export default function AdminDashboardPage() {
   }
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
+  const formatDate = (dateStr: string) => new Intl.DateTimeFormat('es-MX', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(dateStr));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-medical-500/30 font-sans">
@@ -115,6 +132,13 @@ export default function AdminDashboardPage() {
           >
             <Activity className="w-4 h-4 inline mr-2"/>
             Salud de Plataforma
+          </button>
+          <button 
+            onClick={() => setActiveTab('transactions')}
+            className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'transactions' ? 'border-medical-500 text-medical-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <FileText className="w-4 h-4 inline mr-2"/>
+            Reporte Financiero
           </button>
         </div>
 
@@ -368,6 +392,109 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
+            </div>
+          )}
+
+          {/* TAB: TRANSACTIONS */}
+          {activeTab === 'transactions' && (
+            <div className="space-y-6">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-medical-500" />
+                      Auditoría Stripe (Últimos 30 días)
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Reporte exacto extraído de los "Balance Transactions" de Stripe. Fuente absoluta de verdad.
+                    </p>
+                  </div>
+                  <button 
+                    className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+                    onClick={() => {
+                      // Simple CSV export
+                      const headers = ['Fecha', 'Tipo', 'Descripción', 'ID Stripe', 'Gross Amount', 'Stripe Fee', 'Nuestra Comisión', 'Ganancia Doctor'];
+                      const csvContent = "data:text/csv;charset=utf-8," 
+                        + headers.join(',') + '\n'
+                        + transactions.map(t => 
+                            `${t.date},${t.transactionType},"${t.description}",${t.transactionId},${t.grossAmount},${t.stripeFee},${t.quhealthyCommission},${t.providerEarnings}`
+                          ).join('\n');
+                      const encodedUri = encodeURI(csvContent);
+                      const link = document.createElement("a");
+                      link.setAttribute("href", encodedUri);
+                      link.setAttribute("download", "transacciones_quhealthy.csv");
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Exportar a Excel
+                  </button>
+                </div>
+
+                {isLoadingTransactions ? (
+                  <div className="py-12 flex justify-center text-slate-400">
+                    Cargando transacciones desde Stripe...
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-600">
+                      <thead className="text-xs uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
+                        <tr>
+                          <th className="px-4 py-3 rounded-tl-xl">Fecha</th>
+                          <th className="px-4 py-3">Tipo / Descripción</th>
+                          <th className="px-4 py-3 text-right">Monto Bruto</th>
+                          <th className="px-4 py-3 text-right text-orange-600">Stripe Fee</th>
+                          <th className="px-4 py-3 text-right text-emerald-600">QuHealthy (Comisión)</th>
+                          <th className="px-4 py-3 text-right text-indigo-600 rounded-tr-xl">Ganancia Doctor</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transactions.map((txn, idx) => (
+                          <tr key={txn.transactionId + idx} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <span className="font-medium text-slate-900 block">{formatDate(txn.date)}</span>
+                              <span className="text-xs text-slate-400 font-mono">{txn.transactionId}</span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex flex-col">
+                                <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                                  txn.transactionType === 'MARKETPLACE' ? 'text-indigo-600' : 
+                                  txn.transactionType === 'SAAS_SUBSCRIPTION' ? 'text-blue-600' : 
+                                  txn.transactionType === 'REFUND' ? 'text-rose-600' : 'text-slate-500'
+                                }`}>
+                                  {txn.transactionType}
+                                </span>
+                                <span className="font-medium text-slate-700">{txn.description}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 text-right font-medium text-slate-900">
+                              {formatCurrency(txn.grossAmount)}
+                            </td>
+                            <td className="px-4 py-4 text-right text-orange-600">
+                              -{formatCurrency(txn.stripeFee)}
+                            </td>
+                            <td className="px-4 py-4 text-right font-bold text-emerald-600">
+                              {formatCurrency(txn.quhealthyCommission)}
+                            </td>
+                            <td className="px-4 py-4 text-right font-medium text-indigo-600">
+                              {formatCurrency(txn.providerEarnings)}
+                            </td>
+                          </tr>
+                        ))}
+                        {transactions.length === 0 && (
+                          <tr>
+                            <td colSpan={6} className="px-4 py-8 text-center text-slate-400 bg-slate-50 rounded-b-xl">
+                              No hay transacciones registradas en los últimos 30 días.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
