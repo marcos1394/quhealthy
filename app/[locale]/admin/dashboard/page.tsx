@@ -124,31 +124,39 @@ export default function AdminDashboardPage() {
           {/* TAB: ECONOMICS */}
           {activeTab === 'economics' && economics && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                   <p className="text-slate-500 text-sm font-medium">Ingreso Bruto (30 días)</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.totalRevenue)}</h3>
-                  <p className="text-xs text-emerald-600 mt-2">Stripe Total</p>
+                  <p className="text-xs text-slate-400 mt-2">Total procesado</p>
                 </div>
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-blue-500">
+                  <p className="text-slate-500 text-sm font-medium">SaaS (Suscripciones)</p>
+                  <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.totalSubscriptionsRevenue)}</h3>
+                  <p className="text-xs text-blue-600 mt-2">Planes de doctores</p>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-purple-500">
+                  <p className="text-slate-500 text-sm font-medium">Marketplace (Comisiones)</p>
+                  <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.totalCommissionsRevenue)}</h3>
+                  <p className="text-xs text-purple-600 mt-2">Citas, Cursos, Productos</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-orange-500">
                   <p className="text-slate-500 text-sm font-medium">Comisiones Stripe</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.stripeFees)}</h3>
-                  <p className="text-xs text-orange-600 mt-2">Costo de procesamiento</p>
+                  <p className="text-xs text-orange-600 mt-2">Costo de pasarela</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-rose-500">
                   <p className="text-slate-500 text-sm font-medium">Costos GCP Nube</p>
                   <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.cloudCosts)}</h3>
                   <p className="text-xs text-rose-600 mt-2">API Billing</p>
                 </div>
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-blue-500">
-                  <p className="text-slate-500 text-sm font-medium">ARPU</p>
-                  <h3 className="text-3xl font-bold text-slate-900 mt-1">{formatCurrency(economics.arpu)}</h3>
-                  <p className="text-xs text-slate-400 mt-2">Base: {economics.totalUsers} usuarios</p>
-                </div>
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm border-l-4 border-l-emerald-500">
                   <p className="text-slate-500 text-sm font-medium">Beneficio Neto</p>
                   <h3 className="text-3xl font-bold text-emerald-600 mt-1">{formatCurrency(economics.netProfit)}</h3>
-                  <p className="text-xs text-slate-400 mt-2">Ingresos menos Costos</p>
+                  <p className="text-xs text-emerald-600 mt-2">Libre de polvo y paja</p>
                 </div>
               </div>
 
@@ -201,6 +209,50 @@ export default function AdminDashboardPage() {
                       No hay datos de doctores este mes.
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Nueva sección: Ventas por Tipo */}
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mt-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-6">Desglose de Ventas por Tipo (Marketplace)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={economics.salesByType || []}
+                          dataKey="revenue"
+                          nameKey="itemType"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={5}
+                        >
+                          {
+                            (economics.salesByType || []).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'][index % 5]} />
+                            ))
+                          }
+                        </Pie>
+                        <RechartsTooltip formatter={(value: number) => formatCurrency(value)} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-4">
+                    {(economics.salesByType || []).map((sale, index) => (
+                      <div key={sale.itemType} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
+                        <div>
+                          <p className="font-semibold text-slate-800">{sale.itemType}</p>
+                          <p className="text-sm text-slate-500">{sale.volumeCount} items vendidos</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-slate-900">{formatCurrency(sale.revenue)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
