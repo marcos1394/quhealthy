@@ -1,10 +1,11 @@
 "use client"
 /* eslint-disable react-doctor/rerender-defer-reads-hook */;
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Loader2, ArrowRight, LockKeyhole } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { setAuthCookies } from "@/app/actions/auth-cookies";
 import apiClient from '@/lib/axios';
 import { useSessionStore } from '@/stores/SessionStore';
@@ -16,14 +17,16 @@ export default function AdminLoginPage() {
  const router = useRouter();
  const searchParams = useSearchParams();
 
- const handleLogin = async (e: React.FormEvent) => {
- e.preventDefault();
- setIsLoading(true);
+ const [captchaToken, setCaptchaToken] = useState<string>("");
+ const turnstileRef = useRef<any>(null);
+ const isIntentionalSubmitRef = useRef(false);
 
+ const processLogin = async (token: string) => {
  try {
  const response = await apiClient.post('/api/auth/admin/login', {
  email,
- password
+ password,
+ captchaToken: token
  });
 
  // The backend returns { token, refreshToken, role }
@@ -49,9 +52,20 @@ export default function AdminLoginPage() {
  console.error('Error logging in admin:', error);
  const msg = error.response?.data?.message || "Credenciales inválidas o sin permisos.";
  toast.error(msg);
+ // Reset state on error
+ turnstileRef.current?.reset();
+ setCaptchaToken("");
+ isIntentionalSubmitRef.current = false;
  } finally {
  setIsLoading(false);
  }
+ };
+
+ const handleLoginSubmit = (e: React.FormEvent) => {
+ e.preventDefault();
+ setIsLoading(true);
+ isIntentionalSubmitRef.current = true;
+ turnstileRef.current?.execute();
  };
 
  return (
@@ -75,7 +89,7 @@ export default function AdminLoginPage() {
  </div>
 
  <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl backdrop-blur-xl">
- <form onSubmit={handleLogin} className="space-y-6">
+ <form onSubmit={handleLoginSubmit} className="space-y-6">
  <div className="space-y-1">
  <label className="text-sm font-semibold text-slate-700 ml-1">Correo Corporativo</label>
  <input 
@@ -102,6 +116,29 @@ export default function AdminLoginPage() {
  <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
  </div>
  </div>
+
+ <Turnstile
+ ref={turnstileRef}
+ siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+ onSuccess={(token) => {
+ setCaptchaToken(token);
+ if (isIntentionalSubmitRef.current) {
+ processLogin(token);
+ }
+ }}
+ onError={(errorCode) => {
+ console.error("Turnstile error code:", errorCode);
+ toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+ setIsLoading(false);
+ isIntentionalSubmitRef.current = false;
+ turnstileRef.current?.reset();
+ }}
+ options={{ 
+ theme: 'auto', 
+ size: 'invisible',
+ execution: 'execute'
+ }}
+ />
 
  <button 
  type="submit"
