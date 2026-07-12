@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
     const roleCookie = cookies.find(c => c.trim().startsWith('__Secure-userRole='));
     const role = roleCookie ? roleCookie.split('=')[1] : null;
 
-    if (role !== 'ADMIN') {
+    if (role !== 'ROLE_ADMIN' && role !== 'ADMIN') {
       toast.error('Acceso denegado. No eres administrador.');
       router.push('/admin/login');
     } else {
