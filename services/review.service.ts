@@ -36,7 +36,7 @@ export const reviewService = {
      * Requiere que el interceptor de Axios inyecte el JWT del paciente.
      */
     createReview: async (payload: CreateReviewPayload): Promise<Review> => {
-        const response = await axiosInstance.post<Review>(`${BASE_URL}`, payload);
+        const response = await axiosInstance.post<Review>(`${BASE_URL}/submit`, payload);
         return response.data;
     },
 
