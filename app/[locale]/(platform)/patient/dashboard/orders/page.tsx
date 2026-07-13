@@ -308,6 +308,19 @@ export default function PatientOrdersPage() {
  </p>
  </div>
  )
+ ) : order.deliveryPin ? (
+ <div className="border-l-2 border-black dark:border-white pl-4 py-3 bg-white dark:bg-black">
+ <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+ <Sparkles className="h-3.5 w-3.5" strokeWidth={2} /> 
+ PIN de Recolección
+ </h4>
+ <p className="text-2xl font-bold tracking-widest text-black dark:text-white uppercase mb-1">
+ {order.deliveryPin}
+ </p>
+ <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+ Proporciona este código al proveedor al recolectar tu orden.
+ </p>
+ </div>
  ) : (
  <div className="border-l-2 border-amber-500 pl-4 py-1">
  <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">

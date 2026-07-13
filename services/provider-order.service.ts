@@ -25,6 +25,12 @@ export const providerOrderService = {
     return response.data;
   },
 
+  deliverWithPin: async (orderId: number, pin: string): Promise<void> => {
+    await axiosInstance.post(`/api/payments/provider/orders/${orderId}/deliver`, null, {
+      params: { pin }
+    });
+  },
+
   cancelAndRefundOrder: async (orderId: number): Promise<void> => {
     await axiosInstance.patch(`/api/payments/provider/orders/${orderId}/cancel`);
   },

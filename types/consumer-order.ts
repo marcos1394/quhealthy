@@ -16,6 +16,7 @@ export interface ConsumerOrder {
   orderStatus: 'PENDING_PAYMENT' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   totalAmount: number;
   shippingAddress: string;
+  deliveryPin?: string;
 
   // 🚀 CAMPOS LOGÍSTICOS
   trackingNumber?: string;

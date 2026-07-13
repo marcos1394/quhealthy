@@ -68,6 +68,30 @@ export const useProviderOrders = () => {
     }
   };
 
+  const deliverWithPin = async (
+    orderId: number, 
+    pin: string,
+    successMsg: string, 
+    errorMsg: string
+  ): Promise<boolean> => {
+    setIsSubmitting(true);
+    try {
+      await providerOrderService.deliverWithPin(orderId, pin);
+      // Actualizar el estado localmente ya que el backend no devuelve la orden
+      setOrders(prev => prev.map(o => 
+        o.id === orderId ? { ...o, orderStatus: 'DELIVERED' } : o
+      ));
+      toast.success(successMsg, { theme: 'colored' });
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      toast.error(errorMsg, { theme: 'colored' });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const cancelOrder = async (
     orderId: number, 
     successMsg: string, 
@@ -170,6 +194,7 @@ export const useProviderOrders = () => {
     fetchOrders,
     shipOrder,
     markAsDelivered,
+    deliverWithPin,
     cancelOrder,
     downloadSlip,
     rejectOrder,

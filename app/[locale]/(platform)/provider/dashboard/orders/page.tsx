@@ -608,6 +608,87 @@ export default function ProviderOrdersPage() {
  </DialogContent>
  </Dialog>
 
+    {/* ── MODAL: Ingreso de PIN de Recolección ────────────────────────────── */}
+    <Dialog open={!!orderToDeliverWithPin} onOpenChange={(open) => {
+      if (!open) {
+        setOrderToDeliverWithPin(null);
+        setDeliveryPinInput("");
+      }
+    }}>
+      <DialogContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 rounded-none shadow-2xl flex flex-col overflow-hidden">
+        
+        <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                Validación Logística
+              </p>
+              <DialogTitle className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+                RECOLECCIÓN EN SITIO
+              </DialogTitle>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-8 flex-1 overflow-y-auto bg-gray-50 dark:bg-[#050505]">
+          <div className="mb-6">
+            <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-2">
+              INGRESO DE PIN DE SEGURIDAD
+            </p>
+            <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+              Solicite al paciente el código de 6 caracteres asociado a la orden DOC-{orderToDeliverWithPin?.id?.toString().padStart(4, '0')}.
+            </p>
+            
+            <input 
+              type="text" 
+              className="w-full h-14 border border-black/20 dark:border-white/20 bg-white dark:bg-black px-6 text-2xl font-bold uppercase tracking-widest text-center text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+              placeholder="Ej: A1B2C3"
+              value={deliveryPinInput}
+              onChange={(e) => setDeliveryPinInput(e.target.value.toUpperCase())}
+              disabled={isSubmitting}
+              maxLength={6}
+            />
+          </div>
+        </div>
+
+        <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] flex flex-col sm:flex-row justify-end gap-4 shrink-0 border-t border-black/20 dark:border-white/20">
+          <button 
+            onClick={() => {
+              setOrderToDeliverWithPin(null);
+              setDeliveryPinInput("");
+            }}
+            className="h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none w-full sm:w-auto"
+          >
+            CANCELAR
+          </button>
+          <button 
+            className="h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none w-full sm:w-auto disabled:opacity-50"
+            onClick={async () => {
+              if (orderToDeliverWithPin && deliveryPinInput.length >= 6) {
+                const ok = await deliverWithPin(
+                  orderToDeliverWithPin.id, 
+                  deliveryPinInput, 
+                  "ORDEN ENTREGADA SATISFACTORIAMENTE", 
+                  "PIN INVÁLIDO O ERROR DE SISTEMA"
+                );
+                if (ok) {
+                  setOrderToDeliverWithPin(null);
+                  setDeliveryPinInput("");
+                }
+              }
+            }}
+            disabled={isSubmitting || deliveryPinInput.length < 6}
+          >
+            {isSubmitting ? <QhSpinner size="sm" className="text-current" /> : <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />}
+            VALIDAR Y ENTREGAR
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
  {/* ── MODAL: Ver Detalles del Pedido ────────────────────────────────── */}
  <Dialog open={!!orderToView} onOpenChange={(open) => !open && setOrderToView(null)}>
  <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 rounded-none shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">

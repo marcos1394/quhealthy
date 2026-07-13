@@ -16,6 +16,7 @@ export interface OrderResponseDto {
   consumerName: string;
   consumerEmail: string;
   shippingAddress: string;
+  deliveryPin?: string;
   trackingNumber: string | null;
   orderStatus: OrderStatus;
   paymentStatus: PaymentStatus;
