@@ -280,6 +280,7 @@ export default function PatientOrdersPage() {
  <div className="space-y-4">
  {order.shippingAddress ? (
  order.shippingAddress === 'PICKUP' ? (
+ <div className="space-y-4">
  <div className="border-l-2 border-black dark:border-white pl-4 py-1">
  <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
  <MapPin className="h-3.5 w-3.5" strokeWidth={2} /> 
@@ -297,18 +298,7 @@ export default function PatientOrdersPage() {
  </p>
  )}
  </div>
- ) : (
- <div className="border-l-2 border-black dark:border-white pl-4 py-1">
- <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
- <MapPin className="h-3.5 w-3.5" strokeWidth={2} /> 
- Coordenadas de Entrega
- </h4>
- <p className="text-xs font-light text-black dark:text-white leading-relaxed uppercase">
- {order.shippingAddress}
- </p>
- </div>
- )
- ) : order.deliveryPin ? (
+ {order.deliveryPin && (
  <div className="border-l-2 border-black dark:border-white pl-4 py-3 bg-white dark:bg-black">
  <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
  <Sparkles className="h-3.5 w-3.5" strokeWidth={2} /> 
@@ -321,6 +311,19 @@ export default function PatientOrdersPage() {
  Proporciona este código al proveedor al recolectar tu orden.
  </p>
  </div>
+ )}
+ </div>
+ ) : (
+ <div className="border-l-2 border-black dark:border-white pl-4 py-1">
+ <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+ <MapPin className="h-3.5 w-3.5" strokeWidth={2} /> 
+ Coordenadas de Entrega
+ </h4>
+ <p className="text-xs font-light text-black dark:text-white leading-relaxed uppercase">
+ {order.shippingAddress}
+ </p>
+ </div>
+ )
  ) : (
  <div className="border-l-2 border-amber-500 pl-4 py-1">
  <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
