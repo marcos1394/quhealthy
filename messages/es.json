@@ -139,7 +139,7 @@
         "features": [
           "Hasta 50 Citas al mes",
           "Catálogo: 5 Servicios / 10 Productos",
-          "15% Comisión + $10 por reserva"
+          "15% de Comisión"
         ],
         "button_text": "Elegir Básico"
       },
@@ -149,7 +149,7 @@
         "features": [
           "Hasta 150 Citas al mes",
           "Catálogo: 15 Servicios / 30 Productos",
-          "12% Comisión + $8 por reserva",
+          "12% de Comisión",
           "Acceso a ventas en QUMarket"
         ],
         "button_text": "Prueba 14 días gratis"
@@ -160,18 +160,18 @@
         "features": [
           "Hasta 500 Citas al mes",
           "Catálogo: 50 Servicios / 100 Productos",
-          "10% Comisión + $5 por reserva",
+          "10% de Comisión",
           "Reportes Avanzados e IA (QUBlocks)"
         ],
         "button_text": "Elegir Premium"
       },
       "enterprise": {
         "title": "Empresarial",
-        "description": "Para clínicas grandes y múltiples usuarios",
+        "description": "Personalizado a la medida de tus necesidades",
         "features": [
           "Citas y Catálogo Ilimitados",
           "Gestión Multi-usuario (Clínicas)",
-          "Comisión VIP: 5% + $0 por reserva",
+          "Comisión VIP preferencial",
           "Marketing y Soporte Nivel 4 (VIP)"
         ],
         "button_text": "Contactar ventas"

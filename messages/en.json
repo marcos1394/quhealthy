@@ -139,7 +139,7 @@
         "features": [
           "Up to 50 Appointments per month",
           "Catalog: 5 Services / 10 Products",
-          "15% Commission + $10 per booking"
+          "15% Commission"
         ],
         "button_text": "Choose Basic"
       },
@@ -149,10 +149,10 @@
         "features": [
           "Up to 150 Appointments per month",
           "Catalog: 15 Services / 30 Products",
-          "12% Commission + $8 per booking",
-          "Access to sales in QUMarket"
+          "12% Commission",
+          "Access to sales on QUMarket"
         ],
-        "button_text": "Try 14 days for free"
+        "button_text": "Start 14-day free trial"
       },
       "premium": {
         "title": "Premium",
@@ -160,19 +160,19 @@
         "features": [
           "Up to 500 Appointments per month",
           "Catalog: 50 Services / 100 Products",
-          "10% Commission + $5 per booking",
+          "10% Commission",
           "Advanced Reports & AI (QUBlocks)"
         ],
         "button_text": "Choose Premium"
       },
       "enterprise": {
         "title": "Enterprise",
-        "description": "For large clinics and multiple users",
+        "description": "Customized to fit your specific needs",
         "features": [
-          "Unlimited Appointments and Catalog",
+          "Unlimited Appointments & Catalog",
           "Multi-user Management (Clinics)",
-          "VIP Commission: 5% + $0 per booking",
-          "Level 4 Marketing & Support (VIP)"
+          "Preferential VIP Commission",
+          "Marketing & Tier 4 Support (VIP)"
         ],
         "button_text": "Contact sales"
       }
