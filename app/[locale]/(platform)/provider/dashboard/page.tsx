@@ -201,7 +201,7 @@ export default function DashboardPage() {
  </div>
  </div>
  <Button 
- onClick={() => router.push("/provider/settings/subscription")}
+ onClick={() => router.push("/provider/dashboard/settings#subscription")}
  className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors w-full sm:w-auto"
  >
  {t('upgrade_plan', { defaultValue: 'ACTUALIZAR LICENCIA' })}
