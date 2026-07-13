@@ -70,13 +70,14 @@ const CARRIERS = [
 
 // ── Order Card (Ficha de Despacho) ─────────────────────────────
 function OrderCard({
- order, i,
- onShip, onCancel, onDeliver, onSlip, onView, onReject,
+  order, i,
+  onShip, onCancel, onDeliver, onSlip, onView, onReject, onDeliverWithPin
 }: {
- order: OrderResponseDto; i: number;
- onShip: () => void; onCancel: () => void;
- onDeliver: (id: number) => void; onSlip: (id: number) => void;
- onView: () => void; onReject: () => void;
+  order: OrderResponseDto; i: number;
+  onShip: () => void; onCancel: () => void;
+  onDeliver: (id: number) => void; onSlip: (id: number) => void;
+  onView: () => void; onReject: () => void;
+  onDeliverWithPin: (order: OrderResponseDto) => void;
 }) {
  const status = getOrderStatus(order.orderStatus);
  const pStatus = getPaymentStatus(order.paymentStatus);
@@ -182,6 +183,13 @@ function OrderCard({
  onClick={onView}
  >
  <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} /> VERIFICAR RECETA
+ </button>
+ ) : order.shippingAddress === 'PICKUP' ? (
+ <button 
+ className="flex-1 h-12 flex items-center justify-center gap-2 border-r border-b sm:border-b-0 border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+ onClick={() => onDeliverWithPin(order)}
+ >
+ <Sparkles className="w-3.5 h-3.5" strokeWidth={1.5} /> ENTREGAR (CON PIN)
  </button>
  ) : (
  <button 
@@ -418,6 +426,7 @@ export default function ProviderOrdersPage() {
  onShip={() => setSelectedOrder(order)}
  onCancel={() => setOrderToCancel(order)}
  onDeliver={(id) => markAsDelivered(id, "ENTREGA CONFIRMADA", "ERROR EN CONFIRMACIÓN")}
+ onDeliverWithPin={(order) => setOrderToDeliverWithPin(order)}
  onSlip={(id) => downloadSlip(id, "HOJA DE DESPACHO EXTRAÍDA", "ERROR EN EXTRACCIÓN")}
  onView={() => setOrderToView(order)}
  onReject={() => setOrderToReject(order)}
