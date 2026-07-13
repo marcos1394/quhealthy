@@ -68,7 +68,9 @@ const PricingSection: React.FC = () => {
  description: t(`plans.${planKey}.description`),
  price: displayPrice,
  isPopular,
- features: buildFeaturesForPlan(bp, isAnnual, t),
+ features: planKey === 'enterprise'
+    ? (t.raw(`plans.enterprise.features`) as string[]).map((f: string) => ({ title: f, highlighted: false }))
+    : buildFeaturesForPlan(bp, isAnnual, t),
  originalId: bp.id,
  planKey
  };

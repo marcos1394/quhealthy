@@ -72,7 +72,9 @@ export default function BusinessPage() {
  description: tPricing(`plans.${planKey}.description`),
  price: displayPrice,
  isPopular,
- features: buildFeaturesForPlan(bp, isAnnual, tPricing),
+ features: planKey === 'enterprise'
+    ? (tPricing.raw(`plans.enterprise.features`) as string[]).map((f: string) => ({ title: f, highlighted: false }))
+    : buildFeaturesForPlan(bp, isAnnual, tPricing),
  originalId: bp.id,
  planKey
  };
