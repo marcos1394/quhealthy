@@ -92,9 +92,8 @@ export const useLeaveReview = (token: string | undefined) => {
             
             toast.success(t('toast_success', { defaultValue: '¡Gracias! Tu reseña ha sido enviada con éxito.' }));
             
-            // Redirigimos al paciente al perfil público del doctor para que vea su reseña (si fue auto-aprobada)
-            // o simplemente al dashboard si prefieres.
-            router.push(`/tienda/${context.providerId}`); 
+            // Redirigimos al paciente al dashboard de reseñas
+            router.push(`/patient/dashboard/reviews`);
             
         } catch (err: any) {
             console.error("❌ Error enviando reseña:", err);
