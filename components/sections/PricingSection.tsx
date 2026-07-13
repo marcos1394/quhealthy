@@ -173,25 +173,35 @@ const PricingSection: React.FC = () => {
 
  {/* Precio Editorial */}
  <div className={cn("mb-12 pb-8 border-b", plan.isPopular ? "border-gray-800 dark:border-gray-200" : "border-gray-200 dark:border-gray-800")}>
- <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
- <span className={cn("text-5xl xl:text-6xl font-semibold tracking-tighter", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
- {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
- </span>
- <span className={cn("text-[10px] font-bold uppercase tracking-widest", plan.isPopular ? "text-gray-500" : "text-gray-400")}>
- {locale === 'en' && finalPrice > 0 ? 'USD ' : ''}/{t('price_frequency')}
- </span>
- </div>
- 
- {/* Precio Tachado (Anual) */}
- {isAnnual && monthlyPrice > 0 && (
- <div className="flex items-center gap-3 mt-3">
- <span className="text-gray-400 dark:text-gray-500 text-sm font-light line-through">
- {locale === 'en' ? '~$' : '$'}{monthlyPrice}
- </span>
- <span className={cn("text-[10px] font-bold uppercase tracking-widest", plan.isPopular ? "text-gray-300 dark:text-gray-600" : "text-black dark:text-white")}>
- -20% OFF
- </span>
- </div>
+ {plan.planKey === 'enterprise' ? (
+     <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+         <span className={cn("text-3xl xl:text-4xl font-semibold tracking-tighter", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
+             {locale === 'en' ? 'Custom' : 'A la medida'}
+         </span>
+     </div>
+ ) : (
+     <>
+         <div className="flex items-baseline flex-wrap gap-x-2 gap-y-1">
+         <span className={cn("text-5xl xl:text-6xl font-semibold tracking-tighter", plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white")}>
+         {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
+         </span>
+         <span className={cn("text-[10px] font-bold uppercase tracking-widest", plan.isPopular ? "text-gray-500" : "text-gray-400")}>
+         {locale === 'en' && finalPrice > 0 ? 'USD ' : ''}/{t('price_frequency')}
+         </span>
+         </div>
+         
+         {/* Precio Tachado (Anual) */}
+         {isAnnual && monthlyPrice > 0 && (
+         <div className="flex items-center gap-3 mt-3">
+         <span className="text-gray-400 dark:text-gray-500 text-sm font-light line-through">
+         {locale === 'en' ? '~$' : '$'}{monthlyPrice}
+         </span>
+         <span className={cn("text-[10px] font-bold uppercase tracking-widest", plan.isPopular ? "text-gray-300 dark:text-gray-600" : "text-black dark:text-white")}>
+         -20% OFF
+         </span>
+         </div>
+         )}
+     </>
  )}
  </div>
 

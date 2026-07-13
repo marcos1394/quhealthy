@@ -107,7 +107,7 @@
     },
     "features": {
       "zero_commission": "0% de comisión por procesamiento",
-      "preferential_commission": "Comisión preferencial: {pct}% + ${fee} MXN",
+      "preferential_commission": "Comisión preferencial: {pct}%",
       "unlimited_appointments": "Citas Ilimitadas",
       "unlimited_catalog": "Catálogo de Servicios Ilimitado",
       "qumarket_sales": "Venta de Productos (QuMarket)",

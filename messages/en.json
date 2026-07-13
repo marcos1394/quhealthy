@@ -107,7 +107,7 @@
     },
     "features": {
       "zero_commission": "0% processing commission",
-      "preferential_commission": "Preferential commission: {pct}% + ${fee} MXN",
+      "preferential_commission": "Preferential commission: {pct}%",
       "unlimited_appointments": "Unlimited Appointments",
       "unlimited_catalog": "Unlimited Service Catalog",
       "qumarket_sales": "Product Sales (QuMarket)",

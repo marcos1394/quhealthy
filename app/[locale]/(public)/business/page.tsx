@@ -299,24 +299,34 @@ export default function BusinessPage() {
  </div>
 
  <div className="mb-12 border-b border-gray-200 dark:border-gray-800 pb-8">
- <div className="flex items-baseline gap-2">
- <span className={`text-5xl lg:text-6xl font-semibold tracking-tighter ${plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white"}`}>
- {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
- </span>
- <span className={`text-xs font-bold uppercase tracking-widest ${plan.isPopular ? "text-gray-400 dark:text-gray-500" : "text-gray-400"}`}>
- {locale === 'en' && finalPrice > 0 ? 'USD ' : ''}/{tPricing('price_frequency')}
- </span>
- </div>
- 
- {isAnnual && monthlyPrice > 0 && (
- <div className="mt-2 text-xs font-bold tracking-widest uppercase">
- <span className="line-through text-gray-400 mr-2">
- {locale === 'en' ? '~$' : '$'}{monthlyPrice}
- </span>
- <span className={plan.isPopular ? "text-gray-300 dark:text-gray-600" : "text-black dark:text-white"}>
- -20% OFF
- </span>
- </div>
+ {plan.planKey === 'enterprise' ? (
+     <div className="flex items-baseline gap-2">
+         <span className={`text-3xl lg:text-4xl font-semibold tracking-tighter ${plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white"}`}>
+             {locale === 'en' ? 'Custom' : 'A la medida'}
+         </span>
+     </div>
+ ) : (
+     <>
+         <div className="flex items-baseline gap-2">
+         <span className={`text-5xl lg:text-6xl font-semibold tracking-tighter ${plan.isPopular ? "text-white dark:text-black" : "text-black dark:text-white"}`}>
+         {locale === 'en' && finalPrice > 0 ? '~$' : '$'}{finalPrice}
+         </span>
+         <span className={`text-xs font-bold uppercase tracking-widest ${plan.isPopular ? "text-gray-400 dark:text-gray-500" : "text-gray-400"}`}>
+         {locale === 'en' && finalPrice > 0 ? 'USD ' : ''}/{tPricing('price_frequency')}
+         </span>
+         </div>
+         
+         {isAnnual && monthlyPrice > 0 && (
+         <div className="mt-2 text-xs font-bold tracking-widest uppercase">
+         <span className="line-through text-gray-400 mr-2">
+         {locale === 'en' ? '~$' : '$'}{monthlyPrice}
+         </span>
+         <span className={plan.isPopular ? "text-gray-300 dark:text-gray-600" : "text-black dark:text-white"}>
+         -20% OFF
+         </span>
+         </div>
+         )}
+     </>
  )}
  </div>
 
