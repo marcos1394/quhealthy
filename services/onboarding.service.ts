@@ -46,6 +46,10 @@ export const onboardingService = {
     await axiosInstance.put('/api/onboarding/profile', data);
   },
 
+  async updateLicenses(data: import('@/types/onboarding').UpdateLicensesRequest): Promise<void> {
+    await axiosInstance.put('/api/onboarding/profile/licenses', data);
+  },
+
   // =================================================================
   // 🎨 PREFERENCIAS DE RECETA (PDF) Y MEDIA
   // =================================================================

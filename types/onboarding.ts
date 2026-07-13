@@ -45,6 +45,19 @@ export interface OnboardingStatusResponse {
   prescriptionLogoUrl?: string;
   signatureUrl?: string;
   prescriptionFooterNote?: string;
+  professionalLicenses?: ProfessionalLicenseDto[];
+}
+
+export interface ProfessionalLicenseDto {
+  licenseNumber: string;
+  type: string;
+  institution: string;
+  isPrimary: boolean;
+  documentStatus?: string;
+}
+
+export interface UpdateLicensesRequest {
+  licenses: ProfessionalLicenseDto[];
 }
 
 export interface UpdatePrescriptionPreferencesRequest {
