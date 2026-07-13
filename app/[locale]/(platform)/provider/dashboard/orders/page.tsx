@@ -13,7 +13,8 @@ import { toast } from "react-toastify";
 import {
  Package, Truck, CheckCircle2, Loader2, MapPin, XCircle,
  Printer, Clock, CreditCard, Ban, ShoppingBag, Eye, Mail,
- ExternalLink, Copy, FileText, AlertTriangle, ShieldAlert
+ ExternalLink, Copy, FileText, AlertTriangle, ShieldAlert,
+ Sparkles
 } from "lucide-react";
 
 import { useProviderOrders } from "@/hooks/useProviderOrders";
