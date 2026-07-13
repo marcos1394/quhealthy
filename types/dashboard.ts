@@ -10,6 +10,7 @@ export interface DashboardAnalytics {
   monthlyRevenue: number;
   completedAppointments: number;
   newClients: number;
+  revenueByItemType?: Record<string, number>;
   revenueGrowth: number;
   appointmentsGrowth: number;
   clientsGrowth: number;

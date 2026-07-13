@@ -21,11 +21,12 @@ interface SummaryCardProps {
  loading?: boolean;
  badge?: string;
  sparkline?: number[];
+ breakdown?: { label: string; value: string; percentage?: string }[];
 }
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
  title, value, icon: Icon,
- trend, comparison, description, onClick, loading = false, badge, sparkline
+ trend, comparison, description, onClick, loading = false, badge, sparkline, breakdown
 }) => {
  const TrendIcon = trend?.isPositive ? TrendingUp : trend ? TrendingDown : Minus;
 
@@ -122,9 +123,32 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
  )}
  </div>
 
- {/* Minigráfico Técnico */}
- {sparkline && renderSparkline()}
- </div>
+  {/* Minigráfico Técnico */}
+  {sparkline && renderSparkline()}
+
+  {/* Desglose de ingresos (Breakdown) */}
+  {breakdown && breakdown.length > 0 && (
+    <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10 w-full space-y-3">
+      {breakdown.map((item, idx) => (
+        <div key={idx} className="flex items-center justify-between transition-colors">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300">
+            {item.label}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black">
+              {item.value}
+            </span>
+            {item.percentage && (
+              <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-500">
+                ({item.percentage})
+              </span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+  </div>
 
  {/* Bloque Descriptivo Estructural (Legible) */}
  {description && (

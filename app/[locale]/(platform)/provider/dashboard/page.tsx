@@ -272,12 +272,30 @@ export default function DashboardPage() {
  <div className="grid grid-cols-2 md:grid-cols-6 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
  {/* KPI 1 */}
  <div className="col-span-2">
- <SummaryCard 
- title={t('revenue_title', { defaultValue: 'Ingresos Brutos' })} 
- value={analytics.monthlyRevenue.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' })}
- icon={BarChart2} 
- trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'mes anterior' }) }} 
- />
+ {(() => {
+    // Preparar desglose (Breakdown)
+    const totalRev = analytics.monthlyRevenue || 0;
+    const formatCurrency = (val: number) => val.toLocaleString(locale === 'es' ? 'es-MX' : 'en-US', { style: 'currency', currency: 'MXN' });
+    const getPercent = (val: number) => totalRev > 0 ? Math.round((val / totalRev) * 100) + '%' : '0%';
+    
+    const breakdown = [];
+    if (analytics.revenueByItemType) {
+      if (analytics.revenueByItemType.SERVICE) breakdown.push({ label: t('revenue_appointments', { defaultValue: 'Citas' }), value: formatCurrency(analytics.revenueByItemType.SERVICE), percentage: getPercent(analytics.revenueByItemType.SERVICE) });
+      if (analytics.revenueByItemType.PRODUCT) breakdown.push({ label: t('revenue_products', { defaultValue: 'Productos' }), value: formatCurrency(analytics.revenueByItemType.PRODUCT), percentage: getPercent(analytics.revenueByItemType.PRODUCT) });
+      if (analytics.revenueByItemType.COURSE) breakdown.push({ label: t('revenue_courses', { defaultValue: 'Cursos' }), value: formatCurrency(analytics.revenueByItemType.COURSE), percentage: getPercent(analytics.revenueByItemType.COURSE) });
+      if (analytics.revenueByItemType.PACKAGE) breakdown.push({ label: t('revenue_packages', { defaultValue: 'Paquetes' }), value: formatCurrency(analytics.revenueByItemType.PACKAGE), percentage: getPercent(analytics.revenueByItemType.PACKAGE) });
+    }
+
+    return (
+      <SummaryCard 
+        title={t('revenue_title', { defaultValue: 'Ingresos Brutos' })} 
+        value={formatCurrency(totalRev)}
+        icon={BarChart2} 
+        trend={{ value: Math.abs(analytics.revenueGrowth || 0), isPositive: (analytics.revenueGrowth || 0) >= 0, period: t('previous_month', { defaultValue: 'mes anterior' }) }} 
+        breakdown={breakdown}
+      />
+    );
+  })()}
  </div>
 
  {/* KPI 2 y 3 */}
