@@ -600,19 +600,10 @@ const DiscoverMapContent = () => {
       </div>
 
       {/* Schedule */}
-      {provider.schedules && provider.schedules.length > 0 ? (
-        <div className="mt-1 flex flex-col gap-0.5 bg-gray-50 p-1.5 rounded-sm">
-          {provider.schedules.map((sch, i) => (
-             <div key={i} className="flex justify-between text-[9px]">
-               <span className="font-bold text-gray-700">{sch.day}</span>
-               <span className="text-gray-600">{sch.hours}</span>
-             </div>
-          ))}
-        </div>
-      ) : provider.scheduleSummary ? (
+      {provider.scheduleSummary ? (
         <div className="flex items-center gap-1 text-black font-bold mt-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-          <span className="truncate">{provider.scheduleSummary}</span>
+          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", provider.scheduleSummary.includes("No disponible") || provider.scheduleSummary.includes("Cerrado") ? "bg-red-500" : "bg-green-500")}></span>
+          <span className="truncate text-[10px]">{provider.scheduleSummary}</span>
         </div>
       ) : null}
 
