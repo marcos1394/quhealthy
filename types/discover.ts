@@ -22,6 +22,8 @@ export interface DiscoverProvider {
   basePrice?: number; // CAT-P05
   compareAtPrice?: number; // CAT-P05
   discountPercentage?: number; // CAT-P05
+  scheduleSummary?: string; // 📅 Horarios resumidos
+  schedules?: { day: string; hours: string; }[]; // Horarios detallados
 }
 
 export interface DiscoverProviderWrapperResponse {

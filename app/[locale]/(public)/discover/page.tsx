@@ -540,39 +540,102 @@ const DiscoverMapContent = () => {
  zIndex={isSelected ? 50 : 10}
  >
  {isSelected && (
- <InfoWindowF
- position={{ lat: provider.lat, lng: provider.lng }}
- onCloseClick={() => setSelectedId(null)}
- options={{ pixelOffset: new google.maps.Size(0, -45) }}
- >
- <div className="p-2 min-w-[200px] max-w-[250px] font-sans">
- <div className="flex gap-3 items-start">
- <img 
- src={provider.logoUrl || provider.imageUrl} 
- alt={provider.name} 
- className="w-10 h-10 object-cover border border-gray-200 rounded-sm"
- />
- <div className="flex-1 min-w-0">
- <h4 className="font-bold text-[11px] uppercase tracking-wider text-black line-clamp-2 leading-tight">
- {provider.name}
- </h4>
- <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">
- {provider.category || 'Clínica / Tienda'}
- </p>
- </div>
- </div>
- <Button 
- onClick={(e) => {
- e.stopPropagation();
- router.push(`/store/${provider.slug}`);
- }}
- className="w-full mt-3 h-8 text-[9px] font-bold uppercase tracking-widest rounded-none text-white transition-opacity hover:opacity-90"
- style={{ backgroundColor: provider.color || '#000' }}
- >
- Ver Tienda
- </Button>
- </div>
- </InfoWindowF>
+  <InfoWindowF
+  position={{ lat: provider.lat, lng: provider.lng }}
+  onCloseClick={() => setSelectedId(null)}
+  options={{ pixelOffset: new google.maps.Size(0, -45) }}
+  >
+  <div className="min-w-[240px] max-w-[280px] font-sans -m-1">
+  {/* Banner Image */}
+  <div className="w-full h-24 relative overflow-hidden bg-gray-100">
+    <img 
+      src={provider.imageUrl || provider.logoUrl} 
+      alt={provider.name} 
+      className="w-full h-full object-cover"
+    />
+    {provider.isPromoted && (
+      <div className="absolute top-2 left-2 bg-black text-white text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-widest">
+        Patrocinado
+      </div>
+    )}
+  </div>
+
+  <div className="p-3 bg-white">
+    {/* Identity */}
+    <div className="flex justify-between items-start mb-2">
+      <div className="flex-1 min-w-0 pr-2">
+        <h4 className="font-bold text-[13px] uppercase tracking-wider text-black line-clamp-2 leading-tight">
+          {provider.name}
+        </h4>
+        <p className="text-[10px] text-gray-500 font-bold uppercase mt-0.5 truncate">
+          {provider.category || 'Clínica / Tienda'}
+        </p>
+      </div>
+      {provider.logoUrl && (
+        <img src={provider.logoUrl} alt="Logo" className="w-8 h-8 rounded-sm object-cover border border-gray-100 shrink-0" />
+      )}
+    </div>
+
+    {/* Metrics & Details */}
+    <div className="flex flex-col gap-1.5 mt-2 text-[10px] text-gray-600 font-medium">
+      {/* Rating & Distance */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          <span className="font-bold text-black">{provider.rating?.toFixed(1) || '5.0'}</span>
+          <span className="text-gray-400">({provider.reviews || 0})</span>
+        </div>
+        {provider.distanceKm !== undefined && (
+          <div className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-gray-400" />
+            <span>{provider.distanceKm.toFixed(1)} km</span>
+          </div>
+        )}
+      </div>
+
+      {/* Schedule */}
+      {provider.schedules && provider.schedules.length > 0 ? (
+        <div className="mt-1 flex flex-col gap-0.5 bg-gray-50 p-1.5 rounded-sm">
+          {provider.schedules.map((sch, i) => (
+             <div key={i} className="flex justify-between text-[9px]">
+               <span className="font-bold text-gray-700">{sch.day}</span>
+               <span className="text-gray-600">{sch.hours}</span>
+             </div>
+          ))}
+        </div>
+      ) : provider.scheduleSummary ? (
+        <div className="flex items-center gap-1 text-black font-bold mt-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+          <span className="truncate">{provider.scheduleSummary}</span>
+        </div>
+      ) : null}
+
+      {/* Pricing */}
+      {provider.basePrice !== undefined && (
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-[9px] uppercase tracking-wider text-gray-400">Desde</span>
+          <span className="font-bold text-black text-[12px]">${provider.basePrice}</span>
+          {provider.discountPercentage ? (
+            <span className="text-green-600 font-bold bg-green-50 px-1 rounded-sm text-[9px]">-{provider.discountPercentage}%</span>
+          ) : null}
+        </div>
+      )}
+    </div>
+
+    {/* CTA */}
+    <Button 
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/store/${provider.slug}`);
+      }}
+      className="w-full mt-3 h-9 text-[10px] font-bold uppercase tracking-widest rounded-sm text-white transition-opacity hover:opacity-90"
+      style={{ backgroundColor: provider.color || '#000' }}
+    >
+      Ver Tienda
+    </Button>
+  </div>
+  </div>
+  </InfoWindowF>
  )}
  </MarkerF>
  );
