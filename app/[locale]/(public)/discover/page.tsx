@@ -582,8 +582,14 @@ const DiscoverMapContent = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          <span className="font-bold text-black">{provider.rating?.toFixed(1) || '5.0'}</span>
-          <span className="text-gray-400">({provider.reviews || 0})</span>
+          {provider.reviews && provider.reviews > 0 ? (
+            <>
+              <span className="font-bold text-black">{provider.rating?.toFixed(1)}</span>
+              <span className="text-gray-400">({provider.reviews})</span>
+            </>
+          ) : (
+            <span className="font-bold text-gray-400 uppercase text-[9px] tracking-wider bg-gray-100 px-1.5 py-0.5 rounded-sm">Nuevo</span>
+          )}
         </div>
         {provider.distanceKm !== undefined && (
           <div className="flex items-center gap-1">
