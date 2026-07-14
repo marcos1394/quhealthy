@@ -69,17 +69,6 @@ export function GlobalCartBar() {
                   
                   if (requiresScheduling) {
                     router.push(`/patient/booking/${providerSlug}`);
-                  } else if (!hasPhysical && !needsPrescription) {
-                    processCheckout({
-                      providerId: providerId!,
-                      consumerId: userId ?? undefined,
-                      dependentId: null,
-                      selectedDate: null,
-                      selectedTime: null,
-                      cart,
-                      shippingAddress: undefined,
-                      prescriptionUrls: undefined,
-                    });
                   } else {
                     setShowCheckout(true);
                   }
@@ -106,7 +95,7 @@ export function GlobalCartBar() {
         cart={cart}
         isProcessing={isProcessing}
         themeColor={safePrimaryColor}
-        onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState) => {
+        onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState, paymentMethod) => {
           setShowCheckout(false);
           processCheckout({
             providerId: providerId!,
@@ -119,6 +108,7 @@ export function GlobalCartBar() {
             prescriptionUrls,
             pickupTime,
             destinationState,
+            paymentMethod,
           });
         }}
       />

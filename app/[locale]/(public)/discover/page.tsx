@@ -602,7 +602,7 @@ const DiscoverMapContent = () => {
       {/* Schedule */}
       {provider.scheduleSummary ? (
         <div className="flex items-center gap-1 text-black font-bold mt-1">
-          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", provider.scheduleSummary.includes("No disponible") || provider.scheduleSummary.includes("Cerrado") ? "bg-red-500" : "bg-green-500")}></span>
+          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", (provider.scheduleSummary.toLowerCase().includes("no disponible") || provider.scheduleSummary.toLowerCase().includes("cerrado")) ? "bg-red-500" : "bg-green-500")}></span>
           <span className="truncate text-[10px]">{provider.scheduleSummary}</span>
         </div>
       ) : null}

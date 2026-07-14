@@ -23,6 +23,9 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useBookingStore } from "@/hooks/useBookingStore";
+import { consumerWalletService } from "@/services/consumer-wallet.service";
+import { useQuery } from "@tanstack/react-query";
+import { CreditCard, Wallet } from "lucide-react";
 import {
  Select,
  SelectContent,
@@ -36,7 +39,7 @@ interface CheckoutModalProps {
  isOpen: boolean;
  onClose: () => void;
  cart: StorefrontItem[];
- onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined, destinationState: string | undefined) => void;
+ onConfirm: (shippingAddress: string | undefined, prescriptionUrls: string | undefined, pickupTime: string | undefined, destinationState: string | undefined, paymentMethod: string) => void;
  isProcessing: boolean;
  themeColor?: string; // providerColor
 }
@@ -65,6 +68,18 @@ export function CheckoutModal({
  isOpen, onClose, cart, onConfirm, isProcessing, themeColor = "#000000"
 }: CheckoutModalProps) {
  const { updateQuantity, removeFromCart } = useBookingStore();
+ const [paymentMethod, setPaymentMethod] = useState<'CREDIT_CARD' | 'WALLET_BALANCE'>('CREDIT_CARD');
+
+ // Fetch Wallet Balance
+ const { data: walletData, isLoading: isLoadingWallet } = useQuery({
+  queryKey: ['consumer-wallet'],
+  queryFn: () => consumerWalletService.getMyWallet(),
+  enabled: isOpen,
+  staleTime: 0,
+ });
+
+ const walletBalance = walletData?.balance || 0;
+
  // --- Derived flags ---
  const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
  const itemsNeedingRx = cart.filter(i => i.type === 'PRODUCT' && i.requiresPrescription === true);
@@ -101,15 +116,8 @@ export function CheckoutModal({
  const setPickupDate = (val: any) => dispatch({ type: 'SET_PICKUPDATE', payload: val });
  const setPickupTimeStr = (val: any) => dispatch({ type: 'SET_PICKUPTIMESTR', payload: val });
 
-
-
-
  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
  
- 
-
-
-
  const PICKUP_TIMES = [
  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
@@ -117,11 +125,13 @@ export function CheckoutModal({
  ];
 
  const { setQuery, suggestions, setSuggestions, isLoading: isAutocompleteLoading } = useGoogleAutocomplete();
+ const totalAmount = cart.reduce((acc, item) => acc + (item.price * (item.cartQuantity || 1)), 0);
 
  // --- Derived: can submit? ---
  const addressOk = !hasPhysical || (shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr) || (shippingMethod === 'DELIVERY' && isAddressComplete(address));
  const rxOk = !needsPrescription || itemsNeedingRx.every(i => !!prescriptionUrls[i.id]);
- const canSubmit = addressOk && rxOk && !isProcessing;
+ const paymentOk = paymentMethod === 'CREDIT_CARD' || (paymentMethod === 'WALLET_BALANCE' && walletBalance >= totalAmount);
+ const canSubmit = addressOk && rxOk && paymentOk && !isProcessing;
 
  // --- Handlers ---
  const handleAddressChange = (field: keyof AddressForm, value: string) => {
@@ -173,7 +183,7 @@ export function CheckoutModal({
  const finalPrescriptionUrls = Object.keys(prescriptionUrls).length > 0 ? JSON.stringify(prescriptionUrls) : undefined;
  const finalPickupTime = shippingMethod === 'PICKUP' && pickupDate && pickupTimeStr ? `${format(pickupDate, "yyyy-MM-dd")}T${pickupTimeStr}:00` : undefined;
  const finalDestinationState = hasPhysical && shippingMethod === 'DELIVERY' ? address.state : undefined;
- onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime, finalDestinationState);
+ onConfirm(finalShippingAddress, finalPrescriptionUrls, finalPickupTime, finalDestinationState, paymentMethod);
  };
 
  if (!isOpen) return null;
@@ -313,8 +323,6 @@ export function CheckoutModal({
  <p className="text-[9px] uppercase tracking-widest text-gray-500">Defina el vector de entrega para ítems físicos.</p>
  </div>
  </div>
-
-
 
  {/* 🚀 Selector Arquitectónico (Acento con themeColor) */}
  <div className="grid grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 mb-8">
@@ -528,6 +536,72 @@ export function CheckoutModal({
  </div>
  </section>
  )}
+
+ {/* ── SECCIÓN DE PAGO ─────────────────────────────── */}
+ <section className="pt-4">
+ <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+ <div className="w-8 h-8 border flex items-center justify-center" style={{ borderColor: themeColor, backgroundColor: themeColor, color: '#ffffff' }}>
+ <CreditCard className="w-4 h-4" strokeWidth={1.5} />
+ </div>
+ <div>
+ <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Método de Pago</h3>
+ <p className="text-[9px] uppercase tracking-widest text-gray-500">Seleccione la fuente de fondos.</p>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+ {/* Stripe */}
+ <button
+ onClick={() => setPaymentMethod('CREDIT_CARD')}
+ className={cn(
+ "p-5 border flex flex-col items-start gap-2 transition-colors relative text-left",
+ paymentMethod === 'CREDIT_CARD' 
+ ? "bg-white dark:bg-[#0a0a0a]" 
+ : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white"
+ )}
+ style={paymentMethod === 'CREDIT_CARD' ? { borderColor: themeColor } : {}}
+ >
+ {paymentMethod === 'CREDIT_CARD' && (
+ <CheckCircle2 className="w-4 h-4 absolute top-4 right-4" strokeWidth={2} style={{ color: themeColor }} />
+ )}
+ <CreditCard className="w-5 h-5 mb-1" strokeWidth={1.5} style={paymentMethod === 'CREDIT_CARD' ? { color: themeColor } : { color: '#6b7280' }} />
+ <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Tarjeta / Stripe</span>
+ <span className="text-[9px] uppercase tracking-widest text-gray-500">Pago externo seguro</span>
+ </button>
+
+ {/* QuWallet */}
+ <button
+ onClick={() => {
+ if (walletBalance >= totalAmount) {
+ setPaymentMethod('WALLET_BALANCE');
+ }
+ }}
+ disabled={walletBalance < totalAmount}
+ className={cn(
+ "p-5 border flex flex-col items-start gap-2 transition-colors relative text-left",
+ paymentMethod === 'WALLET_BALANCE' 
+ ? "bg-white dark:bg-[#0a0a0a]" 
+ : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700"
+ )}
+ style={paymentMethod === 'WALLET_BALANCE' ? { borderColor: themeColor } : {}}
+ >
+ {paymentMethod === 'WALLET_BALANCE' && (
+ <CheckCircle2 className="w-4 h-4 absolute top-4 right-4" strokeWidth={2} style={{ color: themeColor }} />
+ )}
+ <Wallet className="w-5 h-5 mb-1" strokeWidth={1.5} style={paymentMethod === 'WALLET_BALANCE' ? { color: themeColor } : { color: '#6b7280' }} />
+ <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+ QuWallet
+ {isLoadingWallet && <Loader2 className="w-3 h-3 animate-spin" />}
+ </span>
+ <span className="text-[9px] uppercase tracking-widest text-gray-500">
+ Saldo: ${walletBalance.toLocaleString()} MXN
+ </span>
+ {walletBalance < totalAmount && (
+ <span className="text-[9px] font-bold uppercase tracking-widest text-red-500 mt-1">Saldo Insuficiente</span>
+ )}
+ </button>
+ </div>
+ </section>
  </div>
 
  {/* Footer CTA */}
@@ -537,7 +611,7 @@ export function CheckoutModal({
  Liquidación Total
  </span>
  <span className="text-2xl font-semibold tracking-tight text-black dark:text-white">
- ${cart.reduce((acc, item) => acc + (item.price * (item.cartQuantity || 1)), 0).toLocaleString()} <span className="text-sm font-light text-gray-500">MXN</span>
+ ${totalAmount.toLocaleString()} <span className="text-sm font-light text-gray-500">MXN</span>
  </span>
  </div>
  <Button

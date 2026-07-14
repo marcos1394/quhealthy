@@ -441,7 +441,7 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
  cart={cart}
  isProcessing={isProcessing}
  themeColor={safeColor}
- onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState) => {
+ onConfirm={(shippingAddress, prescriptionUrls, pickupTime, destinationState, paymentMethod) => {
  setShowCheckoutModal(false);
  if (providerId) {
  processCheckout({
@@ -456,7 +456,8 @@ export default function BookingPage({ params }: { params: Promise<{ locale: stri
  pickupTime,
  destinationState,
  scheduleNow: requiresScheduling ? scheduleNow : true,
- shareVaultAccess: true
+ shareVaultAccess: true,
+ paymentMethod,
  });
  }
  }}

@@ -22,7 +22,10 @@ import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
 import { usePackages } from "@/hooks/usePackages";
+import { consumerWalletService } from "@/services/consumer-wallet.service";
+import { useQuery } from "@tanstack/react-query";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BookingSummaryProps {
@@ -51,7 +54,7 @@ export function BookingSummary({
  // ==========================================
  // ESTADOS LOCALES
  // ==========================================
- const [{ symptoms, shareVaultAccess, shareVaultMode, selectedDocumentIds, rates, selectedCurrency, isLoadingRates }, dispatch] = React.useReducer(
+ const [{ symptoms, shareVaultAccess, shareVaultMode, selectedDocumentIds, rates, selectedCurrency, isLoadingRates, selectedPaymentMethod }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_SYMPTOMS': return { ...state, symptoms: typeof action.payload === 'function' ? action.payload(state.symptoms) : action.payload };
@@ -61,11 +64,12 @@ export function BookingSummary({
  case 'SET_RATES': return { ...state, rates: typeof action.payload === 'function' ? action.payload(state.rates) : action.payload };
  case 'SET_SELECTEDCURRENCY': return { ...state, selectedCurrency: typeof action.payload === 'function' ? action.payload(state.selectedCurrency) : action.payload };
  case 'SET_ISLOADINGRATES': return { ...state, isLoadingRates: typeof action.payload === 'function' ? action.payload(state.isLoadingRates) : action.payload };
+ case 'SET_SELECTEDPAYMENTMETHOD': return { ...state, selectedPaymentMethod: typeof action.payload === 'function' ? action.payload(state.selectedPaymentMethod) : action.payload };
  default: return state;
  }
  },
  {
- symptoms: "", shareVaultAccess: true, shareVaultMode: 'FULL', selectedDocumentIds: [], rates: { MXN: 1 }, selectedCurrency: "MXN", isLoadingRates: true
+ symptoms: "", shareVaultAccess: true, shareVaultMode: 'FULL', selectedDocumentIds: [], rates: { MXN: 1 }, selectedCurrency: "MXN", isLoadingRates: true, selectedPaymentMethod: 'CREDIT_CARD'
  }
  );
 
@@ -76,14 +80,16 @@ export function BookingSummary({
  const setRates = (val: any) => dispatch({ type: 'SET_RATES', payload: val });
  const setSelectedCurrency = (val: any) => dispatch({ type: 'SET_SELECTEDCURRENCY', payload: val });
  const setIsLoadingRates = (val: any) => dispatch({ type: 'SET_ISLOADINGRATES', payload: val });
+ const setSelectedPaymentMethod = (val: any) => dispatch({ type: 'SET_SELECTEDPAYMENTMETHOD', payload: val });
 
+ // Fetch Wallet Balance
+ const { data: walletData, isLoading: isLoadingWallet } = useQuery({
+   queryKey: ['consumer-wallet'],
+   queryFn: () => consumerWalletService.getMyWallet(),
+   staleTime: 0,
+ });
 
-
-
- 
-
-
-
+ const walletBalance = walletData?.balance || 0;
 
  const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
  const { packages, isLoading: isLoadingPackages } = usePackages();
@@ -129,10 +135,11 @@ export function BookingSummary({
 
  const validationRules = useMemo(() => {
  const isTimeValid = (cartAnalysis.hasServices && scheduleNow) ? (selectedDate !== null && selectedTime !== null) : true;
- const isReady = isTimeValid && !cartAnalysis.isEmpty;
+ const paymentOk = selectedPaymentMethod === 'CREDIT_CARD' || (selectedPaymentMethod === 'WALLET_BALANCE' && walletBalance >= total);
+ const isReady = isTimeValid && !cartAnalysis.isEmpty && paymentOk;
 
  return { isTimeValid, isReady };
- }, [cartAnalysis, selectedDate, selectedTime, scheduleNow]);
+ }, [cartAnalysis, selectedDate, selectedTime, scheduleNow, selectedPaymentMethod, walletBalance, total]);
 
  const packageDetails = useMemo(() => {
  if (cart.length === 1 && (cart[0].type === 'SERVICE' || cart[0].type === 'PACKAGE')) {
@@ -166,20 +173,16 @@ export function BookingSummary({
  // HANDLERS
  // ==========================================
  const handleCheckoutClick = () => {
- if (!validationRules.isReady || isProcessing) return;
-
- const finalNotes = symptoms.trim() !== "" 
- ? symptoms.trim() 
- : `Orden Híbrida generada web. Ítems: ${cart.length}`;
-
- onCheckout(
- finalNotes, 
- undefined, 
- shareVaultAccess, 
- shareVaultMode === 'GRANULAR' ? selectedDocumentIds : undefined,
- isUsingPackage ? 'PACKAGE_BALANCE' : 'CREDIT_CARD'
- );
- };
+    if (validationRules.isReady && !isProcessing) {
+      onCheckout(
+        symptoms,
+        undefined,
+        shareVaultAccess,
+        shareVaultMode === 'GRANULAR' ? selectedDocumentIds : undefined,
+        isUsingPackage ? 'PACKAGE_BALANCE' : selectedPaymentMethod
+      );
+    }
+  };
 
  // ==========================================
  // HELPERS DE RENDERIZADO
@@ -465,6 +468,71 @@ export function BookingSummary({
  )}
  </div>
  </div>
+
+ {/* ── SECCIÓN DE PAGO ─────────────────────────────── */}
+ {!isUsingPackage && finalTotal > 0 && (
+ <div className="pt-6 mt-4 border-t border-gray-200 dark:border-gray-800">
+ <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4">Método de Pago</h3>
+ <div className="space-y-3">
+ {/* Stripe */}
+ <button
+ onClick={() => setSelectedPaymentMethod('CREDIT_CARD')}
+ className={cn(
+ "w-full p-4 border flex items-center justify-between transition-colors relative text-left",
+ selectedPaymentMethod === 'CREDIT_CARD' 
+ ? "bg-white dark:bg-[#0a0a0a]" 
+ : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white"
+ )}
+ style={selectedPaymentMethod === 'CREDIT_CARD' ? { borderColor: providerColor } : {}}
+ >
+ <div className="flex items-center gap-3">
+ <CreditCard className="w-4 h-4" strokeWidth={1.5} style={selectedPaymentMethod === 'CREDIT_CARD' ? { color: providerColor } : { color: '#6b7280' }} />
+ <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">Tarjeta / Stripe</span>
+ </div>
+ {selectedPaymentMethod === 'CREDIT_CARD' && (
+ <div className="w-2 h-2 rounded-full" style={{ backgroundColor: providerColor }} />
+ )}
+ </button>
+
+ {/* QuWallet */}
+ <button
+ onClick={() => {
+ if (walletBalance >= finalTotal) {
+ setSelectedPaymentMethod('WALLET_BALANCE');
+ }
+ }}
+ disabled={walletBalance < finalTotal}
+ className={cn(
+ "w-full p-4 border flex items-center justify-between transition-colors relative text-left",
+ selectedPaymentMethod === 'WALLET_BALANCE' 
+ ? "bg-white dark:bg-[#0a0a0a]" 
+ : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700"
+ )}
+ style={selectedPaymentMethod === 'WALLET_BALANCE' ? { borderColor: providerColor } : {}}
+ >
+ <div className="flex items-center gap-3">
+ <Wallet className="w-4 h-4" strokeWidth={1.5} style={selectedPaymentMethod === 'WALLET_BALANCE' ? { color: providerColor } : { color: '#6b7280' }} />
+ <div className="flex flex-col">
+ <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+ QuWallet
+ {isLoadingWallet && <Loader2 className="w-3 h-3 animate-spin" />}
+ </span>
+ <span className="text-[9px] uppercase tracking-widest text-gray-500">
+ Saldo: ${walletBalance.toLocaleString()} MXN
+ </span>
+ </div>
+ </div>
+ {walletBalance < finalTotal && (
+ <span className="text-[9px] font-bold uppercase tracking-widest text-red-500">Insuficiente</span>
+ )}
+ {selectedPaymentMethod === 'WALLET_BALANCE' && (
+ <div className="w-2 h-2 rounded-full" style={{ backgroundColor: providerColor }} />
+ )}
+ </button>
+ </div>
+ </div>
+ )}
+
  </div>
  )}
 
